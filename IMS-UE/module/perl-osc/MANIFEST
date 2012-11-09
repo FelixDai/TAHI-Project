@@ -1,0 +1,7 @@
+Changes
+Makefile.PL
+MANIFEST
+osc.xs
+perl_osc.h
+README
+lib/osc.pm

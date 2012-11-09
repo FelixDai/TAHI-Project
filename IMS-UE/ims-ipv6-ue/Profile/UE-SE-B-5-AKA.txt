@@ -1,0 +1,254 @@
+[NAME]
+UE-SE-B-5-AKA  - Call cancellation (Sends INVITE and sends CANCEL)
+
+
+[TARGET]
+IMS User Equipment (NUT)
+
+
+[PURPOSE]
+(1) To verify that the UEa1 properly creates a CANCEL request.
+
+(2) To verify that the UEa1 properly process a 487 (Request Terminated) response 
+and creates an ACK request.
+
+
+[REFERENCE]
+TS24.229 A.2.1.3
+RFC3261 9
+
+
+[REQUIREMENT]
+NONE
+
+
+[PARAMETER(NUT)]
+public-user-id         :         sip:UEa1_public_1@under.test.com
+private-user-id        :         UEa1_private@under.test.com
+contact_URI            :         sip:UEa1_public_1@node.under.test.com
+HOMENETWORK Domain     :         sip:under.test.com
+
+
+[PARAMETER(TESTER)]
+public-user-id(UEa2)   :         sip:UEa2_public_1@under.test.com
+P-CSCFa1               :         sip:p.a1.under.test.com
+
+
+[ADDRESS]
+UEa1(NUT)              :         3ffe:501:ffff:1000::1000
+Router(R1)             :         3ffe:501:ffff:1000::1
+P-CSCFa1               :         3ffe:501:ffff:100::10
+I-CSCFa1               :         3ffe:501:ffff:100::20
+S-CSCFa1               :         3ffe:501:ffff:100::30
+DNS                    :         3ffe:501:ffff:100::40
+DHCP                   :         3ffe:501:ffff:100::50
+
+UEa2                   :         3ffe:501:ffff:2000::1000
+P-CSCFa2               :         3ffe:501:ffff:200::10
+I-CSCFa2               :         3ffe:501:ffff:200::20
+S-CSCFa2               :         3ffe:501:ffff:200::30
+
+
+[TOPOLOGY]
++---------+----------
+|         |
+|         UEa1(NUT)
+R1
+|
+|
++---------+----------+----------+----------+----------+----
+|         |          |          |          |          |
+|        P-CSCFa1   S-CSCFa1   I-CSCFa1   DHCP       DNS
+R2
+|
+|
++---------+----------+----------+-------
+|         |          |          |       
+|        P-CSCFa2   S-CSCFa2   I-CSCFa2
+R3
+|
+|
++---------+----------
+          |   
+          UEa2
+
+
+[INITIALIZATION]
+UEa1(NUT) must be registered with the tester by executing the scenario "UE-INI-B-1-AKA".
+For details of "UE-INI-B-1-AKA", refer to the profile "UE-RG-B-1-AKA".
+
+
+[PROCEDURE]
+                                  Home Network
+(NUT)
+  UEa1      P-CSCFa1  S-CSCFa1  I-CSCFa1  I-CSCFa2  S-CSCFa2  P-CSCFa2    UEa2
+   |    :    |         |         |         |         |         |         | 
+   |-------->|         |         |         |         |         |         | 1 INVITE
+   |    :    |         |         |         |         |         |         | 
+   |    :    |-------->|         |         |         |         |         |   INVITE
+   |    :    |         |         |         |         |         |         | 
+   |<--------|         |         |         |         |         |         | 2 100 Trying
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |------------------>|         |         |         |   INVITE 
+   |    :    |         |         |         |         |         |         | 
+   |    :    |<--------|         |         |         |         |         |   100 Trying
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |         |         |-------->|         |         |   INVITE 
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |<------------------|         |         |         |   100 Trying
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |         |         |         |-------->|         |   INVITE
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |         |         |<--------|         |         |   100 Trying
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |         |         |         |         |-------->|   INVITE
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |         |         |         |<--------|         |   100 Trying
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |         |         |         |         |<--------|   180 Ringing
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |         |         |         |<--------|         |   180 Ringing
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |         |         |<--------|         |         |   180 Ringing
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |<------------------|         |         |         |   180 Ringing
+   |    :    |         |         |         |         |         |         | 
+   |    :    |<--------|         |         |         |         |         |   180 Ringing
+   |    :    |         |         |         |         |         |         | 
+   |<--------|         |         |         |         |         |         | 3 180 Ringing
+   |    :    |         |         |         |         |         |         | 
+   |-------->|         |         |         |         |         |         | 4 CANCEL (*1) 
+   |    :    |         |         |         |         |         |         | 
+   |    :    |-------->|         |         |         |         |         |   CANCEL
+   |    :    |         |         |         |         |         |         | 
+   |<--------|         |         |         |         |         |         | 5 200 OK
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |------------------>|         |         |         |   CANCEL
+   |    :    |         |         |         |         |         |         | 
+   |    :    |<--------|         |         |         |         |         |   200 OK
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |         |         |-------->|         |         |   CANCEL
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |<------------------|         |         |         |   200 OK
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |         |         |         |-------->|         |   CANCEL
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |         |         |<--------|         |         |   200 OK
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |         |         |         |         |-------->|   CANCEL
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |         |         |         |<--------|         |   200 OK
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |         |         |         |         |<--------|   200 OK
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |         |         |         |         |<--------|   487 Request Terminated
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |         |         |         |<--------|         |   487 Request Terminated
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |         |         |         |         |-------->|   ACK
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |         |         |<--------|         |         |   487 Request Terminated
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |         |         |         |-------->|         |   ACK
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |<------------------|         |         |         |   487 Request Terminated
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |         |         |-------->|         |         |   ACK
+   |    :    |         |         |         |         |         |         | 
+   |    :    |<--------|         |         |         |         |         |   487 Request Terminated
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |------------------>|         |         |         |   ACK
+   |    :    |         |         |         |         |         |         | 
+   |<--------|         |         |         |         |         |         | 6 487 Request Terminated
+   |    :    |         |         |         |         |         |         | 
+   |    :    |-------->|         |         |         |         |         |   ACK
+   |    :    |         |         |         |         |         |         | 
+   |-------->|         |         |         |         |         |         | 7 ACK (*2)
+   |    :    |         |         |         |         |         |         | 
+
+1 NUT sends INVITE 
+2 NUT receives 100 Trying 
+3 NUT receives 180 Ringing 
+4 NUT sends CANCEL 
+5 NUT receives 200 OK 
+6 NUT receives 487 Request Terminated 
+7 NUT sends ACK 
+
+
+ === Message example ===
+As regards the message 1, please refer to the message 1 in UE-SE-B-1-AKA.
+
+
+2. 100 Trying P-CSCF -> NUT
+SIP/2.0 100 Trying
+Via: SIP/2.0/UDP [3ffe:501:ffff:1000::1000]:1357;branch=z9hG4bK74bf9
+From: <sip:UEa1_public_1@under.test.com>;tag=9fxced76sl
+To: <sip:UEa2_public_1@under.test.com>
+Call-ID: 3848276298220188511@under.test.com
+CSeq: 1 INVITE
+Content-Length: 0
+
+
+3. 180 Ringing P-CSCF -> NUT
+SIP/2.0 180 Ringing
+Via: SIP/2.0/UDP [3ffe:501:ffff:1000::1000]:1357;branch=z9hG4bK74bf9
+From: <sip:UEa1_public_1@under.test.com>;tag=9fxced76sl
+To: <sip:UEa2_public_1@under.test.com>;tag=314259
+Call-ID: 3848276298220188511@under.test.com
+CSeq: 1 INVITE
+Content-Length: 0
+
+
+4.  CANCEL NUT -> P-CSCF
+CANCEL sip:UEa2_public_1@under.test.com SIP/2.0
+Via: SIP/2.0/UDP [3ffe:501:ffff:1000::1000]:1357;branch=z9hG4bK74bf9
+Route: <sip:p.a1.under.test.com:10001;lr>,<sip:orig@s.a1.under.test.com;lr>
+Max-Forwards: 70
+From: <sip:UEa1_public_1@under.test.com>;tag=9fxced76sl
+To: <sip:UEa2_public_1@under.test.com>
+Call-ID: 3848276298220188511@under.test.com
+CSeq: 1 CANCEL
+Content-Length: 0
+
+
+5.  200 OK P-CSCF -> NUT
+SIP/2.0 200 OK
+Via: SIP/2.0/UDP [3ffe:501:ffff:1000::1000]:1357;branch=z9hG4bK74bf9
+From: <sip:UEa1_public_1@under.test.com>;tag=9fxced76sl
+To: <sip:UEa2_public_1@under.test.com>;tag=314160
+Call-ID: 3848276298220188511@under.test.com
+CSeq: 1 CANCEL
+Content-Length: 0
+
+
+6.  487 Request Terminated P-CSCF -> NUT
+SIP/2.0 487 Request Terminated
+Via: SIP/2.0/UDP [3ffe:501:ffff:1000::1000]:1357;branch=z9hG4bK74bf9
+From: <sip:UEa1_public_1@under.test.com>;tag=9fxced76sl
+To: <sip:UEa2_public_1@under.test.com>;tag=314259
+Call-ID: 3848276298220188511@under.test.com
+CSeq: 1 INVITE
+Content-Length: 0
+
+
+7. ACK NUT -> P-CSCF
+ACK sip:UEa2_public_1@under.test.com SIP/2.0
+Via: SIP/2.0/UDP [3ffe:501:ffff:1000::1000]:1357;branch=z9hG4bK74bf9
+Route: <sip:p.a1.under.test.com:10001;lr>,<sip:orig@s.a1.under.test.com;lr>
+Max-Forwards: 70
+From: <sip:UEa1_public_1@under.test.com>;tag=9fxced76sl
+To: <sip:UEa2_public_1@under.test.com>;tag=314259
+Call-ID: 3848276298220188511@under.test.com
+CSeq: 1 ACK
+Content-Length: 0
+
+
+[OBSERVABLE RESULTS]
+
+*1: 4 CANCEL from NUT to P-CSCF.
+
+      See generic_CANCEL
+
+*2: 7 ACK from NUT to P-CSCF. 
+
+      See generic_ACK-non2XX

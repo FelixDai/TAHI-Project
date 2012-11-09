@@ -1,0 +1,316 @@
+[NAME]
+UE-RG-B-15-AKA  - Timer F expiration (Registration)
+
+
+[TARGET]
+IMS User Equipment (NUT)
+
+
+[PURPOSE]
+To verify that the UEa1 properly stops processing of all ongoing dialogs and transact
+ions and silently discards them locally when the timer F expires at the UE.
+
+
+[REFERENCE]
+TS24.229 5.1.1.4.1
+
+
+[REQUIREMENT]
+NONE
+
+
+[PARAMETER(NUT)]
+public-user-id         :         sip:UEa1_public_1@under.test.com
+private-user-id        :         UEa1_private@under.test.com
+contact_URI            :         sip:UEa1_public_1@node.under.test.com
+HOMENETWORK Domain     :         sip:under.test.com
+
+
+[PARAMETER(TESTER)]
+public-URI(UEa2)       :         sip:UEa2_public_1@under.test.com
+P-CSCFa1               :         sip:p.a1.under.test.com
+S-CSCFa1               :         sip:s.a1.under.test.com
+
+
+[ADDRESS]
+UEa1(NUT)              :         3ffe:501:ffff:1000::1000
+UEa2                   :         3ffe:501:ffff:2000::1000
+Router(R1)             :         3ffe:501:ffff:1000::1
+P-CSCFa1               :         3ffe:501:ffff:100::10
+I-CSCFa1               :         3ffe:501:ffff:100::20
+S-CSCFa1               :         3ffe:501:ffff:100::30
+P-CSCFa2               :         3ffe:501:ffff:200::10
+I-CSCFa2               :         3ffe:501:ffff:200::20
+S-CSCFa2               :         3ffe:501:ffff:200::30
+DNS                    :         3ffe:501:ffff:100::40
+DHCP                   :         3ffe:501:ffff:100::50
+
+[TOPOLOGY]
++---------+----------
+|         |
+|       UEa1(NUT)
+R1
+|
+|
++---------+----------+----------+----------+----------+----
+|         |          |          |          |          |
+|       P-CSCFa1   S-CSCFa1   I-CSCFa1    DHCP       DNS
+R2
+|
+|
++---------+----------+----------+----
+|         |          |          |
+|       P-CSCFa2   S-CSCFa2   I-CSCFa2
+R3
+|
+|
++---------+----------
+          |
+         UEa2
+
+
+[INITIALIZATION]
+Set up IP Address using A or B.
+
+A. Router Advertisement
+
+B. DHCPv6
+  (NUT)
+   UEa1      DHCP
+    |    :    | 
+    |-------->| 1 DHCPv6 SOLICIT
+    |    :    | 
+    |<--------| 2 DHCPv6 ADVERTIZE
+    |    :    |
+    |-------->| 3 DHCPv6 REQUEST
+    |    :    |
+    |<--------| 4 DHCPv6 REPLY
+    |    :    |
+
+
+[PROCEDURE]
+                                 Home Network
+  (NUT)
+   UEa1     P-CSCFa1  S-CSCFa1  I-CSCFa1  I-CSCFa2  S-CSCFa2  P-CSCFa2  UEa2
+    |    :    |         |         |         |         |         |         |
+    |-------->|         |         |         |         |         |         | 1 REGISTER
+    |    :    |         |         |         |         |         |         |
+    |    :    |------------------>|         |         |         |         |   REGISTER
+    |    :    |         |         |         |         |         |         |
+    |    :    |         |<--------|         |         |         |         |   REGISTER
+    |    :    |         |         |         |         |         |         |
+    |    :    |         |-------->|         |         |         |         |   401 Unauthorized
+    |    :    |         |         |         |         |         |         |
+    |    :    |<------------------|         |         |         |         |   401 Unauthorized
+    |    :    |         |         |         |         |         |         |
+    |<--------|         |         |         |         |         |         | 2 401 Unauthorized
+    |    :    |         |         |         |         |         |         |
+    |-------->|         |         |         |         |         |         | 3 REGISTER
+    |    :    |         |         |         |         |         |         |   for authentication
+    |    :    |------------------>|         |         |         |         |   REGISTER
+    |    :    |         |         |         |         |         |         |   for authentication
+    |    :    |         |<--------|         |         |         |         |   REGISTER
+    |    :    |         |         |         |         |         |         |   for authentication
+    |    :    |         |-------->|         |         |         |         |   200 OK
+    |    :    |         |         |         |         |         |         |
+    |    :    |<------------------|         |         |         |         |   200 OK
+    |    :    |         |         |         |         |         |         |
+    |<--------|         |         |         |         |         |         | 4 200 OK
+    |    :    |         |         |         |         |         |         |
+    |-------->|         |         |         |         |         |         | 5 SUBSCRIBE
+    |    :    |         |         |         |         |         |         |
+    |    :    |-------->|         |         |         |         |         |   SUBSCRIBE
+    |    :    |         |         |         |         |         |         |
+    |    :    |<--------|         |         |         |         |         |   200 OK
+    |    :    |         |         |         |         |         |         |
+    |<--------|         |         |         |         |         |         | 6 200 OK
+    |    :    |         |         |         |         |         |         |
+    |    :    |<--------|         |         |         |         |         |   NOTIFY
+    |    :    |         |         |         |         |         |         |
+    |<--------|         |         |         |         |         |         | 7 NOTIFY
+    |    :    |         |         |         |         |         |         |
+    |-------->|         |         |         |         |         |         | 8 200 OK
+    |    :    |         |         |         |         |         |         |
+    |    :    |-------->|         |         |         |         |         |   200 OK
+    |    :    |         |         |         |         |         |         |
+    |-------->|         |         |         |         |         |         | 9 INVITE
+    |    :    |         |         |         |         |         |         |
+    |    :    |-------->|         |         |         |         |         |   INVITE
+    |    :    |         |         |         |         |         |         |
+    |<--------|         |         |         |         |         |         | 10 100 Trying
+    |    :    |         |         |         |         |         |         |
+    |    :    |         |------------------>|         |         |         |    INVITE
+    |    :    |         |         |         |         |         |         |
+    |    :    |<--------|         |         |         |         |         |    100 Trying
+    |    :    |         |         |         |         |         |         |
+    |    :    |         |         |         |-------->|         |         |    INVITE
+    |    :    |         |         |         |         |         |         |
+    |    :    |         |<------------------|         |         |         |    100 Trying
+    |    :    |         |         |         |         |         |         |
+    |    :    |         |         |         |         |-------->|         |    INVITE
+    |    :    |         |         |         |         |         |         |
+    |    :    |         |         |         |<--------|         |         |    100 Trying
+    |    :    |         |         |         |         |         |         |
+    |    :    |         |         |         |         |         |-------->|    INVITE
+    |    :    |         |         |         |         |         |         |
+    |    :    |         |         |         |         |<--------|         |    100 Trying
+    |    :    |         |         |         |         |         |         |
+    |    :    |         |         |         |         |         |<--------|    180 Ringing
+    |    :    |         |         |         |         |         |         |
+    |    :    |         |         |         |         |<--------|         |    180 Ringing
+    |    :    |         |         |         |         |         |         |
+    |    :    |         |         |         |<--------|         |         |    180 Ringing
+    |    :    |         |         |         |         |         |         |
+    |    :    |         |<------------------|         |         |         |    180 Ringing
+    |    :    |         |         |         |         |         |         |
+    |    :    |<--------|         |         |         |         |         |    180 Ringing
+    |    :    |         |         |         |         |         |         |
+    |<--------|         |         |         |         |         |         | 11 180 Ringing
+    |    :    |         |         |         |         |         |         |
+    |    :    |         |         |         |         |         |<--------|    200 OK
+    |    :    |         |         |         |         |         |         |
+    |    :    |         |         |         |         |<--------|         |    200 OK
+    |    :    |         |         |         |         |         |         |
+    |    :    |         |         |         |<--------|         |         |    200 OK
+    |    :    |         |         |         |         |         |         |
+    |    :    |         |<------------------|         |         |         |    200 OK
+    |    :    |         |         |         |         |         |         |
+    |    :    |<--------|         |         |         |         |         |    200 OK
+    |    :    |         |         |         |         |         |         |
+    |<--------|         |         |         |         |         |         | 12 200 OK
+    |    :    |         |         |         |         |         |         |
+    |-------->|         |         |         |         |         |         | 13 ACK
+    |    :    |         |         |         |         |         |         |
+    |    :    |-------->|         |         |         |         |         |    ACK
+    |    :    |         |         |         |         |         |         |
+    |    :    |         |---------------------------->|         |         |    ACK
+    |    :    |         |         |         |         |         |         |
+    |    :    |         |         |         |         |-------->|         |    ACK
+    |    :    |         |         |         |         |         |         |
+    |    :    |         |         |         |         |         |-------->|    ACK
+    |    :    |         |         |         |         |         |         |
+    |    :    |<--------|         |         |         |         |         |    NOTIFY
+    |    :    |         |         |         |         |         |         |   for re-authentication
+    |<--------|         |         |         |         |         |         | 14 NOTIFY
+    |    :    |         |         |         |         |         |         |   for re-authentication
+    |-------->|         |         |         |         |         |         | 15 200 OK
+    |    :    |         |         |         |         |         |         |
+    |    :    |-------->|         |         |         |         |         |    200 OK
+    |    :    |         |         |         |         |         |         |
+    |-------->|         |         |         |         |         |         | 16 REGISTER
+    |    :    |         |         |         |         |         |         |    for reregisteration
+    -----------------------------------------------------------------------    Timer F start
+    |    :    |         |         |         |         |         |         |
+    |    :    |------------------>|         |         |         |         |    REGISTER
+    |    :    |         |         |         |         |         |         |    for reregisteration
+    |    :    |         |<--------|         |         |         |         |    REGISTER
+    |    :    |         |         |         |         |         |         |    for reregisteration
+    -----------------------------------------------------------------------   Timer F fired
+    |    :    |         |         |         |         |         |         |    (T1*64=128sec)
+    |    :    |         |---------------------------->|         |         |    BYE
+    |    :    |         |         |         |         |         |         |
+    |    :    |<--------|         |         |         |         |         |    BYE
+    |    :    |         |         |         |         |         |         |
+    |<--------|         |         |         |         |         |         | 17 BYE
+    |    :    |         |         |         |         |         |         |
+    |    :    |         |         |         |         |         |         | 18 <No response
+    |    :    |         |         |         |         |         |         |     or ICMP error> (*1)
+    |    :    |         |         |         |         |         |         |
+
+1 NUT sends REGISTER
+2 NUT receives 401 Unauthorized
+3 NUT sends REGISTER for authentication
+4 NUT receives 200 OK
+5 NUT sends SUBSCRIBE
+6 NUT receives 200 OK
+7 NUT receives NOTIFY
+8 NUT sends 200 OK
+9 NUT sends INVITE
+10 NUT receives 100 Trying
+11 NUT receives 180 Ringing
+12 NUT receives 200 OK
+13 NUT sends ACK
+14 NUT receives NOTIFY for re-authentication
+15 NUT sends 200 OK
+16 NUT sends REGISTER for reregisteration
+17 Tester sends BYE
+18 <No response or ICMP error>
+
+=== Message example ===
+As regards the message 1-8, please refer to the message 1-8 in UE-RG-B-1-AKA.
+As regards the message 9-13, please refer to the message 1-5 in UE-SE-B-1-AKA.
+
+14. NOTIFY P-CSCF -> NUT
+NOTIFY sip:UEa1_public_1@node.under.test.com:1357 SIP/2.0
+Via: SIP/2.0/UDP p.a1.under.test.com:10001;branch=z9hG4bK240f34.2,SIP/2.0/UDP s.a1.under.test.com;branch=z9hG4bK332b23.2;received=3ffe:501:ffff:100::30
+Max-Forwards: 69
+From: <sip:UEa1_public_1@under.test.com>;tag=151170
+To: <sip:UEa1_public_1@under.test.com>;tag=31415
+Call-ID: b89rjhnedlrfjflslj40a222@under.test.com
+CSeq: 2 NOTIFY
+Contact: <sip:s.a1.under.test.com>
+Subscription-State: active;expires=600000
+Event: reg
+Content-Type: application/reginfo+xml
+Content-Length: (...)
+
+<?xml version="1.0"?>
+<reginfo xmlns="urn:ietf:params:xml:ns:reginfo" version="1" state="full">
+     <registration aor="sip:UEa1_public_1@under.test.com" id="a7" state="active">
+         <contact id="76" state="active" event="shortened" expires="30">
+             <uri>sip:UEa1_public_1@node.under.test.com</uri>
+         </contact>
+     </registration>
+</reginfo>
+
+
+15. 200 OK NUT -> P-CSCF
+SIP/2.0 200 OK
+Via: SIP/2.0/UDP p.a1.under.test.com:10001;branch=z9hG4bK240f34.2;received=3ffe:501:ffff:100::10,SIP/2.0/UDP s.a1.under.test.com;branch=z9hG4bK332b23.2;received=3ffe:501:ffff:100::30
+From: <sip:UEa1_public_1@under.test.com>;tag=151170
+To: <sip:UEa1_public_1@under.test.com>;tag=31415
+Call-ID: b89rjhnedlrfjflslj40a222@under.test.com
+CSeq: 2 NOTIFY
+Content-Length: 0
+
+
+16. REGISTER NUT -> P-CSCF
+REGISTER sip:under.test.com SIP/2.0
+Via: SIP/2.0/UDP [3ffe:501:ffff:1000::1000]:1357;branch=z9hG4bKnashds9
+Max-Forwards: 70
+From: <sip:UEa1_public_1@under.test.com>;tag=4fa4
+To: <sip:UEa1_public_1@under.test.com>
+Contact: <sip:UEa1_public_1@node.under.test.com:1357>;expires=600000
+Call-ID: apb03a0s09dkjdfglkj49111@under.test.com
+Authorization: Digest username="UEa1_private@under.test.com", realm="under.test.com", nonce="I1U8vpY3qJhiuZNrke/NaponGSCcLm5iR+WCRkWYoM", uri="sip:under.test.com", response="6629fae49393a05397450978507c4ef1"
+Security-Client: ipsec-3gpp; mode="trans"; alg=hmac-sha-1-96; spi-c=33456789; spi-s=22345678; port-c=3468; port-s=1357
+Security-Verify: ipsec-3gpp; alg=hmac-sha-1-96; spi-c=256; spi-s=257; port-c=10002; port-s=10001
+Require: sec-agree
+Proxy-Require: sec-agree
+CSeq: 3 REGISTER
+Supported: path
+Content-Length: 0
+
+
+17. BYE P-CSCF -> NUT
+BYE sip:UEa1_public_1@node.under.test.com:1357 SIP/2.0
+Via: SIP/2.0/UDP p.a1.under.test.com:10001;branch=z9hG4bK431e418c501,SIP/2.0/UDP s.a1.under.test.com;branch=z9hG4bKnashdsa2.3;received=3ffe:501:ffff:100::30,SIP/2.0/UDP s.a2.under.test.com;branch=z9hG4bK721e418c9.1;received=3ffe:501:ffff:200::30,SIP/2.0/UDP p.a2.under.test.com;branch=z9hG4bKnaghds30;received=3ffe:501:ffff:200::10,SIP/2.0/UDP [3ffe:501:ffff:2000::1000]:22222;branch=z9hG4bKnashdsb3
+Max-Forwards: 66
+From: <sip:UEa2_public_1@under.test.com>;tag=314259
+To: <sip:UEa1_public_1@under.test.com>;tag=9fxced76sl
+Call-ID: 3848276298220188511@under.test.com
+CSeq: 2 BYE
+Content-Length: 0
+
+
+18. <No response or ICMP error>
+
+
+[OBSERVABLE RESULTS]
+*1: 18 No response or ICMP error
+
+       The process of all ongoing dialogs and transactions SHALL be stopped and
+       silently discarded them locally.[TS24229-5.1-177]
+
+       The UAC SHOULD NOT immediately re-attempt a registration to the same
+       registrar.[RFC3261-10.2-18]

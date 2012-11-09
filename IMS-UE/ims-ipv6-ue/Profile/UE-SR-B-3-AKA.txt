@@ -1,0 +1,138 @@
+[NAME]
+UE-SR-B-3-AKA  - Sending 405 response.
+
+
+[TARGET]
+IMS User Equipment (NUT)
+
+
+[PURPOSE]
+To verify that UEa1 sends 405 (Method Not Allowed) response to REGISTER request.
+
+
+[REFERENCE]
+TS24.229 A.2.1.4.1
+RFC3261 8.2.1
+
+
+[REQUIREMENT]
+NONE
+
+
+[PARAMETER(NUT)]
+public-user-id         :         sip:UEa1_public_1@under.test.com
+private-user-id        :         UEa1_private@under.test.com
+contact_URI            :         sip:UEa1_public_1@node.under.test.com
+HOMENETWORK Domain     :         sip:under.test.com
+
+
+[PARAMETER(TESTER)]
+public-user-id(UEa2)   :         sip:UEa2_public_1@under.test.com
+P-CSCFa1               :         sip:p.a1.under.test.com
+
+
+[ADDRESS]
+UEa1(NUT)              :         3ffe:501:ffff:1000::1000
+Router(R1)             :         3ffe:501:ffff:1000::1
+P-CSCFa1               :         3ffe:501:ffff:100::10
+I-CSCFa1               :         3ffe:501:ffff:100::20
+S-CSCFa1               :         3ffe:501:ffff:100::30
+DNS                    :         3ffe:501:ffff:100::40
+DHCP                   :         3ffe:501:ffff:100::50
+
+UEa2                   :         3ffe:501:ffff:2000::1000
+P-CSCFa2               :         3ffe:501:ffff:200::10
+I-CSCFa2               :         3ffe:501:ffff:200::20
+S-CSCFa2               :         3ffe:501:ffff:200::30
+
+
+[TOPOLOGY]
++---------+----------
+|         |
+|         UEa1(NUT)
+R1
+|
+|
++---------+----------+----------+----------+----------+----
+|         |          |          |          |          |
+|        P-CSCFa1   S-CSCFa1   I-CSCFa1   DHCP       DNS
+R2
+|
+|
++---------+----------+----------+-------
+|         |          |          |       
+|        P-CSCFa2   S-CSCFa2   I-CSCFa2
+R3
+|
+|
++---------+----------
+          |   
+         UEa2
+
+
+[INITIALIZATION]
+UEa1(NUT) must be registered with the tester by executing the scenario "UE-INI-B-1-AKA".
+For details of "UE-INI-B-1-AKA", refer to the profile "UE-RG-B-1-AKA".
+
+
+[PROCEDURE]
+                                Home Network                   
+(NUT)
+  UEa1     P-CSCFa1  S-CSCFa1  I-CSCFa1  I-CSCFa2  S-CSCFa2  P-CSCFa2  UEa2
+   |    :    |         |         |         |         |         |         | 
+   |<--------|         |         |         |         |         |         | 1 REGISTER 
+   |    :    |         |         |         |         |         |         | 
+   |-------->|         |         |         |         |         |         | 2 405 Method Not Allowed (*1)
+   |    :    |         |         |         |         |         |         | 
+
+1 NUT receives REGISTER.
+2 NUT sends 405 Method Not Allowed.
+
+
+ === Message example ===
+ 
+1. REGISTER P-CSCF -> NUT
+REGISTER sip:under.test.com SIP/2.0
+Via: SIP/2.0/UDP p.a1.under.test.com:10001;branch=z9hG4bK431e418c233,SIP/2.0/UDP [3ffe:501:ffff:2000::1000]:22222;branch=z9hG4bKnashds7
+Max-Forwards: 69
+Authorization: Digest username="UEa2_private@under.test.com", realm="under.test.com", nonce="", uri="sip:under.test.com", response="",integrity-protected="no"
+From: <sip:UEa2_public_1@under.test.com>;tag=4fa3
+To: <sip:UEa2_public_1@under.test.com>
+Contact: <sip:UEa2_public_1@nodea2.under.test.com:22222>;expires=600000
+Call-ID: apb03a0s09dkjdfglkj49111@under.test.com
+CSeq: 1 REGISTER
+Require: path
+Supported: path
+Path: <sip:term@p.a1.under.test.com;lr>
+Content-Length: 0
+
+
+2. 405 Method Not Allowed NUT -> P-CSCF
+SIP/2.0 405 Method Not Allowed
+Via: SIP/2.0/UDP p.a1.under.test.com:10001;branch=z9hG4bK431e418c233;received=3ffe:501:ffff:100::10,SIP/2.0/UDP [3ffe:501:ffff:2000::1000]:22222;branch=z9hG4bKnashds45ba91
+From: <sip:UEa2_public_1@under.test.com>;tag=4fa3
+To: <sip:UEa2_public_1@under.test.com>;tag=414259
+Call-ID: apb03a0s09dkjdfglkj49111@under.test.com
+CSeq: 1 REGISTER
+Allow: INVITE,ACK,CANCEL,OPTIONS,BYE
+Content-Length: 0
+
+
+[OBSERVABLE RESULTS]
+
+*1: 2 405 Method Not Allowed from NUT to P-CSCF.
+
+       See generic_3XX-6XX
+
+       - Exception{
+        * To
+           If a request contained a To tag in the request, the To header field
+           in the response MUST equal that of the request.[RFC3261-8.2-41]
+
+           The same tag MUST be used for all responses to that request, both 
+           final and provisional. [RFC3261-8.2-44])
+         }
+
+       - Header Field:
+          The response MUST include an Allow header field containing a list of 
+          valid methods for the indicated address.[RFC3261-8.2-6][RFC3261-21.4-4]

@@ -1,0 +1,271 @@
+#!/usr/bin/perl
+
+# Copyright(C) IPv6 Promotion Council (2004-2010). All Rights Reserved.
+# 
+# This documentation is produced by SIP SWG members of Certification WG in 
+# IPv6 Promotion Council.
+# The SWG members currently include NIPPON TELEGRAPH AND TELEPHONE CORPORATION (NTT), 
+# Yokogawa Electric Corporation and NTT Advanced Technology Corporation (NTT-AT).
+# 
+# 
+# Redistribution and use of this software in source and binary forms, with 
+# or without modification, are permitted provided that the following 
+# conditions and disclaimer are agreed and accepted by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright 
+# notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright 
+# notice, this list of conditions and the following disclaimer in the 
+# documentation and/or other materials provided with the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project which 
+# is related to this software (hereinafter referred to as "project") nor 
+# the names of the contributors may be used to endorse or promote products 
+# derived from this software without specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written 
+# notification to the copyrighters. However, using this software for the 
+# purpose of testing or evaluating any products including merchantable 
+# products may be permitted without any notification to the copyrighters.
+# 
+# 
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND 
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING 
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS 
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE 
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+# CONTRACT,STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF 
+# THE POSSIBILITY OF SUCH DAMAGE.
+
+BEGIN { 
+    sub BSDversion {
+	my($result);local(*STATUS);
+	eval {unless( open(STATUS,  'uname -s -r |') ){return} $result = <STATUS>;close(STATUS)};
+	$result =~ s/[\r\n]//;
+	return $result;
+    };
+    $V6evalTool::TestVersion = '$Name: ' . 'ct-ims-ipv6-ue-3_0_0' .' ['. BSDversion(). ']  $';
+}
+
+
+# IMS
+# 
+#
+# 
+#       ACK
+#
+# 
+# 
+
+
+
+
+use ImsScenario;
+
+#------------------------------
+# Initialize dispatch scenario 
+#------------------------------
+CtScIMSScenario(
+  [	# Node Information
+    {'node' => 'UEa1',     'nxtNode' => ['P-CSCFa1','DHCP'],     'logPos' => 1,'regFlg' => 1},
+    {'node' => 'P-CSCFa1', 'nxtNode' => ['UEa1','I-CSCFa1'],     'logPos' => 2},
+    {'node' => 'S-CSCFa1', 'nxtNode' => ['P-CSCFa1','I-CSCFa2'], 'logPos' => 3,'regFlg' => 1},
+    {'node' => 'I-CSCFa2', 'nxtNode' => ['S-CSCFa1','S-CSCFa2'], 'logPos' => 4,'regFlg' => 1},
+    {'node' => 'S-CSCFa2', 'nxtNode' => ['I-CSCFa2','P-CSCFa2'], 'logPos' => 5,'regFlg' => 1},
+    {'node' => 'P-CSCFa2', 'nxtNode' => ['S-CSCFa2','UEa2'],     'logPos' => 6,'regFlg' => 1},
+    {'node' => 'UEa2',     'nxtNode' => ['P-CSCFa2'],            'logPos' => 7,'regFlg' => 1},
+    {'node' => 'DHCP',     'nxtNode' => ['UEa1'],                'logPos' => 8,'regFlg' => 1},
+  ], 
+  ['UE-SYNTAX-COMMON-RULES'],
+  'UEa1'	# Test Target Node Name
+);
+
+#-------------------
+# Define scenario of P-CSCFa1 
+#-------------------
+sub IMS_PCSCF {
+	my ($node, $func, $tbl, $result, @branches);
+	my ($SndMsg_100_INVITE,$SndMsg_404_INVITE);
+
+
+	# start to define the node
+	$node = CtNDDef('P-CSCFa1', '', ['UEa1'], CtCnRecvAny());
+
+
+	######################
+	# Define message_pass
+	######################
+	CtAddMessagePath('InvitePath', ['UEa1', 'P-CSCFa1', 'S-CSCFa1', 'I-CSCFa2', 'S-CSCFa2', 'P-CSCFa2', 'UEa2']);
+#	CtAddMessagePath('Invite_P_ERR_Path', ['UEa1', 'P-CSCFa1']);
+
+
+	# Wait and Print.(## This function shuold be written outside of the sub function.)
+	WaitUntilKeyPress2('Press Enter Key and send INVITE',$node);
+
+	##########################################################
+	# Define 1st Receiving INVITE function
+	###########################################################
+	$func = sub { 
+		my ($actSts, $rcvPkt, $conn, $usrInf) = @_;
+
+		
+		###########!!! These Saved Parameter is useful for CANCEL !!!#########
+
+		# save Connecsion ID and received packt.
+		$rcvPkt_g  = $rcvPkt;  #Save rcvPkt of INVITE
+		
+		######################################################################
+
+		# display the receiving message
+		CtRlJudgeSeq($actSts, 'Receive INVITE.', 'Can\'t receive INVITE.');
+
+		################################################################
+		# Receive INVITE
+		################################################################
+#		CtSvCreateDlgFromRequest('dlg0', $rcvPkt, 'UEa2', $node); #UEa2 is the End point
+		CtSvCreateDlgFromReq('dlg0', $rcvPkt, 'UEa2', $node); #UEa2 is the End point
+#		CtSvCreateDlgFromReq('dlg0', $rcvPkt, 'P-CSCFa2', $node); #UEa2 is the End point
+
+		## This Scenario is CANCEL Judgment,but need  INVITE judgment.
+		# Judge recv msg
+		CtRlJudgeSyntax('SS.Request.INVITE',		# SYNTAX rule ID
+				'',				# add rule
+				'',				# del rule
+				'dlg0',				# dialog name
+				$rcvPkt,			# target message
+				{				# parameter to use in SYNTAX 
+					'pre_req'  => '', #$rcvPkt, 20090303
+				#	'branches' => \@branches
+				});
+		
+		# renew dialog state information
+#		CtSvDlgUpdate('dlg0', $rcvPkt);
+
+		# save branch parameters of all message for S.RFC3261-8-22_Via
+#		push (@branches, CtFlv('HD,#Via#0,records#0,params,list#0,branch', $rcvPkt));
+
+
+		##############################
+		# send 100 Trying
+		##############################
+		{
+			my (@addRules, @delRules);
+
+			($result, $SndMsg_100_INVITE) = 
+				CtIoSendMsg( $conn, 		# connection 
+					     'ES.Response.100-INVITE',	# ENCODE rule ID
+					     \@addRules,	# add rule
+					     \@delRules,	# del rule
+					     'dlg0', 	# dlg reference to use dlg in ENCODE rule (used by CtRlCxDlg )
+					     $rcvPkt,	# msg reference to use message in ENCODE rule (used by CtRlCxPkt)
+					     {
+						 'status_code'=> '100',
+				             }		# parameter to use in ENCODE rule (used by CtRlCxUsr)
+					      		# caution: don't need message path name for via, because copy from reference request 
+					    );
+		    }
+		# renew dialog information
+		CtSvDlgUpdate('dlg0', $SndMsg_100_INVITE);
+
+
+		##############################
+		# send 404 NotFound
+		##############################
+		{
+			my (@addRules, @delRules);
+
+			($result, $SndMsg_404_INVITE) = 
+				CtIoSendMsg( $conn, 		# connection 
+					     'ES.Response.3XX-6XX-ERROR',	# ENCODE rule ID
+					     \@addRules,	# add rule
+					     \@delRules,	# del rule
+					     'dlg0', 	# dlg reference to use dlg in ENCODE rule (used by CtRlCxDlg )
+					     $rcvPkt,	# msg reference to use message in ENCODE rule (used by CtRlCxPkt)
+					     {
+						 'msg_path'  => 'InvitePath',
+						 'emu_node'  => 'P-CSCFa1',
+						 'term_node' => 'S-CSCFa2',
+						 'with_dlg'  => 0,
+						 'protected' => CtEnableIpsec(),
+					         'status_code'=> '404',
+				             }		# parameter to use in ENCODE rule (used by CtRlCxUsr)
+					      		# caution: don't need message path name for via, because copy from reference request 
+					    );
+		    }
+		# renew dialog information
+		CtSvDlgUpdate('dlg0', $SndMsg_404_INVITE);
+
+		# go to Next State
+		return 'NEXT';
+	};
+	# regist the function for receiving INVITE
+	$tbl = CtScAddRcvReqAct($node, $func, 'INVITE');
+
+
+	##########################################################
+	# ACK (INVITE)
+	##########################################################
+	$func = sub{
+	    my ($actSts, $rcvPkt, $conn, $usrInf) =@_;
+	    # load saved prm
+	    my $rcvPkt_org = $rcvPkt_g; # INVITE
+
+	    #
+	    CtRlJudgeSeq($actSts, 'Receive ACK.', 'Can\'t receive ACK.');
+
+	    #ACK
+	    CtRlJudgeSyntax('SS.Request.ACK_non-2xx',   # SYNTAX rule ID
+			    '',				# add rule
+			    '',				# del rule
+			    'dlg0',			# dialog name
+			    $rcvPkt,			# target message
+			    {				# parameter to use in SYNTAX 
+				'pre_res'  => $SndMsg_404_INVITE,
+				'pre_req'  => $rcvPkt_org,
+			    }
+			    );
+
+	    #
+	    CtSvDlgUpdate('dlg0', $rcvPkt);
+
+
+	    ############################
+	    # INVITE
+	    ############################
+	    CtCnClose($conn);
+
+	    #
+	    return 'END';
+	};
+	# ACK
+	$tbl = CtScAddRcvReqAct($node, $func, 'ACK');
+
+
+	# 
+	CtNDDefEnd($node);
+};
+
+
+#---------------
+# 
+#---------------
+IMS_PCSCF();
+
+#--------------------------
+# 
+#--------------------------
+CtScRunScenario();
+
+#--------------------------------
+# 
+#================================
+CtScFin();
+
+

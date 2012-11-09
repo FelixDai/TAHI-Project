@@ -1,0 +1,174 @@
+[NAME]
+UE-RG-B-18-DIP  - Invalid credentials and 403 response
+
+
+[TARGET]
+IMS User Equipment (NUT)
+
+
+[PURPOSE]
+(1) To verify that the UEa1 properly considers the registration to have failed when a 403 (Forbidden)  
+    response is received.
+ 
+
+[REFERENCE]
+TS24.229 5.1.1.2.1
+TS24.229 5.1.1.2.3
+TS24.229 5.1.1.5.4
+TS24.229 5.1.1.5.5
+
+[REQUIREMENT]
+NONE
+
+
+[PARAMETER(NUT)]
+public-user-id         :         sip:UEa1_public_1@under.test.com
+private-user-id        :         UEa1_private@under.test.com
+contact_URI            :         sip:UEa1_public_1@node.under.test.com
+HOMENETWORK Domain     :         sip:under.test.com
+
+
+[PARAMETER(TESTER)]
+P-CSCFa1               :         sip:p.a1.under.test.com
+S-CSCFa1               :         sip:s.a1.under.test.com
+
+
+[ADDRESS]
+UEa1(NUT)              :         3ffe:501:ffff:1000::1000
+Router(R1)             :         3ffe:501:ffff:1000::1
+P-CSCFa1               :         3ffe:501:ffff:100::10
+I-CSCFa1               :         3ffe:501:ffff:100::20
+S-CSCFa1               :         3ffe:501:ffff:100::30
+DNS                    :         3ffe:501:ffff:100::40
+DHCP                   :         3ffe:501:ffff:100::50
+
+
+[TOPOLOGY]
++---------+
+|         |
+|       UEa1(NUT)
+R1
+|
+|
++---------+----------+----------+----------+----------+-
+          |          |          |          |          |
+      P-CSCFa1    I-CSCFa1   S-CSCFa1     DHCP       DNS
+
+
+[INITIALIZATION]
+Set up IP Address using A or B.
+
+A. Router Advertisement
+
+B. DHCPv6
+  (NUT)
+   UEa1      DHCP
+    |    :    | 
+    |-------->| 1 DHCPv6 SOLICIT
+    |    :    | 
+    |<--------| 2 DHCPv6 ADVERTIZE
+    |    :    |
+    |-------->| 3 DHCPv6 REQUEST
+    |    :    |
+    |<--------| 4 DHCPv6 REPLY
+    |    :    |
+
+
+[PROCEDURE]
+                Home Network
+  (NUT)
+   UEa1     P-CSCFa1    I-CSCFa1     S-CSCFa1
+    |     :     |           |           |
+    |---------->|           |           | 1 REGISTER
+    |     :     |           |           |
+    |     :     |---------->|           |   REGISTER
+    |     :     |           |           |
+    |     :     |           |---------->|   REGISTER
+    |     :     |           |           |
+    |     :     |           |<----------|   401 Unauthorized
+    |     :     |           |           |
+    |     :     |<----------|           |   401 Unauthorized
+    |     :     |           |           |
+    |<----------|           |           | 2 401 Unauthorized
+    |     :     |           |           |
+    |---------->|           |           | 3 REGISTER for authentication
+    |     :     |           |           |
+    |     :     |---------->|           |   REGISTER for authentication
+    |     :     |           |           |
+    |     :     |           |---------->|   REGISTER for authentication
+    |     :     |           |           |
+    |     :     |           |<----------|   403 Forbidden
+    |     :     |           |           |
+    |     :     |<----------|           |   403 Forbidden
+    |     :     |           |           |
+    |<----------|           |           | 4 403 Forbidden
+    |     :     |           |           |
+    |     :     |           |           | 5 <No re-attempt> (*1)
+
+
+1 NUT sends REGISTER
+2 NUT receives 401 Unauthorized (with invalid nonce value)
+3 NUT sends REGISTER for authentication
+4 NUT receives 403 Forbidden
+5 No re-attempt
+
+=== Message example ===
+
+1. REGISTER NUT -> P-CSCF
+REGISTER sip:under.test.com SIP/2.0
+Via: SIP/2.0/UDP [3ffe:501:ffff:1000::1000]:5060;branch=z9hG4bKnashds7
+Max-Forwards: 70
+From: <sip:UEa1_public_1@under.test.com>;tag=4fa3
+To: <sip:UEa1_public_1@under.test.com>
+Contact: <sip:UEa1_public_1@node.under.test.com:5060>;expires=600000
+Call-ID: apb03a0s09dkjdfglkj49111@under.test.com
+Authorization: Digest username="UEa1_private@under.test.com", realm="under.test.com", nonce="", uri="sip:under.test.com", response=""
+CSeq: 1 REGISTER
+Supported: path
+Content-Length: 0
+
+
+2. 401 Unauthorized P-CSCF -> NUT
+SIP/2.0 401 Unauthorized
+Via: SIP/2.0/UDP [3ffe:501:ffff:1000::1000]:5060;branch=z9hG4bKnashds7
+WWW-Authenticate: Digest realm="under.test.com", nonce="I1U8vpY3qJhiuZNrke/NaponGSCcLm5iR+WCRkWYoM", algorithm=MD5, qop="auth"
+From: <sip:UEa1_public_1@under.test.com>;tag=4fa3
+To: <sip:UEa1_public_1@under.test.com>;tag=5ef4
+Call-ID: apb03a0s09dkjdfglkj49111@under.test.com
+CSeq: 1 REGISTER
+Content-Length: 0
+
+
+3. REGISTER NUT -> P-CSCF
+REGISTER sip:under.test.com SIP/2.0
+Via: SIP/2.0/UDP [3ffe:501:ffff:1000::1000]:5060;branch=z9hG4bKnashds8
+Max-Forwards: 70
+From: <sip:UEa1_public_1@under.test.com>;tag=4fa3
+To: <sip:UEa1_public_1@under.test.com>
+Contact: <sip:UEa1_public_1@node.under.test.com:5060>;expires=600000
+Call-ID: apb03a0s09dkjdfglkj49111@under.test.com
+Authorization: Digest username="UEa1_private@under.test.com", realm="under.test.com", nonce="I1U8vpY3qJhiuZNrke/NaponGSCcLm5iR+WCRkWYoM", uri="sip:under.test.com", qop=auth, nc=00000001, cnonce="0a4f113b", response=(invalid response value)
+CSeq: 2 REGISTER
+Supported: path
+Content-Length: 0
+
+4. 403 Forbidden P-CSCF -> NUT
+SIP/2.0 403 Forbidden
+Via: SIP/2.0/UDP [3ffe:501:ffff:1000::1000]:5060;branch=z9hG4bKnashds8
+From: <sip:UEa1_public_1@under.test.com>;tag=4fa3
+To: <sip:UEa1_public_1@under.test.com>;tag=5ef5
+Call-ID: apb03a0s09dkjdfglkj49111@under.test.com
+CSeq: 2 REGISTER
+Content-Length: 0
+
+5. <No re-attempt>
+
+
+[OBSERVABLE RESULTS]
+*1: 5 No re-attempt
+
+          The registration SHALL be considered to have failed if 403 (Forbidden)
+          response is received.[TS24229-5.1-261]
+
+          The request SHOULD NOT be repeated, when the UA received 403 Forbidden
+          response.[RFC3261-21.4-3]

@@ -1,0 +1,210 @@
+[NAME]
+UE-RR-B-4-DIP  - Receiving 183 response
+
+
+[TARGET]
+IMS User Equipment (NUT)
+
+
+[PURPOSE]
+To verify that the UEa1 properly process a 183 (Session Progress) response,
+and verify that the UEa1 properly process a 200 (OK) response 
+and creates an ACK request and a 200 (OK) response to BYE.
+
+
+[REFERENCE]
+TS24.229 A.2.1.4.1
+RFC3261 8.1.3.2
+
+
+[REQUIREMENT]
+NONE
+
+
+[PARAMETER(NUT)]
+public-user-id         :         sip:UEa1_public_1@under.test.com
+private-user-id        :         UEa1_private@under.test.com
+contact_URI            :         sip:UEa1_public_1@node.under.test.com
+HOMENETWORK Domain     :         sip:under.test.com
+
+
+[PARAMETER(TESTER)]
+public-user-id(UEa2)   :         sip:UEa2_public_1@under.test.com
+P-CSCFa1               :         sip:p.a1.under.test.com
+
+
+[ADDRESS]
+UEa1(NUT)              :         3ffe:501:ffff:1000::1000
+Router(R1)             :         3ffe:501:ffff:1000::1
+P-CSCFa1               :         3ffe:501:ffff:100::10
+I-CSCFa1               :         3ffe:501:ffff:100::20
+S-CSCFa1               :         3ffe:501:ffff:100::30
+DNS                    :         3ffe:501:ffff:100::40
+DHCP                   :         3ffe:501:ffff:100::50
+
+UEa2                   :         3ffe:501:ffff:2000::1000
+P-CSCFa2               :         3ffe:501:ffff:200::10
+I-CSCFa2               :         3ffe:501:ffff:200::20
+S-CSCFa2               :         3ffe:501:ffff:200::30
+
+
+[TOPOLOGY]
++---------+----------
+|         |
+|         UEa1(NUT)
+R1
+|
+|
++---------+----------+----------+----------+----------+----
+|         |          |          |          |          |
+|        P-CSCFa1   S-CSCFa1   I-CSCFa1   DHCP       DNS
+R2
+|
+|
++---------+----------+----------+-------
+|         |          |          |       
+|        P-CSCFa2   S-CSCFa2   I-CSCFa2
+R3
+|
+|
++---------+----------
+          |   
+          UEa2
+
+
+[INITIALIZATION]
+UEa1(NUT) must be registered with the tester by executing the scenario "UE-INI-B-1-DIP".
+For details of "UE-INI-B-1-DIP", refer to the profile "UE-RG-B-1-DIP".
+
+
+[PROCEDURE]
+                    Home Network                   
+(NUT)
+   UEa1     P-CSCFa1  S-CSCFa1  I-CSCFa1  I-CSCFa2  S-CSCFa2  P-CSCFa2  UEa2
+   |    :    |         |         |         |         |         |         | 
+   |-------->|         |         |         |         |         |         | 1 INVITE
+   |    :    |         |         |         |         |         |         | 
+   |    :    |-------->|         |         |         |         |         |   INVITE 
+   |    :    |         |         |         |         |         |         | 
+   |<--------|         |         |         |         |         |         | 2 100 Trying
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |------------------>|         |         |         |   INVITE 
+   |    :    |         |         |         |         |         |         | 
+   |    :    |<--------|         |         |         |         |         |   100 Trying
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |         |         |-------->|         |         |   INVITE
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |<------------------|         |         |         |   100 Trying
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |         |         |         |-------->|         |   INVITE
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |         |         |<--------|         |         |   100 Trying
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |         |         |         |         |-------->|   INVITE
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |         |         |         |<--------|         |   100 Trying
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |         |         |         |         |<--------|   183 Session Progress
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |         |         |         |<--------|         |   183 Session Progress
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |         |         |<--------|         |         |   183 Session Progress
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |<------------------|         |         |         |   183 Session Progress
+   |    :    |         |         |         |         |         |         | 
+   |    :    |<--------|         |         |         |         |         |   183 Session Progress
+   |    :    |         |         |         |         |         |         | 
+   |<--------|         |         |         |         |         |         | 3 183 Session Progress
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |         |         |         |         |<--------|   180 Ringing
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |         |         |         |<--------|         |   180 Ringing
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |         |         |<--------|         |         |   180 Ringing
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |<------------------|         |         |         |   180 Ringing
+   |    :    |         |         |         |         |         |         | 
+   |    :    |<--------|         |         |         |         |         |   180 Ringing
+   |    :    |         |         |         |         |         |         | 
+   |<--------|         |         |         |         |         |         | 4 180 Ringing
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |         |         |         |         |<--------|   200 OK
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |         |         |         |<--------|         |   200 OK
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |         |         |<--------|         |         |   200 OK
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |<------------------|         |         |         |   200 OK
+   |    :    |         |         |         |         |         |         | 
+   |    :    |<--------|         |         |         |         |         |   200 OK
+   |    :    |         |         |         |         |         |         | 
+   |<--------|         |         |         |         |         |         | 5 200 OK
+   |    :    |         |         |         |         |         |         | 
+   |-------->|         |         |         |         |         |         | 6 ACK (*1)
+   |    :    |         |         |         |         |         |         | 
+   |    :    |-------->|         |         |         |         |         |   ACK
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |---------------------------->|         |         |   ACK
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |         |         |         |-------->|         |   ACK
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |         |         |         |         |-------->|   ACK
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |         |         |         |         |<--------|   BYE
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |         |         |         |<--------|         |   BYE
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |<----------------------------|         |         |   BYE
+   |    :    |         |         |         |         |         |         | 
+   |    :    |<--------|         |         |         |         |         |   BYE
+   |    :    |         |         |         |         |         |         | 
+   |<--------|         |         |         |         |         |         | 7 BYE
+   |    :    |         |         |         |         |         |         | 
+   |-------->|         |         |         |         |         |         | 8 200 OK (*2)
+   |    :    |         |         |         |         |         |         | 
+   |    :    |-------->|         |         |         |         |         |   200 OK
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |---------------------------->|         |         |   200 OK
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |         |         |         |-------->|         |   200 OK
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |         |         |         |         |-------->|   200 OK
+   |    :    |         |         |         |         |         |         | 
+   
+1 NUT sends INVITE
+2 NUT receives 100 Trying
+3 NUT receives 183 Session Progress
+4 NUT receives 180 Ringing
+5 NUT receives 200 OK
+6 NUT sends ACK
+7 NUT receives BYE
+8 NUT sends 200 OK
+
+
+ === Message example ===
+
+As regards the message 1-2, please refer to the message 1-2 in UE-SE-B-1-DIP.
+
+
+3. 183 Session Progress P-CSCF -> NUT
+SIP/2.0 183 Session Progress
+Via: SIP/2.0/UDP [3ffe:501:ffff:1000::1000]:5060;branch=z9hG4bK74bf9
+From: <sip:UEa1_public_1@under.test.com>;tag=9fxced76sl
+To: <sip:UEa2_public_1@under.test.com>;tag=314259
+Call-ID: 3848276298220188511@under.test.com
+CSeq: 1 INVITE
+Content-Length: 0
+
+
+As regards the message 4-8, please refer to the message 3-7 in UE-SE-B-1-DIP.
+
+
+[OBSERVABLE RESULTS]
+
+*1: 6 ACK from NUT to P-CSCF.
+
+      See generic_ACK
+
+*2: 8 BYE 200 from NUT to P-CSCF.
+
+      See generic_200-BYE

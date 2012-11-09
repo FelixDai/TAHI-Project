@@ -1,0 +1,2297 @@
+---------------------------------------------------------------------------------
+1.1  generic_sip_message
+Generic judgement items for SIP message.
+
+   -The start-line, each message-header line, and the empty line MUST be 
+    terminated by a carriage-return line-feed sequence (CRLF).[C:RFC3261-7-1]
+
+    - Request-Line:
+
+        -Applications sending SIP messages MUST include a SIP-Version of "SIP/2.0".
+         [C:RFC3261-7.1-3]
+        -Implementations MUST send upper-case. [C:RFC3261-7.1-4]
+
+    - Header fields:
+
+        * Content-Length
+            -Applications SHOULD use this field to indicate the size of the 
+             message-body to be transferred.[C:RFC3261-20.14-1]
+
+        * From
+            -Even if the "display- name" is empty, the "name-addr" form MUST be 
+             used if the "addr-spec" contains a comma, question mark, or semicolon.
+             [C:RFC3261-20.20-2]
+
+---------------------------------------------------------------------------------
+1.2  generic_REGISTER
+Generic judgement items for REGISTER request.
+
+   See generic_sip_message
+
+   -The empty line MUST be present even if the message-body is not. [C:RFC3261-7-2]
+
+    [Digest]
+     -The locally available public user identity, the private user identity, and the domain 
+      name to be used in the Request-URI SHALL be used in the registration by UE.
+      [D:TS24229-5.1-100]
+
+    - Request-Line:
+
+        -Request-URI SHALL be set to the SIP URI of the domain name of the home 
+         network.[C:TS24229-5.1-41]
+        -The Request-URI MUST NOT contain unescaped space control characters. 
+         [C:RFC3261-7.1-1]
+        -The Request-URI MUST NOT be enclosed in "<>". [C:RFC3261-7.1-2]
+        -The "userinfo" and "@" components of the SIP URI MUST NOT be present.
+         [C:RFC3261-10.2-4]
+
+    - Header fields:
+
+        -An Expires header field or the expires parameter within the Contact 
+         header field SHALL be set to the value of 600 000 seconds.
+         [C:TS24229-5.1-40]
+        -SIP request MUST contain To, From, CSeq, Call-ID, Max-Forwards, and Via
+         header fields.  [C:RFC3261-8.1-1]
+       [AKA]
+        -The client MUST add both a Require and Proxy-Require header field with 
+         the value "sec-agree" to its request.[A:RFC3329-2.3-4]
+       [Digest]
+        -Security-Client,  Security-Verify header field and both a Require and 
+         Proxy-Require header fields with the value "sec-agree"  SHALL not be 
+         included in any SIP messages if SIP digest without TLS is used.
+         [D:TS24229-5.1-9]
+
+        * Authorization header
+            -WWW-Authenticate, Authorization, Proxy-Authenticate or 
+             Proxy-Authorization MUST NOT be combined into a single header 
+             field row. [C:RFC3261-7.3-3]
+          [AKA]
+            -The username directive in Authorization header field SHALL be set 
+             to the value of the private user identity.[A:TS24229-5.1-69]
+            -The realm directive in Authorization header field SHALL be set to 
+             the value of the domain name of the home network.[A:TS24229-5.1-70]
+            -The uri directive in Authorization header field SHALL be set to the 
+             SIP URI of the domain name of the home network.[A:TS24229-5.1-71]
+            -The nonce directive in Authorization header field SHALL be empty.
+             [A:TS24229-5.1-72]
+            -The response directive in Authorization header field SHALL be empty.
+             [A:TS24229-5.1-73]
+          [Digest]
+            -The username directive in Authorization header field SHALL be set
+             to the value of the private user identity. [D:TS24229-5.1-93]
+            -The realm directive in Authorization header field SHALL be set to
+             the value of the domain name of the home network. [D:TS24229-5.1-94]
+            -The uri directive in Authorization header field SHALL be set to the
+             SIP URI of the domain name of the home network. [D:TS24229-5.1-95]
+            -The nonce directive in Authorization header field SHALL be empty.
+             [D:TS24229-5.1-96]
+            -The response directive in Authorization header field SHALL be empty.
+             [D:TS24229-5.1-97]
+
+        * Contact
+            -Contact header field SHALL be set to SIP URIs containing the 
+            IP address or FQDN of the UE in the hostport parameter or FQDN. 
+            [C:TS24229-5.1-33]
+            -UACs SHOULD NOT use the "action" parameter.[C:RFC3261-10.2-9]
+            -Even if the "display-name" is empty, the "name-addr" form MUST be 
+             used if the "addr-spec" contains a comma, semicolon, or question 
+             mark.[C:RFC3261-20.10-1]
+          [AKA]
+            -The hostport parameter in Contact header field SHALL include the
+             protected server port value if the REGISTER request is protected
+             by a security association.[A:TS24229-5.1-74]
+          [Digest]
+            -The hostport parameter in Contact header field SHALL be set to an 
+             unprotected port where the UE expects to receive subsequent requests.
+             [D:TS24229-5.1-98]
+
+        * Content-length
+            -If no body is present in a message, then the Content-Length header 
+             field value MUST be set to zero.[C:RFC3261-20.14-3]
+
+        * CSeq
+            -The Cseq method MUST match the method of Request-Line in the 
+             request.[C:RFC3261-8.1-14]
+            -The sequence number value in the CSeq header field MUST be 
+             expressible as a 32-bit unsigned integer. [C:RFC3261-8.1-15][C:RFC3261-20.16-1]
+            -The sequence number value in the CSeq header field MUST be less 
+             than 2**31. [C:RFC3261-8.1-16]
+
+        * From
+            -From header field SHALL be set to the SIP URI that contains the
+             public user identity to be registered or deregistered.[C:TS24229-5.1-31]
+            -The From field MUST contain a new "tag" parameter, chosen by the 
+             UAC.[C:RFC3261-8.1-9]
+
+        * Max-Forwards
+            -A UAC MUST insert a Max-Forwards header field into each request it 
+             originates. [C:RFC3261-8.1-17]
+            -The Max-Forwards header field value SHOULD be 70. [C:RFC3261-8.1-18]
+
+        * To
+            -To header field SHALL be set to the SIP URI that contains the public 
+             user identity to be registered or deregistered.[C:TS24229-5.1-32]
+            -A request outside of a dialog MUST NOT contain a To tag. 
+             [C:RFC3261-8.1-7]
+            -An address-of-record included in To header field MUST be a 
+             SIP URI or SIPS URI.[C:RFC3261-10.2-5]
+
+        * P-Access-Network-Info
+            -3GPP UA SHOULD NOT send P-Access-Network-Info header in any initial 
+             unauthenticated and unprotected request.[C:RFC3455-6.4-2]
+
+        * P-Called-Party-ID
+            -A UAC MUST NOT insert a P-Called-Party-ID header field in any SIP 
+             request or response.[C:RFC3455-4.2-1]
+
+        * Security-Client [AKA]
+            -The Security-Client header field SHALL be set to the security 
+             mechanism the UE supports, the IPsec layer algorithms the UE 
+             supports and the parameters needed for the security association 
+             setup.[A:TS24229-5.1-76]
+            -A client wishing to use the security agreement of this 
+             specification MUST add a Security-Client header field to a request 
+             addressed to its first-hop proxy.[A:RFC3329-2.3-2]
+
+        * Supported
+            -The option tag "path " SHALL be contained in the Supported header 
+             field.[C:TS24229-5.1-42]
+            -The UA SHOULD include the option tag "path" as a header field 
+             value in all Supported header fields.[C:RFC3327-5.1-1]
+            -The UA SHOULD include a Supported header field in all requests.
+             [C:RFC3327-5.1-2]
+
+        * Via
+            - The sent-by field of the Via header field shall include the IP address 
+             or FQDN of the UE and the port number where the UE expects to 
+             receive the response to this request when UDPis used.[C:TS24229-5.1-37]
+            -A UAC MUST insert a Via into that request. [C:RFC3261-8.1-19]
+            -The protocol name and protocol version in the Via header field 
+             MUST be SIP and 2.0. [C:RFC3261-8.1-20]
+            -The Via header field value MUST contain a branch parameter. 
+             [C:RFC3261-8.1-21]
+            -The branch ID MUST always begin with the characters "z9hG4bK". 
+             [C:RFC3261-8.1-23]
+            -The client transport MUST insert a value of the "sent-by" field 
+             into the Via header field.[C:RFC3261-18.1-7]
+          [AKA]
+            -The protected server port value SHALL be included in the sent-by 
+             field of the Via header field for the UDP.[A:TS24229-5.1-75]
+          [Digest]
+            -The sent-by field in Via header field SHALL be set to an unprotected 
+             port where the UE expects to receive subsequent requests.
+             [D:TS24229-5.1-99]
+
+    - Security Associations behavior [AKA]
+        -A Security-setup-line SHALL be included in REGISTER request in order 
+         to start the security mode set-up procedure.[A:TS33203-7.2-1]
+
+---------------------------------------------------------------------------------
+1.3  generic_Auth_REGISTER
+Generic judgement items for Auth_REGISTER request.
+
+   See generic_sip_message
+
+   -The empty line MUST be present even if the message-body is not. [C:RFC3261-7-2]
+   -The client SHOULD NOT retry the same request without modification.
+    [C:RFC3261-21.4-1]
+
+    - Request-Line:
+
+        -The Request-URI MUST NOT contain unescaped space control characters. 
+         [C:RFC3261-7.1-1]
+        -The Request-URI MUST NOT be enclosed in "<>". [C:RFC3261-7.1-2]
+        -The "userinfo" and "@" components of the SIP URI MUST NOT be present.
+         [C:RFC3261-10.2-4]
+
+    - Header fields:
+
+        -SIP request MUST contain To, From, CSeq, Call-ID, Max-Forwards, and 
+         Via header fields.[C:RFC3261-8.1-1]
+        -This new request  SHOULD have the same value of the Call-ID, To, and 
+         From of the previous request, but the CSeq should contain a new sequence 
+         number that is onehigher than the previous. [C:RFC3261-8.1-62]
+       [AKA]
+        -The client MUST add both a Require and Proxy-Require header field with 
+         the value "sec-agree" to its request.[A:RFC3329-2.3-4]
+        -A subsequent SIP requests MUST also have both a Require and 
+         Proxy-Require header fields with the value "sec-agree".[A:RFC3329-2.3-16]
+       [Digest]
+        -The REGISTER request SHALL not include Security-Client, Security-Verify 
+         header field and both a Require and Proxy-Require header fields with the value 
+         "sec-agree" if SIP digest without TLS is used.[D:TS24229-5.1-259]
+
+        * Authorization
+            -WWW-Authenticate, Authorization, Proxy-Authenticate or 
+             Proxy-Authorization MUST NOT be combined into a single header 
+             field row. [C:RFC3261-7.3-3]
+          [AKA]
+            -The UE SHALL include an Authorization header as defined for the initial REGISTER 
+             request that was challenged with the received 401 (Unauthorized) response.
+              [A:TS24229-5.1-226]
+            -The "realm" header field parameter in Authorization header field SHALL be 
+             set to the value as received in the "realm" header field in the 
+             WWW Authenticate header field.[A:TS24229-5.1-227]
+            -The "username" header field parameter in Authorization header field SHALL 
+             be set to the value of the private user identity.[A:TS24229-5.1-228]
+            -The "response" header field parameter in Authorization header field SHALL 
+             be set to the RES parameter.[A:TS24229-5.1-229]
+            -The "uri" header field parameter in Authorization header field SHALL be set to
+             the SIP URI of the domain name of the home network.[A:TS24229-5.1-230]
+            -The"algorithm" header field parameter in Authorization header field SHALL 
+             be set to the value received in the 401 (Unauthorized) response.
+             [A:TS24229-5.1-231]
+            -The "nonce" header field parameter in Authorization header field SHALL be 
+             set to the value received in the 401(Unauthorized) response.[A:TS24229-5.1-232]
+           [Digest]
+            -Another REGISTER request SHALL be sent containing an Authorization 
+             header field.[D:TS24229-5.1-256]
+            -Authorization header fields are populated as defined for the initial 
+             registration, with the addition that the header field SHALL be populated 
+             a challenge response, i.e. "cnonce", "qop", and "nonce-count" header field 
+             parameters.[D:TS24229-5.1-257]
+            -The 'uri' parameter of the Authorization header field MUST be enclosed 
+             in quotation marks.[D:RFC3261-22.4-20]
+            -If a client receives a "qop" parameter in a challenge header field, 
+             it MUST send the "qop" parameter in any resulting authorization 
+             header field.[D:RFC3261-22.4-23]
+            -The qop value MUST be one of the alternatives the server indicated 
+             it supports in the WWW-Authenticate header, if present.[D:RFC2617-3-4]
+            -The qop SHOULD be used if the server indicated that qop is supported 
+             by providing a qop directive in the WWW-Authenticate header field.
+             [D:RFC2617-3-5]
+            -The cnonce MUST be specified if a qop directive is sent 
+             a qop directive in the WWW-Authenticate header field.[D:RFC2617-3-6]
+            -The cnonce MUST NOT be specified if the server did not send 
+             a qop directive in the WWW-Authenticate header field.[D:RFC2617-3-7]
+            -The nonce-count MUST be specified if a qop directive is sent 
+             a qop directive in the WWW-Authenticate header field.[D:RFC2617-3-8]
+            -The nonce-count MUST NOT be specified if the server did not send 
+             a qop directive in the WWW-Authenticate header field.[D:RFC2617-3-9]
+
+        * Call-ID
+            -The Call-ID header field SHOULD be the same in each registration 
+             from a UA.[C:RFC3261-8.1-11]
+            -All registrations from a UAC SHOULD use the same Call-ID header 
+             field value for registrations sent to a particular registrar.
+             [C:RFC3261-10.2-6]
+           [AKA]
+            -Call-ID of the security association protected REGISTER request which
+             carries the authentication challenge response SHALL be set to the 
+             same value as the Call-ID of the 401 (Unauthorized) response.
+             [A:TS24229-5.1-235]
+           [Digest]
+            -Call-ID of REGISTER request which carries the authentication challenge 
+             response SHALL be set to the same value as the Call-ID of the 401 
+              (Unauthorized) response which carried the challenge.[D:TS24229-5.1-258]
+
+        * Contact
+            -UACs SHOULD NOT use the "action" parameter.[C:RFC3261-10.2-9]
+            -Even if the "display-name" is empty, the "name-addr" form MUST be 
+             used if the "addr-spec" contains a comma, semicolon, or question 
+             mark.[C:RFC3261-20.10-1]
+
+        * Content-length
+            -If no body is present in a message, then the Content-Length header 
+             field value MUST be set to zero.[C:RFC3261-20.14-3]
+
+        * CSeq
+            -The Cseq method MUST match the method of Request-Line in the 
+             request.[C:RFC3261-8.1-14]
+            -The sequence number value in the CSeq header field MUST be 
+             expressible as a 32-bit unsigned integer. [C:RFC3261-8.1-15][C:RFC3261-20.16-1]
+            -The sequence number value in the CSeq header field MUST be less 
+             than 2**31. [C:RFC3261-8.1-16]
+            -A UA MUST increment the CSeq value by one for each REGISTER 
+             request with the same Call-ID.[C:RFC3261-10.2-7]
+
+        * From
+            -The From field MUST contain a new "tag" parameter, chosen by the 
+             UAC.[C:RFC3261-8.1-9]
+
+        * Max-Forwards
+            -A UAC MUST insert a Max-Forwards header field into each request it 
+             originates. [C:RFC3261-8.1-17]
+            -The Max-Forwards header field value SHOULD be 70.
+             [C:RFC3261-8.1-18]
+
+        * P-Called-Party-ID
+            -A UAC MUST NOT insert a P-Called-Party-ID header field in any SIP 
+             request or response.[C:RFC3455-4.2-1]
+
+        * Security-Client [AKA]
+            -Security-Client header field that is identical to the 
+             Security-Client header field that was included in the previous 
+             REGISTER request SHALL be inserted into the request.
+             [A:TS24229-5.1-233]
+            -A client wishing to use the security agreement of this 
+             specification MUST add a Security-Client header field to a request 
+             addressed to its first-hop proxy.[A:RFC3329-2.3-2]
+
+        * Sucurity-Verify [AKA]
+            -The Security-Verify header field SHALL be mirrored the content of
+             the Security-Server header field received in the 401 (Unauthorized)
+             response.[A:TS24229-5.1-234]
+            -A subsequent SIP requests MUST contain a Security-Verify header 
+             field that mirrors the server's list received previously in the 
+             Security- Server header field.[A:RFC3329-2.3-15]
+
+        * Supported
+            -The UA SHOULD include the option tag "path" as a header field 
+             value in all Supported header fields.[C:RFC3327-5.1-1]
+            -The UA SHOULD include a Supported header field in all requests.
+             [C:RFC3327-5.1-2]
+
+        * To
+            -A request outside of a dialog MUST NOT contain a To tag. 
+             [C:RFC3261-8.1-7]
+            -An address-of-record included in To header field MUST be a 
+             SIP URI or SIPS URI.[C:RFC3261-10.2-5]
+
+        * Via
+            -A UAC MUST insert a Via into that request. [C:RFC3261-8.1-19]
+            -The protocol name and protocol version in the Via header field 
+             MUST be SIP and 2.0. [C:RFC3261-8.1-20]
+            -The Via header field value MUST contain a branch parameter. 
+             [C:RFC3261-8.1-21]
+            -The branch ID MUST always begin with the characters "z9hG4bK". 
+             [C:RFC3261-8.1-23]
+            -The client transport MUST insert a value of the "sent-by" field 
+             into the Via header field.[C:RFC3261-18.1-7]
+
+    - Security Association behavior [AKA]
+        -A temporary set of security associations SHALL be set up based on the 
+         static list and parameters it received in the 401 (Unauthorized) 
+         response and its capabilities sent in the Security-Client header field 
+         in the REGISTER request.[A:TS24229-5.1-221]
+        -The temporary set of security associations SHALL be set up using the 
+         most preferred mechanism and algorithm returned by the P-CSCF and 
+         supported by the UE and using IK and CK as the shared key.
+         [A:TS24229-5.1-222]
+        -The parameters received in the Security-Server header field SHALL be 
+         used to setup the temporary set of security associations.
+         [A:TS24229-5.1-223]
+        -REGISTER request SHALL be sent using the temporary set of 
+         security associations to protect the message.[A:TS24229-5.1-225]
+        -The REGISTER request for authentication SHALL include the integrity 
+         and encryption algorithms list, SPI_P, and Port_P received in 401
+          (Unauthorized) response, and SPI_U, Port_U sent in the initial REGISTER 
+         request.[A:TS33203-7.2-9]
+        -The REGISTER request for authentication to the P-CSCF SHALL be 
+         protected with the new outbound SA.[A:TS33203-7.4-18]
+        -All the subsequent SIP requests sent by the client to that server 
+         SHOULD make use of the security mechanism initiated in the previous 
+         step.[A:RFC3329-2.3-14]
+        -All clients MUST select HTTP Digest, TLS, IPsec, or any stronger method 
+         for the protection of the second request.[A:RFC3329-5-1]
+
+---------------------------------------------------------------------------------
+1.4  generic_re_REGISTER
+Generic judgement items for re_REGISTER request
+
+   See generic_sip_message
+
+   -The empty line MUST be present even if the message-body is not. [C:RFC3261-7-2]
+   -Registration refreshes SHOULD be sent to the same network address as the 
+    original registration.[C:RFC3261-10.2-16]
+
+    - Request-Line:
+
+        -Request-URI SHALL be set to the SIP URI of the domain name of the home 
+         network.[C:TS24229-5.1-162]
+        -The Request-URI MUST NOT contain unescaped space control characters. 
+         [C:RFC3261-7.1-1]
+        -The Request-URI MUST NOT be enclosed in "<>". [C:RFC3261-7.1-2]
+        -The "userinfo" and "@" components of the SIP URI MUST NOT be present.
+         [C:RFC3261-10.2-4]
+	
+    - Header fields
+
+        -An Expires header field or the expires parameter within the Contact header
+         field SHALL be set to the value of 600 000 seconds.[C:TS24229-5.1-161]
+        -SIP request MUST contain To, From, CSeq, Call-ID, Max-Forwards, and Via
+         header fields.  [C:RFC3261-8.1-1]
+       [AKA]
+        -The client MUST add both a Require and Proxy-Require header field with 
+         the value "sec-agree" to its request.[A:RFC3329-2.3-4]
+        -A subsequent SIP requests MUST also have both a Require and 
+         Proxy-Require header fields with the value "sec-agree".[A:RFC3329-2.3-16]
+       [Digest]
+        -The REGISTER request SHALL not include Security-Client, Security-Verify 
+         header field and both a Require and Proxy-Require header fields with the value 
+         "sec-agree" if SIP digest without TLS is used.[D:TS24229-5.1-259]
+
+        * Authorization header
+            -WWW-Authenticate, Authorization, Proxy-Authenticate or 
+             Proxy-Authorization MUST NOT be combined into a single header 
+             field row. [C:RFC3261-7.3-3]
+          [AKA]
+            -The username directive in Authorization header field SHALL be set 
+             to the value of the private user identity.[A:TS24229-5.1-183]
+            -The realm directive in Authorization header field SHALL be set to 
+             the value as received in the realm directive in the WWW 
+             Authenticate header field.[A:TS24229-5.1-184]
+            -The uri directive in Authorization header field SHALL be set to 
+             the SIP URI of the domain name of the home network.
+             [A:TS24229-5.1-185]
+            -The nonce directive in Authorization header field SHALL be set to 
+             last received nonce value.[A:TS24229-5.1-186]
+            -The response directive in Authorization header field SHALL be set 
+             to the last calculated response value.[A:TS24229-5.1-187]
+          [Digest]
+            -The username directive in Authorization header field SHALL be set
+             to the value of the private user identity.[D:TS24229-5.1-193]
+            -The realm directive in Authorization header field SHALL be set to
+             the value of the domain name of the home network.[D:TS24229-5.1-194]
+            -The uri directive in Authorization header field SHALL be set to the
+             SIP URI of the domain name of the home network.[D:TS24229-5.1-195]
+            -The nonce directive in Authorization header field SHALL be empty.
+             [D:TS24229-5.1-196]
+            -The response directive in Authorization header field SHALL be empty.
+             [D:TS24229-5.1-197]
+
+        * From
+            -From header field SHALL be set to the SIP URI that contains the
+             public user identity to be registered or deregistered.[C:TS24229-5.1-155]
+            -The From field MUST contain a new "tag" parameter, chosen by the 
+             UAC.[C:RFC3261-8.1-9]
+
+        * Max-Forwards
+            -A UAC MUST insert a Max-Forwards header field into each request it 
+             originates. [C:RFC3261-8.1-17]
+            -The Max-Forwards header field value SHOULD be 70. [C:RFC3261-8.1-18]
+
+        * Call-ID
+            -The Call-ID header field SHOULD be the same in each registration 
+             from a UA.[C:RFC3261-8.1-11]
+            -All registrations from a UAC SHOULD use the same Call-ID header 
+             field value for registrations sent to a particular registrar.
+             [C:RFC3261-10.2-6]
+            -A UA SHOULD use the same Call-ID for all registrations during a 
+             single boot cycle.[C:RFC3261-10.2-15]
+
+        * Contact
+            -Contact header field SHALL be set to IP address or FQDN.
+             [C:TS24229-5.1-157]
+            -UACs SHOULD NOT use the "action" parameter.[C:RFC3261-10.2-9]
+            -Even if the "display-name" is empty, the "name-addr" form MUST be 
+             used if the "addr-spec" contains a comma, semicolon, or question 
+             mark.[C:RFC3261-20.10-1]
+          [AKA]
+            -Contact header field SHALL be set to protected server port value.
+             [A:TS24229-5.1-188]
+          [Digest]
+            -The port value in Contact header field SHALL be set to an unprotected 
+             port where the UE expects to receive subsequent requests.
+             [D:TS24229-5.1-198]
+
+        * Content-length
+            -If no body is present in a message, then the Content-Length header 
+             field value MUST be set to zero.[C:RFC3261-20.14-3]
+
+        * CSeq
+            -The Cseq method MUST match the method of Request-Line in the request.
+             [C:RFC3261-8.1-14]
+            -The sequence number value in the CSeq header field MUST be 
+             expressible as a 32-bit unsigned integer. [C:RFC3261-8.1-15][C:RFC3261-20.16-1]
+            -The sequence number value in the CSeq header field MUST be less 
+             than 2**31. [C:RFC3261-8.1-16]
+            -A UA MUST increment the CSeq value by one for each REGISTER request 
+             with the same Call-ID.[C:RFC3261-10.2-7]
+
+        * To
+            -To header field SHALL be set to the SIP URI that contains the
+             public user identity to be registered or deregistered.[C:TS24229-5.1-156]
+            -A request outside of a dialog MUST NOT contain a To tag. [C:RFC3261-8.1-7]
+            -An address-of-record included in To header field MUST be a 
+             SIP URI or SIPS URI.[C:RFC3261-10.2-5]
+
+        * P-Called-Party-ID
+            -A UAC MUST NOT insert a P-Called-Party-ID header field in any SIP 
+             request or response.[C:RFC3455-4.2-1]
+
+        * Security-Client [AKA]
+            -Security-Client header field SHALL be set to the security 
+             mechanism it supports, the IPsec layer algorithms for security 
+             and confidentiality protection it supports and the new parameter 
+             values needed for the setup of two new pairs of security 
+             associations.[A:TS24229-5.1-190]
+            -A client wishing to use the security agreement of this 
+             specification MUST add a Security-Client header field to a request 
+             addressed to its first-hop proxy.[A:RFC3329-2.3-2]
+
+        * Security-Verify [AKA]
+            -Security-Verify header field SHALL be set to the content of the
+             Security-Server header received in the 401 (Unauthorized) response of
+             the last successful authentication.[A:TS24229-5.1-191]
+            -A subsequent SIP requests MUST contain a Security-Verify header 
+             field that mirrors the server's list received previously in the 
+             Security- Server header field.[A:RFC3329-2.3-15]
+
+        * Supported
+            -The option tag "path" SHALL be contained in Supported header field.
+             [C:TS24229-5.1-163]
+            -The UA SHOULD include the option tag "path" as a header field 
+             value in all Supported header fields.[C:RFC3327-5.1-1]
+            -The UA SHOULD include a Supported header field in all requests.
+             [C:RFC3327-5.1-2]
+
+        * Via
+            -Via header field SHALL be set to IP address or FQDN.
+              [C:TS24229-5.1-160]
+            -A UAC MUST insert a Via into that request. [C:RFC3261-8.1-19]
+            -The protocol name and protocol version in the Via header field 
+             MUST be SIP and 2.0. [C:RFC3261-8.1-20]
+            -The Via header field value MUST contain a branch parameter. 
+             [C:RFC3261-8.1-21]
+            -The branch ID MUST always begin with the characters "z9hG4bK". 
+             [C:RFC3261-8.1-23]
+            -The client transport MUST insert a value of the "sent-by" field 
+             into the Via header field.[C:RFC3261-18.1-7]
+          [AKA]
+            -The protected server port value for the UDP SHALL be included in 
+             Via header field.[A:TS24229-5.1-189]
+          [Digest]
+            -The port value in Via header field SHALL be set to an unprotected 
+             port where the UE expects to receive responses to the request.
+             [D:TS24229-5.1-199]
+
+    - Security Association behavior [AKA]
+        -The REGISTER request SHALL be protected using a security association 
+         established as a result of an earlier registration.[A:TS24229-5.1-153]
+        -A Security-setup-line SHALL be included in REGISTER request in order 
+         to start the security mode set-up procedure.[A:TS33203-7.2-1]
+        -The first message in this registration SHOULD be protected with an SA 
+         created by a previous successful authentication if one exists.
+         [A:TS33203-7.3-8]
+        -An already active pair of security associations SHALL be used to 
+         protect the REGISTER request.[A:TS33203-7.4-3]
+        -A particular security association SHALL protect the certain messages
+         in the authentication.[A:TS33203-7.4-12]
+        -The REGISTER request SHALL be protected with the old outbound security 
+         association if the initial REGISTER request was protected.
+         [A:TS33203-7.4-14]
+        -All the subsequent SIP requests sent by the client to that server 
+         SHOULD make use of the security mechanism initiated in the previous 
+         step.[A:RFC3329-2.3-14]
+
+---------------------------------------------------------------------------------
+1.5  generic_de_REGISTER
+Generic judgement items for re_REGISTER request.
+
+   See generic_sip_message
+
+   -The empty line MUST be present even if the message-body is not. [C:RFC3261-7-2]
+
+    - Request-Line:
+
+        -Request-URI SHALL be set to the SIP URI of the domain name of the home 
+         network.[C:TS24229-5.1-302]
+        -The Request-URI MUST NOT contain unescaped space control characters. 
+         [C:RFC3261-7.1-1]
+        -The Request-URI MUST NOT be enclosed in "<>". [C:RFC3261-7.1-2]
+        -The "userinfo" and "@" components of the SIP URI MUST NOT be present.
+         [C:RFC3261-10.2-4]
+
+    - Header fields:
+
+        -Expires header or the expires parameter of the Contact header field 
+         SHALL be set to the value of zero.[C:TS24229-5.1-301]
+        -SIP request MUST contain To, From, CSeq, Call-ID, Max-Forwards, and Via
+         header fields.  [C:RFC3261-8.1-1]
+        -The REGISTER-specific Contact header field value of "*" applies to all 
+         registrations, but it MUST NOT be used unless the Expires header field 
+         is present with a value of "0".[C:RFC3261-10.2-13]
+       [AKA]
+        -The client MUST add both a Require and Proxy-Require header field with 
+         the value "sec-agree" to its request.[A:RFC3329-2.3-4]
+        -A subsequent SIP requests MUST also have both a Require and 
+         Proxy-Require header fields with the value "sec-agree".[A:RFC3329-2.3-16]
+       [Digest]
+        -The REGISTER request SHALL not include Security-Client, Security-Verify 
+         header field and both a Require and Proxy-Require header fields with the value 
+         "sec-agree" if SIP digest without TLS is used.[D:TS24229-5.1-259]
+
+        * Authorization
+            -WWW-Authenticate, Authorization, Proxy-Authenticate or 
+             Proxy-Authorization MUST NOT be combined into a single header 
+             field row. [C:RFC3261-7.3-3]
+          [AKA]
+            -The username directive in Authorization header field SHALL be set 
+             to the value of the private user identity.[A:TS24229-5.1-313]
+            -The realm directive in Authorization header field SHALL be set to 
+             the value as received in the realm directive in the 
+             WWW-Authenticate header.[A:TS24229-5.1-314]
+            -The uri directive in Authorization header field SHALL be set to 
+             the SIP URI of the domain name of the home network.
+             [A:TS24229-5.1-315]
+            -The nonce directive in Authorization header field SHALL be set to 
+             last received nonce value.[A:TS24229-5.1-316]
+            -The response directive in Authorization header field SHALL be set 
+             to the last calculated response value.[A:TS24229-5.1-317]
+          [Digest]
+            -The username directive in Authorization header field SHALL be set to 
+             the value of the private user identity.[D:TS24229-5.1-323]
+            -The realm directive in Authorization header field SHALL be set to the 
+             value of the domain name of the home network.[D:TS24229-5.1-324]
+            -The uri directive in Authorization header field SHALL be set to the
+             SIP URI of the domain name of the home network.[D:TS24229-5.1-325]
+            -The nonce directive in Authorization header field SHALL be empty.
+             [D:TS24229-5.1-326]
+            -The response directive in Authorization header field SHALL be empty.
+             [D:TS24229-5.1-327]
+
+        * Call-ID
+            -The Call-ID header field SHOULD be the same in each registration 
+             from a UA.[C:RFC3261-8.1-11]
+            -All registrations from a UAC SHOULD use the same Call-ID header 
+             field value for registrations sent to a particular registrar.
+             [C:RFC3261-10.2-6]
+
+        * Contact
+            -Contact header field SHALL be set to either the value of "*" or SIP URI(s) 
+             that contain(s) in the hostport parameter the IP address of the UE or FQDN.
+             [C:TS24229-5.1-298]
+            -UACs SHOULD NOT use the "action" parameter.[C:RFC3261-10.2-9]
+            -Even if the "display-name" is empty, the "name-addr" form MUST be 
+             used if the "addr-spec" contains a comma, semicolon, or question 
+             mark.[C:RFC3261-20.10-1]
+          [AKA]
+            -Contact header field SHALL be set to the protected server port value 
+             bound to the security association.[A:TS24229-5.1-318]
+          [Digest]
+            -The port value in Contact header field SHALL be set to the associated 
+             unprotected port value (where the UE was expecting to receive mid-dialog 
+             requests).[D:TS24229-5.1-328]
+
+        * Content-length
+            -If no body is present in a message, then the Content-Length header 
+             field value MUST be set to zero.[C:RFC3261-20.14-3]
+
+        * CSeq
+            -The Cseq method MUST match the method of Request-Line in the request.
+             [C:RFC3261-8.1-14]
+            -The sequence number value in the CSeq header field MUST be 
+             expressible as a 32-bit unsigned integer. [C:RFC3261-8.1-15][C:RFC3261-20.16-1]
+            -The sequence number value in the CSeq header field MUST be less 
+             than 2**31. [C:RFC3261-8.1-16]
+            -A UA MUST increment the CSeq value by one for each REGISTER request 
+             with the same Call-ID.[C:RFC3261-10.2-7]
+
+        * From
+            -From header field SHALL be set to the SIP URI that contains the public 
+             user identity to be registered or deregistered.[C:TS24229-5.1-296]
+            -The From field MUST contain a new "tag" parameter, chosen by the 
+             UAC.[C:RFC3261-8.1-9]
+
+        * Max-Forwards
+            -A UAC MUST insert a Max-Forwards header field into each request it 
+             originates. [C:RFC3261-8.1-17]
+            -The Max-Forwards header field value SHOULD be 70. [C:RFC3261-8.1-18]
+
+        * P-Called-Party-ID
+            -A UAC MUST NOT insert a P-Called-Party-ID header field in any SIP 
+             request or response.[C:RFC3455-4.2-1]
+
+        * Security-Client [AKA]
+            -Security-Client header field SHALL be set to the security 
+             mechanism it supports, the IPsec layer algorithms for integrity 
+             and confidentiality protection it supports and the new parameter 
+             values needed for the setup of two new pairs of security 
+             associations.[A:TS24229-5.1-320]
+            -A client wishing to use the security agreement of this 
+             specification MUST add a Security-Client header field to a request 
+             addressed to its first-hop proxy.[A:RFC3329-2.3-2]
+
+        * Security-Verify [AKA]
+            -Security-Verify header field SHALL be set to the content of the
+             Security-Server header received in the 401 (Unauthorized) response of
+             the last successful authentication.[A:TS24229-5.1-322]
+            -A subsequent SIP requests MUST contain a Security-Verify header 
+             field that mirrors the server's list received previously in the 
+             Security- Server header field.[A:RFC3329-2.3-15]
+
+        * Supported
+            -The UA SHOULD include the option tag "path" as a header field 
+             value in all Supported header fields.[C:RFC3327-5.1-1]
+            -The UA SHOULD include a Supported header field in all requests.
+             [C:RFC3327-5.1-2]
+
+        * To
+            -To header field SHALL be set to the SIP URI that contains the public
+             user identity to be registered or deregistered.[C:TS24229-5.1-297]
+            -A request outside of a dialog MUST NOT contain a To tag. 
+             [C:RFC3261-8.1-7]
+            -An address-of-record included in To header field MUST be a 
+             SIP URI or SIPS URI.[C:RFC3261-10.2-5]
+
+        * Via
+            -The IP address or FQDN of the UE SHALL be included in 
+             Via header field.[C:TS24229-5.1-300]
+            -A UAC MUST insert a Via into that request. [C:RFC3261-8.1-19]
+            -The protocol name and protocol version in the Via header field 
+             MUST be SIP and 2.0. [C:RFC3261-8.1-20]
+            -The Via header field value MUST contain a branch parameter. 
+             [C:RFC3261-8.1-21]
+            -The branch ID MUST always begin with the characters "z9hG4bK". 
+             [C:RFC3261-8.1-23]
+            -The client transport MUST insert a value of the "sent-by" field 
+             into the Via header field.[C:RFC3261-18.1-7]
+          [AKA]
+            -The protected server port value for the UDP SHALL be included in 
+             Via header field.[A:TS24229-5.1-319]
+          [Digest]
+            -The port value in Via header field SHALL be set to an unprotected port 
+             where the UE expects to receive responses to the request.
+             [D:TS24229-5.1-329]
+
+    - Security Association behavior[AKA]
+        -The REGISTER request SHALL be protected using a security association 
+         established as a result of an earlier registration.[A:TS24229-5.1-290]
+        -A Security-setup-line SHALL be included in REGISTER request in order 
+         to start the security mode set-up procedure.[A:TS33203-7.2-1]
+        -All the subsequent SIP requests sent by the client to that server 
+         SHOULD make use of the security mechanism initiated in the previous 
+         step.[A:RFC3329-2.3-14]
+
+---------------------------------------------------------------------------------
+1.6  generic_SUBSCRIBE
+Generic judgement items for SUBSCRIBE request.
+
+   See generic_sip_message
+
+   -The empty line MUST be present even if the message-body is not. [C:RFC3261-7-2]
+
+    - Request-Line:
+
+        -Request-URI SHALL be set to the resource to which the UE wants to be
+         subscribed to.[C:TS24229-5.1-123]
+        -The Request-URI MUST NOT contain unescaped space control characters.
+         [C:RFC3261-7.1-1]
+        -The Request-URI MUST NOT be enclosed in "<>". [C:RFC3261-7.1-2]
+        -The initial Request-URI of the message SHOULD be set to the value of
+         the URI in the To field.[C:RFC3261-8.1-2]
+
+    - Header fields:
+
+        -SIP request MUST contain To, From, CSeq, Call-ID, Max-Forwards, and Via
+         header fields.  [C:RFC3261-8.1-1]
+      [AKA]
+        -These requests MUST also have both a Require and Proxy-Require header
+         fields with the value "sec-agree".[A:RFC3329-2.3-16]
+      [Digest]
+        -Security-Client, Security-Verify header field and both a Require and Proxy-Require
+         header fields with the value "sec-agree" SHALL not be included in any SIP
+         messages if SIP digest without TLS is used.[D:TS24229-5.1-363]
+
+        * Allow-Events
+            -Any node implementing one or more event packages SHOULD include an 
+             appropriate "Allow-Events" header indicating all supported events 
+             in all methods which initiate dialogs and their responses and
+             OPTIONS responses.[C:RFC3265-3.3-5]
+
+        * Contact
+            -Contact header field SHALL be set to IP address or FQDN as 
+             in the initial registration .[C:TS24229-5.1-129]
+            -The Contact header field MUST be present and contain exactly one SIP
+             or SIPS URI in any request that can result in the establishment of
+             a dialog.[C:RFC3261-8.1-24]
+            -Even if the "display-name" is empty, the "name-addr" form MUST be 
+             used if the "addr-spec" contains a comma, semicolon, or question 
+             mark.[C:RFC3261-20.10-1]
+          [AKA]
+            -Contact header field set to containthe protected server port value as
+             in the initial registration.[A:TS24229-5.1-130]
+            -UE SHALL populate the Contact header field of the request with 
+             the protected server port and the respective contact address 
+             if the UE has not obtained a GRUU and IMS AKA is being used.
+             [A:TS24229-5.1-355]
+           [Digest]
+            -The port value in Contact header field SHALL be set to an unprotected 
+              port where the UE expects to receive subsequent mid-dialog requests.
+              [D:TS24229-5.1-131]
+            -The port value in Contact header field SHALL be set the unprotected 
+              port value to the port value used in the initial REGISTER request.
+              [D:TS24229-5.1-132]
+            -UE SHALL populate the Contact header field of the request with 
+              the port value of an unprotected port and the contact address where 
+              the UE expects to receive subsequent mid-dialog requests if the UE 
+              has not obtained a GRUU and SIP digest without TLS is being 
+              used.[D:TS24229-5.1-357]
+
+        * Content-length
+            -If no body is present in a message, then the Content-Length header 
+             field value MUST be set to zero.[C:RFC3261-20.14-3]
+
+        * CSeq
+            -The Cseq method MUST match the method of Request-Line in the 
+             request.[C:RFC3261-8.1-14][C:RFC3261-12.2-11]
+            -The sequence number value in the CSeq header field MUST be
+             expressible as a 32-bit unsigned integer.[C:RFC3261-8.1-15][C:RFC3261-20.16-1]
+            -The sequence number value in the CSeq header field MUST be less
+             than 2**31. [C:RFC3261-8.1-16]
+
+        * Event
+            -Event header field SHALL be set to the "reg" event package.
+             [C:TS24229-5.1-126]
+            -Subscribers MUST include exactly one "Event" header in SUBSCRIBE
+             requests, indicating to which event or class of events they are
+             subscribing.[C:RFC3265-3.1-4]
+            -There MUST be exactly one event type listed per event header.
+             [C:RFC3265-7.2-2]
+
+        * Expires
+            -Expires header field SHALL be set to 600 000 seconds as the value
+             desired for the duration of the subscription.[C:TS24229-5.1-127]
+            -The SUBSCRIBE requests SHOULD contain an "Expires" header.
+             [C:RFC3265-3.1-1] 
+
+        * From
+            -From header field SHALL be set to a SIP URI that contains the public
+             user identity used for subscription.[C:TS24229-5.1-124]
+            -The From field MUST contain a new "tag" parameter, chosen by the UAC.
+             [C:RFC3261-8.1-9]
+
+        * Max-Forwards
+            -A UAC MUST insert a Max-Forwards header field into each request it
+             originates.[C:RFC3261-8.1-17]
+            -The Max-Forwards header field value SHOULD be 70.[C:RFC3261-8.1-18]
+
+        * P-Called-Party-ID
+            -A UAC MUST NOT insert a P-Called-Party-ID header field in any SIP
+             request or response.[C:RFC3455-4.2-1]
+
+        * P-Preferred-Identity
+            -The P-Preferred-Identity header field SHALL be used as the public
+             user identity for the request if a P-Preferred-Identity was included.
+             [C:TS24229-5.1-378]
+          [AKA]
+            -The default public user identity for the security association SHALL
+             be used as the public user identity for the request if no
+             P-Preferred-Identity was included.[A:TS24229-5.1-379]
+
+        * Route
+            -A proper preloaded Route header value SHALL be built in Route header
+             for all new dialog and standalone transactions.[C:TS24229-5.1-398]
+            -A list of Route header values made out of the P-CSCF URI  containing 
+             the IP address or the FQDN learnt through the P-CSCF discovery 
+             procedure SHALL be built in Route header. [C:TS24229-5.1-400]
+            -A list of Route header values made out of the values received in 
+             the Service-Route header field saved from the 200 (OK) response to 
+             the last registration or re-registration of the public user identity with 
+             associated contact address SHALL be built in Route header. 
+             [C:TS24229-5.1-404]
+            -If the request contains a Route header field, the request SHOULD
+             be sent to the locations derived from its topmost value.
+             [C:RFC3261-8.1-38]
+          [AKA]
+            -A list of Route header values made out of the P-CSCF port  containing 
+             the protected server port learned during the registration procedure 
+             SHALL be built in Route header. [A:TS24229-5.1-402]
+          [Digest]
+            -A list of Route header values made out of the P-CSCF port  containing 
+             the unprotected server port learned during the registration procedure 
+             SHALL be built in Route header. [D:TS24229-5.1-403]
+
+        * Security-Verify [AKA]
+            -A subsequent SIP requests MUST contain a Security-Verify header 
+             field that mirrors the server's list received previously in the 
+             Security- Server header field.[A:RFC3329-2.3-15]
+
+        * To
+            -To header field SHALL be set to a SIP URI that contains the public
+             user identity used for subscription.[C:TS24229-5.1-125]
+            -A request outside of a dialog MUST NOT contain a To tag. 
+             [C:RFC3261-8.1-7]
+
+        * Via
+            -A UAC MUST insert a Via into that request. [C:RFC3261-8.1-19]
+            -The protocol name and protocol version in the Via header field MUST
+             be SIP and 2.0. [C:RFC3261-8.1-20]
+            -The Via header field value MUST contain a branch parameter.
+             [C:RFC3261-8.1-21]
+            -The branch ID MUST always begin with the characters "z9hG4bK".
+             [C:RFC3261-8.1-23]
+            -The client transport MUST insert a value of the "sent-by" field 
+             into the Via header field.[C:RFC3261-18.1-7]
+          [AKA]
+            -The protected server port and the respective contact address SHALL be 
+             included in the Via header entry relating to the UE if the has not obtained 
+             a GRUU and IMS AKA is being used.[A:TS24229-5.1-356]
+          [Digest]
+            -UE SHALL populate the Via header field of the request with the port value of 
+             an unprotected port and the respective contact address where the UE expects 
+             to receive responses to the request if the has not obtained a GRUU and 
+             SIP digest without TLS is being used.[D:TS24229-5.1-358]
+
+    - Security Association behavior [AKA]
+        -All the subsequent SIP requests sent by the client to that server
+         SHOULD make use of the security mechanism initiated in the previous
+         step.[A:RFC3329-2.3-14]
+
+---------------------------------------------------------------------------------
+1.7  generic_re_SUBSCRIBE
+Generic judgement items for Re-SUBSCRIBE request.
+
+   See generic_sip_message
+
+   -The information for the established dialog and the expiration time as
+    indicated in the Expires header field of the received response SHALL be
+    stored by UE.[C:TS24229-5.1-133]
+   -The empty line MUST be present even if the message-body is not. [C:RFC3261-7-2]
+
+    - Request-Line:
+
+        -The Request-URI MUST NOT contain unescaped space control characters.
+         [C:RFC3261-7.1-1]
+        -The Request-URI MUST NOT be enclosed in "<>". [C:RFC3261-7.1-2]
+        -The UAC MUST place the remote target URI into the Request-URI if the
+         route set is not empty and the first URI in the route set contains the
+         lr parameter.[C:RFC3261-12.2-14]
+
+    - Header fields:
+
+        -SIP request MUST contain To, From, CSeq, Call-ID, Max-Forwards, and Via
+         header fields.  [C:RFC3261-8.1-1]
+       [AKA]
+        -A subsequent SIP requests MUST also have both a Require and Proxy-Require
+         header fields with the value "sec-agree".[A:RFC3329-2.3-16]
+       [Digest]
+        -Security-Client, Security-Verify header field and both a Require and Proxy-Require
+         header fields with the value "sec-agree" SHALL not be included in any SIP
+         messages if SIP digest without TLS is used.[D:TS24229-5.1-363]
+ 
+        * Allow-Events
+            -Any node implementing one or more event packages SHOULD include an
+             appropriate "Allow-Events" header indicating all supported events
+             in all methods which initiate dialogs and their responses and OPTIONS
+             responses.[C:RFC3265-3.3-5]
+
+        * Call-ID
+            -The Call-ID header field MUST be the same for all requests and
+             responses sent by either UA in a dialog.[C:RFC3261-8.1-10]
+            -The Call-ID of the request MUST be set to the Call-ID of the dialog.
+             [C:RFC3261-12.2-6]
+
+        * Contact
+            -The UE SHOULD insert the previously used Contact header field in
+             Contact header field. [C:TS24229-5.1-386]  
+            -Even if the "display-name" is empty, the "name-addr" form MUST be
+             used if the "addr-spec" contains a comma, semicolon, or question mark.
+             [C:RFC3261-20.10-1]
+          [AKA]
+            -UE SHALL populate the Contact header field of the request with 
+             the protected server port and the respective contact address 
+             if the UE has not obtained a GRUU and IMS AKA is being used.
+             [A:TS24229-5.1-355]
+          [Digest]
+            -UE SHALL populate the Contact header field of the request with 
+             the port value of an unprotected port and the contact address where 
+             the UE expects to receive subsequent mid-dialog requests if the UE 
+             has not obtained a GRUU and SIP digest without TLS is being used.
+             [D:TS24229-5.1-357]
+
+        * Content-length
+            -If no body is present in a message, then the Content-Length header 
+             field value MUST be set to zero.[C:RFC3261-20.14-3]
+
+        * CSeq
+            -The Cseq method MUST match the method of Request-Line in the request.
+             [C:RFC3261-8.1-14]
+            -The sequence number value in the CSeq header field MUST be expressible
+             as a 32-bit unsigned integer.[C:RFC3261-8.1-15][C:RFC3261-20.16-1]
+            -The sequence number value in the CSeq header field MUST be less
+             than 2**31.[C:RFC3261-8.1-16]
+            -Requests within a dialog MUST contain strictly monotonically increasing
+             and contiguous CSeq sequence numbers in each direction.[C:RFC3261-12.2-7]
+            -The value of the local sequence number MUST be incremented by one if
+             the local sequence number is not empty.[C:RFC3261-12.2-8]
+            -The value of the local sequence number that be incremented by one MUST
+             be placed into the CSeq header field if the local sequence number is 
+             not empty.[C:RFC3261-12.2-9]
+
+        * Event
+            -Subscribers MUST include exactly one "Event" header in SUBSCRIBE
+             requests, indicating to which event or class of events they are
+             subscribing.[C:RFC3265-3.1-4]
+            -There MUST be exactly one event type listed per event header.
+             [C:RFC3265-7.2-2]
+
+        * Expires
+            -The SUBSCRIBE requests SHOULD contain an "Expires" header.
+             [C:RFC3265-3.1-1]
+
+        * From
+            -The From URI of the request MUST be set to the local URI from the
+             dialog state.[C:RFC3261-12.2-3]
+            -The tag in the From header field of the request MUST be set to the
+             local tag of the dialog ID.[C:RFC3261-12.2-4]
+
+        * Max-Forwards
+            -A UAC MUST insert a Max-Forwards header field into each request it 
+             originates. [C:RFC3261-8.1-17]
+            -The Max-Forwards header field value SHOULD be 70. [C:RFC3261-8.1-18]
+
+        * P-Called-Party-ID
+             -A UAC MUST NOT insert a P-Called-Party-ID header field in any SIP
+              request or response.[C:RFC3455-4.2-1]
+
+        * Route
+             -If the request contains a Route header field, the request SHOULD
+              be sent to the locations derived from its topmost value.
+              [C:RFC3261-8.1-38]
+             -The UAC MUST include a Route header field containing the route set
+              values in order including
+              all parameters if the route set is not empty, and the first URI in
+              the route set contains the lr parameter.[C:RFC3261-12.2-15]
+              
+        * Security-Verify [AKA]
+             -A subsequent SIP requests MUST contain a Security-Verify header
+              field that mirrors the server's list received previously in the
+              Security- Server header field.[A:RFC3329-2.3-15]
+
+        * To
+             -The URI in the To field of the request MUST be set to the remote
+              URI from the dialog state.[C:RFC3261-12.2-1]
+             -The tag in the To header field of the request MUST be set to the
+              remote tag of the dialog ID.[C:RFC3261-12.2-2]
+ 
+        * Via
+             -A UAC MUST insert a Via into that request. [C:RFC3261-8.1-19]
+             -The protocol name and protocol version in the Via header field
+              MUST be SIP and 2.0.[C:RFC3261-8.1-20]
+             -The Via header field value MUST contain a branch parameter.
+              [C:RFC3261-8.1-21]
+             -The branch ID MUST always begin with the characters "z9hG4bK".
+              [C:RFC3261-8.1-23]
+             -The client transport MUST insert a value of the "sent-by" field
+              into the Via header field.[C:RFC3261-18.1-7]
+          [AKA]
+            -The protected server port and the respective contact address SHALL be 
+              included in the Via header entry relating to the UE if the has not obtained 
+              a GRUU and IMS AKA is being used.[A:TS24229-5.1-356]
+          [Digest]
+            -UE SHALL populate the Via header field of the request with the port value of 
+              an unprotected port and the respective contact address where the UE expects 
+              to receive responses to the request if the has not obtained a GRUU and 
+              SIP digest without TLS is being used.[D:TS24229-5.1-358]
+
+    - Security Association behavior [AKA]
+        -All the subsequent SIP requests sent by the client to that server
+         SHOULD make use of the security mechanism initiated in the previous
+         step.[A:RFC3329-2.3-14]
+
+---------------------------------------------------------------------------------
+1.8  generic_200-NOTIFY
+Generic judgement items for 200-NOTIFY response.
+
+   See generic_sip_message
+
+   -The empty line MUST be present even if the message-body is not. [C:RFC3261-7-2]
+   -TUs SHOULD respond immediately to non-INVITE requests.[C:RFC3261-17.1-1]
+
+    - Header fields:
+
+        * Call-ID
+            -The Call-ID header field MUST be the same for all requests and 
+             responses sent by either UA in a dialog.[C:RFC3261-8.1-10]
+            -The Call-ID header field of the response MUST equal the Call-ID 
+             header field of the request.[C:RFC3261-8.2-37]
+
+        * Content-length
+            -If no body is present in a message, then the Content-Length header 
+             field value MUST be set to zero.[C:RFC3261-20.14-3]
+
+        * CSeq
+            -The CSeq header field of the response MUST equal the CSeq field of 
+             the request.[C:RFC3261-8.2-38]
+
+        * From
+            -The From field of the response MUST equal the From header field of 
+             the request.[C:RFC3261-8.2-36]
+
+        * P-Called-Party-ID
+            -A UAC MUST NOT insert a P-Called-Party-ID header field in any SIP 
+             request or response.[C:RFC3455-4.2-1]
+
+        * To
+            -If a request contained a To tag in the request, the To header field 
+             in the response MUST equal that of the request.[C:RFC3261-8.2-41]
+            -The same tag MUST be used for all responses to that request, both 
+             final and provisional. [C:RFC3261-8.2-44]
+
+        * Via
+            -The Via header field values in the response MUST equal the Via header 
+             field values in the request and MUST maintain the same ordering. 
+             [C:RFC3261-8.2-39][C:RFC3261-8.2-40]
+            -If the host portion of the "sent-by" parameter contains a domain name, 
+             or if it contains an IP address that differs from the packet source 
+             address, the server MUST add a "received" parameter to that Via header 
+             field value.[C:RFC3261-18.2-5]
+            -The "received" parameter MUST contain the source address from which 
+             the packet was received.[C:RFC3261-18.2-6]
+            -The response MUST be sent to the address in the "received" parameter, 
+             using the port indicated in the "sent-by" value, or using port 5060 
+             if none is specified explicitly.[C:RFC3261-18.2-13]
+
+---------------------------------------------------------------------------------
+1.9  generic_INVITE
+Generic judgement items for INVITE request.
+
+   See generic_sip_message
+
+    - Request-Line:
+
+        -The Request-URI MUST NOT contain unescaped space control characters.
+         [C:RFC3261-7.1-1]
+        -The Request-URI MUST NOT be enclosed in "<>". [C:RFC3261-7.1-2]
+        -The initial Request-URI of the message SHOULD be set to the value of the 
+         URI in the To field.[C:RFC3261-8.1-2]
+
+    - Header fields:
+
+        -The UE SHALL include the Accept header field with "application/sdp", 
+         the MIME type associated with the 3GPP IM CN subsystem XML body 
+         and any other MIME type the UE is willing and capable to accept, 
+         when generating an initial INVITE request, [C:TS24229-5.1-454]
+        -SIP request MUST contain To, From, CSeq, Call-ID, Max-Forwards, and Via
+         header fields.  [C:RFC3261-8.1-1]
+      [AKA]
+        -These requests MUST also have both a Require and Proxy-Require header 
+         fields with the value "sec-agree".[A:RFC3329-2.3-16]
+      [Digest]
+        -Security-Client, Security-Verify header field and both a Require and Proxy-Require
+         header fields with the value "sec-agree" SHALL not be included in any SIP
+         messages if SIP digest without TLS is used.[D:TS24229-5.1-363]
+
+        * Allow
+            -A UA that supports INVITE MUST also support ACK, CANCEL and BYE.
+            [C:RFC3261-13.1-1]
+            -An Allow header field SHOULD be present in the INVITE.
+            [C:RFC3261-13.2-1]
+
+        * Allow-Events
+            -Any node implementing one or more event packages SHOULD include an 
+             appropriate "Allow-Events" header indicating all supported events 
+             in all methods which initiate dialogs and their responses and 
+             OPTIONS responses.[C:RFC3265-3.3-5]
+
+        * Contact
+            -The Contact header field MUST be present and contain exactly one SIP 
+             or SIPS URI in any request that can result in the establishment of a 
+             dialog.[C:RFC3261-8.1-24]
+            -Even if the "display-name" is empty, the "name-addr" form MUST be 
+             used if the "addr-spec" contains a comma, semicolon, or question 
+             mark.[C:RFC3261-20.10-1]
+          [AKA]
+            -UE SHALL populate the Contact header field of the request with 
+             the protected server port and the respective contact address 
+             if the UE has not obtained a GRUU and IMS AKA is being used.
+             [A:TS24229-5.1-355]
+          [Digest]
+            -UE SHALL populate the Contact header field of the request with 
+             the port value of an unprotected port and the contact address where 
+             the UE expects to receive subsequent mid-dialog requests if the UE 
+             has not obtained a GRUU and SIP digest without TLS is being 
+             used.[D:TS24229-5.1-357]
+
+        * Content-Encoding
+            -If the body has not undergone any encoding such as compression, 
+             then Content-Encoding MUST be omitted. [C:RFC3261-7.4-3]
+
+        * Content-Type
+            -The Internet media type of the message body MUST be given by the 
+             Content-Type header field.[C:RFC3261-7.4-1]
+            -The Content-Type header field MUST be present if the body is not 
+             empty.[C:RFC3261-20.15-1]
+
+        * CSeq
+            -The Cseq method MUST match the method of Request-Line in the request.
+             [C:RFC3261-8.1-14]
+            -The sequence number value in the CSeq header field MUST be expressible 
+             as a 32-bit unsigned integer. [C:RFC3261-8.1-15][C:RFC3261-20.16-1]
+            -The sequence number value in the CSeq header field MUST be less than
+              2**31. [C:RFC3261-8.1-16]
+
+        * From
+            -The From field MUST contain a new "tag" parameter, chosen by the UAC.
+             [C:RFC3261-8.1-9]
+
+        * Max-Forwards
+            -A UAC MUST insert a Max-Forwards header field into each request it 
+             originates.[C:RFC3261-8.1-17]
+            -The Max-Forwards header field value SHOULD be 70.[C:RFC3261-8.1-18]
+
+        * P-Called-Party-ID
+            -A UAC MUST NOT insert a P-Called-Party-ID header field in any SIP 
+             request or response.[C:RFC3455-4.2-1]
+
+        * Route
+            -A proper preloaded Route header value SHALL be built in Route header
+             for all new dialog and standalone transactions.[C:TS24229-5.1-398]
+            -A list of Route header values made out of the P-CSCF URI  containing 
+             the IP address or the FQDN learnt through the P-CSCF discovery 
+             procedure SHALL be built in Route header. [C:TS24229-5.1-400]
+            -A list of Route header values made out of the values received in 
+             the Service-Route header field saved from the 200 (OK) response to 
+             the last registration or re-registration of the public user identity with 
+             associated contact address SHALL be built in Route header. 
+             [C:TS24229-5.1-404]
+            -If the request contains a Route header field, the request SHOULD be 
+             sent to the locations derived from its topmost value.[C:RFC3261-8.1-38]
+          [AKA]
+            -A list of Route header values made out of the P-CSCF port  containing 
+             the protected server port learned during the registration procedure 
+             SHALL be built in Route header. [A:TS24229-5.1-402]
+          [Digest]
+            -A list of Route header values made out of the P-CSCF port  containing 
+             the unprotected server port learned during the registration procedure 
+             SHALL be built in Route header. [D:TS24229-5.1-403]
+
+        * P-Preferred-Identity
+            -The P-Preferred-Identity header field SHALL be used as the public
+             user identity for the request if a P-Preferred-Identity was included.
+             [C:TS24229-5.1-378]
+          [AKA]
+            -The default public user identity for the security association SHALL 
+             be used as the public user identity for the request if no 
+             P-Preferred-Identity was included.[A:TS24229-5.1-379]
+
+                 * Security-Verify [AKA]
+            -A subsequent SIP requests MUST contain a Security-Verify header 
+             field that mirrors the server's list received previously in the 
+             Security- Server header field.[A:RFC3329-2.3-15]
+             
+        * Supported
+            -A Supported header field SHOULD be present in the INVITE.
+             [C:RFC3261-13.2-3]
+
+        * To
+            -A request outside of a dialog MUST NOT contain a To tag. 
+             [C:RFC3261-8.1-7]
+
+        * Via
+            -A UAC MUST insert a Via into that request. [C:RFC3261-8.1-19]
+            -The protocol name and protocol version in the Via header field MUST 
+             be SIP and 2.0. [C:RFC3261-8.1-20]
+            -The Via header field value MUST contain a branch parameter.
+             [C:RFC3261-8.1-21]
+            -The branch ID MUST always begin with the characters "z9hG4bK".
+             [C:RFC3261-8.1-23]
+            -The client transport MUST insert a value of the "sent-by" field 
+             into the Via header field.[C:RFC3261-18.1-7]
+          [AKA]
+            -The protected server port and the respective contact address SHALL be 
+             included in the Via header entry relating to the UE if the has not obtained 
+             a GRUU and IMS AKA is being used.[A:TS24229-5.1-356]
+          [Digest]
+            -UE SHALL populate the Via header field of the request with the port value of 
+             an unprotected port and the respective contact address where the UE expects 
+             to receive responses to the request if the has not obtained a GRUU and 
+             SIP digest without TLS is being used.[D:TS24229-5.1-358]
+
+    - Bodies fields:
+
+        -The SDP payloads SHALL not be encrypted.[C:TS24229-6.1-1]
+        -Only SDP payload SHALL be contained in SIP messages when the SDP payload 
+         must be included in the message.[C:TS24229-6.1-3]
+        -A SDP offer and at least one media description SHALL be contained in an 
+         INVITE request generated by a UE.[C:TS24229-6.1-26]
+        -The Session Description Protocol MUST be supported by all user agents as 
+         a means to describe sessions.[C:RFC3261-13.2-12]
+        -Whitespace MUST NOT be used on either side of the "=" sign. [C:RFC4566-5-2]
+        -v,o,s,(c),t,m,(c) lines are REQUIRED in the SDP message. 
+         (c line MUST included session level information or all of media information)
+         [C:RFC4566-5-3]
+        -all MUST appear in exactly the following order: 
+         "v,o,s,(i),(u),(e),(p),(c),(b),t,(r),(z),(k),(a),m,(i),(c),(b),(k),(a)"
+         (the line enclosed in "()" is OPTIONAL)[C:RFC4566-5-4]
+
+        * o line
+            -For both IP4 and IP6, the fully qualified domain name is the form that 
+             SHOULD be given unless this is unavailable, in which case the globally 
+             unique address MAY be substituted.[C:RFC4566-5.2-3]
+
+        * s line 
+            -There MUST be one and only one "s=" field per session description.
+             [C:RFC4566-5.3-1]
+            -The "s=" field MUST NOT be empty. [C:RFC4566-5.3-2]
+            -If a session has no meaningful name, the value "s= " SHOULD be used.
+             [C:RFC4566-5.3-4]
+
+        * c line 
+            -A session description MUST contain either at least one "c=" field in 
+             each media description or a single "c=" field at the session level. 
+             [C:RFC4566-5.7-1]
+            -A session-level "c=" field  MUST NOT specify Multiple addresses or
+             "c=" lines.[C:RFC4566-5.7-7]
+
+        * b line
+            -The proposed bandwidth for each media stream utilizing the "b=" 
+             media descriptor and the "AS" bandwidth modifier in the SDP SHALL 
+             be specified for "video" and "audio" media types that utilize 
+             the RTP/RTCP.[C:TS24229-6.1-7]
+
+    - Security Association behavior [AKA]
+        -All the subsequent SIP requests sent by the client to that server
+         SHOULD make use of the security mechanism initiated in the previous
+         step.[A:RFC3329-2.3-14]
+
+---------------------------------------------------------------------------------
+1.10  generic_180-INVITE
+Generic judgement items for 180-INVITE response.
+
+   See generic_sip_message
+
+   -The empty line MUST be present even if the message-body is not. [C:RFC3261-7-2]
+
+    - Header fields:
+
+        * Call-ID
+            -The Call-ID header field of the response MUST equal the Call-ID 
+             header field of the request.[C:RFC3261-8.2-37]
+
+        * Content-length
+            -If no body is present in a message, then the Content-Length header 
+             field value MUST be set to zero.[C:RFC3261-20.14-3]
+
+        * CSeq
+            -The CSeq header field of the response MUST equal the CSeq field of 
+             the request.[C:RFC3261-8.2-38]
+
+        * From
+            -The From field of the response MUST equal the From header field of 
+             the request.[C:RFC3261-8.2-36]
+
+        * P-Called-Party-ID
+            -A UAC MUST NOT insert a P-Called-Party-ID header field in any SIP 
+             request or response.[C:RFC3455-4.2-1]
+
+        * To
+            -If the To header field in the request did not contain a tag, the 
+             URI in the To header field in the response MUST equal the URI in 
+             the To header field. [C:RFC3261-8.2-42]
+            -If the To header field in the request did not contain a tag, the 
+             UAS MUST add a tag to the To header field in the response.
+             [C:RFC3261-8.2-43]
+
+        * Via
+            -The Via header field values in the response MUST equal the Via 
+             header field values in the request and MUST maintain the same 
+             ordering. [C:RFC3261-8.2-39][C:RFC3261-8.2-40]
+            -If the host portion of the "sent-by" parameter contains a domain 
+             name, or if it contains an IP address that differs from the packet 
+             source address, the server MUST add a "received" parameter to that 
+             Via header field value.[C:RFC3261-18.2-5]
+            -The "received" parameter MUST contain the source address from which 
+             the packet was received.[C:RFC3261-18.2-6]
+            -The response MUST be sent to the address in the "received" parameter, 
+             using the port indicated in the "sent-by" value, or using port 5060 
+             if none is specified explicitly.[C:RFC3261-18.2-13]
+
+---------------------------------------------------------------------------------
+1.11  generic_200-INVITE
+Generic judgement items for 200-INVITE response.
+
+   See generic_sip_message
+
+    - Header fields:
+
+        -A 2xx response to an INVITE SHOULD contain the Allow header field and 
+         the Supported header field.[C:RFC3261-13.3-10]
+
+        * Allow
+            -A UA that supports INVITE MUST also support ACK, CANCEL and BYE.
+            [C:RFC3261-13.1-1]
+            
+        * Allow-Events
+            -Any node implementing one or more event packages SHOULD include an 
+             appropriate "Allow-Events" header indicating all supported events 
+             in all methods which initiate dialogs and their responses and OPTIONS 
+             responses.[C:RFC3265-3.3-5]
+
+        * Call-ID
+            -The Call-ID header field MUST be the same for all requests and 
+             responses sent by either UA in a dialog.[C:RFC3261-8.1-10]
+            -The Call-ID header field of the response MUST equal the Call-ID 
+             header field of the request.[C:RFC3261-8.2-37]
+
+        * Contact
+            -The UAS MUST add a Contact header field to the response.
+             [C:RFC3261-12.1-4]
+            -The URI provided in the Contact header field MUST be a SIP or 
+             SIPS URI.[C:RFC3261-12.1-5]
+            -Even if the "display-name" is empty, the "name-addr" form MUST be 
+             used if the "addr-spec" contains a comma, semicolon, or question 
+             mark.[C:RFC3261-20.10-1]
+          [AKA]
+            -The protected server port SHALL be included in the address in the 
+             Contact header field if UE did not insert a GRUU.[A:TS24229-5.1-444]
+          [Digest]
+            -The port value of an unprotected port where the UE expects to 
+             receive subsequent mid-dialog requests SHALL be included in 
+             the address in the Contact header field if UE did not insert a GRUU 
+             and SIP digest without TLS is being used.[D:TS24229-5.1-445]
+
+        * Content-Encoding
+            -If the body has not undergone any encoding such as compression, 
+              then Content-Encoding MUST be omitted. [C:RFC3261-7.4-3]
+
+        * Content-Type
+            -The Internet media type of the message body MUST be given by the 
+             Content-Type header field.[C:RFC3261-7.4-1]
+            -The Content-Type header field MUST be present if the body is not 
+             empty.[C:RFC3261-20.15-1]
+
+        * CSeq
+            -The CSeq header field of the response MUST equal the CSeq field of 
+             the request.[C:RFC3261-8.2-38]
+
+        * From
+            -The From field of the response MUST equal the From header field of 
+             the request.[C:RFC3261-8.2-36]
+
+        * P-Called-Party-ID
+            -A UAC MUST NOT insert a P-Called-Party-ID header field in any SIP 
+             request or response.[C:RFC3455-4.2-1]
+
+        * Record-Route 
+            -When a UAS responds to a request with a response that establishes 
+             a dialog, the UAS MUST copy all Record-Route header field values 
+             from the request into the response. [C:RFC3261-12.1-2][C:RFC3261-12.1-9]
+            -Record-Route header field values MUST maintain the order of 
+             Record-Route values from the request. [C:RFC3261-12.1-3][C:RFC3261-12.1-9]
+
+        * To
+            -If the To header field in the request did not contain a tag, the URI 
+             in the To header field in the response MUST equal the URI in the To 
+             header field. [C:RFC3261-8.2-42]
+            -If the To header field in the request did not contain a tag, 
+             the UAS MUST add a tag to the To header field in the response. 
+             [C:RFC3261-8.2-43]
+            -The same tag MUST be used for all responses to that request, both 
+             final and provisional. [C:RFC3261-8.2-44]
+
+        * Via
+            -The Via header field values in the response MUST equal the Via 
+             header field values in the request and MUST maintain the same 
+             ordering.[C:RFC3261-8.2-39][C:RFC3261-8.2-40]
+            -If the host portion of the "sent-by" parameter contains a domain 
+             name, or if it contains an IP address that differs from the packet 
+             source address, the server MUST add a "received" parameter to that 
+             Via header field value.[C:RFC3261-18.2-5]
+            -The "received" parameter MUST contain the source address from which 
+             the packet was received.[C:RFC3261-18.2-6]
+            -The response MUST be sent to the address in the "received" parameter, 
+             using the port indicated in the "sent-by" value, or using port 5060 
+             if none is specified explicitly.[C:RFC3261-18.2-13]
+
+    - Bodies fields:
+
+        -The SDP payloads SHALL not be encrypted.[C:TS24229-6.1-1]
+        -Only SDP payload SHALL be contained in SIP messages when the SDP payload
+         must be included in the message.[C:TS24229-6.1-3]
+        -The answer MUST be in a reliable non-failure message from UAS back to UAC 
+         which is correlated to that INVITE if the initial offer is in an INVITE.
+         [C:RFC3261-13.2-6][C:RFC3261-13.3-11]
+        -The Session Description Protocol MUST be supported by all user agents as 
+         a means to describe sessions.[C:RFC3261-13.2-12]
+        -Whitespace MUST NOT be used on either side of the "=" sign. [C:RFC4566-5-2]
+        -v,o,s,(c),t,m,(c) lines are REQUIRED in the SDP message. 
+         (c line MUST included session level information or all of media information)
+         [C:RFC4566-5-3]
+        -all MUST appear in exactly the following order: 
+         "v,o,s,(i),(u),(e),(p),(c),(b),t,(r),(z),(k),(a),m,(i),(c),(b),(k),(a)"
+         (the line enclosed in "()" is OPTIONAL)[C:RFC4566-5-4]
+
+        * o line
+            -For both IP4 and IP6, the fully qualified domain name is the form that 
+             SHOULD be given unless this is unavailable, in which case the globally 
+             unique address MAY be substituted.[C:RFC4566-5.2-3]
+
+        * s line 
+            -There MUST be one and only one "s=" field per session description.
+             [C:RFC4566-5.3-1]
+            -The "s=" field MUST NOT be empty. [C:RFC4566-5.3-2]
+            -If a session has no meaningful name, the value "s= " SHOULD be used.
+             [C:RFC4566-5.3-4]
+
+        * c line 
+            -A session description MUST contain either at least one "c=" field in 
+             each media description or a single "c=" field at the session level. 
+             [C:RFC4566-5.7-1]
+            -A session-level "c=" field  MUST NOT specify Multiple addresses or
+             "c=" lines.[C:RFC4566-5.7-7]
+
+        * b line
+            -The proposed bandwidth for each media stream utilizing the "b=" media
+             descriptor and the "AS" bandwidth modifier in the SDP SHALL be 
+             specified for "video" and "audio" media types that utilize the 
+             RTP/RTCP.[C:TS24229-6.1-7]
+
+---------------------------------------------------------------------------------
+1.12  generic_ACK
+Generic judgement items for ACK request.
+
+   See generic_sip_message
+
+   -The empty line MUST be present even if the message-body is not. [C:RFC3261-7-2]
+
+    - Request-Line:
+
+        -The Request-URI MUST NOT contain unescaped space control characters.
+         [C:RFC3261-7.1-1]
+        -The Request-URI MUST NOT be enclosed in "<>". [C:RFC3261-7.1-2]
+        -The UAC MUST place the remote target URI into the Request-URI if the 
+         route set is not empty and the first URI in the route set contains 
+         the lr parameter.[C:RFC3261-12.2-14]
+
+    - Header fields:
+
+        -SIP request MUST contain To, From, CSeq, Call-ID, Max-Forwards, and Via
+         header fields.  [C:RFC3261-8.1-1]
+
+        * Call-ID
+            -The Call-ID header field MUST be the same for all requests and 
+             responses sent by either UA in a dialog.[C:RFC3261-8.1-10]
+            -The Call-ID of the request MUST be set to the Call-ID of the dialog.
+             [C:RFC3261-12.2-6]
+
+        * Content-length
+            -If no body is present in a message, then the Content-Length header 
+             field value MUST be set to zero.[C:RFC3261-20.14-3]
+
+        * CSeq
+            -The Cseq method MUST match the method of Request-Line in the request.
+             [C:RFC3261-8.1-14][C:RFC3261-12.2-11]
+            -The sequence number value in the CSeq header field MUST be expressible 
+             as a 32-bit unsigned integer. [C:RFC3261-8.1-15][C:RFC3261-20.16-1]
+            -The sequence number value in the CSeq header field MUST be less than
+              2**31. [C:RFC3261-8.1-16]
+            -The sequence number of the CSeq header field MUST be the same as the 
+             INVITE being acknowledged.[C:RFC3261-13.2-19]
+            -The CSeq method MUST be ACK.[C:RFC3261-13.2-20]
+
+        * From
+            -The From URI of the request MUST be set to the local URI from the 
+             dialog state.[C:RFC3261-12.2-3]
+            -The tag in the From header field of the request MUST be set to the 
+             local tag of the dialog ID.[C:RFC3261-12.2-4]
+
+        * Max-Forwards
+            -A UAC MUST insert a Max-Forwards header field into each request it 
+             originates.[C:RFC3261-8.1-17]
+            -The Max-Forwards header field value SHOULD be 70.[C:RFC3261-8.1-18]
+
+        * P-Called-Party-ID
+            -A UAC MUST NOT insert a P-Called-Party-ID header field in any SIP 
+             request or response.[C:RFC3455-4.2-1]
+
+        * Route
+            -If the request contains a Route header field, the request SHOULD be 
+             sent to the locations derived from its topmost value.[C:RFC3261-8.1-38]
+            -The UAC MUST include a Route header field containing the route set 
+             values in order including all parameters if the route set is not 
+             empty, and the first URI in the route set contains the lr parameter.
+             [C:RFC3261-12.2-15]
+
+        * To
+            -The URI in the To field of the request MUST be set to the remote URI 
+             from the dialog state.[C:RFC3261-12.2-1]
+            -The tag in the To header field of the request MUST be set to the 
+             remote tag of the dialog ID.[C:RFC3261-12.2-2]
+
+        * Via
+            -A UAC MUST insert a Via into that request. [C:RFC3261-8.1-19]
+            -The protocol name and protocol version in the Via header field MUST 
+             be SIP and 2.0. [C:RFC3261-8.1-20]
+            -The Via header field value MUST contain a branch parameter.
+             [C:RFC3261-8.1-21]
+            -The branch ID MUST always begin with the characters "z9hG4bK".
+             [C:RFC3261-8.1-23]
+            -The client transport MUST insert a value of the "sent-by" field 
+             into the Via header field.[C:RFC3261-18.1-7]
+          [AKA]
+            -The protected server port and the respective contact address SHALL be 
+             included in the Via header entry relating to the UE if the has not obtained 
+             a GRUU and IMS AKA is being used.[A:TS24229-5.1-356]
+          [Digest]
+            -UE SHALL populate the Via header field of the request with the port value of 
+             an unprotected port and the respective contact address where the UE expects 
+             to receive responses to the request if the has not obtained a GRUU and 
+             SIP digest without TLS is being used.[D:TS24229-5.1-358]
+
+---------------------------------------------------------------------------------
+1.13  generic_BYE
+Generic judgement items for BYE request.
+
+   See generic_sip_message
+
+   -The empty line MUST be present even if the message-body is not. [C:RFC3261-7-2]
+
+    - Request-Line:
+
+        -The Request-URI MUST NOT contain unescaped space control characters.
+         [C:RFC3261-7.1-1]
+        -The Request-URI MUST NOT be enclosed in "<>". [C:RFC3261-7.1-2]
+        -The UAC MUST place the remote target URI into the Request-URI if the 
+         route set is not empty and the first URI in the route set contains the 
+         lr parameter.[C:RFC3261-12.2-14]
+
+    - Header fields:
+
+        -SIP request MUST contain To, From, CSeq, Call-ID, Max-Forwards, and Via
+         header fields.  [C:RFC3261-8.1-1]
+       [AKA]
+        -These requests MUST also have both a Require and Proxy-Require header 
+         fields with the value "sec-agree".[A:RFC3329-2.3-16]
+       [Digest]
+        -Security-Client, Security-Verify header field and both a Require and Proxy-Require
+         header fields with the value "sec-agree" SHALL not be included in any SIP
+         messages if SIP digest without TLS is used.[D:TS24229-5.1-363]
+ 
+        * Call-ID
+            -The Call-ID header field MUST be the same for all requests and 
+             responses sent by either UA in a dialog.[C:RFC3261-8.1-10]
+            -The Call-ID of the request MUST be set to the Call-ID of the 
+             dialog.[C:RFC3261-12.2-6]
+
+        * Content-length
+            -If no body is present in a message, then the Content-Length header 
+             field value MUST be set to zero.[C:RFC3261-20.14-3]
+
+        * CSeq
+            -The Cseq method MUST match the method of Request-Line in the 
+             request.[C:RFC3261-8.1-14][C:RFC3261-12.2-11]
+            -The sequence number value in the CSeq header field MUST be 
+             expressible as a 32-bit unsigned integer. 
+             [C:RFC3261-8.1-15][C:RFC3261-20.16-1]
+            -The sequence number value in the CSeq header field MUST be less 
+             than 2**31. [C:RFC3261-8.1-16]
+            -Requests within a dialog MUST contain strictly monotonically 
+             increasing and contiguous CSeq sequence numbers in each direction.
+             [C:RFC3261-12.2-7]
+            -The value of the local sequence number MUST be incremented by one 
+             if the local sequence number is not empty.[C:RFC3261-12.2-8]
+            -The value of the local sequence number that be incremented by one 
+             MUSTbe placed into the CSeq header field if the local sequence number 
+             is not empty.[C:RFC3261-12.2-9]
+
+        * From
+            -The From URI of the request MUST be set to the local URI from the 
+             dialog state.[C:RFC3261-12.2-3]
+            -The tag in the From header field of the request MUST be set to the 
+             local tag of the dialog ID.[C:RFC3261-12.2-4]
+
+        * Max-Forwards
+            -A UAC MUST insert a Max-Forwards header field into each request it 
+             originates. [C:RFC3261-8.1-17]
+            -The Max-Forwards header field value SHOULD be 70.[C:RFC3261-8.1-18]
+
+        * P-Called-Party-ID
+            -A UAC MUST NOT insert a P-Called-Party-ID header field in any SIP 
+             request or response.[C:RFC3455-4.2-1]
+
+        * Route
+            -If the request contains a Route header field, the request SHOULD be 
+             sent to the locations derived from its topmost value.[C:RFC3261-8.1-38]
+            -The UAC MUST include a Route header field containing the route set 
+             values in order including all parameters if the route set is not 
+             empty, and the first URI in the route set contains the lr parameter.
+             [C:RFC3261-12.2-15]
+
+        * Security-Verify [AKA]
+            -A subsequent SIP requests MUST contain a Security-Verify header 
+             field that mirrors the server's list received previously in the 
+             Security- Server header field.[A:RFC3329-2.3-15]
+
+        * To
+            -The URI in the To field of the request MUST be set to the remote URI 
+             from the dialog state.[C:RFC3261-12.2-1]
+            -The tag in the To header field of the request MUST be set to the 
+             remote tag of the dialog ID.[C:RFC3261-12.2-2]
+
+        * Via
+            -A UAC MUST insert a Via into that request. [C:RFC3261-8.1-19]
+            -The protocol name and protocol version in the Via header field MUST 
+             be SIP and 2.0. [C:RFC3261-8.1-20]
+            -The Via header field value MUST contain a branch parameter.
+             [C:RFC3261-8.1-21]
+            -The branch ID MUST always begin with the characters "z9hG4bK".
+             [C:RFC3261-8.1-23]
+            -The client transport MUST insert a value of the "sent-by" field 
+             into the Via header field.[C:RFC3261-18.1-7]
+          [AKA]
+            -The protected server port and the respective contact address SHALL be 
+             included in the Via header entry relating to the UE if the has not obtained 
+             a GRUU and IMS AKA is being used.[A:TS24229-5.1-356]
+          [Digest]
+            -UE SHALL populate the Via header field of the request with the port value of 
+             an unprotected port and the respective contact address where the UE expects 
+             to receive responses to the request if the has not obtained a GRUU and 
+             SIP digest without TLS is being used.[D:TS24229-5.1-358]
+
+    - Security Association behavior [AKA]
+        -All the subsequent SIP requests sent by the client to that server
+         SHOULD make use of the security mechanism initiated in the previous
+         step.[A:RFC3329-2.3-14]
+
+---------------------------------------------------------------------------------
+1.14  generic_200-BYE
+Generic judgement items for 200-BYE response.
+
+   See generic_sip_message
+
+   -The empty line MUST be present even if the message-body is not. [C:RFC3261-7-2]
+   -TUs SHOULD respond immediately to non-INVITE requests.[C:RFC3261-17.1-1]
+
+    - Header fields:
+
+        * Call-ID
+            -The Call-ID header field MUST be the same for all requests and 
+             responses sent by either UA in a dialog.[C:RFC3261-8.1-10]
+            -The Call-ID header field of the response MUST equal the Call-ID 
+             header field of the request.[C:RFC3261-8.2-37]
+
+        * Content-length
+            -If no body is present in a message, then the Content-Length header 
+             field value MUST be set to zero.[C:RFC3261-20.14-3]
+
+        * CSeq
+            -The CSeq header field of the response MUST equal the CSeq field of 
+             the request.[C:RFC3261-8.2-38]
+             
+        * From
+            -The From field of the response MUST equal the From header field of 
+             the request.[C:RFC3261-8.2-36]
+
+        * P-Called-Party-ID
+            -A UAC MUST NOT insert a P-Called-Party-ID header field in any SIP 
+             request or response.[C:RFC3455-4.2-1]
+
+        * To
+            -If a request contained a To tag in the request, the To header field 
+             in the response MUST equal that of the request.[C:RFC3261-8.2-41]
+            -The same tag MUST be used for all responses to that request, both 
+             final and provisional. [C:RFC3261-8.2-44]
+
+        * Via
+            -The Via header field values in the response MUST equal the Via header 
+             field values in the request and MUST maintain the same ordering. 
+             [C:RFC3261-8.2-39][C:RFC3261-8.2-40]
+            -If the host portion of the "sent-by" parameter contains a domain name, 
+             or if it contains an IP address that differs from the packet source 
+             address, the server MUST add a "received" parameter to that Via header 
+             field value.[C:RFC3261-18.2-5]
+            -The "received" parameter MUST contain the source address from which 
+             the packet was received.[C:RFC3261-18.2-6]
+            -The response MUST be sent to the address in the "received" parameter, 
+             using the port indicated in the "sent-by" value, or using port 5060 
+             if none is specified explicitly.[C:RFC3261-18.2-13]
+
+---------------------------------------------------------------------------------
+1.15  generic_CANCEL
+Generic judgement items for CANCEL request.
+
+   See generic_sip_message
+
+    -The empty line MUST be present even if the message-body is not. [C:RFC3261-7-2]
+    -The Request-URI, Call-ID, To, the numeric part of CSeq, and From header 
+     fields in the CANCEL request MUST be identical to those in the request 
+     being cancelled, including tags.[C:RFC3261-9.1-2]
+    -The destination address, port, and transport for the CANCEL MUST be 
+     identical to those used to send the original request.[C:RFC3261-9.1-11]
+
+    - Request-Line:
+
+        -The Request-URI MUST NOT contain unescaped space control characters.
+         [C:RFC3261-7.1-1]
+        -The Request-URI MUST NOT be enclosed in "<>". [C:RFC3261-7.1-2]
+
+    - Header fields:
+
+        -SIP request MUST contain To, From, CSeq, Call-ID, Max-Forwards, and Via
+         header fields.  [C:RFC3261-8.1-1]
+        -Require and Proxy-Require MUST NOT be used in a SIP CANCEL request, or 
+         in an ACK request sent for a non-2xx response. 
+         [C:RFC3261-8.2-18][C:RFC3261-9.1-6]
+       [Digest]
+        -Security-Client, Security-Verify header field and both a Require and Proxy-Require
+         header fields with the value "sec-agree" SHALL not be included in any SIP
+         messages if SIP digest without TLS is used.[D:TS24229-5.1-363]
+ 
+        * Content-length
+            -If no body is present in a message, then the Content-Length header 
+             field value MUST be set to zero.[C:RFC3261-20.14-3]
+
+        * CSeq
+            -The sequence number value in the CSeq header field MUST be expressible 
+             as a 32-bit unsigned integer. [C:RFC3261-8.1-15][C:RFC3261-20.16-1]
+            -The sequence number value in the CSeq header field MUST be less than
+              2**31. [C:RFC3261-8.1-16]
+            -The CSeq method MUST have a value of CANCEL. [C:RFC3261-9.1-4]
+
+        * Max-Forwards
+            -A UAC MUST insert a Max-Forwards header field into each request it 
+             originates. [C:RFC3261-8.1-17]
+            -The Max-Forwards header field value SHOULD be 70.[C:RFC3261-8.1-18]
+
+        * P-Called-Party-ID
+            -A UAC MUST NOT insert a P-Called-Party-ID header field in any SIP 
+             request or response.[C:RFC3455-4.2-1]
+
+        * Route
+            -If the request being cancelled contains a Route header field, the 
+             CANCEL request MUST include that Route header field's values.
+             [C:RFC3261-9.1-5]
+
+        * Via
+            -A UAC MUST insert a Via into that request. [C:RFC3261-8.1-19]
+            -The protocol name and protocol version in the Via header field MUST be 
+             SIP and 2.0. [C:RFC3261-8.1-20]
+            -The Via header field value MUST contain a branch parameter.
+             [C:RFC3261-8.1-21]
+            -The branch ID MUST always begin with the characters "z9hG4bK".
+             [C:RFC3261-8.1-23]
+            -A CANCEL constructed by a client MUST have only a single Via header 
+             field value matching the top Via value in the request being cancelled.
+             [C:RFC3261-9.1-3]
+          [AKA]
+            -The protected server port and the respective contact address SHALL be 
+             included in the Via header entry relating to the UE if the has not obtained 
+             a GRUU and IMS AKA is being used.[A:TS24229-5.1-356]
+          [Digest]
+            -UE SHALL populate the Via header field of the request with the port value of 
+             an unprotected port and the respective contact address where the UE expects 
+             to receive responses to the request if the has not obtained a GRUU and 
+             SIP digest without TLS is being used.[D:TS24229-5.1-358]
+
+---------------------------------------------------------------------------------
+1.16  generic_200-CANCEL
+Generic judgement items for 200-CANCEL response.
+
+   See generic_sip_message
+
+   -The empty line MUST be present even if the message-body is not. [C:RFC3261-7-2]
+   -TUs SHOULD respond immediately to non-INVITE requests.[C:RFC3261-17.1-1]
+
+    - Header fields:
+
+        * Call-ID
+            -The Call-ID header field of the response MUST equal the Call-ID header
+             field of the request.[C:RFC3261-8.2-37]
+
+        * Content-length
+            -If no body is present in a message, then the Content-Length header 
+             field value MUST be set to zero.[C:RFC3261-20.14-3]
+
+        * CSeq
+            -The CSeq header field of the response MUST equal the CSeq field of 
+             the request.[C:RFC3261-8.2-38]
+
+        * From
+            -The From field of the response MUST equal the From header field of 
+             the request.[C:RFC3261-8.2-36]
+
+        * P-Called-Party-ID
+            -A UAC MUST NOT insert a P-Called-Party-ID header field in any SIP 
+             request or response.[C:RFC3455-4.2-1]
+
+        * To
+            -If the To header field in the request did not contain a tag, the URI 
+             in the To header field in the response MUST equal the URI in the To 
+             header field. [C:RFC3261-8.2-42]
+            -If the To header field in the request did not contain a tag, the UAS 
+             MUST add a tag to the To header field in the response. 
+             [C:RFC3261-8.2-43]
+
+        * Via
+            -The Via header field values in the response MUST equal the Via 
+             header field values in the request and MUST maintain the same 
+             ordering. [C:RFC3261-8.2-39][C:RFC3261-8.2-40]
+            -If the host portion of the "sent-by" parameter contains a domain 
+             name, or if it contains an IP address that differs from the packet 
+             source address, the server MUST add a "received" parameter to that 
+             Via header field value.[C:RFC3261-18.2-5]
+            -The "received" parameter MUST contain the source address from which 
+             the packet was received.[C:RFC3261-18.2-6]
+            -The response MUST be sent to the address in the "received" parameter, 
+             using the port indicated in the "sent-by" value, or using port 5060 
+             if none is specified explicitly.[C:RFC3261-18.2-13]
+
+---------------------------------------------------------------------------------
+1.17  generic_3XX-6XX
+Generic judgement items for 3XX-6XX response.
+
+   See generic_sip_message
+
+    -The empty line MUST be present even if the message-body is not. [C:RFC3261-7-2]
+
+    - Header fields:
+
+        * Call-ID
+            -The Call-ID header field of the response MUST equal the Call-ID 
+             header field of the request.[C:RFC3261-8.2-37]
+
+        * Content-length
+            -If no body is present in a message, then the Content-Length header 
+             field value MUST be set to zero.[C:RFC3261-20.14-3]
+
+        * CSeq
+            -The CSeq header field of the response MUST equal the CSeq field of 
+             the request.[C:RFC3261-8.2-38]
+
+        * From
+            -The From field of the response MUST equal the From header field of 
+             the request.[C:RFC3261-8.2-36]
+
+        * P-Called-Party-ID
+            -A UAC MUST NOT insert a P-Called-Party-ID header field in any SIP 
+             request or response.[C:RFC3455-4.2-1]
+
+        * To
+            -If a request contained a To tag in the request, the To header field 
+             in the response MUST equal that of the request.[C:RFC3261-8.2-41]
+            -If the To header field in the request did not contain a tag, the URI 
+             in the To header field in the response MUST equal the URI in the To 
+             header field. [C:RFC3261-8.2-42]
+            -If the To header field in the request did not contain a tag, the UAS 
+             MUST add a tag to the To header field in the response.
+             [C:RFC3261-8.2-43]
+            -The same tag MUST be used for all responses to that request, both 
+             final and provisional. [C:RFC3261-8.2-44]
+
+        * Via
+            -The Via header field values in the response MUST equal the Via header 
+             field values in the request and MUST maintain the same ordering. 
+             [C:RFC3261-8.2-39][C:RFC3261-8.2-40]
+            -If the host portion of the "sent-by" parameter contains a domain 
+             name, or if it contains an IP address that differs from the packet 
+             source address, the server MUST add a "received" parameter to that 
+             Via header field value.[C:RFC3261-18.2-5]
+            -The "received" parameter MUST contain the source address from which 
+             the packet was received.[C:RFC3261-18.2-6]
+            -The response MUST be sent to the address in the "received" parameter, 
+             using the port indicated in the "sent-by" value, or using port 5060 
+             if none is specified explicitly.[C:RFC3261-18.2-13]
+
+---------------------------------------------------------------------------------
+1.18  generic_ACK-non2XX
+Generic judgement items for ACK-non2XX request.
+
+   See generic_sip_message
+
+   -The empty line MUST be present even if the message-body is not. [C:RFC3261-7-2]
+   -The ACK MUST be sent to the same address, port, and transport to which 
+    the original request was sent.[C:RFC3261-17.1-23]
+   -The ACK request constructed by the client transaction MUST contain values 
+    for the Call-ID, From, and Request-URI that are equal to the values of those 
+    header fields in the request passed to the transport by the client transaction.
+    [C:RFC3261-17.1-32]
+
+    - Request-Line:
+
+        -The Request-URI MUST NOT contain unescaped space control characters.
+         [C:RFC3261-7.1-1]
+        -The Request-URI MUST NOT be enclosed in "<>". [C:RFC3261-7.1-2]
+
+    - Header fields:
+
+        -SIP request MUST contain To, From, CSeq, Call-ID, Max-Forwards, and Via
+         header fields.  [C:RFC3261-8.1-1]
+        -Require and Proxy-Require MUST NOT be used in a SIP CANCEL request, 
+         or in an ACK request sent for a non-2xx response. [C:RFC3261-8.2-18]
+
+        * Content-length
+            -If no body is present in a message, then the Content-Length header 
+             field value MUST be set to zero.[C:RFC3261-20.14-3]
+
+        * CSeq
+            -The Cseq method MUST match the method of Request-Line in the request.
+             [C:RFC3261-8.1-14]
+            -The sequence number value in the CSeq header field MUST be expressible 
+             as a 32-bit unsigned integer. [C:RFC3261-8.1-15][C:RFC3261-20.16-1]
+            -The sequence number value in the CSeq header field MUST be less than
+              2**31. [C:RFC3261-8.1-16]
+            -The CSeq header field in the ACK MUST contain the same value for the 
+             sequence number as was present in the original request.
+             [C:RFC3261-17.1-36]
+            -The method parameter MUST be equal to "ACK".[C:RFC3261-17.1-37]
+
+        * Max-Forwards
+            -A UAC MUST insert a Max-Forwards header field into each request it 
+             originates.[C:RFC3261-8.1-17]
+            -The Max-Forwards header field value SHOULD be 70.[C:RFC3261-8.1-18]
+
+        * P-Called-Party-ID
+            -A UAC MUST NOT insert a P-Called-Party-ID header field in any SIP 
+             request or response.[C:RFC3455-4.2-1]
+
+        * Route
+            -The Route header fields MUST appear in the ACK if the INVITE request 
+             whose response is being acknowledged had Route header fields.
+             [C:RFC3261-17.1-38]
+
+        * To
+            -The To header field in the ACK MUST equal the To header field in the 
+             response being acknowledged.[C:RFC3261-17.1-33]
+
+        * Via
+            -A UAC MUST insert a Via into that request. [C:RFC3261-8.1-19]
+            -The protocol name and protocol version in the Via header field MUST 
+             be SIP and 2.0. [C:RFC3261-8.1-20]
+            -The Via header field value MUST contain a branch parameter.
+             [C:RFC3261-8.1-21]
+            -The branch ID MUST always begin with the characters "z9hG4bK".
+             [C:RFC3261-8.1-23]
+            -The ACK MUST contain a single Via header field.[C:RFC3261-17.1-34]
+            -The single Via header field MUST be equal to the top Via header field 
+             of the original request.[C:RFC3261-17.1-35]
+          [AKA]
+            -The protected server port and the respective contact address SHALL be 
+             included in the Via header entry relating to the UE if the has not obtained 
+             a GRUU and IMS AKA is being used.[A:TS24229-5.1-356]
+          [Digest]
+            -UE SHALL populate the Via header field of the request with the port value of 
+             an unprotected port and the respective contact address where the UE expects 
+             to receive responses to the request if the has not obtained a GRUU and 
+             SIP digest without TLS is being used.[D:TS24229-5.1-358]
+
+---------------------------------------------------------------------------------
+1.19  generic_OPTIONS
+Generic judgement items for OPTIONS request.
+
+   See generic_sip_message
+
+   -The empty line MUST be present even if the message-body is not. [C:RFC3261-7-2]
+
+    - Request-Line:
+
+        -The Request-URI MUST NOT contain unescaped space control characters.
+         [C:RFC3261-7.1-1]
+        -The Request-URI MUST NOT be enclosed in "<>". [C:RFC3261-7.1-2]
+        -The initial Request-URI of the message SHOULD be set to the value of the 
+         URI in the To field.[C:RFC3261-8.1-2]
+
+    - Header fields:
+
+        -SIP request MUST contain To, From, CSeq, Call-ID, Max-Forwards, and Via
+         header fields.  [C:RFC3261-8.1-1]
+       [AKA]
+        -These requests MUST also have both a Require and Proxy-Require header 
+         fields with the value "sec-agree".[A:RFC3329-2.3-16]
+       [Digest]
+        -Security-Client, Security-Verify header field and both a Require and Proxy-Require
+         header fields with the value "sec-agree" SHALL not be included in any SIP
+         messages if SIP digest without TLS is used.[D:TS24229-5.1-363]
+         
+        * Accept
+            -An Accept header field SHOULD be included to indicate the type of 
+             message body the UAC wishes to receive in the response.
+             [C:RFC3261-11.1-1]
+
+        * Content-length
+            -If no body is present in a message, then the Content-Length header 
+             field value MUST be set to zero.[C:RFC3261-20.14-3]
+
+        * CSeq
+            -The Cseq method MUST match the method of Request-Line in the request.
+             [C:RFC3261-8.1-14]
+            -The sequence number value in the CSeq header field MUST be expressible 
+             as a 32-bit unsigned integer. [C:RFC3261-8.1-15][C:RFC3261-20.16-1]
+            -The sequence number value in the CSeq header field MUST be less than
+              2**31. [C:RFC3261-8.1-16]
+
+        * From
+            -The From field MUST contain a new "tag" parameter, chosen by the UAC.
+             [C:RFC3261-8.1-9]
+
+        * Max-Forwards
+            -A UAC MUST insert a Max-Forwards header field into each request it 
+             originates. [C:RFC3261-8.1-17]
+            -The Max-Forwards header field value SHOULD be 70.[C:RFC3261-8.1-18]
+
+        * P-Called-Party-ID
+            -A UAC MUST NOT insert a P-Called-Party-ID header field in any SIP 
+             request or response.[C:RFC3455-4.2-1]
+
+        * P-Preferred-Identity
+            -The P-Preferred-Identity header field SHALL be used as the public
+             user identity for the request if a P-Preferred-Identity was included.
+             [C:TS24229-5.1-378]
+          [AKA]
+            -The default public user identity for the security association SHALL 
+             be used as the public user identity for the request if no 
+             P-Preferred-Identity was included.[A:TS24229-5.1-379]
+
+        * Route
+            -A proper preloaded Route header value SHALL be built in Route header
+             for all new dialog and standalone transactions.[C:TS24229-5.1-398]
+            -A list of Route header values made out of the P-CSCF URI  containing 
+             the IP address or the FQDN learnt through the P-CSCF discovery 
+             procedure SHALL be built in Route header. [C:TS24229-5.1-400]
+            -A list of Route header values made out of the values received in 
+             the Service-Route header field saved from the 200 (OK) response to 
+             the last registration or re-registration of the public user identity with 
+             associated contact address SHALL be built in Route header. 
+              [C:TS24229-5.1-404]
+            -If the request contains a Route header field, the request SHOULD be 
+             sent to the locations derived from its topmost value.[C:RFC3261-8.1-38]
+          [AKA]
+            -A list of Route header values made out of the P-CSCF port  containing 
+             the protected server port learned during the registration procedure 
+             SHALL be built in Route header. [A:TS24229-5.1-402]
+          [Digest]
+            -A list of Route header values made out of the P-CSCF port  containing 
+             the unprotected server port learned during the registration procedure 
+             SHALL be built in Route header. [D:TS24229-5.1-403]
+
+        * Security-Verify [AKA]
+            -A subsequent SIP requests MUST contain a Security-Verify header 
+             field that mirrors the server's list received previously in the 
+             Security- Server header field.[A:RFC3329-2.3-15]
+
+        * To
+            -A request outside of a dialog MUST NOT contain a To tag.
+             [C:RFC3261-8.1-7]
+
+        * Via
+            -A UAC MUST insert a Via into that request. [C:RFC3261-8.1-19]
+            -The protocol name and protocol version in the Via header field MUST 
+             be SIP and 2.0. [C:RFC3261-8.1-20]
+            -The Via header field value MUST contain a branch parameter.
+             [C:RFC3261-8.1-21]
+            -The branch ID MUST always begin with the characters "z9hG4bK".
+             [C:RFC3261-8.1-23]
+            -The client transport MUST insert a value of the "sent-by" field 
+             into the Via header field.[C:RFC3261-18.1-7]
+          [AKA]
+            -The protected server port and the respective contact address SHALL be 
+             included in the Via header entry relating to the UE if the has not obtained 
+             a GRUU and IMS AKA is being used.[A:TS24229-5.1-356]
+          [Digest]
+            -UE SHALL populate the Via header field of the request with the port value of 
+             an unprotected port and the respective contact address where the UE expects 
+             to receive responses to the request if the has not obtained a GRUU and 
+             SIP digest without TLS is being used.[D:TS24229-5.1-358]
+
+    - Security Association behavior [AKA]
+        -All the subsequent SIP requests sent by the client to that server
+         SHOULD make use of the security mechanism initiated in the previous
+         step.[A:RFC3329-2.3-14]
+
+---------------------------------------------------------------------------------
+1.20  generic_200-OPTIONS
+Generic judgement items for 200-OPTIONS response.
+
+    See generic_sip_message
+
+    -TUs SHOULD respond immediately to non-INVITE requests.[C:RFC3261-17.1-1]
+
+     - Header fields:
+
+        -Allow, Accept, Accept-Encoding, Accept-Language, and Supported header fields 
+         SHOULD be present in a 200 (OK) response to an OPTIONS request.
+         [C:RFC3261-11.2-2]
+
+        * Allow
+            -All UAs MUST support the OPTIONS method.[C:RFC3261-11-1]
+            -A UA that supports INVITE MUST also support ACK, CANCEL and BYE.
+            [C:RFC3261-13.1-1]
+
+        * Allow-Events
+            -Any node implementing one or more event packages SHOULD include an 
+             appropriate "Allow-Events" header indicating all supported events 
+             in all methods which initiate dialogs and their responses and OPTIONS 
+             responses.[C:RFC3265-3.3-5]
+
+        * Call-ID
+            -The Call-ID header field of the response MUST equal the Call-ID 
+             header field of the request.[C:RFC3261-8.2-37]
+
+        * Content-Encoding
+            -If the body has not undergone any encoding such as compression, 
+            then Content-Encoding MUST be omitted. [C:RFC3261-7.4-3]
+
+        * Content-Type
+            -The Internet media type of the message body MUST be given by the 
+             Content-Type header field.[C:RFC3261-7.4-1]
+            -The Content-Type header field MUST be present if the body is not 
+             empty.[C:RFC3261-20.15-1]
+
+        * CSeq
+            -The CSeq header field of the response MUST equal the CSeq field of 
+             the request.[C:RFC3261-8.2-38]
+
+        * From
+            -The From field of the response MUST equal the From header field of 
+             the request.[C:RFC3261-8.2-36]
+
+        * P-Called-Party-ID
+            -A UAC MUST NOT insert a P-Called-Party-ID header field in any SIP 
+             request or response.[C:RFC3455-4.2-1]
+
+        * To
+            -If the To header field in the request did not contain a tag, the 
+             URI in the To header field in the response MUST equal the URI in 
+             the To header field.[C:RFC3261-8.2-42]
+            -If the To header field in the request did not contain a tag, the 
+             UAS MUST add a tag to the To header field in the response.
+             [C:RFC3261-8.2-43]
+
+        * Via
+            -The Via header field values in the response MUST equal the Via 
+             header field values in the request and MUST maintain the same 
+             ordering.[C:RFC3261-8.2-39][C:RFC3261-8.2-40]
+            -If the host portion of the "sent-by" parameter contains a domain 
+             name, or if it contains an IP address that differs from the packet 
+             source address, the server MUST add a "received" parameter to that 
+             Via header field value.[C:RFC3261-18.2-5]
+            -The "received" parameter MUST contain the source address from which 
+             the packet was received.[C:RFC3261-18.2-6]
+            -The response MUST be sent to the address in the "received" parameter, 
+             using the port indicated in the "sent-by" value, or using port 5060 
+             if none is specified explicitly.[C:RFC3261-18.2-13]
+
+    - Bodies fields:
+
+        -The SDP payloads SHALL not be encrypted.[C:TS24229-6.1-1]
+        -Only SDP payload SHALL be contained in SIP messages when the SDP payload
+         must be included in the message.[C:TS24229-6.1-3]
+        -If the types include one that can describe media capabilities, the UAS 
+         SHOULD include a body in the response for that purpose. [C:RFC3261-11.2-4]
+        -The Session Description Protocol MUST be supported by all user agents as 
+         a means to describe sessions.[C:RFC3261-13.2-12]
+        -Whitespace MUST NOT be used on either side of the "=" sign. [C:RFC4566-5-2]
+        -v,o,s,(c),t,m,(c) lines are REQUIRED in the SDP message. 
+         (c line MUST included session level information or all of media information)
+         [C:RFC4566-5-3]
+        -all MUST appear in exactly the following order: 
+         "v,o,s,(i),(u),(e),(p),(c),(b),t,(r),(z),(k),(a),m,(i),(c),(b),(k),(a)"
+         (the line enclosed in "()" is OPTIONAL)[C:RFC4566-5-4]
+
+        * o line
+           -For both IP4 and IP6, the fully qualified domain name is the form that 
+             SHOULD be given unless this is unavailable, in which case the globally 
+             unique address MAY be substituted.[C:RFC4566-5.2-3]
+
+        * s line 
+            -There MUST be one and only one "s=" field per session description.
+             [C:RFC4566-5.3-1]
+            -The "s=" field MUST NOT be empty. [C:RFC4566-5.3-2]
+            -If a session has no meaningful name, the value "s= " SHOULD be used.
+             [C:RFC4566-5.3-4]
+
+        * c line 
+            -A session description MUST contain either at least one "c=" field in 
+             each media description or a single "c=" field at the session level. 
+             [C:RFC4566-5.7-1]
+            -A session-level "c=" field  MUST NOT specify Multiple addresses or
+             "c=" lines.[C:RFC4566-5.7-7]
+
+        * b line
+            -The proposed bandwidth for each media stream utilizing the "b=" 
+             media descriptor and the "AS" bandwidth modifier in the SDP SHALL 
+             be specified for "video" and "audio" media types that utilize 
+             the RTP/RTCP.[C:TS24229-6.1-7]
+

@@ -1,0 +1,9 @@
+Changes
+CText.xs
+Makefile.PL
+MANIFEST
+ppport.h
+README
+lib/CText.pm
+lib/CText/ct1.pm
+lib/CText/ct2.pm

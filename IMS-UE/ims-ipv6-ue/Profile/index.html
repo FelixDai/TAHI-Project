@@ -1,0 +1,211 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN""http://www.w3c.org/TR/REC-html40/strict.dtd">
+<HTML>
+<HEAD>
+<TITLE>IPv6 Test Specification</TITLE>
+<META NAME="GENERATOR" CONTENT="IMS IPv6 Conformance Test Suite">
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<CENTER>
+<H1>Test Specification:<BR>IMS IPv6 Conformance Test tool for UE</H1>
+ver 3_0_0
+</CENTER>
+
+<HR>
+<H3>IMS-UE IPv6 Conformance Test Profile Index (IMS-AKA)</H3>
+<HR>
+<TABLE WIDTH="100%" BORDER=1>
+<TR><TH>No.</TH><TH>Title</TH></TR>
+<TR><TD><CENTER></CENTER></TD><TD><A HREF="./generic_observable_results.txt">[generic_observable_results] </A></TD></TR>
+<TR><TD><BR></TD><TD><b>Registration</b></TD></TR>
+<TR><TD><CENTER>1</CENTER></TD><TD><A HREF="./UE-RG-B-1-AKA.txt">[UE-RG-B-1-AKA] Initial registration and subscription for the registration state event package (SIP default port values) </A></TD></TR>
+<TR><TD><CENTER>2</CENTER></TD><TD><A HREF="./UE-RG-B-2-AKA.txt">[UE-RG-B-2-AKA] User-initiated reregistration </A></TD></TR>
+<TR><TD><CENTER>3</CENTER></TD><TD><A HREF="./UE-RG-B-3-AKA.txt">[UE-RG-B-3-AKA] Network-initiated re-authentication </A></TD></TR>
+<TR><TD><CENTER>4</CENTER></TD><TD><A HREF="./UE-RG-B-4-AKA.txt">[UE-RG-B-4-AKA] User-initiated deregistration </A></TD></TR>
+<TR><TD><CENTER>5</CENTER></TD><TD><A HREF="./UE-RG-B-5-AKA.txt">[UE-RG-B-5-AKA] Network-initiated deregistration with rejected event </A></TD></TR>
+<TR><TD><CENTER>6</CENTER></TD><TD><A HREF="./UE-RG-B-6-AKA.txt">[UE-RG-B-6-AKA] Network-initiated deregistration with deactivated event </A></TD></TR>
+<TR><TD><CENTER>7</CENTER></TD><TD><A HREF="./UE-RG-B-7-AKA.txt">[UE-RG-B-7-AKA] Reception of 423 response to initial registration </A></TD></TR>
+<TR><TD><CENTER>8</CENTER></TD><TD><A HREF="./UE-RG-B-8-AKA.txt">[UE-RG-B-8-AKA] Re-subscription for the registration state event package </A></TD></TR>
+<TR><TD><CENTER>9</CENTER></TD><TD><A HREF="./UE-RG-B-9-AKA.txt">[UE-RG-B-9-AKA] Reception of 481 response to subscription for the registration stateevent package </A></TD></TR>
+<TR><TD><CENTER>10</CENTER></TD><TD><A HREF="./UE-RG-B-10-AKA.txt">[UE-RG-B-10-AKA] Reception of a new service-route to reregistration </A></TD></TR>
+<TR><TD><CENTER>11</CENTER></TD><TD><A HREF="./UE-RG-B-11-AKA.txt">[UE-RG-B-11-AKA] Reception of 423 response to reregistration </A></TD></TR>
+<TR><TD><CENTER>12</CENTER></TD><TD><A HREF="./UE-RG-B-12-AKA.txt">[UE-RG-B-12-AKA] Reception of 408 response to reregistration </A></TD></TR>
+<TR><TD><CENTER>13</CENTER></TD><TD><A HREF="./UE-RG-B-13-AKA.txt">[UE-RG-B-13-AKA] Reception of 500 response to reregistration </A></TD></TR>
+<TR><TD><CENTER>14</CENTER></TD><TD><A HREF="./UE-RG-B-14-AKA.txt">[UE-RG-B-14-AKA] Reception of 504 response to reregistration </A></TD></TR>
+<TR><TD><CENTER>15</CENTER></TD><TD><A HREF="./UE-RG-B-15-AKA.txt">[UE-RG-B-15-AKA] Timer F expiration (Registration) </A></TD></TR>
+<TR><TD><CENTER>16</CENTER></TD><TD><A HREF="./UE-RG-B-16-AKA.txt">[UE-RG-B-16-AKA] Reception of 401 response with no Security-Sever header to initial registration </A></TD></TR>
+<TR><TD><CENTER>17</CENTER></TD><TD><A HREF="./UE-RG-B-17-AKA.txt">[UE-RG-B-17-AKA] Change from the old SAs to the new SAs </A></TD></TR>
+<TR><TD><CENTER>18</CENTER></TD><TD><A HREF="./UE-RG-B-18-AKA.txt">[UE-RG-B-18-AKA] Invalid authentication parameter (MAC) and 403 response </A></TD></TR>
+<TR><TD><CENTER>19</CENTER></TD><TD><A HREF="./UE-RG-B-19-AKA.txt">[UE-RG-B-19-AKA] Invalid authentication parameter (SQN) </A></TD></TR>
+<TR><TD><CENTER>20</CENTER></TD><TD><A HREF="./UE-RG-B-20-AKA.txt">[UE-RG-B-20-AKA] User-initiated deregistration and dialog release </A></TD></TR>
+<TR><TD><CENTER>21</CENTER></TD><TD><A HREF="./UE-RG-B-21-AKA.txt">[UE-RG-B-21-AKA] Reception of 401 response to user-initiated deregistration </A></TD></TR>
+<TR><TD><CENTER>22</CENTER></TD><TD><A HREF="./UE-RG-B-22-AKA.txt">[UE-RG-B-22-AKA] Reception of 503 response to subscription for the registration state event package </A></TD></TR>
+<TR><TD><CENTER>23</CENTER></TD><TD><A HREF="./UE-RG-B-23-AKA.txt">[UE-RG-B-23-AKA] Security association (DES-EDE3-CBC and HMAC-MD5-96) </A></TD></TR>
+<TR><TD><CENTER>24</CENTER></TD><TD><A HREF="./UE-RG-B-24-AKA.txt">[UE-RG-B-24-AKA] Security association (AES-CBC and HMAC-SHA-1-96) </A></TD></TR>
+<TR><TD><BR></TD><TD><b>Session Establish</b></TD></TR>
+<TR><TD><CENTER>25</CENTER></TD><TD><A HREF="./UE-SE-B-1-AKA.txt">[UE-SE-B-1-AKA] Session initiation and termination (Sends INVITE and receives BYE) </A></TD></TR>
+<TR><TD><CENTER>26</CENTER></TD><TD><A HREF="./UE-SE-B-2-AKA.txt">[UE-SE-B-2-AKA] Session initiation and termination (Sends INVITE and sends BYE) </A></TD></TR>
+<TR><TD><CENTER>27</CENTER></TD><TD><A HREF="./UE-SE-B-3-AKA.txt">[UE-SE-B-3-AKA] Session initiation and termination (Receives INVITE and receives BYE ) </A></TD></TR>
+<TR><TD><CENTER>28</CENTER></TD><TD><A HREF="./UE-SE-B-4-AKA.txt">[UE-SE-B-4-AKA] Session initiation and termination (Receives INVITE and sends BYE ) </A></TD></TR>
+<TR><TD><CENTER>29</CENTER></TD><TD><A HREF="./UE-SE-B-5-AKA.txt">[UE-SE-B-5-AKA] Call cancellation (Sends INVITE and sends CANCEL) </A></TD></TR>
+<TR><TD><CENTER>30</CENTER></TD><TD><A HREF="./UE-SE-B-6-AKA.txt">[UE-SE-B-6-AKA] Call cancellation (Receives INVITE and receives CANCEL) </A></TD></TR>
+<TR><TD><CENTER>31</CENTER></TD><TD><A HREF="./UE-SE-B-7-AKA.txt">[UE-SE-B-7-AKA] SIP response received from the P-CSCF outside of the registration </A></TD></TR>
+<TR><TD><CENTER>32</CENTER></TD><TD><A HREF="./UE-SE-B-8-AKA.txt">[UE-SE-B-8-AKA] SIP Request received from the P-CSCF outside of the registration </A></TD></TR>
+<TR><TD><CENTER>33</CENTER></TD><TD><A HREF="./UE-SE-B-9-AKA.txt">[UE-SE-B-9-AKA] Receiving 503 response to INVITE </A></TD></TR>
+<TR><TD><CENTER>34</CENTER></TD><TD><A HREF="./UE-SE-B-10-AKA.txt">[UE-SE-B-10-AKA] Receiving forked 180 and 200 response </A></TD></TR>
+<TR><TD><BR></TD><TD><b>SDP</b></TD></TR>
+<TR><TD><CENTER>35</CENTER></TD><TD><A HREF="./UE-SD-B-1-AKA.txt">[UE-SD-B-1-AKA] SDP offer which included one or more media lines which was offered with several codecs (Receives INVITE and sends BYE) </A></TD></TR>
+<TR><TD><CENTER>36</CENTER></TD><TD><A HREF="./UE-SD-B-2-AKA.txt">[UE-SD-B-2-AKA] SDP offer which included an IP address type that is not supported (Receives INVITE and sends BYE) </A></TD></TR>
+<TR><TD><BR></TD><TD><b>OPTIONS</b></TD></TR>
+<TR><TD><CENTER>37</CENTER></TD><TD><A HREF="./UE-OP-B-1-AKA.txt">[UE-OP-B-1-AKA] OPTIONS request (Sends OPTIONS) </A></TD></TR>
+<TR><TD><CENTER>38</CENTER></TD><TD><A HREF="./UE-OP-B-2-AKA.txt">[UE-OP-B-2-AKA] OPTIONS request (Receives OPTINOS) </A></TD></TR>
+<TR><TD><BR></TD><TD><b>SIP timer</b></TD></TR>
+<TR><TD><CENTER>39</CENTER></TD><TD><A HREF="./UE-TM-B-1-AKA.txt">[UE-TM-B-1-AKA] Timer B expiration to INVITE </A></TD></TR>
+<TR><TD><CENTER>40</CENTER></TD><TD><A HREF="./UE-TM-B-2-AKA.txt">[UE-TM-B-2-AKA] Timer D expiration </A></TD></TR>
+<TR><TD><CENTER>41</CENTER></TD><TD><A HREF="./UE-TM-B-3-AKA.txt">[UE-TM-B-3-AKA] Timer H expiration </A></TD></TR>
+<TR><TD><CENTER>42</CENTER></TD><TD><A HREF="./UE-TM-B-4-AKA.txt">[UE-TM-B-4-AKA] Timer J expiration </A></TD></TR>
+<TR><TD><CENTER>43</CENTER></TD><TD><A HREF="./UE-TM-B-5-AKA.txt">[UE-TM-B-5-AKA] Timer F expiration ( In Session ) </A></TD></TR>
+<TR><TD><BR></TD><TD><b>Sending Response</b></TD></TR>
+<TR><TD><CENTER>44</CENTER></TD><TD><A HREF="./UE-SR-B-1-AKA.txt">[UE-SR-B-1-AKA] Sending 400 response. </A></TD></TR>
+<TR><TD><CENTER>45</CENTER></TD><TD><A HREF="./UE-SR-B-2-AKA.txt">[UE-SR-B-2-AKA] Sending 404 response </A></TD></TR>
+<TR><TD><CENTER>46</CENTER></TD><TD><A HREF="./UE-SR-B-3-AKA.txt">[UE-SR-B-3-AKA] Sending 405 response. </A></TD></TR>
+<TR><TD><CENTER>47</CENTER></TD><TD><A HREF="./UE-SR-B-4-AKA.txt">[UE-SR-B-4-AKA] Sending 406 response </A></TD></TR>
+<TR><TD><CENTER>48</CENTER></TD><TD><A HREF="./UE-SR-B-5-AKA.txt">[UE-SR-B-5-AKA] Sending 414 response </A></TD></TR>
+<TR><TD><CENTER>49</CENTER></TD><TD><A HREF="./UE-SR-B-6-AKA.txt">[UE-SR-B-6-AKA] Sending 415 response </A></TD></TR>
+<TR><TD><CENTER>50</CENTER></TD><TD><A HREF="./UE-SR-B-7-AKA.txt">[UE-SR-B-7-AKA] Sending 416 response </A></TD></TR>
+<TR><TD><CENTER>51</CENTER></TD><TD><A HREF="./UE-SR-B-8-AKA.txt">[UE-SR-B-8-AKA] Sending 420 response. </A></TD></TR>
+<TR><TD><CENTER>52</CENTER></TD><TD><A HREF="./UE-SR-B-9-AKA.txt">[UE-SR-B-9-AKA] Sending 480/486 response. </A></TD></TR>
+<TR><TD><CENTER>53</CENTER></TD><TD><A HREF="./UE-SR-B-10-AKA.txt">[UE-SR-B-10-AKA] Sending 482 response. </A></TD></TR>
+<TR><TD><CENTER>54</CENTER></TD><TD><A HREF="./UE-SR-B-11-AKA.txt">[UE-SR-B-11-AKA] Sending 489 response. </A></TD></TR>
+<TR><TD><CENTER>55</CENTER></TD><TD><A HREF="./UE-SR-B-12-AKA.txt">[UE-SR-B-12-AKA] Sending 500 response. </A></TD></TR>
+<TR><TD><CENTER>56</CENTER></TD><TD><A HREF="./UE-SR-B-13-AKA.txt">[UE-SR-B-13-AKA] Sending 505 response. </A></TD></TR>
+<TR><TD><BR></TD><TD><b>Receiving Response</b></TD></TR>
+<TR><TD><CENTER>57</CENTER></TD><TD><A HREF="./UE-RR-B-1-AKA.txt">[UE-RR-B-1-AKA] Receiving 100 response </A></TD></TR>
+<TR><TD><CENTER>58</CENTER></TD><TD><A HREF="./UE-RR-B-2-AKA.txt">[UE-RR-B-2-AKA] Receiving 181 response (Call transfer by S-CSCFa2 to UEa2') </A></TD></TR>
+<TR><TD><CENTER>59</CENTER></TD><TD><A HREF="./UE-RR-B-3-AKA.txt">[UE-RR-B-3-AKA] Receiving 182 response (Request is queued by P-CSCFa2) </A></TD></TR>
+<TR><TD><CENTER>60</CENTER></TD><TD><A HREF="./UE-RR-B-4-AKA.txt">[UE-RR-B-4-AKA] Receiving 183 response </A></TD></TR>
+<TR><TD><CENTER>61</CENTER></TD><TD><A HREF="./UE-RR-B-5-AKA.txt">[UE-RR-B-5-AKA] Receiving 202 response </A></TD></TR>
+<TR><TD><CENTER>62</CENTER></TD><TD><A HREF="./UE-RR-B-6-AKA.txt">[UE-RR-B-6-AKA] Receiving 400 response </A></TD></TR>
+<TR><TD><CENTER>63</CENTER></TD><TD><A HREF="./UE-RR-B-7-AKA.txt">[UE-RR-B-7-AKA] Receiving 404 response </A></TD></TR>
+<TR><TD><CENTER>64</CENTER></TD><TD><A HREF="./UE-RR-B-8-AKA.txt">[UE-RR-B-8-AKA] Receiving 405 response </A></TD></TR>
+<TR><TD><CENTER>65</CENTER></TD><TD><A HREF="./UE-RR-B-9-AKA.txt">[UE-RR-B-9-AKA] Receiving 406 response </A></TD></TR>
+<TR><TD><CENTER>66</CENTER></TD><TD><A HREF="./UE-RR-B-10-AKA.txt">[UE-RR-B-10-AKA] Receiving 410 response </A></TD></TR>
+<TR><TD><CENTER>67</CENTER></TD><TD><A HREF="./UE-RR-B-11-AKA.txt">[UE-RR-B-11-AKA] Receiving 413 response </A></TD></TR>
+<TR><TD><CENTER>68</CENTER></TD><TD><A HREF="./UE-RR-B-12-AKA.txt">[UE-RR-B-12-AKA] Receiving 414 response </A></TD></TR>
+<TR><TD><CENTER>69</CENTER></TD><TD><A HREF="./UE-RR-B-13-AKA.txt">[UE-RR-B-13-AKA] Receiving 415 response </A></TD></TR>
+<TR><TD><CENTER>70</CENTER></TD><TD><A HREF="./UE-RR-B-14-AKA.txt">[UE-RR-B-14-AKA] Receiving 480 response </A></TD></TR>
+<TR><TD><CENTER>71</CENTER></TD><TD><A HREF="./UE-RR-B-15-AKA.txt">[UE-RR-B-15-AKA] Receiving 482 response </A></TD></TR>
+<TR><TD><CENTER>72</CENTER></TD><TD><A HREF="./UE-RR-B-16-AKA.txt">[UE-RR-B-16-AKA] Receiving 483 response </A></TD></TR>
+<TR><TD><CENTER>73</CENTER></TD><TD><A HREF="./UE-RR-B-17-AKA.txt">[UE-RR-B-17-AKA] Receiving 484 response </A></TD></TR>
+<TR><TD><CENTER>74</CENTER></TD><TD><A HREF="./UE-RR-B-18-AKA.txt">[UE-RR-B-18-AKA] Receiving 485 response </A></TD></TR>
+<TR><TD><CENTER>75</CENTER></TD><TD><A HREF="./UE-RR-B-19-AKA.txt">[UE-RR-B-19-AKA] Receiving 488 response </A></TD></TR>
+<TR><TD><CENTER>76</CENTER></TD><TD><A HREF="./UE-RR-B-20-AKA.txt">[UE-RR-B-20-AKA] Receiving 501 response </A></TD></TR>
+<TR><TD><CENTER>77</CENTER></TD><TD><A HREF="./UE-RR-B-21-AKA.txt">[UE-RR-B-21-AKA] Receiving 502 response </A></TD></TR>
+<TR><TD><CENTER>78</CENTER></TD><TD><A HREF="./UE-RR-B-22-AKA.txt">[UE-RR-B-22-AKA] Receiving 505 response </A></TD></TR>
+<TR><TD><CENTER>79</CENTER></TD><TD><A HREF="./UE-RR-B-23-AKA.txt">[UE-RR-B-23-AKA] Receiving 513 response </A></TD></TR>
+<TR><TD><CENTER>80</CENTER></TD><TD><A HREF="./UE-RR-B-24-AKA.txt">[UE-RR-B-24-AKA] Receiving 600 response </A></TD></TR>
+<TR><TD><CENTER>81</CENTER></TD><TD><A HREF="./UE-RR-B-25-AKA.txt">[UE-RR-B-25-AKA] Receiving 603 response </A></TD></TR>
+<TR><TD><CENTER>82</CENTER></TD><TD><A HREF="./UE-RR-B-26-AKA.txt">[UE-RR-B-26-AKA] Receiving 604 response </A></TD></TR>
+<TR><TD><CENTER>83</CENTER></TD><TD><A HREF="./UE-RR-B-27-AKA.txt">[UE-RR-B-27-AKA] Receiving 606 response </A></TD></TR>
+<TR><TD><CENTER>84</CENTER></TD><TD><A HREF="./UE-RR-B-28-AKA.txt">[UE-RR-B-28-AKA] Reception of 504 response to Session initiation </A></TD></TR>
+<TR><TD><BR></TD><TD><b>Sig Comp</b></TD></TR>
+<TR><TD><CENTER>85</CENTER></TD><TD><A HREF="./UE-SC-B-1-AKA.txt">[UE-SC-B-1-AKA] SigComp for IMS (Sends INVITE and receives BYE) </A></TD></TR>
+<TR><TD><CENTER>86</CENTER></TD><TD><A HREF="./UE-SC-B-2-AKA.txt">[UE-SC-B-2-AKA] SigComp for IMS (Receive INVITE and send BYE) </A></TD></TR>
+
+</TABLE>
+
+<BR>
+<HR>
+<H3>IMS-UE IPv6 Conformance Test Profile Index (SIP digest)</H3>
+<HR>
+<TABLE WIDTH="100%" BORDER=1>
+<TR><TH>No.</TH><TH>Title</TH></TR>
+<TR><TD><CENTER></CENTER></TD><TD><A HREF="./generic_observable_results.txt">[generic_observable_results] </A></TD></TR>
+<TR><TD><BR></TD><TD><b>Registration</b></TD></TR>
+<TR><TD><CENTER>1</CENTER></TD><TD><A HREF="./UE-RG-B-1-DIP.txt">[UE-RG-B-1-DIP] Initial registration and subscription for the registration state event package </A></TD></TR>
+<TR><TD><CENTER>2</CENTER></TD><TD><A HREF="./UE-RG-B-2-DIP.txt">[UE-RG-B-2-DIP] User-initiated reregistration </A></TD></TR>
+<TR><TD><CENTER>3</CENTER></TD><TD><A HREF="./UE-RG-B-3-DIP.txt">[UE-RG-B-3-DIP] Network-initiated re-authentication </A></TD></TR>
+<TR><TD><CENTER>4</CENTER></TD><TD><A HREF="./UE-RG-B-4-DIP.txt">[UE-RG-B-4-DIP] User-initiated deregistration </A></TD></TR>
+<TR><TD><CENTER>5</CENTER></TD><TD><A HREF="./UE-RG-B-5-DIP.txt">[UE-RG-B-5-DIP] Network-initiated deregistration with rejected event </A></TD></TR>
+<TR><TD><CENTER>6</CENTER></TD><TD><A HREF="./UE-RG-B-6-DIP.txt">[UE-RG-B-6-DIP] Network-initiated deregistration with deactivated event </A></TD></TR>
+<TR><TD><CENTER>7</CENTER></TD><TD><A HREF="./UE-RG-B-7-DIP.txt">[UE-RG-B-7-DIP] Reception of 423 response to initial registration </A></TD></TR>
+<TR><TD><CENTER>8</CENTER></TD><TD><A HREF="./UE-RG-B-8-DIP.txt">[UE-RG-B-8-DIP] Re-subscription for the registration state event package </A></TD></TR>
+<TR><TD><CENTER>9</CENTER></TD><TD><A HREF="./UE-RG-B-9-DIP.txt">[UE-RG-B-9-DIP] Reception of 481 response to subscription for the registration stateevent package </A></TD></TR>
+<TR><TD><CENTER>10</CENTER></TD><TD><A HREF="./UE-RG-B-10-DIP.txt">[UE-RG-B-10-DIP] Reception of a new service-route to reregistration </A></TD></TR>
+<TR><TD><CENTER>11</CENTER></TD><TD><A HREF="./UE-RG-B-11-DIP.txt">[UE-RG-B-11-DIP] Reception of 423 response to reregistration </A></TD></TR>
+<TR><TD><CENTER>12</CENTER></TD><TD><A HREF="./UE-RG-B-12-DIP.txt">[UE-RG-B-12-DIP] Reception of 408 response to reregistration </A></TD></TR>
+<TR><TD><CENTER>13</CENTER></TD><TD><A HREF="./UE-RG-B-13-DIP.txt">[UE-RG-B-13-DIP] Reception of 500 response to reregistration </A></TD></TR>
+<TR><TD><CENTER>14</CENTER></TD><TD><A HREF="./UE-RG-B-14-DIP.txt">[UE-RG-B-14-DIP] Reception of 504 response to reregistration </A></TD></TR>
+<TR><TD><CENTER>15</CENTER></TD><TD><A HREF="./UE-RG-B-15-DIP.txt">[UE-RG-B-15-DIP] Timer F expiration (Registration) </A></TD></TR>
+<TR><TD><CENTER>16</CENTER></TD><TD><A HREF="./UE-RG-B-18-DIP.txt">[UE-RG-B-18-DIP] Invalid credentials and 403 response </A></TD></TR>
+<TR><TD><CENTER>17</CENTER></TD><TD><A HREF="./UE-RG-B-19-DIP.txt">[UE-RG-B-19-DIP] Invalid credentials (old nonce) and respond to two consecutive </A></TD></TR>
+<TR><TD><CENTER>18</CENTER></TD><TD><A HREF="./UE-RG-B-20-DIP.txt">[UE-RG-B-20-DIP] User-initiated deregistration and dialog release </A></TD></TR>
+<TR><TD><CENTER>19</CENTER></TD><TD><A HREF="./UE-RG-B-22-DIP.txt">[UE-RG-B-22-DIP] Reception of 503 response to subscription for the registration state event package </A></TD></TR>
+<TR><TD><BR></TD><TD><b>Session Establish</b></TD></TR>
+<TR><TD><CENTER>20</CENTER></TD><TD><A HREF="./UE-SE-B-1-DIP.txt">[UE-SE-B-1-DIP] Session initiation and termination (Sends INVITE and receives BYE) </A></TD></TR>
+<TR><TD><CENTER>21</CENTER></TD><TD><A HREF="./UE-SE-B-2-DIP.txt">[UE-SE-B-2-DIP] Session initiation and termination (Sends INVITE and sends BYE) </A></TD></TR>
+<TR><TD><CENTER>22</CENTER></TD><TD><A HREF="./UE-SE-B-3-DIP.txt">[UE-SE-B-3-DIP] Session initiation and termination (Receives INVITE and receives BYE ) </A></TD></TR>
+<TR><TD><CENTER>23</CENTER></TD><TD><A HREF="./UE-SE-B-4-DIP.txt">[UE-SE-B-4-DIP] Session initiation and termination (Receives INVITE and sends BYE ) </A></TD></TR>
+<TR><TD><CENTER>24</CENTER></TD><TD><A HREF="./UE-SE-B-5-DIP.txt">[UE-SE-B-5-DIP] Call cancellation (Sends INVITE and sends CANCEL) </A></TD></TR>
+<TR><TD><CENTER>25</CENTER></TD><TD><A HREF="./UE-SE-B-6-DIP.txt">[UE-SE-B-6-DIP] Call cancellation (Receives INVITE and receives CANCEL) </A></TD></TR>
+<TR><TD><CENTER>26</CENTER></TD><TD><A HREF="./UE-SE-B-9-DIP.txt">[UE-SE-B-9-DIP] Receiving 503 response to INVITE </A></TD></TR>
+<TR><TD><CENTER>27</CENTER></TD><TD><A HREF="./UE-SE-B-10-DIP.txt">[UE-SE-B-10-DIP] Receiving forked 180 and 200 response </A></TD></TR>
+<TR><TD><BR></TD><TD><b>SDP</b></TD></TR>
+<TR><TD><CENTER>28</CENTER></TD><TD><A HREF="./UE-SD-B-1-DIP.txt">[UE-SD-B-1-DIP] SDP offer which included one or more media lines which was offered with several codecs (Receives INVITE and sends BYE) </A></TD></TR>
+<TR><TD><CENTER>29</CENTER></TD><TD><A HREF="./UE-SD-B-2-DIP.txt">[UE-SD-B-2-DIP] SDP offer which included an IP address type that is not supported (Receives INVITE and sends BYE) </A></TD></TR>
+<TR><TD><BR></TD><TD><b>OPTIONS</b></TD></TR>
+<TR><TD><CENTER>30</CENTER></TD><TD><A HREF="./UE-OP-B-1-DIP.txt">[UE-OP-B-1-DIP] OPTIONS request (Sends OPTIONS) </A></TD></TR>
+<TR><TD><CENTER>31</CENTER></TD><TD><A HREF="./UE-OP-B-2-DIP.txt">[UE-OP-B-2-DIP] OPTIONS request (Receives OPTINOS) </A></TD></TR>
+<TR><TD><BR></TD><TD><b>SIP timer</b></TD></TR>
+<TR><TD><CENTER>32</CENTER></TD><TD><A HREF="./UE-TM-B-1-DIP.txt">[UE-TM-B-1-DIP] Timer B expiration to INVITE </A></TD></TR>
+<TR><TD><CENTER>33</CENTER></TD><TD><A HREF="./UE-TM-B-2-DIP.txt">[UE-TM-B-2-DIP] Timer D expiration </A></TD></TR>
+<TR><TD><CENTER>34</CENTER></TD><TD><A HREF="./UE-TM-B-3-DIP.txt">[UE-TM-B-3-DIP] Timer H expiration </A></TD></TR>
+<TR><TD><CENTER>35</CENTER></TD><TD><A HREF="./UE-TM-B-4-DIP.txt">[UE-TM-B-4-DIP] Timer J expiration </A></TD></TR>
+<TR><TD><CENTER>36</CENTER></TD><TD><A HREF="./UE-TM-B-5-DIP.txt">[UE-TM-B-5-DIP] Timer F expiration ( In Session ) </A></TD></TR>
+<TR><TD><BR></TD><TD><b>Sending Response</b></TD></TR>
+<TR><TD><CENTER>37</CENTER></TD><TD><A HREF="./UE-SR-B-1-DIP.txt">[UE-SR-B-1-DIP] Sending 400 response. </A></TD></TR>
+<TR><TD><CENTER>38</CENTER></TD><TD><A HREF="./UE-SR-B-2-DIP.txt">[UE-SR-B-2-DIP] Sending 404 response </A></TD></TR>
+<TR><TD><CENTER>39</CENTER></TD><TD><A HREF="./UE-SR-B-3-DIP.txt">[UE-SR-B-3-DIP] Sending 405 response. </A></TD></TR>
+<TR><TD><CENTER>40</CENTER></TD><TD><A HREF="./UE-SR-B-4-DIP.txt">[UE-SR-B-4-DIP] Sending 406 response </A></TD></TR>
+<TR><TD><CENTER>41</CENTER></TD><TD><A HREF="./UE-SR-B-5-DIP.txt">[UE-SR-B-5-DIP] Sending 414 response </A></TD></TR>
+<TR><TD><CENTER>42</CENTER></TD><TD><A HREF="./UE-SR-B-6-DIP.txt">[UE-SR-B-6-DIP] Sending 415 response </A></TD></TR>
+<TR><TD><CENTER>43</CENTER></TD><TD><A HREF="./UE-SR-B-7-DIP.txt">[UE-SR-B-7-DIP] Sending 416 response </A></TD></TR>
+<TR><TD><CENTER>44</CENTER></TD><TD><A HREF="./UE-SR-B-8-DIP.txt">[UE-SR-B-8-DIP] Sending 420 response. </A></TD></TR>
+<TR><TD><CENTER>45</CENTER></TD><TD><A HREF="./UE-SR-B-9-DIP.txt">[UE-SR-B-9-DIP] Sending 480/486 response. </A></TD></TR>
+<TR><TD><CENTER>46</CENTER></TD><TD><A HREF="./UE-SR-B-10-DIP.txt">[UE-SR-B-10-DIP] Sending 482 response. </A></TD></TR>
+<TR><TD><CENTER>47</CENTER></TD><TD><A HREF="./UE-SR-B-11-DIP.txt">[UE-SR-B-11-DIP] Sending 489 response. </A></TD></TR>
+<TR><TD><CENTER>48</CENTER></TD><TD><A HREF="./UE-SR-B-12-DIP.txt">[UE-SR-B-12-DIP] Sending 500 response. </A></TD></TR>
+<TR><TD><CENTER>49</CENTER></TD><TD><A HREF="./UE-SR-B-13-DIP.txt">[UE-SR-B-13-DIP] Sending 505 response. </A></TD></TR>
+<TR><TD><BR></TD><TD><b>Receiving Response</b></TD></TR>
+<TR><TD><CENTER>50</CENTER></TD><TD><A HREF="./UE-RR-B-1-DIP.txt">[UE-RR-B-1-DIP] Receiving 100 response </A></TD></TR>
+<TR><TD><CENTER>51</CENTER></TD><TD><A HREF="./UE-RR-B-2-DIP.txt">[UE-RR-B-2-DIP] Receiving 181 response (Call transfer by S-CSCFa2 to UEa2') </A></TD></TR>
+<TR><TD><CENTER>52</CENTER></TD><TD><A HREF="./UE-RR-B-3-DIP.txt">[UE-RR-B-3-DIP] Receiving 182 response (Request is queued by P-CSCFa2) </A></TD></TR>
+<TR><TD><CENTER>53</CENTER></TD><TD><A HREF="./UE-RR-B-4-DIP.txt">[UE-RR-B-4-DIP] Receiving 183 response </A></TD></TR>
+<TR><TD><CENTER>54</CENTER></TD><TD><A HREF="./UE-RR-B-5-DIP.txt">[UE-RR-B-5-DIP] Receiving 202 response </A></TD></TR>
+<TR><TD><CENTER>55</CENTER></TD><TD><A HREF="./UE-RR-B-6-DIP.txt">[UE-RR-B-6-DIP] Receiving 400 response </A></TD></TR>
+<TR><TD><CENTER>56</CENTER></TD><TD><A HREF="./UE-RR-B-7-DIP.txt">[UE-RR-B-7-DIP] Receiving 404 response </A></TD></TR>
+<TR><TD><CENTER>57</CENTER></TD><TD><A HREF="./UE-RR-B-8-DIP.txt">[UE-RR-B-8-DIP] Receiving 405 response </A></TD></TR>
+<TR><TD><CENTER>58</CENTER></TD><TD><A HREF="./UE-RR-B-9-DIP.txt">[UE-RR-B-9-DIP] Receiving 406 response </A></TD></TR>
+<TR><TD><CENTER>59</CENTER></TD><TD><A HREF="./UE-RR-B-10-DIP.txt">[UE-RR-B-10-DIP] Receiving 410 response </A></TD></TR>
+<TR><TD><CENTER>60</CENTER></TD><TD><A HREF="./UE-RR-B-11-DIP.txt">[UE-RR-B-11-DIP] Receiving 413 response </A></TD></TR>
+<TR><TD><CENTER>61</CENTER></TD><TD><A HREF="./UE-RR-B-12-DIP.txt">[UE-RR-B-12-DIP] Receiving 414 response </A></TD></TR>
+<TR><TD><CENTER>62</CENTER></TD><TD><A HREF="./UE-RR-B-13-DIP.txt">[UE-RR-B-13-DIP] Receiving 415 response </A></TD></TR>
+<TR><TD><CENTER>63</CENTER></TD><TD><A HREF="./UE-RR-B-14-DIP.txt">[UE-RR-B-14-DIP] Receiving 480 response </A></TD></TR>
+<TR><TD><CENTER>64</CENTER></TD><TD><A HREF="./UE-RR-B-15-DIP.txt">[UE-RR-B-15-DIP] Receiving 482 response </A></TD></TR>
+<TR><TD><CENTER>65</CENTER></TD><TD><A HREF="./UE-RR-B-16-DIP.txt">[UE-RR-B-16-DIP] Receiving 483 response </A></TD></TR>
+<TR><TD><CENTER>66</CENTER></TD><TD><A HREF="./UE-RR-B-17-DIP.txt">[UE-RR-B-17-DIP] Receiving 484 response </A></TD></TR>
+<TR><TD><CENTER>67</CENTER></TD><TD><A HREF="./UE-RR-B-18-DIP.txt">[UE-RR-B-18-DIP] Receiving 485 response </A></TD></TR>
+<TR><TD><CENTER>68</CENTER></TD><TD><A HREF="./UE-RR-B-19-DIP.txt">[UE-RR-B-19-DIP] Receiving 488 response </A></TD></TR>
+<TR><TD><CENTER>69</CENTER></TD><TD><A HREF="./UE-RR-B-20-DIP.txt">[UE-RR-B-20-DIP] Receiving 501 response </A></TD></TR>
+<TR><TD><CENTER>70</CENTER></TD><TD><A HREF="./UE-RR-B-21-DIP.txt">[UE-RR-B-21-DIP] Receiving 502 response </A></TD></TR>
+<TR><TD><CENTER>71</CENTER></TD><TD><A HREF="./UE-RR-B-22-DIP.txt">[UE-RR-B-22-DIP] Receiving 505 response </A></TD></TR>
+<TR><TD><CENTER>72</CENTER></TD><TD><A HREF="./UE-RR-B-23-DIP.txt">[UE-RR-B-23-DIP] Receiving 513 response </A></TD></TR>
+<TR><TD><CENTER>73</CENTER></TD><TD><A HREF="./UE-RR-B-24-DIP.txt">[UE-RR-B-24-DIP] Receiving 600 response </A></TD></TR>
+<TR><TD><CENTER>74</CENTER></TD><TD><A HREF="./UE-RR-B-25-DIP.txt">[UE-RR-B-25-DIP] Receiving 603 response </A></TD></TR>
+<TR><TD><CENTER>75</CENTER></TD><TD><A HREF="./UE-RR-B-26-DIP.txt">[UE-RR-B-26-DIP] Receiving 604 response </A></TD></TR>
+<TR><TD><CENTER>76</CENTER></TD><TD><A HREF="./UE-RR-B-27-DIP.txt">[UE-RR-B-27-DIP] Receiving 606 response </A></TD></TR>
+<TR><TD><CENTER>77</CENTER></TD><TD><A HREF="./UE-RR-B-28-DIP.txt">[UE-RR-B-28-DIP] Reception of 504 response to Session initiation </A></TD></TR>
+
+</TABLE>
+
+</BODY>
+</HTML>

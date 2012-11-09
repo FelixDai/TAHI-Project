@@ -1,0 +1,170 @@
+		Installing IMS UE Conformance Test Package
+
+                                                         2010/10/15
+                                             IPv6 Promotion Council
+
+Terminology
+===========
+
+Tester Node (TN)
+	A tester node for the conformance tests.
+
+Node Under Test (NUT)
+	A testee node for the conformance tests.
+
+Network Under Test
+	The network where the conformance tests are executed.
+
+Tester Interface
+	The network interface of TN
+	hooked up to the Network Under Test.
+
+Interface Under Test
+	The network interface of NUT
+	hooked up to the Network Under Test.
+
+
+Prerequisites
+=============
+
+Prerequisites for TN:
+
+	- The package supports
+		FreeBSD 7.3-RELEASE or higher
+
+
+Installing the package onto TN
+==============================
+
+0. Before Starting
+
+   (A) You need to install following softwares.
+
+       - Ipsec
+	 You can check that your os support IPsec or not by following way:
+
+	 	# sysctl -a | grep ipsec
+
+	 If your os don't support ipsec, you can install it by following way:
+
+	   (1) install kernel source
+
+		# sysinstall     ## install kernel source to your pc
+
+	   (2) kernel rebuild and install
+
+	 	# cd /usr/src/sys/i386/conf
+		# cp GENERIC IPSEC
+		# edit IPSEC
+		  ---
+		   options	IPSEC
+		   options	IPSEC_DEBUG
+		   device	crypto
+		  ---
+		# config IPSEC
+		# cd ../compile/IPSEC
+		# make depend
+		# make
+		# make install
+		# reboot
+
+       - Perl
+	 (Required version : 5.8.7 or higher)
+
+       - dhcp(ISC)
+	 (Required version : 4.0.1 or higher)
+	 *** You can download it from the following URL:
+		http://www.isc.org/download/
+
+       - BIND(ISC)
+	 (reauired version : 9.3.6 or higher)
+	 *** You can download it from the following URL:
+		http://www.isc.org/download/
+
+       - v6eval
+	 (Required version : 3.3.1 or higher)
+	 Please refer to 00README.v6eval in "v6eval" for more information.
+	 *** You can download it from the following URL:
+		http://www.tahi.org/release/
+
+       - koi 
+         (Required version : 2.2.0 or higher)
+         Please refer to README file in "koi" package for more information.
+	 *** You can download it from the following URL:
+		http://www.tahi.org/release/
+
+       - Open SigComp
+         (Required version : 0.9.4 or higher)
+	 *** You can download it from the following URL:
+		http://www.opensigcomp.org/index.html
+
+
+   (B) You need to install following packages.
+
+	- Parse-RecDescent
+	  (Required version : 1.94 or higher)
+	- Inline
+	  (Required version : 0.44 or higher)
+	- Digest-SHA1
+	  (Required version : 2.10 or higher)
+	- Digest-HMAC
+	  (Required version : 1.01 or higher)
+	- Crypt-CBC
+	  (Required version : 2.12 or higher)
+	- Crypt-DES
+	  (Required version : 2.03 or higher)
+	- Crypt-DES_EDE3
+	  (Required version : 0.01 or higher)
+	- Crypt-OpenSSL-AES
+	  (Required version : 0.01 or higher)
+	- XML-TreePP
+	  (Required version : 0.31 or higher)
+	- ExtUtils-Depends
+	  (Required version : 0.3 or higher)
+	- Data-UUID
+	  (Required version : 1.148 or higher)
+
+	These are CPAN modules or ports module(p5-).
+	You can download from CPAN web-site.
+
+1. Extracting ct package
+
+	% tar zxvf ct-ims-ipv6-ue-X.X.tar.gz
+
+2. Installing ct module
+
+	% cd module
+
+	% tar xvfz CText.tgz
+	% cd CText
+	% su
+	# perl Makefile.PL; make; make install
+
+	% tar xvfz perl-osc.tgz
+	% cd perl-osc
+	% su
+	# perl Makefile.PL; gmake; gmake install
+
+3. Setup ct environment
+
+        % cd ims-ipv6-ue
+        % edit config.txt
+
+   * If you support IPsec null algorithm, please refer "5.Appendix" of 
+     "IMS_IPv6UE_ReferenceManual.pdf". 
+
+4. Initilaize and run scenario
+
+        % cd ims-ipv6-ue
+	% su
+
+        # gmake init6     ;;; initially,  initialize network interface and such within the config.txt
+        # gmake rg1a      ;;; run each AKA scenario
+        # gmake rg1d      ;;; run each sip-digest scenario
+           ....
+
+For more detailed information about configuration of test tool and 
+running test, please read the reference manual as
+"IMS_IPv6UE_ReferenceManual.pdf" .
+
+							[End of INSTALL]

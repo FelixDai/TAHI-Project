@@ -1,0 +1,592 @@
+#!/usr/bin/perl
+
+# Copyright(C) IPv6 Promotion Council (2004-2010). All Rights Reserved.
+# 
+# This documentation is produced by SIP SWG members of Certification WG in 
+# IPv6 Promotion Council.
+# The SWG members currently include NIPPON TELEGRAPH AND TELEPHONE CORPORATION (NTT), 
+# Yokogawa Electric Corporation and NTT Advanced Technology Corporation (NTT-AT).
+# 
+# 
+# Redistribution and use of this software in source and binary forms, with 
+# or without modification, are permitted provided that the following 
+# conditions and disclaimer are agreed and accepted by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright 
+# notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright 
+# notice, this list of conditions and the following disclaimer in the 
+# documentation and/or other materials provided with the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project which 
+# is related to this software (hereinafter referred to as "project") nor 
+# the names of the contributors may be used to endorse or promote products 
+# derived from this software without specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written 
+# notification to the copyrighters. However, using this software for the 
+# purpose of testing or evaluating any products including merchantable 
+# products may be permitted without any notification to the copyrighters.
+# 
+# 
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND 
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING 
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS 
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE 
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+# CONTRACT,STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF 
+# THE POSSIBILITY OF SUCH DAMAGE.
+
+BEGIN { 
+    sub BSDversion {
+	my($result);local(*STATUS);
+	eval {unless( open(STATUS,  'uname -s -r |') ){return} $result = <STATUS>;close(STATUS)};
+	$result =~ s/[\r\n]//;
+	return $result;
+    };
+    $V6evalTool::TestVersion = '$Name: ' . 'ct-ims-ipv6-ue-3_0_0' .' ['. BSDversion(). ']  $';
+}
+
+
+#use strict;
+
+use ImsScenario;
+
+#------------------------------
+# Initialize dispatch scenario 
+#------------------------------
+CtScIMSScenario(
+  [	# Node Information
+    {'node' => 'UEa1',     'nxtNode' => ['P-CSCFa1','DHCP'],     'logPos' => 1,'regFlg' => 1},
+    {'node' => 'P-CSCFa1', 'nxtNode' => ['UEa1','I-CSCFa1'],     'logPos' => 2},
+    {'node' => 'S-CSCFa1', 'nxtNode' => ['P-CSCFa1','I-CSCFa2'], 'logPos' => 3,'regFlg' => 1},
+    {'node' => 'I-CSCFa2', 'nxtNode' => ['S-CSCFa1','S-CSCFa2'], 'logPos' => 4,'regFlg' => 1},
+    {'node' => 'S-CSCFa2', 'nxtNode' => ['I-CSCFa2','P-CSCFa2'], 'logPos' => 5,'regFlg' => 1},
+    {'node' => 'P-CSCFa2', 'nxtNode' => ['S-CSCFa2','UEa2'],     'logPos' => 6,'regFlg' => 1},
+    {'node' => 'UEa2',     'nxtNode' => ['P-CSCFa2'],            'logPos' => 7,'regFlg' => 1},
+    {'node' => 'DHCP',     'nxtNode' => ['UEa1'],                'logPos' => 8,'regFlg' => 1},
+  ], 
+  ['UE-SYNTAX-COMMON-RULES'],
+  'UEa1'	# Test Target Node Name
+);
+
+#-------------------
+# Define scenario of P-CSCFa1 
+#-------------------
+sub IMS_PCSCF {
+    my ($node, $func, $tbl, $result, @branches);
+    my ($RcvMsg_INVITE,$SndMsg_100_INVITE, $SndMsg_180_INVITE, $SendMsg_180_INVITE_UEa3, $SndMsg_200_INVITE, 
+	$SndMsg_200_INVITE_UEa3, $SndMsg_BYE, $SndMsg_200_BYE_UEa3);
+
+    # start to define the node
+
+    $node = CtNDDef('P-CSCFa1', '', ['UEa1'], CtCnRecvAny());
+
+    # Define message_pass
+    CtAddMessagePath('InvitePath', ['UEa1', 'P-CSCFa1', 'S-CSCFa1', 'I-CSCFa2', 'S-CSCFa2', 'P-CSCFa2', 'UEa2']);
+    CtAddMessagePath('InvitePath2', ['UEa1', 'P-CSCFa1', 'S-CSCFa1', 'I-CSCFa2', 'S-CSCFa2', 'P-CSCFa2', 'UEa3']);
+    CtAddMessagePath('AckPath', ['UEa1', 'P-CSCFa1', 'S-CSCFa1','S-CSCFa2', 'P-CSCFa2', 'UEa2']);
+
+    # Wait & Print
+    WaitUntilKeyPress2('Press Enter Key and send INVITE',$node);
+
+    ###########################################################
+    # Define 1st Receiving INVITE function
+    ###########################################################
+    $func = sub {
+	my ($actSts, $rcvPkt, $conn, $usrInf) = @_;
+
+	# display the receiving message
+	CtRlJudgeSeq($actSts, 'Receive INVITE.', 'Can\'t receive INVITE.');
+
+	####UEa3
+	CtTbCfgSet('UEa3','',{'address'=>'3ffe:501:ffff:2000::1001',
+			      'sip-port'=>'5060',
+			      'prefixlen'=>'64',
+			      'public-user-id'=>'sip:UEa2_public_1@under.test.com',
+			      'private-user-id'=>'UEa3_private@under.test.com',
+			      'contact-host'=>'UEa3_public_1@nodea2.under.test.com',
+			      'domain'=>'under.test.com',
+			      'type'=>'GPRS',
+			      'net-info'=>'3GPP-UTRAN-TDD',
+			      'utran-param'=>'23415D0FCE11',
+			      'port-s'=>'22222',
+			      'rtp-port'=>'2000'
+		   });
+
+        ###
+	CtNDAddTempl('UEa3',{'ADINIT' => 'CtScInitAD','TBLINIT' => 'CtScInitTBL'});
+
+        ###
+	CtNDDef('UEa3');
+
+	# UEa3
+	CtSvCreateDlgFromReq('dlg1', $rcvPkt, 'UEa3', $node); #UEa2 is the End point
+
+	# UEa2
+	CtSvCreateDlgFromReq('dlg0', $rcvPkt, 'UEa2', $node); #UEa2 is the End point
+
+	# Judge recv msg
+	CtRlJudgeSyntax('SS.Request.INVITE',		# SYNTAX rule ID
+			'',				# add rule
+			'',				# del rule
+			'dlg0',				# dialog name
+			$rcvPkt,			# target message
+			{				# parameter to use in SYNTAX 
+			    'pre_req'  => $rcvPkt,
+			});
+	
+
+	# save branch parameters of all message for S.RFC3261-8-22_Via
+	push (@branches, CtFlv('HD,#Via#0,records#0,params,list#0,branch', $rcvPkt));
+
+	#-----------------------------
+	# send 100 Trying
+	#-----------------------------
+	($result, $SndMsg_100_INVITE) = 
+	    CtIoSendMsg( $conn, 		# connection 
+			 'ES.Response.100-INVITE',	# ENCODE rule ID
+			 '',	# add rule
+			 '',	# del rule
+			 'dlg0', 	# dlg reference to use dlg in ENCODE rule (used by CtRlCxDlg )
+			 $rcvPkt,	# msg reference to use message in ENCODE rule (used by CtRlCxPkt)
+			 {
+			     'status_code'=> '100',
+			 }		# parameter to use in ENCODE rule (used by CtRlCxUsr)
+	    );
+
+	# renew dialog information
+	CtSvDlgUpdate('dlg0', $SndMsg_100_INVITE);
+	CtSvDlgUpdate('dlg1', $SndMsg_100_INVITE);# UEa3
+	
+	#----------------------------------------------------------
+	# send 180 Ringing(UEa2)
+	#----------------------------------------------------------
+	($result, $SndMsg_180_INVITE) = 
+	    CtIoSendMsg( $conn,
+			 'ES.Response.180-INVITE',
+			 '',	             # add rule
+			 '',                  # del rule
+			 'dlg0', 	# dlg reference to use dlg in ENCODE rule (used by CtRlCxDlg )
+			 $rcvPkt,	# msg reference to use message in ENCODE rule (used by CtRlCxPkt)
+			 {
+			     'msg_path'  => 'InvitePath',
+			     'emu_node'  => 'P-CSCFa1',
+			     'term_node' => 'UEa2',
+			     'with_dlg'  => 0,
+			     'protected' => CtEnableIpsec(), 
+			     'status_code'=> '180',
+			 }		# parameter to use in ENCODE rule (used by CtRlCxUsr)
+			 # caution: don't need message path name for via, because copy from reference request 
+	    );
+
+	# renew dialog information
+	CtSvDlgUpdate('dlg0', $SndMsg_180_INVITE);
+
+
+	#----------------------------------------------------------
+	# send 180 Ringing(UEa3)
+	#----------------------------------------------------------
+	($result, $SndMsg_180_INVITE_UEa3) = 
+	    CtIoSendMsg( $conn,
+			 'ES.Response.180-INVITE',    # ENCODE rule ID
+			 '',	             # add rule
+			 '',                  # del rule
+			 'dlg1', 	# dlg reference to use dlg in ENCODE rule (used by CtRlCxDlg )
+			 $rcvPkt,	# msg reference to use message in ENCODE rule (used by CtRlCxPkt)
+			 {
+			     'msg_path'  => 'InvitePath2',
+			     'emu_node'  => 'P-CSCFa1',
+			     'term_node' => 'UEa3',
+			     'with_dlg'  => 0,
+			     'protected' => CtEnableIpsec(), 
+			     'status_code'=> '180',
+			 }		# parameter to use in ENCODE rule (used by CtRlCxUsr)
+			 # caution: don't need message path name for via, because copy from reference request 
+	    );
+	# renew dialog information
+	CtSvDlgUpdate('dlg1', $SndMsg_180_INVITE_UEa3);# UEa3
+
+	#---------------------------------------------------------
+	# send 200 OK(UEa2)
+	#---------------------------------------------------------
+	# SDP
+	my ($sdp_ver) = time() + 2208988800;
+	my ($address, $rtp_port, $count_a, $sdp_fqdn, @tmp);
+	
+	$rtp_port = CtTbUsr('UEa2', 'rtp-port');
+	$address = CtGetHostFromSecContactURI('UEa2');
+	
+	CtSvSDPCreate('sdp0',
+		      {
+			  'session-inf' => {
+			      'session-id'   => $sdp_ver,
+			      'username'     => 'UEa2',
+			      'version'      => $sdp_ver,
+			      'address-type' => 'IP6',
+			      'host'         => $host,
+			      'address' => $address,
+			  },
+			  'media-inf' => [
+			      {
+				  'media' => 'audio',
+				  'port'  => $rtp_port,
+				  'fmt-list' => {
+				      'fmt' => 0,
+				      'rtpmap' => 'rtpmap:0 PCMU/8000'
+				  },
+					  'bandwidth' => 'AS:75',
+			      },
+			      ],
+		      }, $node);
+	
+	# media-inf
+	# 
+	{
+	    my ($sdp);
+	    $sdp = CtSvSDPGet('sdp0', CtNDFromName('P-CSCF1'));
+	    if('ARRAY' ne ref($sdp->{'media-inf'})) {
+		$sdp->{'media-inf'} = [$sdp->{'media-inf'}];
+	    }
+	    foreach(@{$sdp->{'media-inf'}}) {
+#                           $_->{'connection-address'} = CtTbUsr('UE2', 'address');
+		$_->{'connection-address'} = $address;
+	    }
+	    CtSvSDPSet('sdp0', $sdp, CtNDFromName('P-CSCF1'));
+	}
+
+	($result, $SndMsg_200_INVITE) = 
+	    CtIoSendMsg( $conn, 		# connection 
+			 'ES.Response.200-INVITE',	# ENCODE rule ID
+			 ['E.P:U-To-13-Res_DLG'],
+			 ['E.P:U-To-7-200INVITE'],
+			 'dlg0', 	# dlg reference to use dlg in ENCODE rule (used by CtRlCxDlg )
+			 $rcvPkt,	# msg reference to use message in ENCODE rule (used by CtRlCxPkt)
+			 {
+			     'sdp_id'    => 'sdp0',
+			     'msg_path'  => 'InvitePath',
+			     'emu_node'  => 'P-CSCFa1',
+			     'term_node' => 'UEa2',
+			     'with_dlg'  => 1,
+			     'protected' => CtEnableIpsec(), 
+			     'status_code'=> '200',
+			 }		# parameter to use in ENCODE rule (used by CtRlCxUsr)
+			 # caution: don't need message path name for via, because copy from reference request 
+	    );
+
+	# renew dialog information
+	CtSvDlgUpdate('dlg0', $SndMsg_200_INVITE);
+
+	$RcvMsg_INVITE = $rcvPkt;
+	# go to Next State
+	return 'NEXT';
+    };
+    # regist the function for receiving INVITE
+    $tbl = CtScAddRcvReqAct($node, $func, 'INVITE');
+    
+
+    ####################################################
+    # recv ACK(INVITE)
+    ####################################################
+    $func = sub {
+	my ($actSts, $rcvPkt, $conn, $usrInf) = @_;
+
+	# display the message for checking receive Message
+	CtRlJudgeSeq($actSts, 'Receive ACK.', 'Can\'t receive ACK.');
+
+
+	CtRlJudgeSyntax('SS.Request.ACK', 
+			'', 
+			'', 
+			'dlg0', 
+			$rcvPkt, 
+			{'pre_req' => $SndMsg_200_INVITE, 
+			 'branches' => \@branches  # RFC3261-8.1-22
+			});
+	
+	# Update the dialog
+	CtSvDlgUpdate('dlg0', $rcvPkt);
+	
+
+	# save branch parameters of all message for S.RFC3261-8-22_Via
+	push (@branches, CtFlv('HD,#Via#0,records#0,params,list#0,branch', $rcvPkt));
+
+
+	#---------------------------------------------------------
+	# send 200 OK(UEa3)
+	#---------------------------------------------------------
+	# SDP
+	my ($sdp_ver) = time() + 2208988800;
+	my ($address, $rtp_port, $count_a, $sdp_fqdn, @tmp, $sdp);
+	
+	$rtp_port = CtTbUsr('UEa3', 'rtp-port') || 12345;
+	$address = CtGetHostFromSecContactURI('UEa3');
+
+	CtSvSDPCreate('sdp1',
+		      {
+			  'session-inf' => {
+			      'session-id'   => $sdp_ver,
+			      'username'     => 'UEa3',
+			      'version'      => $sdp_ver,
+			      'address-type' => 'IP6',
+			      'host'         => $host,
+			      'address' => $address,
+			  },
+			  'media-inf' => [
+			      {
+				  'media' => 'audio',
+				  'port'  => $rtp_port,
+				  'fmt-list' => {
+				      'fmt' => 0,
+				      'rtpmap' => 'rtpmap:0 PCMU/8000'
+				  },
+					  'bandwidth' => 'AS:75',
+			      },
+			      ],
+		      }, $node);
+	
+	# media-inf
+	# 
+	$sdp = CtSvSDPGet('sdp1', CtNDFromName('P-CSCF1'));
+	if('ARRAY' ne ref($sdp->{'media-inf'})) {
+	    $sdp->{'media-inf'} = [$sdp->{'media-inf'}];
+	}
+	foreach(@{$sdp->{'media-inf'}}) {
+	    $_->{'connection-address'} = $address;
+	}
+	CtSvSDPSet('sdp0', $sdp, CtNDFromName('P-CSCF1'));
+
+	#RFC3261-12.2-14
+	#CtTbSet("DLG,dlg1,LocalURI,Contact",'sip:UEa3_public_1@nodea2.under.test.com');
+	
+	($result, $SndMsg_200_INVITE_UEa3) = 
+	    CtIoSendMsg( $conn, 		# connection 
+			 'ES.Response.200-INVITE',	# ENCODE rule ID
+			 ['E.P:U-To-13-Res_DLG'],	# add rule
+			 ['E.P:U-To-7-200INVITE'],	# del rule
+			 'dlg1', 	# dlg reference to use dlg in ENCODE rule (used by CtRlCxDlg )
+			 $RcvMsg_INVITE,	# msg reference to use message in ENCODE rule (used by CtRlCxPkt)
+			 {
+			     'sdp_id'    => 'sdp1',
+			     'msg_path'  => 'InvitePath2',
+			     'emu_node'  => 'P-CSCFa1',
+			     'term_node' => 'UEa3',
+			     'with_dlg'  => 1,
+			     'protected' => CtEnableIpsec(), 
+			     'status_code'=> '200',
+			 }
+	    );
+	
+	# renew dialog information
+	CtSvDlgUpdate('dlg1', $SndMsg_200_INVITE_UEa3);
+	
+	return 'NEXT';
+    };
+    # regist the function for receiving ACK
+    $tbl = CtScAddRcvReqAct($node, $func, 'ACK');
+
+
+    ####################################################
+    # recv ACK(INVITE)(UEa3)
+    ####################################################
+    $func = sub {
+	my ($actSts, $rcvPkt, $conn, $usrInf) = @_;
+
+	# display the message for checking receive Message
+	# 
+	CtLgJudgeMsg('S.TS24229-5.1-468',CtIsReceived($actSts),$rcvPkt);
+	CtLgJudgeMsg('S.RFC3261-13.2-18',CtIsReceived($actSts),$rcvPkt);
+	CtRlJudgeSeq($actSts, 'Receive ACK.', 'Can\'t receive ACK.');
+
+	CtRlJudgeSyntax('SS.Request.ACK', 
+			'',
+			'',	# del rule
+			'dlg1', 
+			$rcvPkt, 
+			{'pre_req' => $SndMsg_200_INVITE_UEa3, 
+			 'branches' => \@branches  # RFC3261-8.1-22
+			});
+	
+	# Update the dialog
+	CtSvDlgUpdate('dlg1', $rcvPkt);
+	
+
+	# save branch parameters of all message for S.RFC3261-8-22_Via
+	push (@branches, CtFlv('HD,#Via#0,records#0,params,list#0,branch', $rcvPkt));
+
+	# renew dialog information
+	CtSvDlgUpdate('dlg1', $SndMsg_200_INVITE);
+
+	CtCnClose($conn);
+
+	return 'NEXT';
+    };
+    # regist the function for receiving ACK
+    $tbl = CtScAddRcvReqAct($node, $func, 'ACK');
+
+
+    ###########################################################
+    # Receiving BYE function(UEa3)
+    ###########################################################
+    $func = sub {
+	my ($actSts, $rcvPkt, $conn_bye, $usrInf) = @_;
+
+	# display the receiving message
+	CtLgJudgeMsg('S.TS24229-5.1-469',CtIsReceived($actSts),$rcvPkt);
+	CtRlJudgeSeq($actSts, 'Receive BYE.', 'Can\'t receive BYE.');
+
+	# Judge recv msg
+	CtRlJudgeSyntax('SS.Request.BYE',            # SYNTAX rule ID
+			'',                             # add rule
+			'',                             # del rule
+			'dlg1',                         # dialog name
+			$rcvPkt,                        # target message
+			{                               # parameter to use in SYNTAX
+			    'pre_req'  => $rcvINVITE,
+			    'branches' => \@branches
+			});
+
+	# renew dialog state information
+	CtSvDlgUpdate('dlg1', $rcvPkt);
+
+	# save branch parameters of all message for S.RFC3261-8-22_Via
+	push (@branches, CtFlv('HD,#Via#0,records#0,params,list#0,branch', $rcvPkt));
+
+	#-----------------------------
+	# send 200 OK
+	#-----------------------------
+	($result, $SndMsg_200_BYE_UEa3) =
+	    CtIoSendMsg( $conn_bye,                 # connection
+			 'ES.Response.200-BYE',     # ENCODE rule ID
+			 '',        # add rule
+			 '',        # del rule
+			 'dlg1',    # dlg reference to use dlg in ENCODE rule (used by CtRlCxDlg )
+			 $rcvPkt,   # msg reference to use message in ENCODE rule (used by CtRlCxPkt)
+			 {
+			     'sdp_id'    => 'sdp1',
+			     'msg_path'  => 'InvitePath2',
+			     'emu_node'  => 'P-CSCFa1',
+			     'term_node' => 'UEa3',
+			     'with_dlg'  => 1,
+			     'protected' => CtEnableIpsec(),
+			     'status_code'=> '200',
+			 }          # parameter to use in ENCODE rule (used by CtRlCxUsr)
+			 # caution: don't need message path name for via, because copy from reference request
+	    );
+	
+	# renew dialog information
+	CtSvDlgUpdate('dlg1', $SndMsg_200_BYE_UEa3);
+
+	CtCnClose($conn);
+
+	return 'NEXT';
+    };
+    # regist the function for receiving INVITE
+    $tbl = CtScAddRcvReqAct($node, $func, 'BYE');
+
+
+    ###########################################################
+    # define the function that sending BYE(UEa2)
+    ###########################################################
+    $func = sub {
+	my ($remoteName, $localName, $conn); 
+
+	# make connection forBYE 
+	$conn = CtCnCreate($node);
+
+	# Wait & Print
+	WaitUntilKeyPress('Press Enter Key and wait to receive BYE');
+
+	#----------------------
+	# send BYE
+	#----------------------
+	($result, $SndMsg_BYE) = 
+	    CtIoSendMsg( $conn,	       # 
+			 'ES.Request.BYE', # ENCODE
+			 '',       # 
+			 '',       # 
+			 'dlg0',	       # ENCODE
+			 '',               # ENCODE
+			 # (
+			 {                 # ENCODE
+			     # Viae
+			     'msg_type'  => 'BYE',
+			     'msg_path'  => 'AckPath',   # 
+			     'emu_node'  => 'P-CSCFa1',  # 
+			     'term_node' => 'UEa2',	     # 
+			     'with_dlg'  => 1,	     # 
+			     'protected' => CtEnableIpsec(),	     # IPSec
+			 }
+	    );
+
+	# update the information of dialog
+	CtSvDlgUpdate('dlg0', $SndMsg_BYE);
+
+	# go to next state
+	return 'NEXT';
+    };	
+
+    # regist the function for sending BYE
+    $tbl = CtScAddImmediateAct($node, $func, 'BYE');
+
+
+    ###########################################################
+    # define the function for receiving 200(BYE)(UEa2)
+    ###########################################################
+    $func = sub {
+	my ($actSts, $rcvPkt, $conn, $usrInf) = @_;
+
+	# 
+	CtRlJudgeSeq($actSts, 'Receive 200.', 'Can\'t receive 200');
+
+	# 200
+	CtRlJudgeSyntax('SS.Response.200_BYE', 
+			'', 
+			'', 
+			'dlg0', 
+			'',
+			{'pre_req' => $SndMsg_BYE
+			});
+
+	# 
+	CtSvDlgUpdate('dlg0', $rcvPkt);
+
+	# finished the process recieving 200-BYE
+	CtCnClose($conn);
+
+	# P-CSCF1
+	return 'END';
+    };
+    # 200(BYE)
+    $tbl = CtScAddRcvResAct($node, $func, '200', 'BYE');
+
+    CtNDDefEnd($node);
+};
+
+
+#---------------
+# 
+#---------------
+IMS_PCSCF();
+
+#--------------------------
+# 
+#--------------------------
+CtScRunScenario();
+
+#--------------------------------
+# 
+#--------------------------------
+CtScFin();
+
+
+
+
+

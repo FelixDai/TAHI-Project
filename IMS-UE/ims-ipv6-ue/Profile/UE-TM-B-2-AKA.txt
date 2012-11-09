@@ -1,0 +1,217 @@
+[NAME]
+UE-TM-B-2-AKA  - Timer D expiration
+
+
+[TARGET]
+IMS User Equipment (NUT)
+
+
+[PURPOSE]
+To verify that UEa1 properly sends ACK to 486(Busy Here) before timer D expired.
+
+
+[REFERENCE]
+TS24.229 7.7
+RFC3261 17.1.1.2
+
+
+[REQUIREMENT]
+NONE
+
+
+[PARAMETER(NUT)]
+public-user-id         :         sip:UEa1_public_1@under.test.com
+private-user-id        :         UEa1_private@under.test.com
+contact_URI            :         sip:UEa1_public_1@node.under.test.com
+HOMENETWORK Domain     :         sip:under.test.com
+
+
+[PARAMETER(TESTER)]
+public-user-id(UEa2)   :         sip:UEa2_public_1@under.test.com
+P-CSCFa1               :         sip:p.a1.under.test.com
+
+
+[ADDRESS]
+UEa1(NUT)              :         3ffe:501:ffff:1000::1000
+Router(R1)             :         3ffe:501:ffff:1000::1
+P-CSCFa1               :         3ffe:501:ffff:100::10
+I-CSCFa1               :         3ffe:501:ffff:100::20
+S-CSCFa1               :         3ffe:501:ffff:100::30
+DNS                    :         3ffe:501:ffff:100::40
+DHCP                   :         3ffe:501:ffff:100::50
+
+UEa2                   :         3ffe:501:ffff:2000::1000
+P-CSCFa2               :         3ffe:501:ffff:200::10
+I-CSCFa2               :         3ffe:501:ffff:200::20
+S-CSCFa2               :         3ffe:501:ffff:200::30
+
+
+[TOPOLOGY]
++---------+----------
+|         |
+|         UEa1(NUT)
+R1
+|
+|
++---------+----------+----------+----------+----------+----
+|         |          |          |          |          |
+|        P-CSCFa1   S-CSCFa1   I-CSCFa1   DHCP       DNS
+R2
+|
+|
++---------+----------+----------+-------
+|         |          |          |
+|        P-CSCFa2   S-CSCFa2   I-CSCFa2
+R3
+|
+|
++---------+----------
+          |
+          UEa2
+
+
+[INITIALIZATION]
+UEa1(NUT) must be registered with the tester by executing the scenario "UE-INI-B-1-AKA".
+For details of "UE-INI-B-1-AKA", refer to the profile "UE-RG-B-1-AKA".
+
+
+[PROCEDURE]
+                                  Home Network
+(NUT)
+   UEa1     P-CSCFa1  S-CSCFa1  I-CSCFa1  I-CSCFa2  S-CSCFa2  P-CSCFa2  UEa2
+     |    :    |         |         |         |         |         |         |
+     |-------->|         |         |         |         |         |         | 1.INVITE
+     |    :    |         |         |         |         |         |         |
+     |    :    |-------->|         |         |         |         |         |   INVITE
+     |    :    |         |         |         |         |         |         |
+     |<--------|         |         |         |         |         |         | 2.100 Trying
+     |    :    |         |         |         |         |         |         |
+     |    :    |         |------------------>|         |         |         |   INVITE
+     |    :    |         |         |         |         |         |         |
+     |    :    |<--------|         |         |         |         |         |   100 Trying
+     |    :    |         |         |         |         |         |         |
+     |    :    |         |         |         |-------->|         |         |   INVITE
+     |    :    |         |         |         |         |         |         |
+     |    :    |         |         |         |         |-------->|         |   INVITE
+     |    :    |         |         |         |         |         |         |
+     |    :    |         |         |         |<--------|         |         |   100 Trying
+     |    :    |         |         |         |         |         |         |
+     |    :    |         |         |         |         |         |-------->|   INVITE
+     |    :    |         |         |         |         |         |         |
+     |    :    |         |         |         |         |<--------|         |   100 Trying
+     |    :    |         |         |         |         |         |         |
+     |    :    |         |         |         |         |         |<--------|   486 Busy Here
+     |    :    |         |         |         |         |         |         |
+     |    :    |         |         |         |         |         |-------->|   ACK
+     |    :    |         |         |         |         |         |         |
+     |    :    |         |         |         |         |<--------|         |   486 Busy Here
+     |    :    |         |         |         |         |         |         |
+     |    :    |         |         |         |         |-------->|         |   ACK
+     |    :    |         |         |         |         |         |         |
+     |    :    |         |         |         |<--------|         |         |   486 Busy Here
+     |    :    |         |         |         |         |         |         |
+     |    :    |         |         |         |-------->|         |         |   ACK
+     |    :    |         |         |         |         |         |         |
+     |    :    |         |<------------------|         |         |         |   486 Busy Here
+     |    :    |         |         |         |         |         |         |
+     |    :    |         |------------------>|         |         |         |   ACK
+     |    :    |         |         |         |         |         |         |
+     |    :    |<--------|         |         |         |         |         |   486 Busy Here
+     |    :    |         |         |         |         |         |         |
+     |    :    |-------->|         |         |         |         |         |   ACK
+     |    :    |         |         |         |         |         |         |
+     |<--------|         |         |         |         |         |         | 3.486 Busy Here
+     |    :    |         |         |         |         |         |         |
+     |-------->|         |         |         |         |         |         | 4.ACK --Timer D has started
+     |    :    |         |         |         |         |         |         |
+     |<--------|         |         |         |         |         |         | 5.486 Busy Here (Sends before 128sec)
+     |    :    |         |         |         |         |         |         |
+     |-------->|         |         |         |         |         |         | 6.ACK (*1)
+     |    :    |         |         |         |         |         |         |
+    ---------------------------------------------------------------------------Timer D ( >128 sec) fired (UDP case)
+     |    :    |         |         |         |         |         |         |
+
+1 NUT sends INVITE
+2 NUT receives 100 Trying
+3 NUT receives 486 Busy Here
+4 NUT sends ACK
+5 NUT receives 486 Busy Here
+6 NUT sends ACK
+
+
+ === Message example ===
+
+1. INVITE NUT -> P-CSCF
+INVITE sip:UEa2_public_1@under.test.com SIP/2.0
+Via: SIP/2.0/UDP [3ffe:501:ffff:1000::1000]:1357;branch=z9hG4bK74bf9
+Route: <sip:p.a1.under.test.com:10001;lr>,<sip:orig@s.a1.under.test.com;lr>
+Max-Forwards: 70
+From: <sip:UEa1_public_1@under.test.com>;tag=9fxced76sl
+To: <sip:UEa2_public_1@under.test.com>
+Call-ID: 3848276298220188511@under.test.com
+CSeq: 1 INVITE
+Contact: <sip:UEa1_public_1@node.under.test.com:1357>
+Supported:
+Allow: INVITE,ACK,CANCEL,OPTIONS,BYE
+Allow-Events: reg
+Accept: application/sdp,application/3gpp-ims+xml
+Require: sec-agree
+Proxy-Require: sec-agree
+Security-Verify: ipsec-3gpp; alg=hmac-sha-1-96; spi-c=256; spi-s=257; port-c=10002; port-s=10001
+Content-Type: application/sdp
+Content-Length: 154
+
+v=0
+o=UEa1 2890844526 2890844526 IN IP6 node.under.test.com
+s=-
+c=IN IP6 node.under.test.com
+t=0 0
+m=audio 49172 RTP/AVP 0
+b=AS:75
+a=rtpmap:0 PCMU/8000
+
+
+2. 100 Trying P-CSCF -> NUT
+SIP/2.0 100 Trying
+Via: SIP/2.0/UDP [3ffe:501:ffff:1000::1000]:1357;branch=z9hG4bK74bf9
+From: <sip:UEa1_public_1@under.test.com>;tag=9fxced76sl
+To: <sip:UEa2_public_1@under.test.com>
+Call-ID: 3848276298220188511@under.test.com
+CSeq: 1 INVITE
+Content-Length: 0
+
+
+3. 486 Busy Here P-CSCF -> NUT
+SIP/2.0 486 Busy Here
+Via: SIP/2.0/UDP [3ffe:501:ffff:1000::1000]:1357;branch=z9hG4bK74bf9
+Call-ID: 3848276298220188511@under.test.com
+From: <sip:UEa1_public_1@under.test.com>;tag=9fxced76sl
+To: <sip:UEa2_public_1@under.test.com>;tag=314259
+CSeq: 1 INVITE
+Content-Length: 0
+
+
+4. ACK NUT -> P-CSCF
+ACK sip:UEa2_public_1@under.test.com SIP/2.0
+Via: SIP/2.0/UDP [3ffe:501:ffff:1000::1000]:1357;branch=z9hG4bK74bf9
+Route: <sip:p.a1.under.test.com:10001;lr>,<sip:orig@s.a1.under.test.com;lr>
+Max-Forwards: 70
+From: <sip:UEa1_public_1@under.test.com>;tag=9fxced76sl
+To: <sip:UEa2_public_1@under.test.com>;tag=314259
+Call-ID: 3848276298220188511@under.test.com
+CSeq: 1 ACK
+Content-Length: 0
+
+
+As regards the message 5-6, please refer to the message 3-4 in this.
+
+
+[OBSERVABLE RESULTS]
+
+*1: 6 ACK form NUT to P-CSCF.
+
+      See generic_ACK-non2XX
+      
+          Any retransmissions of the final response that are received while in the 
+          "Completed" state MUST cause the ACK to be re-passed to the transport 
+          layer for retransmission.[RFC3261-17.1-25]

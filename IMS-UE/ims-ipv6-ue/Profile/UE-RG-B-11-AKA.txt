@@ -1,0 +1,219 @@
+[NAME]
+UE-RG-B-11-AKA  - Reception of 423 response to reregistration
+
+
+[TARGET]
+IMS User Equipment (NUT)
+
+
+[PURPOSE]
+To verify that the UEa1 properly sends another REGISTER request populating the
+Expires header or the expires parameter with an expiration timer of at least the
+value received in the Min-Expires header of the 423 (Interval Too Brief) response.
+
+
+[REFERENCE]
+TS24229 5.1.1.4.1
+
+
+[REQUIREMENT]
+ NONE
+
+
+[PARAMETER(NUT)]
+public-user-id         :         sip:UEa1_public_1@under.test.com
+private-user-id        :         UEa1_private@under.test.com
+contact_URI            :         sip:UEa1_public_1@node.under.test.com
+HOMENETWORK Domain     :         sip:under.test.com
+
+
+[PARAMETER(TESTER)]
+P-CSCFa1               :         sip:p.a1.under.test.com
+S-CSCFa1               :         sip:s.a1.under.test.com
+
+
+[ADDRESS]
+UEa1(NUT)              :         3ffe:501:ffff:1000::1000
+Router(R1)             :         3ffe:501:ffff:1000::1
+P-CSCFa1               :         3ffe:501:ffff:100::10
+I-CSCFa1               :         3ffe:501:ffff:100::20
+S-CSCFa1               :         3ffe:501:ffff:100::30
+DNS                    :         3ffe:501:ffff:100::40
+DHCP                   :         3ffe:501:ffff:100::50
+
+
+[TOPOLOGY]
++---------+
+|         |
+|       UEa1(NUT)
+R1
+|
+|
++---------+----------+----------+----------+----------+-
+          |          |          |          |          |
+      P-CSCFa1    I-CSCFa1  S-CSCFa1      DHCP       DNS
+
+
+[INITIALIZATION]
+Set up IP Address using A or B.
+
+A. Router Advertisement
+
+B. DHCPv6
+  (NUT)
+   UEa1      DHCP
+    |    :    | 
+    |-------->| 1 DHCPv6 SOLICIT
+    |    :    | 
+    |<--------| 2 DHCPv6 ADVERTIZE
+    |    :    |
+    |-------->| 3 DHCPv6 REQUEST
+    |    :    |
+    |<--------| 4 DHCPv6 REPLY
+    |    :    |
+
+
+[PROCEDURE]
+                Home Network
+  (NUT)
+   UEa1     P-CSCFa1    I-CSCFa1     S-CSCFa1
+    |     :     |           |           |
+    |---------->|           |           | 1 REGISTER
+    |     :     |           |           |
+    |     :     |---------->|           |   REGISTER
+    |     :     |           |           |
+    |     :     |           |---------->|   REGISTER
+    |     :     |           |           |
+    |     :     |           |<----------|   401 Unauthorized
+    |     :     |           |           |
+    |     :     |<----------|           |   401 Unauthorized
+    |     :     |           |           |
+    |<----------|           |           | 2 401 Unauthorized
+    |     :     |           |           |
+    |---------->|           |           | 3 REGISTER for authentication
+    |     :     |           |           |
+    |     :     |---------->|           |   REGISTER for authentication
+    |     :     |           |           |
+    |     :     |           |---------->|   REGISTER for authentication
+    |     :     |           |           |
+    |     :     |           |<----------|   200 OK with expires=60
+    |     :     |           |           |
+    |     :     |<----------|           |   200 OK with expires=60
+    |     :     |           |           |
+    |<----------|           |           | 4 200 OK with expires=60
+    |     :     |           |           |
+    |---------->|           |           | 5 SUBSCRIBE
+    |     :     |           |           |
+    |     :     |---------------------->|   SUBSCRIBE
+    |     :     |           |           |
+    |     :     |<----------------------|   200 OK
+    |     :     |           |           |
+    |<----------|           |           | 6 200 OK
+    |     :     |           |           |
+    |     :     |<----------------------|   NOTIFY
+    |     :     |           |           |
+    |<----------|           |           | 7 NOTIFY
+    |     :     |           |           |
+    |---------->|           |           | 8 200 OK
+    |     :     |           |           |
+    |     :     |---------------------->|   200 OK
+    |     :     |           |           |
+    |---------->|           |           | 9 REGISTER for reregistration
+    |     :     |           |           |
+    |     :     |---------->|           |   REGISTER for reregistration
+    |     :     |           |           |
+    |     :     |           |---------->|   REGISTER for reregistration
+    |     :     |           |           |
+    |     :     |           |<----------|   423 Interval Too Brief
+    |     :     |           |           |
+    |     :     |< ---------|           |   423 Interval Too Brief
+    |     :     |           |           |
+    |<----------|           |           | 10 423 Interval Too Brief
+    |     :     |           |           |
+    |---------->|           |           | 11 REGISTER for reregistration (*1)
+    |     :     |           |           |
+    |     :     |---------->|           |    REGISTER for reregistration
+    |     :     |           |           |
+    |     :     |           |---------->|    REGISTER for reregistration
+    |     :     |           |           |
+    |     :     |           |<----------|    200 OK
+    |     :     |           |           |
+    |     :     |<----------|           |    200 OK
+    |     :     |           |           |
+    |<----------|           |           | 12 200 OK
+    |     :     |           |           |
+
+1 NUT sends REGISTER
+2 NUT receives 401 Unauthorized
+3 NUT sends REGISTER for authentication
+4 NUT receives 200 OK
+5 NUT sends SUBSCRIBE
+6 NUT receives 200 OK
+7 NUT receives NOTIFY
+8 NUT sends 200 OK
+9 NUT sends REGISTER for reregistration
+10 NUT receives 423 Interval Too Brief
+11 NUT sends REGISTER for reregistration
+12 NUT receives 200 OK
+
+=== Message example ===
+As regards the message 1-9, please refer to the message 1-9 in UE-RG-B-2-AKA.
+
+10. 423 Interval Too Brief P-CSCF -> NUT
+SIP/2.0 423 Interval Too Brief
+Via: SIP/2.0/UDP [3ffe:501:ffff:1000::1000]:1357;branch=z9hG4bKnashds9
+From: <sip:UEa1_public_1@under.test.com>;tag=4fa4
+To: <sip:UEa1_public_1@under.test.com>;tag=5ef6
+Call-ID: apb03a0s09dkjdfglkj49111@under.test.com
+CSeq: 3 REGISTER
+Min-Expires: 600000
+Content-Length: 0
+
+
+11. REGISTER NUT -> P-CSCF
+REGISTER sip:under.test.com SIP/2.0
+Via: SIP/2.0/UDP [3ffe:501:ffff:1000::1000]:1357;branch=z9hG4bKnashds10
+Max-Forwards: 70
+From: <sip:UEa1_public_1@under.test.com>;tag=4fa5
+To: <sip:UEa1_public_1@under.test.com>
+Contact: <sip:UEa1_public_1@node.under.test.com:1357>;expires=600000
+Call-ID: apb03a0s09dkjdfglkj49111@under.test.com
+Authorization: Digest username="UEa1_private@under.test.com", realm="under.test.com", nonce="I1U8vpY3qJhiuZNrke/NaponGSCcLm5iR+WCRkWYoM", uri="sip:under.test.com", response="6629fae49393a05397450978507c4ef1"
+Security-Client: ipsec-3gpp; mode="trans"; alg=hmac-sha-1-96; spi-c=33456789; spi-s=22345678; port-c=3468; port-s=1357
+Security-Verify: ipsec-3gpp; alg=hmac-sha-1-96; spi-c=256; spi-s=257; port-c=10002; port-s=10001
+Require: sec-agree
+Proxy-Require: sec-agree
+CSeq: 4 REGISTER
+Supported: path
+Content-Length: 0
+
+
+12. 200 OK P-CSCF -> NUT
+SIP/2.0 200 OK
+Via: SIP/2.0/UDP [3ffe:501:ffff:1000::1000]:1357;branch=z9hG4bKnashds10
+From: <sip:UEa1_public_1@under.test.com>;tag=4fa5
+To: <sip:UEa1_public_1@under.test.com>;tag=5ef7
+Call-ID: apb03a0s09dkjdfglkj49111@under.test.com
+Contact: <sip:UEa1_public_1@node.under.test.com:1357>;expires=600000
+Path: <sip:term@p.a1.under.test.com;lr>
+Service-Route: <sip:orig@s.a1.under.test.com;lr>
+CSeq: 4 REGISTER
+P-Associated-URI: <sip:UEa1_public_1@under.test.com>
+Date: Wed, 11 July 2001 08:50:08 GMT
+Content-Length: 0
+
+
+[OBSERVABLE RESULTS]
+*1: 11 REGISTER for reregistration from NUT to P-CSCF
+
+      See generic_re_REGISTER
+
+      The client SHOULD NOT retry the same request without modification.
+      [RFC3261-21.4-1]
+
+        - Header field:
+
+          * Contact expires parameter/Expires
+            Another REGISTER request SHALL be sent the registration expiration interval 
+            value with an expiration time of at least the value received in Min-Expire 
+            header field of 423(Interval Too Brief) respons.[TS24229-5.1-171]

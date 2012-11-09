@@ -1,0 +1,173 @@
+# IMS Tester Configuration
+# Copyright(C) IPv6 Promotion Council (2004-2010). All Rights Reserved.
+# 
+# This documentation is produced by SIP SWG members of Certification WG in 
+# IPv6 Promotion Council.
+# The SWG members currently include NIPPON TELEGRAPH AND TELEPHONE CORPORATION (NTT), 
+# Yokogawa Electric Corporation and NTT Advanced Technology Corporation (NTT-AT).
+# 
+# 
+# Redistribution and use of this software in source and binary forms, with 
+# or without modification, are permitted provided that the following 
+# conditions and disclaimer are agreed and accepted by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright 
+# notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright 
+# notice, this list of conditions and the following disclaimer in the 
+# documentation and/or other materials provided with the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project which 
+# is related to this software (hereinafter referred to as "project") nor 
+# the names of the contributors may be used to endorse or promote products 
+# derived from this software without specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written 
+# notification to the copyrighters. However, using this software for the 
+# purpose of testing or evaluating any products including merchantable 
+# products may be permitted without any notification to the copyrighters.
+# 
+# 
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND 
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING 
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS 
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE 
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+# CONTRACT,STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF 
+# THE POSSIBILITY OF SUCH DAMAGE.
+
+[UEa1]
+address				3ffe:501:ffff:1000::1000
+sip-port			5060
+prefixlen			64
+
+public-user-id			sip:UEa1_public_1@under.test.com
+private-user-id			UEa1_private@under.test.com
+contact-host			UEa1_public_1@node.under.test.com
+domain				under.test.com
+type				GPRS
+net-info			3GPP-UTRAN-TDD
+utran-param			23415D0FCE11
+registra			S-CSCFa1
+
+spi-c				23456789
+spi-s				12345678
+port-c				2468
+port-s				1357
+
+
+[P-CSCFa1]
+address				3ffe:501:ffff:100::10
+prefixlen			64
+sip-port			5060
+
+add-rec-route			TRUE
+domain              		under.test.com
+hostname			p.a1.under.test.com
+path				<sip:term@p.a1.under.test.com;lr>
+spi-c				256
+spi-s				257
+port-c				10002
+port-s				10001
+
+#aka-sharedkey			1234567890123456
+aka-sharedkey			0x465b5ce8b199b49faa5f0a2ee238a6bc
+
+
+[I-CSCFa1]
+address				3ffe:501:ffff:100::20
+prefixlen			64
+sip-port			5060
+add-rec-route			FALSE
+domain				under.test.com
+hostname			i.a1.under.test.com
+
+
+[S-CSCFa1]
+address				3ffe:501:ffff:100::30
+prefixlen			64
+sip-port			5060
+add-rec-route			TRUE
+domain				under.test.com
+hostname			s.a1.under.test.com
+service-route			[<sip:orig@s.a1.under.test.com;lr>]
+
+################################################
+#  2nd network (home-to-home architecture)
+################################################
+
+[UEa2]
+address				3ffe:501:ffff:2000::1000
+sip-port			5060
+prefixlen			64
+
+public-user-id			sip:UEa2_public_1@under.test.com
+private-user-id			UEa2_private@under.test.com
+contact-host                    UEa2_public_1@nodea2.under.test.com
+domain				under.test.com
+type				GPRS
+net-info			3GPP-UTRAN-TDD
+utran-param			23415D0FCE22
+
+port-s				22222
+rtp-port			2000
+
+
+[P-CSCFa2]
+address				3ffe:501:ffff:200::10
+prefixlen			64
+sip-port			5060
+add-rec-route			TRUE
+domain				under.test.com
+hostname			p.a2.under.test.com
+
+
+[I-CSCFa2]
+address				3ffe:501:ffff:200::20
+prefixlen			64
+sip-port			5060
+add-rec-route			FALSE
+domain				under.test.com
+hostname			i.a2.ss.under.test.com
+
+
+[S-CSCFa2]
+address				3ffe:501:ffff:200::30
+prefixlen			64
+sip-port			5060
+add-rec-route			TRUE
+domain				under.test.com
+hostname			s.a2.under.test.com
+
+
+##############################################
+#  Other Settings
+##############################################
+[DNS]
+address				3ffe:501:ffff:4::1
+prefixlen			64
+
+[PF]
+protocol			INET6
+transport			UDP
+modulename			KOI
+Auto_Router_Address		ON
+Router_Address			3ffe:501:ffff:1000::1
+Router_Prefix			64
+ipautoconfig			dhcp
+gateway				3ffe:501:ffff:1000::1000
+
+[AKA]
+op				cdc202d5123e20f62b6d676ac72cb318
+amf				b9b9
+
+[SIPDigest]
+secret-key                        123456789
+

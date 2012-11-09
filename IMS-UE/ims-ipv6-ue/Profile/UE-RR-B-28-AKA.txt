@@ -1,0 +1,210 @@
+[NAME]
+UE-RR-B-28-AKA  - Reception of 504 response to Session initiation
+
+
+[TARGET]
+IMS User Equipment (NUT)
+
+
+[PURPOSE]
+To verify that the UEa1 properly performs the procedures for initial registration
+after received 504 (Server Time-out) response containing a P-Asserted-Identity header 
+field set to the SIP URI of the Path header field during the registration and a 
+Content-Type header field set to a "application/3gpp-ims+xml" and related IM CM 
+subsystem XML body.
+
+
+[REFERENCE]
+TS24.229 5.1.2A.1.6
+TS24.229 A.2.1.4.1
+
+
+[REQUIREMENT]
+NONE
+
+
+[PARAMETER(NUT)]
+public-user-id         :         sip:UEa1_public_1@under.test.com
+private-user-id        :         UEa1_private@under.test.com
+contact_URI            :         sip:UEa1_public_1@node.under.test.com
+HOMENETWORK Domain     :         sip:under.test.com
+
+
+[PARAMETER(TESTER)]
+public-user-id(UEa2)   :         sip:UEa2_public_1@under.test.com
+P-CSCFa1               :         sip:p.a1.under.test.com
+
+
+[ADDRESS]
+UEa1(NUT)              :         3ffe:501:ffff:1000::1000
+Router(R1)             :         3ffe:501:ffff:1000::1
+P-CSCFa1               :         3ffe:501:ffff:100::10
+I-CSCFa1               :         3ffe:501:ffff:100::20
+S-CSCFa1               :         3ffe:501:ffff:100::30
+DNS                    :         3ffe:501:ffff:100::40
+DHCP                   :         3ffe:501:ffff:100::50
+
+UEa2                   :         3ffe:501:ffff:2000::1000
+P-CSCFa2               :         3ffe:501:ffff:200::10
+I-CSCFa2               :         3ffe:501:ffff:200::20
+S-CSCFa2               :         3ffe:501:ffff:200::30
+
+
+[TOPOLOGY]
++---------+----------
+|         |
+|         UEa1(NUT)
+R1
+|
+|
++---------+----------+----------+----------+----------+----
+|         |          |          |          |          |
+|        P-CSCFa1   S-CSCFa1   I-CSCFa1   DHCP       DNS
+R2
+|
+|
++---------+----------+----------+-------
+|         |          |          |       
+|        P-CSCFa2   S-CSCFa2   I-CSCFa2
+R3
+|
+|
++---------+----------
+          |   
+          UEa2
+
+
+[INITIALIZATION]
+UEa1(NUT) must be registered with the tester by executing the scenario "UE-INI-B-1-AKA".
+For details of "UE-INI-B-1-AKA", refer to the profile "UE-RG-B-1-AKA".
+
+
+[PROCEDURE]
+                    Home Network                   
+(NUT)
+   UEa1     P-CSCFa1  I-CSCFa1  S-CSCFa1  I-CSCFa2  S-CSCFa2  P-CSCFa2  UEa2
+   |    :    |         |         |         |         |         |         | 
+   |-------->|         |         |         |         |         |         | 1 INVITE
+   |    :    |         |         |         |         |         |         | 
+   |    :    |------------------>|         |         |         |         |   INVITE 
+   |    :    |         |         |         |         |         |         | 
+   |<--------|         |         |         |         |         |         | 2 100 Trying
+   |    :    |         |         |         |         |         |         | 
+   |    :    |<------------------|         |         |         |         |   480 Temporarily Unavailable
+   |    :    |         |         |         |         |         |         | 
+   |    :    |------------------>|         |         |         |         |   ACK 
+   |    :    |         |         |         |         |         |         |
+   |<--------|         |         |         |         |         |         | 3 504 Server Time-out
+   |    :    |         |         |         |         |         |         | 
+   |-------->|         |         |         |         |         |         | 4 ACK
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |         |
+   |-------->|         |         | 5 REGISTER (*1)
+   |    :    |         |         |
+   |    :    |-------->|         |   REGISTER
+   |    :    |         |         |
+   |    :    |         |-------->|   REGISTER
+   |    :    |         |         |
+   |    :    |         |<--------|   401 Unauthorized
+   |    :    |         |         |
+   |    :    |<--------|         |   401 Unauthorized
+   |    :    |         |         |
+   |<--------|         |         | 6 401 Unauthorized
+   |    :    |         |         |
+   |-------->|         |         | 7 REGISTER for authentication (*2)
+   |    :    |         |         |
+   |    :    |-------->|         |   REGISTER for authentication
+   |    :    |         |         |
+   |    :    |         |-------->|   REGISTER for authentication
+   |    :    |         |         |
+   |    :    |         |<--------|   200 OK
+   |    :    |         |         |
+   |    :    |<--------|         |   200 OK
+   |    :    |         |         |
+   |<--------|         |         | 8 200 OK
+   |    :    |         |         |
+   |-------->|         |         | 9 SUBSCRIBE (*3)
+   |    :    |         |         |
+   |    :    |------------------>|   SUBSCRIBE
+   |    :    |         |         |
+   |    :    |<------------------|   200 OK
+   |    :    |         |         |
+   |<--------|         |         | 10 200 OK
+   |    :    |         |         |
+   |    :    |<------------------|   NOTIFY
+   |    :    |         |         |
+   |<--------|         |         | 11 NOTIFY
+   |    :    |         |         |
+   |-------->|         |         | 12 200 OK (*4)
+   |    :    |         |         |
+   |    :    |------------------>|    200 OK
+   |    :    |         |         |
+
+1  NUT sends INVITE
+2  NUT receives 100 Trying
+3  NUT receives 504 Server Time-out
+4  NUT sends ACK
+5  NUT sends REGISTER
+6  NUT receives 401 Unauthorized
+7  NUT sends REGISTER for authentication
+8  NUT receives 200 OK
+9  NUT sends SUBSCRIBE
+10 NUT receives 200 OK
+11 NUT receives NOTIFY
+12 NUT sends 200 OK
+
+ === Message example ===
+
+As regards the message 1-2, please refer to the message 1-2 in UE-SE-B-1-AKA.
+
+3. 504 Server Time-out P-CSCF -> NUT
+SIP/2.0 504 Server Time-out
+Via: SIP/2.0/UDP [3ffe:501:ffff:1000::1000]:1357;branch=z9hG4bK74bf9
+From: <sip:UEa1_public_1@under.test.com>;tag=9fxced76sl
+To: <sip:UEa2_public_1@under.test.com>;tag=314259
+Call-ID: 3848276298220188511@under.test.com
+CSeq: 1 INVITE
+P-Asserted-Identity: <sip:term@p.a1.under.test.com>
+Content-Type: application/3gpp-ims+xml
+Content-Length: (...)
+
+<?xml version="1.0" encoding="UTF-8"?>
+<ims-3gpp version="1">
+   <alternative-service> 
+    <type>%x72.65.73.74.6F.72.61.74.69.6F.6E</type>
+    <reason>operator configurable reason</reason>
+    <action>%x69.6E.69.74.69.61.6C.2D.72.65.67.69.73.74.72.61.74.69.6F.6E</action>
+   </alternative-service>
+</ims-3gpp>
+
+4. ACK NUT -> P-CSCF
+ACK sip:UEa2_public_1@under.test.com SIP/2.0
+Via: SIP/2.0/UDP [3ffe:501:ffff:1000::1000]:1357;branch=z9hG4bK74bf9
+Route: <sip:p.a1.under.test.com:10001;lr>,<sip:orig@s.a1.under.test.com;lr>
+Max-Forwards: 70
+From: <sip:UEa1_public_1@under.test.com>;tag=9fxced76sl
+To: <sip:UEa2_public_1@under.test.com>;tag=314259
+Call-ID: 3848276298220188511@under.test.com
+CSeq: 1 ACK
+Content-Length: 0
+
+As regards the message 5-12, please refer to the message 11-18 in UE-RG-B-14-AKA.
+
+
+[OBSERVABLE RESULTS]
+
+*1: 5 REGISTER from NUT to P-CSCF
+
+      See generic_REGISTER
+
+*2: 7 REGISTER for authentication from NUT to P-CSCF
+
+      See generic_Auth_REGISTER
+
+*3: 9 SUBSCRIBE from NUT to P-CSCF
+
+      See generic_SUBSCRIBE
+
+*4: 12 NOTIFY 200 OK from NUT to P-CSCF
+
+      See generic_200-NOTIFY

@@ -1,0 +1,449 @@
+[NAME]
+UE-RR-B-1-AKA  - Receiving 100 response
+
+
+[TARGET]
+IMS User Equipment (NUT)
+
+
+[PURPOSE]
+To verify that the UEa1 properly process a 100 (Trying) response.
+
+
+[REFERENCE]
+TS24.229 A.2.1.4.1
+RFC3261 8.1.3.2
+RFC3265 3.2.4
+
+
+[REQUIREMENT]
+NONE
+
+[PARAMETER(NUT)]
+public-user-id         :         sip:UEa1_public_1@under.test.com
+private-user-id        :         UEa1_private@under.test.com
+contact_URI            :         sip:UEa1_public_1@node.under.test.com
+HOMENETWORK Domain     :         sip:under.test.com
+
+
+[PARAMETER(TESTER)]
+public-user-id(UEa2)   :         sip:UEa2_public_1@under.test.com
+P-CSCFa1               :         sip:p.a1.under.test.com
+S-CSCFa1               :         sip:s.a1.under.test.com
+
+
+[ADDRESS]
+UEa1(NUT)              :         3ffe:501:ffff:1000::1000
+Router(R1)             :         3ffe:501:ffff:1000::1
+P-CSCFa1               :         3ffe:501:ffff:100::10
+I-CSCFa1               :         3ffe:501:ffff:100::20
+S-CSCFa1               :         3ffe:501:ffff:100::30
+DNS                    :         3ffe:501:ffff:100::40
+DHCP                   :         3ffe:501:ffff:100::50
+
+UEa2                   :         3ffe:501:ffff:2000::1000
+P-CSCFa2               :         3ffe:501:ffff:200::10
+I-CSCFa2               :         3ffe:501:ffff:200::20
+S-CSCFa2               :         3ffe:501:ffff:200::30
+
+
+[TOPOLOGY]
++---------+----------
+|         |
+|         UEa1(NUT)
+R1
+|
+|
++---------+----------+----------+----------+----------+----
+|         |          |          |          |          |
+|        P-CSCFa1   S-CSCFa1   I-CSCFa1   DHCP       DNS
+R2
+|
+|
++---------+----------+----------+-------
+|         |          |          |       
+|        P-CSCFa2   S-CSCFa2   I-CSCFa2
+R3
+|
+|
++---------+----------
+          |   
+          UEa2
+
+
+[INITIALIZATION]
+Set up IP Address by A or B.
+
+A. Router Advertisement
+
+B. DHCPv6
+  (NUT)
+   UEa1      DHCP
+    |    :    | 
+    |-------->| 1 DHCPv6 SOLICIT
+    |    :    | 
+    |<--------| 2 DHCPv6 ADVERTIZE
+    |    :    |
+    |-------->| 3 DHCPv6 REQUEST
+    |    :    |
+    |<--------| 4 DHCPv6 REPLY
+    |    :    |
+
+
+[PROCEDURE]
+                    Home Network                   
+(NUT)
+   UEa1     P-CSCFa1  S-CSCFa1  I-CSCFa1  I-CSCFa2  S-CSCFa2  P-CSCFa2  UEa2
+   |    :    |         |         |  
+   |-------->|         |         | 1 REGISTER 
+   |    :    |         |         | 
+   |<--------|         |         | 2 100 Trying
+   |    :    |         |         | 
+   |-------->|         |         | 3 REGISTER 
+   |    :    |         |         | 
+   |<--------|         |         | 4 100 Trying
+   |    :    |         |         | 
+   |    :    |         |         |      :
+   |    :    |         |         | 
+   |    :    |         |         | 5 <Wait 4 sec to check sending re-transmission>
+   |    :    |         |         |   (Re-transmission by Timer E is sending after initial REGISTER)
+   |    :    |         |         | 
+   |    :    |------------------>|   REGISTER 
+   |    :    |         |         |
+   |    :    |         |<--------|   REGISTER 
+   |    :    |         |         |
+   |    :    |         |-------->|   401 Unauthorized 
+   |    :    |         |         | 
+   |    :    |<------------------|   401 Unauthorized 
+   |    :    |         |         | 
+   |<--------|         |         | 6 401 Unauthorized 
+   |    :    |         |         |  
+   |-------->|         |         | 7 REGISTER  (*1)
+   |    :    |         |         |
+   |    :    |------------------>|   REGISTER 
+   |    :    |         |         | 
+   |    :    |         |<--------|   REGISTER 
+   |    :    |         |         | 
+   |    :    |         |-------->|   200 OK 
+   |    :    |         |         |
+   |    :    |<------------------|   200 OK 
+   |    :    |         |         | 
+   |<--------|         |         | 8 200 OK 
+   |    :    |         |         |
+   |-------->|         |         | 9 SUBSCRIBE 
+   |    :    |         |         | 
+   |<--------|         |         | 10 100 Trying
+   |    :    |         |         |
+   |-------->|         |         | 11 SUBSCRIBE 
+   |    :    |         |         | 
+   |<--------|         |         | 12 100 Trying
+   |    :    |         |         | 
+   |    :    |         |         |      :
+   |    :    |         |         | 
+   |    :    |         |         | 13 <Wait 4 sec to check sending re-transmission>
+   |    :    |         |         |   (Re-transmission by Timer E is sending after initial SUBSCRIBE)
+   |    :    |         |         | 
+   |    :    |-------->|         |   SUBSCRIBE 
+   |    :    |         |         |
+   |    :    |<--------|         |   200 OK 
+   |    :    |         |         |
+   |<--------|         |         | 14 200 OK 
+   |    :    |         |         | 
+   |    :    |<--------|         |   NOTIFY 
+   |    :    |         |         |
+   |<--------|         |         | 15 NOTIFY 
+   |    :    |         |         |
+   |-------->|         |         | 16 200 OK (*2)
+   |    :    |         |         |
+   |    :    |-------->|         |   200 OK 
+   |    :    |         |         |
+   |    :    |         |         |         |         |         |         | 
+   |-------->|         |         |         |         |         |         | 17 OPTIONS 
+   |    :    |         |         |         |         |         |         | 
+   |<--------|         |         |         |         |         |         | 18 100 Trying 
+   |    :    |         |         |         |         |         |         | 
+   |-------->|         |         |         |         |         |         | 19 OPTIONS 
+   |    :    |         |         |         |         |         |         | 
+   |<--------|         |         |         |         |         |         | 20 100 Trying 
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |         |         |         |         |         |     :
+   |    :    |         |         |         |         |         |         |
+   |    :    |         |         |         |         |         |         | 21 <Wait 4 sec to check sending re-transmission>
+   |    :    |         |         |         |         |         |         |    (Re-transmission by Timer E is sending after initial OPTIONS)
+   |    :    |         |         |         |         |         |         | 
+   |    :    |-------->|         |         |         |         |         |   OPTIONS 
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |------------------>|         |         |         |   OPTIONS 
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |         |         |-------->|         |         |   OPTIONS 
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |         |         |         |-------->|         |   OPTIONS 
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |         |         |         |         |-------->|   OPTIONS 
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |         |         |         |         |<--------|   200 OK 
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |         |         |         |<--------|         |   200 OK
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |         |         |<--------|         |         |   200 OK
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |<------------------|         |         |         |   200 OK
+   |    :    |         |         |         |         |         |         | 
+   |    :    |<--------|         |         |         |         |         |   200 OK
+   |    :    |         |         |         |         |         |         | 
+   |<--------|         |         |         |         |         |         | 22 200 OK
+   |    :    |         |         |         |         |         |         | 
+   |-------->|         |         |         |         |         |         | 23 INVITE (*3)
+   |    :    |         |         |         |         |         |         | 
+   |<--------|         |         |         |         |         |         | 24 100 Trying 
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |         |         |         |         |         | 25 <Wait 7 sec to check stoping re-transmission> (*4)
+   |    :    |         |         |         |         |         |         |    (Re-transmission by Timer A is stopped after receiving 100 response)
+   |    :    |         |         |         |         |         |         | 
+   |    :    |-------->|         |         |         |         |         |   INVITE 
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |------------------>|         |         |         |   INVITE 
+   |    :    |         |         |         |         |         |         | 
+   |    :    |<--------|         |         |         |         |         |   100 Trying
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |         |         |-------->|         |         |   INVITE
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |<------------------|         |         |         |   100 Trying
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |         |         |         |-------->|         |   INVITE
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |         |         |<--------|         |         |   100 Trying
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |         |         |         |         |-------->|   INVITE
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |         |         |         |<--------|         |   100 Trying
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |         |         |         |         |<--------|   180 Ringing
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |         |         |         |<--------|         |   180 Ringing
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |         |         |<--------|         |         |   180 Ringing
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |<------------------|         |         |         |   180 Ringing
+   |    :    |         |         |         |         |         |         | 
+   |    :    |<--------|         |         |         |         |         |   180 Ringing
+   |    :    |         |         |         |         |         |         | 
+   |<--------|         |         |         |         |         |         | 26 180 Ringing
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |         |         |         |         |<--------|   200 OK
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |         |         |         |<--------|         |   200 OK
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |         |         |<--------|         |         |   200 OK
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |<------------------|         |         |         |   200 OK
+   |    :    |         |         |         |         |         |         | 
+   |    :    |<--------|         |         |         |         |         |   200 OK
+   |    :    |         |         |         |         |         |         | 
+   |<--------|         |         |         |         |         |         | 27 200 OK
+   |    :    |         |         |         |         |         |         | 
+   |-------->|         |         |         |         |         |         | 28 ACK (*5)
+   |    :    |         |         |         |         |         |         | 
+   |    :    |-------->|         |         |         |         |         |   ACK
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |---------------------------->|         |         |   ACK
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |         |         |         |-------->|         |   ACK
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |         |         |         |         |-------->|   ACK
+   |    :    |         |         |         |         |         |         | 
+   |-------->|         |         |         |         |         |         | 29 BYE
+   |    :    |         |         |         |         |         |         | 
+   |<--------|         |         |         |         |         |         | 30 100 Trying
+   |    :    |         |         |         |         |         |         | 
+   |-------->|         |         |         |         |         |         | 31 BYE
+   |    :    |         |         |         |         |         |         | 
+   |<--------|         |         |         |         |         |         | 32 100 Trying
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |         |         |         |         |         |     :
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |         |         |         |         |         | 33 <Wait 4 sec to check sending re-transmission>
+   |    :    |         |         |         |         |         |         |    (Re-transmission by Timer E is sending after initial BYE)
+   |    :    |         |         |         |         |         |         | 
+   |    :    |-------->|         |         |         |         |         |   BYE
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |---------------------------->|         |         |   BYE
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |         |         |         |-------->|         |   BYE
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |         |         |         |         |-------->|   BYE
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |         |         |         |         |<--------|   200 OK
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |         |         |         |<--------|         |   200 OK
+   |    :    |         |         |         |         |         |         | 
+   |    :    |         |<----------------------------|         |         |   200 OK
+   |    :    |         |         |         |         |         |         | 
+   |    :    |<--------|         |         |         |         |         |   200 OK
+   |    :    |         |         |         |         |         |         | 
+   |<--------|         |         |         |         |         |         | 34 200 OK
+   |    :    |         |         |         |         |         |         | 
+
+ 1 NUT sends REGISTER
+ 2 NUT receives 100 Trying
+ 3 NUT sends REGISTER
+ 4 NUT receives 100 Trying
+ 5 <Wait 4 sec to check sending re-transmission>
+ 6 NUT receives 401 Unauthorized
+ 7 NUT sends REGISTER for authentication
+ 8 NUT receives 200 OK
+ 9 NUT sends SUBSCRIBE
+10 NUT receives 100 Trying
+11 NUT sends SUBSCRIBE
+12 NUT receives 100 Trying
+13 <Wait 4 sec to check sending re-transmission>
+14 NUT receives 200 OK
+15 NUT receives NOTIFY
+16 NUT sends 200 OK
+17 NUT sends OPTIONS
+18 NUT receives 100 Trying
+19 NUT sends OPTIONS
+20 NUT receives 100 Trying
+21 <Wait 4 sec to check sending re-transmission>
+22 NUT receives 200 OK
+23 NUT sends INVITE
+24 NUT receives 100 Trying
+25 <Wait 7 sec to check stoping re-transmission>
+26 NUT receives 180 Ringing
+27 NUT receives 200 OK
+28 NUT sends ACK
+29 NUT sends BYE
+30 NUT receives 100 Trying
+31 NUT sends BYE
+32 NUT receives 100 Trying
+33 <Wait 4 sec to check stoping re-transmission>
+34 NUT receives 200 OK
+
+
+ === Message example ===
+
+As regards the message 1, please refer to the message 1 in UE-RG-B-1-AKA.
+
+
+2. 100 Trying P-CSCF -> NUT
+SIP/2.0 100 Trying
+Via: SIP/2.0/UDP [3ffe:501:ffff:1000::1000]:5060;branch=z9hG4bKnashds7
+From: <sip:UEa1_public_1@under.test.com>;tag=4fa3
+To: <sip:UEa1_public_1@under.test.com>
+Call-ID: apb03a0s09dkjdfglkj49111@under.test.com
+CSeq: 1 REGISTER
+Content-Length: 0
+
+
+As regards the message 3, please refer to the message 1 in UE-RG-B-1-AKA.
+
+
+As regards the message 4, please refer to the message 2 in this.
+
+
+5. <Wait 4 sec to check sending re-transmission.>
+
+
+As regards the message 6-9, please refer to the message 2-5 in UE-RG-B-1-AKA.
+
+
+10. 100 Trying P-CSCF -> NUT
+SIP/2.0 100 Trying
+Via: SIP/2.0/UDP [3ffe:501:ffff:1000::1000]:1357;branch=z9hG4bKnashdsa1
+From: <sip:UEa1_public_1@under.test.com>;tag=31415
+To: <sip:UEa1_public_1@under.test.com>
+Call-ID: b89rjhnedlrfjflslj40a222@under.test.com
+CSeq: 1 SUBSCRIBE
+Content-Length: 0
+
+
+As regards the message 11, please refer to the message 5 in UE-RG-B-1-AKA.
+As regards the message 12, please refer to the message 10 in this.
+
+
+13. <Wait 4 sec to check sending re-transmission.>
+
+
+As regards the message 14-16, please refer to the message 6-8 in UE-RG-B-1-AKA.
+As regards the message 17, please refer to the message 1 in UE-OP-B-1-AKA.
+
+
+18. 100 Trying P-CSCF -> NUT
+SIP/2.0 100 Trying
+Via: SIP/2.0/UDP [3ffe:501:ffff:1000::1000]:1357;branch=z9hG4bK74b1a
+From: <sip:UEa1_public_1@under.test.com>;tag=9fxced76tm
+To: <sip:UEa2_public_1@under.test.com>
+Call-ID: 3848276298220188522@under.test.com
+CSeq: 1 OPTIONS
+Content-Length: 0
+
+
+As regards the message 19, please refer to the message 1 in UE-OP-B-1-AKA.
+As regards the message 20, please refer to the message 18 in this.
+
+
+21. <Wait 4 sec to check sending re-transmission.>
+
+
+As regards the message 22, please refer to the message 2 in UE-OP-B-1-AKA.
+As regards the message 23, please refer to the message 1 in UE-SE-B-2-AKA.
+
+
+24. 100 Trying P-CSCF -> NUT
+SIP/2.0 100 Trying
+Via: SIP/2.0/UDP [3ffe:501:ffff:1000::1000]:1357;branch=z9hG4bK74bf9
+From: <sip:UEa1_public_1@under.test.com>;tag=9fxced76sl
+To: <sip:UEa2_public_1@under.test.com>
+Call-ID: 3848276298220188511@under.test.com
+CSeq: 1 INVITE
+Content-Length: 0
+
+
+25. <Wait 7 sec to check stoping re-transmission.>
+
+
+As regards the message 26-29, please refer to the message 3-6 in UE-SE-B-2-AKA.
+
+
+30. 100 Trying P-CSCF -> NUT
+SIP/2.0 100 Trying
+Via: SIP/2.0/UDP [3ffe:501:ffff:1000::1000]:1357;branch=z9hG4bK74bf11
+From: <sip:UEa1_public_1@under.test.com>;tag=9fxced76sl
+To: <sip:UEa2_public_1@under.test.com>;tag=314259
+Call-ID: 3848276298220188511@under.test.com
+CSeq: 2 BYE
+Content-Length: 0
+
+
+As regards the message 31, please refer to the message 6 in UE-SE-B-2-AKA.
+As regards the message 32, please refer to the message 30 in this.
+
+
+33. <Wait 4 sec to check sending re-transmission.>
+
+
+As regards the message 34, please refer to the message 7 in UE-SE-B-2-AKA.
+
+
+[OBSERVABLE RESULTS]
+
+*1: 7 REGISTER for authentication from NUT to P-CSCF.
+
+      See generic_Auth_REGISTER
+
+*2: 16 NOTIFY 200 OK from NUT to P-CSCF.
+
+      See generic_200-NOTIFY
+
+*3: 23 INVITE from NUT to P-CSCF.
+
+      See generic_INVITE
+
+*4: 25 Wait 7 sec to check stoping re-transmission
+
+      In the "Proceeding" state, the client transaction SHOULD NOT retransmit the  
+      request any longer. [RFC3261-17.1-17]
+
+*5: 28 ACK from NUT to P-CSCF.
+
+      See generic_ACK

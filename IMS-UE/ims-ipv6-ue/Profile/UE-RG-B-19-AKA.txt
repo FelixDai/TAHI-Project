@@ -1,0 +1,363 @@
+[NAME]
+UE-RG-B-19-AKA  - Invalid authentication parameter (SQN)
+
+
+[TARGET]
+IMS User Equipment (NUT)
+
+
+[PURPOSE]
+To verify that the UEa1 properly responds with a further REGISTER indicating to the
+S-CSCF that the challenge has been deemed invalid and only responds to two
+consecutive invalid challenges and does not automatically attempt authentication
+after two consecutive failed attempts to authenticate.
+
+
+[REFERENCE]
+TS24.229 5.1.1.5.3
+TS24.229 5.1.1.5.12
+
+
+[REQUIREMENT]
+NONE
+
+
+[PARAMETER(NUT)]
+public-user-id         :         sip:UEa1_public_1@under.test.com
+private-user-id        :         UEa1_private@under.test.com
+contact_URI            :         sip:UEa1_public_1@node.under.test.com
+HOMENETWORK Domain     :         sip:under.test.com
+
+
+[PARAMETER(TESTER)]
+P-CSCFa1               :         sip:p.a1.under.test.com
+S-CSCFa1               :         sip:s.a1.under.test.com
+
+
+[ADDRESS]
+UEa1(NUT)              :         3ffe:501:ffff:1000::1000
+Router(R1)             :         3ffe:501:ffff:1000::1
+P-CSCFa1               :         3ffe:501:ffff:100::10
+I-CSCFa1               :         3ffe:501:ffff:100::20
+S-CSCFa1               :         3ffe:501:ffff:100::30
+DNS                    :         3ffe:501:ffff:100::40
+DHCP                   :         3ffe:501:ffff:100::50
+
+
+[TOPOLOGY]
++---------+
+|         |
+|      UEa1(NUT)
+R1
+|
+|
++---------+----------+----------+----------+----------+-
+          |          |          |          |          |
+      P-CSCFa1    I-CSCFa1  S-CSCFa1      DHCP       DNS
+
+
+[INITIALIZATION]
+Set up IP Address using A or B.
+
+A. Router Advertisement
+
+B. DHCPv6
+  (NUT)
+   UEa1      DHCP
+    |    :    | 
+    |-------->| 1 DHCPv6 SOLICIT
+    |    :    | 
+    |<--------| 2 DHCPv6 ADVERTIZE
+    |    :    |
+    |-------->| 3 DHCPv6 REQUEST
+    |    :    |
+    |<--------| 4 DHCPv6 REPLY
+    |    :    |
+
+
+[PROCEDURE]
+                Home Network
+  (NUT)
+   UEa1      P-CSCFa1    I-CSCFa1    S-CSCFa1
+    |     :     |           |           |
+    |---------->|           |           | 1 REGISTER
+    |     :     |           |           |
+    |     :     |---------->|           |   REGISTER
+    |     :     |           |           |
+    |     :     |           |---------->|   REGISTER
+    |     :     |           |           |
+    |     :     |           |<----------|   401 Unauthorized
+    |     :     |           |           |
+    |     :     |<----------|           |   401 Unauthorized
+    |     :     |           |           |
+    |<----------|           |           | 2 401 Unauthorized
+    |     :     |           |           |
+    |---------->|           |           | 3 REGISTER for authentication
+    |     :     |           |           |
+    |     :     |---------->|           |   REGISTER for authentication
+    |     :     |           |           |
+    |     :     |           |---------->|   REGISTER for authentication
+    |     :     |           |           |
+    |     :     |           |<----------|   200 OK
+    |     :     |           |           |
+    |     :     |<----------|           |   200 OK
+    |     :     |           |           |
+    |<----------|           |           | 4 200 OK
+    |     :     |           |           |
+    |---------->|           |           | 5 SUBSCRIBE
+    |     :     |           |           |
+    |     :     |---------------------->|   SUBSCRIBE
+    |     :     |           |           |
+    |     :     |<----------------------|   200 OK
+    |     :     |           |           |
+    |<----------|           |           | 6 200 OK
+    |     :     |           |           |
+    |     :     |<----------------------|   NOTIFY
+    |     :     |           |           |
+    |<----------|           |           | 7 NOTIFY
+    |     :     |           |           |
+    |---------->|           |           | 8 200 OK
+    |     :     |           |           |
+    |     :     |---------------------->|   200 OK
+    |     :     |           |           |
+    |     :     |<----------------------|   NOTIFY for re-authentication
+    |     :     |           |           |
+    |<----------|           |           | 9 NOTIFY for re-authentication
+    |     :     |           |           |
+    |---------->|           |           | 10 200 OK
+    |     :     |           |           |
+    |     :     |---------------------->|    200 OK
+    |     :     |           |           |
+    |---------->|           |           | 11 REGISTER for reregisteration
+    |     :     |           |           |
+    |     :     |---------->|           |    REGISTER for reregisteration
+    |     :     |           |           |
+    |     :     |           |---------->|    REGISTER for reregisteration
+    |     :     |           |           |
+    |     :     |           |<----------|    401 Unauthorized
+    |     :     |           |           |
+    |     :     |<----------|           |    401 Unauthorized
+    |     :     |           |           |
+    |<----------|           |           | 12 401 Unauthorized (with incorrect SQN value)
+    |     :     |           |           |
+    |---------->|           |           | 13 REGISTER for authentication (*1)
+    |     :     |           |           |
+    |     :     |---------->|           |    REGISTER for authentication
+    |     :     |           |           |
+    |     :     |           |---------->|    REGISTER for authentication
+    |     :     |           |           |
+    |     :     |           |<----------|    401 Unauthorized
+    |     :     |           |           |
+    |     :     |<----------|           |    401 Unauthorized
+    |     :     |           |           |
+    |<----------|           |           | 14 401 Unauthorized (with incorrect SQN value)
+    |     :     |           |           |
+    |---------->|           |           | 15 REGISTER for authentication (*2)
+    |     :     |           |           |
+    |     :     |---------->|           |    REGISTER for authentication
+    |     :     |           |           |
+    |     :     |           |---------->|    REGISTER for authentication
+    |     :     |           |           |
+    |     :     |           |<----------|    401 Unauthorized
+    |     :     |           |           |
+    |     :     |<----------|           |    401 Unauthorized
+    |     :     |           |           |
+    |<----------|           |           | 16 401 Unauthorized (with incorrect SQN value)
+    |     :     |           |           |
+    |     :     |           |           | 17 <No more REGISTER requests> (*3)
+    |     :     |           |           |
+
+1 NUT sends REGISTER
+2 NUT receives 401 Unauthorized
+3 NUT sends REGISTER for authentication
+4 NUT receives 200 OK
+5 NUT sends SUBSCRIBE
+6 NUT receives 200 OK
+7 NUT receives NOTIFY
+8 NUT sends 200 OK
+9 NUT receives NOTIFY for re-authentication
+10 NUT sends 200 OK
+11 NUT sends REGISTER for reregisteration
+12 NUT receives 401 Unauthorized
+13 NUT sends REGISTER for authentication
+14 NUT receives 401 Unauthorized
+15 NUT sends REGISTER for authentication
+16 NUT receives 401 Unauthorized
+17 <No more REGISTER requests>
+
+=== Message example ===
+As regards the message 1-11, please refer to the message 1-11 in UE-RG-B-3-AKA.
+
+12. 401 Unauthorized P-CSCF -> NUT
+SIP/2.0 401 Unauthorized
+Via: SIP/2.0/UDP [3ffe:501:ffff:1000::1000]:1357;branch=z9hG4bKnashds9
+WWW-Authenticate: Digest realm="under.test.com", nonce=base64(RAND + AUTN including a invalid SQN + server specific data), algorithm=AKAv1-MD5
+From: <sip:UEa1_public_1@under.test.com>;tag=4fa4
+To: <sip:UEa1_public_1@under.test.com>;tag=5ef6
+Call-ID: apb03a0s09dkjdfglkj49111@under.test.com
+CSeq: 3 REGISTER
+Security-Server: ipsec-3gpp; alg=hmac-sha-1-96; spi-c=266; spi-s=267; port-c=10004; port-s=10001
+Content-Length: 0
+
+
+13. REGISTER NUT -> P-CSCF
+REGISTER sip:under.test.com SIP/2.0
+Via: SIP/2.0/UDP [3ffe:501:ffff:1000::1000]:1357;branch=z9hG4bKnashds10
+Max-Forwards: 70
+From: <sip:UEa1_public_1@under.test.com>;tag=4fa4
+To: <sip:UEa1_public_1@under.test.com>
+Contact: <sip:UEa1_public_1@node.under.test.com:1357>;expires=600000
+Call-ID: apb03a0s09dkjdfglkj49111@under.test.com
+Authorization: Digest username="UEa1_private@under.test.com", realm="under.test.com", algorithm=AKAv1-MD5, nonce=base64(RAND + AUTN including a invalid SQN + server specific data), uri="sip:under.test.com", auts="5PYxMuX2NOT2NeQ=" response="calculated without password"
+Security-Client: ipsec-3gpp; mode="trans"; alg=hmac-sha-1-96; spi-c=43456789; spi-s=32345678; port-c=4468; port-s=1357
+Security-Verify: ipsec-3gpp; alg=hmac-sha-1-96; spi-c=256; spi-s=257; port-c=10002; port-s=10001
+Require: sec-agree
+Proxy-Require: sec-agree
+CSeq: 4 REGISTER
+Supported: path
+Content-Length: 0
+
+
+14. 401 Unauthorized P-CSCF -> NUT
+SIP/2.0 401 Unauthorized
+Via: SIP/2.0/UDP [3ffe:501:ffff:1000::1000]:1357;branch=z9hG4bKnashds10
+WWW-Authenticate: Digest realm="under.test.com", nonce=base64(RAND + AUTN including a invalid SQN + server specific data), algorithm=AKAv1-MD5
+From: <sip:UEa1_public_1@under.test.com>;tag=4fa4
+To: <sip:UEa1_public_1@under.test.com>;tag=5ef7
+Call-ID: apb03a0s09dkjdfglkj49111@under.test.com
+CSeq: 4 REGISTER
+Security-Server: ipsec-3gpp; alg=hmac-sha-1-96; spi-c=276; spi-s=277; port-c=10006; port-s=10001
+Content-Length: 0
+
+
+15. REGISTER NUT -> P-CSCF
+REGISTER sip:under.test.com SIP/2.0
+Via: SIP/2.0/UDP [3ffe:501:ffff:1000::1000]:1357;branch=z9hG4bKnashds11
+Max-Forwards: 70
+From: <sip:UEa1_public_1@under.test.com>;tag=4fa4
+To: <sip:UEa1_public_1@under.test.com>
+Contact: <sip:UEa1_public_1@node.under.test.com:1357>;expires=600000
+Call-ID: apb03a0s09dkjdfglkj49111@under.test.com
+Authorization: Digest username="UEa1_private@under.test.com", realm="under.test.com", algorithm=AKAv1-MD5, nonce=base64(RAND + AUTN including a invalid SQN + server specific data), uri="sip:under.test.com", auts="5PYxMuX2NOT2NeQ=" response="calculated without password"
+Security-Client: ipsec-3gpp; mode="trans"; alg=hmac-sha-1-96; spi-c=53456789; spi-s=42345678; port-c=5468; port-s=1357
+Security-Verify: ipsec-3gpp; alg=hmac-sha-1-96; spi-c=256; spi-s=257; port-c=10002; port-s=10001
+Require: sec-agree
+Proxy-Require: sec-agree
+CSeq: 5 REGISTER
+Supported: path
+Content-Length: 0
+
+
+16. 401 Unauthorized P-CSCF -> NUT
+SIP/2.0 401 Unauthorized
+Via: SIP/2.0/UDP [3ffe:501:ffff:1000::1000]:1357;branch=z9hG4bKnashds11
+WWW-Authenticate: Digest realm="under.test.com", nonce=base64(RAND + AUTN including a invalid SQN + server specific data), algorithm=AKAv1-MD5
+From: <sip:UEa1_public_1@under.test.com>;tag=4fa4
+To: <sip:UEa1_public_1@under.test.com>;tag=5ef8
+Call-ID: apb03a0s09dkjdfglkj49111@under.test.com
+CSeq: 5 REGISTER
+Security-Server: ipsec-3gpp; alg=hmac-sha-1-96; spi-c=286; spi-s=287; port-c=10008; port-s=10001
+Content-Length: 0
+
+
+17. <No more REGISTER request>
+
+
+[OBSERVABLE RESULTS]
+*1: 13 REGISTER for authentication from NUT to P-CSCF
+
+      See generic_re_REGISTER
+      
+       - Exception{
+        * Authorization
+          The response directive in Authorization header field SHALL be set 
+          to the last calculated response value.[TS24229-5.1-187]
+         }
+
+         The REGISRER request for authentication that includes the cause of failure 
+         SHALL be sent towards the Home Network.[TS33203-6.1-26]
+         
+         The client SHOULD NOT retry the same request without modification.
+         [RFC3261-21.4-1]
+          
+       - Security behavior:
+         The REGISTER request SHALL be sent using an existing set of security
+         associations.[TS24229-5.1-250]
+         A temporary set of security associations SHALL not be created.
+         [TS24229-5.1-252]
+          
+         The REGISTER request which may pass through an already established SA and
+         indicate a network authentication failure SHALL be sent to the P-CSCF.
+         [TS33203-7.3-5]
+
+       - Header field:
+          
+         This new request  SHOULD have the same value of the Call-ID, To, and
+         From of the previous request, but the CSeq should contain a new sequence
+         number that is one higher than the previous. [RFC3261-8.1-62]
+
+         * Authorization
+           The AUTS directive SHALL be contained in the subsequent REGISTER
+           request.[TS24229-5.1-248]
+
+           The client MUST calculate its credentials using an empty password.
+           [RFC3310-3.4-1]
+
+         * Security-Client
+           The UE shall populate a new Security-Client header field within the REGISTER 
+           request and associated contact address, set to specify the security mechanism 
+           it supports, the IPsec layer algorithms for integrity and confidentiality 
+           protection it supports and the parameters needed for the new security association 
+           setup.[TS24229-5.1-251]
+
+
+*2: 15 REGISTER for authentication from NUT to P-CSCF
+
+      See generic_re_REGISTER
+
+       - Exception{
+        * Authorization
+          The response directive in Authorization header field SHALL be set 
+          to the last calculated response value.[TS24229-5.1-187]
+         }
+
+          The REGISRER request for authentication that includes the cause of failure 
+          SHALL be sent towards the Home Network.[TS33203-6.1-26] 
+
+          The client SHOULD NOT retry the same request without modification.
+          [RFC3261-21.4-1]
+          
+       - Security behavior:
+          The REGISTER request SHALL be sent using an existing set of security
+          associations.[TS24229-5.1-250]
+          A temporary set of security associations SHALL not be created.
+          [TS24229-5.1-252]
+          
+          The REGISTER request which may pass through an already established SA and
+          indicate a network authentication failure SHALL be sent to the P-CSCF.
+          [TS33203-7.3-5]
+
+       - Header field:
+          
+          This new request  SHOULD have the same value of the Call-ID, To, and
+          From of the previous request, but the CSeq should contain a new sequence
+          number that is one higher than the previous. [RFC3261-8.1-62]
+              
+          * Authorization
+            The AUTS directive SHALL be contained in the subsequent REGISTER
+            request.[TS24229-5.1-248]
+
+            The client MUST calculate its credentials using an empty password.
+            [RFC3310-3.4-1]
+
+          * Security-Client
+            Security-Client header field SHALL be set to the security mechanism it 
+            supports, the IPsec layer algorithms for integrity and confidentiality
+            protection it supports and the new parameter values needed for the setup
+            of two new pairs of security associations.[TS24229-5.1-251]
+
+*3: 17 No more REGISTER request
+
+          The REGISTER request SHALL be only sent to two consecutive invalid
+          challenges and SHALL not be automatically sent authentication after two
+          consecutive failed attempts to authenticate.[TS24229-5.1-273]

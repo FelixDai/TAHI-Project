@@ -1,0 +1,422 @@
+[NAME]
+UE-RG-B-17-AKA  - Change from the old SAs to the new SAs
+
+
+[TARGET]
+IMS User Equipment (NUT)
+
+
+[PURPOSE]
+To verify that the UEa1 properly deletes the old set of security associations
+and related keys it may have with the P-CSCF after all SIP transactions that use
+the old set of security associations are completed if the first request or
+response protected with the newly established set of security associations is
+received from the P-CSCF.
+
+
+[REFERENCE]
+TS24.229 5.1.1.5.1
+
+
+[REQUIREMENT]
+NONE
+
+
+[PARAMETER(NUT)]
+public-user-id         :         sip:UEa1_public_1@under.test.com
+private-user-id        :         UEa1_private@under.test.com
+contact_URI            :         sip:UEa1_public_1@node.under.test.com
+HOMENETWORK Domain     :         sip:under.test.com
+
+
+[PARAMETER(TESTER)]
+public-URI(UEa2)       :         sip:UEa2_public_1@under.test.com
+P-CSCFa1               :         sip:p.a1.under.test.com
+S-CSCFa1               :         sip:s.a1.under.test.com
+
+
+[ADDRESS]
+UEa1(NUT)              :         3ffe:501:ffff:1000::1000
+UEa2                   :         3ffe:501:ffff:2000::1000
+P-CSCFa1               :         3ffe:501:ffff:100::10
+I-CSCFa1               :         3ffe:501:ffff:100::20
+S-CSCFa1               :         3ffe:501:ffff:100::30
+P-CSCFa2               :         3ffe:501:ffff:200::10
+I-CSCFa2               :         3ffe:501:ffff:200::20
+S-CSCFa2               :         3ffe:501:ffff:200::30
+Router(R1)             :         3ffe:501:ffff:1000::1
+DNS                    :         3ffe:501:ffff:100::40
+DHCP                   :         3ffe:501:ffff:100::50
+
+
+[TOPOLOGY]
++---------+----------
+|         |
+|       UEa1(NUT)
+R1
+|
+|
++---------+----------+----------+----------+----------+----
+|         |          |          |          |          |
+|      P-CSCFa1   S-CSCFa1   I-CSCFa1     DHCP       DNS
+R2
+|
+|
++---------+----------+----------+----
+|         |          |          |
+|      P-CSCFa2   S-CSCFa2   I-CSCFa2
+R3
+|
+|
++---------+----------
+          |
+         UEa2
+
+
+[INITIALIZATION]
+Set up IP Address using A or B.
+
+A. Router Advertisement
+
+B. DHCPv6
+  (NUT)
+   UEa1      DHCP
+    |    :    | 
+    |-------->| 1 DHCPv6 SOLICIT
+    |    :    | 
+    |<--------| 2 DHCPv6 ADVERTIZE
+    |    :    |
+    |-------->| 3 DHCPv6 REQUEST
+    |    :    |
+    |<--------| 4 DHCPv6 REPLY
+    |    :    |
+
+
+[PROCEDURE]
+                                  Home Network
+  (NUT)
+   UEa1     P-CSCFa1  S-CSCFa1  I-CSCFa1  I-CSCFa2  S-CSCFa2  P-CSCFa2  UEa2
+    |    :    |         |         |         |         |         |         |
+    |-------->|         |         |         |         |         |         | 1 REGISTER
+    |    :    |         |         |         |         |         |         |
+    |    :    |------------------>|         |         |         |         |   REGISTER
+    |    :    |         |         |         |         |         |         |
+    |    :    |         |<--------|         |         |         |         |   REGISTER
+    |    :    |         |         |         |         |         |         |
+    |    :    |         |-------->|         |         |         |         |   401 Unauthorized
+    |    :    |         |         |         |         |         |         |
+    |    :    |<------------------|         |         |         |         |   401 Unauthorized
+    |    :    |         |         |         |         |         |         |
+    |<--------|         |         |         |         |         |         | 2 401 Unauthorized
+    |    :    |         |         |         |         |         |         |
+    |-------->|         |         |         |         |         |         | 3 REGISTER for authentication with temporary SA1
+    |    :    |         |         |         |         |         |         |
+    |    :    |------------------>|         |         |         |         |   REGISTER for authentication
+    |    :    |         |         |         |         |         |         |
+    |    :    |         |<--------|         |         |         |         |   REGISTER for authentication
+    |    :    |         |         |         |         |         |         |
+    |    :    |         |-------->|         |         |         |         |   200 OK
+    |    :    |         |         |         |         |         |         |
+    |    :    |<------------------|         |         |         |         |   200 OK
+    |    :    |         |         |         |         |         |         |
+    |<--------|         |         |         |         |         |         | 4 200 OK with SA1
+    |    :    |         |         |         |         |         |         |
+    |-------->|         |         |         |         |         |         | 5 SUBSCRIBE with SA1
+    |    :    |         |         |         |         |         |         |
+    |    :    |-------->|         |         |         |         |         |   SUBSCRIBE
+    |    :    |         |         |         |         |         |         |
+    |    :    |<--------|         |         |         |         |         |   200 OK
+    |    :    |         |         |         |         |         |         |
+    |<--------|         |         |         |         |         |         | 6 200 OK with SA1
+    |    :    |         |         |         |         |         |         |
+    |    :    |<--------|         |         |         |         |         |   NOTIFY
+    |    :    |         |         |         |         |         |         |
+    |<--------|         |         |         |         |         |         | 7 NOTIFY with SA1
+    |    :    |         |         |         |         |         |         |
+    |-------->|         |         |         |         |         |         | 8 200 OK with SA1
+    |    :    |         |         |         |         |         |         |
+    |    :    |-------->|         |         |         |         |         |   200 OK
+    |    :    |         |         |         |         |         |         |
+    |-------->|         |         |         |         |         |         | 9 INVITE with SA1
+    |    :    |         |         |         |         |         |         |
+    |    :    |-------->|         |         |         |         |         |   INVITE
+    |    :    |         |         |         |         |         |         |
+    |<--------|         |         |         |         |         |         | 10 100 Trying with SA1
+    |    :    |         |         |         |         |         |         |
+    |    :    |         |------------------>|         |         |         |    INVITE
+    |    :    |         |         |         |         |         |         |
+    |    :    |<--------|         |         |         |         |         |    100 Trying
+    |    :    |         |         |         |         |         |         |
+    |    :    |         |         |         |-------->|         |         |    INVITE
+    |    :    |         |         |         |         |         |         |
+    |    :    |         |<------------------|         |         |         |    100 Trying
+    |    :    |         |         |         |         |         |         |
+    |    :    |         |         |         |         |-------->|         |    INVITE
+    |    :    |         |         |         |         |         |         |
+    |    :    |         |         |         |<--------|         |         |    100 Trying
+    |    :    |         |         |         |         |         |         |
+    |    :    |         |         |         |         |         |-------->|    INVITE
+    |    :    |         |         |         |         |         |         |
+    |    :    |         |         |         |         |<--------|         |    100 Trying
+    |    :    |         |         |         |         |         |         |
+    |    :    |         |         |         |         |         |<--------|    180 Ringing
+    |    :    |         |         |         |         |         |         |
+    |    :    |         |         |         |         |<--------|         |    180 Ringing
+    |    :    |         |         |         |         |         |         |
+    |    :    |         |         |         |<--------|         |         |    180 Ringing
+    |    :    |         |         |         |         |         |         |
+    |    :    |         |<------------------|         |         |         |    180 Ringing
+    |    :    |         |         |         |         |         |         |
+    |    :    |<--------|         |         |         |         |         |    180 Ringing
+    |    :    |         |         |         |         |         |         |
+    |<--------|         |         |         |         |         |         | 11 180 Ringing with SA1
+    |    :    |         |         |         |         |         |         |
+    |    :    |<--------|         |         |         |         |         |    NOTIFY for re-authentication
+    |    :    |         |         |         |         |         |         |
+    |<--------|         |         |         |         |         |         | 12 NOTIFY for re-authentication with SA1
+    |    :    |         |         |         |         |         |         |
+    |-------->|         |         |         |         |         |         | 13 200 OK with SA1
+    |    :    |         |         |         |         |         |         |
+    |    :    |-------->|         |         |         |         |         |    200 OK
+    |    :    |         |         |         |         |         |         |
+    |-------->|         |         |         |         |         |         | 14 REGISTER for re-authentication with SA1
+    |    :    |         |         |         |         |         |         |
+    |    :    |------------------>|         |         |         |         |    REGISTER for re-authentication
+    |    :    |         |         |         |         |         |         |
+    |    :    |         |<--------|         |         |         |         |    REGISTER for re-authentication
+    |    :    |         |         |         |         |         |         |
+    |    :    |         |-------->|         |         |         |         |    401 Unauthorized
+    |    :    |         |         |         |         |         |         |
+    |    :    |<------------------|         |         |         |         |    401 Unauthorized
+    |    :    |         |         |         |         |         |         |
+    |<--------|         |         |         |         |         |         | 15 401 Unauthorized with SA1
+    |    :    |         |         |         |         |         |         |
+    |-------->|         |         |         |         |         |         | 16 REGISTER for authentication with temporary SA2
+    |    :    |         |         |         |         |         |         |
+    |    :    |------------------>|         |         |         |         |    REGISTER for authentication
+    |    :    |         |         |         |         |         |         |
+    |    :    |         |<--------|         |         |         |         |    REGISTER for authentication 
+    |    :    |         |         |         |         |         |         |
+    |    :    |         |-------->|         |         |         |         |    200 OK
+    |    :    |         |         |         |         |         |         |
+    |    :    |<------------------|         |         |         |         |    200 OK
+    |    :    |         |         |         |         |         |         |
+    |<--------|         |         |         |         |         |         | 17 200 OK with SA1 
+    |    :    |         |         |         |         |         |         |
+    |    :    |         |         |         |         |         |<--------|    200 OK to INVITE request
+    |    :    |         |         |         |         |         |         |
+    |    :    |         |         |         |         |<--------|         |    200 OK to INVITE request
+    |    :    |         |         |         |         |         |         |
+    |    :    |         |         |         |<--------|         |         |    200 OK to INVITE request
+    |    :    |         |         |         |         |         |         |
+    |    :    |         |<------------------|         |         |         |    200 OK to INVITE request
+    |    :    |         |         |         |         |         |         |
+    |    :    |<--------|         |         |         |         |         |    200 OK to INVITE request
+    |    :    |         |         |         |         |         |         |
+    |<--------|         |         |         |         |         |         | 18 200 OK to INVITE request with SA1
+    |    :    |         |         |         |         |         |         |
+    |-------->|         |         |         |         |         |         | 19 ACK with SA2 (*1)
+    |    :    |         |         |         |         |         |         |
+    |    :    |-------->|         |         |         |         |         |    ACK
+    |    :    |         |         |         |         |         |         |
+    |    :    |         |---------------------------->|         |         |    ACK
+    |    :    |         |         |         |         |         |         |
+    |    :    |         |         |         |         |-------->|         |    ACK
+    |    :    |         |         |         |         |         |         |
+    |    :    |         |         |         |         |         |-------->|    ACK
+    |    :    |         |         |         |         |         |         |
+    |-------->|         |         |         |         |         |         | 20 BYE with SA2 (*2)
+    |    :    |         |         |         |         |         |         |
+    |    :    |-------->|         |         |         |         |         |    BYE
+    |    :    |         |         |         |         |         |         |
+    |    :    |         |---------------------------->|         |         |    BYE
+    |    :    |         |         |         |         |         |         |
+    |    :    |         |         |         |         |-------->|         |    BYE
+    |    :    |         |         |         |         |         |         |
+    |    :    |         |         |         |         |         |-------->|    BYE
+    |    :    |         |         |         |         |         |         |
+    |    :    |         |         |         |         |         |<--------|    200 OK
+    |    :    |         |         |         |         |         |         |
+    |    :    |         |         |         |         |<--------|         |    200 OK
+    |    :    |         |         |         |         |         |         |
+    |    :    |         |<----------------------------|         |         |    200 OK
+    |    :    |         |         |         |         |         |         |
+    |    :    |<--------|         |         |         |         |         |    200 OK
+    |    :    |         |         |         |         |         |         |
+    |<--------|         |         |         |         |         |         | 21 200 OK with SA2
+    |    :    |         |         |         |         |         |         |
+    |    :    |         |         |         |         |         |<--------|    INVITE
+    |    :    |         |         |         |         |         |         |
+    |    :    |         |         |         |         |<--------|         |    INVITE
+    |    :    |         |         |         |         |         |         |
+    |    :    |         |         |         |<--------|         |         |    INVITE
+    |    :    |         |         |         |         |         |         |
+    |    :    |         |<------------------|         |         |         |    INVITE
+    |    :    |         |         |         |         |         |         |
+    |    :    |<--------|         |         |         |         |         |    INVITE
+    |    :    |         |         |         |         |         |         |
+    |<--------|         |         |         |         |         |         | 22 INVITE with SA1
+    |    :    |         |         |         |         |         |         |
+    |    :    |         |         |         |         |         |         | 23 < No response or ICMP error > (*3)
+    |    :    |         |         |         |         |         |         |
+
+1 NUT sends REGISTER
+2 NUT receives 401 Unauthorized
+3 NUT sends REGISTER for authentication with temporary SA1
+4 NUT receives 200 OK with SA1
+5 NUT sends SUBSCRIBE with SA1
+6 NUT receives 200 OK with SA1
+7 NUT receives NOTIFY with SA1
+8 NUT sends 200 OK with SA1
+9 NUT sends INVITE with SA1
+10 NUT receives 100 Trying with SA1
+11 NUT receives 180 Ringing with SA1
+12 NUT receives NOTIFY for re-authentication with SA1
+13 NUT sends 200 OK to NOTIFY with SA1
+14 NUT sends REGISTER for re-authentication with SA1
+15 NUT receives 401 Unauthorized with SA1
+16 NUT sends REGISTER for authentication with temporary SA2
+17 NUT receives 200 OK to REGISTER with SA2
+18 NUT receives 200 OK to INVITE request with SA1
+19 NUT sends ACK with SA2
+20 NUT sends BYE with SA2
+21 NUT receives 200 OK
+22 Tester sends INVITE with SA1
+23 < No response or ICMP error >
+
+=== Message example ===
+As regards the message 1-8, please refer to the message 1-8 in UE-RG-B-1-AKA.
+As regards the message 9-11, please refer to the message 1-3 in UE-SE-B-1-AKA.
+As regards the message 12-17, please refer to the message 9-14 in UE-RG-B-3-AKA.
+
+18. 200 OK P-CSCF -> NUT
+SIP/2.0 200 OK
+Via: SIP/2.0/UDP [3ffe:501:ffff:1000::1000]:1357;branch=z9hG4bK74bf9
+Record-Route: <sip:p.a2.under.test.com;lr>,<sip:s.a2.under.test.com;lr>,<sip:s.a1.under.test.com;lr>,<sip:p.a1.under.test.com:10001;lr>
+From: <sip:UEa1_public_1@under.test.com>;tag=9fxced76sl
+To: <sip:UEa2_public_1@under.test.com>;tag=314259
+Call-ID: 3848276298220188511@under.test.com
+CSeq: 1 INVITE
+Contact: <sip:UEa2_public_1@nodea2.under.test.com:22222>
+Supported:
+Allow: INVITE,ACK,CANCEL,OPTIONS,BYE
+Allow-Events: reg
+Content-Type: application/sdp
+Content-Length: 153
+
+v=0
+o=UEa2 2890844527 2890844527 IN IP6 nodea2.under.test.com
+s=-
+c=IN IP6 nodea2.under.test.com
+t=0 0
+m=audio 3456 RTP/AVP 0
+b=AS:75
+a=rtpmap:0 PCMU/8000
+
+
+19. ACK NUT -> P-CSCF
+ACK sip:UEa2_public_1@nodea2.under.test.com:22222 SIP/2.0
+Via: SIP/2.0/UDP [3ffe:501:ffff:1000::1000]:1357;branch=z9hG4bK74bf10
+Route: <sip:p.a1.under.test.com:10001;lr>,<sip:s.a1.under.test.com;lr>,<sip:s.a2.under.test.com;lr>,<sip:p.a2.under.test.com;lr>
+Max-Forwards: 70
+From: <sip:UEa1_public_1@under.test.com>;tag=9fxced76sl
+To: <sip:UEa2_public_1@under.test.com>;tag=314259
+Call-ID: 3848276298220188511@under.test.com
+CSeq: 1 ACK
+Content-Length: 0
+
+
+20. BYE NUT -> P-CSCF
+BYE sip:UEa2_public_1@nodea2.under.test.com:22222 SIP/2.0
+Via: SIP/2.0/UDP [3ffe:501:ffff:1000::1000]:1357;branch=z9hG4bK74bf11
+Route: <sip:p.a1.under.test.com:10001;lr>,<sip:s.a1.under.test.com;lr>,<sip:s.a2.under.test.com;lr>,<sip:p.a2.under.test.com;lr>
+Max-Forwards: 70
+From: <sip:UEa1_public_1@under.test.com>;tag=9fxced76sl
+To: <sip:UEa2_public_1@under.test.com>;tag=314259
+Call-ID: 3848276298220188511@under.test.com
+CSeq: 2 BYE
+Security-Verify: ipsec-3gpp; alg=hmac-sha-1-96; spi-c=266; spi-s=267; port-c=10004; port-s=10001
+Require: sec-agree
+Proxy-Require: sec-agree
+Content-Length: 0
+
+
+21. 200 OK P-CSCF -> NUT
+SIP/2.0 200 OK
+Via: SIP/2.0/UDP [3ffe:501:ffff:1000::1000]:1357;branch=z9hG4bK74bf11
+From: <sip:UEa1_public_1@under.test.com>;tag=9fxced76sl
+To: <sip:UEa2_public_1@under.test.com>;tag=314259
+Call-ID: 3848276298220188511@under.test.com
+CSeq: 2 BYE
+Content-Length: 0
+
+
+22. INVITE P-CSCF -> NUT
+INVITE sip:UEa1_public_1@node.under.test.com:1357 SIP/2.0
+Via: SIP/2.0/UDP p.a1.under.test.com:10001;branch=z9hG4bK431e418c233,SIP/2.0/UDP s.a1.under.test.com;branch=z9hG4bK431e418c4.2;received=3ffe:501:ffff:100::30,SIP/2.0/UDP i.a1.under.test.com;branch=z9hG4bKnashds418c5a;received=3ffe:501:ffff:100::20,SIP/2.0/UDP s.a2.under.test.com;branch=z9hG4bK721e418c657u;received=3ffe:501:ffff:200::30,SIP/2.0/UDP p.a2.under.test.com;branch=z9hG4bKnaghc45ca8;received=3ffe:501:ffff:200::10,SIP/2.0/UDP [3ffe:501:ffff:2000::1000]:22222;branch=z9hG4bKnashds45ba91
+Record-Route: <sip:p.a1.under.test.com:10001;lr>,<sip:s.a1.under.test.com;lr>,<sip:s.a2.under.test.com;lr>,<sip:p.a2.under.test.com;lr>
+Max-Forwards: 65
+From: <sip:UEa2_public_1@under.test.com>;tag=10fxced76sl
+To: <sip:UEa1_public_1@under.test.com>
+Call-ID: 3848276298220188511@under.test.com
+CSeq: 1 INVITE
+Contact: <sip:UEa2_public_1@nodea2.under.test.com:22222>
+Supported:
+Allow: INVITE,ACK,CANCEL,OPTIONS,BYE
+Allow-Events: reg
+Accept: application/sdp,application/3gpp-ims+xml
+P-Called-Party-ID: <sip:UEa1_public_1@under.test.com>
+Content-Type: application/sdp
+Content-Length: 154
+
+v=0
+o=UEa2 2890844526 2890844526 IN IP6 nodea2.under.test.com
+s=-
+c=IN IP6 nodea2.under.test.com
+t=0 0
+m=audio 49172 RTP/AVP 0
+b=AS:75
+a=rtpmap:0 PCMU/8000
+
+
+23. < No response or ICMP error >
+
+
+[OBSERVABLE RESULTS]
+
+*1: 19 ACK with SA2 from NUT to P-CSCF
+
+      See generic_ACK
+
+        - Security behavior:
+
+          The newly established set of security associations SHALL be used for 
+          further messages sent towards the P-CSCF as appropriate.
+          [TS24229-5.1-237]
+          
+          The previous security associations SHALL be replaced the new security
+          associations.[TS33203-7.4-1]
+
+          The sever ports of UE and P-CSCF SHALL not be changed, while the protected 
+          client ports of UE and P-CSCF SHALL change.[TS33203-7.4-2]
+
+*2: 20 BYE with SA2 from NUT to P-CSCF
+
+      See generic_BYE
+
+        - Security behavior:
+
+          The newly established set of security associations SHALL be used for
+          further messages sent towards the P-CSCF as appropriate.[TS24229-5.1-237]
+
+*3: 23 No response or ICMP error 
+
+        - Security behavior:
+
+          The newly established set of security associations SHALL be used for
+          further messages sent towards the P-CSCF as appropriate.[TS24229-5.1-237]
+
+          The old set of security associations SHALL be deleted after all SIP
+          transactions that use the old set of security associations are completed.
+          [TS24229-5.1-240]
+

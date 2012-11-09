@@ -1,0 +1,269 @@
+[NAME]
+UE-RG-B-8-DIP  - Re-subscription for the registration state event package
+
+
+[TARGET]
+IMS User Equipment (NUT)
+
+
+[PURPOSE]
+To verify that the UEa1 automatically refreshes the subscription by the reg event
+package, for a previously registered public user identity when half of the time
+has expired if the initial subscription was for 1200 seconds or less.
+
+
+[REFERENCE]
+TS24.229 5.1.1.3
+
+
+[REQUIREMENT]
+NONE
+
+
+[PARAMETER(NUT)]
+public-user-id         :         sip:UEa1_public_1@under.test.com
+private-user-id        :         UEa1_private@under.test.com
+contact_URI            :         sip:UEa1_public_1@node.under.test.com
+HOMENETWORK Domain     :         sip:under.test.com
+
+
+[PARAMETER(TESTER)]
+P-CSCFa1               :         sip:p.a1.under.test.com
+S-CSCFa1               :         sip:s.a1.under.test.com
+
+
+[ADDRESS]
+UEa1(NUT)              :         3ffe:501:ffff:1000::1000
+Router(R1)             :         3ffe:501:ffff:1000::1
+P-CSCFa1               :         3ffe:501:ffff:100::10
+I-CSCFa1               :         3ffe:501:ffff:100::20
+S-CSCFa1               :         3ffe:501:ffff:100::30
+DNS                    :         3ffe:501:ffff:100::40
+DHCP                   :         3ffe:501:ffff:100::50
+
+
+[TOPOLOGY]
++---------+
+|         |
+|       UEa1(NUT)
+R1
+|
+|
++---------+----------+----------+----------+----------+-
+          |          |          |          |          |
+      P-CSCFa1    I-CSCFa1   S-CSCFa1     DHCP       DNS
+
+
+[INITIALIZATION]
+Set up IP Address using A or B.
+
+A. Router Advertisement
+
+B. DHCPv6
+  (NUT)
+   UEa1      DHCP
+    |    :    | 
+    |-------->| 1 DHCPv6 SOLICIT
+    |    :    | 
+    |<--------| 2 DHCPv6 ADVERTIZE
+    |    :    |
+    |-------->| 3 DHCPv6 REQUEST
+    |    :    |
+    |<--------| 4 DHCPv6 REPLY
+    |    :    |
+
+
+[PROCEDURE]
+                Home Network
+  (NUT)
+   UEa1     P-CSCFa1    I-CSCFa1     S-CSCFa1
+    |     :     |           |           |
+    |---------->|           |           | 1 REGISTER
+    |     :     |           |           |
+    |     :     |---------->|           |   REGISTER
+    |     :     |           |           |
+    |     :     |           |---------->|   REGISTER
+    |     :     |           |           |
+    |     :     |           |<----------|   401 Unauthorized
+    |     :     |           |           |
+    |     :     |<----------|           |   401 Unauthorized
+    |     :     |           |           |
+    |<----------|           |           | 2 401 Unauthorized
+    |     :     |           |           |
+    |---------->|           |           | 3 REGISTER for authentication
+    |     :     |           |           |
+    |     :     |---------->|           |   REGISTER for authentication
+    |     :     |           |           |
+    |     :     |           |---------->|   REGISTER for authentication
+    |     :     |           |           |
+    |     :     |           |<----------|   200 OK
+    |     :     |           |           |
+    |     :     |<----------|           |   200 OK
+    |     :     |           |           |
+    |<----------|           |           | 4 200 OK
+    |     :     |           |           |
+    |---------->|           |           | 5 SUBSCRIBE
+    |     :     |           |           |
+    |     :     |---------------------->|   SUBSCRIBE
+    |     :     |           |           |
+    |     :     |<----------------------|   200 OK with Expires=60
+    |     :     |           |           |
+    |<----------|           |           | 6 200 OK with Expires=60
+    |     :     |           |           |
+    |     :     |<----------------------|   NOTIFY
+    |     :     |           |           |
+    |<----------|           |           | 7 NOTIFY
+    |     :     |           |           |
+    |---------->|           |           | 8 200 OK
+    |     :     |           |           |
+    |     :     |---------------------->|   200 OK
+    |     :     |           |           |
+    |---------->|           |           | 9 SUBSCRIBE for re-subscription (*1)
+    |     :     |           |           |
+    |     :     |---------------------->|   SUBSCRIBE for re-subscription
+    |     :     |           |           |
+    |     :     |<----------------------|   200 OK
+    |     :     |           |           |
+    |<----------|           |           | 10 200 OK
+    |     :     |           |           |
+    |     :     |<----------------------|    NOTIFY
+    |     :     |           |           |
+    |<----------|           |           | 11 NOTIFY
+    |     :     |           |           |
+    |---------->|           |           | 12 200 OK (*2)
+    |     :     |           |           |
+    |     :     |---------------------->|    200 OK
+    |     :     |           |           |
+
+1 NUT sends REGISTER
+2 NUT receives 401 Unauthorized
+3 NUT sends REGISTER for authentication
+4 NUT receives 200 OK
+5 NUT sends SUBSCRIBE with Expires=60
+6 NUT receives 200 OK
+7 NUT receives NOTIFY
+8 NUT sends 200 OK
+9 NUT sends SUBSCRIBE for re-subscription
+10 NUT receives 200 OK
+11 NUT receives NOTIFY
+12 NUT sends 200 OK
+
+=== Message example ===
+As regards the message 1-5, please refer to the message 1-5 in UE-RG-B-1-DIP.
+
+6. 200 OK P-CSCF -> NUT
+SIP/2.0 200 OK
+Via: SIP/2.0/UDP [3ffe:501:ffff:1000::1000]:5060;branch=z9hG4bKnashdsa1
+Record-Route: <sip:p.a1.under.test.com:5060;lr>
+From: <sip:UEa1_public_1@under.test.com>;tag=31415
+To: <sip:UEa1_public_1@under.test.com>;tag=151170
+Call-ID: b89rjhnedlrfjflslj40a222@under.test.com
+CSeq: 1 SUBSCRIBE
+Allow-Events: reg
+Expires: 60
+Contact: <sip:s.a1.under.test.com>
+Content-Length: 0
+
+7. NOTIFY P-CSCF -> NUT
+NOTIFY sip:UEa1_public_1@node.under.test.com:5060 SIP/2.0
+Via: SIP/2.0/UDP p.a1.under.test.com:5060;branch=z9hG4bK240f34.2,SIP/2.0/UDP s.a1.under.test.com;branch=z9hG4bK332b23.2;received=3ffe:501:ffff:100::30
+Max-Forwards: 69
+From: <sip:UEa1_public_1@under.test.com>;tag=151170
+To: <sip:UEa1_public_1@under.test.com>;tag=31415
+Call-ID: b89rjhnedlrfjflslj40a222@under.test.com
+CSeq: 2 NOTIFY
+Contact: <sip:s.a1.under.test.com>
+Subscription-State: active;expires=60
+Event: reg
+Content-Type: application/reginfo+xml
+Content-Length: (...)
+
+<?xml version="1.0"?>
+<reginfo xmlns="urn:ietf:params:xml:ns:reginfo" version="0" state="full">
+     <registration aor="sip:UEa1_public_1@under.test.com" id="a7" state="active">
+         <contact id="76" state="active" event="registered">
+             <uri>sip:UEa1_public_1@node.under.test.com</uri>
+         </contact>
+     </registration>
+</reginfo>
+
+As regards the message 8, please refer to the message 8 in UE-RG-B-1-DIP.
+
+9. SUBSCRIBE NUT -> P-CSCF
+SUBSCRIBE sip:s.a1.under.test.com SIP/2.0
+Via: SIP/2.0/UDP [3ffe:501:ffff:1000::1000]:5060;branch=z9hG4bKnashdsa2
+Max-Forwards: 70
+Route: <sip:p.a1.under.test.com:5060;lr>
+From: <sip:UEa1_public_1@under.test.com>;tag=31415
+To: <sip:UEa1_public_1@under.test.com>;tag=151170
+Call-ID: b89rjhnedlrfjflslj40a222@under.test.com
+CSeq: 2 SUBSCRIBE
+Allow-Events: reg
+Event: reg
+Expires: 600000
+Contact: <sip:UEa1_public_1@node.under.test.com:5060>
+Content-Length: 0
+
+
+10. 200 OK P-CSCF -> NUT
+SIP/2.0 200 OK
+Via: SIP/2.0/UDP [3ffe:501:ffff:1000::1000]:5060;branch=z9hG4bKnashdsa2
+Record-Route: <sip:p.a1.under.test.com:5060;lr>
+From: <sip:UEa1_public_1@under.test.com>;tag=31415
+To: <sip:UEa1_public_1@under.test.com>;tag=151170
+Call-ID: b89rjhnedlrfjflslj40a222@under.test.com
+CSeq: 2 SUBSCRIBE
+Allow-Events: reg
+Expires: 600000
+Contact: <sip:s.a1.under.test.com>
+Content-Length: 0
+
+
+11. NOTIFY P-CSCF -> NUT
+NOTIFY sip:UEa1_public_1@node.under.test.com:5060 SIP/2.0
+Via: SIP/2.0/UDP p.a1.under.test.com:5060;branch=z9hG4bK240f34.2,SIP/2.0/UDP s.a1.under.test.com;branch=z9hG4bK332b23.2;received=3ffe:501:ffff:100::30
+Max-Forwards: 69
+From: <sip:UEa1_public_1@under.test.com>;tag=151170
+To: <sip:UEa1_public_1@under.test.com>;tag=31415
+Call-ID: b89rjhnedlrfjflslj40a222@under.test.com
+CSeq: 2 NOTIFY
+Contact: <sip:s.a1.under.test.com>
+Subscription-State: active;expires=600000
+Event: reg
+Content-Type: application/reginfo+xml
+Content-Length: (...)
+
+<?xml version="1.0"?>
+<reginfo xmlns="urn:ietf:params:xml:ns:reginfo" version="1" state="full">
+     <registration aor="sip:UEa1_public_1@under.test.com" id="a7" state="active">
+         <contact id="76" state="active" event="registered">
+             <uri>sip:UEa1_public_1@node.under.test.com</uri>
+         </contact>
+     </registration>
+</reginfo>
+
+
+12. 200 OK NUT -> P-CSCF
+SIP/2.0 200 OK
+Via: SIP/2.0/UDP p.a1.under.test.com:5060;branch=z9hG4bK240f34.2;received=3ffe:501:ffff:100::10,SIP/2.0/UDP s.a1.under.test.com;branch=z9hG4bK332b23.2;received=3ffe:501:ffff:100::30
+From: <sip:UEa1_public_1@under.test.com>;tag=151170
+To: <sip:UEa1_public_1@under.test.com>;tag=31415
+Call-ID: b89rjhnedlrfjflslj40a222@under.test.com
+CSeq: 2 NOTIFY
+Content-Length: 0
+
+
+[OBSERVABLE RESULTS]
+*1: 9 SUBSCRIBE for re-subscription from NUT to P-CSCF
+
+      See generic_re_SUBSCRIBE
+          
+          The subscription for a previously registered public user identity SHALL be
+          automatically refreshed either 600 seconds before the expiration time if
+          the initial subscription was for greater than 1200 seconds, or when half
+          of the time has expired if the initial subscription was for 1200 seconds
+          or less.[TS24229-5.1-134]
+
+*2: 12 NOTIFY 200 OK from NUT to P-CSCF
+
+      See generic_200-NOTIFY

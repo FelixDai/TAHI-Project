@@ -1,0 +1,6 @@
+Revision history for Perl extension osc.
+
+0.01  Thu Jun 19 23:35:06 2008
+	- original version; created by h2xs 1.23 with options
+		-A -n osc
+

@@ -1,0 +1,14 @@
+TYPEMAP
+
+StateHandler *		O_OBJECT
+Stack *			O_OBJECT
+DeflateCompressor *	O_OBJECT
+StateChanges *		O_OBJECT
+SigcompMessage * 	O_OBJECT
+
+INPUT
+
+OUTPUT
+
+
+

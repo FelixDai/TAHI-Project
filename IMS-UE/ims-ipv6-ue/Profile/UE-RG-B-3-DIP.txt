@@ -1,0 +1,288 @@
+[NAME]
+UE-RG-B-3-DIP  - Network-initiated re-authentication
+
+
+[TARGET]
+IMS User Equipment (NUT)
+
+
+[PURPOSE]
+(1) To verify that the UEa1 properly receives a NOTIFY request carrying information
+    related to the reg event package and answers to a network-initiated
+    re-authentication on the dialog.
+
+(2) To verify that the UEa1 properly performs the authentication procedure when
+    received a 401 (Unauthorized) response to the REGISTER request for
+    reregistration.
+
+
+[REFERENCE]
+TS24.229 5.1.1.4.1 
+TS24.229 5.1.1.4.3
+TS24.229 5.1.1.5A
+
+
+[REQUIREMENT]
+NONE
+
+
+[PARAMETER(NUT)]
+public-user-id         :         sip:UEa1_public_1@under.test.com
+private-user-id        :         UEa1_private@under.test.com
+contact_URI            :         sip:UEa1_public_1@node.under.test.com
+HOMENETWORK Domain     :         sip:under.test.com
+
+
+[PARAMETER(TESTER)]
+P-CSCFa1               :         sip:p.a1.under.test.com
+S-CSCFa1               :         sip:s.a1.under.test.com
+
+
+[ADDRESS]
+UEa1(NUT)              :         3ffe:501:ffff:1000::1000
+Router(R1)             :         3ffe:501:ffff:1000::1
+P-CSCFa1               :         3ffe:501:ffff:100::10
+I-CSCFa1               :         3ffe:501:ffff:100::20
+S-CSCFa1               :         3ffe:501:ffff:100::30
+DNS                    :         3ffe:501:ffff:100::40
+DHCP                   :         3ffe:501:ffff:100::50
+
+
+[TOPOLOGY]
++---------+
+|         |
+|       UEa1(NUT)
+R1
+|
+|
++---------+----------+----------+----------+----------+-
+          |          |          |          |          |
+      P-CSCFa1    I-CSCFa1   S-CSCFa1     DHCP       DNS
+
+
+[INITIALIZATION]
+Set up IP Address using A or B.
+
+A. Router Advertisement
+
+B. DHCPv6
+  (NUT)
+   UEa1      DHCP
+    |    :    | 
+    |-------->| 1 DHCPv6 SOLICIT
+    |    :    | 
+    |<--------| 2 DHCPv6 ADVERTIZE
+    |    :    |
+    |-------->| 3 DHCPv6 REQUEST
+    |    :    |
+    |<--------| 4 DHCPv6 REPLY
+    |    :    |
+
+
+[PROCEDURE]
+                Home Network
+  (NUT)
+  UEa1      P-CSCFa1    I-CSCFa1     S-CSCFa1
+    |     :     |           |           |
+    |---------->|           |           | 1 REGISTER
+    |     :     |           |           |
+    |     :     |---------->|           |   REGISTER
+    |     :     |           |           |
+    |     :     |           |---------->|   REGISTER
+    |     :     |           |           |
+    |     :     |           |<----------|   401 Unauthorized
+    |     :     |           |           |
+    |     :     |<----------|           |   401 Unauthorized
+    |     :     |           |           |
+    |<----------|           |           | 2 401 Unauthorized
+    |     :     |           |           |
+    |---------->|           |           | 3 REGISTER for authentication
+    |     :     |           |           |
+    |     :     |---------->|           |   REGISTER for authentication
+    |     :     |           |           |
+    |     :     |           |---------->|   REGISTER for authentication
+    |     :     |           |           |
+    |     :     |           |<----------|   200 OK
+    |     :     |           |           |
+    |     :     |<----------|           |   200 OK
+    |     :     |           |           |
+    |<----------|           |           | 4 200 OK
+    |     :     |           |           |
+    |---------->|           |           | 5 SUBSCRIBE
+    |     :     |           |           |
+    |     :     |---------------------->|   SUBSCRIBE
+    |     :     |           |           |
+    |     :     |<----------------------|   200 OK
+    |     :     |           |           |
+    |<----------|           |           | 6 200 OK
+    |     :     |           |           |
+    |     :     |<----------------------|   NOTIFY
+    |     :     |           |           |
+    |<----------|           |           | 7 NOTIFY
+    |     :     |           |           |
+    |---------->|           |           | 8 200 OK
+    |     :     |           |           |
+    |     :     |---------------------->|   200 OK
+    |     :     |           |           |
+    |     :     |<----------+-----------|   NOTIFY for re-authentication
+    |     :     |           |           |
+    |<----------|           |           | 9 NOTIFY for re-authentication
+    |     :     |           |           |
+    |---------->|           |           | 10 200 OK (*1)
+    |     :     |           |           |
+    |     :     |---------------------->|    200 OK
+    |     :     |           |           |
+    |---------->|           |           | 11 REGISTER for reregistration (*2)
+    |     :     |           |           |
+    |     :     |---------->|           |    REGISTER for reregistration
+    |     :     |           |           |
+    |     :     |           |---------->|    REGISTER for reregistration
+    |     :     |           |           |
+    |     :     |           |<----------|    401 Unauthorized
+    |     :     |           |           |
+    |     :     |<----------|           |    401 Unauthorized
+    |     :     |           |           |
+    |<----------|           |           | 12 401 Unauthorized
+    |     :     |           |           |
+    |---------->|           |           | 13 REGISTER for authentication (*3)
+    |     :     |           |           |
+    |     :     |---------->|           |    REGISTER for authentication
+    |     :     |           |           |
+    |     :     |           |---------->|    REGISTER for authentication
+    |     :     |           |           |
+    |     :     |           |<----------|    200 OK
+    |     :     |           |           |
+    |     :     |<----------|           |    200 OK
+    |     :     |           |           |
+    |<----------|           |           | 14 200 OK
+    |     :     |           |           |
+
+1 NUT sends REGISTER
+2 NUT receives 401 Unauthorized
+3 NUT sends REGISTER for authentication
+4 NUT receives 200 OK
+5 NUT sends SUBSCRIBE
+6 NUT receives 200 OK
+7 NUT receives NOTIFY
+8 NUT sends 200 OK
+9 NUT receives NOTIFY for re-authentication
+10 NUT sends 200 OK
+11 NUT sends REGISTER for reregistration
+12 NUT receives 401 Unauthorized
+13 NUT sends REGISTER for authentication
+14 NUT receives 200 OK
+15 NUT receives NOTIFY
+16 NUT sends 200 OK
+
+=== Message example ===
+As regards the message 1-8, please refer to the message 1-8 in UE-RG-B-1-DIP.
+
+9. NOTIFY P-CSCF -> NUT
+NOTIFY sip:UEa1_public_1@node.under.test.com:5060 SIP/2.0
+Via: SIP/2.0/UDP p.a1.under.test.com:5060;branch=z9hG4bK240f34.2,SIP/2.0/UDP s.a1.under.test.com;branch=z9hG4bK332b23.2;received=3ffe:501:ffff:100::30
+Max-Forwards: 69
+From: <sip:UEa1_public_1@under.test.com>;tag=151170
+To: <sip:UEa1_public_1@under.test.com>;tag=31415
+Call-ID: b89rjhnedlrfjflslj40a222@under.test.com
+CSeq: 2 NOTIFY
+Contact: <sip:s.a1.under.test.com>
+Subscription-State: active;expires=600000
+Event: reg
+Content-Type: application/reginfo+xml
+Content-Length: (...)
+
+<?xml version="1.0"?>
+<reginfo xmlns="urn:ietf:params:xml:ns:reginfo" version="1" state="full">
+     <registration aor="sip:UEa1_public_1@under.test.com" id="a7" state="active">
+         <contact id="76" state="active" event="shortened" expires="60">
+             <uri>sip:UEa1_public_1@node.under.test.com</uri>
+         </contact>
+     </registration>
+</reginfo>
+
+
+10. 200 OK NUT -> P-CSCF
+SIP/2.0 200 OK
+Via: SIP/2.0/UDP p.a1.under.test.com:5060;branch=z9hG4bK240f34.2;received=3ffe:501:ffff:100::10,SIP/2.0/UDP s.a1.under.test.com;branch=z9hG4bK332b23.2;received=3ffe:501:ffff:100::30
+From: <sip:UEa1_public_1@under.test.com>;tag=151170
+To: <sip:UEa1_public_1@under.test.com>;tag=31415
+Call-ID: b89rjhnedlrfjflslj40a222@under.test.com
+CSeq: 2 NOTIFY
+Content-Length: 0
+
+11. REGISTER NUT -> P-CSCF
+REGISTER sip:under.test.com SIP/2.0
+Via: SIP/2.0/UDP [3ffe:501:ffff:1000::1000]:5060;branch=z9hG4bKnashds9
+Max-Forwards: 70
+From: <sip:UEa1_public_1@under.test.com>;tag=4fa4
+To: <sip:UEa1_public_1@under.test.com>
+Contact: <sip:UEa1_public_1@node.under.test.com:5060>;expires=600000
+Call-ID: apb03a0s09dkjdfglkj49111@under.test.com
+Authorization: Digest username="UEa1_private@under.test.com", realm="under.test.com", nonce="", uri="sip:under.test.com", response=""
+CSeq: 3 REGISTER
+Supported: path
+Content-Length: 0
+
+
+12. 401 Unauthorized P-CSCF -> NUT
+SIP/2.0 401 Unauthorized
+Via: SIP/2.0/UDP [3ffe:501:ffff:1000::1000]:5060;branch=z9hG4bKnashds9
+WWW-Authenticate: Digest realm="under.test.com", nonce="1cec4341ae6cbe5a359ea9c8e88df84f", algorithm=MD5, qop="auth"
+From: <sip:UEa1_public_1@under.test.com>;tag=4fa4
+To: <sip:UEa1_public_1@under.test.com>;tag=5ef6
+Call-ID: apb03a0s09dkjdfglkj49111@under.test.com
+CSeq: 3 REGISTER
+Content-Length: 0
+
+
+13. REGISTER NUT -> P-CSCF
+REGISTER sip:under.test.com SIP/2.0
+Via: SIP/2.0/UDP [3ffe:501:ffff:1000::1000]:5060;branch=z9hG4bKnashds10
+Max-Forwards: 70
+From: <sip:UEa1_public_1@under.test.com>;tag=4fa4
+To: <sip:UEa1_public_1@under.test.com>
+Contact: <sip:UEa1_public_1@node.under.test.com:5060>;expires=600000
+Call-ID: apb03a0s09dkjdfglkj49111@under.test.com
+Authorization: Digest username="UEa1_private@under.test.com", realm="under.test.com", nonce="1cec4341ae6cbe5a359ea9c8e88df84f", uri="sip:under.test.com", qop=auth, nc=00000001, cnonce="0c4g113c", response="39c7821438bc558e28f10eb368946dec"
+CSeq: 4 REGISTER
+Supported: path
+Content-Length: 0
+
+
+14. 200 OK P-CSCF -> NUT
+SIP/2.0 200 OK
+Via: SIP/2.0/UDP [3ffe:501:ffff:1000::1000]:5060;branch=z9hG4bKnashds10
+From: <sip:UEa1_public_1@under.test.com>;tag=4fa4
+To: <sip:UEa1_public_1@under.test.com>;tag=5ef6
+Call-ID: apb03a0s09dkjdfglkj49111@under.test.com
+Contact: <sip:UEa1_public_1@node.under.test.com:5060>;expires=600000
+Path: <sip:term@p.a1.under.test.com;lr>
+Service-Route: <sip:orig@s.a1.under.test.com;lr>
+
+P-Associated-URI: <sip:UEa1_public_1@under.test.com>
+CSeq: 4 REGISTER
+Date: Wed, 11 July 2001 08:50:08 GMT
+Authentication-Info: rspauth="da836ddsaafffd3642637f94fd407447", cnonce="0c4g113c", nc=00000001, qop=auth
+Content-Length: 0
+
+
+[OBSERVABLE RESULTS]
+*1: 10 NOTIFY 200 OK from NUT to P-CSCF
+
+       See generic_200-NOTIFY
+
+*2: 11 REGISTER for reregistration from NUT to P-CSCF
+
+       See generic_re_REGISTER
+
+       The UE SHALL use the expiry attribute within the <contact> sub-element that
+       the UE registered to adjust the expiration time for that public user identity.
+       [TS24229-5.1-278]
+
+*3: 13 REGISTER for authentication
+
+       See generic_Auth_REGISTER
+       
+       The port value in Via header field SHALL be set to an unprotected port where
+       the UE expects to receive responses to the request.[TS24229-5.1-199]
+

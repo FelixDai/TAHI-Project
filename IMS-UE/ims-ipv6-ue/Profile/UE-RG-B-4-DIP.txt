@@ -1,0 +1,274 @@
+[NAME]
+UE-RG-B-4-DIP  - User-initiated deregistration
+
+
+[TARGET]
+IMS User Equipment (NUT)
+
+
+[PURPOSE]
+(1) To verify that the UEa1 properly deregisters a public user identity that it has
+    previously registered with its contact address.
+
+
+(2) To verify that the UEa1 properly considers subscription to the reg event package
+    cancelled.
+    (i.e. as if the UE had sent a SUBSCRIBE request with an Expires header containing
+    a value of zero).
+
+
+[REFERENCE]
+
+TS24.229 5.1.1.6.1
+TS24.229 5.1.1.6.3
+RFC3261 10.2.2
+
+
+[REQUIREMENT]
+NONE
+
+
+[PARAMETER(NUT)]
+public-user-id         :         sip:UEa1_public_1@under.test.com
+private-user-id        :         UEa1_private@under.test.com
+contact_URI            :         sip:UEa1_public_1@node.under.test.com
+HOMENETWORK Domain     :         sip:under.test.com
+
+
+[PARAMETER(TESTER)]
+P-CSCF                 :         sip:p.a1.under.test.com
+S-CSCFa1               :         sip:s.a1.under.test.com
+
+
+[ADDRESS]
+UEa1(NUT)              :         3ffe:501:ffff:1000::1000
+Router(R1)             :         3ffe:501:ffff:1000::1
+P-CSCFa1               :         3ffe:501:ffff:100::10
+I-CSCFa1               :         3ffe:501:ffff:100::20
+S-CSCFa1               :         3ffe:501:ffff:100::30
+DNS                    :         3ffe:501:ffff:100::40
+DHCP                   :         3ffe:501:ffff:100::50
+
+
+[TOPOLOGY]
++---------+
+|         |
+|       UEa1(NUT)
+R1
+|
+|
++---------+----------+----------+----------+----------+-
+          |          |          |          |          |
+      P-CSCFa1    I-CSCFa1   S-CSCFa1     DHCP       DNS
+
+
+[INITIALIZATION]
+Set up IP Address using A or B.
+
+A. Router Advertisement
+
+B. DHCPv6
+  (NUT)
+   UEa1      DHCP
+    |    :    | 
+    |-------->| 1 DHCPv6 SOLICIT
+    |    :    | 
+    |<--------| 2 DHCPv6 ADVERTIZE
+    |    :    |
+    |-------->| 3 DHCPv6 REQUEST
+    |    :    |
+    |<--------| 4 DHCPv6 REPLY
+    |    :    |
+
+
+[PROCEDURE]
+                Home Network
+  (NUT)
+   UEa1      P-CSCFa1   I-CSCFa1     S-CSCFa1
+    |     :     |           |           |
+    |---------->|           |           | 1 REGISTER
+    |     :     |           |           |
+    |     :     |---------->|           |   REGISTER
+    |     :     |           |           |
+    |     :     |           |---------->|   REGISTER
+    |     :     |           |           |
+    |     :     |           |<----------|   401 Unauthorized
+    |     :     |           |           |
+    |     :     |<----------|           |   401 Unauthorized
+    |     :     |           |           |
+    |<----------|           |           | 2 401 Unauthorized
+    |     :     |           |           |
+    |---------->|           |           | 3 REGISTER for authentication
+    |     :     |           |           |
+    |     :     |---------->|           |   REGISTER for authentication
+    |     :     |           |           |
+    |     :     |           |---------->|   REGISTER for authentication
+    |     :     |           |           |
+    |     :     |           |<----------|   200 OK
+    |     :     |           |           |
+    |     :     |<----------|           |   200 OK
+    |     :     |           |           |
+    |<----------|           |           | 4 200 OK
+    |     :     |           |           |
+    |---------->|           |           | 5 SUBSCRIBE
+    |     :     |           |           |
+    |     :     |---------------------->|   SUBSCRIBE
+    |     :     |           |           |
+    |     :     |<----------------------|   200 OK
+    |     :     |           |           |
+    |<----------|           |           | 6 200 OK
+    |     :     |           |           |
+    |     :     |<----------------------|   NOTIFY
+    |     :     |           |           |
+    |<----------|           |           | 7 NOTIFY
+    |     :     |           |           |
+    |---------->|           |           | 8 200 OK
+    |     :     |           |           |
+    |     :     |---------------------->|   200 OK
+    |     :     |           |           |
+    |---------->|           |           | 9 REGISTER for deregistration (*1)
+    |     :     |           |           |
+    |     :     |---------->|           |   REGISTER for deregistration
+    |     :     |           |           |
+    |     :     |           |---------->|   REGISTER for deregistration
+    |     :     |           |           |
+    |     :     |           |<----------|   401 Unauthorized
+    |     :     |           |           |
+    |     :     |<----------|           |   401 Unauthorized
+    |     :     |           |           |
+    |<----------|           |           | 10 401 Unauthorized
+    |     :     |           |           |
+    |---------->|           |           | 11 REGISTER for deregistration (authentication) (*2)
+    |     :     |           |           |
+    |     :     |---------->|           |    REGISTER for deregistration (authentication)
+    |     :     |           |           |
+    |     :     |           |---------->|    REGISTER for deregistration (authentication)
+    |     :     |           |           |
+    |     :     |           |<----------|    200 OK
+    |     :     |           |           |
+    |     :     |<----------|           |    200 OK
+    |     :     |           |           |
+    |<----------|           |           | 12 200 OK
+    |     :     |           |           |
+    |     :     |<----------------------|    NOTIFY
+    |     :     |           |           |
+    |<----------|           |           | 13 NOTIFY
+    |     :     |           |           |
+    |     :     |           |           | 14 <No response or any responses 
+    |     :     |           |           |     except 1XX/2XX response> (*3)
+1 NUT sends REGISTER
+2 NUT receives 401 Unauthorized
+3 NUT sends REGISTER for authentication
+4 NUT receives 200 OK
+5 NUT sends SUBSCRIBE
+6 NUT receives 200 OK
+7 NUT receives NOTIFY
+8 NUT sends 200 OK
+9 NUT sends REGISTER for deregistration
+10 NUT receives 401 Unauthorized 
+11 NUT sends REGISTER for deregistration (authentication)
+12 NUT receives 200 OK 
+13 Tester sends NOTIFY
+14 <No response or any response except 1XX/2XX response>
+
+
+=== Message example ===
+As regards the message 1-8, please refer to the message 1-8 in UE-RG-B-1-DIP.
+
+9. REGISTER NUT -> P-CSCF
+REGISTER sip:under.test.com SIP/2.0
+Via: SIP/2.0/UDP [3ffe:501:ffff:1000::1000]:5060;branch=z9hG4bKnashds9
+Max-Forwards: 70
+From: <sip:UEa1_public_1@under.test.com>;tag=4fa4
+To: <sip:UEa1_public_1@under.test.com>
+Contact: <sip:UEa1_public_1@node.under.test.com:5060>;expires=0
+Call-ID: apb03a0s09dkjdfglkj49111@under.test.com
+Authorization: Digest username="UEa1_private@under.test.com", realm="under.test.com", nonce="", uri="sip:under.test.com", response=""
+Supported: path
+CSeq: 3 REGISTER
+Content-Length: 0
+
+
+10. 401 Unauthorized P-CSCF -> NUT
+SIP/2.0 401 Unauthorized
+Via: SIP/2.0/UDP [3ffe:501:ffff:1000::1000]:5060;branch=z9hG4bKnashds9
+WWW-Authenticate: Digest realm="under.test.com", nonce="1cec4341ae6cbe5a359ea9c8e88df84f", algorithm=MD5, qop="auth"
+From: <sip:UEa1_public_1@under.test.com>;tag=4fa4
+To: <sip:UEa1_public_1@under.test.com>;tag=5ef6
+Call-ID: apb03a0s09dkjdfglkj49111@under.test.com
+CSeq: 3 REGISTER
+Content-Length: 0
+
+11. REGISTER NUT -> P-CSCF
+REGISTER sip:under.test.com SIP/2.0
+Via: SIP/2.0/UDP [3ffe:501:ffff:1000::1000]:5060;branch=z9hG4bKnashds10
+Max-Forwards: 70
+From: <sip:UEa1_public_1@under.test.com>;tag=4fa4
+To: <sip:UEa1_public_1@under.test.com>
+Contact: <sip:UEa1_public_1@node.under.test.com:5060>;expires=0
+Call-ID: apb03a0s09dkjdfglkj49111@under.test.com
+Authorization: Digest username="UEa1_private@under.test.com", realm="under.test.com", nonce="1cec4341ae6cbe5a359ea9c8e88df84f", uri="sip:under.test.com", qop=auth, nc=00000001, cnonce="0c4g113c", response="39c7821438bc558e28f10eb368946dec"
+CSeq: 4 REGISTER
+Supported: path
+Content-Length: 0
+
+12. 200 OK P-CSCF -> NUT
+SIP/2.0 200 OK
+Via: SIP/2.0/UDP [3ffe:501:ffff:1000::1000]:5060;branch=z9hG4bKnashds10
+From: <sip:UEa1_public_1@under.test.com>;tag=4fa4
+To: <sip:UEa1_public_1@under.test.com>;tag=5ef6
+Contact: <sip:UEa1_public_1@node.under.test.com:5060>;expires=0
+Call-ID: apb03a0s09dkjdfglkj49111@under.test.com
+P-Associated-URI:
+CSeq: 4 REGISTER
+Date: Wed, 11 July 2001 08:49:37 GMT
+Authentication-Info: rspauth="da836ddsaafffd3642637f94fd407447", cnonce="0c4g113c", nc=00000001, qop=auth
+Content-Length: 0
+
+
+13. NOTIFY P-CSCF -> NUT
+NOTIFY sip:UEa1_public_1@node.under.test.com:5060 SIP/2.0
+Via: SIP/2.0/UDP p.a1.under.test.com:5060;branch=z9hG4bK240f34.3, SIP/2.0/UDP s.a1.under.test.com;branch=z9hG4bK332b23.3;received=3ffe:501:ffff:100::30
+Max-Forwards: 69
+From: <sip:UEa1_public_1@under.test.com>;tag=151170
+To: <sip:UEa1_public_1@under.test.com>;tag=31415
+Call-ID: b89rjhnedlrfjflslj40a222@under.test.com
+CSeq: 2 NOTIFY
+Contact: <sip:s.a1.under.test.com>
+Subscription-State: terminated;reason=noresource
+Event: reg
+Content-Type: application/reginfo+xml
+Content-Length: (...)
+
+<?xml version="1.0"?>
+<reginfo xmlns="urn:ietf:params:xml:ns:reginfo" version="1" state="full">
+     <registration aor="sip:UEa1_public_1@under.test.com" id="a7" state="terminated">
+       <contact id="76" state="terminated" event="unregistered">
+           <uri>sip:UEa1_public_1@node.under.test.com</uri>
+       </contact>
+     </registration>
+</reginfo>
+
+
+14. <No response or any responses except 1XX/2XX response>
+
+
+[OBSERVABLE RESULTS]
+*1: 9 REGISTER for deregistration from NUT to P-CSCF
+
+      See generic_de_REGISTER
+
+*2: 11 REGISTER for deregistration (authentication) from NUT to P-CSCF
+
+      See generic_Auth_REGISTER
+      
+      The port value in Contact header field SHALL be set to the 
+      associated unprotected port value (where the UE was expecting 
+      to receive mid-dialog requests).[TS24229-5.1-328]
+
+*3: 14 No response or any responses except 200 OK
+
+      All registration details relating to the public user identity SHALL be
+      removed when UE received the 200 (OK) response to the REGISTER request.
+      [TS24229-5.1-310]
+

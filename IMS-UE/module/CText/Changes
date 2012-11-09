@@ -1,0 +1,6 @@
+Revision history for Perl extension CText.
+
+1.00  Wed Feb  4 03:13:42 2009
+	- original version; created by h2xs 1.23 with options
+		-A -n CText
+

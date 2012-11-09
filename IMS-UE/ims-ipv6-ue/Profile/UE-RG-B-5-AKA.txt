@@ -1,0 +1,240 @@
+[NAME]
+UE-RG-B-5-AKA  - Network-initiated deregistration with rejected event
+
+
+[TARGET]
+IMS User Equipment (NUT)
+
+
+[PURPOSE]
+(1) To verify that the UEa1 properly receives a NOTIFY request carrying information
+    related to the reg event package, and answers to a network-initiated
+    deregistration event on the dialog.
+
+(2) To verify that the UEa1 properly deletes the security associations towards the
+    P-CSCFafter the server transaction pertaining to the received NOTIFY request
+    terminates.
+
+
+[REFERENCE]
+TS24.229 5.1.1.7
+
+
+[REQUIREMENT]
+NONE
+
+
+[PARAMETER(NUT)]
+public-user-id         :         sip:UEa1_public_1@under.test.com
+private-user-id        :         UEa1_private@under.test.com
+contact_URI            :         sip:UEa1_public_1@node.under.test.com
+HOMENETWORK Domain     :         sip:under.test.com
+
+
+[PARAMETER(TESTER)]
+P-CSCFa1               :         sip:p.a1.under.test.com
+S-CSCFa1               :         sip:s.a1.under.test.com
+
+
+[ADDRESS]
+UEa1(NUT)              :         3ffe:501:ffff:1000::1000
+Router(R1)             :         3ffe:501:ffff:1000::1
+P-CSCFa1               :         3ffe:501:ffff:100::10
+I-CSCFa1               :         3ffe:501:ffff:100::20
+S-CSCFa1               :         3ffe:501:ffff:100::30
+DNS                    :         3ffe:501:ffff:100::40
+DHCP                   :         3ffe:501:ffff:100::50
+
+
+[TOPOLOGY]
++---------+
+|         |
+|       UEa1(NUT)
+R1
+|
+|
++---------+----------+----------+----------+----------+-
+          |          |          |          |          |
+      P-CSCFa1    I-CSCFa1   S-CSCFa1     DHCP       DNS
+
+
+[INITIALIZATION]
+Set up IP Address using A or B.
+
+A. Router Advertisement
+
+B. DHCPv6
+  (NUT)
+   UEa1      DHCP
+    |    :    | 
+    |-------->| 1 DHCPv6 SOLICIT
+    |    :    | 
+    |<--------| 2 DHCPv6 ADVERTIZE
+    |    :    |
+    |-------->| 3 DHCPv6 REQUEST
+    |    :    |
+    |<--------| 4 DHCPv6 REPLY
+    |    :    |
+
+
+[PROCEDURE]
+                Home Network
+  (NUT)
+   UEa1     P-CSCFa1     I-CSCFa1    S-CSCFa1
+    |     :     |           |           |
+    |---------->|           |           | 1 REGISTER
+    |     :     |           |           |
+    |     :     |---------->|           |   REGISTER
+    |     :     |           |           |
+    |     :     |           |---------->|   REGISTER
+    |     :     |           |           |
+    |     :     |           |<----------|   401 Unauthorized
+    |     :     |           |           |
+    |     :     |<----------|           |   401 Unauthorized
+    |     :     |           |           |
+    |<----------|           |           | 2 401 Unauthorized
+    |     :     |           |           |
+    |---------->|           |           | 3 REGISTER for authentication
+    |     :     |           |           |
+    |     :     |---------->|           |   REGISTER for authentication
+    |     :     |           |           |
+    |     :     |           |---------->|   REGISTER for authentication
+    |     :     |           |           |
+    |     :     |           |<----------|   200 OK
+    |     :     |           |           |
+    |     :     |<----------|           |   200 OK
+    |     :     |           |           |
+    |<----------|           |           | 4 200 OK
+    |     :     |           |           |
+    |---------->|           |           | 5 SUBSCRIBE
+    |     :     |           |           |
+    |     :     |---------------------->|   SUBSCRIBE
+    |     :     |           |           |
+    |     :     |<----------------------|   200 OK
+    |     :     |           |           |
+    |<----------|           |           | 6 200 OK
+    |     :     |           |           |
+    |     :     |<----------------------|   NOTIFY
+    |     :     |           |           |
+    |<----------|           |           | 7 NOTIFY
+    |     :     |           |           |
+    |---------->|           |           | 8 200 OK
+    |     :     |           |           |
+    |     :     |---------------------->|   200 OK
+    |     :     |           |           |
+    |     :     |<----------+-----------|   NOTIFY for deregistration
+    |     :     |           |           |
+    |<----------|           |           | 9 NOTIFY for deregistration
+    |     :     |           |           |
+    |---------->|           |           | 10 200 OK (*1)
+    |     :     |           |           |
+    |     :     |---------------------->|    200 OK
+    |     :     |           |           |
+    |     :     |<----------+-----------|    NOTIFY
+    |     :     |           |           |
+    |<----------|           |           | 11 NOTIFY with SAs
+    |     :     |           |           |
+    |     :     |           |           | 12 <No response or ICMP error> (*2)
+    |     :     |           |           |
+
+1 NUT sends REGISTER
+2 NUT receives 401 Unauthorized
+3 NUT sends REGISTER for authentication
+4 NUT receives 200 OK
+5 NUT sends SUBSCRIBE
+6 NUT receives 200 OK
+7 NUT receives NOTIFY
+8 NUT sends 200 OK
+9 NUT receives NOTIFY for deregistration
+10 NUT sends 200 OK
+11 Tester sends NOTIFY with SAs
+12 <No response or ICMP error>
+
+=== Message example ===
+As regards the message 1-8, please refer to the message 1-8 in UE-RG-B-1-AKA.
+
+9. NOTIFY P-CSCF -> NUT
+NOTIFY sip:UEa1_public_1@node.under.test.com:1357 SIP/2.0
+Via: SIP/2.0/UDP p.a1.under.test.com:10001;branch=z9hG4bK240f34.2,SIP/2.0/UDP s.a1.under.test.com;branch=z9hG4bK332b23.2;received=3ffe:501:ffff:100::30
+Max-Forwards: 69
+From: <sip:UEa1_public_1@under.test.com>;tag=151170
+To: <sip:UEa1_public_1@under.test.com>;tag=31415
+Call-ID: b89rjhnedlrfjflslj40a222@under.test.com
+CSeq: 2 NOTIFY
+Contact: <sip:s.a1.under.test.com>
+Subscription-State: terminated; reason=rejected
+Event: reg
+Content-Type: application/reginfo+xml
+Content-Length: (...)
+
+<?xml version="1.0"?>
+<reginfo xmlns="urn:ietf:params:xml:ns:reginfo" version="1" state="full">
+     <registration aor="sip:UEa1_public_1@under.test.com" id="a7" state="terminated">
+
+         <contact id="76" state="terminated" event="rejected">
+             <uri>sip:UEa1_public_1@node.under.test.com</uri>
+         </contact>
+     </registration>
+</reginfo>
+
+
+10. 200 OK NUT -> P-CSCF
+SIP/2.0 200 OK
+Via: SIP/2.0/UDP p.a1.under.test.com:10001;branch=z9hG4bK240f34.2;received=3ffe:501:ffff:100::10,SIP/2.0/UDP s.a1.under.test.com;branch=z9hG4bK332b23.2;received=3ffe:501:ffff:100::30
+From: <sip:UEa1_public_1@under.test.com>;tag=151170
+To: <sip:UEa1_public_1@under.test.com>;tag=31415
+Call-ID: b89rjhnedlrfjflslj40a222@under.test.com
+CSeq: 2 NOTIFY
+Content-Length: 0
+
+
+11. NOTIFY P-CSCF -> NUT
+NOTIFY sip:UEa1_public_1@node.under.test.com:1357 SIP/2.0
+Via: SIP/2.0/UDP p.a1.under.test.com:10001;branch=z9hG4bK240f34.3,SIP/2.0/UDP s.a1.under.test.com;branch=z9hG4bK332b23.3;received=3ffe:501:ffff:100::30
+Max-Forwards: 69
+From: <sip:UEa1_public_1@under.test.com>;tag=151170
+To: <sip:UEa1_public_1@under.test.com>;tag=31415
+Call-ID: b89rjhnedlrfjflslj40a222@under.test.com
+CSeq: 3 NOTIFY
+Contact: <sip:s.a1.under.test.com>
+Subscription-State: terminated; reason=rejected
+Event: reg
+Content-Type: application/reginfo+xml
+Content-Length: (...)
+
+<?xml version="1.0"?>
+<reginfo xmlns="urn:ietf:params:xml:ns:reginfo" version="2" state="full">
+     <registration aor="sip:UEa1_public_1@under.test.com" id="a7" state="terminated">
+
+         <contact id="76" state="terminated" event="rejected">
+             <uri>sip:UEa1_public_1@node.under.test.com</uri>
+         </contact>
+     </registration>
+</reginfo>
+
+
+12. <No response or ICMP error>
+
+
+[OBSERVABLE RESULTS]
+*1: 10 NOTIFY 200 OK from NUT to P-CSCF
+
+      See generic_200-NOTIFY
+
+*2: 12 No response or ICMP error
+
+          All dialogs related to those public user identities SHALL be relaesed when
+          the event attribute is set to"rejected".[TS24229-5.1-343]
+
+        - Security Behavior:
+          The UE SHALL delete the security associations towards the P-CSCF if all
+          <registration> element(s) have their state attribute set to "terminated".
+          [TS24229-5.1-344]
+          The UE SHALL delete the security associations towards the P-CSCF if each
+          <registration> element that was registered by this UE has either the state 
+          attribute set to "terminated", or the state attribute set to "active" and 
+          the state attribute within the <contact> element belonging to this UE set to 
+          "terminated".[TS24229-5.1-345] 
+          The security associations towards the P-CSCF SHALL be deleted after the
+          server transaction pertaining to the received NOTIFY request terminates.
+          [TS24229-5.1-346]

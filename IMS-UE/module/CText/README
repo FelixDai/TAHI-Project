@@ -1,0 +1,18 @@
+CText version 0.01
+==================
+
+CText is IPv6 conformace tester sub module
+
+INSTALLATION
+
+To install this module type the following:
+
+   perl Makefile.PL
+   make
+   make install
+
+Copyright (c) 2008,2009  NTT-AT  All Rights Reserved.  
+
+
+
+
