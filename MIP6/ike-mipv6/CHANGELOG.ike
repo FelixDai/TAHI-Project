@@ -1,0 +1,44 @@
+#
+
+
+
+                CHANGELOG for IPv6 Conformance Test Tool
+
+                     $Date: 2005/03/24 $
+
+2009/03/02      Release  1.0.5
+		IKE.def
+		- Prevention from duplicate include.
+		  "_IKE_DEF_" is added.
+
+2006/04/17      Release  1.0.4
+		IKEapi.pm
+		IKErule.pm
+		IKEsco.pm
+		IKEsvc.pm
+		IKcntl.pm
+		IKhex.pm
+		
+		- define two receive frames for each inherited SA
+		  from ISAKMP SA, those are for INFO and PHASE2.
+		  exhange type is 5(INFO) and 32(PHASE2).
+
+2006/02/23	Release 1.0.3
+		IKcntl.pm
+		- support unexpected packet
+
+2006/01/17      Release 1.0.2
+		- fixed variable name "ProtoclID" to "ProtocolID"
+
+                !!warning!!
+                From this release, v6eval ver3.0.4 or higher is required
+                because of function compatibility 
+	
+2005/03/24      Release 1.0.1
+	IKEsvc.pm,IKhex.pm
+		- fixed IDir_b(Identification Data) encode of HASH_R 
+                  in the case of FQDN(ID type).
+
+2005/03/02      Release 1.0
+        first public release
+                                                        [end of CHANGELOG]

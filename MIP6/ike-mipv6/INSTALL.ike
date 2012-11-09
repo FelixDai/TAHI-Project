@@ -1,0 +1,95 @@
+
+           Installing IPv6 Conformance Test IKE module Package
+
+                        IPv6 Promotion Council
+
+                       $Date: 2005/03/24 $
+
+
+
+Terminology
+===========
+
+Tester Node (TN)
+        A tester node for the conformance tests.
+
+Tester Interface
+        The network interface of TN
+        hooked up to the Network Under Test.
+
+Prerequisites
+=============
+
+Prerequisites for TN:
+        - The package supports
+                FreeBSD 4.9-RELEASE   or higher
+                FreeBSD 5.2.1-RELEASE or higher
+        - The package can also coexist with FreeBSD version of KAME.
+        - It is mandatory to install IPv6 Conformance Test Platform
+          "v6eval" that is also written by TAHI project. For more
+          information, please refer to 00README.v6eval in "v6eval".
+
+
+Installing the package onto TN
+==============================
+
+0. Before Starting
+
+   Make sure that you completed installing "v6eval" package.
+   Please refer to 00README.v6eval in "v6eval" for more information.
+
+1. Extracting ct package
+
+	% tar zxvf ike-mipv6-X.X.tar.gz
+
+2.Installing ike package
+	% cd ike-mipv6-X.X
+	% make
+	% su
+	# make install
+  
+  With the avobe steps, you can install ike package into
+  the following directory.
+	perl module: /usr/local/lib/perl5/site_perl/5.005/
+	definition : /usr/local/v6eval/include/
+	document   : /usr/local/v6eval/doc/
+  Be sure not to run the tests within this directory.
+
+
+Configuration
+============
+
+1. Configuration of TN
+
+1.1. Customize  Files
+
+     It is necessary to setting for using IKE module. 
+     Note: Probably, following configuring have already been
+           performed by the developer of ct. Therefore, in
+           almost all cases, a user does not need to set up.
+
+1.1.1. definition file
+ 
+        To include following ike.def to your definition file,
+        you need to add following content.
+
+        sample: xxx.def
+        ------------------
+        #include <ike.def>
+        ------------------ 
+        or       
+        ------------------
+        #include "ike.def"
+        ------------------
+
+1.1.2. perl module
+
+        To include following ike.def to your definition file,
+        you need to add following content.
+
+        sample: xxx.pm
+        ------------------
+        use IKEapi;
+        ------------------
+
+                                                        [End of INSTALL]

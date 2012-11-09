@@ -1,0 +1,133 @@
+#ifndef _IKE_DEF_
+#define _IKE_DEF_
+
+#ifndef IKE_NUT_MAC_ADDR
+#define IKE_NUT_MAC_ADDR	nutether()
+#endif
+
+#ifndef IKE_TN_MAC_ADDR
+#define IKE_TN_MAC_ADDR		tnether()
+#endif
+
+// -----------------------------------------------------------
+//
+//  IPV6 Parameter Label Define
+//
+// -----------------------------------------------------------
+#ifndef IKE_V6HD_VERSION
+#define IKE_V6HD_VERSION	auto
+#endif
+
+#ifndef IKE_V6HD_TRAFFICCLASS
+#define IKE_V6HD_TRAFFICCLASS	auto
+#endif
+
+#ifndef IKE_V6HD_FLOWLABEL
+#define IKE_V6HD_FLOWLABEL	auto
+#endif
+
+#ifndef IKE_V6HD_PAYLOADLENGTH
+#define IKE_V6HD_PAYLOADLENGTH	auto
+#endif
+
+#ifndef IKE_V6HD_NEXTHEADER
+#define IKE_V6HD_NEXTHEADER	auto
+#endif
+
+#ifndef IKE_V6HD_HOPLIMIT
+#define IKE_V6HD_HOPLIMIT	auto
+#endif
+
+
+#ifndef IKE_UDP_SRC_PORT
+#define IKE_UDP_SRC_PORT	500
+#endif
+
+#ifndef IKE_UDP_DST_PORT
+#define IKE_UDP_DST_PORT	500
+#endif
+
+#ifndef IKE_SEND_SRC_ADDR
+#define IKE_SEND_SRC_ADDR	v6("4001::1")
+#endif
+
+#ifndef IKE_SEND_DST_ADDR
+#define IKE_SEND_DST_ADDR	v6("4001::1")
+#endif
+
+#ifndef IKE_RECV_SRC_ADDR
+#define IKE_RECV_SRC_ADDR	any
+#endif
+
+#ifndef IKE_RECV_DST_ADDR
+#define IKE_RECV_DST_ADDR	any
+#endif
+
+#ifndef IKE_PAYLOAD
+#define IKE_PAYLOAD		""
+#endif
+
+// -----------------------------------------------------------
+//
+//  Ether Address Define
+//
+// -----------------------------------------------------------
+//_HETHER_define(IKE_EH_TNtoNUT,	IKE_TN_MAC_ADDR, IKE_NUT_MAC_ADDR)
+//_HETHER_define(IKE_EH_NUTtoTN,	IKE_NUT_MAC_ADDR,IKE_TN_MAC_ADDR)
+_HETHER_define(IKE_EH_NUTtoTN,		any,	any)
+
+
+FEM_udp6(
+	IKE_RECV,
+	IKE_EH_NUTtoTN,
+	{
+		Version			= IKE_V6HD_VERSION;
+		TrafficClass		= IKE_V6HD_TRAFFICCLASS;
+		FlowLabel		= IKE_V6HD_FLOWLABEL;
+		PayloadLength		= IKE_V6HD_PAYLOADLENGTH;
+		NextHeader		= IKE_V6HD_NEXTHEADER;
+		HopLimit		= any;
+		SourceAddress		= any;
+		DestinationAddress	= any;
+	},
+	{
+		SourcePort		= IKE_UDP_SRC_PORT;
+		DestinationPort		= IKE_UDP_DST_PORT;
+	},
+	{
+		header	= _HDR_UDP_NAME(IKE_RECV);
+		payload	= IKE_RECV_ISAKMP;
+	}
+)
+
+Udp_ISAKMP IKE_RECV_ISAKMP {
+	header	= IKE_RECV_ISAKMP_HDR;
+	payload	= stop;
+}
+
+Hdr_ISAKMP IKE_RECV_ISAKMP_HDR {
+	InitiatorCookie	= any;
+	ResponderCookie	= any;
+	MjVer		= any;
+	MnVer		= any;
+	ExchangeType	= any;
+	EFlag		= any;
+	CFlag		= any;
+	AFlag		= any;
+	MessageID	= any;
+	NextPayload	= any;
+}
+
+// edit sako 05.02.22
+// problem[mip6-swg00680]: First test is NG, 
+// because ikesub.def can't included.
+// where shoulud be ikesub.def?
+// Answer: It is necessary to define USE_IKESUB_DEF with vCPP().
+// #include "ikesub.def" 
+// #include <ikesub.def>
+#ifdef USE_IKESUB_DEF
+#include "ikesub.def"
+#endif //USE_IKESUB_DEF
+
+#endif //_IKE_DEF_
+
