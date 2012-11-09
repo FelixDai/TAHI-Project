@@ -1,0 +1,1057 @@
+//
+// Copyright (C) 2005
+// Copyright(C) IPv6 Promotion Council (2004,2005). All Rights Reserved.
+// 
+// This documentation is produced by SIP SWG members of Certification WG in 
+// IPv6 Promotion Council.
+// The SWG members currently include NIPPON TELEGRAPH AND TELEPHONE CORPORATION (NTT), 
+// Yokogawa Electric Corporation and NTT Advanced Technology Corporation (NTT-AT).
+// 
+// 
+// Redistribution and use of this software in source and binary forms, with 
+// or without modification, are permitted provided that the following 
+// conditions and disclaimer are agreed and accepted by the user:
+// 
+// 1. Redistributions of source code must retain the above copyright 
+// notice, this list of conditions and the following disclaimer.
+// 
+// 2. Redistributions in binary form must reproduce the above copyright 
+// notice, this list of conditions and the following disclaimer in the 
+// documentation and/or other materials provided with the distribution.
+// 
+// 3. Neither the names of the copyrighters, the name of the project which 
+// is related to this software (hereinafter referred to as "project") nor 
+// the names of the contributors may be used to endorse or promote products 
+// derived from this software without specific prior written permission.
+// 
+// 4. No merchantable use may be permitted without prior written 
+// notification to the copyrighters. However, using this software for the 
+// purpose of testing or evaluating any products including merchantable 
+// products may be permitted without any notification to the copyrighters.
+// 
+// 
+// 
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND 
+// CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING 
+// BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS 
+// FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE 
+// COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+// INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
+// SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
+// HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+// CONTRACT,STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF 
+// THE POSSIBILITY OF SUCH DAMAGE.
+
+// 
+
+// -----------------------------------------------------------
+//
+//  Logical Address Label Define
+//
+// -----------------------------------------------------------
+#ifndef PSEUDO4_DNS
+#define PSEUDO4_DNS			v4("192.168.0.1")
+#endif
+
+#ifndef PSEUDO4_PX1
+#define PSEUDO4_PX1			v4("192.168.0.1")
+#endif
+
+#ifndef PSEUDO4_PX2
+#define PSEUDO4_PX2			v4("192.168.0.1")
+#endif
+
+#ifndef PSEUDO4_REG
+#define PSEUDO4_REG			v4("192.168.0.1")
+#endif
+
+#ifndef PSEUDO4_UA11
+#define PSEUDO4_UA11			v4("192.168.0.1")
+#endif
+
+#ifndef PSEUDO4_UA12
+#define PSEUDO4_UA12			v4("192.168.0.1")
+#endif
+
+#ifndef PSEUDO4_UA13
+#define PSEUDO4_UA13			v4("192.168.0.1")
+#endif
+
+#ifndef PSEUDO4_UA14
+#define PSEUDO4_UA14			v4("192.168.0.1")
+#endif
+
+#ifndef PSEUDO4_UA21
+#define PSEUDO4_UA21			v4("192.168.0.1")
+#endif
+
+// NUT side
+#ifndef NUT4_ADDR
+#define NUT4_ADDR			v4("192.168.50.50")
+#endif
+
+
+// -----------------------------------------------------------
+//
+//  ICMP Echo
+//
+//       SIPServer(TN)  ->EchoRequest->  SIPterminal(NUT)
+//       SIPServer(TN)  <-EchoReply<-    SIPterminal(NUT)
+//
+// -----------------------------------------------------------
+#ifndef ECHO4_SEND_PSRV_SRC_ADDR
+#define ECHO4_SEND_PSRV_SRC_ADDR	PSEUDO4_UA11
+#endif
+
+#ifndef ECHO4_RECV_PSRV_DST_ADDR
+#define ECHO4_RECV_PSRV_DST_ADDR	PSEUDO4_UA11
+#endif
+
+
+// -----------------------------------------------------------
+//
+//  IPV4 Parameter Label Define
+//
+// -----------------------------------------------------------
+#ifndef V4HD_VERSION
+#define V4HD_VERSION		auto
+#endif
+
+#ifndef V4HD_IHL
+#define V4HD_IHL		auto
+#endif
+
+#ifndef V4HD_TYPEOFSERVICE
+#define V4HD_TYPEOFSERVICE	auto
+#endif
+
+#ifndef V4HD_TOTALLENGTH
+#define V4HD_TOTALLENGTH	auto
+#endif
+
+#ifndef V4HD_IDENTIFIER
+#define V4HD_IDENTIFIER		auto
+#endif
+
+#ifndef V4HD_RESERVED
+#define V4HD_RESERVED		auto
+#endif
+
+#ifndef V4HD_DF
+#define V4HD_DF			auto
+#endif
+
+#ifndef V4HD_MF
+#define V4HD_MF			auto
+#endif
+
+#ifndef V4HD_FRAGMENTOFFSET
+#define V4HD_FRAGMENTOFFSET	auto
+#endif
+
+#ifndef V4HD_PROTOCOL
+#define V4HD_PROTOCOL		auto
+#endif
+
+#ifndef V4HD_HEADERCHECKSUM
+#define V4HD_HEADERCHECKSUM	auto
+#endif
+
+// -----------------------------------------------------------
+//
+//  Received SIP  for Rebuild
+//
+// -----------------------------------------------------------
+#ifndef SIP4_RECVED_IHL
+#define SIP4_RECVED_IHL				auto
+#endif
+#ifndef SIP4_RECVED_TYPEOFSERVICE
+#define SIP4_RECVED_TYPEOFSERVICE		auto
+#endif
+#ifndef SIP4_RECVED_TOTALLENGTH
+#define SIP4_RECVED_TOTALLENGTH			auto
+#endif
+#ifndef SIP4_RECVED_IDENTIFIER
+#define SIP4_RECVED_IDENTIFIER			auto
+#endif
+#ifndef SIP4_RECVED_DF
+#define SIP4_RECVED_DF				auto
+#endif
+#ifndef SIP4_RECVED_MF
+#define SIP4_RECVED_MF				auto
+#endif
+#ifndef SIP4_RECVED_FRAGMENTOFFSET
+#define SIP4_RECVED_FRAGMENTOFFSET		auto
+#endif
+#ifndef SIP4_RECVED_TTL
+#define SIP4_RECVED_TTL				auto
+#endif
+#ifndef SIP4_RECVED_PROTOCOL
+#define SIP4_RECVED_PROTOCOL			auto
+#endif
+#ifndef SIP4_RECVED_HEADERCHECKSUM
+#define SIP4_RECVED_HEADERCHECKSUM		auto
+#endif
+#ifndef SIP4_RECVED_SRC_ADDR
+#define SIP4_RECVED_SRC_ADDR			auto
+#endif
+#ifndef SIP4_RECVED_DST_ADDR
+#define SIP4_RECVED_DST_ADDR			auto
+#endif
+#ifndef SIP4_RECVED_SRC_PORT
+#define SIP4_RECVED_SRC_PORT			auto
+#endif
+#ifndef SIP4_RECVED_DST_PORT
+#define SIP4_RECVED_DST_PORT			auto
+#endif
+
+// -----------------------------------------------------------
+//
+//  DNS Parameter Label Define
+//
+// -----------------------------------------------------------
+
+#ifndef A_FQDN1
+#define A_FQDN1				""
+#endif
+
+#ifndef A_TYPE1
+#define A_TYPE1				1
+#endif
+
+#ifndef A_CLASS1
+#define A_CLASS1			1
+#endif
+
+#ifndef A_IP4ADDR1
+#define A_IP4ADDR1			"192.168.0.100"
+#endif
+
+#ifndef A_IP4ADDR2
+#define A_IP4ADDR2			"192.168.0.100"
+#endif
+
+#ifndef SRV4_FQDN1
+#define SRV4_FQDN1			""
+#endif
+
+#ifndef SRV4_TYPE1
+#define SRV4_TYPE1			33
+#endif
+
+#ifndef SRV4_CLASS1
+#define SRV4_CLASS1			1
+#endif
+
+#ifndef SRV4_PORT
+#define SRV4_PORT			5060
+#endif
+
+//----------------------------------------------------------------------
+//
+// SIP  (for send packet)
+//
+//----------------------------------------------------------------------
+FEM_udp4_sip(
+	SIP4fromPX1,
+	EH_TNtoNUT,
+	{
+		Version			= V4HD_VERSION;
+		IHL			= V4HD_IHL;
+		TypeOfService		= V4HD_TYPEOFSERVICE;
+		TotalLength		= V4HD_TOTALLENGTH;
+		Identifier		= V4HD_IDENTIFIER;
+		Reserved		= V4HD_RESERVED;
+		DF			= V4HD_DF;
+		MF			= V4HD_MF;
+		FragmentOffset		= V4HD_FRAGMENTOFFSET;
+		Protocol		= V4HD_PROTOCOL;
+		HeaderChecksum		= V4HD_HEADERCHECKSUM;
+		SourceAddress		= PSEUDO4_PX1;
+		DestinationAddress	= NUT4_ADDR;
+	},
+	{
+		SourcePort		= SIP_UDP_SRC_PORT;
+		DestinationPort		= SIP_UDP_DST_PORT;
+	},
+	{
+		message			= SIP_MSG;
+	}
+)
+FEM_udp4_sip(
+	SIP4fromPX2,
+	EH_TNtoNUT,
+	{
+		Version			= V4HD_VERSION;
+		IHL			= V4HD_IHL;
+		TypeOfService		= V4HD_TYPEOFSERVICE;
+		TotalLength		= V4HD_TOTALLENGTH;
+		Identifier		= V4HD_IDENTIFIER;
+		Reserved		= V4HD_RESERVED;
+		DF			= V4HD_DF;
+		MF			= V4HD_MF;
+		FragmentOffset		= V4HD_FRAGMENTOFFSET;
+		Protocol		= V4HD_PROTOCOL;
+		HeaderChecksum		= V4HD_HEADERCHECKSUM;
+		SourceAddress		= PSEUDO4_PX2;
+		DestinationAddress	= NUT4_ADDR;
+	},
+	{
+		SourcePort		= SIP_UDP_SRC_PORT;
+		DestinationPort		= SIP_UDP_DST_PORT;
+	},
+	{
+		message			= SIP_MSG;
+	}
+)
+
+FEM_udp4_sip(
+	SIP4fromREG,
+	EH_TNtoNUT,
+	{
+		Version			= V4HD_VERSION;
+		IHL			= V4HD_IHL;
+		TypeOfService		= V4HD_TYPEOFSERVICE;
+		TotalLength		= V4HD_TOTALLENGTH;
+		Identifier		= V4HD_IDENTIFIER;
+		Reserved		= V4HD_RESERVED;
+		DF			= V4HD_DF;
+		MF			= V4HD_MF;
+		FragmentOffset		= V4HD_FRAGMENTOFFSET;
+		Protocol		= V4HD_PROTOCOL;
+		HeaderChecksum		= V4HD_HEADERCHECKSUM;
+		SourceAddress		= PSEUDO4_REG;
+		DestinationAddress	= NUT4_ADDR;
+	},
+	{
+		SourcePort		= SIP_UDP_SRC_PORT;
+		DestinationPort		= SIP_UDP_DST_PORT;
+	},
+	{
+		message			= SIP_MSG;
+	}
+)
+
+FEM_udp4_sip(
+	SIP4fromUA11,
+	EH_TNtoNUT,
+	{
+		Version			= V4HD_VERSION;
+		IHL			= V4HD_IHL;
+		TypeOfService		= V4HD_TYPEOFSERVICE;
+		TotalLength		= V4HD_TOTALLENGTH;
+		Identifier		= V4HD_IDENTIFIER;
+		Reserved		= V4HD_RESERVED;
+		DF			= V4HD_DF;
+		MF			= V4HD_MF;
+		FragmentOffset		= V4HD_FRAGMENTOFFSET;
+		Protocol		= V4HD_PROTOCOL;
+		HeaderChecksum		= V4HD_HEADERCHECKSUM;
+		SourceAddress		= PSEUDO4_UA11;
+		DestinationAddress	= NUT4_ADDR;
+	},
+	{
+		SourcePort		= SIP_UDP_SRC_PORT;
+		DestinationPort		= SIP_UDP_DST_PORT;
+	},
+	{
+		message			= SIP_MSG;
+	}
+)
+
+FEM_udp4_sip(
+	SIP4fromUA12,
+	EH_TNtoNUT,
+	{
+		Version			= V4HD_VERSION;
+		IHL			= V4HD_IHL;
+		TypeOfService		= V4HD_TYPEOFSERVICE;
+		TotalLength		= V4HD_TOTALLENGTH;
+		Identifier		= V4HD_IDENTIFIER;
+		Reserved		= V4HD_RESERVED;
+		DF			= V4HD_DF;
+		MF			= V4HD_MF;
+		FragmentOffset		= V4HD_FRAGMENTOFFSET;
+		Protocol		= V4HD_PROTOCOL;
+		HeaderChecksum		= V4HD_HEADERCHECKSUM;
+		SourceAddress		= PSEUDO4_UA12;
+		DestinationAddress	= NUT4_ADDR;
+	},
+	{
+		SourcePort		= SIP_UDP_SRC_PORT;
+		DestinationPort		= SIP_UDP_DST_PORT;
+	},
+	{
+		message			= SIP_MSG;
+	}
+)
+
+FEM_udp4_sip(
+	SIP4fromUA13,
+	EH_TNtoNUT,
+	{
+		Version			= V4HD_VERSION;
+		IHL			= V4HD_IHL;
+		TypeOfService		= V4HD_TYPEOFSERVICE;
+		TotalLength		= V4HD_TOTALLENGTH;
+		Identifier		= V4HD_IDENTIFIER;
+		Reserved		= V4HD_RESERVED;
+		DF			= V4HD_DF;
+		MF			= V4HD_MF;
+		FragmentOffset		= V4HD_FRAGMENTOFFSET;
+		Protocol		= V4HD_PROTOCOL;
+		HeaderChecksum		= V4HD_HEADERCHECKSUM;
+		SourceAddress		= PSEUDO4_UA13;
+		DestinationAddress	= NUT4_ADDR;
+	},
+	{
+		SourcePort		= SIP_UDP_SRC_PORT;
+		DestinationPort		= SIP_UDP_DST_PORT;
+	},
+	{
+		message			= SIP_MSG;
+	}
+)
+
+FEM_udp4_sip(
+	SIP4fromUA14,
+	EH_TNtoNUT,
+	{
+		Version			= V4HD_VERSION;
+		IHL			= V4HD_IHL;
+		TypeOfService		= V4HD_TYPEOFSERVICE;
+		TotalLength		= V4HD_TOTALLENGTH;
+		Identifier		= V4HD_IDENTIFIER;
+		Reserved		= V4HD_RESERVED;
+		DF			= V4HD_DF;
+		MF			= V4HD_MF;
+		FragmentOffset		= V4HD_FRAGMENTOFFSET;
+		Protocol		= V4HD_PROTOCOL;
+		HeaderChecksum		= V4HD_HEADERCHECKSUM;
+		SourceAddress		= PSEUDO4_UA14;
+		DestinationAddress	= NUT4_ADDR;
+	},
+	{
+		SourcePort		= SIP_UDP_SRC_PORT;
+		DestinationPort		= SIP_UDP_DST_PORT;
+	},
+	{
+		message			= SIP_MSG;
+	}
+)
+
+FEM_udp4_sip(
+	SIP4fromUA21,
+	EH_TNtoNUT,
+	{
+		Version			= V4HD_VERSION;
+		IHL			= V4HD_IHL;
+		TypeOfService		= V4HD_TYPEOFSERVICE;
+		TotalLength		= V4HD_TOTALLENGTH;
+		Identifier		= V4HD_IDENTIFIER;
+		Reserved		= V4HD_RESERVED;
+		DF			= V4HD_DF;
+		MF			= V4HD_MF;
+		FragmentOffset		= V4HD_FRAGMENTOFFSET;
+		Protocol		= V4HD_PROTOCOL;
+		HeaderChecksum		= V4HD_HEADERCHECKSUM;
+		SourceAddress		= PSEUDO4_UA21;
+		DestinationAddress	= NUT4_ADDR;
+	},
+	{
+		SourcePort		= SIP_UDP_SRC_PORT;
+		DestinationPort		= SIP_UDP_DST_PORT;
+	},
+	{
+		message			= SIP_MSG;
+	}
+)
+
+
+//----------------------------------------------------------------------
+//
+// SIP  (for receive packet)
+//
+//----------------------------------------------------------------------
+FEM_udp4_sip(
+	SIP4toPX1,
+	EH_NUTtoTN,
+	{
+		Version			= V4HD_VERSION;
+		IHL			= V4HD_IHL;
+		TypeOfService		= V4HD_TYPEOFSERVICE;
+		TotalLength		= V4HD_TOTALLENGTH;
+		Identifier		= V4HD_IDENTIFIER;
+		Reserved		= V4HD_RESERVED;
+		DF			= V4HD_DF;
+		MF			= V4HD_MF;
+		FragmentOffset		= V4HD_FRAGMENTOFFSET;
+		Protocol		= V4HD_PROTOCOL;
+		HeaderChecksum		= V4HD_HEADERCHECKSUM;
+		SourceAddress		= NUT4_ADDR;
+		DestinationAddress	= PSEUDO4_PX1;
+	},
+	{
+		SourcePort		= any;
+		DestinationPort		= SIP_UDP_SRC_PORT;
+	},
+	{
+		message			= any;
+	}
+)
+
+FEM_udp4_sip(
+	SIP4toPX2,
+	EH_NUTtoTN,
+	{
+		Version			= V4HD_VERSION;
+		IHL			= V4HD_IHL;
+		TypeOfService		= V4HD_TYPEOFSERVICE;
+		TotalLength		= V4HD_TOTALLENGTH;
+		Identifier		= V4HD_IDENTIFIER;
+		Reserved		= V4HD_RESERVED;
+		DF			= V4HD_DF;
+		MF			= V4HD_MF;
+		FragmentOffset		= V4HD_FRAGMENTOFFSET;
+		Protocol		= V4HD_PROTOCOL;
+		HeaderChecksum		= V4HD_HEADERCHECKSUM;
+		SourceAddress		= NUT4_ADDR;
+		DestinationAddress	= PSEUDO4_PX2;
+	},
+	{
+		SourcePort		= any;
+		DestinationPort		= SIP_UDP_SRC_PORT;
+	},
+	{
+		message			= any;
+	}
+)
+
+FEM_udp4_sip(
+	SIP4toREG,
+	EH_NUTtoTN,
+	{
+		Version			= V4HD_VERSION;
+		IHL			= V4HD_IHL;
+		TypeOfService		= V4HD_TYPEOFSERVICE;
+		TotalLength		= V4HD_TOTALLENGTH;
+		Identifier		= V4HD_IDENTIFIER;
+		Reserved		= V4HD_RESERVED;
+		DF			= V4HD_DF;
+		MF			= V4HD_MF;
+		FragmentOffset		= V4HD_FRAGMENTOFFSET;
+		Protocol		= V4HD_PROTOCOL;
+		HeaderChecksum		= V4HD_HEADERCHECKSUM;
+		SourceAddress		= NUT4_ADDR;
+		DestinationAddress	= PSEUDO4_REG;
+	},
+	{
+		SourcePort		= any;
+		DestinationPort		= SIP_UDP_SRC_PORT;
+	},
+	{
+		message			= any;
+	}
+)
+
+FEM_udp4_sip(
+	SIP4toUA11,
+	EH_NUTtoTN,
+	{
+		Version			= V4HD_VERSION;
+		IHL			= V4HD_IHL;
+		TypeOfService		= V4HD_TYPEOFSERVICE;
+		TotalLength		= V4HD_TOTALLENGTH;
+		Identifier		= V4HD_IDENTIFIER;
+		Reserved		= V4HD_RESERVED;
+		DF			= V4HD_DF;
+		MF			= V4HD_MF;
+		FragmentOffset		= V4HD_FRAGMENTOFFSET;
+		Protocol		= V4HD_PROTOCOL;
+		HeaderChecksum		= V4HD_HEADERCHECKSUM;
+		SourceAddress		= NUT4_ADDR;
+		DestinationAddress	= PSEUDO4_UA11;
+	},
+	{
+		SourcePort		= any;
+		DestinationPort		= SIP_UDP_SRC_PORT;
+	},
+	{
+		message			= any;
+	}
+)
+
+FEM_udp4_sip(
+	SIP4toUA12,
+	EH_NUTtoTN,
+	{
+		Version			= V4HD_VERSION;
+		IHL			= V4HD_IHL;
+		TypeOfService		= V4HD_TYPEOFSERVICE;
+		TotalLength		= V4HD_TOTALLENGTH;
+		Identifier		= V4HD_IDENTIFIER;
+		Reserved		= V4HD_RESERVED;
+		DF			= V4HD_DF;
+		MF			= V4HD_MF;
+		FragmentOffset		= V4HD_FRAGMENTOFFSET;
+		Protocol		= V4HD_PROTOCOL;
+		HeaderChecksum		= V4HD_HEADERCHECKSUM;
+		SourceAddress		= NUT4_ADDR;
+		DestinationAddress	= PSEUDO4_UA12;
+	},
+	{
+		SourcePort		= any;
+		DestinationPort		= SIP_UDP_SRC_PORT;
+	},
+	{
+		message			= any;
+	}
+)
+
+FEM_udp4_sip(
+	SIP4toUA13,
+	EH_NUTtoTN,
+	{
+		Version			= V4HD_VERSION;
+		IHL			= V4HD_IHL;
+		TypeOfService		= V4HD_TYPEOFSERVICE;
+		TotalLength		= V4HD_TOTALLENGTH;
+		Identifier		= V4HD_IDENTIFIER;
+		Reserved		= V4HD_RESERVED;
+		DF			= V4HD_DF;
+		MF			= V4HD_MF;
+		FragmentOffset		= V4HD_FRAGMENTOFFSET;
+		Protocol		= V4HD_PROTOCOL;
+		HeaderChecksum		= V4HD_HEADERCHECKSUM;
+		SourceAddress		= NUT4_ADDR;
+		DestinationAddress	= PSEUDO4_UA13;
+	},
+	{
+		SourcePort		= any;
+		DestinationPort		= SIP_UDP_SRC_PORT;
+	},
+	{
+		message			= any;
+	}
+)
+
+FEM_udp4_sip(
+	SIP4toUA14,
+	EH_NUTtoTN,
+	{
+		Version			= V4HD_VERSION;
+		IHL			= V4HD_IHL;
+		TypeOfService		= V4HD_TYPEOFSERVICE;
+		TotalLength		= V4HD_TOTALLENGTH;
+		Identifier		= V4HD_IDENTIFIER;
+		Reserved		= V4HD_RESERVED;
+		DF			= V4HD_DF;
+		MF			= V4HD_MF;
+		FragmentOffset		= V4HD_FRAGMENTOFFSET;
+		Protocol		= V4HD_PROTOCOL;
+		HeaderChecksum		= V4HD_HEADERCHECKSUM;
+		SourceAddress		= NUT4_ADDR;
+		DestinationAddress	= PSEUDO4_UA14;
+	},
+	{
+		SourcePort		= any;
+		DestinationPort		= SIP_UDP_SRC_PORT;
+	},
+	{
+		message			= any;
+	}
+)
+
+FEM_udp4_sip(
+	SIP4toUA21,
+	EH_NUTtoTN,
+	{
+		Version			= V4HD_VERSION;
+		IHL			= V4HD_IHL;
+		TypeOfService		= V4HD_TYPEOFSERVICE;
+		TotalLength		= V4HD_TOTALLENGTH;
+		Identifier		= V4HD_IDENTIFIER;
+		Reserved		= V4HD_RESERVED;
+		DF			= V4HD_DF;
+		MF			= V4HD_MF;
+		FragmentOffset		= V4HD_FRAGMENTOFFSET;
+		Protocol		= V4HD_PROTOCOL;
+		HeaderChecksum		= V4HD_HEADERCHECKSUM;
+		SourceAddress		= NUT4_ADDR;
+		DestinationAddress	= PSEUDO4_UA21;
+	},
+	{
+		SourcePort		= any;
+		DestinationPort		= SIP_UDP_SRC_PORT;
+	},
+	{
+		message			= any;
+	}
+)
+
+FEM_udp4_sip(
+	SIP4any,
+	EH_NUTtoTN,
+	{
+		Version			= V4HD_VERSION;
+		IHL			= V4HD_IHL;
+		TypeOfService		= V4HD_TYPEOFSERVICE;
+		TotalLength		= V4HD_TOTALLENGTH;
+		Identifier		= V4HD_IDENTIFIER;
+		Reserved		= V4HD_RESERVED;
+		DF			= V4HD_DF;
+		MF			= V4HD_MF;
+		FragmentOffset		= V4HD_FRAGMENTOFFSET;
+		Protocol		= V4HD_PROTOCOL;
+		HeaderChecksum		= V4HD_HEADERCHECKSUM;
+		SourceAddress		= any;
+		DestinationAddress	= any;
+	},
+	{
+		SourcePort		= any;
+		DestinationPort		= SIP_UDP_SRC_PORT;
+	},
+	{
+		message			= any;
+	}
+)
+
+// -----------------------------------------------------------
+//  DNS for UA request
+// -----------------------------------------------------------
+//
+// DNS query (question)
+//
+FEM_udp4_dns(
+	SIP4toDNS,
+	EH_NUTtoTN,
+	{
+		Version			= V4HD_VERSION;
+		IHL			= V4HD_IHL;
+		TypeOfService		= V4HD_TYPEOFSERVICE;
+		TotalLength		= V4HD_TOTALLENGTH;
+		Identifier		= V4HD_IDENTIFIER;
+		Reserved		= V4HD_RESERVED;
+		DF			= V4HD_DF;
+		MF			= V4HD_MF;
+		FragmentOffset		= V4HD_FRAGMENTOFFSET;
+		Protocol		= V4HD_PROTOCOL;
+		HeaderChecksum		= V4HD_HEADERCHECKSUM;
+		SourceAddress		= NUT4_ADDR;
+		DestinationAddress	= PSEUDO4_DNS;
+	},
+	{
+		SourcePort		= any;
+		DestinationPort		= DNS_UDP_SRC_PORT;
+	},
+	{
+		Identifier 		= any;
+		QR 			= 0;
+		RD 			= any;
+		question 		= any;
+	}
+)
+
+// DNS query (SRV)
+FEM_udp4_dns(
+	SIP4toDNS_SRV,
+	EH_TNtoNUT,
+	{
+		Version			= V4HD_VERSION;
+		IHL			= V4HD_IHL;
+		TypeOfService		= V4HD_TYPEOFSERVICE;
+		TotalLength		= V4HD_TOTALLENGTH;
+		Identifier		= V4HD_IDENTIFIER;
+		Reserved		= V4HD_RESERVED;
+		DF			= V4HD_DF;
+		MF			= V4HD_MF;
+		FragmentOffset		= V4HD_FRAGMENTOFFSET;
+		Protocol		= V4HD_PROTOCOL;
+		HeaderChecksum		= V4HD_HEADERCHECKSUM;
+		SourceAddress		= PSEUDO4_DNS;
+		DestinationAddress	= NUT4_ADDR;
+	},
+	{
+		SourcePort		= DNS_UDP_SRC_PORT;
+		DestinationPort		= DNS_UDP_DST_PORT;
+	},
+	{
+		Identifier              = DNS_TRANSACTION_ID;
+		QR                      = 0;
+		RD                      = 1;
+		RA                      = 0;
+		question                = DNS_QUESTION_SRV4;
+	}
+)
+DNS_Question DNS_QUESTION_SRV4 {
+	entry = QUESTION_ENTRY_SRV4;
+}
+DNS_QuestionEntry QUESTION_ENTRY_SRV4{
+		Name 			= dnsname(SRV4_FQDN1);
+		Type 			= SRV4_TYPE1;
+		Class 			= SRV4_CLASS1;
+}
+
+//
+// DNS query (answer x1)
+//
+FEM_udp4_dns(
+	SIP4fromDNS_A1,
+	EH_TNtoNUT,
+	{
+		Version			= V4HD_VERSION;
+		IHL			= V4HD_IHL;
+		TypeOfService		= V4HD_TYPEOFSERVICE;
+		TotalLength		= V4HD_TOTALLENGTH;
+		Identifier		= V4HD_IDENTIFIER;
+		Reserved		= V4HD_RESERVED;
+		DF			= V4HD_DF;
+		MF			= V4HD_MF;
+		FragmentOffset		= V4HD_FRAGMENTOFFSET;
+		Protocol		= V4HD_PROTOCOL;
+		HeaderChecksum		= V4HD_HEADERCHECKSUM;
+		SourceAddress		= PSEUDO4_DNS;
+		DestinationAddress	= NUT4_ADDR;
+	},
+	{
+		SourcePort		= DNS_UDP_SRC_PORT;
+		DestinationPort		= DNS_UDP_DST_PORT;
+	},
+	{
+		Identifier              = DNS_TRANSACTION_ID;
+		QR                      = 1;
+		RD                      = 1;
+		RA                      = 1;
+		question                = DNS_QUESTION_A;
+		answer                  = DNS_ANSWER_A1;
+	}
+)
+
+DNS_Question DNS_QUESTION_A {
+	entry = QUESTION_ENTRY_A;
+}
+DNS_QuestionEntry QUESTION_ENTRY_A{
+		Name 			= dnsname(A_FQDN1);
+		Type 			= A_TYPE1;
+		Class 			= A_CLASS1;
+}
+DNS_Answer DNS_ANSWER_A1 {
+		rr 			= RR_A1;
+}
+DNS_Answer DNS_ANSWER_A2 {
+		rr 			= RR_A1;
+		rr 			= RR_A2;
+}
+DNS_RR_A RR_A1 {
+		Name 			= dnsname(A_FQDN1);
+		TTL 			= DND_TTL;
+		Address 		= v4(A_IP4ADDR1);
+}
+DNS_RR_A RR_A2 {
+		Name 			= dnsname(A_FQDN1);
+		TTL 			= DND_TTL;
+		Address 		= v4(A_IP4ADDR2);
+}
+FEM_udp4_dns(
+	SIP4fromDNS_NONE,
+	EH_TNtoNUT,
+	{
+		Version			= V4HD_VERSION;
+		IHL			= V4HD_IHL;
+		TypeOfService		= V4HD_TYPEOFSERVICE;
+		TotalLength		= V4HD_TOTALLENGTH;
+		Identifier		= V4HD_IDENTIFIER;
+		Reserved		= V4HD_RESERVED;
+		DF			= V4HD_DF;
+		MF			= V4HD_MF;
+		FragmentOffset		= V4HD_FRAGMENTOFFSET;
+		Protocol		= V4HD_PROTOCOL;
+		HeaderChecksum		= V4HD_HEADERCHECKSUM;
+		SourceAddress		= PSEUDO4_DNS;
+		DestinationAddress	= NUT4_ADDR;
+	},
+	{
+		SourcePort		= DNS_UDP_SRC_PORT;
+		DestinationPort		= DNS_UDP_DST_PORT;
+	},
+	{
+		Identifier              = DNS_TRANSACTION_ID;
+		QR                      = 1;
+		RD                      = 1;
+		RA                      = 1;
+		RCode			= 3;
+		question                = DNS_QUESTION_A;
+	}
+)
+
+// -----------------------------------------------------------
+//  DNS for SRV request
+// -----------------------------------------------------------
+FEM_udp4_dns(
+	SIP4fromDNS_SRV,
+	EH_TNtoNUT,
+	{
+		Version			= V4HD_VERSION;
+		IHL			= V4HD_IHL;
+		TypeOfService		= V4HD_TYPEOFSERVICE;
+		TotalLength		= V4HD_TOTALLENGTH;
+		Identifier		= V4HD_IDENTIFIER;
+		Reserved		= V4HD_RESERVED;
+		DF			= V4HD_DF;
+		MF			= V4HD_MF;
+		FragmentOffset		= V4HD_FRAGMENTOFFSET;
+		Protocol		= V4HD_PROTOCOL;
+		HeaderChecksum		= V4HD_HEADERCHECKSUM;
+		SourceAddress		= PSEUDO4_DNS;
+		DestinationAddress	= NUT4_ADDR;
+	},
+	{
+		SourcePort		= DNS_UDP_SRC_PORT;
+		DestinationPort		= DNS_UDP_DST_PORT;
+	},
+	{
+		Identifier              = DNS_TRANSACTION_ID;
+		QR                      = 1;
+		RD                      = 1;
+		RA                      = 1;
+		question                = DNS_QUESTION_A;
+		answer                  = DNS_ANSWER_SRV4;
+	}
+)
+DNS_Answer DNS_ANSWER_SRV4 {
+		rr 			= RR_SRV4;
+//		rr 			= RR_NS;
+//		rr 			= RR_AAAA;
+}
+DNS_RR_SRV RR_SRV4 {
+		Name 			= dnsname(A_FQDN1);
+		TTL 			= DND_TTL;
+	        Priority                = 0;
+	        Weight                  = 1;
+	        Port                    = SRV4_PORT;
+	        Target                  = dnsname(DNS_TARGETNAME);
+}
+
+// -----------------------------------------------------------
+//
+//  Echo Request
+//
+//       SIPServer(TN)  ->EchoRequest->  SIPterminal(NUT)
+//
+// -----------------------------------------------------------
+
+FEM_icmp4_echo_request(
+	EchoRequest4FromServ,
+	EH_TNtoNUT,
+	{
+		SourceAddress		= ECHO4_SEND_PSRV_SRC_ADDR;
+		DestinationAddress	= NUT4_ADDR;
+	},
+	{
+		SequenceNumber	= auto;
+		payload	= echo_payload;
+	}
+)
+
+// -----------------------------------------------------------
+//
+//  Echo Reply
+//
+//       SIPServer(TN)  <-EchoReply<-    SIPterminal(NUT)
+//
+// -----------------------------------------------------------
+
+FEM_icmp4_echo_reply_exth(
+	EchoReply4ToServ,
+	EH_NUTtoTN,
+	{
+		SourceAddress		= NUT4_ADDR;
+		DestinationAddress	= ECHO4_RECV_PSRV_DST_ADDR;
+	},
+	{
+		header	= _HDR_IPV4_NAME(EchoReply4ToServ);
+		upper	= _ICMPV4_NAME(EchoReply4ToServ);
+	},
+	{
+		SequenceNumber	= any;
+		payload	= echo_payload;
+	}
+)
+
+//----------------------------------------------------------------------
+//
+// ICMP Destination Unreachable
+//
+//       SIPServer(TN)  ->Destination Unreachable->  SIPterminal(NUT)
+//
+//----------------------------------------------------------------------
+FEM_icmp4_destination_unreachable_exth(
+	ICMP4ErrorFromUA11,
+	EH_TNtoNUT,
+	{
+		SourceAddress		= PSEUDO4_UA11;
+		DestinationAddress	= NUT4_ADDR;
+	},
+	{
+		header = _HDR_IPV4_NAME(ICMP4ErrorFromUA11);
+		upper = _ICMPV4_NAME(ICMP4ErrorFromUA11);
+	},
+	{
+		Type = ICMP_ERROR_TYPE;
+		Code = ICMP_ERROR_CODE;
+		payload = Received_SIP4_Packet;
+	}
+)
+
+FEM_icmp4_destination_unreachable_exth(
+	ICMP4ErrorFromUA12,
+	EH_TNtoNUT,
+	{
+		SourceAddress		= PSEUDO4_UA12;
+		DestinationAddress	= NUT4_ADDR;
+	},
+	{
+		header = _HDR_IPV4_NAME(ICMP4ErrorFromUA12);
+		upper = _ICMPV4_NAME(ICMP4ErrorFromUA12);
+	},
+	{
+		Type = ICMP_ERROR_TYPE;
+		Code = ICMP_ERROR_CODE;
+		payload = Received_SIP4_Packet;
+	}
+)
+
+Payload Received_SIP4_Packet {
+	data = right(_PACKET_IPV4_NAME(ReceivedSIP4), 0);
+}
+// Received SIP message Remake
+FEM_udp4_sip(
+	ReceivedSIP4,
+	EH_NUTtoTN,
+	{
+		Version			= V4HD_VERSION;
+		IHL			= SIP4_RECVED_IHL;
+		TypeOfService		= SIP4_RECVED_TYPEOFSERVICE;
+		TotalLength		= SIP4_RECVED_TOTALLENGTH;
+		Identifier		= SIP4_RECVED_IDENTIFIER;
+		DF			= SIP4_RECVED_DF;
+		MF			= SIP4_RECVED_MF;
+		FragmentOffset		= SIP4_RECVED_FRAGMENTOFFSET;
+		TTL			= SIP4_RECVED_TTL;
+		Protocol		= SIP4_RECVED_PROTOCOL;
+		HeaderChecksum		= SIP4_RECVED_HEADERCHECKSUM;
+
+		SourceAddress		= SIP4_RECVED_SRC_ADDR;
+		DestinationAddress	= SIP4_RECVED_DST_ADDR;
+	},
+	{
+		SourcePort		= SIP4_RECVED_SRC_PORT;
+		DestinationPort		= SIP4_RECVED_DST_PORT;
+	},
+	{
+		message			= SIP_MSG;
+	}
+)
+

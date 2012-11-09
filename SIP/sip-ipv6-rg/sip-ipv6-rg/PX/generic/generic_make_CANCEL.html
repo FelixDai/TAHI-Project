@@ -1,0 +1,134 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>JUDGEMENT</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:root@jail-7.freebsd.org" />
+</head>
+
+<body style="background-color: white">
+
+<p><a name="__index__"></a></p>
+<!-- INDEX BEGIN -->
+<!--
+
+<ul>
+
+	<li><a href="#judgement">JUDGEMENT</a></li>
+</ul>
+-->
+<!-- INDEX END -->
+
+<p>
+</p>
+<h1><a name="judgement">JUDGEMENT</a></h1>
+SIP - Generic Judgment (make CANCEL)<pre> [generic_make_CANCEL.txt]
+ 
+ Generic judgement items for CANCEL request
+ 
+ The destination address, port, and transport
+   Must be equal those used to send the original request.
+ 
+ - Request-Line:
+     Method: Must be &quot;CANCEL&quot;. #7.1 the present tense.
+     Request-URI: Must be equal that in the request being cancelled.
+ 
+ - Headers:
+ 
+   * Max-Forwards
+       Must exist.
+       Must be the value specified in the tester configuration.
+ 
+   * Via
+       Must exist.
+       MUST have only a single Via header field value. [RFC3261-9-3]       Must be the value matching the top Via value in the request being cancelled. (Tester check the value of sent-by, via-branch, and via-received,respectively.)[RFC3261-9-3]
+       via-branch: Must exist in each Via header.
+       via-branch:
+         token: Must be different from all values sent by NUT in this sequence. (Excepting ACK for non-2xx response and CANCEL.)
+       via-branch:
+         token: Must begin with the characters &quot;z9hG4bK&quot;.
+       transport: Must be &quot;UDP&quot;.
+       sent-by:
+         host: Recommended to be specified hostname of NUT.
+ 		
+   * Call-ID
+        Must equal that in the request being cancelled. [RFC3261-9-2]
+ 
+   * To
+        Must equal that in the request being cancelled, including a tag. (Tester check URI and tag,respectively.)[RFC3261-9-2]
+ 
+   * CSeq
+        sequence number: Must equal that in the request being cancelled. [RFC3261-9-2]
+ 
+   * From
+        Must equal that in the request being cancelled, including a tag. (Tester check the value of URI and tag,respectively.)[RFC3261-9-2]
+ 
+   * Route
+        Must exist if the request being cancelled contains a Route header field. [RFC3261-9-5]
+ 
+   * Accept
+       Must not exist. [RFC3261-20-8]
+ 
+   * Accept-Encoding
+       Must not exist. [RFC3261-20-8]
+ 
+   * Accept-Language
+       Must not exist. [RFC3261-20-8]
+ 
+   * Alert-Info
+       Must not exist. [RFC3261-20-8]
+ 
+   * Allow
+       Must not exist. [RFC3261-20-8]
+ 
+   * Contact
+       Must not exist. [RFC3261-20-8]
+ 
+   * Content-Disposition
+       Must not exist. [RFC3261-20-8]
+ 
+   * Content-Encoding
+       Must not exist. [RFC3261-20-8]
+ 
+   * Content-Language
+       Must not exist. [RFC3261-20-8]
+ 
+   * Expires
+       Must not exist. [RFC3261-20-8]
+ 
+   * In-Reply-To
+       Must not exist. [RFC3261-20-8]
+ 
+   * MIME-Version
+       Must not exist. [RFC3261-20-8]
+ 
+   * Organization
+       Must not exist. [RFC3261-20-8]
+ 
+   * Priority
+       Must not exist. [RFC3261-20-8]
+ 
+   * Proxy-Authorization
+       Must not exist. [RFC3261-20-8]
+ 
+   * Proxy-Require
+       Must not exist. [FRC3261-9-6,RFC3261-20-8,RFC3261-8-80]
+ 
+   * Reply-To
+       Must not exist. [RFC3261-20-8]
+ 
+   * Require
+       Must not exist. [FRC3261-9-6,RFC3261-20-8,RFC3261-8-80]
+ 
+   * Subject
+       Must not exist. [RFC3261-20-8]
+ 
+ - Bodies:
+   Must not exist.
+ 
+ 
+ </pre>
+</body>
+
+</html>

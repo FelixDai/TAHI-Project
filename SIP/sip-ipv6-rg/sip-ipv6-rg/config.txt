@@ -1,0 +1,130 @@
+# Copyright(C) IPv6 Promotion Council (2004,2005). All Rights Reserved.
+# 
+# This documentation is produced by SIP SWG members of Certification WG in 
+# IPv6 Promotion Council.
+# The SWG members currently include NIPPON TELEGRAPH AND TELEPHONE CORPORATION (NTT), 
+# Yokogawa Electric Corporation and NTT Advanced Technology Corporation (NTT-AT).
+# 
+# 
+# Redistribution and use of this software in source and binary forms, with 
+# or without modification, are permitted provided that the following 
+# conditions and disclaimer are agreed and accepted by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright 
+# notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright 
+# notice, this list of conditions and the following disclaimer in the 
+# documentation and/or other materials provided with the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project which 
+# is related to this software (hereinafter referred to as "project") nor 
+# the names of the contributors may be used to endorse or promote products 
+# derived from this software without specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written 
+# notification to the copyrighters. However, using this software for the 
+# purpose of testing or evaluating any products including merchantable 
+# products may be permitted without any notification to the copyrighters.
+# 
+# 
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND 
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING 
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS 
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE 
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+# CONTRACT,STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF 
+# THE POSSIBILITY OF SUCH DAMAGE.
+
+
+
+#
+
+[model]
+ip         V6
+transport	UDP
+target     PX
+type       REGISTRA
+
+[target]
+uri					sip:ss.under.test.com
+address					3ffe:501:ffff:50::50
+port					5060
+prefix					3ffe:501:ffff:50::
+
+#
+# user for test (exist in test-suites)
+#
+[target.user1]
+aor-uri					sip:UA11@under.test.com
+contact-uri				sip:UA11@node.under.test.com
+address					3ffe:501:ffff:1::1
+authorization_user			UA11
+authorization_password			nutsip
+authorization_realm			under.test.com
+
+[target.user2]
+aor-uri					sip:UA12@under.test.com
+contact-uri				sip:UA12@node11.under.test.com
+address					3ffe:501:ffff:2::2
+authorization_user			UA12
+authorization_password			nutsip
+authorization_realm			under.test.com
+
+[target.user3]
+aor-uri					sip:UA13@under.test.com
+contact-uri				sip:UA13@node12.under.test.com
+address					3ffe:501:ffff:3::3
+authorization_user			UA13
+authorization_password			nutsip
+authorization_realm			under.test.com
+
+[target.user4]
+aor-uri					sip:UA14@under.test.com
+contact-uri				sip:UA14@node13.under.test.com
+address					3ffe:501:ffff:4::4
+authorization_user			UA14
+authorization_password			nutsip
+authorization_realm			under.test.com
+
+#
+# proxy-server for test (exist in test-suites)
+#
+[proxy]
+uri					sip:ss.biloxi.example.com
+address					3ffe:501:ffff:20::20
+authorization_realm			under.test.com
+
+[proxy2]
+uri					sip:ss.biloxi.example.com
+address					3ffe:501:ffff:20::21
+authorization_realm			under.test.com
+
+#
+# user for test (exist in test-suites)
+#
+
+[proxy.user1]
+aor-uri					sip:UA21@biloxi.example.com
+contact-uri				sip:UA21@client.biloxi.example.com
+address					3ffe:501:ffff:2::2
+authorization_realm			biloxi.example.com
+
+[dns]
+address					3ffe:501:ffff:4::1
+
+#
+# don't change followings
+#
+[others]
+use_authorization		yes
+supported_extension		none
+expires					default
+
+specification			RFC

@@ -1,0 +1,55 @@
+
+
+
+        CHANGELOG for SIP IPv6 Registrar Conformance Test Package
+
+
+2009/10/21 Release 2.0.0
+    Official release
+
+    - In accordance with the separation of Server Conformance Test Spec,
+      separated from previous Server Conformance Test Package.
+
+
+2007/3/16 Release 1.2.0
+    pre-release
+
+    - changed dns function to use BIND.
+    - changed the function of sending RA to use rtadvd.
+    - added the functions for improving usability.
+    - decleased the number of scenario. 
+
+2006/9/27 Release 1.1.1
+
+    - fixed some bugs.
+    - fixed some typo and mistakes in grammer.
+
+
+2006/3/20 Release 1.1.0
+    Official release
+
+    - New Feature:
+          RFC3311 support (UD-1-1-1(UPDATE))
+          RFC4028 support (ST-1-X-X(Session Timer))
+          TTC support (TTC-[12]-X-X)
+          TCP/TLS support
+    - fixed some bugs.
+    - fixed some typo and mistakes in grammer.
+
+
+2005/10/11  Release 1.0.0
+    Official release
+    
+    - Test for IPv4 based equipment is available by changing configuration. 
+      (for detail, See Reference Manual(PDF).)
+
+
+2005/06/03  Beta Release 2
+    2nd beta release
+
+
+2005/04/30  Beta Release
+    1st beta release
+
+
+                            [end of CHANGELOG]
