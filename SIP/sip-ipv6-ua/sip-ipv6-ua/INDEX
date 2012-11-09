@@ -1,0 +1,208 @@
+#
+# Copyright(C) IPv6 Promotion Council (2004,2005). All Rights Reserved.
+# 
+# This documentation is produced by SIP SWG members of Certification WG in 
+# IPv6 Promotion Council.
+# The SWG members currently include NIPPON TELEGRAPH AND TELEPHONE CORPORATION (NTT), 
+# Yokogawa Electric Corporation and NTT Advanced Technology Corporation (NTT-AT).
+# 
+# 
+# Redistribution and use of this software in source and binary forms, with 
+# or without modification, are permitted provided that the following 
+# conditions and disclaimer are agreed and accepted by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright 
+# notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright 
+# notice, this list of conditions and the following disclaimer in the 
+# documentation and/or other materials provided with the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project which 
+# is related to this software (hereinafter referred to as "project") nor 
+# the names of the contributors may be used to endorse or promote products 
+# derived from this software without specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written 
+# notification to the copyrighters. However, using this software for the 
+# purpose of testing or evaluating any products including merchantable 
+# products may be permitted without any notification to the copyrighters.
+# 
+# 
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND 
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING 
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS 
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE 
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+# CONTRACT,STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF 
+# THE POSSIBILITY OF SUCH DAMAGE.
+
+#
+# '$Name:  $'
+#
+#seq:def:opt:htmldoc:dsc:links
+
+#&print:<b>Basic : Establishment</b>
+./UA/session/UA-2-1-1.seq:./SIP.def::: [UA-2-1-1] Session Establishment Through Two Proxies (Caller hung up by Callee)
+./UA/session/UA-2-1-2.seq:./SIP.def::: [UA-2-1-2] Session Establishment Through Two Proxies (Callee hung upby caller)
+./UA/session/UA-2-1-3.seq:./SIP.def::: [UA-2-1-3] Session Establishment Through Two Proxies (Caller hanging up)
+./UA/session/UA-2-1-4.seq:./SIP.def::: [UA-2-1-4] Session Establishment Through Two Proxies (Callee hanging up)
+./UA/session/UA-2-1-5.seq:./SIP.def::: [UA-2-1-5] Session Establishment Through One Proxy (Caller hung up by Callee)
+./UA/session/UA-2-1-6.seq:./SIP.def::: [UA-2-1-6] Session Establishment Through One Proxy (Calle hung up by Caller)
+./UA/session/UA-2-1-7.seq:./SIP.def::: [UA-2-1-7] Unsuccessful No Answer [CANCEL] (Caller)
+./UA/session/UA-2-1-8.seq:./SIP.def::: [UA-2-1-8] Unsuccessful No Answer [CANCEL] (Callee)
+./UA/session/UA-2-2-1.seq:./SIP.def::: [UA-2-2-1] Unsuccessful Busy (Caller)
+# No.10
+./UA/session/UA-2-2-2.seq:./SIP.def::: [UA-2-2-2] Unsuccessful Busy (Callee)
+./UA/session/UA-2-2-3.seq:./SIP.def::: [UA-2-2-3] Unsuccessful No Response from User Agent (Caller)
+./UA/session/UA-2-2-4.seq:./SIP.def::: [UA-2-2-4] Unsuccessful Temporarily Unavailable (Caller)
+
+#&print:<b>Basic : Transaction</b>
+./UA/transaction/UA-4-1-1.seq:./SIP.def::: [UA-4-1-1] INVITE Client Transaction (Retransmitting)
+./UA/transaction/UA-4-1-2.seq:./SIP.def::: [UA-4-1-2] INVITE Client Transaction (Receipt of 180 Ringing and Stop of retransmitting)
+./UA/transaction/UA-4-1-3.seq:./SIP.def::: [UA-4-1-3] INVITE Client Transaction (Stop of ACK upon Timer D fired)
+./UA/transaction/UA-4-1-4.seq:./SIP.def::: [UA-4-1-4] Non-INVITE Client Transaction (Stop of retransmition of CANCEL upon Timer F fired)
+./UA/transaction/UA-4-1-5.seq:./SIP.def::: [UA-4-1-5] Non-INVITE Client Transaction (Stop of retransmition of BYE upon Timer F fired)
+./UA/transaction/UA-4-1-7.seq:./SIP.def::: [UA-4-1-7] Non-INVITE Client Transaction (Receipt of 100 response to CANCEL and reset of Timer E with T2)
+./UA/transaction/UA-4-1-8.seq:./SIP.def::: [UA-4-1-8] Non-INVITE Client Transaction (Receipt of 100 response to BYE and reset of Timer E with T2)
+# No.20
+./UA/transaction/UA-4-1-10.seq:./SIP.def::: [UA-4-1-10] INVITE Server Transaction (Stop retransmission after Timer H fired)
+./UA/transaction/UA-4-1-11.seq:./SIP.def::: [UA-4-1-11] INVITE Server Transaction (Response after Timer H fired)
+./UA/transaction/UA-4-1-12.seq:./SIP.def::: [UA-4-1-12] INVITE Server Transaction (Stop of retransmission of 4xx-6xx response upon receipt of ACK)
+./UA/transaction/UA-4-1-13.seq:./SIP.def::: [UA-4-1-13] Non-INVITE Server Transaction (Stop of retransmission of CANCEL after Timer J fired)
+./UA/transaction/UA-4-1-14.seq:./SIP.def::: [UA-4-1-14] Non-INVITE Server Transaction (Stop of retransmission of BYE)
+./UA/transaction/UA-4-2-1.seq:./SIP.def::: [UA-4-2-1] 487 to CANCEL for INVITE request after 64*T1 fired
+./UA/transaction/UA-4-2-6.seq:./SIP.def::: [UA-4-2-6] BYE for no response to retransmitted 200 (UAS)
+./UA/transaction/UA-4-2-7.seq:./SIP.def::: [UA-4-2-7] No Record-Route in negative replies (Caller)
+./UA/transaction/UA-4-2-8.seq:./SIP.def::: [UA-4-2-8] No Record-Route in negative replies (Callee)
+
+#&print:<b>Basic : Mid-dialog control</b>
+./UA/m_dialog/UA-5-1-1.seq:./SIP.def::: [UA-5-1-1] Session with re-INVITE (Receiving re-INVITE for Hold) (Caller)
+# No.30
+./UA/m_dialog/UA-5-2-1.seq:./SIP.def::: [UA-5-2-1] Receipt of re-INVITE before sending the final response to the first INVITE
+./UA/m_dialog/UA-5-2-3.seq:./SIP.def::: [UA-5-2-3] Unacceptable re-INVITE (Caller)
+./UA/m_dialog/UA-5-2-4.seq:./SIP.def::: [UA-5-2-4] Unacceptable re-INVITE (Callee)
+./UA/m_dialog/UA-5-2-5.seq:./SIP.def::: [UA-5-2-5] No ACK is received for re-INVITE (Caller)
+./UA/m_dialog/UA-5-2-6.seq:./SIP.def::: [UA-5-2-6] No ACK is received for re-INVITE (Callee)
+./UA/m_dialog/UA-5-2-7.seq:./SIP.def::: [UA-5-2-7] re-INVITE without offer (Caller)
+./UA/m_dialog/UA-5-2-8.seq:./SIP.def::: [UA-5-2-8] re-INVITE without offer (Callee)
+
+#&print:<b>Basic : Authentication</b>
+./UA/auth/UA-6-1-8.seq:./SIP.def::: [UA-6-1-8] INVITE with Digest Authentication without qop
+./UA/auth/UA-6-1-9.seq:./SIP.def::: [UA-6-1-9] BYE with Digest Authentication without qop
+
+#&print:<b>Basic : Header parameter</b>
+./UA/header/UA-7-1-2.seq:./SIP.def::: [UA-7-1-2] URI including a comma, question mark or semicolon
+# No.40
+./UA/header/UA-7-2-1.seq:./SIP.def::: [UA-7-2-1] Receipt of BYE with an unacceptable header field
+./UA/header/UA-7-2-2.seq:./SIP.def::: [UA-7-2-2] Receipt of CANCEL with an unacceptable header field
+./UA/header/UA-7-2-3.seq:./SIP.def::: [UA-7-2-3] Receipt of 200 with an unacceptable header field
+
+#&print:<b>Basic : Routing</b>
+./UA/routing/UA-8-1-2.seq:./SIP.def::: [UA-8-1-2] Detection of Merged Requests
+./UA/routing/UA-8-1-3.seq:./SIP.def::: [UA-8-1-3] "sent-by" of Via in response not inserted into request
+./UA/routing/UA-8-1-4.seq:./SIP.def::: [UA-8-1-4] "sent-by" in Via with IP address that differs from the packet source address and port
+./UA/routing/UA-8-1-5.seq:./SIP.def::: [UA-8-1-5] Via with "maddr" parameter and port in the "sent-by"
+./UA/routing/UA-8-1-6.seq:./SIP.def::: [UA-8-1-6] Via with "maddr" parameter and without port in "sent-by"
+./UA/routing/UA-8-1-7.seq:./SIP.def::: [UA-8-1-7] "sent-by" in Via with a domain name and port
+./UA/routing/UA-8-1-8.seq:./SIP.def::: [UA-8-1-8] "sent-by" in Via with a domain name and without a port
+
+#&print:<b>Basic : Request message</b>
+# No.50
+./UA/request/UA-9-2-1.seq:./SIP.def::: [UA-9-2-1] Unrecognized type of body
+./UA/request/UA-9-2-2.seq:./SIP.def::: [UA-9-2-2] Unrecognized encoding of body
+./UA/request/UA-9-2-3.seq:./SIP.def::: [UA-9-2-3] Body in unrecognized language
+./UA/request/UA-9-2-4.seq:./SIP.def::: [UA-9-2-4] Request with a tag in To header field
+./UA/request/UA-9-2-5.seq:./SIP.def::: [UA-9-2-5] BYE with value of the lower CSeq
+./UA/request/UA-9-2-6.seq:./SIP.def::: [UA-9-2-6] Rejection of an offer
+
+#&print:<b>Basic : Response message</b>
+./UA/response/UA-10-1-1.seq:./SIP.def::: [UA-10-1-1] Session Progress response
+./UA/response/UA-10-2-1.seq:./SIP.def::: [UA-10-2-1] Non-Forwarding of request upon receipt of 503
+./UA/response/UA-10-2-2.seq:./SIP.def::: [UA-10-2-2] Receipt of SDP answer in a provisional response
+./UA/response/UA-10-2-3.seq:./SIP.def::: [UA-10-2-3] Unrecognized response code (2xx)
+# No.60
+./UA/response/UA-10-2-4.seq:./SIP.def::: [UA-10-2-4] Unrecognized response code (4xx)
+./UA/response/UA-10-2-5.seq:./SIP.def::: [UA-10-2-5] Unrecognized response code (5xx)
+./UA/response/UA-10-2-6.seq:./SIP.def::: [UA-10-2-6] Unrecognized response code (6xx)
+./UA/response/UA-10-2-7.seq:./SIP.def::: [UA-10-2-7] Provisional response offer than a 100 response
+./UA/response/UA-10-2-8.seq:./SIP.def::: [UA-10-2-8] Omission or abbriviation of body upon receipt of 413 (Request Entity Too Large) response
+./UA/response/UA-10-2-9.seq:./SIP.def::: [UA-10-2-9] Processing request without credencials after receipt of 403 (Forbidden) response
+./UA/response/UA-10-2-10.seq:./SIP.def::: [UA-10-2-10] Unsupported Require header field
+
+#&print:<b>Basic : Dialog</b>
+./UA/dialog/UA-11-1-1.seq:./SIP.def::: [UA-11-1-1] CANCEL for the unmatched requests
+./UA/dialog/UA-11-1-2.seq:./SIP.def::: [UA-11-1-2] Request without a tag in a From header field
+./UA/dialog/UA-11-1-3.seq:./SIP.def::: [UA-11-1-3] Response without a tag in a To header field
+# No.70
+./UA/dialog/UA-11-1-5.seq:./SIP.def::: [UA-11-1-5] Provisional response for the need to ask for an "extension"
+./UA/dialog/UA-11-1-6.seq:./SIP.def::: [UA-11-1-6] BYE not matching an existing dialog
+./UA/dialog/UA-11-1-7.seq:./SIP.def::: [UA-11-1-7] Write-once Record-routing
+./UA/dialog/UA-11-1-8.seq:./SIP.def::: [UA-11-1-8] Returning of correct Record-Route parameter
+./UA/dialog/UA-11-1-10.seq:./SIP.def::: [UA-11-1-10] Failed re-INVITE not changing the dialog
+./UA/dialog/UA-11-1-11.seq:./SIP.def::: [UA-11-1-11] Construntion of a correct Route set
+
+#&print:<b>Basic : Transport</b>
+./UA/transport/UA-14-2-1.seq:./SIP.def::: [UA-14-2-1] Receipt of INVITE with additional bytes in the transport packet
+./UA/transport/UA-14-2-2.seq:./SIP.def::: [UA-14-2-2] Transport packet of response ending before the end of the message body
+./UA/transport/UA-14-2-3.seq:./SIP.def::: [UA-14-2-3] Transport packet of request ending before the end of the message body
+
+#&print:<b>Basic : ICMP</b>
+./UA/icmp/UA-15-2-1.seq:./SIP.def::: [UA-15-2-1] Receipt of "ICMP destination unreachable" for a previously sent request
+# No.80
+./UA/icmp/UA-15-2-2.seq:./SIP.def::: [UA-15-2-2] Receipt of "ICMP time exceeded" for a previously sent request
+./UA/icmp/UA-15-2-3.seq:./SIP.def::: [UA-15-2-3] Receipt of "ICMP time exceeded" for a previously sent response
+
+#&print:<b>Advance : Registration</b>
+./UA/regist/UA-1-1-1.seq:./SIP.def::: [UA-1-1-1] Successful New Registration
+./UA/regist/UA-1-1-2.seq:./SIP.def::: [UA-1-1-2] Update of Contact List (Refresh)
+./UA/regist/UA-1-1-4.seq:./SIP.def::: [UA-1-1-4] Cancellation of Registration
+./UA/regist/UA-1-1-5.seq:./SIP.def::: [UA-1-1-5] Unsuccessful Registration
+./UA/regist/UA-1-2-1.seq:./SIP.def::: [UA-1-2-1] Record-Route in REGISTER response
+./UA/transaction/UA-4-1-6.seq:./SIP.def::: [UA-4-1-6] Non-INVITE Client Transaction (Stop of retransmition of REGISTER upon Timer F fired)
+./UA/transaction/UA-4-1-9.seq:./SIP.def::: [UA-4-1-9] Non-INVITE Client Transaction (Receipt of 100 response to REGISTER and reset of Timer E with T2)
+./UA/auth/UA-6-1-7.seq:./SIP.def::: [UA-6-1-7] REGISTER with Digest Authentication without qop
+
+#&print:<b>Advance : Authentication</b>
+# No.90
+./UA/auth/UA-6-1-5.seq:./SIP.def::: [UA-6-1-5] BYE request with user authentication
+./UA/auth/UA-6-1-6.seq:./SIP.def::: [UA-6-1-6] re-INVITE with user authentication
+
+#&print:<b>Advance : Mid-dialog control</b>
+./UA/m_dialog/UA-5-1-2.seq:./SIP.def::: [UA-5-1-2] Session with re-INVITE (Sending re-INVITE for Hold) (Callee)
+./UA/m_dialog/UA-5-2-2.seq:./SIP.def::: [UA-5-2-2] Receipt of re-INVITE before receiving the final response to another re-INVITE
+./UA/m_dialog/UA-5-2-9.seq:./SIP.def::: [UA-5-2-9] Receipt of 491 response to re-INVITE (Caller)
+./UA/m_dialog/UA-5-2-10.seq:./SIP.def::: [UA-5-2-10] Receipt of 491 response for re-INVITE (Callee)
+
+#&print:<b>Advance : DNS</b>
+./UA/dns/UA-13-2-1.seq:./SIP.def::: [UA-13-2-1] Successful Session with Proxy Failure (Caller)
+./UA/dns/UA-13-2-2.seq:./SIP.def::: [UA-13-2-2] Forwarding of INVITE to an alternative server upon receipt of 503
+
+#&print:<b>Advance : Transaction</b>
+./UA/transaction/UA-4-2-5.seq:./SIP.def::: [UA-4-2-5] Time in Expires in INVITE is up (UAS)
+
+#&print:<b>Advance : Request message</b>
+./UA/request/UA-9-2-7.seq:./SIP.def::: [UA-9-2-7] INVITE with RFC2543 syntax
+
+#&print:<b>Advance : Dialog</b>
+# No.100
+./UA/dialog/UA-11-1-4.seq:./SIP.def::: [UA-11-1-4] Multiple 2xx responses
+./UA/dialog/UA-11-1-9.seq:./SIP.def::: [UA-11-1-9] Proper processing upon receipt of multiple 18x from multiple downstream branches
+
+#&print:<b>Advance : OPTIONS method</b>
+./UA/options/UA-12-1-1.seq:./SIP.def::: [UA-12-1-1] Receipt of OPTIONS when the UAS is ready to accept a call
+./UA/options/UA-12-1-2.seq:./SIP.def::: [UA-12-1-2] Receipt of OPTIONS within a dialog
+
+#&print:<b>Advance : Routing</b>
+./UA/routing/UA-8-1-1.seq:./SIP.def::: [UA-8-1-1] Proxy performing strict routing
+./UA/routing/UA-8-1-9.seq:./SIP.def::: [UA-8-1-9] Correct Strict Routing
+
+#&print:<b>Advance : Header parameter</b>
+./UA/header/UA-7-1-1.seq:./SIP.def::: [UA-7-1-1] Timestamp header in 100 response
+

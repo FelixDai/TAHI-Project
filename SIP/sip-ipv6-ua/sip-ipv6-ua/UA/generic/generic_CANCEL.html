@@ -1,0 +1,127 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>JUDGEMENT</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:kris@jail-3.isc.freebsd.org" />
+</head>
+
+<body style="background-color: white">
+
+
+<!-- INDEX BEGIN -->
+<div name="index">
+<p><a name="__index__"></a></p>
+<!--
+
+<ul>
+
+	<li><a href="#judgement">JUDGEMENT</a></li>
+</ul>
+
+-->
+
+
+</div>
+<!-- INDEX END -->
+
+<p>
+</p>
+<h1><a name="judgement">JUDGEMENT</a></h1>
+SIP - Generic Judgment (CANCEL )<pre> [generic_CANCEL.txt]
+ 
+ The destination address, port, and transport
+   Must be equal those used to send the original request. [FRC3261-9-11]
+ 
+ - Request-Line:
+     Method: Must be &quot;CANCEL&quot;. #7.1 the present tense.
+     Request-URI: Must be equal that in the request being cancelled. [RFC3261-9-2]
+ 
+ - Headers:
+ 
+   * Call-ID
+        Must equal that in the request being cancelled. [RFC3261-9-2]
+ 
+   * To
+        Must equal that in the request being cancelled, including a tag. (Tester check URI and tag,respectively.)[RFC3261-9-2]
+ 
+   * CSeq
+        sequence number: Must equal that in the request being cancelled. [RFC3261-9-2]
+ 
+   * From
+        Must equal that in the request being cancelled, including a tag. (Tester check the value of URI and tag,respectively.)[RFC3261-9-2]
+ 
+   * Via
+        MUST have only a single Via header field value. [RFC3261-9-3]
+        Must be the value matching the top Via value in the request being cancelled. (Tester check the value of sent-by, via-branch, and via-received,respectively.)[RFC3261-9-3]
+ 
+   * Route
+        Must exist if the request being cancelled contains a Route header field. [RFC3261-9-5]
+ 
+   * Accept
+       Must not exist. [RFC3261-20-8]
+ 
+   * Accept-Encoding
+       Must not exist. [RFC3261-20-8]
+ 
+   * Accept-Language
+       Must not exist. [RFC3261-20-8]
+ 
+   * Alert-Info
+       Must not exist. [RFC3261-20-8]
+ 
+   * Allow
+       Must not exist. [RFC3261-20-8]
+ 
+   * Contact
+       Must not exist. [RFC3261-20-8]
+ 
+   * Content-Disposition
+       Must not exist. [RFC3261-20-8]
+ 
+   * Content-Encoding
+       Must not exist. [RFC3261-20-8]
+ 
+   * Content-Language
+       Must not exist. [RFC3261-20-8]
+ 
+   * Expires
+       Must not exist. [RFC3261-20-8]
+ 
+   * In-Reply-To
+       Must not exist. [RFC3261-20-8]
+ 
+   * MIME-Version
+       Must not exist. [RFC3261-20-8]
+ 
+   * Organization
+       Must not exist. [RFC3261-20-8]
+ 
+   * Priority
+       Must not exist. [RFC3261-20-8]
+ 
+   * Proxy-Authorization
+       Must not exist. [RFC3261-20-8]
+ 
+   * Proxy-Require
+       Must not exist. [FRC3261-9-6,RFC3261-20-8,RFC3261-8-80]
+ 
+   * Reply-To
+       Must not exist. [RFC3261-20-8]
+ 
+   * Require
+       Must not exist. [FRC3261-9-6,RFC3261-20-8,RFC3261-8-80]
+ 
+   * Subject
+       Must not exist. [RFC3261-20-8]
+ 
+ - Bodies:
+   Must not exist. [IG-1-9]
+ 
+ 
+ 
+ </pre>
+</body>
+
+</html>

@@ -1,0 +1,221 @@
+# Copyright(C) IPv6 Promotion Council (2004,2005). All Rights Reserved.
+# 
+# This documentation is produced by SIP SWG members of Certification WG in 
+# IPv6 Promotion Council.
+# The SWG members currently include NIPPON TELEGRAPH AND TELEPHONE CORPORATION (NTT), 
+# Yokogawa Electric Corporation and NTT Advanced Technology Corporation (NTT-AT).
+# 
+# 
+# Redistribution and use of this software in source and binary forms, with 
+# or without modification, are permitted provided that the following 
+# conditions and disclaimer are agreed and accepted by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright 
+# notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright 
+# notice, this list of conditions and the following disclaimer in the 
+# documentation and/or other materials provided with the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project which 
+# is related to this software (hereinafter referred to as "project") nor 
+# the names of the contributors may be used to endorse or promote products 
+# derived from this software without specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written 
+# notification to the copyrighters. However, using this software for the 
+# purpose of testing or evaluating any products including merchantable 
+# products may be permitted without any notification to the copyrighters.
+# 
+# 
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND 
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING 
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS 
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE 
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+# CONTRACT,STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF 
+# THE POSSIBILITY OF SUCH DAMAGE.
+
+
+#### general setting ####
+
+#==================================================================#
+# Your SIP Applicant implementation(UA/EP/B2BUA)                   # 
+# IPv6 address                                                     #
+# (if using auto-configration, comment out this line with #)       #
+#==================================================================#
+
+UA-ADDRESS	
+
+#******************************************************************#
+#                  DO NOT CHANGE FOLLOWING THINGS                  #
+#******************************************************************#
+#===========================================#
+#  UA (emulated by TN)                      #
+#===========================================#
+
+## SIP UA(Tester emulating) username
+PUA-USER			1111
+
+## SIP UA(Tester emulating) IPv6 address
+PUA-ADDRESS			3ffe:501:ffff:1::1
+
+## SIP UA(Tester emulating) hostname
+PUA-HOSTNAME			atlanta.example.com
+PUA-HOSTNAME-FOR-1PX		under.test.com
+
+## SIP UA(Tester emulating) Contact hostpart
+PUA-CONTACT-HOSTNAME		client.atlanta.example.com
+PUA-CONTACT-HOSTNAME-FOR-1PX	client.under.test.com
+
+
+
+#===========================================#
+#  Registrar (emulated by Tester)           #
+#===========================================#
+
+## Registrar(Tester emulating) IPv6 address
+REG-ADDRESS			3ffe:501:ffff:50::50
+
+## Registrar(Tester emulating) hostname
+REG-HOSTNAME			reg.under.test.com
+
+
+
+#===========================================#
+#  SIP Proxy1 (emulated by Tester)          #
+#===========================================#
+
+## Outbound Proxy(Tester emulating) IPv6 address
+PX1-ADDRESS			3ffe:501:ffff:50::50
+
+## Outbound Proxy(Tester emulating) hostname
+PX1-HOSTNAME			ss.under.test.com
+
+OT1-ADDRESS			3ffe:501:ffff:50::51
+#===========================================#
+#  SIP Proxy2 (emulated by Tester)          #
+#===========================================#
+
+## Second Proxy(Tester emulating) IPv6 address
+PX2-ADDRESS			3ffe:501:ffff:20::20
+
+## Second Proxy(Tester emulating) hostname
+PX2-HOSTNAME			ss1.atlanta.example.com
+
+
+
+#===========================================#
+#  Authentication                           #
+#===========================================#
+
+## username for Authentication
+AUTH-USERNAME			NUT
+
+## password for Authentication
+AUTH-PASSWD			nutsip
+
+## Authorization realm about Registrar(Tester emulating)
+AUTH-REALM-RG			under.test.com
+
+## Authorization realm about Outbound Proxy(Tester emulating)
+AUTH-REALM-PX1			under.test.com
+
+## Authorization realm about second Proxy(Tester emulating)
+AUTH-REALM-PX2			atlanta.example.com
+
+
+#===========================================#
+#  UA: your Applicant implementation        # 
+#      param (NUT)                          #
+#===========================================#
+
+## Your SIP UA username
+UA-USER			NUT
+
+## Your SIP UA hostname
+UA-HOSTNAME			under.test.com
+
+## Your SIP UA Contact hostpart
+UA-CONTACT-HOSTNAME		node.under.test.com
+
+
+
+#=================================================#
+#  Router(Tester emulating) IPv6 Address Prefix   #
+#=================================================#
+
+## Router(Tester emulating) IPv6 Address Prefix
+ROUTER-PREFIX-ADDRESS		3ffe:501:ffff:5::
+
+
+
+#=================================================#
+#  DNS Server settings                            #
+#=================================================#
+
+## IPv6 DNS Server(Tester emulating) IPv6 address
+DNS_ADDRESS			3ffe:501:ffff:4::1
+
+
+
+#=====================================#
+#  Other settings                     #
+#=====================================#
+
+PLATFORM  V6:UDP:UA
+
+## your SIP UA message send port no
+UA-PORT				5060
+
+## Timer T1 value(second) defined in RFC3261
+TIMER-T1			0.5
+
+## Timer T2 value(second) defined in RFC3261
+TIMER-T2			4
+
+## Tester check margin value(second)
+TIMER-MAGIN			0.2
+
+## The number of media which Tester checks re-INVITE(hold)
+HOLD-MEDIA			1
+
+## Initial Max-Forwards header value which Tester sends
+MAX-FORWARDS			70
+
+## Expires header value which Tester sends
+EXPIRES				3600
+
+## Timestamp header value(Tester sends)
+TIME-STAMP			1000
+
+## Whether your Applicant Implementation supports Authentication mechanism (T) or not(F)
+AUTH-SUPPORT			T
+
+## Whether your Applicant Implementation supports Authentication mechanism
+## after dialog established (T) or not(F)
+AUTH-SUPPORT-AFTER-DIALOG	F
+
+## DNS TTL(second)
+DNS-TTL			30
+
+## INITIALIZE v6ADDR
+INITIALIZE			F
+
+SPECIFICATION		RFC
+
+
+
+
+
+
+
+
+
+

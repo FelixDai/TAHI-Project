@@ -1,0 +1,185 @@
+
+
+
+        CHANGELOG for SIP IPv6 UA Conformance Test Package
+
+2010/7/22 Release 2.0.2
+
+      - Remove UA-12-2-1 from Test Scenario.
+      - Modified some incorrect parts.
+      - Modified about requirements software.
+          ( FreeBSD(OS), v6eval, koi )
+
+
+2010/1/15 Release 2.0.1
+
+      - fixed some misjudgment and some judgment output message.
+
+
+2009/10/21 Release 2.0.0
+    Official release
+
+      - In accordance with the separation of UA Conformance Test Spec,
+        separated from previous UA Conformance Test Package.
+
+
+2007/3/16 Release 1.4.0
+    pre-release
+
+      - changed dns function to use BIND.
+      - changed the function of sending RA to use rtadvd.
+      - added the function of sending rtp packets.
+        (by using "ortp" library)
+      - added the functions for improving usability.
+      - decleased number of scenario.
+
+
+2006/9/27 Release 1.3.1
+    Release
+
+      - fixed some bugs.
+      - fixed some typo and mistakes in grammar.
+
+
+2006/3/20 Release 1.3.0
+    Official release
+
+      - New Feature: 
+            RFC3323/3325 support  (UA-20-X-X (Privacy))
+            RFC3311 support  (UA-19-X-X (UPDATE))
+            RFC4028 support  (UA-17-3-X/UA-17-4-X (Session Timer))
+            TTC support  (UA-21-X-X (TTC specification))
+            TCP/TLS support
+      - fixed some bugs.
+      - fixed some typo and mistakes in grammar.
+
+
+2005/10/11 Release 1.2.2
+
+      Test Tool
+            - Test for IPv4 based equipment is available by changing configuration. 
+               (for detail, See Reference Manual(PDF).)
+
+
+2005/06/03 Release 1.2.1
+
+      Test Tool
+            - fixed some misjudgment and some judgment output message.
+
+
+2005/04/30 Release 1.2
+    Official release
+
+      Test Tool
+            - New Feature: Added some test scenarios that is based on rfc3262.
+              Added some test scenarios that is based on draft-ietf-sip-session-timer-15 and RFC3665.
+            - fixed some misjudgment and some judgment output message.
+
+
+2004/10/07 Release 1.1
+    Official release
+
+      Implementation Guideline
+            - The value of the "stale" parameter, 
+              change from "TRUE or FALSE" to "TRUE or the other value".
+            - "Record-Route" header isn't set for responses except 18x and 2xx response.
+            - A new section "A.1 The target of authentication" is introduced.
+
+      Test Tool
+            - New Feature: Added some test scenarios that is based on Torture
+              draft (draft-ietf-sipping-torture-test-03) and SIP Forum test
+              suite (User Agent Basic Test Suite 1).
+            - fixed some misjudgment and some judgment output message.
+
+      Test Profile
+            - corrected typo, and difference of test sequences between
+              profiles and actual behavior.
+
+      auth/
+        UA-6-1-3.seq, UA-6-1-4.seq
+            - deleted from this release.
+
+
+2004/07/12 sipv6_support@v6pc.jp
+
+      Test Tool
+            - New Feature: Authentication mechanism support/non-support
+              switching. Please see "ReferenceManual.pdf" for detail.
+            - fixed SDP processing about RTP Port, b line, "a=ptime" .
+            - fixed DNS AAAA query processing.
+            - fixed To tag encoding duplication problem.
+            - fixed Via branch in non-2xx ACK encoding for some test secnario.
+            - fixed some misjudgment and some judgment output message.
+
+      Test Profile
+            - corrected typo, and difference of test sequences between
+              profiles and actual behavior.
+
+
+2004/05/10 sipv6_support@v6pc.jp
+
+      SIPv6.pm
+            - changed the default waiting time. (12sec. to 20sec.)
+
+      SIPruleope.pm
+            - fixed the process about IPv6 address representation writing
+              the leading zeros in an individual field.
+  
+      SIPruleRFC.pm
+            - fixed the mistake that RTP PORT was not even number.
+            - fixed the mistake of response when c= line existed in media
+              descriptions.
+            - fixed the misjudgement when the <session id> and <version> were 0.
+            - fixed the misjudgement when uri parameter of Proxy-Authorization 
+              was null.
+            - deleted the judgement that Route exist in CANCEL
+              (UA-2-1-7,UA-4-2-4).
+
+      SIPrex.pm
+            - modified so that the parsing of Session-Expires and Min-SE
+              header fields enabled.
+
+      check_connect/REGISTER.seq, INVITE.seq
+            - changed that Tester sends response. 
+
+      regist/UA-1-1-2.seq
+            - supported the operation either manually or automatically.
+
+      regist/UA-1-1-3.seq, UA-1-1-4.seq, UA-1-2-1.seq
+            - fixed the mistake of Contact, Date in 2xx for REGISTER.
+
+      m_dialog/UA-5-2-7.seq
+            - fixed the mistake of Content-Length in ACK.
+
+      session/
+        UA-2-1-8.seq,
+      transaction/
+        UA-4-1-13.seq,
+      dialog/
+        UA-11-1-1.seq
+            - changed the exit-mode. (Fatal => InitFail)
+
+      transaction/
+        UA-4-2-1.seq, UA-4-2-2.seq, UA-4-2-3.seq,
+        UA-4-2-4.seq, UA-4-2-5.seq,
+      m_dialog/
+        UA-5-2-5.seq,UA-5-2-6.seq, UA-5-2-9.seq,
+        UA-5-2-10.seq
+      routing/
+        UA-8-1-2.seq,
+      request/
+        UA-9-2-6.seq,
+      response/
+        UA-10-2-9.seq,
+      dialog/
+        UA-11-1-1.seq, UA-11-1-6.seq,
+      dns/
+        UA-13-2-2.seq,
+            - fixed the exit-mode. (Fail => Warn)
+
+    
+2004/03/30  Release 1.0
+    1st official release
+
+
+                            [end of CHANGELOG]

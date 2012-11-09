@@ -1,0 +1,217 @@
+#!/usr/bin/perl
+#
+# Copyright(C) IPv6 Promotion Council (2004,2005). All Rights Reserved.
+# 
+# This documentation is produced by SIP SWG members of Certification WG in 
+# IPv6 Promotion Council.
+# The SWG members currently include NIPPON TELEGRAPH AND TELEPHONE CORPORATION (NTT), 
+# Yokogawa Electric Corporation and NTT Advanced Technology Corporation (NTT-AT).
+# 
+# 
+# Redistribution and use of this software in source and binary forms, with 
+# or without modification, are permitted provided that the following 
+# conditions and disclaimer are agreed and accepted by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright 
+# notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright 
+# notice, this list of conditions and the following disclaimer in the 
+# documentation and/or other materials provided with the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project which 
+# is related to this software (hereinafter referred to as "project") nor 
+# the names of the contributors may be used to endorse or promote products 
+# derived from this software without specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written 
+# notification to the copyrighters. However, using this software for the 
+# purpose of testing or evaluating any products including merchantable 
+# products may be permitted without any notification to the copyrighters.
+# 
+# 
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND 
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING 
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS 
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE 
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+# CONTRACT,STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF 
+# THE POSSIBILITY OF SUCH DAMAGE.
+
+
+#--------------------------------------------------------------#
+# ENTRANCE
+#--------------------------------------------------------------#
+
+# Set the test version used for the display.
+BEGIN { $V6evalTool::TestVersion = '$Name:  $';
+
+require SIP;
+}
+#--------------------------------------------------------------#
+# INITIALIZATION
+#--------------------------------------------------------------#
+SIPScenarioModel('Callee','2-Proxy');
+SIPInitializeScenario();
+
+#--------------------------------------------------------------#
+# SCENARIO
+#--------------------------------------------------------------#
+
+# Wait and Print "Key press and Test start."
+WaitUntilKeyPress("Press Enter Key and start.");
+if(!$SIPLOGO){
+SQ_Proxy_Echo();
+}
+
+# Send INVITE
+LOG_OK("Send INVITE");
+# signal
+$result=SD_Proxy_MSG(<<"SIP_HED",<<"SIP_BODY",['E.FROM_PUA-URI_LOCAL-TAG','E.CALLID_CVA','E.CSEQ_NUM_INVITE','E.CONTACT_PUA','E.ALLOW_VALID','E.SUPPORTED_VALID','E.CONTENT-LENGTH_CAL']);
+INVITE $CNT_TUA_CONTACT_URI SIP/2.0
+Via: SIP/2.0/UDP $CNT_TWOPX_SEND_VIAS[0]
+Via: SIP/2.0/UDP $CNT_TWOPX_SEND_VIAS[1]
+Via: SIP/2.0/UDP $CNT_TWOPX_SEND_VIAS[2]
+Max-Forwards: 68
+Record-Route: <sip:ss.under.test.com;lr>,<sip:ss1.atlanta.example.com;lr>
+To: NUT <$CVA_TUA_URI>
+Content-Disposition: session;handling=required
+Content-Type: unknown
+SIP_HED
+unknownunknownunknownunknownunknownunknownunknown
+unknownunknownunknownunknownunknownunknownunknown
+unknownunknownunknownunknownunknownunknownunknown
+unknownunknownunknownunknownunknownunknownunknown
+unknownunknownunknownunknownunknownunknownunknown
+SIP_BODY
+# signal end
+
+JudgeResult("Receive INVITE","Can't receive INVITE");
+
+# Receive STATUS
+$result=RV_Proxy_STATUS('415','INVITE','',['D.TO-TAG']);
+JudgeResult("Receive 415","Can't receive 415");
+
+# check 415
+SIP_Judgment('SSet.STATUS.INVITE-4XX.PX');
+
+# Send ACK
+LOG_OK("Send ACK");
+$result=SD_Proxy_ACK_NO200(); 
+
+#--------------------------------------------------------------#
+# Finish
+#--------------------------------------------------------------#
+
+SIPFinishScenario();
+
+#######################################################################
+
+=head1 NAME
+
+=begin html
+ <A HREF="http://www.ipv6ready.org/">Please see SIP Conformance Test Profile (http://www.ipv6ready.org/)</A>
+
+=end html
+
+=head1 TARGET
+
+=begin html
+<pre>
+ SIP UA (NUT)
+</pre>
+
+=end html
+
+=head1 PARAMETER
+
+=begin html
+<blockquote>
+<table border>
+<tbody>
+
+</tbody>
+</table>
+</blockquote>
+
+=end html
+
+=head1 ADDRESS
+
+=begin html
+<blockquote>
+<table border>
+<tbody>
+
+</tbody>
+</table>
+</blockquote>
+
+=end html
+
+=head1 TOPOLOGY
+
+=begin html
+<pre>
+ 
+</pre>
+
+=end html
+
+=head1 CONFIGURATION for NUT
+
+=begin html
+<blockquote>
+<table border>
+<tbody>
+
+</tbody>
+</table>
+</blockquote>
+
+=end html
+
+=head1 INITIALIZATION
+
+=begin html
+<pre>
+ 
+</pre>
+
+=end html
+
+=head1 TEST PROCEDURE
+
+=begin html
+<pre>
+ 
+</pre>
+
+=end html
+
+=head1 JUDGEMENT
+
+=begin html
+<pre>
+ 
+</pre>
+
+=end html
+
+=head1 REFERENCE
+
+=begin html
+<pre>
+ 
+</pre>
+
+=end html
+
+=cut
+

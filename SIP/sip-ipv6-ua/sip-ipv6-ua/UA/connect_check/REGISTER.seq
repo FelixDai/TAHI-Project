@@ -1,0 +1,56 @@
+#!/usr/bin/perl
+#
+# $CopyrightSIPv6$
+
+#--------------------------------------------------------------#
+# ENTRANCE
+#--------------------------------------------------------------#
+
+# Set the test version used for the display.
+BEGIN { $V6evalTool::TestVersion = '$Name:  $';}
+
+require SIP;
+
+use Digest::MD5 qw(md5_hex);
+
+# Import the package.
+use V6evalTool;
+
+#--------------------------------------------------------------#
+# INITIALIZATION
+#--------------------------------------------------------------#
+SIPScenarioModel('Register','NO-Proxy');
+SIPInitializeScenario();
+
+#--------------------------------------------------------------#
+# SCENARIO
+#--------------------------------------------------------------#
+
+# Wait and Print "Key press and Test start."
+WaitUntilKeyPress("Press Enter Key and send REGISTER.");
+
+# Recv REGISTER
+$result = RV_Registra_REGISTER();
+
+    if($result ne "OK"){
+	LOG_Err("Can\'t receive REGISTER");
+        MsgDisplay("Check-REGISTER is \'NG\'.\nTester could not receive REGISTER.\n\n  - Please check your setup or config.txt of Tester.\n(for example, Registrar ADDRESS, PORT.)\n");
+        print(" -> Fail\n");
+        exit;
+    }else{
+        LOG_OK("Receive REGISTER.");
+    }
+
+# Send STATUS 200
+$result = SD_Registra_STATUS('','','E.STATUS-200-RETURN.RG');
+
+#--------------------------------------------------------------#
+# Finish
+#--------------------------------------------------------------#
+
+    LogSIPPktInfo();
+
+        MsgDisplay("Check-REGISTER is \'OK\'.\n\n  - Please check you can received 200.\n");
+        print(" -> Pass\n");
+
+

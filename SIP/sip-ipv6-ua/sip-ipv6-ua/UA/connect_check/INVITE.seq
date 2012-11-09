@@ -1,0 +1,72 @@
+#!/usr/bin/perl
+#
+# $CopyrightSIPv6$
+
+#--------------------------------------------------------------#
+# ENTRANCE
+#--------------------------------------------------------------#
+
+# Set the test version used for the display.
+BEGIN { $V6evalTool::TestVersion = '$Name:  $';}
+
+require SIP;
+use Digest::MD5 qw(md5_hex);
+
+# Import the package.
+use V6evalTool;
+
+#--------------------------------------------------------------#
+# INITIALIZATION
+#--------------------------------------------------------------#
+SIPScenarioModel('Caller','2-Proxy');
+SIPInitializeScenario();
+
+#--------------------------------------------------------------#
+# SCENARIO
+#--------------------------------------------------------------#
+
+# Echo from Proxy
+SQ_Proxy_Echo();
+
+WaitUntilKeyPressAndTelephone();
+
+# Receive INVITE
+$result=RV_Proxy_INVITE();
+
+    if($result ne "OK"){
+        LogSIPPktInfo();
+  	  LOG_Err("Can\'t receive INVITE");
+        MsgDisplay("Check-INVITE is \'NG\'.\nTester could not receive INVITE.\n\n  - Please check your setup or config.txt of Tester.\n(for example, Proxy ADDRESS, PORT.)\n");
+        print(" -> Fail\n");
+        exit;
+    }else{
+        LOG_OK("Receive INVITE");
+    }
+
+# Send 480
+LOG_OK("Send 480");
+$result=SD_Proxy_STATUS('480','INVITE');
+
+# Receive ACK
+$result=RV_Proxy_ACK();
+    if($result ne "OK"){
+        LogSIPPktInfo();
+	  LOG_Err("Can\'t receive ACK");
+        MsgDisplay("Check-INVITE is \'NG\'.\nTester could not receive ACK.\n\n  - Please check you can received 480.\n");
+        print(" -> Fail\n");
+        exit;
+    }else{
+        LOG_OK("Receive ACK");
+    }
+
+
+#--------------------------------------------------------------#
+# Finish
+#--------------------------------------------------------------#
+
+    LogSIPPktInfo();
+
+        MsgDisplay("Check-INVITE is \'OK\'.\nTester received INVTE and ACK.\n\n");
+
+        print(" -> Pass\n");
+

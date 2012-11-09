@@ -1,0 +1,69 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>JUDGEMENT</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:kris@jail-3.isc.freebsd.org" />
+</head>
+
+<body style="background-color: white">
+
+
+<!-- INDEX BEGIN -->
+<div name="index">
+<p><a name="__index__"></a></p>
+<!--
+
+<ul>
+
+	<li><a href="#judgement">JUDGEMENT</a></li>
+</ul>
+
+-->
+
+
+</div>
+<!-- INDEX END -->
+
+<p>
+</p>
+<h1><a name="judgement">JUDGEMENT</a></h1>
+SIP - Generic Judgment (non2xx ACK)<pre> [generic_non2xx-ACK.txt]
+ 
+ - Request-Line:
+     Method: Must be &quot;ACK&quot;. #7.1 the present tense.
+     Request-URI: Must be the same value of that in the original request. [RFC3261-17-32]
+ 
+ - Headers:
+ 
+   * From
+       Must be the same value of that in the original request. [RFC3261-17-32]
+ 
+   * Call-ID
+       Must be the same value of that in the original request. [RFC3261-17-32]
+ 
+   * To
+       Must equal the To header field in the response being acknowledged. [RFC3261-17-33]
+ 
+   * Via
+       MUST be equal to the top Via header field of the original request. [RFC3261-17-35]
+ 
+   * CSeq
+       sequence number: Must be the same value as was present in the original request. [RFC3261-17-36]
+ 
+   * Require
+       Must not exist. [RFC3261-8-80,RFC3261-20-8]
+ 
+   * Proxy-Require
+       Must not exist. [RFC3261-8-80,RFC3261-20-8]
+ 
+ - Bodies:
+   Must not exist. [IG-1-7]
+ 
+ 
+ 
+ </pre>
+</body>
+
+</html>

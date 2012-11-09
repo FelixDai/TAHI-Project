@@ -1,0 +1,73 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>JUDGEMENT</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:kris@jail-3.isc.freebsd.org" />
+</head>
+
+<body style="background-color: white">
+
+
+<!-- INDEX BEGIN -->
+<div name="index">
+<p><a name="__index__"></a></p>
+<!--
+
+<ul>
+
+	<li><a href="#judgement">JUDGEMENT</a></li>
+</ul>
+
+-->
+
+
+</div>
+<!-- INDEX END -->
+
+<p>
+</p>
+<h1><a name="judgement">JUDGEMENT</a></h1>
+SIP - Generic Judgment (2xx ACK)<pre> [generic_2xx-ACK.txt]
+ 
+ Generic judgement items for ACK, which is correspondent to 200 OK response to INVITE request.
+ 
+ - Request-Line:
+     Method: Must be &quot;ACK&quot;. #7.1 the present tense.
+     Request-URI: Must equal that Contact header value in the 200 OK response. [RFC3261-12-48]
+ 
+ - Headers:
+ 
+  * To
+       tag-param: Must exist. [RFC3261-12-35]
+       tag-param: Must equal that contained in the To header of 200 response.  [RFC3261-12-35]
+ 
+  * From
+       tag-param: Must equal that contained in the From header of INVITE request.  [RFC3261-12-37]
+ 
+   * Call-ID
+       call-id: Must be set to the Call-ID of the dialog. [RFC3261-12-40]
+ 
+   * CSeq
+       sequence number: MUST be the same as the INVITE being acknowledged. [RFC3261-13-21]
+ 
+   * Proxy-Authorization
+       MUST contain the same credentials as the INVITE. [RFC3261-8-22]
+ 
+   * Require
+       May exist. 
+       option-tag: Must contain only those Require values that were present in the initial request. [RFC3261-8-82]
+ 
+   * Proxy-Require
+       May exist. 
+       option-tag: Must contain only those Proxy-Require values that were present in the initial request. [RFC3261-8-82]
+ 
+ - Bodies:
+   Must not exist. [IG-1-7]
+ 
+ 
+ </pre>
+</body>
+
+</html>
