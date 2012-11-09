@@ -1,0 +1,272 @@
+# 
+# Copyright (C) IPv6 Promotion Council, NTT Advanced Technology Corporation
+# (NTT-AT), Yokogwa Electoric Corporation and YASKAWA INFORMATION SYSTEMS
+# Corporation All rights reserved.
+# 
+# Redistribution and use of this software in source and binary forms, with
+# or without modification, are permitted provided that the following
+# conditions and disclaimer are agreed and accepted by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright
+# notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright
+# notice, this list of conditions and the following disclaimer in the
+# documentation and/or other materials provided with the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project which
+# is related to this software (hereinafter referred to as "project") nor
+# the names of the contributors may be used to endorse or promote products
+# derived from this software without specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written
+# notification to the copyrighters. However, using this software for the
+# purpose of testing or evaluating any products including merchantable
+# products may be permitted without any notification to the copyrighters.
+# 
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+# CONTRACT,STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+# THE POSSIBILITY OF SUCH DAMAGE.
+# 
+###############################################################################
+
+###############################################################################
+# About the value of each item
+# - 0/1 shows off/on or false/true.
+# - A time unit is a second. Please change into a second from a milli-second.
+# - Character string doesn't need quotation mark.
+
+###############################################################################
+# The function tested
+
+# RFC 3810, 8.2.2.
+# HUT suppresses MLDv2 Report message by MLDv1 Report message.
+FUNC_SUPPRESS_REPORT    1
+
+# RFC 4604, 2.
+# HUT configures additional SSM range other than IANA standard.
+# Note: It is tested by some test items. The specification item of the original
+#       address range is downward.
+FUNC_SPECIFIC_SSM       1
+
+# RFC 3810, 6.
+# HUT has 2 interfaces (Link1 in nut.def is also set up).
+FUNC_2_INTERFACES       0
+
+# RFC 3810, 3.
+# HUT has the lilmit of source list on service interface.
+SI_SRCLST_INCLUDE_UNDER45  0
+SI_SRCLST_INCLUDE_UNDER90  0
+SI_SRCLST_EXCLUDE_UNDER45  0
+SI_SRCLST_EXCLUDE_UNDER90  0
+
+# RFC 3810, 4.2.
+# HUT has the limit of source list in internal resource.
+IN_SRCLST_INCLUDE_UNDER90  0
+
+###############################################################################
+# The configuration of default value
+# Note: Some tests do not use these values in order to test change of
+#       configuration values. Those tests require specific values.
+
+# Robustness Variable (RV) (RFC 3810, 9.1.)
+# Note: 2 - 7 (default 2)
+RV      2
+
+# Query Interval (QI) (RFC 3810, 9.2.)
+# Note: 40 - 127 (default 125 seconds)
+QI      125
+
+# Query Response Interval (QRI) (RFC 3810, 9.3.)
+# Note: 10 - 20 (default 10 seconds)
+QRI     10
+
+# Unsolicited Report Interval (URI) (RFC 3810, 9.11.)
+# Note: 1 - 5 (default 1 second)
+URI     1
+
+# The number of the NS-DAD messages which transmit in order that HUT may gain a
+# link local address. (RFC 4862, 5.1.)
+DupAddrDetectTransmits  1
+
+# The number of the MLDv2 Report messages which HUT transmits before NS-DAD
+# message.  Although it is surely RV, it is prepared the originality for
+# debugging.
+#SRV    2
+
+###############################################################################
+# The following configurations cannot be specified.
+# Note: These are calculated from the above-mentioned value.
+
+# Older Version Querier Present Timeout (OVQPT) (RFC 3810, 9.12.)
+# Note: (RV * QI) + QRI
+
+###############################################################################
+# Network prefix
+
+# The network where Link0 (nut.def) of HUT is connected.
+NETWORK0        3ffe:501:ffff:100::
+
+# The network where Link1 (nut.def) of HUT is connected.
+NETWORK1        3ffe:501:ffff:101::
+
+# The network in which the multicast source node is located.
+NETWORKX        3ffe:501:ffff:300::
+
+###############################################################################
+# Multicast address (other than SSM range)
+
+MCAST1  ff3e:40:3ffe:501:ffff:300:0:1
+MCAST2  ff3e:40:3ffe:501:ffff:300:0:2
+
+###############################################################################
+# Configured SSM range other than IANA standard (FF3X:0000:/32)
+# Note: You have to make SSM_RANGE_P_ADDR and other four addresses equal.
+
+SSMCAST1 ff3e:0:0:0:0:0:4000:1
+SSMCAST2 ff3e:0:0:0:0:0:7fff:ffff
+
+# The address prefix for SSM range
+SSM_RANGE_P_ADDR        ff3e::9000:0000/100
+
+# The under address of SSM minimum address
+SSM_RANGE_ST_OUT_ADDR   ff3e::8fff:ffff
+
+# The SSM minimum address
+SSM_RANGE_ST_ADDR       ff3e::9000:0001
+
+# The SSM maximum address
+SSM_RANGE_ED_ADDR       ff3e::9fff:ffff
+
+# The over address of SSM maximum
+SSM_RANGE_ED_OUT_ADDR   ff3e::a000:0001
+
+###############################################################################
+# The field which cheats a check (for debugging)
+# Note: If it is a focus point of a test item, it will be checked.
+#   [0-]: fix value
+#   any : Any values are accepted
+
+# MLDv1 Report HopLimit
+#HUT_MLDR_HOP            1
+
+# MLDv1 Report Code
+#HUT_MLDR_CODE           0
+
+# MLDv1 Report Checksum
+#HUT_MLDR_CHECKSUM       any
+
+# MLDv1 Report Max Response Delay
+#HUT_MLDRG_MRD           0
+
+# MLDv1 Report Reserved
+#HUT_MLDR_RESERVED       0
+
+# MLDv2 Report HopLimit
+#HUT_MLDv2R_HOP          1
+
+# MLDv2 Report Code
+#HUT_MLDv2R_CODE         0
+
+# MLDv2 Report Checksum
+#HUT_MLDv2R_CHECKSUM     any
+
+# MLDv2 Report Reserved
+#HUT_MLDv2R_RESERVED     0
+
+###############################################################################
+# The message which avoids the check for debugging
+# Note: If it is a focus point of a test item, it will be checked.
+#   0: no check
+#   1: check
+
+# Unexpected Report
+#CHECK_UNEXPECT_REPORT   1
+
+###############################################################################
+# Adjustment relevant to the performance of RUT and TN
+
+# Time until enables MLD
+ENABLE_TIME     5
+
+# Margin time of message transmission
+MARGIN_TIME     2
+
+# Margin time for observing that there is no message
+CHECK_TIME      2
+
+# The count which reruns a test with a timing matter.
+RETRY_COUNT     5
+
+###############################################################################
+# Control of remote files
+# Each test item has multiple opportunities which call a remote file.
+# The remote file calling sequence before a test start has two types.
+# 1. In the test of a boot.
+#    mldv2DisableHUT.rmt -> mldv2SetHUT.rmt -> reboot.rmt -> mldv2EnableHUT.rmt
+# 2. In the other test.
+#    mldv2DisableHUT.rmt -> mldv2SetHUT.rmt -> mldv2EnableHUT.rmt
+#
+# The details are voluntary although the name of a remote file shows the
+# operation expected. A user has to prepare except the remote file of a manual.
+# The processing on a user's device is incorporated in consideration of the
+# sequence of a remote file.
+#
+# The remote file which suited the user's device is called.
+#   0: no call
+#   1: call
+
+# MLDv2 listener function is stopped.
+mldv2DisableHUT         1
+
+# The parameters of MLDv2 are set to HUT.
+# The parameter is given to the remote file by the argument.
+mldv2SetHUT             1
+
+# HUT is rebooted. Or HUT is initialized.
+# The purpose is initialization of the information about IPv6.
+reboot                  1
+
+# MLDv2 listener is enabled.
+mldv2EnableHUT          1
+
+# HUT transmits MLDv2 Report message with TO_EX (HUT solicited-node multicast,{NULL}),
+# when MLDv2 Router function is enabled.
+FUNC_ENABLE_REPORT      0
+
+# When HUT needs reboot for updating of configuring, and initialization of IPv6,
+# For example, there are following modifying. It reboots by mldv2EnableHUT.rmt,
+# without rebooting by reboot.rmt.
+#   mldv2DisableHUT     0
+#   mldv2SetHUT         1
+#   reboot              0
+#   mldv2EnableHUT      1
+#   FUNC_ENABLE_REPORT  1
+
+###############################################################################
+# Simple initialization
+# Although it may not be enough, it can use as quick initialization which
+# eliminated operation of reboot or initialization.
+
+# TN calls Listener API which stops listening at the end of each test.
+STOP_LISETENING         0
+
+##############################################################
+# The flag for debugging
+# Process
+#  10: Up to setup
+#  20: Up to configuring of NUT
+#  +[1-3]: Debugging display. Larger values make more detail
+DEBUG   0
+
+# EOF

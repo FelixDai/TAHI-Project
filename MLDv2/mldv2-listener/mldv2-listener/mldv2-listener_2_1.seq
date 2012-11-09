@@ -1,0 +1,612 @@
+#!/usr/bin/perl
+# 
+# Copyright (C) IPv6 Promotion Council, NTT Advanced Technology Corporation
+# (NTT-AT), Yokogwa Electoric Corporation and YASKAWA INFORMATION SYSTEMS
+# Corporation All rights reserved.
+# 
+# Redistribution and use of this software in source and binary forms, with
+# or without modification, are permitted provided that the following
+# conditions and disclaimer are agreed and accepted by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright
+# notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright
+# notice, this list of conditions and the following disclaimer in the
+# documentation and/or other materials provided with the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project which
+# is related to this software (hereinafter referred to as "project") nor
+# the names of the contributors may be used to endorse or promote products
+# derived from this software without specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written
+# notification to the copyrighters. However, using this software for the
+# purpose of testing or evaluating any products including merchantable
+# products may be permitted without any notification to the copyrighters.
+# 
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+# CONTRACT,STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+# THE POSSIBILITY OF SUCH DAMAGE.
+# 
+###############################################################################
+BEGIN {}
+END   {}
+
+#------------------------------------------------------------------------------
+# Include
+#------------------------------------------------------------------------------
+# Include Module
+use strict;
+use warnings;
+use V6evalTool;
+use MLDv2L;
+
+#------------------------------------------------------------------------------
+vLog2("Setup");
+#------------------------------------------------------------------------------
+# Variable
+my $stp = 0;
+my $rtn;
+my $wk;
+
+# Requirement configuration
+%T_REQ = ();
+
+# Specification configuration
+%T_CONF = (
+	RV => 2,
+	URI => 1,
+);
+
+# Topology
+@T_LINK = ("Link0");
+@T_NODE = ("TR1");
+
+# Setup
+$rtn = Setup();
+if ($rtn != $RES_OK) {
+	goto TERM;
+}
+
+#------------------------------------------------------------------------------
+vLog2("Procedure");
+#------------------------------------------------------------------------------
+# Sequence
+%T_SEQ = (
+	$stp++ => {
+		caption => [ "Step 0. Configure on the HUT." ],
+		func    => "ConfProc",
+		status  => 0,
+	},
+	$stp++ => {
+		caption => [ "Step 1. Enable MLDv2 on the HUT." ],
+		func    => "EnableProc",
+		status  => 0,
+	},
+	$stp++ => {
+		func    => $CONF_DATA{FUNC_ENABLE_REPORT} ? "RecvProc" : "BaseProc",
+		link    => "Link0",
+		wtime   => [ $CONF_DATA{URI} + $CONF_DATA{MARGIN_TIME} ],
+		count   => $CONF_DATA{RV},
+		msgs    => [ "MLDv2R_hut0l_mld2r_r1_t4hut0sn0" ],
+		status  => 0,
+	},
+	$stp++ => {
+		caption => [ "Step 2. Call ListenerAPI (S1, I1, M1, INCLUDE, {S1}) on the HUT." ],
+		func    => "ListenerProc",
+		socket  => "S1",
+		if      => "IF0",
+		mcast   => "MCAST1",
+		filter  => "INCLUDE",
+		srcnum  => 1,
+		source  => "S1",
+		status  => 0,
+	},
+	$stp++ => {
+		caption => [ "Step 3. Observe the packets on all networks." ],
+		func    => "RecvProc",
+		link    => "Link0",
+		wtime   => [ $CONF_DATA{URI} + $CONF_DATA{MARGIN_TIME} ],
+		count   => $CONF_DATA{RV},
+		msgs    => [ "MLDv2R_hut0l_mld2r_r1_t5m1n1s1" ],
+		status  => 0,
+		stack   => "L0R1",
+	},
+	$stp++ => {
+		func    => "RecvProc",
+		link    => "Link0",
+		wtime   => [ $CONF_DATA{URI} + $CONF_DATA{MARGIN_TIME} + $CONF_DATA{CHECK_TIME} ],
+		count   => 1,
+		msgs    => [ "MLDv2R_any_any" ],
+		status  => 1,
+	},
+);
+
+# Execute
+for ($stp = 0; $T_SEQ{$stp}; $stp++) {
+	no strict 'refs';
+	$rtn = &{$T_SEQ{$stp}{func}}($stp);
+	if ($rtn != $RES_OK) {
+		last;
+	}
+}
+
+#------------------------------------------------------------------------------
+vLog2("Complement Judgement");
+#------------------------------------------------------------------------------
+$wk = JudgeCommon();
+if (($wk != $RES_OK) && ($rtn == $RES_OK)) {
+	$rtn = $wk;
+}
+
+unless (defined $STACK_S{L0R1}) {
+	goto TERM;
+}
+#------------------------------------------------------------------------------
+vLog1("Check: Fields of General Query.");
+#------------------------------------------------------------------------------
+my @check_fld = (
+	"IPv6 Payload Length            ",
+	"IPv6 Next Header               ",
+	"IPv6 Hop Limit                 ",
+	"IPv6 Source Address            ",
+	"IPv6 Destination Address       ",
+	"Hop-By-Hop Next Header         ",
+	"Router Alert Option Type       ",
+	"Message Type                   ",
+	"Code                           ",
+	"Checksum                       ",
+	"Reserved                       ",
+	"Number of Mcast Address Records",
+	"Record Type                    ",
+	"Aux Data Len                   ",
+	"Number of Sources              ",
+	"Multicast Address              ",
+	"Source Address                 ",
+);
+
+my %check_frame = (
+	"IPv6 Payload Length            " => "Frame_Ether.Packet_IPv6.Hdr_IPv6.PayloadLength",
+	"IPv6 Next Header               " => "Frame_Ether.Packet_IPv6.Hdr_IPv6.NextHeader",
+	"IPv6 Hop Limit                 " => "Frame_Ether.Packet_IPv6.Hdr_IPv6.HopLimit",
+	"IPv6 Source Address            " => "Frame_Ether.Packet_IPv6.Hdr_IPv6.SourceAddress",
+	"IPv6 Destination Address       " => "Frame_Ether.Packet_IPv6.Hdr_IPv6.DestinationAddress",
+	"Hop-By-Hop Next Header         " => "Frame_Ether.Packet_IPv6.Hdr_HopByHop.NextHeader",
+	"Router Alert Option Type       " => "Frame_Ether.Packet_IPv6.Hdr_HopByHop.Opt_RouterAlert.OptionType",
+	"Message Type                   " => "Frame_Ether.Packet_IPv6.ICMPv6_MLDv2Report.Type",
+	"Code                           " => "Frame_Ether.Packet_IPv6.ICMPv6_MLDv2Report.Code",
+	"Checksum                       " => "Frame_Ether.Packet_IPv6.ICMPv6_MLDv2Report.Checksum",
+	"Reserved                       " => "Frame_Ether.Packet_IPv6.ICMPv6_MLDv2Report.Reserved",
+	"Number of Mcast Address Records" => "Frame_Ether.Packet_IPv6.ICMPv6_MLDv2Report.NumOfMcastAddrRecords",
+	"Record Type                    " => "Frame_Ether.Packet_IPv6.ICMPv6_MLDv2Report.MLDv2_AddrRecord.Type",
+	"Aux Data Len                   " => "Frame_Ether.Packet_IPv6.ICMPv6_MLDv2Report.MLDv2_AddrRecord.AuxDataLen",
+	"Number of Sources              " => "Frame_Ether.Packet_IPv6.ICMPv6_MLDv2Report.MLDv2_AddrRecord.NumOfSources",
+	"Multicast Address              " => "Frame_Ether.Packet_IPv6.ICMPv6_MLDv2Report.MLDv2_AddrRecord.MulticastAddress",
+	"Source Address                 " => "Frame_Ether.Packet_IPv6.ICMPv6_MLDv2Report.MLDv2_AddrRecord.SourceAddress",
+);
+
+my %check_value = (
+	"IPv6 Payload Length            " => "52",
+	"IPv6 Next Header               " => "0",
+	"IPv6 Hop Limit                 " => "1",
+	"IPv6 Destination Address       " => "ff02::16",
+	"Hop-By-Hop Next Header         " => "58",
+	"Router Alert Option Type       " => "5",
+	"Message Type                   " => "143",
+	"Code                           " => "0",
+	"Reserved                       " => "0",
+	"Number of Mcast Address Records" => "1",
+	"Record Type                    " => "5",
+	"Aux Data Len                   " => "0",
+	"Number of Sources              " => "1",
+	"Multicast Address              " => "$CONF_DATA{MCAST1}",
+	"Source Address                 " => "$SOURCES{MSRC_01}",
+);
+
+my $vref;
+my %vref;
+my $chk;
+foreach $vref (@{$STACK_S{L0R1}}) {
+	%vref = %{$vref};
+	vLog0("	<A HREF=\"#vRecvPKT$vref{PKTNO}\">Received MLD Query.</A>");
+	foreach $wk (@check_fld) {
+		unless (defined $check_value{$wk}) {
+			vLogBlue("	$wk = $vref{$check_frame{$wk}}");
+			next;
+		}
+		$chk = $check_value{$wk};
+
+		if ($chk ne $vref{$check_frame{$wk}}) {
+			vLogRed("	$wk = $vref{$check_frame{$wk}}");
+			$wk =~ s/ +$//;
+			vLogRed("		FAIL: $wk is not $chk");
+			$rtn = $RES_NG;
+		}
+		else {
+			vLogBlue("	$wk = $vref{$check_frame{$wk}}");
+		}
+	}
+}
+
+TERM:
+#------------------------------------------------------------------------------
+vLog2("Termination");
+#------------------------------------------------------------------------------
+# 
+Term($rtn);
+
+###############################################################################
+__END__
+
+
+=head1 Test Label
+
+=begin html
+MLD.2.1: MLDv2 Report Message Creation
+
+=end html
+
+=head1 Purpose
+
+=begin html
+To verify the MLDv2 Report message created by MLDv2 Listener.
+
+=end html
+
+=head1 References
+
+=begin html
+RFC3810 5.  Message Formats<BR>
+
+=cut
+<PRE>
+   MLDv2 is a sub-protocol of ICMPv6, that is, MLDv2 message types are a
+   subset of ICMPv6 messages, and MLDv2 messages are identified in IPv6
+   packets by a preceding Next Header value of 58.  All MLDv2 messages
+   described in this document MUST be sent with a link-local IPv6 Source
+   Address, an IPv6 Hop Limit of 1, and an IPv6 Router Alert option
+   [RFC2711] in a Hop-by-Hop Options header.  (The Router Alert option
+   is necessary to cause routers to examine MLDv2 messages sent to IPv6
+   multicast addresses in which the routers themselves have no
+   interest.)
+</PRE>
+
+=pod
+
+=end html
+
+=begin html
+RFC3810 5.2.1.  Reserved<BR>
+
+=cut
+<PRE>
+   The Reserved fields are set to zero on transmission, and ignored on
+   reception.
+</PRE>
+
+=pod
+
+=end html
+
+=begin html
+RFC3810 5.2.2.  Checksum<BR>
+
+=cut
+<PRE>
+   The standard ICMPv6 checksum; it covers the entire MLDv2 message,
+   plus a "pseudo-header" of IPv6 header fields [RFC2460, RFC2463].
+</PRE>
+
+=pod
+
+=end html
+
+=begin html
+RFC3810 5.2.3.  Nr of Mcast Address Records (M)<BR>
+
+=cut
+<PRE>
+   The Nr of Mcast Address Records (M) field specifies how many
+   Multicast Address Records are present in this Report.
+</PRE>
+
+=pod
+
+=end html
+
+=begin html
+RFC3810 5.2.4.  Multicast Address Record<BR>
+
+=cut
+<PRE>
+   Each Multicast Address Record is a block of fields that contain
+   information on the sender listening to a single multicast address on
+   the interface from which the Report is sent.
+</PRE>
+
+=pod
+
+=end html
+
+=begin html
+RFC3810 5.2.5.  Record Type<BR>
+
+=cut
+<PRE>
+   It specifies the type of the Multicast Address Record.  See section
+   5.2.12 for a detailed description of the different possible Record
+   Types.
+</PRE>
+
+=pod
+
+=end html
+
+=begin html
+RFC3810 5.2.6.  Aux Data Len<BR>
+
+=cut
+<PRE>
+   The Aux Data Len field contains the length of the Auxiliary Data
+   Field in this Multicast Address Record, in units of 32-bit words.  It
+   may contain zero, to indicate the absence of any auxiliary data.
+</PRE>
+
+=pod
+
+=end html
+
+=begin html
+RFC3810 5.2.7.  Number of Sources (N)<BR>
+
+=cut
+<PRE>
+   The Number of Sources (N) field specifies how many source addresses
+   are present in this Multicast Address Record.
+</PRE>
+
+=pod
+
+=end html
+
+=begin html
+RFC3810 5.2.8.  Multicast Address<BR>
+
+=cut
+<PRE>
+   The Multicast Address field contains the multicast address to which
+   this Multicast Address Record pertains.
+</PRE>
+
+=pod
+
+=end html
+
+=begin html
+RFC3810 5.2.9.  Source Address [i]<BR>
+
+=cut
+<PRE>
+   The Source Address [i] fields are a vector of n unicast addresses,
+   where n is the value in this record's Number of Sources (N) field.
+</PRE>
+
+=pod
+
+=end html
+
+=begin html
+RFC3810 5.2.10.  Auxiliary Data<BR>
+
+=cut
+<PRE>
+   The Auxiliary Data field, if present, contains additional information
+   that pertain to this Multicast Address Record.  The protocol
+   specified in this document, MLDv2, does not define any auxiliary
+   data.  Therefore, implementations of MLDv2 MUST NOT include any
+   auxiliary data (i.e., MUST set the Aux Data Len field to zero) in any
+   transmitted Multicast Address Record, and MUST ignore any such data
+   present in any received Multicast Address Record.
+</PRE>
+
+=pod
+
+=end html
+
+=begin html
+RFC3810 5.2.11.  Additional Data<BR>
+
+=cut
+<PRE>
+   If the Payload Length field in the IPv6 header of a received Report
+   indicates that there are additional octets of data present, beyond
+   the last Multicast Address Record, MLDv2 implementations MUST include
+   those octets in the computation to verify the received MLD Checksum,
+   but MUST otherwise ignore those additional octets.  When sending a
+   Report, an MLDv2 implementation MUST NOT include additional octets
+   beyond the last Multicast Address Record.
+</PRE>
+
+=pod
+
+=end html
+
+=begin html
+RFC3810 5.2.13.  Source Addresses for Reports<BR>
+
+=cut
+<PRE>
+   An MLDv2 Report MUST be sent with a valid IPv6 link-local source
+   address, or the unspecified address (::), if the sending interface
+   has not acquired a valid link-local address yet.
+</PRE>
+
+=pod
+
+=end html
+
+=begin html
+RFC3810 5.2.14.  Destination Addresses for Reports<BR>
+
+=cut
+<PRE>
+   Version 2 Multicast Listener Reports are sent with an IP destination
+   address of FF02:0:0:0:0:0:0:16, to which all MLDv2-capable multicast
+   routers listen (see section 11 for IANA considerations related to
+   this special destination address).
+</PRE>
+
+=pod
+
+=end html
+
+=head1 Discussion
+
+=begin html
+None
+
+=end html
+
+=head1 Test Requirement
+
+=begin html
+None
+
+=end html
+
+=head1 Test Setup
+
+=begin html
+<UL><LI><B><FONT SIZE="+1">Common Topology</FONT></B></UL>
+<PRE><FONT SIZE="+1">
+   HUT
+    |(I/F: Link0)
+    |
+   -+-------+-------+-------+-------+---- Network 0
+            |       |       |       |
+           TR1     TR2     TR3     TN1
+</FONT></PRE>
+<BLOCKQUOTE>
+<TABLE BORDER>
+<TR><TD><TT>ID</TT></TD>
+    <TD><TT>attibute</TT></TD>
+    <TD><TT>address, prefix</TT></TD>
+    <TD><TT>memo</TT></TD></TR>
+<TR><TD><TT>Network 0</TT></TD>
+    <TD><TT>prefix</TT></TD>
+    <TD><TT>3ffe:501:ffff:100::/64</TT></TD>
+    <TD><TT>I/F Link0 is connected.</TT></TD></TR>
+<TR><TD ROWSPAN="3"><TT>TR1</TT></TD>
+    <TD><TT>ether</TT></TD>
+    <TD><TT>00:00:00:00:00:01</TT></TD>
+    <TD ROWSPAN="3"><TT>Lower IP Address</TT></TD></TR>
+<TR><TD><TT>link-local</TT></TD>
+    <TD><TT>fe80::200:ff:fe00:1</TT></TD></TR>
+<TR><TD><TT>global</TT></TD>
+    <TD><TT>3ffe:501:ffff:100:200:ff:fe00:1</TT></TD></TR>
+<TR><TD ROWSPAN="3"><TT>TR2</TT></TD>
+    <TD><TT>ether</TT></TD>
+    <TD><TT>00:00:00:00:00:02</TT></TD>
+    <TD ROWSPAN="3"><TT>Middle IP Address</TT></TD></TR>
+<TR><TD><TT>link-local</TT></TD>
+    <TD><TT>fe80::200:ff:fe00:2</TT></TD></TR>
+<TR><TD><TT>global</TT></TD>
+    <TD><TT>3ffe:501:ffff:100:200:ff:fe00:2</TT></TD></TR>
+<TR><TD ROWSPAN="3"><TT>TR3</TT></TD>
+    <TD><TT>ether</TT></TD>
+    <TD><TT>00:00:00:00:00:03</TT></TD>
+    <TD ROWSPAN="3"><TT>Higher IP Address</TT></TD></TR>
+<TR><TD><TT>link-local</TT></TD>
+    <TD><TT>fe80::200:ff:fe00:3</TT></TD></TR>
+<TR><TD><TT>global</TT></TD>
+    <TD><TT>3ffe:501:ffff:100:200:ff:fe00:3</TT></TD></TR>
+<TR><TD ROWSPAN="3"><TT>TN1</TT></TD>
+    <TD><TT>ether</TT></TD>
+    <TD><TT>00:00:00:00:00:11</TT></TD>
+    <TD ROWSPAN="3"><TT>&nbsp;</TT></TD></TR>
+<TR><TD><TT>link-local</TT></TD>
+    <TD><TT>fe80::200:ff:fe00:11</TT></TD></TR>
+<TR><TD><TT>global</TT></TD>
+    <TD><TT>3ffe:501:ffff:100:200:ff:fe00:11</TT></TD></TR>
+</TABLE></BLOCKQUOTE>
+<UL><LI><B><FONT SIZE="+1">Common Test Setup</FONT></B>
+    <OL><LI>Configure HUT to have:
+        <UL><LI>Robustness Variable of 2
+            <LI>Query Interval of 125
+            <LI>Query Response Interval of 10 seconds
+            <LI>Unsolicited Report Interval of 1 second</UL></OL><BR>
+    <LI><B><FONT SIZE="+1">Common Test Cleanup</FONT></B>
+    <OL><LI>Return all timers and variables to their defaults values.
+        <LI>Stop any listening.  HUT does not listen to any multicast other than a solicited-node multicast address of an address assigned to the interface.</OL></UL>
+
+=end html
+
+=head1 Procedure
+
+=begin html
+<PRE>
+Step 1. Enable MLDv2 on the HUT.
+Step 2. Call ListenerAPI (S1, I1, M1, INCLUDE, {S1}) on the HUT.
+Step 3. Observe the packets on all networks.
+</PRE>
+
+=end html
+
+=head1 Observable Results
+
+=begin html
+<PRE>
+Step 3: The HUT must transmit 2 MLDv2 Report messages with the following values:
+    -----
+    IPv6 Header
+        Payload Length                  = 52
+        Next Header                     = 0 (IPv6 Option Header)
+        Hop Limit                       = 1
+        Source Address                  = HUT link-local address
+        Destination Address             = All MLDv2-capable multicast routers
+    Hop-by-Hop Header
+        Next Header                     = 58 (ICMPv6 Header)
+    Router Alert Option	
+        Value                           = 0
+    ICMPv6 Header
+        Type                            = 143 (MLDv2 Report)
+        Reserved                        = 0
+        Checksum                        = (Calculated value)
+        Reserved                        = 0
+        Nr of Mcast Address Records     = 1
+    Multicast Address Record [1]
+        Record Type                     = 5 (ALLOW)
+        Aux Data Len                    = 0
+        Number of Sources               = 1
+        Multicast Address               = M1
+        Multicast Source Address [1]    = S1
+    -----
+<BR>
+   HUT     TR1     TR2     TR3     TN1
+    |       |       |       |       |
+    |       |       |       |       | 1. Enable MLDv2 on the HUT.
+    |       |       |       |       | 2. Call ListenerAPI (S1, I1, M1, INCLUDE, {S1}) on the HUT.
+    |       |       |       |       | 3. Observe the packets on all networks.
+    |------------------------------>|    HUT transmits ALLOW (M1,{S1}), [RV] times, [URI] second(s)
+    |       |       |       |       |
+</PRE>
+
+=end html
+
+=head1 Possible Problems
+
+=begin html
+None
+
+=end html

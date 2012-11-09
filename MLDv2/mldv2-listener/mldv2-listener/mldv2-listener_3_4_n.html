@@ -1,0 +1,162 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>./mldv2-listener_3_4_n.seq</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:kris@jail-82.isc.freebsd.org" />
+</head>
+
+<body style="background-color: white">
+
+
+<!-- INDEX BEGIN -->
+<div name="index">
+<p><a name="__index__"></a></p>
+<!--
+
+<ul>
+
+	<li><a href="#test_label">Test Label</a></li>
+	<li><a href="#purpose">Purpose</a></li>
+	<li><a href="#references">References</a></li>
+	<li><a href="#discussion">Discussion</a></li>
+	<li><a href="#test_requirement">Test Requirement</a></li>
+	<li><a href="#test_setup">Test Setup</a></li>
+	<li><a href="#procedure">Procedure</a></li>
+	<li><a href="#observable_results">Observable Results</a></li>
+	<li><a href="#possible_problems">Possible Problems</a></li>
+</ul>
+
+-->
+
+
+</div>
+<!-- INDEX END -->
+
+<p>
+</p>
+<h1><a name="test_label">Test Label</a></h1>
+MLD.3.4: Listening State Update by One of Sockets<BR>
+Part N: From EXCLUDE (A) with EXCLUDE (B) to INCLUDE (C) with EXCLUDE (B)<p>
+</p>
+<hr />
+<h1><a name="purpose">Purpose</a></h1>
+To verify that the per-interface state is (re)evaluated when a service interface invocation modifies the socket status.<p>
+</p>
+<hr />
+<h1><a name="references">References</a></h1>
+RFC3810 4.2.  Per-Interface State<BR>RFC3810 6.1.  Action on Change of Per-Interface State<BR><p>
+</p>
+<hr />
+<h1><a name="discussion">Discussion</a></h1>
+None<p>
+</p>
+<hr />
+<h1><a name="test_requirement">Test Requirement</a></h1>
+None<p>
+</p>
+<hr />
+<h1><a name="test_setup">Test Setup</a></h1>
+<UL><LI><B><FONT SIZE="+1">Common Topology</FONT></B></UL>
+<PRE><FONT SIZE="+1">
+   HUT
+    |(I/F: Link0)
+    |
+   -+-------+-------+-------+-------+---- Network 0
+            |       |       |       |
+           TR1     TR2     TR3     TN1
+</FONT></PRE>
+<BLOCKQUOTE>
+<TABLE BORDER>
+<TR><TD><TT>ID</TT></TD>
+    <TD><TT>attibute</TT></TD>
+    <TD><TT>address, prefix</TT></TD>
+    <TD><TT>memo</TT></TD></TR>
+<TR><TD><TT>Network 0</TT></TD>
+    <TD><TT>prefix</TT></TD>
+    <TD><TT>3ffe:501:ffff:100::/64</TT></TD>
+    <TD><TT>I/F Link0 is connected.</TT></TD></TR>
+<TR><TD ROWSPAN="3"><TT>TR1</TT></TD>
+    <TD><TT>ether</TT></TD>
+    <TD><TT>00:00:00:00:00:01</TT></TD>
+    <TD ROWSPAN="3"><TT>Lower IP Address</TT></TD></TR>
+<TR><TD><TT>link-local</TT></TD>
+    <TD><TT>fe80::200:ff:fe00:1</TT></TD></TR>
+<TR><TD><TT>global</TT></TD>
+    <TD><TT>3ffe:501:ffff:100:200:ff:fe00:1</TT></TD></TR>
+<TR><TD ROWSPAN="3"><TT>TR2</TT></TD>
+    <TD><TT>ether</TT></TD>
+    <TD><TT>00:00:00:00:00:02</TT></TD>
+    <TD ROWSPAN="3"><TT>Middle IP Address</TT></TD></TR>
+<TR><TD><TT>link-local</TT></TD>
+    <TD><TT>fe80::200:ff:fe00:2</TT></TD></TR>
+<TR><TD><TT>global</TT></TD>
+    <TD><TT>3ffe:501:ffff:100:200:ff:fe00:2</TT></TD></TR>
+<TR><TD ROWSPAN="3"><TT>TR3</TT></TD>
+    <TD><TT>ether</TT></TD>
+    <TD><TT>00:00:00:00:00:03</TT></TD>
+    <TD ROWSPAN="3"><TT>Higher IP Address</TT></TD></TR>
+<TR><TD><TT>link-local</TT></TD>
+    <TD><TT>fe80::200:ff:fe00:3</TT></TD></TR>
+<TR><TD><TT>global</TT></TD>
+    <TD><TT>3ffe:501:ffff:100:200:ff:fe00:3</TT></TD></TR>
+<TR><TD ROWSPAN="3"><TT>TN1</TT></TD>
+    <TD><TT>ether</TT></TD>
+    <TD><TT>00:00:00:00:00:11</TT></TD>
+    <TD ROWSPAN="3"><TT>&nbsp;</TT></TD></TR>
+<TR><TD><TT>link-local</TT></TD>
+    <TD><TT>fe80::200:ff:fe00:11</TT></TD></TR>
+<TR><TD><TT>global</TT></TD>
+    <TD><TT>3ffe:501:ffff:100:200:ff:fe00:11</TT></TD></TR>
+</TABLE></BLOCKQUOTE>
+<UL><LI><B><FONT SIZE="+1">Common Test Setup</FONT></B>
+    <OL><LI>Configure HUT to have:
+        <UL><LI>Robustness Variable of 2
+            <LI>Query Interval of 125
+            <LI>Query Response Interval of 10 seconds
+            <LI>Unsolicited Report Interval of 1 second</UL></OL><BR>
+    <LI><B><FONT SIZE="+1">Common Test Cleanup</FONT></B>
+    <OL><LI>Return all timers and variables to their defaults values.
+        <LI>Stop any listening.  HUT does not listen to any multicast other than a solicited-node multicast address of an address assigned to the interface.</OL></UL><p>
+</p>
+<hr />
+<h1><a name="procedure">Procedure</a></h1>
+<PRE>
+Step 92. Enable MLDv2 on the HUT.
+Step 93. Call ListenerAPI (S1, I1, M1, EXCLUDE, {S1, S4, S5, S7}) on the HUT.
+Step 94. Observe the packets on all networks.
+Step 95. Call ListenerAPI (S2, I1, M1, EXCLUDE, {S2, S4, S6, S7}) on the HUT.
+Step 96. Observe the packets on all networks.
+Step 97. Call ListenerAPI (S1, I1, M1, INCLUDE, {S3, S5, S6, S7}) on the HUT.
+Step 98. Observe the packets on all networks.
+</PRE><p>
+</p>
+<hr />
+<h1><a name="observable_results">Observable Results</a></h1>
+<PRE>
+Step 94: The HUT must transmit 2 MLDv2 Report messages with Multicast Address Record TO_EX (S1, S4, S5, S7) for M1.
+Step 96: The HUT must transmit 2 MLDv2 Report messages with Multicast Address Record ALLOW (S1, S5) for M1.
+Step 98: The HUT must transmit 2 MLDv2 Report messages with 2 Multicast Address Record ALLOW (S7) for M1 and BLOCK (S2) for M1.
+<BR>
+   HUT     TR1     TR2     TR3     TN1
+    |       |       |       |       |
+    |       |       |       |       | 92. Enable MLDv2 on the HUT.
+    |       |       |       |       | 93. Call ListenerAPI (S1, I1, M1, EXCLUDE, {S1, S4, S5, S7}) on the HUT.
+    |       |       |       |       | 94. Observe the packets on all networks.
+    |------------------------------>|     HUT transmits TO_EX (M1,{S1,S4,S5,S7}), [RV] times, [URI] second(s)
+    |       |       |       |       | 95. Call ListenerAPI (S2, I1, M1, EXCLUDE, {S2, S4, S6, S7}) on the HUT.
+    |       |       |       |       | 96. Observe the packets on all networks.
+    |------------------------------>|     HUT transmits ALLOW (M1,{S1,S5}), [RV] times, [URI] second(s)
+    |       |       |       |       | 97. Call ListenerAPI (S1, I1, M1, INCLUDE, {S3, S5, S6, S7}) on the HUT.
+    |       |       |       |       | 98. Observe the packets on all networks.
+    |------------------------------>|     HUT transmits ALLOW (M1,{S7}) and BLOCK (M1,{S2}), [RV] times, [URI] second(s)
+    |       |       |       |       |
+</PRE><p>
+</p>
+<hr />
+<h1><a name="possible_problems">Possible Problems</a></h1>
+None
+</body>
+
+</html>

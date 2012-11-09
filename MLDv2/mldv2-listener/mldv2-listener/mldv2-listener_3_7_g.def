@@ -1,0 +1,508 @@
+// 
+// Copyright (C) IPv6 Promotion Council, NTT Advanced Technology Corporation
+// (NTT-AT), Yokogwa Electoric Corporation and YASKAWA INFORMATION SYSTEMS
+// Corporation All rights reserved.
+// 
+// Redistribution and use of this software in source and binary forms, with
+// or without modification, are permitted provided that the following
+// conditions and disclaimer are agreed and accepted by the user:
+// 
+// 1. Redistributions of source code must retain the above copyright
+// notice, this list of conditions and the following disclaimer.
+// 
+// 2. Redistributions in binary form must reproduce the above copyright
+// notice, this list of conditions and the following disclaimer in the
+// documentation and/or other materials provided with the distribution.
+// 
+// 3. Neither the names of the copyrighters, the name of the project which
+// is related to this software (hereinafter referred to as "project") nor
+// the names of the contributors may be used to endorse or promote products
+// derived from this software without specific prior written permission.
+// 
+// 4. No merchantable use may be permitted without prior written
+// notification to the copyrighters. However, using this software for the
+// purpose of testing or evaluating any products including merchantable
+// products may be permitted without any notification to the copyrighters.
+// 
+// 
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+// CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+// BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+// FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+// COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+// INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+// SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+// HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+// CONTRACT,STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+// THE POSSIBILITY OF SUCH DAMAGE.
+// 
+///////////////////////////////////////////////////////////////////////////////
+//=============================================================================
+// Include
+//=============================================================================
+#include "MLDv2L.def"
+
+//-----------------------------------------------------------------------------
+// HUT0 -> All MLDv2-capable routers, MLDv2 Report TO_EX(M1,{S1,S4,S5,S7})
+//-----------------------------------------------------------------------------
+MLDv2_AddrRecord mld2_rcd_t4m1n4s1457 {
+	Type                = MLDv2R_TO_EXCLUDE;
+	AuxDataLen          = MLDv2R_AUXDATALEN;
+	NumOfSources        = 4;
+	MulticastAddress    = MCAST1_ADDR;
+	SourceAddress       = MSRC_01;
+	SourceAddress       = MSRC_04;
+	SourceAddress       = MSRC_05;
+	SourceAddress       = MSRC_07;
+}
+
+MLDv2_AddrRecord mld2_rcd_t4m1n4s1475 {
+	Type                = MLDv2R_TO_EXCLUDE;
+	AuxDataLen          = MLDv2R_AUXDATALEN;
+	NumOfSources        = 4;
+	MulticastAddress    = MCAST1_ADDR;
+	SourceAddress       = MSRC_01;
+	SourceAddress       = MSRC_04;
+	SourceAddress       = MSRC_07;
+	SourceAddress       = MSRC_05;
+}
+
+MLDv2_AddrRecord mld2_rcd_t4m1n4s1547 {
+	Type                = MLDv2R_TO_EXCLUDE;
+	AuxDataLen          = MLDv2R_AUXDATALEN;
+	NumOfSources        = 4;
+	MulticastAddress    = MCAST1_ADDR;
+	SourceAddress       = MSRC_01;
+	SourceAddress       = MSRC_05;
+	SourceAddress       = MSRC_04;
+	SourceAddress       = MSRC_07;
+}
+
+MLDv2_AddrRecord mld2_rcd_t4m1n4s1574 {
+	Type                = MLDv2R_TO_EXCLUDE;
+	AuxDataLen          = MLDv2R_AUXDATALEN;
+	NumOfSources        = 4;
+	MulticastAddress    = MCAST1_ADDR;
+	SourceAddress       = MSRC_01;
+	SourceAddress       = MSRC_05;
+	SourceAddress       = MSRC_07;
+	SourceAddress       = MSRC_04;
+}
+
+MLDv2_AddrRecord mld2_rcd_t4m1n4s1745 {
+	Type                = MLDv2R_TO_EXCLUDE;
+	AuxDataLen          = MLDv2R_AUXDATALEN;
+	NumOfSources        = 4;
+	MulticastAddress    = MCAST1_ADDR;
+	SourceAddress       = MSRC_01;
+	SourceAddress       = MSRC_07;
+	SourceAddress       = MSRC_04;
+	SourceAddress       = MSRC_05;
+}
+
+MLDv2_AddrRecord mld2_rcd_t4m1n4s1754 {
+	Type                = MLDv2R_TO_EXCLUDE;
+	AuxDataLen          = MLDv2R_AUXDATALEN;
+	NumOfSources        = 4;
+	MulticastAddress    = MCAST1_ADDR;
+	SourceAddress       = MSRC_01;
+	SourceAddress       = MSRC_07;
+	SourceAddress       = MSRC_05;
+	SourceAddress       = MSRC_04;
+}
+
+MLDv2_AddrRecord mld2_rcd_t4m1n4s4157 {
+	Type                = MLDv2R_TO_EXCLUDE;
+	AuxDataLen          = MLDv2R_AUXDATALEN;
+	NumOfSources        = 4;
+	MulticastAddress    = MCAST1_ADDR;
+	SourceAddress       = MSRC_04;
+	SourceAddress       = MSRC_01;
+	SourceAddress       = MSRC_05;
+	SourceAddress       = MSRC_07;
+}
+
+MLDv2_AddrRecord mld2_rcd_t4m1n4s4175 {
+	Type                = MLDv2R_TO_EXCLUDE;
+	AuxDataLen          = MLDv2R_AUXDATALEN;
+	NumOfSources        = 4;
+	MulticastAddress    = MCAST1_ADDR;
+	SourceAddress       = MSRC_04;
+	SourceAddress       = MSRC_01;
+	SourceAddress       = MSRC_07;
+	SourceAddress       = MSRC_05;
+}
+
+MLDv2_AddrRecord mld2_rcd_t4m1n4s4517 {
+	Type                = MLDv2R_TO_EXCLUDE;
+	AuxDataLen          = MLDv2R_AUXDATALEN;
+	NumOfSources        = 4;
+	MulticastAddress    = MCAST1_ADDR;
+	SourceAddress       = MSRC_04;
+	SourceAddress       = MSRC_05;
+	SourceAddress       = MSRC_01;
+	SourceAddress       = MSRC_07;
+}
+
+MLDv2_AddrRecord mld2_rcd_t4m1n4s4571 {
+	Type                = MLDv2R_TO_EXCLUDE;
+	AuxDataLen          = MLDv2R_AUXDATALEN;
+	NumOfSources        = 4;
+	MulticastAddress    = MCAST1_ADDR;
+	SourceAddress       = MSRC_04;
+	SourceAddress       = MSRC_05;
+	SourceAddress       = MSRC_07;
+	SourceAddress       = MSRC_01;
+}
+
+MLDv2_AddrRecord mld2_rcd_t4m1n4s4715 {
+	Type                = MLDv2R_TO_EXCLUDE;
+	AuxDataLen          = MLDv2R_AUXDATALEN;
+	NumOfSources        = 4;
+	MulticastAddress    = MCAST1_ADDR;
+	SourceAddress       = MSRC_04;
+	SourceAddress       = MSRC_07;
+	SourceAddress       = MSRC_01;
+	SourceAddress       = MSRC_05;
+}
+
+MLDv2_AddrRecord mld2_rcd_t4m1n4s4751 {
+	Type                = MLDv2R_TO_EXCLUDE;
+	AuxDataLen          = MLDv2R_AUXDATALEN;
+	NumOfSources        = 4;
+	MulticastAddress    = MCAST1_ADDR;
+	SourceAddress       = MSRC_04;
+	SourceAddress       = MSRC_07;
+	SourceAddress       = MSRC_05;
+	SourceAddress       = MSRC_01;
+}
+
+MLDv2_AddrRecord mld2_rcd_t4m1n4s5147 {
+	Type                = MLDv2R_TO_EXCLUDE;
+	AuxDataLen          = MLDv2R_AUXDATALEN;
+	NumOfSources        = 4;
+	MulticastAddress    = MCAST1_ADDR;
+	SourceAddress       = MSRC_05;
+	SourceAddress       = MSRC_01;
+	SourceAddress       = MSRC_04;
+	SourceAddress       = MSRC_07;
+}
+
+MLDv2_AddrRecord mld2_rcd_t4m1n4s5174 {
+	Type                = MLDv2R_TO_EXCLUDE;
+	AuxDataLen          = MLDv2R_AUXDATALEN;
+	NumOfSources        = 4;
+	MulticastAddress    = MCAST1_ADDR;
+	SourceAddress       = MSRC_05;
+	SourceAddress       = MSRC_01;
+	SourceAddress       = MSRC_07;
+	SourceAddress       = MSRC_04;
+}
+
+MLDv2_AddrRecord mld2_rcd_t4m1n4s5417 {
+	Type                = MLDv2R_TO_EXCLUDE;
+	AuxDataLen          = MLDv2R_AUXDATALEN;
+	NumOfSources        = 4;
+	MulticastAddress    = MCAST1_ADDR;
+	SourceAddress       = MSRC_05;
+	SourceAddress       = MSRC_04;
+	SourceAddress       = MSRC_01;
+	SourceAddress       = MSRC_07;
+}
+
+MLDv2_AddrRecord mld2_rcd_t4m1n4s5471 {
+	Type                = MLDv2R_TO_EXCLUDE;
+	AuxDataLen          = MLDv2R_AUXDATALEN;
+	NumOfSources        = 4;
+	MulticastAddress    = MCAST1_ADDR;
+	SourceAddress       = MSRC_05;
+	SourceAddress       = MSRC_04;
+	SourceAddress       = MSRC_07;
+	SourceAddress       = MSRC_01;
+}
+
+MLDv2_AddrRecord mld2_rcd_t4m1n4s5714 {
+	Type                = MLDv2R_TO_EXCLUDE;
+	AuxDataLen          = MLDv2R_AUXDATALEN;
+	NumOfSources        = 4;
+	MulticastAddress    = MCAST1_ADDR;
+	SourceAddress       = MSRC_05;
+	SourceAddress       = MSRC_07;
+	SourceAddress       = MSRC_01;
+	SourceAddress       = MSRC_04;
+}
+
+MLDv2_AddrRecord mld2_rcd_t4m1n4s5741 {
+	Type                = MLDv2R_TO_EXCLUDE;
+	AuxDataLen          = MLDv2R_AUXDATALEN;
+	NumOfSources        = 4;
+	MulticastAddress    = MCAST1_ADDR;
+	SourceAddress       = MSRC_05;
+	SourceAddress       = MSRC_07;
+	SourceAddress       = MSRC_04;
+	SourceAddress       = MSRC_01;
+}
+
+MLDv2_AddrRecord mld2_rcd_t4m1n4s7145 {
+	Type                = MLDv2R_TO_EXCLUDE;
+	AuxDataLen          = MLDv2R_AUXDATALEN;
+	NumOfSources        = 4;
+	MulticastAddress    = MCAST1_ADDR;
+	SourceAddress       = MSRC_07;
+	SourceAddress       = MSRC_01;
+	SourceAddress       = MSRC_04;
+	SourceAddress       = MSRC_05;
+}
+
+MLDv2_AddrRecord mld2_rcd_t4m1n4s7154 {
+	Type                = MLDv2R_TO_EXCLUDE;
+	AuxDataLen          = MLDv2R_AUXDATALEN;
+	NumOfSources        = 4;
+	MulticastAddress    = MCAST1_ADDR;
+	SourceAddress       = MSRC_07;
+	SourceAddress       = MSRC_01;
+	SourceAddress       = MSRC_05;
+	SourceAddress       = MSRC_04;
+}
+
+MLDv2_AddrRecord mld2_rcd_t4m1n4s7415 {
+	Type                = MLDv2R_TO_EXCLUDE;
+	AuxDataLen          = MLDv2R_AUXDATALEN;
+	NumOfSources        = 4;
+	MulticastAddress    = MCAST1_ADDR;
+	SourceAddress       = MSRC_07;
+	SourceAddress       = MSRC_04;
+	SourceAddress       = MSRC_01;
+	SourceAddress       = MSRC_05;
+}
+
+MLDv2_AddrRecord mld2_rcd_t4m1n4s7451 {
+	Type                = MLDv2R_TO_EXCLUDE;
+	AuxDataLen          = MLDv2R_AUXDATALEN;
+	NumOfSources        = 4;
+	MulticastAddress    = MCAST1_ADDR;
+	SourceAddress       = MSRC_07;
+	SourceAddress       = MSRC_04;
+	SourceAddress       = MSRC_05;
+	SourceAddress       = MSRC_01;
+}
+
+MLDv2_AddrRecord mld2_rcd_t4m1n4s7514 {
+	Type                = MLDv2R_TO_EXCLUDE;
+	AuxDataLen          = MLDv2R_AUXDATALEN;
+	NumOfSources        = 4;
+	MulticastAddress    = MCAST1_ADDR;
+	SourceAddress       = MSRC_07;
+	SourceAddress       = MSRC_05;
+	SourceAddress       = MSRC_01;
+	SourceAddress       = MSRC_04;
+}
+
+MLDv2_AddrRecord mld2_rcd_t4m1n4s7541 {
+	Type                = MLDv2R_TO_EXCLUDE;
+	AuxDataLen          = MLDv2R_AUXDATALEN;
+	NumOfSources        = 4;
+	MulticastAddress    = MCAST1_ADDR;
+	SourceAddress       = MSRC_07;
+	SourceAddress       = MSRC_05;
+	SourceAddress       = MSRC_04;
+	SourceAddress       = MSRC_01;
+}
+
+FEM_icmp6_mldv2report_exth(
+	MLDv2R_hut0l_mld2r_r1_t4m1n4s1457,
+	_HETHER_hut0_to_mld2r,
+	{
+		HopLimit        = HUT_MLDR_HOP;
+		_SRC(HUT0_LLOCAL_UCAST);
+		_DST(MLDv2_ROUTERS_ADDR);
+	},
+	{
+		header  = _HDR_IPV6_NAME(MLDv2R_hut0l_mld2r_r1_t4m1n4s1457);
+		exthdr  = ext_hbh_rtalert_mld;
+		upper   = _ICMPV6_NAME(MLDv2R_hut0l_mld2r_r1_t4m1n4s1457);
+	},
+	{
+		Type                    = MLDv2R_TYPE;
+		Code                    = HUT_MLDv2R_CODE;
+		Checksum                = HUT_MLDv2R_CHECKSUM;
+		Reserved                = HUT_MLDv2R_RESERVED;
+		NumOfMcastAddrRecords   = 1;
+		MLDv2_AddrRecord        = oneof (mld2_rcd_t4m1n4s1457, mld2_rcd_t4m1n4s1475,
+		                                 mld2_rcd_t4m1n4s1547, mld2_rcd_t4m1n4s1574,
+		                                 mld2_rcd_t4m1n4s1745, mld2_rcd_t4m1n4s1754,
+		                                 mld2_rcd_t4m1n4s4157, mld2_rcd_t4m1n4s4175,
+		                                 mld2_rcd_t4m1n4s4517, mld2_rcd_t4m1n4s4571,
+		                                 mld2_rcd_t4m1n4s4715, mld2_rcd_t4m1n4s4751,
+		                                 mld2_rcd_t4m1n4s5147, mld2_rcd_t4m1n4s5174,
+		                                 mld2_rcd_t4m1n4s5417, mld2_rcd_t4m1n4s5471,
+		                                 mld2_rcd_t4m1n4s5714, mld2_rcd_t4m1n4s5741,
+		                                 mld2_rcd_t4m1n4s7145, mld2_rcd_t4m1n4s7154,
+		                                 mld2_rcd_t4m1n4s7415, mld2_rcd_t4m1n4s7451,
+		                                 mld2_rcd_t4m1n4s7514, mld2_rcd_t4m1n4s7541);
+	}
+)
+
+//-----------------------------------------------------------------------------
+// HUT0 -> All MLDv2-capable routers, MLDv2 Report ALLOW(M1,{S4,S7})
+//-----------------------------------------------------------------------------
+MLDv2_AddrRecord mld2_rcd_t5m1n2s47 {
+	Type                = MLDv2R_ALLOW;
+	AuxDataLen          = MLDv2R_AUXDATALEN;
+	NumOfSources        = 2;
+	MulticastAddress    = MCAST1_ADDR;
+	SourceAddress       = MSRC_04;
+	SourceAddress       = MSRC_07;
+}
+
+MLDv2_AddrRecord mld2_rcd_t5m1n2s74 {
+	Type                = MLDv2R_ALLOW;
+	AuxDataLen          = MLDv2R_AUXDATALEN;
+	NumOfSources        = 2;
+	MulticastAddress    = MCAST1_ADDR;
+	SourceAddress       = MSRC_07;
+	SourceAddress       = MSRC_04;
+}
+
+FEM_icmp6_mldv2report_exth(
+	MLDv2R_hut0l_mld2r_r1_t5m1n2s47,
+	_HETHER_hut0_to_mld2r,
+	{
+		HopLimit        = HUT_MLDR_HOP;
+		_SRC(HUT0_LLOCAL_UCAST);
+		_DST(MLDv2_ROUTERS_ADDR);
+	},
+	{
+		header  = _HDR_IPV6_NAME(MLDv2R_hut0l_mld2r_r1_t5m1n2s47);
+		exthdr  = ext_hbh_rtalert_mld;
+		upper   = _ICMPV6_NAME(MLDv2R_hut0l_mld2r_r1_t5m1n2s47);
+	},
+	{
+		Type                    = MLDv2R_TYPE;
+		Code                    = HUT_MLDv2R_CODE;
+		Checksum                = HUT_MLDv2R_CHECKSUM;
+		Reserved                = HUT_MLDv2R_RESERVED;
+		NumOfMcastAddrRecords   = 1;
+		MLDv2_AddrRecord        = oneof (mld2_rcd_t5m1n2s47, mld2_rcd_t5m1n2s74);
+	}
+)
+
+//-----------------------------------------------------------------------------
+// HUT0 -> All MLDv2-capable routers, MLDv2 Report ALLOW(M1,{S1,S4,S7}) and BLOCK(M1,{S3})
+//-----------------------------------------------------------------------------
+MLDv2_AddrRecord mld2_rcd_t5m1n3s147 {
+	Type                = MLDv2R_ALLOW;
+	AuxDataLen          = MLDv2R_AUXDATALEN;
+	NumOfSources        = 3;
+	MulticastAddress    = MCAST1_ADDR;
+	SourceAddress       = MSRC_01;
+	SourceAddress       = MSRC_04;
+	SourceAddress       = MSRC_07;
+}
+
+MLDv2_AddrRecord mld2_rcd_t5m1n3s174 {
+	Type                = MLDv2R_ALLOW;
+	AuxDataLen          = MLDv2R_AUXDATALEN;
+	NumOfSources        = 3;
+	MulticastAddress    = MCAST1_ADDR;
+	SourceAddress       = MSRC_01;
+	SourceAddress       = MSRC_07;
+	SourceAddress       = MSRC_04;
+}
+
+MLDv2_AddrRecord mld2_rcd_t5m1n3s417 {
+	Type                = MLDv2R_ALLOW;
+	AuxDataLen          = MLDv2R_AUXDATALEN;
+	NumOfSources        = 3;
+	MulticastAddress    = MCAST1_ADDR;
+	SourceAddress       = MSRC_04;
+	SourceAddress       = MSRC_01;
+	SourceAddress       = MSRC_07;
+}
+
+MLDv2_AddrRecord mld2_rcd_t5m1n3s471 {
+	Type                = MLDv2R_ALLOW;
+	AuxDataLen          = MLDv2R_AUXDATALEN;
+	NumOfSources        = 3;
+	MulticastAddress    = MCAST1_ADDR;
+	SourceAddress       = MSRC_04;
+	SourceAddress       = MSRC_07;
+	SourceAddress       = MSRC_01;
+}
+
+MLDv2_AddrRecord mld2_rcd_t5m1n3s714 {
+	Type                = MLDv2R_ALLOW;
+	AuxDataLen          = MLDv2R_AUXDATALEN;
+	NumOfSources        = 3;
+	MulticastAddress    = MCAST1_ADDR;
+	SourceAddress       = MSRC_07;
+	SourceAddress       = MSRC_01;
+	SourceAddress       = MSRC_04;
+}
+
+MLDv2_AddrRecord mld2_rcd_t5m1n3s741 {
+	Type                = MLDv2R_ALLOW;
+	AuxDataLen          = MLDv2R_AUXDATALEN;
+	NumOfSources        = 3;
+	MulticastAddress    = MCAST1_ADDR;
+	SourceAddress       = MSRC_07;
+	SourceAddress       = MSRC_04;
+	SourceAddress       = MSRC_01;
+}
+
+FEM_icmp6_mldv2report_exth(
+	MLDv2R_hut0l_mld2r_r2_t5m1n3s147_t6m1n1s3,
+	_HETHER_hut0_to_mld2r,
+	{
+		HopLimit        = HUT_MLDR_HOP;
+		_SRC(HUT0_LLOCAL_UCAST);
+		_DST(MLDv2_ROUTERS_ADDR);
+	},
+	{
+		header  = _HDR_IPV6_NAME(MLDv2R_hut0l_mld2r_r2_t5m1n3s147_t6m1n1s3);
+		exthdr  = ext_hbh_rtalert_mld;
+		upper   = _ICMPV6_NAME(MLDv2R_hut0l_mld2r_r2_t5m1n3s147_t6m1n1s3);
+	},
+	{
+		Type                    = MLDv2R_TYPE;
+		Code                    = HUT_MLDv2R_CODE;
+		Checksum                = HUT_MLDv2R_CHECKSUM;
+		Reserved                = HUT_MLDv2R_RESERVED;
+		NumOfMcastAddrRecords   = 2;
+		MLDv2_AddrRecord        = comb (oneof (mld2_rcd_t5m1n3s147, mld2_rcd_t5m1n3s174,
+		                                       mld2_rcd_t5m1n3s417, mld2_rcd_t5m1n3s471,
+		                                       mld2_rcd_t5m1n3s714, mld2_rcd_t5m1n3s741),
+		                                mld2_rcd_t6m1n1s3);
+	}
+)
+
+//-----------------------------------------------------------------------------
+// HUT0 -> All MLDv2-capable routers, MLDv2 Report ALLOW(M1,{S1}) and BLOCK(M1,{S3})
+//-----------------------------------------------------------------------------
+FEM_icmp6_mldv2report_exth(
+	MLDv2R_hut0l_mld2r_r2_t5m1n1s1_t6m1n1s3,
+	_HETHER_hut0_to_mld2r,
+	{
+		HopLimit        = HUT_MLDR_HOP;
+		_SRC(HUT0_LLOCAL_UCAST);
+		_DST(MLDv2_ROUTERS_ADDR);
+	},
+	{
+		header  = _HDR_IPV6_NAME(MLDv2R_hut0l_mld2r_r2_t5m1n1s1_t6m1n1s3);
+		exthdr  = ext_hbh_rtalert_mld;
+		upper   = _ICMPV6_NAME(MLDv2R_hut0l_mld2r_r2_t5m1n1s1_t6m1n1s3);
+	},
+	{
+		Type                    = MLDv2R_TYPE;
+		Code                    = HUT_MLDv2R_CODE;
+		Checksum                = HUT_MLDv2R_CHECKSUM;
+		Reserved                = HUT_MLDv2R_RESERVED;
+		NumOfMcastAddrRecords   = 2;
+		MLDv2_AddrRecord        = comb (mld2_rcd_t5m1n1s1,
+		                                mld2_rcd_t6m1n1s3);
+	}
+)
+
+// EOF

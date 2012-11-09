@@ -1,0 +1,177 @@
+// 
+// Copyright (C) IPv6 Promotion Council, NTT Advanced Technology Corporation
+// (NTT-AT), Yokogwa Electoric Corporation and YASKAWA INFORMATION SYSTEMS
+// Corporation All rights reserved.
+// 
+// Redistribution and use of this software in source and binary forms, with
+// or without modification, are permitted provided that the following
+// conditions and disclaimer are agreed and accepted by the user:
+// 
+// 1. Redistributions of source code must retain the above copyright
+// notice, this list of conditions and the following disclaimer.
+// 
+// 2. Redistributions in binary form must reproduce the above copyright
+// notice, this list of conditions and the following disclaimer in the
+// documentation and/or other materials provided with the distribution.
+// 
+// 3. Neither the names of the copyrighters, the name of the project which
+// is related to this software (hereinafter referred to as "project") nor
+// the names of the contributors may be used to endorse or promote products
+// derived from this software without specific prior written permission.
+// 
+// 4. No merchantable use may be permitted without prior written
+// notification to the copyrighters. However, using this software for the
+// purpose of testing or evaluating any products including merchantable
+// products may be permitted without any notification to the copyrighters.
+// 
+// 
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+// CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+// BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+// FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+// COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+// INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+// SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+// HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+// CONTRACT,STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+// THE POSSIBILITY OF SUCH DAMAGE.
+// 
+///////////////////////////////////////////////////////////////////////////////
+//=============================================================================
+// Include
+//=============================================================================
+#include "MLDv2L.def"
+
+//-----------------------------------------------------------------------------
+// HUT0 -> HUT0, MLDv1 Report (HUT0)
+//-----------------------------------------------------------------------------
+FEM_icmp6_mldreport_exth(
+	MLDv1R_hut0l_hut0s_hut0s,
+	_HETHER_hut0_to_hut0sol,
+	{
+		HopLimit        = MLDR_HOP;
+		_SRC(HUT0_LLOCAL_UCAST);
+		_DST(HUT0_SOL_MCAST);
+	},
+	{
+		header  = _HDR_IPV6_NAME(MLDv1R_hut0l_hut0s_hut0s);
+		exthdr  = ext_hbh_rtalert_mld;
+		upper   = _ICMPV6_NAME(MLDv1R_hut0l_hut0s_hut0s);
+	},
+	{
+		// Type                    = MLDR_TYPE;
+		// Code                    = HUT_MLDR_CODE;
+		// Checksum                = HUT_MLDR_CHECKSUM;
+		// MaxResponseDelay        = HUT_MLDR_MRD;
+		// Reserved                = HUT_MLDR_RESERVED;
+		MulticastAddress        = HUT0_SOL_MCAST;
+	}
+)
+
+//-----------------------------------------------------------------------------
+// HUT0 -> M1, MLDv1 Report (M1)
+//-----------------------------------------------------------------------------
+FEM_icmp6_mldreport_exth(
+	MLDv1R_hut0l_mcast1_m1,
+	_HETHER_hut0_to_mcast1,
+	{
+		HopLimit        = MLDR_HOP;
+		_SRC(HUT0_LLOCAL_UCAST);
+		_DST(MCAST1_ADDR);
+	},
+	{
+		header  = _HDR_IPV6_NAME(MLDv1R_hut0l_mcast1_m1);
+		exthdr  = ext_hbh_rtalert_mld;
+		upper   = _ICMPV6_NAME(MLDv1R_hut0l_mcast1_m1);
+	},
+	{
+		// Type                    = MLDR_TYPE;
+		// Code                    = HUT_MLDR_CODE;
+		// Checksum                = HUT_MLDR_CHECKSUM;
+		// MaxResponseDelay        = HUT_MLDR_MRD;
+		// Reserved                = HUT_MLDR_RESERVED;
+		MulticastAddress        = MCAST1_ADDR;
+	}
+)
+
+//-----------------------------------------------------------------------------
+// HUT0 -> M2, MLDv1 Report (M2)
+//-----------------------------------------------------------------------------
+FEM_icmp6_mldreport_exth(
+	MLDv1R_hut0l_mcast2_m2,
+	_HETHER_hut0_to_mcast2,
+	{
+		HopLimit        = MLDR_HOP;
+		_SRC(HUT0_LLOCAL_UCAST);
+		_DST(MCAST2_ADDR);
+	},
+	{
+		header  = _HDR_IPV6_NAME(MLDv1R_hut0l_mcast2_m2);
+		exthdr  = ext_hbh_rtalert_mld;
+		upper   = _ICMPV6_NAME(MLDv1R_hut0l_mcast2_m2);
+	},
+	{
+		// Type                    = MLDR_TYPE;
+		// Code                    = HUT_MLDR_CODE;
+		// Checksum                = HUT_MLDR_CHECKSUM;
+		// MaxResponseDelay        = HUT_MLDR_MRD;
+		// Reserved                = HUT_MLDR_RESERVED;
+		MulticastAddress        = MCAST2_ADDR;
+	}
+)
+
+//--------------------------------------------------------------------------
+// HUT0 -> M1, MLDv1 Done (M1)
+//--------------------------------------------------------------------------
+FEM_icmp6_mlddone_exth(
+	MLDv1D_hut0l_mcast1_m1,
+	_HETHER_hut0_to_allrouters,
+	{
+		HopLimit        = MLDR_HOP;
+		_SRC(HUT0_LLOCAL_UCAST);
+		_DST(ALL_ROUTERS_ADDR);
+	},
+	{
+		header  = _HDR_IPV6_NAME(MLDv1D_hut0l_mcast1_m1);
+		exthdr  = ext_hbh_rtalert_mld;
+		upper   = _ICMPV6_NAME(MLDv1D_hut0l_mcast1_m1);
+	},
+	{
+		// Type                    = MLDR_TYPE;
+		// Code                    = HUT_MLDR_CODE;
+		// Checksum                = HUT_MLDR_CHECKSUM;
+		// MaxResponseDelay        = HUT_MLDR_MRD;
+		// Reserved                = HUT_MLDR_RESERVED;
+		MulticastAddress        = MCAST1_ADDR;
+	}
+)
+
+//-----------------------------------------------------------------------------
+// HUT0 -> All MLDv2-capable routers, MLDv2 Report TO_IN(M2,{NULL})
+//-----------------------------------------------------------------------------
+FEM_icmp6_mldv2report_exth(
+	MLDv2R_hut0l_mld2r_r1_t3m2n0,
+	_HETHER_hut0_to_mld2r,
+	{
+		HopLimit        = HUT_MLDR_HOP;
+		_SRC(HUT0_LLOCAL_UCAST);
+		_DST(MLDv2_ROUTERS_ADDR);
+	},
+	{
+		header  = _HDR_IPV6_NAME(MLDv2R_hut0l_mld2r_r1_t3m2n0);
+		exthdr  = ext_hbh_rtalert_mld;
+		upper   = _ICMPV6_NAME(MLDv2R_hut0l_mld2r_r1_t3m2n0);
+	},
+	{
+		Type                    = MLDv2R_TYPE;
+		Code                    = HUT_MLDv2R_CODE;
+		Checksum                = HUT_MLDv2R_CHECKSUM;
+		Reserved                = HUT_MLDv2R_RESERVED;
+		NumOfMcastAddrRecords   = 1;
+		MLDv2_AddrRecord        = mld2_rcd_t3m2n0;
+	}
+)
+
+// EOF

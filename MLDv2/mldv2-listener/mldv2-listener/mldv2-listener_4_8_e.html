@@ -1,0 +1,190 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>./mldv2-listener_4_8_e.seq</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:kris@jail-82.isc.freebsd.org" />
+</head>
+
+<body style="background-color: white">
+
+
+<!-- INDEX BEGIN -->
+<div name="index">
+<p><a name="__index__"></a></p>
+<!--
+
+<ul>
+
+	<li><a href="#test_label">Test Label</a></li>
+	<li><a href="#purpose">Purpose</a></li>
+	<li><a href="#references">References</a></li>
+	<li><a href="#discussion">Discussion</a></li>
+	<li><a href="#test_requirement">Test Requirement</a></li>
+	<li><a href="#test_setup">Test Setup</a></li>
+	<li><a href="#procedure">Procedure</a></li>
+	<li><a href="#observable_results">Observable Results</a></li>
+	<li><a href="#possible_problems">Possible Problems</a></li>
+</ul>
+
+-->
+
+
+</div>
+<!-- INDEX END -->
+
+<p>
+</p>
+<h1><a name="test_label">Test Label</a></h1>
+MLD.4.8: MLDv2 Multicast Address Specific Query Competition<BR>
+Part E: Previous Multicast Address and Source Specific Query with shorter Maximum Response Code<p>
+</p>
+<hr />
+<h1><a name="purpose">Purpose</a></h1>
+To verify that the MLDv2 Listener replies an optimized report when queries are received continuously.<p>
+</p>
+<hr />
+<h1><a name="references">References</a></h1>
+RFC3810 6.2.  Action on Reception of a Query<BR><p>
+</p>
+<hr />
+<h1><a name="discussion">Discussion</a></h1>
+None<p>
+</p>
+<hr />
+<h1><a name="test_requirement">Test Requirement</a></h1>
+None<p>
+</p>
+<hr />
+<h1><a name="test_setup">Test Setup</a></h1>
+<UL><LI><B><FONT SIZE="+1">Common Topology</FONT></B></UL>
+<PRE><FONT SIZE="+1">
+   HUT
+    |(I/F: Link0)
+    |
+   -+-------+-------+-------+-------+---- Network 0
+            |       |       |       |
+           TR1     TR2     TR3     TN1
+</FONT></PRE>
+<BLOCKQUOTE>
+<TABLE BORDER>
+<TR><TD><TT>ID</TT></TD>
+    <TD><TT>attibute</TT></TD>
+    <TD><TT>address, prefix</TT></TD>
+    <TD><TT>memo</TT></TD></TR>
+<TR><TD><TT>Network 0</TT></TD>
+    <TD><TT>prefix</TT></TD>
+    <TD><TT>3ffe:501:ffff:100::/64</TT></TD>
+    <TD><TT>I/F Link0 is connected.</TT></TD></TR>
+<TR><TD ROWSPAN="3"><TT>TR1</TT></TD>
+    <TD><TT>ether</TT></TD>
+    <TD><TT>00:00:00:00:00:01</TT></TD>
+    <TD ROWSPAN="3"><TT>Lower IP Address</TT></TD></TR>
+<TR><TD><TT>link-local</TT></TD>
+    <TD><TT>fe80::200:ff:fe00:1</TT></TD></TR>
+<TR><TD><TT>global</TT></TD>
+    <TD><TT>3ffe:501:ffff:100:200:ff:fe00:1</TT></TD></TR>
+<TR><TD ROWSPAN="3"><TT>TR2</TT></TD>
+    <TD><TT>ether</TT></TD>
+    <TD><TT>00:00:00:00:00:02</TT></TD>
+    <TD ROWSPAN="3"><TT>Middle IP Address</TT></TD></TR>
+<TR><TD><TT>link-local</TT></TD>
+    <TD><TT>fe80::200:ff:fe00:2</TT></TD></TR>
+<TR><TD><TT>global</TT></TD>
+    <TD><TT>3ffe:501:ffff:100:200:ff:fe00:2</TT></TD></TR>
+<TR><TD ROWSPAN="3"><TT>TR3</TT></TD>
+    <TD><TT>ether</TT></TD>
+    <TD><TT>00:00:00:00:00:03</TT></TD>
+    <TD ROWSPAN="3"><TT>Higher IP Address</TT></TD></TR>
+<TR><TD><TT>link-local</TT></TD>
+    <TD><TT>fe80::200:ff:fe00:3</TT></TD></TR>
+<TR><TD><TT>global</TT></TD>
+    <TD><TT>3ffe:501:ffff:100:200:ff:fe00:3</TT></TD></TR>
+<TR><TD ROWSPAN="3"><TT>TN1</TT></TD>
+    <TD><TT>ether</TT></TD>
+    <TD><TT>00:00:00:00:00:11</TT></TD>
+    <TD ROWSPAN="3"><TT>&nbsp;</TT></TD></TR>
+<TR><TD><TT>link-local</TT></TD>
+    <TD><TT>fe80::200:ff:fe00:11</TT></TD></TR>
+<TR><TD><TT>global</TT></TD>
+    <TD><TT>3ffe:501:ffff:100:200:ff:fe00:11</TT></TD></TR>
+</TABLE></BLOCKQUOTE>
+<UL><LI><B><FONT SIZE="+1">Common Test Setup</FONT></B>
+    <OL><LI>Configure HUT to have:
+        <UL><LI>Robustness Variable of 2
+            <LI>Query Interval of 125
+            <LI>Query Response Interval of 10 seconds
+            <LI>Unsolicited Report Interval of 1 second</UL></OL><BR>
+    <LI><B><FONT SIZE="+1">Common Test Cleanup</FONT></B>
+    <OL><LI>Return all timers and variables to their defaults values.
+        <LI>Stop any listening.  HUT does not listen to any multicast other than a solicited-node multicast address of an address assigned to the interface.</OL></UL><p>
+</p>
+<hr />
+<h1><a name="procedure">Procedure</a></h1>
+<PRE>
+Step 25. Enable MLDv2 on the HUT.
+Step 26. Call ListenerAPI (S1, I1, M1, EXCLUDE, {NULL}) on the HUT.
+Step 27. Observe the packets on all networks.
+Step 28. TR1 transmits MLDv2 Multicast Address and Source Specific Query message B for M1 (S1) with Maximum Response Code of 10000.
+    -----
+    IPv6 Header
+        IPv6 Hop Limit                  = 1
+        IPv6 Source Address             = TR1 Link-local Address
+        IPv6 Destination Address        = M1
+    Hop-by-Hop Options Header
+        Router Alert Option
+    ICMPv6 Header (MLD Query)
+        Maximum Response Code           = 10000
+        Multicast Address               = M1
+        S Flag                          = 0
+        QRV                             = 2
+        QQIC                            = 125
+        Number of Sources               = 1
+        Source Address                  = S1
+    -----
+Step 29. TR1 transmits MLDv2 Multicast Address Specific Query message A for M1 with Maximum Response Code of 20000.
+    -----
+    IPv6 Header
+        IPv6 Hop Limit                  = 1
+        IPv6 Source Address             = TR1 Link-local Address
+        IPv6 Destination Address        = M1
+    Hop-by-Hop Options Header
+        Router Alert Option
+    ICMPv6 Header (MLD Query)
+        Maximum Response Code           = 20000
+        Multicast Address               = M1
+        S Flag                          = 0
+        QRV                             = 2
+        QQIC                            = 125
+        Number of Sources               = 0
+    -----
+Step 30. Observe the packets on all networks.
+</PRE><p>
+</p>
+<hr />
+<h1><a name="observable_results">Observable Results</a></h1>
+<PRE>
+Step 27: The HUT must transmit 2 MLDv2 Report messages with Multicast Address Record TO_EX (NULL) for M1.
+Step 30: The HUT must transmit MLDv2 Report message with Multicast Address Record IS_EX (NULL) for M1 within 10 seconds from Step 28.
+         Then, the HUT must not transmit MLDv2 Report message with Multicast Address Record for M1 within 20 seconds from Step 29.
+<BR>
+   HUT     TR1     TR2     TR3     TN1
+    |       |       |       |       |
+    |       |       |       |       | 25. Enable MLDv2 on the HUT.
+    |       |       |       |       | 26. Call ListenerAPI (S1, I1, M1, EXCLUDE, {NULL}) on the HUT.
+    |       |       |       |       | 27. Observe the packets on all networks.
+    |------------------------------>|     HUT transmits TO_EX (M1,{NULL}), [RV] times, [URI] second(s)
+    |<------|       |       |       | 28. TR1 transmits MLDv2 Multicast Address and Source Specific Query message B for M1 (S1) with Maximum Response Code of 10000.
+    |<------|       |       |       | 29. TR1 transmits MLDv2 Multicast Address Specific Query message A for M1 with Maximum Response Code of 20000.
+    |       |       |       |       | 30. Observe the packets on all networks.
+    |------------------------------>|     HUT transmits IS_EX (M1,{NULL})
+    |       |       |       |       |
+</PRE><p>
+</p>
+<hr />
+<h1><a name="possible_problems">Possible Problems</a></h1>
+Since HUT decides on time to transmit each MLDv2 Report message at random, the expected result may not be obtained.  The expected result by several trials will be obtained.  Besides, probability may be raised by adjusting Maximum Response Code of MLDv2 Query message.
+</body>
+
+</html>

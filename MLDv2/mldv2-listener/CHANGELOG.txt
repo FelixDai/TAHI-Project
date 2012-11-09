@@ -1,0 +1,605 @@
+#
+# Copyright (C) IPv6 Promotion Council, NTT Advanced Technology Corporation
+# (NTT-AT), Yokogwa Electoric Corporation and YASKAWA INFORMATION SYSTEMS
+# Corporation All rights reserved.
+# 
+# Redistribution and use of this software in source and binary forms, with
+# or without modification, are permitted provided that the following
+# conditions and disclaimer are agreed and accepted by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright
+# notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright
+# notice, this list of conditions and the following disclaimer in the
+# documentation and/or other materials provided with the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project which
+# is related to this software (hereinafter referred to as "project") nor
+# the names of the contributors may be used to endorse or promote products
+# derived from this software without specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written
+# notification to the copyrighters. However, using this software for the
+# purpose of testing or evaluating any products including merchantable
+# products may be permitted without any notification to the copyrighters.
+# 
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+# CONTRACT,STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+# THE POSSIBILITY OF SUCH DAMAGE.
+#
+###########################################################################
+
+	CHANGELOG for MIPv6 Conformance Test Package
+
+2012/03/26	Release 0.1.8
+		bug fix release
+
+2012/03/26	bug fix
+		mldv2-listener/INDEX
+			./mldv2-listener_7_2_a.seq:mldv2-listener_7_1_a.def:::7.2.a MLDv1 Compatibility mode:1
+			                                            ^ 2
+			./mldv2-listener_7_2_b.seq:mldv2-listener_7_1_b.def:::7.2.b MLDv1 Report:1
+			                                            ^ 2
+
+		mldv2-listener/MLDv2L.def
+			Add
+			_HETHER_define(_HETHER_tn1_to_ssmcast1,     TN1_ETHER,  SSMCAST1_SOL_ETHER)
+
+			// TR1 -> M1, MLDv1 Query (M1)
+			FEM_icmp6_mldquery_exth (
+				MLDv1Q_tr1l_mcast1_m1,
+				
+					MaxResponseDelay    = MLDQG_MRD;
+					                      ^^^^^^^^^ MLDQM_MRD;
+
+		mldv2-listener/mldv2-listener_3_5_e.seq (PG bug)
+			caption => [ "Step 32. Call ListenerAPI (S1, I1, M1, INCLUDE, {NULL}) before retransmission on the HUT." ],
+			func    => "ListenerProc",
+			socket  => "S2",
+			            ^^S1
+
+		mldv2-listener/mldv2-listener_3_5_j.def (PG bug)
+			// HUT0 -> All MLDv2-capable routers, MLDv2 Report TO_EX(M1,{S1,S3})
+			                                                   ^^^^^^^^^^^^^^^^^TO_IN(M1,{S1,S3})
+			// HUT0 -> All MLDv2-capable routers, MLDv2 Report TO_EX(M1,{S2,S3})
+			                                                   ^^^^^^^^^^^^^^^^^TO_IN(M1,{S2,S3})
+
+		mldv2-listener/mldv2-listener_3_5_j.seq (PG bug)
+			caption => [ "Step 57. Call ListenerAPI (S1, I1, M1, EXCLUDE, {NULL}) on the HUT." ],
+			filter  => "INCLUDE",
+			            ^^^^^^^EXCLUDE
+
+			caption => [ "Step 60. Observe the packets on all networks." ],
+			msgs    => [ "MLDv2R_hut0l_mld2r_r1_t4m1n2s13" ],
+			                                    ^^t3
+
+			caption => [ "Step 62. Observe the packets on all networks." ],
+			msgs    => [ "MLDv2R_hut0l_mld2r_r1_t4m1n2s23" ],
+			                                    ^^t3
+
+			func    => "RecvProc",
+			msgs    => [ "MLDv2R_hut0l_mld2r_r2_t5m1n1s2_t6m1n1s1", "MLDv2R_hut0l_mld2r_r1_t4m1n2s23" ],
+			                                                                               ^^t3
+
+		mldv2-listener/mldv2-listener_3_5_k.seq (PG bug)
+			caption => [ "Step 64. Call ListenerAPI (S1, I1, M1, EXCLUDE, {NULL}) on the HUT." ],
+			filter  => "INCLUDE",
+			            ^^^^^^^EXCLUDE
+
+		mldv2-listener/mldv2-listener_3_6_f.seq (PG bug)
+			caption => [ "Step 36. Observe the packets on all networks." ],
+			msgs    => [ "MLDv2R_hut0l_mld2r_r2_t4m1n0" ],
+			                                 ^^r1
+
+		mldv2-listener/mldv2-listener_3_6_i.def (PG bug)
+			// HUT0 -> All MLDv2-capable routers, MLDv2 Report ALLOW(M1,{S6}) and BLOCK(M1,{S4})
+				MLDv2R_hut0l_mld2r_r2_t5m1n1s6_t6m1n1s4,
+					NumOfMcastAddrRecords   = 1;
+					                          ^2;
+
+		mldv2-listener/mldv2-listener_3_6_j.seq (PG bug)
+			caption => [ "Step 64. Observe the packets on all networks." ],
+			func    => "RecvProc",
+			func    => "RecvProc",
+			msgs    => [ "MLDv2R_hut0l_mld2r_r2_t5m1n1s2", "MLDv2R_hut0l_mld2r_r1_t4m1n0" ],
+			                                 ^^r1
+
+		mldv2-listener/mldv2-listener_3_6_k.def (PG bug)
+			// HUT0 -> All MLDv2-capable routers, MLDv2 Report ALLOW(M1,{S2}) and BLOCK(M1,{S7})
+				MLDv2R_hut0l_mld2r_r2_t5m1n1s2_t6m1n1s7,
+					NumOfMcastAddrRecords   = 1;
+					                          ^2
+
+		mldv2-listener/mldv2-listener_3_7_c.def (PG bug)
+			add MLDv2R_hut0l_mld2r_r1_t4m1n1s3
+
+		mldv2-listener/mldv2-listener_3_7_c.seq (PG bug)
+			add $pktdesc{MLDv2R_hut0l_mld2r_r1_t4m1n1s3}
+
+		mldv2-listener/mldv2-listener_3_7_g.seq (PG bug)
+			caption => [ "Step 42. Call ListenerAPI (S1, I1, M1, EXCLUDE, {S3, S5, S6, S7}) on the HUT before retransmission." ],
+			filter  => "INCLUDE",
+			            ^^^^^^^EXCLUDE
+
+		mldv2-listener/mldv2-listener_3_7_i.def (PG bug)
+			add mld2_rcd_t5m1n1s7
+
+		mldv2-listener/mldv2-listener_3_7_j.def (PG bug)
+			// HUT0 -> All MLDv2-capable routers, MLDv2 Report ALLOW(M1,{S1,S3})
+				MLDv2R_hut0l_mld2r_r1_t5m1n2s13,
+					NumOfMcastAddrRecords   = 2;
+					                          ^1
+
+		mldv2-listener/mldv2-listener_3_7_k.def (PG bug)
+			add mld2_rcd_t6m1n1s6
+
+		mldv2-listener/mldv2-listener_4_7_b.def
+			// TR1 -> All Nodes Address, MLDv2 Query (G) with Max Response Code of 1000.
+				MLDv2Q_tr1l_allnodes_m0_mrc1000,
+					MaxResponseDelay    = 10000;
+					                      ^^^^^1000
+
+		mldv2-listener/mldv2-listener_4_10_i.def (PG bug)
+			// HUT0 -> All MLDv2-capable routers, MLDv2 Report IS_IN(M1,{S2,S3})
+				MLDv2R_hut0l_mld2r_r1_t1m1n2s23,
+					NumOfMcastAddrRecords   = 2;
+					                          ^1
+
+		mldv2-listener/mldv2-listener_4_10_k.def (PG bug)
+			// HUT0 -> All MLDv2-capable routers, MLDv2 Report IS_EX(M1,{S2,S3})
+				MLDv2R_hut0l_mld2r_r1_t2m1n2s23,
+					NumOfMcastAddrRecords   = 2;
+					                          ^1
+
+		mldv2-listener/mldv2-listener_4_10_l.def (PG bug)
+			// HUT0 -> All MLDv2-capable routers, MLDv2 Report TO_EX(M1,{S2,S3})
+				MLDv2R_hut0l_mld2r_r1_t4m1n2s23,
+					NumOfMcastAddrRecords   = 2;
+					                          ^1
+
+		mldv2-listener/mldv2-listener_4_10_m.def (PG bug)
+			MLDv2_AddrRecord mld2_rcd_t1m1n1s132 {
+			                              ^^n3
+
+			MLDv2_AddrRecord mld2_rcd_t1m1n1s213 {
+			                              ^^n3
+
+			MLDv2_AddrRecord mld2_rcd_t1m1n1s231 {
+			                              ^^n3
+
+			MLDv2_AddrRecord mld2_rcd_t1m1n1s312 {
+			                              ^^n3
+
+			MLDv2_AddrRecord mld2_rcd_t1m1n1s321 {
+			                              ^^n3
+
+-			MLDv2_AddrRecord        = oneof (mld2_rcd_t1m1n3s123, mld2_rcd_t1m1n3s132,
+-			                                 mld2_rcd_t1m1n3s213, mld2_rcd_t1m1n3s231,
+-			                                 mld2_rcd_t1m1n2s312, mld2_rcd_t1m1n2s321);
++			MLDv2_AddrRecord        = comb (oneof (mld2_rcd_t1m1n3s123, mld2_rcd_t1m1n3s132,
++			                                       mld2_rcd_t1m1n3s213, mld2_rcd_t1m1n3s231,
++			                                       mld2_rcd_t1m1n3s312, mld2_rcd_t1m1n3s321),
++			                                mld2_rcd_t2hut0sn0);
+
+		mldv2-listener/mldv2-listener_4_10_n.def (PG bug)
+			MLDv2_AddrRecord mld2_rcd_t2m1n3s132 {
+			                          ^^t1
+				NumOfSources        = 1;
+				                      ^3
+
+			MLDv2_AddrRecord mld2_rcd_t2m1n3s213 {
+			                          ^^t1
+				NumOfSources        = 1;
+				                      ^3
+
+			MLDv2_AddrRecord mld2_rcd_t2m1n3s231 {
+			                          ^^t1
+				NumOfSources        = 1;
+				                      ^3
+
+			MLDv2_AddrRecord mld2_rcd_t2m1n3s312 {
+			                          ^^t1
+				NumOfSources        = 1;
+				                      ^3
+
+			MLDv2_AddrRecord mld2_rcd_t2m1n3s321 {
+			                          ^^t1
+				NumOfSources        = 1;
+				                      ^3
+
+				MLDv2R_hut0l_mld2r_r1_t1m1n3s123,
+					NumOfMcastAddrRecords   = 2;
+					                          ^1
+
+-					MLDv2_AddrRecord        = oneof (mld2_rcd_t2m1n3s123, mld2_rcd_t2m1n3s132,
+-					                                 mld2_rcd_t2m1n3s213, mld2_rcd_t2m1n3s231,
+-					                                 mld2_rcd_t2m1n3s312, mld2_rcd_t2m1n3s321);
++					MLDv2_AddrRecord        = oneof (mld2_rcd_t1m1n3s123, mld2_rcd_t1m1n3s132,
++					                                 mld2_rcd_t1m1n3s213, mld2_rcd_t1m1n3s231,
++					                                 mld2_rcd_t1m1n3s312, mld2_rcd_t1m1n3s321);
+
+		mldv2-listener/mldv2-listener_4_10_o.def (PG bug)
+				MLDv2R_hut0l_mld2r_r1_t1m1n3s123,
+					NumOfMcastAddrRecords   = 2;
+					                          ^1
+
+		mldv2-listener/mldv2-listener_5_2_d.def (PG bug)
+			FEM_icmp6_mldv2report_exth(
+				MLDv2R_hut0l_mld2r_r1_t4m1n89,
+					NumOfMcastAddrRecords   = 89;
+					                          ^^1
+
+			FEM_icmp6_mldv2report_exth(
+				MLDv2R_hut0l_mld2r_r1_t2m1n89,
+					NumOfMcastAddrRecords   = 89;
+					                          ^^1
+
+		mldv2-listener/mldv2-listener_5_2_e.def (PG bug)
+			FEM_icmp6_mldv2report_exth(
+				MLDv2R_hut0l_mld2r_r1_t4m1n89,
+					NumOfMcastAddrRecords   = 89;
+					                          ^^1
+
+		mldv2-listener/mldv2-listener_5_2_h.seq (Spec bug)
+		Step 40.
+			count   => $CONF_DATA{RV},
+			           ^^^^^^^^^^^^^^$CONF_DATA{RV} * 2,
+
+			msgs    => [ "MLDv2R_hut0l_mld2r_r1_t3m1n89" ],
+			             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^msgs    => [ "MLDv2R_hut0l_mld2r_r1_any" ],
+
+		$wk = JudgeSplitReport("L0R1", "$CONF_DATA{MCAST1}", 3, "S1_90", $CONF_DATA{RV}, 89);
+		                                                                                 ^^90
+
+		mldv2-listener/mldv2-listener_5_4_b.seq
+		Step 12.
+			count   => $CONF_DATA{RV} * 2,
+			                         ^^^^delete
+
+		mldv2-listener/mldv2-listener_6_1_a.def (Spec bug & PG bug)
+			FEM_icmp6_mlddone_exth(
+				MLDv1D_hut0l_mcast1_m1,
+				_HETHER_hut0_to_mcast1,
+	                ^^^^^^allrouters
+
+					_DST(MCAST1_ADDR);
+					     ^^^^^^^^^^^ALL_ROUTERS_ADDR
+
+		mldv2-listener/mldv2-listener_6_1_a.seq (Spec bug & PG bug)
+		Observable Results
+			Step 9: The HUT must transmit 2 MLDv1 Done messages for M1.
+			                              ^^^^^^^^^^^^^^^^^^^^^a single MLDv1 Done message
+
+		mldv2-listener/mldv2-listener_7_2_a.def (Spec bug & PG bug)
+			FEM_icmp6_mldquery_exth (
+				MLDv1Q_tr1l_ssmcast1_ssm1,
+					MaxResponseDelay    = MLDQG_MRD;
+					                          ^M
+
+			FEM_icmp6_mlddone_exth(
+				MLDv1D_hut0l_ssmcast1_ssm1,
+				_HETHER_hut0_to_ssmcast1,
+				                ^^^^^^^^allrouters
+
+					_DST(SSMCAST1_ADDR);
+					     ^^^^^^^^^^^^^ALL_ROUTERS_ADDR);
+
+		mldv2-listener/mldv2-listener_7_2_a.seq (Spec bug & PG bug)
+		Observable Results
+			Step 11: The HUT must transmit 2 MLDv1 Done message for SSM1.
+			                               ^a single
+
+2011/08/10	Release 0.1.7
+		bug fix release
+
+2011/08/10	bug fix
+		mldv2-listener/MLDv2L.def (PG bug. _4_2_b and _4_4_b are influenced.)
+			// IS_EX(M2,{S1})
+			MLDv2_AddrRecord mld2_rcd_t2m2n1s1 {
+				Type                = MLDv2R_IS_EXCLUDE;
+				AuxDataLen          = MLDv2R_AUXDATALEN;
+				NumOfSources        = 2;
+				                      ^ -> 1
+
+			// IS_EX(M2,{S2})
+			MLDv2_AddrRecord mld2_rcd_t2m2n1s2 {
+				Type                = MLDv2R_IS_EXCLUDE;
+				AuxDataLen          = MLDv2R_AUXDATALEN;
+				NumOfSources        = 2;
+				                      ^ -> 1
+
+			// IS_EX(M2,{S3})
+			MLDv2_AddrRecord mld2_rcd_t2m2n1s3 {
+				Type                = MLDv2R_IS_EXCLUDE;
+				AuxDataLen          = MLDv2R_AUXDATALEN;
+				NumOfSources        = 2;
+				                      ^ -> 1
+
+		mldv2-listener/mldv2-listener_3_4_h.seq (spec bug and related PG)
+		Observable Results
+			Step 56: The HUT must transmit 2 MLDv2 Report messages with 2 Multicast Address Record ALLOW (S6) for M1 and BLOCK (S7) for M1.
+			                                                                                              ^^->S2
+
+		mldv2-listener/mldv2-listener_3_4_n.seq (spec bug and related PG)
+		Observable Results
+			Step 98: The HUT must transmit 2 MLDv2 Report messages with 2 Multicast Address Record ALLOW (S4) for M1 and BLOCK (S2) for M1.
+			                                                                                              ^^->S7
+
+		mldv2-listener/mldv2-listener_3_4_p.def (PG bug)
+		Observable Results
+			MLDv2_AddrRecord mld2_rcd_t6m1n1s6 {
+				Type                = MLDv2R_ALLOW;
+				                      ^^^^^^^^^^^^^->MLDv2R_BLOCK;
+
+		mldv2-listener/mldv2-listener_4_8_a.seq (PG bug)
+			caption => [ "Step 6. Observe the packets on all networks." ],
+			msgs    => [ "MLDv2R_hut0l_mld2r_r1_t3m1n0" ],
+			                                    ^^ -> t2
+
+		mldv2-listener/mldv2-listener_4_8_b.seq (PG bug)
+			caption => [ "Step 12. Observe the packets on all networks." ],
+			msgs    => [ "MLDv2R_hut0l_mld2r_r1_t3m1n0" ],
+			                                    ^^ -> t2
+
+		mldv2-listener/mldv2-listener_4_8_c.seq (PG bug)
+			caption => [ "Step 18. Observe the packets on all networks." ],
+			msgs    => [ "MLDv2R_hut0l_mld2r_r1_t3m1n0" ],
+			                                    ^^ -> t2
+
+		mldv2-listener/mldv2-listener_4_8_d.seq (PG bug)
+			caption => [ "Step 24. Observe the packets on all networks." ],
+			msgs    => [ "MLDv2R_hut0l_mld2r_r1_t3m1n0" ],
+			                                    ^^ -> t2
+
+		mldv2-listener/mldv2-listener_4_8_e.seq (PG bug)
+			caption => [ "Step 30. Observe the packets on all networks." ],
+			msgs    => [ "MLDv2R_hut0l_mld2r_r1_t3m1n0" ],
+			                                    ^^ -> t2
+
+		mldv2-listener/mldv2-listener_4_8_f.seq (PG bug)
+			caption => [ "Step 36. Observe the packets on all networks." ],
+			msgs    => [ "MLDv2R_hut0l_mld2r_r1_t3m1n0" ],
+			                                    ^^ -> t2
+
+		mldv2-listener/mldv2-listener_4_9_a.def (PG bug)
+			The packet definition MLDv2R_hut0l_mld2r_r1_t5m1n2s12
+
+		mldv2-listener/mldv2-listener_4_10_d.def (PG bug)
+			//-----------------------------------------------------------------------------
+			// HUT0 -> All MLDv2-capable routers, MLDv2 Report IS_EX(HUT0 solicited-node multicast,{NULL})
+			//-----------------------------------------------------------------------------
+				MLDv2R_hut0l_mld2r_r1_t2hut0sn0,
+					NumOfMcastAddrRecords   = 2;
+					                          ^ -> 1
+
+		mldv2-listener/mldv2-listener_4_10_g.def (PG bug)
+			//-----------------------------------------------------------------------------
+			// HUT0 -> All MLDv2-capable routers, MLDv2 Report ALLOW(M1,{S2}) and BLOCK(M1,{S1})
+			//-----------------------------------------------------------------------------
+			MLDv2_AddrRecord mld2_rcd_t1m1n2s32 {
+				Type                = MLDv2R_IS_EXCLUDE;
+				                      ^^^^^^^^^^^^^^^^^ -> MLDv2R_IS_INCLUDE
+
+				MLDv2R_hut0l_mld2r_r2_t5m1n1s2_t6m1n1s1,
+					NumOfMcastAddrRecords   = 1;
+					                          ^ -> 2
+
+		mldv2-listener/mldv2-listener_4_10_h.def (PG bug)
+			//-----------------------------------------------------------------------------
+			// HUT0 -> All MLDv2-capable routers, MLDv2 Report IS_IN(M1,{S2,S3})
+			//-----------------------------------------------------------------------------
+				MLDv2R_hut0l_mld2r_r1_t1m1n2s23,
+					NumOfMcastAddrRecords   = 2;
+					                          ^ -> 1
+
+		mldv2-listener/mldv2-listener_4_10_o.def (PG bug)
+			The records in packet definition,
+			    mld2_rcd_t1m1n3s213, mld2_rcd_t1m1n3s231, mld2_rcd_t1m1n3s312, mld2_rcd_t1m1n3s321
+
+2011/08/08	bug fix
+		mldv2-listener/mldv2-listener_3_3_b.seq (PG bug)
+		Step 10
+			msgs    => [ "MLDv2R_hut0l_mld2r_r1_t5m1n1s1" ],
+			                                          ^^->s2
+
+2010/03/01	Release 0.1.6
+		Modifying release
+
+2010/02/16	Kaizen and fix
+		mldv2-listener/config.txt
+		  The measure on judgment processing
+		    MCAST1  ff3e:40:3ffe:501:ffff:300::1
+		                                     ^^^ fix :0:1
+		    MCAST2  ff3e:40:3ffe:501:ffff:300::2
+		                                     ^^^ fix :0:2
+		mldv2-listener/config.txt
+		mldv2-listener/MLDv2L.pm
+		mldv2-listener/mldv2-listener_1_1.seq
+		mldv2-listener/mldv2-listener_1_2_a.seq
+		mldv2-listener/mldv2-listener_1_2_b.seq
+		mldv2-listener/mldv2-listener_1_3_a.seq
+		mldv2-listener/mldv2-listener_1_3_b.seq
+		  The number of the MLDv2 Report messages which HUT transmits
+		  before a NS-DAD message (original for debugging).
+		    SRV
+		mldv2-listener/MLDv2L.pm
+		  sub ConfProc()
+		    my $rtn;
+		           ^ fix = $RES_OK;
+		mldv2-listener/mldv2-listener_2_1.seq
+		mldv2-listener/mldv2-listener_2_2_a.seq
+		mldv2-listener/mldv2-listener_2_2_b.seq
+		mldv2-listener/mldv2-listener_2_2_c.seq
+		mldv2-listener/mldv2-listener_2_3_a.seq
+		mldv2-listener/mldv2-listener_2_3_b.seq
+		mldv2-listener/mldv2-listener_2_4_a.seq
+		mldv2-listener/mldv2-listener_2_4_b.seq
+		mldv2-listener/mldv2-listener_2_4_c.seq
+		mldv2-listener/mldv2-listener_2_5_a.seq
+		mldv2-listener/mldv2-listener_2_5_b.seq
+		mldv2-listener/mldv2-listener_2_6_a.seq
+		mldv2-listener/mldv2-listener_2_6_b.seq
+		mldv2-listener/mldv2-listener_2_6_c.seq
+		mldv2-listener/mldv2-listener_2_6_d.seq
+		mldv2-listener/mldv2-listener_2_8.seq
+		mldv2-listener/mldv2-listener_2_9.seq
+		mldv2-listener/mldv2-listener_2_10_a.seq
+		mldv2-listener/mldv2-listener_2_10_b.seq
+		mldv2-listener/mldv2-listener_2_10_c.seq
+		mldv2-listener/mldv2-listener_2_10_d.seq
+		mldv2-listener/mldv2-listener_2_11.seq
+		mldv2-listener/mldv2-listener_2_12_a.seq
+		mldv2-listener/mldv2-listener_2_12_b.seq
+		mldv2-listener/mldv2-listener_2_12_c.seq
+		mldv2-listener/mldv2-listener_2_12_d.seq
+		mldv2-listener/mldv2-listener_2_12_f.seq
+		mldv2-listener/mldv2-listener_2_13.seq
+		mldv2-listener/mldv2-listener_2_14_a.seq
+		mldv2-listener/mldv2-listener_2_14_b.seq
+		mldv2-listener/mldv2-listener_2_15_a.seq
+		mldv2-listener/mldv2-listener_2_15_b.seq
+		mldv2-listener/mldv2-listener_2_16_a.seq
+		mldv2-listener/mldv2-listener_2_16_b.seq
+		mldv2-listener/mldv2-listener_2_16_c.seq
+		mldv2-listener/mldv2-listener_2_16_d.seq
+		mldv2-listener/mldv2-listener_2_17_a.seq
+		mldv2-listener/mldv2-listener_2_17_b.seq
+		mldv2-listener/mldv2-listener_2_17_c.seq
+		mldv2-listener/mldv2-listener_2_17_d.seq
+		mldv2-listener/mldv2-listener_2_17_f.seq
+		mldv2-listener/mldv2-listener_2_18.seq
+		  typo "FF02::1" -> "M1"
+
+2010/02/15	Release 0.1.5
+		Modifying release
+
+2010/02/09	bug fix
+		mldv2-listener/MLDv2L.def
+
+		  MLDv2_AddrRecord mld2_rcd_t2m1n3s123 {
+		  	MulticastAddress    = MCAST2_ADDR;
+		  	                      ^^^^^^^^^^^ -> MCAST1_ADDR
+
+		  MLDv2_AddrRecord mld2_rcd_t5m2n0 {
+		  	MulticastAddress    = MCAST1_ADDR;
+		  	                      ^^^^^^^^^^^ -> MCAST2_ADDR
+
+		  MLDv2_AddrRecord mld2_rcd_t5m2n1s1 {
+		  MLDv2_AddrRecord mld2_rcd_t5m2n1s2 {
+		  MLDv2_AddrRecord mld2_rcd_t5m2n1s3 {
+		  MLDv2_AddrRecord mld2_rcd_t5m2n2s12 {
+		  MLDv2_AddrRecord mld2_rcd_t5m2n2s13 {
+		  MLDv2_AddrRecord mld2_rcd_t5m2n2s23 {
+		  MLDv2_AddrRecord mld2_rcd_t5m2n3s123 {
+		  	same as above
+
+2010/02/09	Bug fix
+		mldv2-listener/MLDv2L.pm
+		  sub SendProc($):
+		    %vrtn = vSend($link, @msgs);
+		                         ^^^^^ fix $msg
+
+2010/02/02	Kaizen
+		mldv2-listener/MLDv2L.pm
+		mldv2-listener/config.txt
+		  The addition of the test execution method option.
+			mldv2DisableHUT
+			mldv2SetHUT
+			reboot
+			mldv2EnableHUT
+			STOP_LISETENING
+
+2009/12/11	Release 0.1.4
+		Modifying release
+
+2009/12/10	Kaizen test judgement
+		mldv2-listener/MLDv2L.pm and related files
+		  Reconstruction of a judgment function.
+
+		mldv2-listener/MLDv2L.pm and related files
+		  Add the stop of listening to the end of a procedure.
+
+2009/12/8	Brushing up
+		INSTALL.ct
+		mldv2-listener/00README
+		mldv2-listener/INDEX
+		mldv2-listener/MLDv2L.pm
+		mldv2-listener/config.txt
+		  The addition and updating of explanation.
+
+2009/12/7	Apply that a router tool modifies
+		COPYRIGHT and almost all files
+		  typo.
+
+		INSTALL.ct and 00README
+		  The addition and updating of explanation.
+
+		mldv2-listener/config.txt and related files
+                  Brushing up explanation.
+
+		  Renaming of item.
+		      FUNC_ENABLE_REPORT
+		      FUNC_SUPPRESS_REPORT
+		      FUNC_SPECIFIC_SSM
+		      FUNC_2_INTERFACES
+
+		  Change of NETWORK1 prefix
+		      NETWORK1    3ffe:501:ffff:101::
+
+		mldv2-listener/MLDv2R.pm
+		  Internal modifying (for debug)
+
+2009/11/16	Release 0.1.3
+		Modifying release
+
+2009/11/16	Modifying of a packet definition
+		mldv2-listener/MLDv2L.def
+		  MLDv2R_0_mld2r_r1_t4hut0sn0
+		    Modifying of the ether source address
+		      _HETHER_0_to_mld2r -> _HETHER_hut0_to_mld2r
+
+2009/11/6	Release 0.1.2
+		Modifying release
+
+2009/11/6	Modify test execution fault
+		mldv2-listener/MLDv2L.def
+		mldv2-listener/MLDv2L.pm
+		mldv2-listener/MLDv2Lconfdef.pl
+		  The fault relevant to Link1/2 in nut.def is modified.
+
+2009/11/5	Release 0.1.1
+		Modifying release
+
+2009/11/5	Modify test execution fault
+		mldv2-listener/INDEX
+		  The current path "./" was added to the ".seq".
+
+2009/11/2	update
+		mldv2-listener/MLDv2L.def
+		mldv2-listener/MLDv2L.pm
+		mldv2-listener/config.txt
+		  Change of multicast addresses MCAST1 and MCAST2.
+		  Change of multicast addresses SSM3 and SSM4.
+		                                (local host allocation)
+
+2009/10/21	Update
+		- html doc
+		  TN3 global address
+		    3ffe:501:ffff:100:200:ff:fe00:3f
+		    -> 3ffe:501:ffff:100:200:ff:fe00:3
+
+2009/10/19	Release 0.1.0
+		Initial Release
+
+# EOF

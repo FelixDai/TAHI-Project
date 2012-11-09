@@ -1,0 +1,389 @@
+#!/usr/bin/perl
+# 
+# Copyright (C) IPv6 Promotion Council, NTT Advanced Technology Corporation
+# (NTT-AT), Yokogwa Electoric Corporation and YASKAWA INFORMATION SYSTEMS
+# Corporation All rights reserved.
+# 
+# Redistribution and use of this software in source and binary forms, with
+# or without modification, are permitted provided that the following
+# conditions and disclaimer are agreed and accepted by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright
+# notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright
+# notice, this list of conditions and the following disclaimer in the
+# documentation and/or other materials provided with the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project which
+# is related to this software (hereinafter referred to as "project") nor
+# the names of the contributors may be used to endorse or promote products
+# derived from this software without specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written
+# notification to the copyrighters. However, using this software for the
+# purpose of testing or evaluating any products including merchantable
+# products may be permitted without any notification to the copyrighters.
+# 
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+# CONTRACT,STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+# THE POSSIBILITY OF SUCH DAMAGE.
+# 
+###############################################################################
+BEGIN {}
+END   {}
+
+#------------------------------------------------------------------------------
+# Include
+#------------------------------------------------------------------------------
+# Include Module
+use strict;
+use warnings;
+use V6evalTool;
+use MLDv2L;
+
+#------------------------------------------------------------------------------
+vLog2("Setup");
+#------------------------------------------------------------------------------
+# Variable
+my $stp = 0;
+my $rtn;
+my $wk;
+
+# Requirement configuration
+%T_REQ = ();
+
+# Specification configuration
+%T_CONF = ();
+
+# Topology
+@T_LINK = ("Link0");
+@T_NODE = ("TR1");
+
+# Setup
+$rtn = Setup();
+if ($rtn != $RES_OK) {
+	goto TERM;
+}
+
+#------------------------------------------------------------------------------
+vLog2("Procedure");
+#------------------------------------------------------------------------------
+# Sequence
+%T_SEQ = (
+	$stp++ => {
+		caption => [ "Step 0. Configure on the HUT." ],
+		func    => "ConfProc",
+		status  => 0,
+	},
+	$stp++ => {
+		caption => [ "Step 25. Enable MLDv2 on the HUT." ],
+		func    => "EnableProc",
+		status  => 0,
+	},
+	$stp++ => {
+		func    => $CONF_DATA{FUNC_ENABLE_REPORT} ? "RecvProc" : "BaseProc",
+		link    => "Link0",
+		wtime   => [ $CONF_DATA{URI} + $CONF_DATA{MARGIN_TIME} ],
+		count   => $CONF_DATA{RV},
+		msgs    => [ "MLDv2R_hut0l_mld2r_r1_t4hut0sn0" ],
+		status  => 0,
+	},
+	$stp++ => {
+		caption => [ "Step 26. Call ListenerAPI (S1, I1, M1, INCLUDE, {S1}) on the HUT." ],
+		func    => "ListenerProc",
+		socket  => "S1",
+		if      => "IF0",
+		mcast   => "MCAST1",
+		filter  => "INCLUDE",
+		srcnum  => 1,
+		source  => "S1",
+		status  => 0,
+	},
+	$stp++ => {
+		caption => [ "Step 27. Observe the packets on all networks." ],
+		func    => "RecvProc",
+		link    => "Link0",
+		wtime   => [ $CONF_DATA{URI} + $CONF_DATA{MARGIN_TIME} ],
+		count   => $CONF_DATA{RV},
+		msgs    => [ "MLDv2R_hut0l_mld2r_r1_t5m1n1s1" ],
+		status  => 0,
+	},
+	$stp++ => {
+		caption => [ "Step 28. TR1 transmits MLDv1 General Query message A with Maximum Response Code of 40000." ],
+		func    => "SendProc",
+		link    => "Link0",
+		msgs    => [ "MLDv1Q_tr1l_allnodes_m0_mrc40000" ],
+		status  => 0,
+	},
+	$stp++ => {
+		caption => [ "Step 29. Observe the packets on all networks." ],
+		func    => "RecvProc",
+		link    => "Link0",
+		wtime   => [ (40000 / 1000) + $CONF_DATA{MARGIN_TIME} ],
+		count   => 2,
+		msgs    => [ "MLDv1R_hut0l_hut0s_hut0s", "MLDv1R_hut0l_mcast1_m1" ],
+		status  => 0,
+		stack   => "L0R1",
+	},
+	$stp++ => {
+		func    => "RecvProc",
+		link    => "Link0",
+		wtime   => [ $CONF_DATA{URI} + $CONF_DATA{MARGIN_TIME} + $CONF_DATA{CHECK_TIME} ],
+		count   => 1,
+		msgs    => [ "MLDv2R_any_any" ],
+		status  => 1,
+	},
+);
+
+# local packet
+$pktdesc{MLDv1Q_tr1l_allnodes_m0_mrc40000} = "Send: TR1 -> All Nodes Address, MLDv1 Query (G) with Max Response Code of 40000";
+$pktdesc{MLDv1R_hut0l_hut0s_hut0s} = "Recv: HUT0 -> HUT0, MLDv1 Report (HUT0)";
+$pktdesc{MLDv1R_hut0l_mcast1_m1} = "Recv: HUT0 -> M1, MLDv1 Report (M1)";
+
+# Execute
+for ($stp = 0; $T_SEQ{$stp}; $stp++) {
+	no strict 'refs';
+	$rtn = &{$T_SEQ{$stp}{func}}($stp);
+	if ($rtn != $RES_OK) {
+		last;
+	}
+}
+
+#------------------------------------------------------------------------------
+vLog2("Complement Judgement");
+#------------------------------------------------------------------------------
+$wk = JudgeCommon();
+if (($wk != $RES_OK) && ($rtn == $RES_OK)) {
+	$rtn = $wk;
+}
+
+#------------------------------------------------------------------------------
+vLog1("Check: Number of MLDv1 Report in Step 29.");
+#------------------------------------------------------------------------------
+$wk = JudgeStackMsgIDandNum("L0R1", 1, "MLDv1R_hut0l_hut0s_hut0s", "MLDv1R_hut0l_mcast1_m1");
+if (($wk != $RES_OK) && ($rtn == $RES_OK)) {
+	$rtn = $wk;
+}
+
+TERM:
+#------------------------------------------------------------------------------
+vLog2("Termination");
+#------------------------------------------------------------------------------
+# 
+Term($rtn);
+
+###############################################################################
+__END__
+
+
+=head1 Test Label
+
+=begin html
+MLD.6.1: MLDv1 Query<BR>
+Part C: Maximum Response Code in MLDv1 Query
+
+=end html
+
+=head1 Purpose
+
+=begin html
+To verify that the MLD Listener replies an MLDv1 report during an MLDv1 compatibility mode.
+
+=end html
+
+=head1 References
+
+=begin html
+RFC3810 8.2.1.  In the Presence of MLDv1 Routers<BR>
+
+=cut
+<PRE>
+   The Host Compatibility Mode of an interface is set to MLDv1 whenever
+   an MLDv1 Multicast Address Listener Query is received on that
+   interface.  At the same time, the Older Version Querier Present timer
+   for the interface is set to Older Version Querier Present Timeout
+   seconds.  The timer is re-set whenever a new MLDv1 Query is received
+   on that interface.  If the Older Version Querier Present timer
+   expires, the host switches back to Host Compatibility Mode of MLDv2.
+   
+   When Host Compatibility Mode is MLDv2, a host acts using the MLDv2
+   protocol on that interface.  When Host Compatibility Mode is MLDv1, a
+   host acts in MLDv1 compatibility mode, using only the MLDv1 protocol,
+   on that interface.
+   
+   An MLDv1 Querier will send General Queries with the Maximum Response
+   Code set to the desired Maximum Response Delay, i.e., the full range
+   of this field is linear and the exponential algorithm described in
+   section 5.1.3. is not used.
+   
+   Whenever a host changes its compatibility mode, it cancels all its
+   pending responses and retransmission timers.
+</PRE>
+
+=pod
+
+=end html
+
+=begin html
+RFC3810 9.12.  Older Version Querier Present Timeout<BR>
+
+=cut
+<PRE>
+   The Older Version Querier Present Timeout is the time-out for
+   transitioning a host back to MLDv2 Host Compatibility Mode.  When an
+   MLDv1 query is received, MLDv2 hosts set their Older Version Querier
+   Present Timer to [Older Version Querier Present Timeout].
+   
+   This value MUST be ([Robustness Variable] times (the [Query Interval]
+   in the last Query received)) plus ([Query Response Interval]).
+</PRE>
+
+=pod
+
+=end html
+
+=head1 Discussion
+
+=begin html
+None
+
+=end html
+
+=head1 Test Requirement
+
+=begin html
+None
+
+=end html
+
+=head1 Test Setup
+
+=begin html
+<UL><LI><B><FONT SIZE="+1">Common Topology</FONT></B></UL>
+<PRE><FONT SIZE="+1">
+   HUT
+    |(I/F: Link0)
+    |
+   -+-------+-------+-------+-------+---- Network 0
+            |       |       |       |
+           TR1     TR2     TR3     TN1
+</FONT></PRE>
+<BLOCKQUOTE>
+<TABLE BORDER>
+<TR><TD><TT>ID</TT></TD>
+    <TD><TT>attibute</TT></TD>
+    <TD><TT>address, prefix</TT></TD>
+    <TD><TT>memo</TT></TD></TR>
+<TR><TD><TT>Network 0</TT></TD>
+    <TD><TT>prefix</TT></TD>
+    <TD><TT>3ffe:501:ffff:100::/64</TT></TD>
+    <TD><TT>I/F Link0 is connected.</TT></TD></TR>
+<TR><TD ROWSPAN="3"><TT>TR1</TT></TD>
+    <TD><TT>ether</TT></TD>
+    <TD><TT>00:00:00:00:00:01</TT></TD>
+    <TD ROWSPAN="3"><TT>Lower IP Address</TT></TD></TR>
+<TR><TD><TT>link-local</TT></TD>
+    <TD><TT>fe80::200:ff:fe00:1</TT></TD></TR>
+<TR><TD><TT>global</TT></TD>
+    <TD><TT>3ffe:501:ffff:100:200:ff:fe00:1</TT></TD></TR>
+<TR><TD ROWSPAN="3"><TT>TR2</TT></TD>
+    <TD><TT>ether</TT></TD>
+    <TD><TT>00:00:00:00:00:02</TT></TD>
+    <TD ROWSPAN="3"><TT>Middle IP Address</TT></TD></TR>
+<TR><TD><TT>link-local</TT></TD>
+    <TD><TT>fe80::200:ff:fe00:2</TT></TD></TR>
+<TR><TD><TT>global</TT></TD>
+    <TD><TT>3ffe:501:ffff:100:200:ff:fe00:2</TT></TD></TR>
+<TR><TD ROWSPAN="3"><TT>TR3</TT></TD>
+    <TD><TT>ether</TT></TD>
+    <TD><TT>00:00:00:00:00:03</TT></TD>
+    <TD ROWSPAN="3"><TT>Higher IP Address</TT></TD></TR>
+<TR><TD><TT>link-local</TT></TD>
+    <TD><TT>fe80::200:ff:fe00:3</TT></TD></TR>
+<TR><TD><TT>global</TT></TD>
+    <TD><TT>3ffe:501:ffff:100:200:ff:fe00:3</TT></TD></TR>
+<TR><TD ROWSPAN="3"><TT>TN1</TT></TD>
+    <TD><TT>ether</TT></TD>
+    <TD><TT>00:00:00:00:00:11</TT></TD>
+    <TD ROWSPAN="3"><TT>&nbsp;</TT></TD></TR>
+<TR><TD><TT>link-local</TT></TD>
+    <TD><TT>fe80::200:ff:fe00:11</TT></TD></TR>
+<TR><TD><TT>global</TT></TD>
+    <TD><TT>3ffe:501:ffff:100:200:ff:fe00:11</TT></TD></TR>
+</TABLE></BLOCKQUOTE>
+<UL><LI><B><FONT SIZE="+1">Common Test Setup</FONT></B>
+    <OL><LI>Configure HUT to have:
+        <UL><LI>Robustness Variable of 2
+            <LI>Query Interval of 125
+            <LI>Query Response Interval of 10 seconds
+            <LI>Unsolicited Report Interval of 1 second</UL></OL><BR>
+    <LI><B><FONT SIZE="+1">Common Test Cleanup</FONT></B>
+    <OL><LI>Return all timers and variables to their defaults values.
+        <LI>Stop any listening.  HUT does not listen to any multicast other than a solicited-node multicast address of an address assigned to the interface.</OL></UL>
+
+=end html
+
+=head1 Procedure
+
+=begin html
+<PRE>
+Step 25. Enable MLDv2 on the HUT.
+Step 26. Call ListenerAPI (S1, I1, M1, INCLUDE, {S1}) on the HUT.
+Step 27. Observe the packets on all networks.
+Step 28. TR1 transmits MLDv1 General Query message A with Maximum Response Code of 40000.
+    -----
+    IPv6 Header
+        IPv6 Hop Limit                  = 1
+        IPv6 Source Address             = TR1 Link-local Address
+        IPv6 Destination Address        = All Nodes Address
+    Hop-by-Hop Options Header
+        Router Alert Option
+    ICMPv6 Header (MLD Query)
+        Maximum Response Code           = 40000
+        Multicast Address               = ::
+    -----
+Step 29. Observe the packets on all networks.
+</PRE>
+
+=end html
+
+=head1 Observable Results
+
+=begin html
+<PRE>
+Step 27: The HUT must transmit 2 MLDv2 Report messages with Multicast Address Record ALLOW (S1) for M1.
+Step 29: The HUT must transmit MLDv1 Report message for HUT solicited-node multicast within 40 seconds from Step 28.
+         And the HUT must transmit MLDv1 Report message for M1 within 40 seconds from Step 28.
+<BR>
+   HUT     TR1     TR2     TR3     TN1
+    |       |       |       |       |
+    |       |       |       |       | 25. Enable MLDv2 on the HUT.
+    |       |       |       |       | 26. Call ListenerAPI (S1, I1, M1, INCLUDE, {S1}) on the HUT.
+    |       |       |       |       | 27. Observe the packets on all networks.
+    |------------------------------>|     HUT transmits ALLOW (M1,{S1}), [RV] times, [URI] second(s)
+    |<------|       |       |       | 28. TR1 transmits MLDv1 General Query message A with Maximum Response Code of 40000.
+    |       |       |       |       | 29. Observe the packets on all networks.
+    |------------------------------>|     HUT transmits MLDv1 Report for HUT0 solicited-node multicast
+    |------------------------------>|     HUT transmits MLDv1 Report for M1
+    |       |       |       |       |
+</PRE>
+
+=end html
+
+=head1 Possible Problems
+
+=begin html
+None
+
+=end html

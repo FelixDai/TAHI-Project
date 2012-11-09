@@ -1,0 +1,508 @@
+#
+# Copyright (C) IPv6 Promotion Council, NTT Advanced Technology Corporation
+# (NTT-AT), Yokogwa Electoric Corporation and YASKAWA INFORMATION SYSTEMS
+# Corporation All rights reserved.
+# 
+# Redistribution and use of this software in source and binary forms, with
+# or without modification, are permitted provided that the following
+# conditions and disclaimer are agreed and accepted by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright
+# notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright
+# notice, this list of conditions and the following disclaimer in the
+# documentation and/or other materials provided with the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project which
+# is related to this software (hereinafter referred to as "project") nor
+# the names of the contributors may be used to endorse or promote products
+# derived from this software without specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written
+# notification to the copyrighters. However, using this software for the
+# purpose of testing or evaluating any products including merchantable
+# products may be permitted without any notification to the copyrighters.
+# 
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+# CONTRACT,STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+# THE POSSIBILITY OF SUCH DAMAGE.
+#
+###########################################################################
+#
+# $Name: MLDv2-Listener_0_1_8 $
+#
+
+#==============================================================================
+# &print:<B> Group 0: Trial</B>
+#==============================================================================
+# ./mldv2-listener_0_1.seq:mldv2-listener_0_1.def:::0.1 Trial. TN transmits message:1
+# ./mldv2-listener_0_2.seq:mldv2-listener_0_2.def:::0.2 Trial. TN receives message:2
+
+
+
+#==============================================================================
+&print:<B> Group 1: Basic Functionality</B>
+#==============================================================================
+#------------------------------------------------------------------------------
+&print:<B> Group 1.1: Initial Sequence</B>
+#------------------------------------------------------------------------------
+./mldv2-listener_1_1.seq:mldv2-listener_1_1.def:::1.1 Initial Sequence:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 1.2: Robustness Variable Configuration</B>
+#------------------------------------------------------------------------------
+./mldv2-listener_1_2_a.seq:mldv2-listener_1_2_a.def:::1.2.a Robustness 3:1
+./mldv2-listener_1_2_b.seq:mldv2-listener_1_2_b.def:::1.2.b Robustness 7:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 1.3: Unsolicited Report Interval Configuration</B>
+#------------------------------------------------------------------------------
+./mldv2-listener_1_3_a.seq:mldv2-listener_1_3_a.def:::1.3.a Unsolicited Report Interval 2 seconds:1
+./mldv2-listener_1_3_b.seq:mldv2-listener_1_3_b.def:::1.3.b Unsolicited Report Interval 3 seconds:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 1.4: Service Interface Specification - Multicast</B>
+#------------------------------------------------------------------------------
+./mldv2-listener_1_4.seq:mldv2-listener_1_4.def:::1.4 All-nodes multicast:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 1.5: HUT has an interface in each link</B>
+#------------------------------------------------------------------------------
+./mldv2-listener_1_5.seq:mldv2-listener_1_5.def:::1.5 HUT has an interface in each link:2
+
+#------------------------------------------------------------------------------
+&print:<B> Group 1.6: HUT has two interfaces in same link</B>
+#------------------------------------------------------------------------------
+./mldv2-listener_1_6_dummy.seq:mldv2-listener_1_6.def:::1.6 HUT has two interfaces in same link (dummy):2
+
+
+
+#==============================================================================
+&print:<B> GROUP 2: MLDv2 Message Creation and Security</B>
+#==============================================================================
+#------------------------------------------------------------------------------
+&print:<B> Group 2.1: MLDv2 Report Message Creation</B>
+#------------------------------------------------------------------------------
+./mldv2-listener_2_1.seq:mldv2-listener_2_1.def:::2.1 MLDv2 Report Message Creation:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 2.2: MLDv2 Query Message Verification - Hop Limit</B>
+#------------------------------------------------------------------------------
+./mldv2-listener_2_2_a.seq:mldv2-listener_2_2_a.def:::2.2.a Hop Limit 0:1
+./mldv2-listener_2_2_b.seq:mldv2-listener_2_2_b.def:::2.2.b Hop Limit 2:1
+./mldv2-listener_2_2_c.seq:mldv2-listener_2_2_c.def:::2.2.c Hop Limit 0xff:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 2.3: MLDv2 Query Message Verification - IPv6 Source Address</B>
+#------------------------------------------------------------------------------
+./mldv2-listener_2_3_a.seq:mldv2-listener_2_3_a.def:::2.3.a The unspecified address:1
+./mldv2-listener_2_3_b.seq:mldv2-listener_2_3_b.def:::2.3.b Global address:1
+./mldv2-listener_2_3_c.seq:mldv2-listener_2_3_c.def:::2.3.c All-nodes multicast:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 2.4: MLDv2 Query Message Verification - IPv6 Destination Address</B>
+#------------------------------------------------------------------------------
+./mldv2-listener_2_4_a.seq:mldv2-listener_2_4_a.def:::2.4.a HUT link-local address:1
+./mldv2-listener_2_4_b.seq:mldv2-listener_2_4_b.def:::2.4.b HUT global address:1
+./mldv2-listener_2_4_c.seq:mldv2-listener_2_4_c.def:::2.4.c All-nodes multicast:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 2.5: MLDv2 Query Message Verification - Router Alert Option</B>
+#------------------------------------------------------------------------------
+./mldv2-listener_2_5_a.seq:mldv2-listener_2_5_a.def:::2.5.a Without Hop-by-Hop Option Header:1
+./mldv2-listener_2_5_b.seq:mldv2-listener_2_5_b.def:::2.5.b Without Router Alert Option:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 2.6: MLDv2 Query Message Verification - Payload Length</B>
+#------------------------------------------------------------------------------
+./mldv2-listener_2_6_a.seq:mldv2-listener_2_6_a.def:::2.6.a ICMPv6 Header MLDv2 Query size is 26 octets:1
+./mldv2-listener_2_6_b.seq:mldv2-listener_2_6_b.def:::2.6.b Payload Length is too short:1
+./mldv2-listener_2_6_c.seq:mldv2-listener_2_6_c.def:::2.6.c Payload Length is too long:1
+./mldv2-listener_2_6_d.seq:mldv2-listener_2_6_d.def:::2.6.d Payload Length which does not include additional data:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 2.7: MLDv2 Query Message Verification - ICMPv6 Message Type</B>
+#------------------------------------------------------------------------------
+./mldv2-listener_2_7.seq:mldv2-listener_2_7.def:::2.7 ICMPv6 Message Type unrecognized:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 2.8: MLDv2 Query Message Verification - ICMPv6 Code</B>
+#------------------------------------------------------------------------------
+./mldv2-listener_2_8.seq:mldv2-listener_2_8.def:::2.8 ICMPv6 Code:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 2.9: MLDv2 Query Message Verification - ICMPv6 Checksum</B>
+#------------------------------------------------------------------------------
+./mldv2-listener_2_9.seq:mldv2-listener_2_9.def:::2.9 ICMPv6 Checksum incorrect:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 2.10: MLDv2 Query Message Verification - Maximum Response Code</B>
+#------------------------------------------------------------------------------
+./mldv2-listener_2_10_a.seq:mldv2-listener_2_10_a.def:::2.10.a Maximum Response Code zero:1
+./mldv2-listener_2_10_b.seq:mldv2-listener_2_10_b.def:::2.10.b Maximum Response Code 2000:1
+./mldv2-listener_2_10_c.seq:mldv2-listener_2_10_c.def:::2.10.c Maximum Response Code 20000:1
+./mldv2-listener_2_10_d.seq:mldv2-listener_2_10_d.def:::2.10.d Maximum Response Code 0x9000:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 2.11: MLDv2 Query Message Verification - Reserved fields</B>
+#------------------------------------------------------------------------------
+./mldv2-listener_2_11.seq:mldv2-listener_2_11.def:::2.11 Reserved fields:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 2.12: MLDv2 Query Message Verification - Multicast Address</B>
+#------------------------------------------------------------------------------
+./mldv2-listener_2_12_a.seq:mldv2-listener_2_12_a.def:::2.12.a MLDv2 General Query with Multicast Source Address field:1
+./mldv2-listener_2_12_b.seq:mldv2-listener_2_12_b.def:::2.12.b The unspecified address:1
+./mldv2-listener_2_12_c.seq:mldv2-listener_2_12_c.def:::2.12.c HUT link-local address:1
+./mldv2-listener_2_12_d.seq:mldv2-listener_2_12_d.def:::2.12.d HUT global address:1
+./mldv2-listener_2_12_e.seq:mldv2-listener_2_12_e.def:::2.12.e All-nodes multicast:1
+./mldv2-listener_2_12_f.seq:mldv2-listener_2_12_f.def:::2.12.f Unrelated multicast:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 2.13: MLDv2 Query Message Verification - S Flag</B>
+#------------------------------------------------------------------------------
+./mldv2-listener_2_13.seq:mldv2-listener_2_13.def:::2.13.a S Flag:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 2.14: MLDv2 Query Message Verification - QRV</B>
+#------------------------------------------------------------------------------
+./mldv2-listener_2_14_a.seq:mldv2-listener_2_14_a.def:::2.14.a QRV zero:1
+./mldv2-listener_2_14_b.seq:mldv2-listener_2_14_b.def:::2.14.b QRV 7:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 2.15: MLDv2 Query Message Verification - QQIC</B>
+#------------------------------------------------------------------------------
+./mldv2-listener_2_15_a.seq:mldv2-listener_2_15_a.def:::2.15.a QQIC zero:1
+./mldv2-listener_2_15_b.seq:mldv2-listener_2_15_b.def:::2.15.b QRIC 0xff:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 2.16: MLDv2 Query Message Verification - Number of Sources</B>
+#------------------------------------------------------------------------------
+./mldv2-listener_2_16_a.seq:mldv2-listener_2_16_a.def:::2.16.a Number one, but no source included:1
+./mldv2-listener_2_16_b.seq:mldv2-listener_2_16_b.def:::2.16.b Number zero, but one source included:1
+./mldv2-listener_2_16_c.seq:mldv2-listener_2_16_c.def:::2.16.c Number two, but one source included:1
+./mldv2-listener_2_16_d.seq:mldv2-listener_2_16_d.def:::2.16.d Number one, but two source included:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 2.17: MLDv2 Query Message Verification - Multicast Source Address</B>
+#------------------------------------------------------------------------------
+./mldv2-listener_2_17_a.seq:mldv2-listener_2_17_a.def:::2.17.a The unspecified address:1
+./mldv2-listener_2_17_b.seq:mldv2-listener_2_17_b.def:::2.17.b HUT link-local address:1
+./mldv2-listener_2_17_c.seq:mldv2-listener_2_17_c.def:::2.17.c HUT global address:1
+./mldv2-listener_2_17_d.seq:mldv2-listener_2_17_d.def:::2.17.d Same as IP sources address:1
+./mldv2-listener_2_17_e.seq:mldv2-listener_2_17_e.def:::2.17.e All-nodes multicast:1
+./mldv2-listener_2_17_f.seq:mldv2-listener_2_17_f.def:::2.17.f Specific multicast address:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 2.18: MLDv2 Query Message Verification - Additional Data</B>
+#------------------------------------------------------------------------------
+./mldv2-listener_2_18.seq:mldv2-listener_2_18.def:::2.18 Additional Data:1
+
+
+
+#==============================================================================
+&print:<B> GROUP 3: Listening State Change</B>
+#==============================================================================
+#------------------------------------------------------------------------------
+&print:<B> Group 3.1: Listening Start</B>
+#------------------------------------------------------------------------------
+./mldv2-listener_3_1_a.seq:mldv2-listener_3_1_a.def:::3.1.a INCLUDE (NULL):1
+./mldv2-listener_3_1_b.seq:mldv2-listener_3_1_b.def:::3.1.b INCLUDE (S1):1
+./mldv2-listener_3_1_c.seq:mldv2-listener_3_1_c.def:::3.1.c EXCLUDE (NULL):1
+./mldv2-listener_3_1_d.seq:mldv2-listener_3_1_d.def:::3.1.d EXCLUDE (S1):1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 3.2: Listening State Update by Single Socket</B>
+#------------------------------------------------------------------------------
+./mldv2-listener_3_2_a.seq:mldv2-listener_3_2_a.def:::3.2.a From INCLUDE (A) to INCLUDE (NULL):1
+./mldv2-listener_3_2_b.seq:mldv2-listener_3_2_b.def:::3.2.b From INCLUDE (A) to INCLUDE (B):1
+./mldv2-listener_3_2_c.seq:mldv2-listener_3_2_c.def:::3.2.c From INCLUDE (A) to EXCLUDE (NULL):1
+./mldv2-listener_3_2_d.seq:mldv2-listener_3_2_d.def:::3.2.d From INCLUDE (A) to EXCLUDE (B):1
+./mldv2-listener_3_2_e.seq:mldv2-listener_3_2_e.def:::3.2.e From EXCLUDE (NULL) to INCLUDE (NULL):1
+./mldv2-listener_3_2_f.seq:mldv2-listener_3_2_f.def:::3.2.f From EXCLUDE (NULL) to INCLUDE (A):1
+./mldv2-listener_3_2_g.seq:mldv2-listener_3_2_g.def:::3.2.g From EXCLUDE (NULL) to EXCLUDE (NULL):1
+./mldv2-listener_3_2_h.seq:mldv2-listener_3_2_h.def:::3.2.h From EXCLUDE (NULL) to EXCLUDE (A):1
+./mldv2-listener_3_2_i.seq:mldv2-listener_3_2_i.def:::3.2.i From EXCLUDE (A) to INCLUDE (NULL):1
+./mldv2-listener_3_2_j.seq:mldv2-listener_3_2_j.def:::3.2.j From EXCLUDE (A) to INCLUDE (B):1
+./mldv2-listener_3_2_k.seq:mldv2-listener_3_2_k.def:::3.2.k From EXCLUDE (A) to EXCLUDE (NULL):1
+./mldv2-listener_3_2_l.seq:mldv2-listener_3_2_l.def:::3.2.l From EXCLUDE (A) to EXCLUDE (B):1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 3.3: Listening State Update by Additional Socket</B>
+#------------------------------------------------------------------------------
+./mldv2-listener_3_3_a.seq:mldv2-listener_3_3_a.def:::3.3.a INCLUDE (A) and INCLUDE (NULL):1
+./mldv2-listener_3_3_b.seq:mldv2-listener_3_3_b.def:::3.3.b INCLUDE (A) and INCLUDE (B):1
+./mldv2-listener_3_3_c.seq:mldv2-listener_3_3_c.def:::3.3.c INCLUDE (A) and EXCLUDE (NULL):1
+./mldv2-listener_3_3_d.seq:mldv2-listener_3_3_d.def:::3.3.d INCLUDE (A) and EXCLUDE (B):1
+./mldv2-listener_3_3_e.seq:mldv2-listener_3_3_e.def:::3.3.e EXCLUDE (NULL) and INCLUDE (NULL):1
+./mldv2-listener_3_3_f.seq:mldv2-listener_3_3_f.def:::3.3.f EXCLUDE (NULL) and INCLUDE (A):1
+./mldv2-listener_3_3_g.seq:mldv2-listener_3_3_g.def:::3.3.g EXCLUDE (NULL) and EXCLUDE (NULL):1
+./mldv2-listener_3_3_h.seq:mldv2-listener_3_3_h.def:::3.3.h EXCLUDE (NULL) and EXCLUDE (A):1
+./mldv2-listener_3_3_i.seq:mldv2-listener_3_3_i.def:::3.3.i EXCLUDE (A) and INCLUDE (NULL):1
+./mldv2-listener_3_3_j.seq:mldv2-listener_3_3_j.def:::3.3.j EXCLUDE (A) and INCLUDE (B):1
+./mldv2-listener_3_3_k.seq:mldv2-listener_3_3_k.def:::3.3.k EXCLUDE (A) and EXCLUDE (NULL):1
+./mldv2-listener_3_3_l.seq:mldv2-listener_3_3_l.def:::3.3.l EXCLUDE (A) and EXCLUDE (B):1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 3.4: Listening State Update by One of Sockets</B>
+#------------------------------------------------------------------------------
+./mldv2-listener_3_4_a.seq:mldv2-listener_3_4_a.def:::3.4.a From INCLUDE (A) with INCLUDE (B) to INCLUDE (NULL) with INCLUDE (B):1
+./mldv2-listener_3_4_b.seq:mldv2-listener_3_4_b.def:::3.4.b From INCLUDE (A) with INCLUDE (B) to INCLUDE (C) with INCLUDE (B):1
+./mldv2-listener_3_4_c.seq:mldv2-listener_3_4_c.def:::3.4.c From INCLUDE (A) with INCLUDE (B) to EXCLUDE (NULL) with INCLUDE (B):1
+./mldv2-listener_3_4_d.seq:mldv2-listener_3_4_d.def:::3.4.d From INCLUDE (A) with INCLUDE (B) to EXCLUDE (C) with INCLUDE (B):1
+./mldv2-listener_3_4_e.seq:mldv2-listener_3_4_e.def:::3.4.e From INCLUDE (A) with EXCLUDE (B) to INCLUDE (NULL) with EXCLUDE (B):1
+./mldv2-listener_3_4_f.seq:mldv2-listener_3_4_f.def:::3.4.f From INCLUDE (A) with EXCLUDE (B) to INCLUDE (C) with EXCLUDE (B):1
+./mldv2-listener_3_4_g.seq:mldv2-listener_3_4_g.def:::3.4.g From INCLUDE (A) with EXCLUDE (B) to EXCLUDE (NULL) with EXCLUDE (B):1
+./mldv2-listener_3_4_h.seq:mldv2-listener_3_4_h.def:::3.4.h From INCLUDE (A) with EXCLUDE (B) to EXCLUDE (C) with EXCLUDE (B):1
+./mldv2-listener_3_4_i.seq:mldv2-listener_3_4_i.def:::3.4.i From EXCLUDE (A) with INCLUDE (B) to INCLUDE (NULL) with INCLUDE (B):1
+./mldv2-listener_3_4_j.seq:mldv2-listener_3_4_j.def:::3.4.j From EXCLUDE (A) with INCLUDE (B) to INCLUDE (C) with INCLUDE (B):1
+./mldv2-listener_3_4_k.seq:mldv2-listener_3_4_k.def:::3.4.k From EXCLUDE (A) with INCLUDE (B) to EXCLUDE (NULL) with INCLUDE (B):1
+./mldv2-listener_3_4_l.seq:mldv2-listener_3_4_l.def:::3.4.l From EXCLUDE (A) with INCLUDE (B) to EXCLUDE (C) with INCLUDE (B):1
+./mldv2-listener_3_4_m.seq:mldv2-listener_3_4_m.def:::3.4.m From EXCLUDE (A) with EXCLUDE (B) to INCLUDE (NULL) with EXCLUDE (B):1
+./mldv2-listener_3_4_n.seq:mldv2-listener_3_4_n.def:::3.4.n From EXCLUDE (A) with EXCLUDE (B) to INCLUDE (C) with EXCLUDE (B):1
+./mldv2-listener_3_4_o.seq:mldv2-listener_3_4_o.def:::3.4.o From EXCLUDE (A) with EXCLUDE (B) to EXCLUDE (NULL) with EXCLUDE (B):1
+./mldv2-listener_3_4_p.seq:mldv2-listener_3_4_p.def:::3.4.p From EXCLUDE (A) with EXCLUDE (B) to EXCLUDE (C) with INCLUDE (B):1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 3.5: Listening State Update before Retransmission by Single Socket</B>
+#------------------------------------------------------------------------------
+./mldv2-listener_3_5_a.seq:mldv2-listener_3_5_a.def:::3.5.a INCLUDE (A) -> INCLUDE (B) -> INCLUDE (NULL):1
+./mldv2-listener_3_5_b.seq:mldv2-listener_3_5_b.def:::3.5.b INCLUDE (A) -> INCLUDE (B) -> INCLUDE (C):1
+./mldv2-listener_3_5_c.seq:mldv2-listener_3_5_c.def:::3.5.c INCLUDE (A) -> INCLUDE (B) -> EXCLUDE (NULL):1
+./mldv2-listener_3_5_d.seq:mldv2-listener_3_5_d.def:::3.5.d INCLUDE (A) -> INCLUDE (B) -> EXCLUDE (C):1
+./mldv2-listener_3_5_e.seq:mldv2-listener_3_5_e.def:::3.5.e INCLUDE (NULL) -> EXCLUDE (A) -> INCLUDE (NULL):1
+./mldv2-listener_3_5_f.seq:mldv2-listener_3_5_f.def:::3.5.f INCLUDE (NULL) -> EXCLUDE (A) -> INCLUDE (B):1
+./mldv2-listener_3_5_g.seq:mldv2-listener_3_5_g.def:::3.5.g INCLUDE (NULL) -> EXCLUDE (A) -> EXCLUDE (NULL):1
+./mldv2-listener_3_5_h.seq:mldv2-listener_3_5_h.def:::3.5.h INCLUDE (NULL) -> EXCLUDE (A) -> EXCLUDE (B):1
+./mldv2-listener_3_5_i.seq:mldv2-listener_3_5_i.def:::3.5.i EXCLUDE (NULL) -> INCLUDE (A) -> INCLUDE (NULL):1
+./mldv2-listener_3_5_j.seq:mldv2-listener_3_5_j.def:::3.5.j EXCLUDE (NULL) -> INCLUDE (A) -> INCLUDE (B):1
+./mldv2-listener_3_5_k.seq:mldv2-listener_3_5_k.def:::3.5.k EXCLUDE (NULL) -> INCLUDE (A) -> EXCLUDE (NULL):1
+./mldv2-listener_3_5_l.seq:mldv2-listener_3_5_l.def:::3.5.l EXCLUDE (NULL) -> INCLUDE (A) -> EXCLUDE (B):1
+./mldv2-listener_3_5_m.seq:mldv2-listener_3_5_m.def:::3.5.m EXCLUDE (A) -> EXCLUDE (B) -> INCLUDE (NULL):1
+./mldv2-listener_3_5_n.seq:mldv2-listener_3_5_n.def:::3.5.n EXCLUDE (A) -> EXCLUDE (B) -> INCLUDE (C):1
+./mldv2-listener_3_5_o.seq:mldv2-listener_3_5_o.def:::3.5.o EXCLUDE (A) -> EXCLUDE (B) -> EXCLUDE (NULL):1
+./mldv2-listener_3_5_p.seq:mldv2-listener_3_5_p.def:::3.5.p EXCLUDE (A) -> EXCLUDE (B) -> EXCLUDE (C):1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 3.6: Listening State Update before Retransmission by Multiple Sockets (1)</B>
+#------------------------------------------------------------------------------
+./mldv2-listener_3_6_a.seq:mldv2-listener_3_6_a.def:::3.6.a INCLUDE (NULL) -> INCLUDE (A) -> INCLUDE (A) + INCLUDE (B):1
+./mldv2-listener_3_6_b.seq:mldv2-listener_3_6_b.def:::3.6.b INCLUDE (NULL) -> INCLUDE (A) -> INCLUDE (A) + EXCLUDE (NULL):1
+./mldv2-listener_3_6_c.seq:mldv2-listener_3_6_c.def:::3.6.c INCLUDE (NULL) -> INCLUDE (A) -> INCLUDE (A) + EXCLUDE (B):1
+./mldv2-listener_3_6_d.seq:mldv2-listener_3_6_d.def:::3.6.d INCLUDE (A) -> INCLUDE (A) + INCLUDE (B) -> INCLUDE (NULL) + INCLUDE (B):1
+./mldv2-listener_3_6_e.seq:mldv2-listener_3_6_e.def:::3.6.e INCLUDE (A) -> INCLUDE (A) + INCLUDE (B) -> INCLUDE (C) + INCLUDE (B):1
+./mldv2-listener_3_6_f.seq:mldv2-listener_3_6_f.def:::3.6.f INCLUDE (A) -> INCLUDE (A) + INCLUDE (B) -> EXCLUDE (NULL) + INCLUDE (B):1
+./mldv2-listener_3_6_g.seq:mldv2-listener_3_6_g.def:::3.6.g INCLUDE (A) -> INCLUDE (A) + INCLUDE (B) -> EXCLUDE (C) + INCLUDE (B):1
+./mldv2-listener_3_6_h.seq:mldv2-listener_3_6_h.def:::3.6.h INCLUDE (A) -> INCLUDE (A) + EXCLUDE (B) -> INCLUDE (NULL) + EXCLUDE (B):1
+./mldv2-listener_3_6_i.seq:mldv2-listener_3_6_i.def:::3.6.i INCLUDE (A) -> INCLUDE (A) + EXCLUDE (B) -> INCLUDE (C) + EXCLUDE (B):1
+./mldv2-listener_3_6_j.seq:mldv2-listener_3_6_j.def:::3.6.j INCLUDE (A) -> INCLUDE (A) + EXCLUDE (B) -> EXCLUDE (NULL) + EXCLUDE (B):1
+./mldv2-listener_3_6_k.seq:mldv2-listener_3_6_k.def:::3.6.k INCLUDE (A) -> INCLUDE (A) + EXCLUDE (B) -> EXCLUDE (C) + EXCLUDE (B):1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 3.7: Listening State Update before Retransmission by Multiple Sockets (2)</B>
+#------------------------------------------------------------------------------
+./mldv2-listener_3_7_a.seq:mldv2-listener_3_7_a.def:::3.7.a INCLUDE (NULL) -> EXCLUDE (A) -> EXCLUDE (A) + INCLUDE (B):1
+./mldv2-listener_3_7_b.seq:mldv2-listener_3_7_b.def:::3.7.b INCLUDE (NULL) -> EXCLUDE (A) -> EXCLUDE (A) + EXCLUDE (NULL):1
+./mldv2-listener_3_7_c.seq:mldv2-listener_3_7_c.def:::3.7.c INCLUDE (NULL) -> EXCLUDE (A) -> EXCLUDE (A) + EXCLUDE (B):1
+./mldv2-listener_3_7_d.seq:mldv2-listener_3_7_d.def:::3.7.d EXCLUDE (A) -> EXCLUDE (A) + INCLUDE (B) -> INCLUDE (NULL) + INCLUDE (B):1
+./mldv2-listener_3_7_e.seq:mldv2-listener_3_7_e.def:::3.7.e EXCLUDE (A) -> EXCLUDE (A) + INCLUDE (B) -> INCLUDE (C) + INCLUDE (B):1
+./mldv2-listener_3_7_f.seq:mldv2-listener_3_7_f.def:::3.7.f EXCLUDE (A) -> EXCLUDE (A) + INCLUDE (B) -> EXCLUDE (NULL) + INCLUDE (B):1
+./mldv2-listener_3_7_g.seq:mldv2-listener_3_7_g.def:::3.7.g EXCLUDE (A) -> EXCLUDE (A) + INCLUDE (B) -> EXCLUDE (C) + INCLUDE (B):1
+./mldv2-listener_3_7_h.seq:mldv2-listener_3_7_h.def:::3.7.h EXCLUDE (A) -> EXCLUDE (A) + EXCLUDE (B) -> INCLUDE (NULL) + EXCLUDE (B):1
+./mldv2-listener_3_7_i.seq:mldv2-listener_3_7_i.def:::3.7.i EXCLUDE (A) -> EXCLUDE (A) + EXCLUDE (B) -> INCLUDE (C) + EXCLUDE (B):1
+./mldv2-listener_3_7_j.seq:mldv2-listener_3_7_j.def:::3.7.j EXCLUDE (A) -> EXCLUDE (A) + EXCLUDE (B) -> EXCLUDE (NULL) + EXCLUDE (B):1
+./mldv2-listener_3_7_k.seq:mldv2-listener_3_7_k.def:::3.7.k EXCLUDE (A) -> EXCLUDE (A) + EXCLUDE (B) -> EXCLUDE (C) + EXCLUDE (B):1
+
+
+
+#==============================================================================
+&print:<B> GROUP 4: MLDv2 Query Reception</B>
+#==============================================================================
+#------------------------------------------------------------------------------
+&print:<B> Group 4.1: MLDv2 General Query in Single Listening State</B>
+#------------------------------------------------------------------------------
+./mldv2-listener_4_1_a.seq:mldv2-listener_4_1_a.def:::4.1.a INCLUDE (A):1
+./mldv2-listener_4_1_b.seq:mldv2-listener_4_1_b.def:::4.1.b EXCLUDE (NULL):1
+./mldv2-listener_4_1_c.seq:mldv2-listener_4_1_c.def:::4.1.c EXCLUDE (A):1
+./mldv2-listener_4_1_d.seq:mldv2-listener_4_1_d.def:::4.1.d INCLUDE (NULL):1
+./mldv2-listener_4_1_e.seq:mldv2-listener_4_1_e.def:::4.1.e MLDv2 Routers:1
+./mldv2-listener_4_1_f.seq:mldv2-listener_4_1_f.def:::4.1.f Other Listener:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 4.2: MLDv2 General Query in Multiple Listening State</B>
+#------------------------------------------------------------------------------
+./mldv2-listener_4_2_a.seq:mldv2-listener_4_2_a.def:::4.2.a INCLUDE (A) for M1 and INCLUDE (B) for M2:1
+./mldv2-listener_4_2_b.seq:mldv2-listener_4_2_b.def:::4.2.b INCLUDE (A) for M1 and EXCLUDE (B) for M2:1
+./mldv2-listener_4_2_c.seq:mldv2-listener_4_2_c.def:::4.2.c EXCLUDE (A) for M1 and EXCLUDE (NULL) for M2:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 4.3: MLDv2 Multicast Address Specific Query in Single listening State</B>
+#------------------------------------------------------------------------------
+./mldv2-listener_4_3_a.seq:mldv2-listener_4_3_a.def:::4.3.a INCLUDE (A):1
+./mldv2-listener_4_3_b.seq:mldv2-listener_4_3_b.def:::4.3.b EXCLUDE (NULL):1
+./mldv2-listener_4_3_c.seq:mldv2-listener_4_3_c.def:::4.3.c EXCLUDE (A):1
+./mldv2-listener_4_3_d.seq:mldv2-listener_4_3_d.def:::4.3.d INCLUDE (NULL):1
+./mldv2-listener_4_3_e.seq:mldv2-listener_4_3_e.def:::4.3.e MLDv2 Routers:1
+./mldv2-listener_4_3_f.seq:mldv2-listener_4_3_f.def:::4.3.f Other Listener:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 4.4: MLDv2 Multicast Address Specific Query in Multiple Listening State</B>
+#------------------------------------------------------------------------------
+./mldv2-listener_4_4_a.seq:mldv2-listener_4_4_a.def:::4.4.a INCLUDE (A) for M1 and INCLUDE (B) for M2:1
+./mldv2-listener_4_4_b.seq:mldv2-listener_4_4_b.def:::4.4.b INCLUDE (A) for M1 and EXCLUDE (B) for M2:1
+./mldv2-listener_4_4_c.seq:mldv2-listener_4_4_c.def:::4.4.c EXCLUDE (A) for M1 and EXCLUDE (NULL) for M2:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 4.5: MLDv2 Multicast Address and Source Specific Query in Single Listening State</B>
+#------------------------------------------------------------------------------
+./mldv2-listener_4_5_a.seq:mldv2-listener_4_5_a.def:::4.5.a INCLUDE (A):1
+./mldv2-listener_4_5_b.seq:mldv2-listener_4_5_b.def:::4.5.b EXCLUDE (NULL):1
+./mldv2-listener_4_5_c.seq:mldv2-listener_4_5_c.def:::4.5.c EXCLUDE (A):1
+./mldv2-listener_4_5_d.seq:mldv2-listener_4_5_d.def:::4.5.d INCLUDE (NULL):1
+./mldv2-listener_4_5_e.seq:mldv2-listener_4_5_e.def:::4.5.e MLDv2 Routers:1
+./mldv2-listener_4_5_f.seq:mldv2-listener_4_5_f.def:::4.5.f Other Listener:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 4.6: MLDv2 Multicast Address and Source Specific Query in Multiple Listening State</B>
+#------------------------------------------------------------------------------
+./mldv2-listener_4_6_a.seq:mldv2-listener_4_6_a.def:::4.6.a INCLUDE (A) for M1 and INCLUDE (B) for M2:1
+./mldv2-listener_4_6_b.seq:mldv2-listener_4_6_b.def:::4.6.b INCLUDE (A) for M1 and EXCLUDE (B) for M2:1
+./mldv2-listener_4_6_c.seq:mldv2-listener_4_6_c.def:::4.6.c EXCLUDE (A) for M1 and EXCLUDE (NULL) for M2:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 4.7: MLDv2 General Query Competition</B>
+#------------------------------------------------------------------------------
+./mldv2-listener_4_7_a.seq:mldv2-listener_4_7_a.def:::4.7.a General Query with longer Maximum Response Code:1
+./mldv2-listener_4_7_b.seq:mldv2-listener_4_7_b.def:::4.7.b General Query with shorter Maximum Response Code:1
+./mldv2-listener_4_7_c.seq:mldv2-listener_4_7_c.def:::4.7.c Multicast Address Specific Query with longer Maximum Response Code:1
+./mldv2-listener_4_7_d.seq:mldv2-listener_4_7_d.def:::4.7.d Multicast Address Specific Query with shorter Maximum Response Code:1
+./mldv2-listener_4_7_e.seq:mldv2-listener_4_7_e.def:::4.7.e Multicast Address and Source Specific Query with longer Maximum Response Code:1
+./mldv2-listener_4_7_f.seq:mldv2-listener_4_7_f.def:::4.7.f Multicast Address and Source Specific Query with shorter Maximum Response Code:1
+./mldv2-listener_4_7_g.seq:mldv2-listener_4_7_g.def:::4.7.g Previous Multicast Address Specific Query with shorter Maximum Response Code:1
+./mldv2-listener_4_7_h.seq:mldv2-listener_4_7_h.def:::4.7.h Previous Multicast Address Specific Query with longer Maximum Response Code:1
+./mldv2-listener_4_7_i.seq:mldv2-listener_4_7_i.def:::4.7.i Previous Multicast Address and Source Specific Query with shorter Maximum Response Code:1
+./mldv2-listener_4_7_j.seq:mldv2-listener_4_7_j.def:::4.7.j Previous Multicast Address and Source Specific Query with longer Maximum Response Code:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 4.8: MLDv2 Multicast Address Specific Query Competition</B>
+#------------------------------------------------------------------------------
+./mldv2-listener_4_8_a.seq:mldv2-listener_4_8_a.def:::4.8.a Multicast Address Specific Queries with longer Maximum Response Code:1
+./mldv2-listener_4_8_b.seq:mldv2-listener_4_8_b.def:::4.8.b Multicast Address Specific Queries with shorter Maximum Response Code:1
+./mldv2-listener_4_8_c.seq:mldv2-listener_4_8_c.def:::4.8.c Multicast Address and Source Specific Query with longer Maximum Response Codet:1
+./mldv2-listener_4_8_d.seq:mldv2-listener_4_8_d.def:::4.8.d Multicast Address and Source Specific Query with shorter Maximum Response Code:1
+./mldv2-listener_4_8_e.seq:mldv2-listener_4_8_e.def:::4.8.e Previous Multicast Address and Source Specific Query with shorter Maximum Response Code:1
+./mldv2-listener_4_8_f.seq:mldv2-listener_4_8_f.def:::4.8.f Previous Multicast Address and Source Specific Query with longer Maximum Response Code:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 4.9: MLDv2 Multicast Address and Source Specific Query Competition</B>
+#------------------------------------------------------------------------------
+./mldv2-listener_4_9_a.seq:mldv2-listener_4_9_a.def:::4.9.a INCLUDE (A):1
+./mldv2-listener_4_9_b.seq:mldv2-listener_4_9_b.def:::4.9.b EXCLUDE (NULL):1
+./mldv2-listener_4_9_c.seq:mldv2-listener_4_9_c.def:::4.9.c EXCLUDE (A):1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 4.10: Listening State Change under MLDv2 Query Reception</B>
+#------------------------------------------------------------------------------
+./mldv2-listener_4_10_a.seq:mldv2-listener_4_10_a.def:::4.10.a General Query and Listening Start:1
+./mldv2-listener_4_10_b.seq:mldv2-listener_4_10_b.def:::4.10.b Multicast Address Specific Query and Listening Start:1
+./mldv2-listener_4_10_c.seq:mldv2-listener_4_10_c.def:::4.10.c Multicast Address and Source Specific Query and Listening Start:1
+./mldv2-listener_4_10_d.seq:mldv2-listener_4_10_d.def:::4.10.d General Query and Listening Stop:1
+./mldv2-listener_4_10_e.seq:mldv2-listener_4_10_e.def:::4.10.e Multicast Address Specific Query and Listening Stop:1
+./mldv2-listener_4_10_f.seq:mldv2-listener_4_10_f.def:::4.10.f Multicast Address and Source Specific Query and Listening Stop:1
+./mldv2-listener_4_10_g.seq:mldv2-listener_4_10_g.def:::4.10.g General Query and State Update INCLUDE (A) -> INCLUDE (B):1
+./mldv2-listener_4_10_h.seq:mldv2-listener_4_10_h.def:::4.10.h Multicast Address Specific Query and State Update INCLUDE (A) -> INCLUDE (B):1
+./mldv2-listener_4_10_i.seq:mldv2-listener_4_10_i.def:::4.10.i Multicast Address and Source Specific Query and State Update INCLUDE (A) -> INCLUDE (B):1
+./mldv2-listener_4_10_j.seq:mldv2-listener_4_10_j.def:::4.10.j General Query and State Update INCLUDE (A) -> EXCLUDE (B):1
+./mldv2-listener_4_10_k.seq:mldv2-listener_4_10_k.def:::4.10.k Multicast Address Specific Query and State Update INCLUDE (A) -> EXCLUDE (B):1
+./mldv2-listener_4_10_l.seq:mldv2-listener_4_10_l.def:::4.10.l Multicast Address and Source Specific Query and State Update INCLUDE (A) -> EXCLUDE (B):1
+./mldv2-listener_4_10_m.seq:mldv2-listener_4_10_m.def:::4.10.m General Query and State Update INCLUDE (A) -> INCLUDE (A) + INCLUDE (B):1
+./mldv2-listener_4_10_n.seq:mldv2-listener_4_10_n.def:::4.10.n Multicast Address Specific Query and State Update INCLUDE (A) -> INCLUDE (A) + INCLUDE (B):1
+./mldv2-listener_4_10_o.seq:mldv2-listener_4_10_o.def:::4.10.o Multicast Address and Source Specific Query and State Update INCLUDE (A) -> INCLUDE (A) + INCLUDE (B):1
+
+
+
+#==============================================================================
+&print:<B> GROUP 5: Limitation</B>
+#==============================================================================
+#------------------------------------------------------------------------------
+&print:<B> Group 5.1: Service Interface and Resource</B>
+#------------------------------------------------------------------------------
+./mldv2-listener_5_1_a.seq:mldv2-listener_5_1_a.def:::5.1.a Specific Source List in INCLUDE mode:1
+./mldv2-listener_5_1_b.seq:mldv2-listener_5_1_b.def:::5.1.b Specific Source List in EXCLUDE mode:1
+./mldv2-listener_5_1_c.seq:mldv2-listener_5_1_c.def:::5.1.c Internal Source List in INCLUDE mode:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 5.2: MTU - MLDv2 Report with State Change Record</B>
+#------------------------------------------------------------------------------
+./mldv2-listener_5_2_a.seq:mldv2-listener_5_2_a.def:::5.2.a ALLOW in INCLUDE:1
+./mldv2-listener_5_2_b.seq:mldv2-listener_5_2_b.def:::5.2.b BLOCK in INCLUDE:1
+./mldv2-listener_5_2_c.seq:mldv2-listener_5_2_c.def:::5.2.c ALLOW and BLOCK in INCLUDE:1
+./mldv2-listener_5_2_d.seq:mldv2-listener_5_2_d.def:::5.2.d TO_EX and IS_EX:1
+./mldv2-listener_5_2_e.seq:mldv2-listener_5_2_e.def:::5.2.e ALLOW in EXCLUDE:1
+./mldv2-listener_5_2_f.seq:mldv2-listener_5_2_f.def:::5.2.f BLOCK in EXCLUDE:1
+./mldv2-listener_5_2_g.seq:mldv2-listener_5_2_g.def:::5.2.g ALLOW and BLOCK in EXCLUDE:1
+./mldv2-listener_5_2_h.seq:mldv2-listener_5_2_h.def:::5.2.h TO_IN:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 5.3: MTU - MLDv2 Report with Single Current State Record</B>
+#------------------------------------------------------------------------------
+./mldv2-listener_5_3.seq:mldv2-listener_5_3.def:::5.3 INCLUDE:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 5.4: Listening State Change under MLDv2 Query Reception</B>
+#------------------------------------------------------------------------------
+./mldv2-listener_5_4_a.seq:mldv2-listener_5_4_a.def:::5.4.a INCLUDE:1
+./mldv2-listener_5_4_b.seq:mldv2-listener_5_4_b.def:::5.4.b EXCLUDE:1
+
+
+
+#==============================================================================
+&print:<B> GROUP 6: MLDv1 Compatibility</B>
+#==============================================================================
+#------------------------------------------------------------------------------
+&print:<B> Group 6.1: MLDv1 Query</B>
+#------------------------------------------------------------------------------
+./mldv2-listener_6_1_a.seq:mldv2-listener_6_1_a.def:::6.1.a MLD Report in MLDv1 Compatibility Mode:1
+./mldv2-listener_6_1_b.seq:mldv2-listener_6_1_b.def:::6.1.b MLD Query in MLDv1 Compatibility Mode:1
+./mldv2-listener_6_1_c.seq:mldv2-listener_6_1_c.def:::6.1.c Maximum Response Code in MLDv1 Query:1
+./mldv2-listener_6_1_d.seq:mldv2-listener_6_1_d.def:::6.1.d Cancellation of a response in compatibility mode change:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 6.2: MLDv1 Report</B>
+#------------------------------------------------------------------------------
+./mldv2-listener_6_2.seq:mldv2-listener_6_2.def:::6.2 MLDv1 Report:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 6.3: MLDv1 Compatibility Mode Scope</B>
+#------------------------------------------------------------------------------
+./mldv2-listener_6_3.seq:mldv2-listener_6_3.def:::6.3 MLDv1 Compatibility Mode Scope:2
+
+
+
+#==============================================================================
+&print:<B> GROUP 7: Source Specific Multicast</B>
+#==============================================================================
+#------------------------------------------------------------------------------
+&print:<B> Group 7.1: SSM Range</B>
+#------------------------------------------------------------------------------
+./mldv2-listener_7_1_a.seq:mldv2-listener_7_1_a.def:::7.1.a EXCLUDE mode in SSM:1
+./mldv2-listener_7_1_b.seq:mldv2-listener_7_1_b.def:::7.1.b EXCLUDE mode in configured SSM:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 7.2: MLDv1 message</B>
+#------------------------------------------------------------------------------
+./mldv2-listener_7_2_a.seq:mldv2-listener_7_2_a.def:::7.2.a MLDv1 Compatibility mode:1
+./mldv2-listener_7_2_b.seq:mldv2-listener_7_2_b.def:::7.2.b MLDv1 Report:1
+
+# EOF
