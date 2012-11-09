@@ -1,0 +1,65 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>JUDGEMENT</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:kris@jail-3.isc.freebsd.org" />
+</head>
+
+<body style="background-color: white">
+
+
+<!-- INDEX BEGIN -->
+<div name="index">
+<p><a name="__index__"></a></p>
+<!--
+
+<ul>
+
+	<li><a href="#judgement">JUDGEMENT</a></li>
+</ul>
+
+-->
+
+
+</div>
+<!-- INDEX END -->
+
+<p>
+</p>
+<h1><a name="judgement">JUDGEMENT</a></h1>
+SIP - Generic Judgment (200 for)<pre> [generic_200-for-INVITE.txt]
+ 
+ Generic judgement items for 200 response to the Initial INVITE 
+ 
+ - Headers:
+ 
+   * Contact
+       Must exist. [RFC3261-12-4]
+       addr-spec: Must be the specified SIP-URI as NUT(Contact Address). [RFC3261-12-5, Lmt-3]
+       addr-spec:
+         host: Recommended to be specified hostname of NUT. [RFC3261-19-3]
+       addr-spec: Must be enclosed in &quot;&lt;&gt;&quot; if a comma, semicolon, or question mark is contained. [RFC3261-20-22]
+ 
+   * Content-Type
+       Must exist. [RFC3261-20-31, RFC3261-13-7]
+       media-type: Must be &quot;application/sdp&quot;. [Lmt-4]
+ 
+   * Allow
+       Should exist. [RFC3261-13-36]
+ 
+   * Supported
+       Should exist. [RFC3261-13-36]
+       (option-tag: Must be corresponding to standards-track RFCs, however the tester does not judge this.) [IG-1-14]
+ 
+ - Bodies:
+   Must exist. [RFC3261-13-7]
+ 
+ 
+ 
+ 
+ </pre>
+</body>
+
+</html>

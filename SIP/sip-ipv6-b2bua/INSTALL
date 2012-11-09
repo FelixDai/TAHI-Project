@@ -1,0 +1,145 @@
+		Installing SIP Conformance Test Package
+		(UA, Endpoint, B2BUA, Registrar, Proxy)
+
+                                                         2010/07/22
+                                             IPv6 Promotion Council
+
+Terminology
+===========
+
+Tester Node (TN)
+	A tester node for the conformance tests.
+
+Node Under Test (NUT)
+	A testee node for the conformance tests.
+
+Network Under Test
+	The network where the conformance tests are executed.
+
+Tester Interface
+	The network interface of TN
+	hooked up to the Network Under Test.
+
+Interface Under Test
+	The network interface of NUT
+	hooked up to the Network Under Test.
+
+
+Prerequisites
+=============
+
+Prerequisites for TN:
+
+	- The package supports
+	
+	    FreeBSD 7.3-RELEASE   or higher
+
+	  * please check your FreeBSD includes the following things:
+               - perl5.8.7 or higher
+               - rtadvd
+
+
+	- It is mandatory to install IPv6 Conformance Test Platform
+	  "v6eval" that is also provided by TAHI project. For more
+	  information, please refer to 00README.v6eval in "v6eval".
+      
+      After installing the package, please set up 
+      
+            "PATH" "/usr/local/v6eval/bin"
+
+      ex.) if you use "bash" shell, 
+
+           1. add the following in .bashrc
+              export PATH=$PATH:/usr/local/v6eval/bin
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+           2. reboot OS 
+
+	  You can download "v6eval" from the following URL:
+	  
+	       http://www.tahi.org/release/
+
+
+        - You need to install "koi" package that is also provided by
+          TAHI project. For more information, please refer to README in
+          "koi".
+
+          You can download "koi" from the following URL:
+          
+           http://www.tahi.org/release/
+
+
+	- You need to install "bind9-X-X-X" for using dns correctly.
+	  (FreeBSD 7.3-RELEASE includes bind9-9.3.6. You can check
+	   the version of bind by hitting the command, "$named -version")
+
+          You can download "bind9-X-X-X" from the following URL:
+          
+	      http://www.freebsd.org/
+
+
+	If you use SIP (UA, Endpoint or B2BUA) Conformance Test Package and; 
+          - You need to install "ortp" package that is LGPL library.
+            Before using "ortp", Please see 
+              
+                http://www.gnu.org/copyleft/lesser.html
+              
+            For more information, please refer to INSTALL in "ortp".
+
+            After installing the package, please set up 
+          
+                "PATH" "/(somewhere)/ortp-x-x-x/src/tests"
+          
+            *somewhere means directory where you installed ortp
+
+              ex.) if you use "bash" shell,
+                  1. add the following in .bashrc
+                
+                     export PATH=$PATH:/(somewhere)/ortp-x-x-x/src/tests
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  2. reboot OS
+
+            You can download "ortp" from the following URL:
+          
+                http://freshmeat.net/projects/ortp/
+
+
+Installing the package onto TN
+==============================
+# YY    : ua, ep, b2bua, rg, px
+#  ex.) If you use SIP_UA Conformance Test Package, "YY" means "ua".
+#
+# X.X.X : Version number
+
+
+0. Before Starting
+
+   Make sure that you completed installing "v6eval" package.
+   Please refer to 00README.v6eval in "v6eval" for more information.
+
+   And make sure that you have installed "koi" package.
+   Please refer to README file in "koi" package for more information.
+
+1. Extracting ct package
+
+	% tar zxvf ct-sip-ipv6-YY-X.X.X.tar.gz
+
+2. Installing ct package
+
+	% cd ct-sip-ipv6-YY-X.X.X
+	% su
+	# make install
+
+   With the above steps, you can install ct package into
+   /usr/local/v6eval/ct-sip-ipv6-YY directory.
+   Be sure not to run the tests within this directory.
+
+3. Copying ct package
+   Copy ct directory to any directory you like.
+	% cp -pR /usr/local/v6eval/ct-sip-ipv6-YY  $SOMEWHERE/ct-sip-ipv6-YY
+	% chmod -R +w $SOMEWHERE/ct-sip-ipv6-YY
+
+For more detailed information about configuration of test tool and 
+running test, please read the reference manual as
+"SIP_IPv6_ReferenceManual.pdf" .
+
+							[End of INSTALL]

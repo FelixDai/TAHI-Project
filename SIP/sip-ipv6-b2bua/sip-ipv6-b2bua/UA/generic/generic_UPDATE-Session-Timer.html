@@ -1,0 +1,87 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>JUDGEMENT</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:kris@jail-3.isc.freebsd.org" />
+</head>
+
+<body style="background-color: white">
+
+
+<!-- INDEX BEGIN -->
+<div name="index">
+<p><a name="__index__"></a></p>
+<!--
+
+<ul>
+
+	<li><a href="#judgement">JUDGEMENT</a></li>
+</ul>
+
+-->
+
+
+</div>
+<!-- INDEX END -->
+
+<p>
+</p>
+<h1><a name="judgement">JUDGEMENT</a></h1>
+SIP - Generic Judgment (UPDATE Session)<pre> [generic_UPDATE-Session-Timer.txt]
+ 
+ Generic judgement items for UPDATE (Session Timer refresh)
+ 
+ - Request-Line:
+ 
+   Method: Recommended to be &quot;UPDATE&quot;. [RFC4028-7-21]
+ 
+ - Headers:
+ 
+   * Route
+     Must include a Route header field. [RFC3261-12-49]
+     route-param: Must contain the route set values(set by Record-Route header in 1st-INVITE) in order, including all parameters. [RFC3261-12-49]
+ 
+   * To
+     tag-param: Must exist. [RFC3261-12-35]
+ 
+   * Call-ID
+     callid: Must equal that of the Initial INVITE. [RFC3261-12-40]
+ 
+   * CSeq
+     sequence number: Must be the value incremented by one from that of the previous request sent by NUT, if any. [RFC3261-12-42,43]
+ 
+   * Contact
+     Should exist. [RFC3261-12-53]
+     addr-spec: Should be the specified SIP-URI as NUT(Contact Address). [RFC3261-12-54]
+     addr-spec: Must be enclosed in &quot;&lt;&gt;&quot; if a comma, semicolon, or question mark is contained. [RFC3261-20-22]
+ 
+   * Require
+     Must be the same as value in that of initial Session refresh request. [RFC4028-7-13]
+ 
+   * Proxy-Require
+     Must be the same as value in that of initial Session refresh request. [RFC4028-7-13]
+ 
+   * Supported
+     Must exist. [RFC4028-7-1]
+     Must be the same as value in that of initial Session refresh request. [RFC4028-7-13]
+ 
+   * Session-Expires
+     Should exist. [RFC4028-7-17]
+     delta-seconds: Should be equal to the maximum of the Min-SE header field(its default value when not present is 90sec.) and the current session interval, if this header is present. [RFC4028-7-18]
+     refresher-param: Must exist. [RFC4028-7-9]
+     refresher-param: Recommended to set 'uac'. [RFC4028-7-20]
+ 
+   * Min-SE
+     delta-seconds: Must not be less than 90. [RFC4028-5-1]
+ 
+ - Bodies:
+ 
+   Recommended that the UPDATE request not contain an offer. [RFC4028-7-22]
+ 
+ 
+ </pre>
+</body>
+
+</html>

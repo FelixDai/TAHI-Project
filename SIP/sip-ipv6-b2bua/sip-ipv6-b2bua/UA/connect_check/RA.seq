@@ -1,0 +1,57 @@
+#!/usr/bin/perl
+#
+# $CopyrightSIPv6$
+
+#--------------------------------------------------------------#
+# ENTRANCE
+#--------------------------------------------------------------#
+
+# Set the test version used for the display.
+BEGIN { $V6evalTool::TestVersion = '$Name:  $';}
+
+require SIP;
+
+use Digest::MD5 qw(md5_hex);
+
+# Import the package.
+use V6evalTool;
+
+
+#--------------------------------------------------------------#
+# INITIALIZATION
+#--------------------------------------------------------------#
+SIPInitializeScenario('','NDP-SKIP');
+
+#--------------------------------------------------------------#
+# SCENARIO
+#--------------------------------------------------------------#
+
+$SIP_TimeOut=1;
+$result='OK';
+
+$ret=SQ_RA_Router();
+LOG_Msg("RA send :status($ret) taget address($CVA_TUA_IPADDRESS)\n",);
+
+SQ_Proxy_Echo('','','','','','nonAuto');
+
+
+#--------------------------------------------------------------#
+# ERR Result
+#--------------------------------------------------------------#
+
+if($ret eq 'OK' && $CVA_TUA_IPADDRESS ne ''){
+
+        LogSIPPktInfo();
+        MsgDisplay("RA, NS Result \'OK\'\nAnd Tester get Target IPv6 address.($CVA_TUA_IPADDRESS)\n\n  - Please check IPv6 address of your SIP UA.\n  - If the above address does not equal your address, \n    check your configuration.(for example, check Privacy Extensions...)\n");
+        print("->Pass\n");
+}elsif($ret ne 'OK'){
+
+    LogSIPPktInfo();
+    MsgDisplay("RA, NS Result \'NG\'\nPlease check whether your connection is completed.\n");
+        print("->Fail\n");
+}else{
+
+    LogSIPPktInfo();
+    MsgDisplay("RA, NS Result \'OK\'\nBut Tester can\'t get Target IPv6 address.\n\n (If you can only set IPv6 address as static, change configuration.\n  For details, look at SIP_IPv6UA_ReferenceManual.pdf.)\n");
+        print("->Fail\n");
+}

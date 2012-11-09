@@ -1,0 +1,74 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>JUDGEMENT</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:kris@jail-3.isc.freebsd.org" />
+</head>
+
+<body style="background-color: white">
+
+
+<!-- INDEX BEGIN -->
+<div name="index">
+<p><a name="__index__"></a></p>
+<!--
+
+<ul>
+
+	<li><a href="#judgement">JUDGEMENT</a></li>
+</ul>
+
+-->
+
+
+</div>
+<!-- INDEX END -->
+
+<p>
+</p>
+<h1><a name="judgement">JUDGEMENT</a></h1>
+SIP - Generic Judgment (SDP )<pre> [generic_SDP.txt]
+ 
+ Generic judgement items for SDP 
+ 
+   The lines of v, o, s, c*, t, media-part must appear in this order. (Items marked with a &quot;*&quot; may be omitted. ) [RFC3264-5-1, RFC2327]
+   The lines of m, c*, a* must appear in this order in the media part. (Items marked with a &quot;*&quot; may be omitted. ) [RFC3264-5-1, RFC2327]
+   If a c line in the session-part is omitted, all media-parts must include a c line. [RFC3264-5-1, RFC2327]
+   Only one SDP body Must exist. [RFC3264-5-4, RFC2327]
+ 
+   * &quot;v=&quot; line  v=0
+       Must be &quot;0&quot;. [RFC3264-5-1, RFC2327]
+ 
+   * &quot;o=&quot; line   o=&lt;username&gt; &lt;session id&gt; &lt;version&gt; &lt;network type&gt; &lt;address type&gt; &lt;address&gt;
+       &lt;session id&gt;: Must be a 64 bit signed integer. [RFC3264-5-2,3]
+       &lt;version&gt;: Must be a 64 bit signed integer. [RFC3264-5-2,3]
+       &lt;network type&gt;: Must be &quot;IN&quot;. [RFC3264-5-1, RFC2327]
+       &lt;address type&gt;: Must be &quot;IP6&quot;. [RFC3264-5-1, RFC2327]
+       &lt;address&gt;: Must be specified hostname or global unicast address of NUT. [RFC3264-5-1, RFC2327]
+ 
+   * &quot;s=&quot; line  s=&lt;session name&gt;
+       &lt;session name&gt;: Recommended to be a single space character (0x20) or a dash (-). [RFC3264-5-5, Lmt-6]
+ 
+   * &quot;c=&quot; line  c=&lt;network type&gt; &lt;address type&gt; &lt;connection address&gt;
+       &lt;network type&gt;: Must be &quot;IN&quot;. [RFC3264-5-1, RFC2327]
+       &lt;address type&gt;: Must be &quot;IP6&quot;. [RFC3264-5-1, RFC2327]
+       &lt;connection address&gt;: Must be the global unicast address of NUT. [RFC3264-5-1, RFC2327]
+ 
+   * &quot;t=&quot; line  t=&lt;start time&gt; &lt;stop time&gt;
+       Should be &quot;0 0&quot; if the SDP is a offer. [RFC3264-5-6]
+       Must equal that of the offer if the SDP is an answer. [RFC3264-6-5]
+ 
+   * &quot;m=&quot; line  m=&lt;media&gt; &lt;port&gt; &lt;transport&gt; &lt;fmt list&gt;
+       Must contain the same number of &quot;m=&quot; lines as the offer if the SDP is an answer. [RFC3264-6-3]
+ 
+   * &quot;a=&quot; line   a=&lt;attribute&gt;, a=&lt;attribute&gt;:&lt;value&gt;
+       If the attribute is &quot;ptime&quot;, the value must be greater than zero. [RFC3264-5-18, RFC3264 6.1 the present tense]
+ 
+ 
+ 
+ </pre>
+</body>
+
+</html>
