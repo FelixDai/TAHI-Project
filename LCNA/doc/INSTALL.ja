@@ -1,0 +1,609 @@
+操作方法
+
+目次
+1. 概要
+1. 1 本ソフトウェアの目的
+1.2 動作を確認した環境
+2. インストール手順
+2.1 インストール方法
+2.2 インストールされるファイルの一覧
+3. IPsecパラメータ設定・参照コマンド使用方法
+
+===========================================================================
+1. 概要
+
+1.1 本ソフトウェアの目的
+
+ 本ソフトウェアは、セキュリティに配慮した情報家電向けIPv6最小仕様(LCNA)の
+ 標準案を実現することを目的として開発した。
+ draft-okabe-ipv6-lcna-minreq-01.txt をベースとし、各機器の開発者が参照コー
+ ドとして利用することを想定している。
+ 以下では、本ソフトウェアの動作を確認する目的で、 Intel x86アーキテクチャ
+ 上のNetBSD 1.5.2 の上で本ソフトウェア(以下、参照ソフト)をコンパイルし動
+ 作させる手順を説明する。
+
+1.2 動作を確認した環境
+ 参照ソフトは、以下の動作環境において動作することを確認した。
+
+(1) ハードウェア
+
+  AT互換機PC
+
+ (A) CPU
+     Pentium III 450MHz
+
+ (B) メモリ
+     64MByte
+
+ (C) ネットワークインタフェース
+     Ether Express Pro100(fxp) * 1
+
+(2) ソフトウェア
+
+ (A) オペレーティングシステム
+     NetBSD 1.5.2
+
+2. インストール手順
+
+ 以下では、参照ソフトを Intel x86アーキテクチャ上のNetBSD1.5.2に対してイ
+ ンストールする際の手順を説明する。
+
+2.1 インストール方法
+ 
+ インストールにあたっては、すべての操作はroot権限を持つユーザアカウント
+ の下で実施する。またNetBSD 1.5.2のカーネルをコンパイルするための環境、
+ 具体的にはカーネルのソースファイル一式とコンパイラがシステム上に揃って
+ いることを前提に説明することとし、カーネルをコンパイルするための一般的
+ な手順については、ここでは言及しない。
+
+ なお、インストールを開始する前に、2.2に記載するファイルと同名のファイ
+ ルまたはディレクトリが存在する場合には、予めバックアップを保存しておく
+ ことが望ましい。インストールに先立ち、アーカイブファイル 
+ tiny_kernel.tar.gzおよび tiny_tools.tar.gz を、任意のディレクトリにコピー
+ しておく。以下では、ここでコピーしたディレクトリ名の絶対パス名を 
+ $PKGSRC と記述する。
+
+(1) カーネルのコンパイルとインストール
+
+ (A) パッケージの展開
+     以下のコマンドを実行する。
+       cd /
+       tar xzf $PKGSRC/tiny_kernel.tar.gz
+
+ (B) シンボリックリンクの作成
+     ユーザアプリケーションをコンパイルする際に、必要なヘッダファイルが参
+     照されるようにする目的で、以下の手順でシンボリックリンクを作成する。
+
+       ln -s /usr/src/sys/tinyipv6 /usr/include/tinyipv6
+       ln -s /usr/src/sys/dev/tiny /usr/include/dev/tiny
+
+ (C) カーネル構成定義ファイルの編集
+
+     カーネルの構成定義ファイルを編集して、ネットワークインタフェースを指
+     定する。ネットワークインタフェースを特に指定しないときのデフォルト値は、
+     "fxp0" である。これに変更が無い場合には本項(C)の作業 は省略して良い。  
+     ネットワークインタフェースを "fxp0" 以外に変更する場合には、以下の手順
+     を実施する。
+
+       cd /usr/src/sys/arch/i386/conf
+
+     ここに TINYIPV6 というファイルがあるので、任意の名称のファイルにコピー
+     するか、このファイルを直接編集する。以下、編集対象のファイルを 
+     $CONFIGFILE、ネットワークインタフェース名を $IF と記する。
+
+     $CONFIGFILE を適当なエディタを用いて編集し、以下の行を挿入する。挿入
+     場所は任意。
+
+       options "TINY_PHYSIF=\"$IF\""
+
+     例えばネットワークインタフェースを "le0" とする場合には、以下のよう
+     になる。
+       options "TINY_PHYSIF=\"le0\""
+
+ (D) カーネルのコンパイルとインストール
+     以下のコマンドを実行する。
+     なお、$CONFIGFILEは、前項(C)で編集したカーネルの構成定義ファイル名である。
+
+       cd /usr/src/sys/arch/i386/conf
+       config $CONFIGFILE
+       cd /usr/src/sys/arch/i386/compile/$CONFIGFILE
+       make depend
+       make
+       make install
+
+(2) パラメータ設定・参照ツールのインストール
+
+ (A) パッケージの展開
+     root権限を持つユーザアカウントの下で、以下のコマンドを実行する。以
+     下では、任意の作業用ディレクトリを定めて操作を行うこととし、ここで
+     定めた作業用ディレクトリ名の絶対パス名をを $WORK と記述する。
+
+       cd $WORK
+       tar xzf $PKGSRC/tiny_tools.tar.gz
+
+ (B) コンパイル
+    以下のコマンドを実行する。
+
+       cd $WORK/tiny_ipsec
+       make
+
+ (C) インストール
+    コマンド群が置かれている任意のディレクトリ(例えば/usr/sbin など)に、
+    以下のファイルをコピーする。
+
+       tiny_ipsec_setup
+       tiny_ipsec_show
+       tiny_ipsec_reset
+
+    例えば、以下のコマンドを実行する。
+
+       cp tiny_ipsec_setup /usr/sbin/
+       cp tiny_ipsec_show  /usr/sbin/
+       cp tiny_ipsec_reset /usr/sbin/
+
+ (D) デバイスファイルの作成
+     IPsecのパラメータ設定用のデバイスファイルを作成する。
+     以下のコマンドを実行する。
+
+       cd $WORK/tiny_ipsec
+       ./makedev.sh
+
+(3) システム起動パラメータの調整
+
+ (A) 既存のIPv6対応アプリケーションの停止
+
+     参照ソフトは、既存のIPv6対応アプリケーションの動作と干渉する場合が
+     ある。既存のIPv6対応アプリケーションを動作している、あるいは動作さ
+     せようとしている状態では、参照ソフトをインストールしたカーネルは正
+     しく動作しない場合がある。このため、システムの起動パラメータファイ
+     ルの中でIPv6対応のアプリケーションを自動起動するように設定している
+     場合には、その設定を解除する。この設定は通常、/etc/rc.conf などで設
+     定されている。
+
+     該当する設定行が無い場合には、ここでは何もしないで良い。
+
+    (例) /etc/rc.conf中で、例えば以下のような設定があった場合には、"YES"
+        を "NO" に変更する。
+
+        (/etc/rc.conf変更前)
+          sendmail=YES
+          rtsol=YES
+
+        (/etc/rc.conf変更後)
+          sendmail=NO
+          rtsol=NO
+
+ (B) ネットワークインタフェースの初期化設定ファイル作成
+     2.1.1 (1)(C)で指定したネットワークインタフェースに対して初期化処理
+     を行うように設定する。
+     ネットワークインタフェース名に対応するファイルが既に存在する場合に
+     はそのファイルを編集し、無ければ新たに作成する。ネットワークインタ
+     フェース名に対応した初期化設定ファイル名は、以下の通りである。
+
+        /etc/ifconfig.ネットワークインタフェース名
+
+     たとえば、ネットワークインタフェース名が "le0" の場合には、
+
+        /etc/ifconfig.le0
+
+     である。
+     上記ファイルの内容を、以下の1行のみとする。
+
+       up
+
+(4) 新しいカーネルで起動
+   システムを再起動する。
+   例えば、以下のコマンドを実行する。
+
+     reboot    
+
+   ここまでの操作で、参照ソフトの機能を実装したカーネルの下で、OSが起動する。
+
+2.2 インストールされるファイルの一覧
+
+ 以上の手順で参照ソフトをインストールした際に、生成または更新されるファ
+ イルは、以下の通りである。
+ 同名のファイルが存在する場合には、本パッケージをインストールする前にバッ
+ クアップを保存しておくことが望ましい。
+
+ (A) カーネルのソースファイル(参照ソフト)
+    ディレクトリ /usr/src/sys/tinyipv6/ のファイル
+
+       tiny_addr.c
+       tiny_addr.h
+       tiny_auth.h
+       tiny_auth_algo.c
+       tiny_buf.c
+       tiny_buf.h
+       tiny_conf.c
+       tiny_conf.h
+       tiny_esp.h
+       tiny_esp_algo.c
+       tiny_esp_input.c
+       tiny_esp_output.c
+       tiny_icmp6.c
+       tiny_icmp6.h
+       tiny_in.h
+       tiny_in6.c
+       tiny_in6.h
+       tiny_in6_cksum.c
+       tiny_in6_cksum.h
+       tiny_ip6.h
+       tiny_ip6_input.c
+       tiny_ip6_input.h
+       tiny_ip6_output.c
+       tiny_ip6_output.h
+       tiny_ip6_var.h
+       tiny_ipsec.c
+       tiny_ipsec.h
+       tiny_ipsecdb.c
+       tiny_ipsecdb.h
+       tiny_nd6.c
+       tiny_nd6.h
+       tiny_nd6_nbr.c
+       tiny_nd6_rtr.c
+       tiny_netif.c
+       tiny_netif.h
+       tiny_raw_ip6.c
+       tiny_raw_ip6.h
+       tiny_types.h
+       tiny_utils.c
+       tiny_utils.h
+
+       sysdep_buf.c
+       sysdep_in6_proto.c
+       sysdep_ip6protosw.h
+       sysdep_l2.c
+       sysdep_l2.h
+       sysdep_l4.c
+       sysdep_l4.h
+       sysdep_netif.c
+       sysdep_netif.h
+       sysdep_proto_init.c
+       sysdep_proto_init.h
+       sysdep_spl.h
+       sysdep_types.h
+       sysdep_utils.c
+       sysdep_utils.h
+       sysdep_wrappers.c
+       sysdep_wrappers.h
+
+
+ (B) カーネルのソースファイル(構成定義ファイル)
+
+       /usr/src/sys/arch/i386/conf/TINYIPV6
+       /usr/src/sys/arch/i386/i386/conf.c
+       /usr/src/sys/conf/files
+       /usr/src/sys/dev/tiny/tiny_var.h
+       /usr/src/sys/dev/tiny/tiny.c
+       /usr/src/sys/sys/conf.h
+
+ (C) IPsecパラメータ設定・参照ツールの実行ファイル
+
+    (任意のディレクトリ)
+       tiny_ipsec_setup
+       tiny_ipsec_show
+       tiny_ipsec_reset
+
+ (D) カーネル
+
+       /netbsd
+
+ (E) デバイス
+
+       /dev/tiny_nbrcache    (未使用)
+       /dev/tiny_ipsec       IPsecパラメータ設定・参照用デバイス
+       /dev/tiny_defrouter   (未使用)
+       /dev/tiny_prefix      (未使用)
+       /dev/tiny_physifaddr  (未使用)
+       /dev/tiny_buffer_stat (未使用)
+       /dev/tiny0  /dev/tiny_nbrcacheのハードリンク
+       /dev/tiny1  /dev/tiny_ipsecのハードリンク
+       /dev/tiny2  /dev/tiny_defrouterのハードリンク
+       /dev/tiny3  /dev/tiny_prefixのハードリンク
+       /dev/tiny4  /dev/tiny_physifaddrのハードリンク
+       /dev/tiny5  /dev/tiny_buffer_statのハードリンク
+
+ (F) ヘッダファイル(シンボリックリンク)
+
+    /usr/include/tinyipv6: /usr/src/sys/tinyipv6 へのシンボリックリンク
+    /usr/include/dev/tiny: /usr/src/sys/dev/tiny へのシンボリックリンク
+
+3. IPsec パラメータ設定・参照コマンド使用方法
+
+(1) tiny_ipsec_setup
+
+ (A) 名称
+
+     tiny_ipsec_setup - IPsecパラメータ設定コマンド
+
+ (B) 書式
+
+     tiny_ipsec_setup [-v] [-n] [-c config-file] [-d config-device]
+
+ (C) 説明
+
+     参照ソフトに対して、IPsecのパラメータを設定する。
+
+ (D) オプション
+
+     -v 詳細メッセージを表示する
+     -n パラメータファイルの妥当性チェックを行うだけで、実際に設定はしない。
+     -c パラメータファイル名。 -c オプションを省略すると標準入力からの入力
+	となる。
+     -d IPsecパラメータを設定するデバイスファイル名。
+        -d オプションを省略すると /dev/tiny_ipsec に対して設定を行う。
+
+  指定したパラメータファイルの内容が妥当性を欠く場合には何も設定されない。
+
+ (E) 設定ファイルの仕様
+
+   (形式)
+    ASCIIテキストで記述する。
+
+      [項目名] 設定値
+
+    の連続で1エントリを表し、1行以上の空行をエントリの区切りとする。
+    エントリの指定が無い場合にはデフォルト値を指定したと見倣す。
+    1エントリ中での項目の順序は任意。
+
+   (数値)
+    数値は、10進数値・16進数値・8進数値を指定可能。
+    記述方法はC言語の表記に準ずる。
+
+   (文字列)
+    文字列は""で囲んだASCII文字の連続とする。文字列中では、C言語
+    の表記に準じたエスケープ指定を可能とする。
+
+   (大文字と小文字の扱い)
+    以下で、[esp_key] [esp_auth_key]に指定するパラメータを除いて、大文
+    字と小文字は同義として解釈される。
+
+   (同一項目名の扱い)
+    同一エントリ中に同名の項目が複数書かれていた場合、後に書いた内容で上
+    書きされる。
+
+   (コメント)
+    行頭が"#"で始まる行はコメント行として扱われ、行数に数えない。
+    行の途中に"#"があれば、その直前までが設定ファイルの内容として意味を
+    持ち、"#"以降はコメントとして扱われる。
+
+   (項目の書式)
+
+    [lifetime|LT] 数値 または "INFINITE"(無期限)
+    [spi|SPI] 数値 または "NONE"
+    [proto|PRT] TCP または UDP または any または *
+    [send_peer|S_PEER] IPv6アドレス[/プレフィックス長][:[ポート番号][-[ポート番号]]]
+    [send_myself|S_MY] 自分を表すシンボル[:[ポート番号][-[ポート番号]]]
+    [recv_peer|R_PEER] IPv6アドレス[/プレフィックス長][:[ポート番号][-[ポート番号]]]
+    [recv_myself|R_MY] 自分を表すシンボル[:[ポート番号][-[ポート番号]]]
+    [outpolicy|OPOL] 送信ポリシを表すシンボル
+    [inpolicy|IPOL] 受信ポリシを表すシンボル
+    [esp_alg|ESP_A] 暗号化アルゴリズムを表すシンボル
+    [esp_key|ESP_K] 暗号化キー[/暗号化キー長]
+    [esp_auth_alg|ESP_A_A] 認証アルゴリズムを表すシンボル
+    [esp_auth_key|ESP_A_K] 認証キー[/認証キー長]
+
+
+   (項目の説明)
+
+    ・有効期限
+
+      [lifetime|LT] 数値 または "INFINITE"(無期限)
+
+        INFINITE       無期限
+        数値           1〜0xFFFFFFFE
+
+        デフォルト値   INFINITE
+
+    ・SPI
+       
+        [spi|SPI] 数値 または "NONE"
+
+          数値           32bitの数値
+          NONE           SPI無し
+
+          デフォルト値   NONE
+
+    ・上位プロトコル名
+
+        [proto|PRT] TCP または UDP または any または *
+
+          TCP            TCP
+          UDP            UDP
+          any|*          ワイルドカード
+
+          デフォルト値   any
+
+    ・送信時の相手ホストに関する設定
+
+        [send_peer|S_PEER] IPv6アドレス[/プレフィックス長]
+        [send_peer|S_PEER] [[IPv6アドレス[/プレフィックス長]]][:[ポート番号][-[ポート番号]]]
+
+        ポート番号を指定する際には、IPv6アドレス部分を[]で囲む。
+
+          プレフィックス長       0..128
+          ポート番号             0..0xFFFF
+
+          デフォルト値           ::/0 (全ホスト, 全ポート番号)
+
+    ・送信時の自ホストに関する設定
+
+        [send_myself|S_MY] 自分を表すシンボル[:[ポート番号][-[ポート番号]]]
+
+          LINKLOCAL             自ホストのリンクローカルIPアドレス
+          SITELOCAL             自ホストのサイトローカルIPアドレス
+          GLOBAL                自ホストのグローバルIPアドレス
+          ALL                   自ホストのアドレスすべて
+
+          先頭に"!"を付すことで、"!"の右側に指定したアドレスを除くことを表す。
+	  (例) !GLOBAL: 自ホストのグローバルIPアドレス以外すべて
+
+          ポート番号             0..0xFFFF (省略時は全ポート番号)
+          デフォルト値           ALL (全ポート番号)
+
+    ・受信時の相手に関する設定
+
+        [recv_peer|R_PEER] IPv6アドレス[/プレフィックス長][:[ポート番号][-[ポート番号]]]
+
+          [send_peer] と同様
+
+    ・受信時の自ホストに関する設定
+
+        [recv_myself|R_MY] 自分を表すシンボル[:[ポート番号][-[ポート番号]]]
+
+          [send_myself] と同様
+
+    ・送信ポリシ
+
+        [outpolicy|OPOL] 送信ポリシを表すシンボル
+
+          DISCARD       パケットを破棄する。
+          PASS          IPsecを適用しない。そのまま送る。
+          ESP           ESPを適用する
+          ESP_AUTH      ESPと認証を適用する。
+
+          デフォルト値  PASS
+
+    ・受信ポリシ
+
+        [inpolicy|IPOL] 受信ポリシを表すシンボル
+
+          DISCARD       パケットを破棄する。
+          PASS          IPsec処理を行わずそのまま受信する。
+          ESP           ESP必要。ESPが適用されていなかったらパケットを破
+                        棄する。
+          ESP_AUTH      ESPと認証が両方とも必要。ESPと認証が適用されてい
+                        なければパケットを破棄する。
+
+          デフォルト値  PASS
+
+         (注)ESP_AUTHは、本参照ソフトに特有の概念として定義した。AHを使
+            わずESPの認証機能で代替しており、これを使って「AH必須」相当
+            の機能を実現する。
+
+    ・ESP暗号化アルゴリズム
+
+        [esp_alg|ESP_A] 暗号化アルゴリズムを表すシンボル
+
+          [outpolicy][inpolicy]でESPまたはESP_AUTHを指定した場合、本項目
+          の指定が必須。
+
+          DES            DES
+          3DES           3DES
+          NULL           ESP_NULL
+
+          デフォルト値   なし
+
+    ・ESP暗号鍵
+
+        [esp_key|ESP_K] 暗号化キー[/長さ]
+          16進数表現の数値または文字列を指定する。
+         「長さ」には、ビット数を指定する。
+          長さを指定しない場合には、記した値の長さが鍵の長さとして設定さ
+          れる。
+          [esp_alg]でDESまたは3DESを指定した場合、本項目の指定が必須。
+
+         デフォルト値   なし
+
+    ・ESP認証アルゴリズム
+
+        [esp_auth_alg|ESP_A_A] 認証アルゴリズムを表すシンボル
+
+          [outpolicy][inpolicy]でESP_AUTHを指定した場合は本項目の指定が
+          必須。
+
+          HMAC-MD5       HMAC-MD5
+          HMAC-SHA       HMAC-SHA
+
+          デフォルト値   なし
+
+    ・ESP認証鍵
+
+        [esp_auth_key|ESP_A_K] 認証キー[/長さ]
+          16進数表現の数値または文字列を指定する。
+          「長さ」には、ビット数を指定する。
+          長さを指定しない場合には、記した値の長さが鍵の長さとして設定さ
+          れる。
+          [outpolicy][inpolicy]でESP_AUTHを指定した場合は本項目の指定が
+          必須。
+
+          デフォルト値   なし
+
+    (設定例)
+      例えば、以下の情報を登録する場合の設定ファイルの内容を例示する。
+        SA
+           src:A, dst: B
+           spi: 0x1000
+           mode: transport
+           encryption algorithm: null
+           authentication algorithm: hmac-md5
+           authentication algorithm key: "TAHITEST89ABCDEF"
+
+
+        Security Policy
+          src A, dst B
+          upper-layer protocol: any
+          direction: out
+          apply: ipsec
+          specify SA:  src: A, dst: B
+          SA level: require
+
+        (ホスト 3ffe:501:ffff:ff03:200:ff:fe00:b0b0
+         と 3ffe:501:ffff:ff05:200:ff:fe00:c1c1 との間のSAとポリシを設定)
+
+
+      上記に対応する設定ファイルの内容は、以下の通りとなる。
+
+        [spi] 0x1000
+        [proto] any
+        [send_peer] 3ffe:501:ffff:ff05:200:ff:fe00:c1c1
+        [semd_myself] GLOBAL
+        [recv_peer] 3ffe:501:ffff:ff05:200:ff:fe00:c1c1
+        [recv_myself] GLOBAL
+        [outpolicy] ESP_AUTH
+        [inpolicy] ESP_AUTH
+        [esp_alg] NULL
+        [esp_auth_alg] HMAC-MD5
+        [esp_auth_key] "TAHITEST89ABCDEF"
+
+(2) tiny_ipsec_show
+
+ (A) 名称
+
+     tiny_ipsec_show - IPsecパラメータ参照コマンド
+
+ (B) 書式
+
+     tiny_ipsec_show [-d config-device]
+
+ (C) 説明
+
+     現在参照ソフトに設定されているIPsecパラメータを表示する。
+     表示形式は、tiny_ipsec_setup コマンドの設定ファイルに準ずる。
+
+ (D) オプション
+
+     -d デバイスファイル名
+        IPsecパラメータを参照する際に用いるデバイスファイル名を
+        指定する。省略時は /dev/tiny_ipsec が指定される。
+
+(3) tiny_ipsec_reset
+
+ (A) 名称
+
+     tiny_ipsec_reset - IPsecパラメータリセットコマンド
+
+ (B) 書式
+
+     tiny_ipsec_reset
+
+ (C) 説明
+
+     IPsecのパラメータをリセットする。
+     本コマンドを実行することにより、セキュリティポリシデータベースおよび
+     セキュリティアソシエーションデータベースの内容が初期化される。
+
+ (D) オプション
+
+    無し

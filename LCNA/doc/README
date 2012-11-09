@@ -1,0 +1,210 @@
+IMPLEMENTATION
+
+This sample code was implemented under the following precondition.
+In this document, a portion of implementation conform to IPv6 minimum
+requirement is called `tiny'.
+
+[Operation environment]
+- It is assumed that a system has only one physical network
+  interface.  It cannot be used although two or more network
+  interfaces may exist.
+
+- Only ethernet interface is usable as L2 link.
+
+- Only autoconfigured unicast addresses is usable.
+
+- Developed on NetBSD 1.5.2/i386.  However, it is not dependent on the
+  i386 architecture.
+
+[IPv4 address]
+- IPv4 mapped address is not supported.
+
+[Multicast address]
+- For ND, sending and receiving packets via all node and solicited
+  node multicast address is supported.
+
+- For RD, sending RS packets to all router multicast address is
+  supported.
+
+[Anycast address]
+- Not supported.
+
+[Upper layer API]
+- Not implemented completely.
+
+[Security]
+- Only support IPsec/ESP.
+
+- Consistency check for src/dst addresses will be performed.
+  (ex. received packet with multicast source address will be
+  discarded)
+
+[Mobile IP]
+- Not supported.
+
+[IPv6 Header]
+- Hop-by-Hop Options Header
+  [Receiving] recognize, but do nothing.
+  [Sending]   not send.
+
+- Routing Header
+  [Receiving] handle as unsupported.
+  [Sending]   not send.
+
+- Fragment Header
+  [Receiving] handle as unsupported.
+  [Sending]   not send.
+
+- Destination Header
+  [Receiving] recognize, but do nothing.
+  [Sending]   not send.
+
+- No Next Header
+  [Receiving] recognize, but do nothing.
+  [Sending]   not send.
+
+- ESP Header
+  [Receiving] do ESP process.
+  [Sending]   do ESP process.
+
+- AH
+  [Receiving] handle as unsupported.
+  [Sending]   no send.
+
+- On receiving packet, it omit order check of extension headers.
+
+[Path MTU discovery/packet size issue]
+- PMTUD is not supported.
+
+- IPv6 min MTU will be used as MTU on sending packets.  On sending,
+  packet delivered from upper layer or added ESP header, its size
+  exceed MTU, will be discarded.
+
+- Accept only packets it may be hold by working buffer (currently 1500
+  bytes sized).
+
+[ND]
+- NA
+  Supported sending and receiving.
+
+- NS
+  Supported sending and receiving.
+
+- RA
+  Supported receiving only.
+
+- RS
+  Supported sending only.
+
+- Neighbor cache, prefix list, default router list
+  Use fixed size tables.  If overflowed, oldest registered entry will
+  be override.
+
+- Destination cache
+  Not used.
+
+- ND options
+  Ignore MTU option.
+
+[Address autoconfiguration]
+- DAD will be invoked only for link-local address on upcoming
+  interface.  If it succeeded, the IF-ID will be considered as unique
+  on link, then no DAD will be invoked for new prefixes by receiving
+  RAs after this.
+
+- Send RS on upcoming interface.  It retries three times on getting no
+  RAs (while no entries on default router list).
+
+[ICMP]
+- Followed to draft-okabe-ipv6-lcna-minreq-01.txt.
+
+[IPsec]
+- Only support IPsec/ESP.  IPsec/AH is not supported.
+
+- Only support transport mode.  Tunnel mode is not supported.
+
+- Supported encryption algorithms
+  NULL, DES, 3DES, RIJNDAEL
+
+- Supported ESP ICV algorithms
+  NONE, MD5, SHA1
+
+- The encrypt and decrypt functions itself use OS supported functions.
+
+- Managing SA/SP
+  Only manual configuration is supported.  On this implementation,
+  compiled SA/SP database are set to kernel by application via
+  pseudo-device.
+  SA/SP database is limited by fixed size.
+  SA and SP information is mixture in one database.
+
+[Others]
+- OS independency
+  Core processes of this sample code is implemented independently from
+  platform.
+  On using OS supported functions from this code, it called via
+  wrapper functions hiding OS dependent calling sequence.
+
+- Source package
+  This package will be applied by overwriting on NetBSD 1.5.2
+  /usr/src/sys tree.
+  Files named `sysdep_XXX' have wrapper functions depending NetBSD
+  1.5.2 platform.
+  And `tiny_XXX' have core functions of `tiny' specs.
+
+- Packet buffers
+  Working buffers holding sending and receiving packets are dedicated
+  to this code.  On interface to upper/lower layer, it converts
+  to/from OS dependent working buffers (on NetBSD, mbuf is used).
+  Each buffer size (currently 1500 bytes) and number of buffers
+  (currently 8) are fixed and determined on kernel compile time.
+  If buffer overflowed, datum will be discarded.
+
+- Identifying network interface
+  In this code, network interface is identified by mnemonic interface
+  name (ex. `fxp0').
+
+- Managing IPv6 addresses
+  Interface and its IPv6 addresses are managed locally on this code,
+  no registration to OS network properties are performed.  For
+  example, no addresses are displayed by /sbin/ifconfig command.
+  However, multicast addresses used on ND will be registered to
+  link layer.
+
+- Routing
+  No routing processing is supported.  If destination is on-link, then
+  deliver packet directly, and off-link, any packets will be forwarded
+  to default router.
+  Any route or link-layer address information will not be registered
+  to OS network properties.  For example, no information is displayed
+  by /usr/bin/netstat -r.
+
+- Transport protocols
+  Currently, only UDP is available as transport protocols.  TCP / Raw
+  IP is not supported yet.
+
+- Conformance test
+  This sample code passed TAHI conformance test.
+
+[Problems]
+- TCP is not supported yet.
+
+- Timer precision is seemed unsatisfactory.
+  Currently, timer processing is managed on a sec. order.  Then on
+  TAHI conformance testing, strict timing check on partial ND test may
+  fail.
+
+- RA solicited or not.
+  This code has no method to decide that received RA is solicited to
+  me or not.  It guesses by it has sent RS or not.
+
+- Invoking DAD process and sending RS.
+  Invoking DAD process is delayed few seconds (currently 3 secs) from
+  upcoming network interface for avoiding packet sending loss.
+  And, sending RS is delayed few seconds (currently 4.5 secs) from
+  completing DAD process, too.
+
+- Random number generation.
+  Currently, NetBSD kernel function for random number generation
+  itself is used.  And no initializing seeds is performed.
+

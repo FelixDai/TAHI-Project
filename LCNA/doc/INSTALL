@@ -1,0 +1,620 @@
+Installation
+
+Table of contents
+ 1. Summary
+ 1.1 A purpose of this software
+ 1.2 The environment that confirmed that this software worked
+ 2. Installation
+ 2.1 Installation procedure
+ 2.2 List of installed files
+ 3. Usage of commands to set / refer parameters of IPsec
+===========================================================================
+1. Summary
+
+1.1 A purpose of this software
+
+ This software is an implementation of IPv6 standard plan of minimum
+ specifications (LCNA; Low Cost Network Appliance) for information
+ household electric appliances which considered security as a purpose.
+ This software is developed based on draft-okabe-ipv6-lcna-minreq-01.txt,
+ and assume that a developer of each device takes advantage of as a
+ reference code.
+
+1.2 The environment that confirmed that this software worked
+
+(1) Hardware
+
+   AT clone PC
+
+  (A) CPU
+     Pentium III 450MHz
+
+  (B) Memory
+     64MByte
+
+  (C) Network interface
+     One Ether Express Pro100(fxp)
+
+(2) Software
+
+  (A)The operating system
+     NetBSD 1.5.2
+
+2. Installation
+
+2.1 Installation procedure
+
+ Installation operation will be executed all operation under a user
+ account to have root authority. Premise that a source file complete set
+ of a kernel of NetBSD 1.5.2 and a gcc compiler are prepared on a system
+ as follows. About a general procedure to compile a kernel, is not
+ described in this memo.
+
+ Before starting installation, it is desirable to store backup
+ beforehand when there is a file of the same name to mention in section
+ 2.2. Precede installation, copy archive file tiny_kernel.tar.gz and
+ tiny_tools.tar.gz in arbitrary directory. The following chapters
+ describe absolute path name of the directory name that they mention
+ above and copied with $PKGSRC.
+
+(1) A compilation and installation of a kernel
+
+  (A) Restore of a package
+
+     Execute following commands.
+
+      cd /
+      tar xzf $PKGSRC/tiny_kernel.tar.gz
+
+  (B) Making of symbolic links
+
+     When compiles a user application, in the purpose that a necessary
+     header file is referred to, make a symbolic link in the following
+     procedures.
+
+      ln -s /usr/src/sys/tinyipv6 /usr/include/tinyipv6
+      ln -s /usr/src/sys/dev/tiny /usr/include/dev/tiny
+
+  (C) Editing of kernel configuration definition file
+
+     Edit constitution definition file of a kernel, and appoint network
+     interface. A default value when does not particularly appoint
+     network interface is "fxp0". When there is not a change, may omit
+     work of this clause (C) in this.
+     When changes network interface besides "fxp0", execute the
+     following procedures.
+
+      cd /usr/src/sys/arch/i386/conf
+
+     Edit after copying in a file of a name or edites this file directly
+     because there is a file of TINYIPV6 in the directory mentioned
+     above or to be arbitrary. By following discussion, do a file of an
+     editing object with $CONFIGFILE, and do $IF and a description of of
+     network interface name.
+
+     Edit $CONFIGFILE with a suitable editor, and insert the following
+     line.An insertion place is arbitrary.
+
+      options "TINY_PHYSIF=\"$IF\""
+
+     For example, seem to become the following when does network
+     interface with "le0".
+
+      options "TINY_PHYSIF=\"le0\""
+
+  (D) Compilation and installation of a kernel
+
+     Execute a following commands. $CONFIGFILE is constitution definition
+     file name of the kernel which edited in foregoing paragraph (C).
+
+      cd /usr/src/sys/arch/i386/conf
+      config $CONFIGFILE
+      cd /usr/src/sys/arch/i386/compile/$CONFIGFILE
+      make depend
+      make
+      make install
+
+(2) Installation of parameter setting / a reference tool
+
+  (A) Restore of a  package
+
+     Under a user account to have root authority, execute a following
+     command. Decide a working directory. In following description,
+     absolute path name of the working directory is described with
+     $WORK.
+
+      cd $WORK
+      tar xzf $PKGSRC/tiny_tools.tar.gz
+
+  (B) Compile
+
+     Execute a following command.
+
+      cd $WORK/tiny_ipsec
+      make
+
+  (C) Install
+
+     In the arbitrary directory which a command group is put (/usr/sbin,
+     for example), copy the following files.
+
+      tiny_ipsec_setup
+      tiny_ipsec_show
+      tiny_ipsec_reset
+
+     For example, execute following commands.
+
+      cp tiny_ipsec_setup /usr/sbin/
+      cp tiny_ipsec_show  /usr/sbin/
+      cp tiny_ipsec_reset /usr/sbin/
+
+  (D) Make a device file
+
+     Make a device file for parameter setting of IPsec.
+
+     Execute following commands.
+
+      cd $WORK/tiny_ipsec
+      ./makedev.sh
+
+(3) Adjustment of a system start parameter
+
+  (A) Stop of an application for existing IPv6 application.
+
+     When an existing IPv6 application works as for the reference
+     software, influence mutually, and may not work. In a state works or
+     is going to operate an application for existing IPv6, as for the
+     kernel which installed reference software in, there is the case
+     that does not work justly. Therefore, change the setting when a
+     start parameter file of a system sets an automatic invocation of an
+     application for IPv6. This setting is usually set in /etc/rc.conf.
+     When there is not setting line to fall under, need to do anything
+     here.
+
+  (example) when, for example, there was the following setting in
+            /etc/rc.conf, change "YES" into "NO".
+
+               (before /etc/rc.conf change)
+                sendmail=YES
+                rtsol=YES
+
+               (after a /etc/rc.conf change)
+                sendmail=NO
+                rtsol=NO
+
+  (B) Create a configuration file for initialization of the network interface
+     For network interface described in 2.1 (1)(C), set initialization
+     processing. When there is already a file corresponding to network
+     interface name, edit the file, and make newly if there is
+     not. An initialization setting file name corresponding to
+     network interface name is as follows.  /etc/ifconfig."network
+     interface name". For example, the file name that network
+     interface name supports in the case of "le0" is as follows.
+
+      /etc/ifconfig.le0
+
+     Do the above of contents of filing only with following one line.
+
+      up
+
+(4) Start in a new kernel
+
+   Reboot system.
+   For example, execute a following command.
+
+    reboot
+
+   The kernel which implemented a function of reference software by
+   operation to this place works.
+
+2.2 List of installed files
+
+  When installed reference software in the above-mentioned procedure,
+  generation or an updated file is as follows.  When there is a file of
+  the same name, it is desirable to store backup before installing this
+  package.
+
+(1) Source files of a kernel (reference software)
+
+   The file which included in directory /usr/src/sys/tinyipv6/
+
+    tiny_addr.c
+    tiny_addr.h
+    tiny_auth.h
+    tiny_auth_algo.c
+    tiny_buf.c
+    tiny_buf.h
+    tiny_conf.c
+    tiny_conf.h
+    tiny_esp.h
+    tiny_esp_algo.c
+    tiny_esp_input.c
+    tiny_esp_output.c
+    tiny_icmp6.c
+    tiny_icmp6.h
+    tiny_in.h
+    tiny_in6.c
+    tiny_in6.h
+    tiny_in6_cksum.c
+    tiny_in6_cksum.h
+    tiny_ip6.h
+    tiny_ip6_input.c
+    tiny_ip6_input.h
+    tiny_ip6_output.c
+    tiny_ip6_output.h
+    tiny_ip6_var.h
+    tiny_ipsec.c
+    tiny_ipsec.h
+    tiny_ipsecdb.c
+    tiny_ipsecdb.h
+    tiny_nd6.c
+    tiny_nd6.h
+    tiny_nd6_nbr.c
+    tiny_nd6_rtr.c
+    tiny_netif.c
+    tiny_netif.h
+    tiny_raw_ip6.c
+    tiny_raw_ip6.h
+    tiny_types.h
+    tiny_utils.c
+    tiny_utils.h
+    sysdep_buf.c
+    sysdep_in6_proto.c
+    sysdep_ip6protosw.h
+    sysdep_l2.c
+    sysdep_l2.h
+    sysdep_l4.c
+    sysdep_l4.h
+    sysdep_netif.c
+    sysdep_netif.h
+    sysdep_proto_init.c
+    sysdep_proto_init.h
+    sysdep_spl.h
+    sysdep_types.h
+    sysdep_utils.c
+    sysdep_utils.h
+    sysdep_wrappers.c
+    sysdep_wrappers.h
+
+(2) Source files of a kernel (kernel configuration definition file)
+
+    /usr/src/sys/arch/i386/conf/TINYIPV6
+    /usr/src/sys/arch/i386/i386/conf.c
+    /usr/src/sys/conf/files
+    /usr/src/sys/dev/tiny/tiny_var.h
+    /usr/src/sys/dev/tiny/tiny.c
+    /usr/src/sys/sys/conf.h
+
+(3) Executable files of IPsec parameter setting / reference tool
+    (in arbitrary directory)
+
+    tiny_ipsec_setup
+    tiny_ipsec_show
+    tiny_ipsec_reset
+
+(4) Kernel
+
+    /netbsd
+
+(5) Devices
+
+    /dev/tiny_nbrcache    (unused)
+    /dev/tiny_ipsec       A device for IPsec parameter setting / reference
+    /dev/tiny_defrouter   (unused)
+    /dev/tiny_prefix      (unused)
+    /dev/tiny_physifaddr  (unused)
+    /dev/tiny_buffer_stat (unused)
+    /dev/tiny0            A hard link to /dev/tiny_nbrcache
+    /dev/tiny1            A hard link to /dev/tiny_ipsec
+    /dev/tiny2            A hard link to /dev/tiny_defrouter
+    /dev/tiny3            A hard link to /dev/tiny_prefix
+    /dev/tiny4            A hard link to /dev/tiny_physifaddr
+    /dev/tiny5            A hard link to /dev/tiny_buffer_stat
+
+(6) Header files (symbolic link)
+    /usr/include/tinyipv6     A symbolic link to /usr/src/sys/tinyipv6
+    /usr/include/dev/tiny     A symbolic link to /usr/src/sys/dev/tiny
+
+3. Usage of commands to set / refer parameters of IPsec
+
+(1) tiny_ipsec_setup
+
+  (A) Name
+
+     tiny_ipsec_setup - Set IPsec parameter
+
+  (B) Synopsis
+
+     tiny_ipsec_setup [-v] [-n] [-c config-file] [-d config-device]
+
+  (C) Description
+
+     Set IPsec parameter for a kernel which implemented LCNA function.
+
+  (D) Option
+
+     -v Display details message
+
+     -n Only do validity check of a parameter file, and do not really do
+        setting.
+
+     -c Parameter file name.  When omits a -c option, become the input
+        from standard input .
+
+     -d A device file name to set an IPsec parameter.
+        When omits a -d option, set for /dev/tiny_ipsec .
+        When contents of the parameter file which appointed lack in the
+        propriety, nothing is set.
+
+  (E) Format of a setting file
+
+     [Item name] value
+     [Item name] value
+      ...
+
+   An empty line more than one line is an end of an entry. "An entry"
+   is "[Item name]value" which continued.
+   When omitted an entry, consider that appointed a default value.
+   Order of an item in the whole 1 entry is arbitrary.
+
+  (numerical value)
+   Numerical value can appoint a decimal number value / hexadecimal
+   number value / octal number value, and a description method follows
+   notation of C language.
+
+  (character string value)
+   Character string enables continuation of the ASCII character which
+   surrounded with "" and the escape appointment that does, and
+   followed notation of C language during character string.
+
+  (handling of capital letters and lower-case letters)
+   Except a parameter to appoint in [esp_key] [esp_auth_key], 
+   capital letters and lower-case letters are interpreted as having
+   the same meaning.
+
+  (handling of the same item name)
+   When more than one item of the same name was written in the same
+   entry, the contents which wrote later are effective.
+
+  (comment)
+   The line that head of a line begins in "#" is treated as a comment
+   line, and do not count in the number of line.
+   If there is "#" in the middle of line, be treated as comment after it.
+
+  (format of each item)
+
+   [lifetime|LT] numerical value or "INFINITE" (indefinite)
+   [spi|SPI] numerical value or "NONE"
+   [proto|PRT] TCP or UDP or any or *
+   [send_peer|S_PEER] IPv6 address [/ prefix length] [:[port number][-[ port number]]]
+   [send_myself|S_MY] symbol to indicate oneself[:[port number ][-[port number]]] 
+   [recv_peer|R_PEER] IPv6 address [/ prefix length] [:[port number][-[ port number]]]
+    [recv_myself|R_MY] symbol to indicate oneself [:[port number ][-[port number ]]]
+    [outpolicy|OPOL]] symbol to indicate sending policy
+    [inpolicy|IPOL] symbol to indicate recieving policy
+    [esp_alg|ESP_A] symbol to indicate encryption algorithm
+    [esp_key|ESP_K] Encryption key [/ encryption key length]
+    [esp_auth_alg|ESP_A_A] symbol to indicate authentication algorithm
+    [esp_auth_key|ESP_A_K] authentication key [/ authentication key length]
+
+  (value of each item)
+
+   - Expiration
+
+    [lifetime|LT]Numerical value or "INFINITE" (indefinite)
+
+      INFINITE           indefinite
+      Numerical value    1-0 xFFFFFFFE
+
+      Default value      INFINITE
+
+  - SPI
+
+    [spi|SPI]Numerical value or "NONE"
+
+      Numerical value    32bit numerical value
+      NONE               no SPI
+
+      Default value      NONE
+
+  - Upper protocol name
+
+    [proto|PRT] TCP or UDP or any or *
+
+      TCP            TCP
+      UDP            UDP
+      An any|*       wild card
+
+      Default value  any
+
+  - Setting about peer host in the sending packet
+
+    [send_peer|S_PEER] IPv6 address [/ prefix length]
+    [send_peer|S_PEER] [[IPv6 address [/ prefix length]]] [:[port number ][-[ port number]]]
+
+      When specify a port number, IPv6 address part will be surrounded by [].
+
+      Prefix length   0..128
+      Port number     0..0xFFFF
+
+      Default value   ::/0 (all hosts, all port numbers)
+
+  - Setting about my host in the sending packet
+
+   [send_myself|S_MY] symbol to indicate oneself [:[port number ][-[ port number]]]
+
+      LINKLOCAL  Link local IP address of my host
+      SITELOCAL  Site local IP address of my host
+      GLOBAL     Global IP address of my host
+      ALL        All the addresses of my host
+       "!" on head of a line indicates logical negation.
+       (example) !GLOBAL: All address except global IP address of my host.
+
+      Port number     0..0xFFFF (if omitted, all port numbers)
+
+      Default value   ALL (all port numbers)
+
+  - Setting about peer host in the receiving packet
+
+    [recv_peer|R_PEER] IPv6 address [/ prefix length] [:[port number ][-[ port number]]]
+
+      similar to [send_peer]
+
+  - Setting about my host in the receiving packet
+
+    [recv_myself|R_MY] symbol to indicate oneself [:[port number ][-[ port number]]]
+      similar to [send_myself]
+
+  - Sending policy
+
+    [outpolicy|OPOL] symbol of a sending policy
+
+      DISCARD         Discard a packet.
+      PASS            Do not apply IPsec, and send as it is.
+      ESP             Apply ESP
+      ESP_AUTH        Apply ESP and the authentication.
+
+      Default value   PASS
+
+  - Receiving policy
+
+    [inpolicy|IPOL] symbol of receiving policy
+
+      DISCARD         Discard a packet.
+      PASS            Do not do IPsec processing and just receive it.
+      ESP             If ESP was not applied, discard a packet.
+      ESP_AUTH        ESP and both authentication are necessary.
+                      If ESP and neither authentication are applied,
+                      discard a packet.
+
+      Default value   PASS
+
+      (note) "ESP_AUTH" defined as a general idea peculiar to this
+            reference software. Do not use AH, and replace by a
+            authentication of ESP. This is implement a function of "AH
+            required" equivalency. 
+
+  - ESP encryption algorithm
+
+    [esp_alg|ESP_A] symbol to indicate encryption algorithm
+      When specified ESP or ESP_AUTH in [outpolicy] or [inpolicy], this
+      value is required.
+
+      DES            DES
+      3DES           3DES
+      NULL           ESP_NULL
+
+      There is no default value
+
+  - ESP encryption key
+
+    [esp_key|ESP_K] Encryption key[/ length]
+      Specify numerical value of hexadecimal number expression or
+      character string. In "length", specify bit number.
+      When omit length, length of the value that wrote down is set as
+      length of a key.
+      When specified DES or 3DES in [esp_alg], this value is required.
+
+      There is no default value
+
+  - ESP authentication algorithm
+
+    [esp_auth_alg|ESP_A_A] symbol to indicate authentication algorithm
+      When specified ESP_AUTH in [outpolicy] or [inpolicy], this value
+      is required.
+
+      HMAC-MD5       HMAC-MD5
+      HMAC-SHA       HMAC-SHA
+
+      There is no default value
+
+  - ESP authentication key
+
+    [esp_auth_key|ESP_A_K] An authentication key[/ length]
+      Specify numerical value of hexadecimal number expression or
+      character string, and specify bit number in "length".
+      When omitted length, length of the value that wrote down is set as
+      length of a key.
+      When specified ESP_AUTH in [outpolicy] or [inpolicy], this value
+      is required.
+
+      There is no default value
+
+(setting example)
+
+[supposed condition]
+
+ SA
+ src:A, dst: B
+ spi: 0x1000
+ mode: transport
+ encryption algorithm: null
+ authentication algorithm: hmac-md5
+ authentication algorithm key: "TAHITEST89ABCDEF"
+
+ Security Policy
+
+ src A, dst B
+ upper-layer protocol: any
+ direction: out
+ apply: ipsec
+ specify SA:  src: A, dst: B
+ SA level: require
+ (set SA and policy between host 3ffe:501:ffff:ff03:200:ff:fe00:b0b0 and 3ffe:501:ffff:ff05:200:ff:fe00:c1c1)
+
+Contents of a setting file corresponding to the above become as follows.
+
+ [spi]0x1000
+ [proto]any
+ [send_peer]3ffe:501:ffff:ff05:200:ff:fe00:c1c1
+ [semd_myself]GLOBAL
+ [recv_peer]3ffe:501:ffff:ff05:200:ff:fe00:c1c1
+ [recv_myself]GLOBAL
+ [outpolicy]ESP_AUTH
+ [inpolicy]ESP_AUTH
+ [esp_alg]NULL
+ [esp_auth_alg]HMAC-MD5
+ [esp_auth_key]"TAHITEST89ABCDEF"
+
+(2)tiny_ipsec_show
+
+  (A) Name
+
+     tiny_ipsec_show - IPsec parameter display command
+
+  (B) Synopsis
+
+     tiny_ipsec_show [-d config-device]
+
+  (C) Description
+
+     Display an IPsec parameter set on reference software.
+     Display format follows a setting file of a tiny_ipsec_setup command.
+
+  (D) Option
+
+     -d Specify a device file name to use when refers to a  device file
+        name IPsec parameter, and /dev/tiny_ipsec is appointed in
+        abbreviation.
+
+(3) tiny_ipsec_reset
+
+  (A) Name
+
+     tiny_ipsec_reset - IPsec parameter reset command
+
+  (B) Synopsis
+
+     tiny_ipsec_reset
+
+  (C) Description
+
+     Reset parameters of IPsec.
+     A security policy database and contents of a security association
+     database are initialized by executing this command.
+
+  (D) Option
+
+     none 
+
+
