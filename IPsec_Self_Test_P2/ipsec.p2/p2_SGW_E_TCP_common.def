@@ -1,0 +1,360 @@
+//
+// $Name: V6PC_P2_IPsec_1_10_0 $
+//
+// $TAHI: ct/ipsec.p2/p2_SGW_E_TCP_common.def,v 1.2 2005/01/12 11:57:55 ozoe Exp $
+//
+//
+
+#ifndef SEQ
+#define SEQ 0
+#endif
+
+#ifndef ACK
+#define ACK 0
+#endif
+
+#ifndef DESTINATION_PORT
+#define DESTINATION_PORT 7
+#endif
+
+#include "./p2_ALGO_common.def"
+#include "./p2_SGW_TCP_common.def"
+
+//======================================================================
+
+#define ECHO_DATA_CRACK4 { 0xaa, 0xaa, 0xaa, 0xaa }
+
+//======================================================================
+//
+// ESP Tunnel from SGW1_NET1 (Syn Request from HOST1_NET2 to HOST2_NET0)
+//
+
+#ifndef ESP_FROM_SGW1_NET1
+#define ESP_FROM_SGW1_NET1 esp_from_sg
+#endif
+
+FEM_hdr_ipv6_exth(
+	esptun_from_sg1_net1_syn_request_from_host1_net2_to_host0_net0,
+	hether_router2nut,
+	{
+		_SRC(v6(IPSEC_SGW1_NET1_ADDR));
+		_DST(v6(IPSEC_NUT_NET0_ADDR));
+	},
+	{
+		header = _HDR_IPV6_NAME(esptun_from_sg1_net1_syn_request_from_host1_net2_to_host0_net0);
+		exthdr = ESP_FROM_SGW1_NET1;
+		upper = _PACKET_IPV6_NAME(syn_request_from_host1_net2_to_host0_net0);
+	}
+)
+
+//======================================================================
+//
+// TCP Syn Request from HOST2 IPsec ESP
+//
+
+#ifndef ESP_FROM_HOST2
+#define ESP_FROM_HOST2 esp_from_host2
+#endif
+
+FEM_tcp6_exth(
+	syn_request_from_host2_esp,
+	hether_router2nut,
+	{
+		_SRC(v6(IPSEC_HOST2_NET1_ADDR));
+		_DST(v6(IPSEC_NUT_NET0_ADDR));
+	},
+	{
+		header = _HDR_IPV6_NAME(syn_request_from_host2_esp);
+		exthdr = ESP_FROM_HOST2;
+		upper = _UPP_TCP_NAME(syn_request_from_host2_esp);
+	},
+	{
+		_SPORT(10000);
+		_DPORT(DESTINATION_PORT);
+		SequenceNumber=SEQ;
+		AcknowledgmentNumber=0;
+		ACKFlag=0;
+		SYNFlag=1;
+//		Window=any;
+		option = opt_syn; 
+	},
+	{
+		header = _HDR_TCP_NAME(syn_request_from_host2_esp);
+		payload = payload_syn;
+	}
+)
+
+
+//======================================================================
+//
+// TCP Syn Request from HOST1 IPsec ESP
+//
+
+#ifndef ESP_FROM_HOST1
+#define ESP_FROM_HOST1 esp_from_host
+#endif
+
+FEM_tcp6_exth(
+	syn_request_from_host1_esp,
+	hether_router2nut,
+	{
+		_SRC(v6(IPSEC_HOST1_NET1_ADDR));
+		_DST(v6(IPSEC_NUT_NET0_ADDR));
+	},
+	{
+		header = _HDR_IPV6_NAME(syn_request_from_host1_esp);
+		exthdr = ESP_FROM_HOST1;
+		upper = _UPP_TCP_NAME(syn_request_from_host1_esp);
+	},
+	{
+		_SPORT(10000);
+		_DPORT(DESTINATION_PORT);
+		SequenceNumber=SEQ;
+		AcknowledgmentNumber=0;
+		ACKFlag=0;
+		SYNFlag=1;
+//		Window=any;
+		option = opt_syn; 
+	},
+	{
+		header = _HDR_TCP_NAME(syn_request_from_host1_esp);
+		payload = payload_syn;
+	}
+)
+
+FEM_tcp6_exth(
+	syn_request_from_host1_esp_seq2,
+	hether_router2nut,
+	{
+		_SRC(v6(IPSEC_HOST1_NET1_ADDR));
+		_DST(v6(IPSEC_NUT_NET0_ADDR));
+	},
+	{
+		header = _HDR_IPV6_NAME(syn_request_from_host1_esp_seq2);
+		exthdr = ESP_FROM_HOST1;
+		upper = _UPP_TCP_NAME(syn_request_from_host1_esp_seq2);
+	},
+	{
+		_SPORT(10000);
+		_DPORT(DESTINATION_PORT);
+		SequenceNumber=SEQ;
+		AcknowledgmentNumber=0;
+		ACKFlag=0;
+		SYNFlag=1;
+//		Window=any;
+		option = opt_syn; 
+	},
+	{
+		header = _HDR_TCP_NAME(syn_request_from_host1_esp_seq2);
+		payload = payload_syn;
+	}
+)
+
+//======================================================================
+//
+// Syn Request from Host1 IPsec ESP
+// Modified TCP option: "EchoData" -> "cracked "
+//
+
+// Common use Ether Header
+Hdr_Ether hether_router2nut_0x86dd {
+	SourceAddress=ether(IPSEC_ROUTER_NET1_MAC_ADDR);
+	DestinationAddress=nutether();
+	Type=0x86dd; // need to specify IPv6
+}
+
+// payload is modified
+Frame_Ether invalid_syn_request_from_host1_esp {
+	header=hether_router2nut_0x86dd;
+	packet=syn_request_from_host1_esp_modpkt;
+}
+
+Payload syn_request_from_host1_esp_modpkt {
+	data=substr(syn_request_from_host1_esp_seq2, 14, 56);
+	data=substr(syn_request_from_host1_esp_seq2, 70, 20);
+	data=ECHO_DATA_CRACK4;	// cracked
+	data=substr(syn_request_from_host1_esp_seq2, 94, 20);
+}
+
+//======================================================================
+//
+// ESP Tunnel to SGW1_NET1 (Syn, Ack Reply from HOST2_NET0 to HOST1_NET2)
+//
+
+#ifndef ESP_TO_SGW1_NET1
+#define ESP_TO_SGW1_NET1 esp_to_sg
+#endif
+
+FEM_hdr_ipv6_exth(
+	esptun_to_sg1_net1_synack_reply_from_host0_net0_to_host1_net2,
+	hether_nut2router,
+	{
+		_SRC(v6(IPSEC_NUT_NET0_ADDR));
+		_DST(v6(IPSEC_SGW1_NET1_ADDR));
+	},
+	{
+		header = _HDR_IPV6_NAME(esptun_to_sg1_net1_synack_reply_from_host0_net0_to_host1_net2);
+		exthdr = ESP_TO_SGW1_NET1;
+		upper  = _PACKET_IPV6_NAME(synack_reply_from_host0_net0_to_host1_net2);
+	}
+)
+
+//======================================================================
+//
+// TCP Syn,Ack Reply to HOST2 IPsec ESP
+//
+
+#ifndef ESP_TO_HOST2
+#define ESP_TO_HOST2 esp_to_host2
+#endif
+
+FEM_tcp6_exth(
+	synack_reply_to_host2_esp,
+	hether_nut2router,
+	{
+		_SRC(v6(IPSEC_NUT_NET0_ADDR));
+		_DST(v6(IPSEC_HOST2_NET1_ADDR));
+	},
+	{
+		header = _HDR_IPV6_NAME(synack_reply_to_host2_esp);
+		exthdr = ESP_TO_HOST2;
+		upper = _UPP_TCP_NAME(synack_reply_to_host2_esp);
+	},
+	{
+		_SPORT(DESTINATION_PORT);
+		_DPORT(10000);
+		SequenceNumber=any;
+		AcknowledgmentNumber=any;
+		ACKFlag=1;
+		SYNFlag=1;
+		Window=any;
+		option = opt_syn; 
+	},
+	{
+		header = _HDR_TCP_NAME(synack_reply_to_host2_esp);
+		payload = payload_syn;
+	}
+)
+
+
+//======================================================================
+//
+// TCP Syn,Ack Reply to HOST1 IPsec ESP
+//
+
+#ifndef ESP_TO_HOST1
+#define ESP_TO_HOST1 esp_to_host
+#endif
+
+FEM_tcp6_exth(
+	synack_reply_to_host1_esp,
+	hether_nut2router,
+	{
+		_SRC(v6(IPSEC_NUT_NET0_ADDR));
+		_DST(v6(IPSEC_HOST1_NET1_ADDR));
+	},
+	{
+		header = _HDR_IPV6_NAME(synack_reply_to_host1_esp);
+		exthdr = ESP_TO_HOST1;
+		upper = _UPP_TCP_NAME(synack_reply_to_host1_esp);
+	},
+	{
+		_SPORT(DESTINATION_PORT);
+		_DPORT(10000);
+		SequenceNumber=any;
+		AcknowledgmentNumber=any;
+		ACKFlag=1;
+		SYNFlag=1;
+		Window=any;
+		option = opt_syn; 
+	},
+	{
+		header = _HDR_TCP_NAME(synack_reply_to_host1_esp);
+		payload = payload_syn;
+	}
+)
+
+//======================================================================
+//
+// ESP Tunnel from SGW1_NET1 (Reset Request from HOST1_NET2 to HOST2_NET0)
+//
+
+FEM_hdr_ipv6_exth(
+	esptun_from_sg1_net1_reset_request_from_host1_net2_to_host0_net0,
+	hether_router2nut,
+	{
+		_SRC(v6(IPSEC_SGW1_NET1_ADDR));
+		_DST(v6(IPSEC_NUT_NET0_ADDR));
+	},
+	{
+		header = _HDR_IPV6_NAME(esptun_from_sg1_net1_reset_request_from_host1_net2_to_host0_net0);
+		exthdr = ESP_FROM_SGW1_NET1;
+		upper = _PACKET_IPV6_NAME(reset_request_from_host1_net2_to_host0_net0);
+	}
+)
+
+//======================================================================
+//
+// TCP Reset Request from HOST2 IPsec ESP
+//
+
+FEM_tcp6_exth(
+	reset_request_from_host2_esp,
+	hether_router2nut,   
+	{
+		_SRC(v6(IPSEC_HOST2_NET1_ADDR));
+		_DST(v6(IPSEC_NUT_NET0_ADDR));
+	},
+	{
+		header = _HDR_IPV6_NAME(reset_request_from_host2_esp);
+		exthdr = ESP_FROM_HOST2;
+		upper = _UPP_TCP_NAME(reset_request_from_host2_esp);
+	},
+	{
+		_SPORT(10000);
+		_DPORT(DESTINATION_PORT);
+		SequenceNumber=SEQ;
+		AcknowledgmentNumber=0;
+		RSTFlag=1;
+//		Window=any;
+		option = opt_syn;
+	},
+	{
+		header = _HDR_TCP_NAME(reset_request_from_host2_esp);
+		payload = payload_syn;
+	}
+)
+
+
+//======================================================================
+//
+// TCP Reset Request from HOST1 IPsec ESP
+//
+
+FEM_tcp6_exth(
+	reset_request_from_host1_esp,
+	hether_router2nut,
+	{
+		_SRC(v6(IPSEC_HOST1_NET1_ADDR));
+		_DST(v6(IPSEC_NUT_NET0_ADDR));
+	},
+	{
+		header = _HDR_IPV6_NAME(reset_request_from_host1_esp);
+		exthdr = ESP_FROM_HOST1;
+		upper = _UPP_TCP_NAME(reset_request_from_host1_esp);
+	},
+	{
+		_SPORT(10000);
+		_DPORT(DESTINATION_PORT);
+		SequenceNumber=SEQ;
+		AcknowledgmentNumber=0;
+		RSTFlag=1;
+//		Window=any;
+		option = opt_syn;
+	},
+	{
+		header = _HDR_TCP_NAME(reset_request_from_host1_esp);
+		payload = payload_syn;
+	}
+)
+

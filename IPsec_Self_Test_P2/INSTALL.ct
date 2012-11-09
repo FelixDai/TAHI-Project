@@ -1,0 +1,473 @@
+
+
+
+		Installing IPv6 Conformance Test Package
+
+			        TAHI Project
+
+		       $Date: 2010/03/25 04:46:25 $
+
+
+
+Terminology
+===========
+
+Tester Node (TN)
+	A tester node for the conformance tests.
+
+Node Under Test (NUT)
+	A testee node for the conformance tests.
+
+Network Under Test
+	The network where the conformance tests are executed.
+
+Tester Interface
+	The network interface of TN
+	hooked up to the Network Under Test.
+
+Interface Under Test
+	The network interface of NUT
+	hooked up to the Network Under Test.
+
+End-Node
+	A node who can use IPsec only for itself. Host and Router can
+	be an End-Node.
+
+Security Gateway
+	A node who can provide IPsec tunnel mode for nodes behind it.
+	Router can be a SGW.
+
+
+
+Prerequisites
+=============
+
+Prerequisites for TN:
+	- The package supports
+		FreeBSD/i386 7.3-RELEASE or higher
+
+	- It is mandatory to install IPv6 Conformance Test Platform
+	  "v6eval" that is also written by TAHI project. For more
+	  information, please refer to 00README.v6eval (in v6eval package).
+
+
+
+Installing the package onto TN
+==============================
+
+0. Before Starting
+
+   Make sure that you completed installing "v6eval" package.
+   Please refer to INSTALL.v6eval (in v6eval package) for more information.
+
+1. Extracting ct package
+
+	% tar zxvf IPsec_Self_Test_P2_X-X-X.tgz
+
+   Extracted directory is described here as
+   ${SOMEWHERE}/IPsec_Self_Test_P2_X-X-X.
+
+
+
+Configuration
+============
+
+1. Physical Configurations
+
+1.1. Network Under Test
+
+Hook up the Tester Interface of TN to the Network Under Test.
+Tester Interface of TN can be configured for IPv4 and for IPv6 as well.
+
+Hook up the Interface Under Test of NUT to the Network Under Test.
+Interface Under Test of NUT must be configured for IPv6, while it can
+be configured for IPv4 too.
+
+Make sure that any other nodes are not hooked up to the network
+because their packets would disturb the conformance tests.
+
+	Example: (If NUT is End-Node implementation)
+
+		TN                      NUT
+		 |the Tester I/f: ed1    |the I/f Under Test: fxp0
+		 |                       |
+		 |                       |
+		-+-----------------------+- Link0
+		  the Network Under Test
+
+	Example: (If NUT is Security Gateway implementation)
+
+		-+-----------------------+- Link1
+		 |                       |
+		 |                       |
+		 |the Tester I/f: ed2    |the I/f Under Test: fxp1
+		TN                      NUT
+		 |the Tester I/f: ed1    |the I/f Under Test: fxp0
+		 |                       |
+		 |                       |
+		-+-----------------------+- Link0
+		  the Network Under Test
+
+more specific Network configurations are described in ipsec.p2/00README.
+
+
+
+1.2. physical wiring image
+
+Example:
+	if you want to run the test for End-Node as NUT
+
+                  TN (tester)                       NUT (host)
+                 +------------+ Ether cross cable  +------------+
+        intranet |       [ed1]+--------------------+[fxp0]      |
+        ---------+[ed0]       |                    |            |
+                 +------------+                    +------------+
+
+
+	if you want to run the test for Security Gateway as NUT
+
+                  TN (tester)                       NUT (router)
+                 +------------+ Ether cross cable  +------------+
+        intranet |       [ed2]+--------------------+[fxp1]      |
+        ---------+[ed0]       | Ether cross cable  |            |
+                 |       [ed1]+--------------------+[fxp0]      |
+                 +------------+                    +------------+
+
+	*intranet: That's none of conformance test and not required.
+
+
+
+2. Configuration of NUT
+
+2.0. Basic Configuration of NUT
+
+2.0.1. End-Node
+
+	- one network interface used in testing, must be 'up' status.
+	  and NUT have Link Local Address based on EUI64 (MAC address base).
+
+	- enable IPv6 support on NUT
+	  If NUT is a host, NUT should be able to receive RA,
+	  and make Global address from RA.
+
+	- don't configure any other configurations.
+	  > DNS setting, IPv6 default route, static IPv6 routing, etc...
+
+more specific configurations are described in ipsec.p2/00README.
+
+
+2.0.2. Security Gateway
+
+	- two network interfaces used in testing, must be 'up' status.
+	  and NUT have two Link Local Address based on EUI64 (MAC address base).
+
+	- enable IPv6 support on NUT
+
+	- enable IPv6 packet forwarding
+
+	- don't configure any other configurations.
+	  > DNS setting, IPv6 default route, static IPv6 routing, etc...
+	  > Do not run any kind of routing daemon
+	  which packets would disturb the tests.
+
+more specific configurations are described in ipsec.p2/00README.
+
+
+
+2.1. Example (FreeBSD/i386 4.10-RELEASE)
+
+2.1.1. /etc/resolv.conf
+
+Remove /etc/resolv.conf to prevent NUT from issuing unnecessary packets
+that would disturb the tests.
+
+
+2.1.2. Default route
+
+It is recommended to remove IPv4 default route, though it is not mandatory.
+
+
+2.1.3. /etc/rc.conf
+
+If NUT is a End-Node, at least, you must need the following line to rc.conf.
+
+		ifconfig_<Link0_device_name>="up"
+		ipv6_enable="YES"
+
+	Example: /etc/rc.conf
+	==========================================================
+	ipv6_enable="YES"
+	ifconfig_fxp0="up"
+	ipv6_network_interfaces="fxp0"
+	ipv6_default_interface="fxp0"
+	==========================================================
+
+If NUT is a Security Gateway, you need more modification to rc.conf.
+
+	Important points:
+	- Do not run any kind of routing daemon
+	  which packets would disturb the tests.
+
+	Example: /etc/rc.conf
+	==========================================================
+	ipv6_enable="YES"
+	ipv6_gateway_enable="YES"
+	ifconfig_fxp0="up"
+	ifconfig_fxp1="up"
+	ipv6_network_interfaces="fxp0 fxp1"
+	ipv6_default_interface="fxp0"
+	ipv6_prefix_fxp0="3ffe:501:ffff:0"
+	ipv6_prefix_fxp1="3ffe:501:ffff:1"
+	==========================================================
+
+2.1.4. /etc/rtadvd.conf
+
+The current version of the tests does not require you to run a rtadvd daemon
+even if NUT is a router.
+
+
+
+3. Configuration of TN
+
+First, Please read INSTALL.v6eval (in v6eval package).
+
+
+3.1. /etc/resolv.conf
+
+It is recommended to remove /etc/resolv.conf, though it is not mandatory.
+
+
+3.2. Default route
+
+It is recommended to remove IPv4 default route, though it is not mandatory.
+
+
+3.3. /usr/local/v6eval/etc/tn.def
+
+Copy sample tn.def to tn.def. Then, adjust Link0 and Link1 entry in the file.
+
+	# cd /usr/local/v6eval/etc
+	# cp tn.def.sample tn.def
+	# vi tn.def
+
+	"Link0" entry MUST have:
+		- the EXACT name of Tester Interface.
+		- a BOGUS MAC address.
+		  It is important that the Tool can impersonate other nodes.
+
+	"Link1" entries are required for a Security Gateway test.
+
+	Example: /usr/local/v6eval/etc/tn.def
+	==========================================================
+	RemoteDevice    cuaa0
+	RemoteDebug     0
+	RemoteIntDebug  0
+	RemoteLog       1
+	RemoteSpeed	0
+	RemoteLogout	0
+	RemoteMethod	serial
+	Link0   ed1     00:00:00:00:01:00
+	==========================================================
+	If NUT is a Security Gateway, you need to specify also Link1.
+
+
+3.4. /usr/local/v6eval/etc/nut.def
+
+Copy sample nut.def to nut.def. Then, adjust Link0 and Link1 entry in the file.
+
+	# cd /usr/local/v6eval/etc
+	# cp nut.def.sample nut.def
+	# vi nut.def
+
+	"HostName" entry SHOULD be a host name of NUT.
+
+	"Type" entry MUST be:
+		- "host" if NUT is configured as a host implementation.
+		- "router" if NUT is configured as a router implementation.
+
+	"Link0" entry MUST have:
+		- the EXACT name of the Interface Under Test.
+		- the EXACT MAC address of the Interface Under Test.
+
+	"Link1" entries are required only for a router test.
+
+	Example: /usr/local/v6eval/etc/nut.def (NUT is a host implementation)
+	==========================================================
+	System          manual 
+	TargetName      FreeBSD/i386 4.10-RELEASE
+	HostName        target.tahi.org
+	Type            host
+	User            root
+	Password        v6eval
+	Link0           fxp0    00:90:27:14:ce:da
+	==========================================================
+
+	Example: /usr/local/v6eval/etc/nut.def (NUT is a router implementation)
+	==========================================================
+	System          manual
+	TargetName      FreeBSD/i386 4.10-RELEASE
+	HostName        target.tahi.org
+	Type            router
+	User            root
+	Password        v6eval
+	Link0           fxp0    00:90:27:14:ce:da
+	Link1           fxp1    00:90:27:14:ce:db
+	==========================================================
+
+
+3.5. adjust test parameter
+
+Some of test can adjust it's test parameter.
+More information are described in 00README and p2_ipsec_config
+under ipsec.p2 directory, please read the each file.
+
+
+
+Run the Tests
+=============
+
+	% cd ${SOMEWHERE}/IPsec_Self_Test_P2_X-X-X
+	% make clean
+
+if NUT does not support the advanced functionalities
+	% vi ipsec.p2/p2_ipsec_config
+
+	"BYPASS_POLICY_SUPPORT" entry is *1):
+		- yes: NUT supports
+		- comment out: NUT does not support
+
+	"DISCARD_POLICY_SUPPORT" entry is *1):
+		- yes: NUT supports
+		- comment out: NUT does not support
+
+	"ICMP_TYPE_CODE_SELECTOR_SUPPORT"
+		- yes: NUT supports
+		- comment out: NUT does not support
+
+	"DUMMY_PACKET_SUPPORT"
+		- yes: NUT supports
+		- comment out: NUT does not support
+
+	"TFC_PADDING_TRANS_SUPPORT"
+		- yes: NUT supports
+		- comment out: NUT does not support
+
+	"TFC_PADDING_TUNNEL_SUPPORT"
+		- yes: NUT supports
+		- comment out: NUT does not support
+
+	"3DES_CBC_AEX_XCBC_SUPPORT"
+		- yes: NUT supports
+		- comment out: NUT does not support
+
+	"3DES_CBC_NULL_SUPPORT"
+		- yes: NUT supports
+		- comment out: NUT does not support
+
+	"AES_CBC_HMAC_SHA1_SUPPORT"
+		- yes: NUT supports
+		- comment out: NUT does not support
+
+	"AES_CTR_HMAC_SHA1_SUPPORT"
+		- yes: NUT supports
+		- comment out: NUT does not support
+
+	"NULL_HMAC_SHA1_SUPPORT"
+		- yes: NUT supports
+		- comment out: NUT does not support
+
+	"CAMELLIA_CBC_HMAC_SHA1_SUPPORT"
+		- yes: NUT supports
+		- comment out: NUT does not support
+
+	*1) At least BYPASS_POLICY_SUPPORT or DISCARD_POLICY_SUPPORT must be yes.
+
+if NUT is a End-Node
+	"TUNNEL_MODE_WITH_SGW_SUPPORT"
+		- yes: NUT supports tunnel function
+		- comment out: NUT does not support
+
+	% make ipv6ready_p2_end_node
+
+	or NUT can't use ICMP protocol as secured communication, but NUT can use
+	UDP protocol.
+
+	% make ipv6ready_p2_end_node_udp
+
+	or NUT can't use ICMP protocol as secured communication, but NUT can use
+	TCP protocol.
+
+	% make ipv6ready_p2_end_node_tcp
+
+if NUT is a Security Gateway
+
+	% vi ipsec.p2/p2_ipsec_config
+
+	"DEV_TYPE"
+		- sgw: NUT is SGW
+		- comment out: NUT is End-Node
+
+	% make ipv6ready_p2_sgw
+
+	or NUT can't use ICMP protocol as secured communication, but NUT can use
+	UDP protocol.
+
+	% make ipv6ready_p2_sgw_udp
+
+When TN needs some operation on NUT, TN show you message, how to operate NUT.
+Then you operate NUT as that message.
+When all tests are completed, you can see the test results
+at ${SOMEWHERE}/IPsec_Self_Test_P2_X-X-X/index.html.
+
+Note that running the tests clears the previous test results.
+If you do not want to lose them, you should make a new copy of ct package
+in a different directory.
+
+
+
+Q&A : Have a problem?
+=====================
+Q: How am I supposed to do, when TN show me following Error message.
+	can't open bpf or socket
+
+A: Please check your TN's bpf configuration.
+   > % ls -l /dev/bpf*
+   > see INSTALL.v6eval
+
+   or
+
+   Network interfaces used in testing, rightly 'up' status ?
+   > % ifconfig
+   > see INSTALL.v6eval and INSTALL.ct
+
+   or
+
+   if unix domain socket still exist in /tmp, remove that
+   > (if Link0 name : ed0 , Link1 name : ed1)
+   > % cd /tmp
+   > # rm ed0 ed1
+
+
+Q: How am I supposed to do, when TN show me following Error message.
+	cu: open (/dev/cuaa0): Permission denied
+	``cu -l cuaa0'' was killed with SIGCHLD.
+
+A: Please check your TN's ttys configuration.
+   if following line exist in /etc/ttys,
+   remove that line.
+
+	cuaa0  "/usr/libexec/getty std.9600"   vt100   on  secure
+
+   *You don't configure serial login on TN.
+
+
+Q: How am I supposed to do, when TN show me following Error message.
+	connect: nosuch filet or directry
+
+A: Please check your TN's tn.def configuration.
+   specified Link0 correctly?
+   and specified Link1 correctly? (if you want to test for router)
+
+
+
+                                                        [End of INSTALL]

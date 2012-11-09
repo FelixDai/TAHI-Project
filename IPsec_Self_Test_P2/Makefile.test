@@ -1,0 +1,18 @@
+#
+# Makefile
+#
+# $TAHI: ct/Makefile.test.TAKE.ipsec,v 1.5 2010/01/22 11:54:35 akisada Exp $
+#
+
+SUBDIR=	ipsec.p2
+
+RM	= /bin/rm
+
+ipv6ready_p2_end_node ipv6ready_p2_end_node_udp \
+ipv6ready_p2_sgw ipv6ready_p2_sgw_udp:
+	@for subdir in ${SUBDIR}; do \
+		echo "===> $$subdir"; \
+		(cd $$subdir; ${MAKE} $@); \
+	done
+
+.include <bsd.subdir.mk>

@@ -1,0 +1,125 @@
+File Dependency Chart
+
+For End-Node
+------------
+                       Makefile
+                           |
+                           V
+                     Makefile.test 
+                           |
+    +----------------------+-------------------------+
+    |                      |                         |
+    | Normal(ICMP)         | UDP                     | TCP
+    | ipv6ready_p2_host    | ipv6ready_p2_host_udp   | ipv6ready_p2_host_tcp
+    |                      |                         |
+    V                      V                         V
+  INDEX_P2_HOST     INDEX_P2_HOST_UDP             INDEX_P2_HOST_TCP
+   *      |          |        *                      *         |
+   *      |          |        *                      *         |
+   *      |          |        *                      *         |
+   *      V          V        *                      *         V
+   *    p2_HTR_E_Common.seq   *                      *    p2_HTR_E_TCP_Common.seq
+   *                          *                      *
+   *                          V                      V
+ p2_HTR_E_ICMP_common.def p2_HTR_E_UDP_common.def p2_HTR_E_TCP_common.def
+   *    *                     *    *                 *    *
+   *    *                     *    *                 *    *
+   *    *                     *    *                 *    *
+   *    V                     *    V                 *    V
+   *    1)                    *    1)                *    1)
+   *                          *                      *
+   *                          V                      v
+ p2_HTR_ICMP_common.def   p2_HTR_UDP_common.def   p2_HTR_TCP_common.def
+   *                          *                      *
+   *                          *                      *
+   ***************************************************
+   *
+   V
+ p2_HTR_common.def
+
+
+IPSEC.pm
+  *   |
+  *   +------------------+
+  *                      |
+  V                      v
+p2_HTR_ipsecaddr.def     p2_ipsec_config
+
+*.seq
+  |
+  V
+keys.pl
+
+
+1)
+    *
+    *
+    V
+ p2_ALGO_common.def
+    *
+    *
+    V
+  keys.def
+
+
+
+For SGW
+------------
+                       Makefile
+                           |
+                           V
+                     Makefile.test 
+                           |
+    +----------------------+--------------------------+
+    |                      |                          |
+    | Normal(ICMP)         | UDP                      | TCP
+    | ipv6ready_p2_sgw     | ipv6ready_p2_sgw_udp     | ipv6ready_p2_sgw_tcp
+    |                      |                          |
+    V                      V                          V
+  INDEX_P2_SGW     INDEX_P2_SGW_UDP                 INDEX_P2_SGW_TCP
+   *      |          |        *                       *        |
+   *      |          |        *                       *        |
+   *      |          |        *                       *        |
+   *      V          V        *                       *        V
+   *    p2_SGW_E_Common.seq   *                       *    p2_SGW_E_TCP_Common.seq
+   *                          *                       *
+   *                          V                       V
+ p2_SGW_E_ICMP_common.def  p2_SGW_E_UDP_common.def  p2_SGW_E_TCP_common.def
+   *    *                     *    *                  *    *
+   *    *                     *    *                  *    *
+   *    *                     *    *                  *    *
+   *    V                     *    V                  *    V
+   *    1)                    *    1)                 *    1)
+   *                          *                       *
+   V                          V                       V
+ p2_SGW_ICMP_common.def    p2_SGW_UDP_common.def    p2_RTU_TCP_common.def
+   *                          *                       *
+   *                          *                       *
+   ****************************************************
+   *
+   V
+ p2_SGW_common.def
+
+
+IPSEC.pm
+  *   |
+  *   +------------------+
+  *                      |
+  V                      V
+p2_SGW_ipsecaddr.def     p2_ipsec_config
+
+*.seq
+  |
+  V
+keys.pl
+
+
+1)
+    *
+    *
+    V
+ p2_ALGO_common.def
+    *
+    *
+    V
+  keys.def

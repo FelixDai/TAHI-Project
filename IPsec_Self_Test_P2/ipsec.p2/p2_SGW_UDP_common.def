@@ -1,0 +1,635 @@
+//
+// $Intap$
+//
+// $Name: V6PC_P2_IPsec_1_10_0 $
+//
+
+#include "./p2_SGW_common.def"
+
+//======================================================================
+// Host2 <--> SGW(TN) <--> Router <--> SGW(NUT) <--> Host1
+//======================================================================
+//======================================================================
+//
+// Echo Request from Host1 (Net0) to Host2 (Net3) on Net0
+//
+
+FEM_udp6(
+	echo_request_from_host1_net0_to_host2_net3,
+	hether_host2nut,
+	{
+		_SRC(v6(IPSEC_HOST1_NET0_ADDR));
+		_DST(v6(IPSEC_HOST2_NET3_ADDR));
+	},
+	{
+		SourcePort	= DESTINATION_PORT;
+		DestinationPort	= 10000;
+	},
+	{
+		header = _HDR_UDP_NAME(echo_request_from_host1_net0_to_host2_net3);
+		payload = IPSEC_ECHO_DATA;
+	}
+)
+
+//======================================================================
+//
+// Packet Too Big from NUT
+//
+
+FEM_icmp6_packet_too_big (
+	pkt_too_big_to_host1,
+	hether_nut2host,
+	{
+		_SRC(v6(IPSEC_NUT_NET0_ADDR));
+		_DST(v6(IPSEC_HOST1_NET0_ADDR));
+	},
+	{
+		MTU     = any;
+		payload = any;
+	}
+)
+
+//======================================================================
+//
+// Echo Request from Host1 (1st Fragment)
+//
+
+#ifndef OFFSET_LENGTH
+#define OFFSET_LENGTH 1232
+#endif
+
+FEM_hdr_ipv6_exth(
+	echo_request_from_host1_net0_to_host2_net3_1st,
+	hether_host2nut,
+	{
+		_SRC(v6(IPSEC_HOST1_NET0_ADDR));
+		_DST(v6(IPSEC_HOST2_NET3_ADDR));
+	},
+	{
+		header = _HDR_IPV6_NAME(echo_request_from_host1_net0_to_host2_net3_1st);
+		exthdr = frag_from_host_1st;
+		upper = paylod_1st;
+	}
+)
+
+Hdr_Fragment frag_from_host_1st {
+	NextHeader = 17;        // UDP
+	FragmentOffset = 0;
+	MFlag = 1;
+	Identification = 0x0000;
+}
+
+#ifndef DATA_LENGTH
+#define DATA_LENGTH 1232 // MTU - IPv6 - Fragment
+#endif
+
+Payload paylod_1st {
+	data = substr(echo_request_from_host1_net0_to_host2_net3, 54, DATA_LENGTH);
+}
+
+//======================================================================
+//
+// Echo Request from Host1 (2nd Fragment)
+//
+
+FEM_hdr_ipv6_exth(
+	echo_request_from_host1_net0_to_host2_net3_2nd,
+	hether_host2nut,
+	{
+		_SRC(v6(IPSEC_HOST1_NET0_ADDR));
+		_DST(v6(IPSEC_HOST2_NET3_ADDR));
+	},
+	{
+		header = _HDR_IPV6_NAME(echo_request_from_host1_net0_to_host2_net3_2nd);
+		exthdr = frag_from_host_2nd;
+		upper = paylod_2nd;
+	}
+)
+
+#ifndef FRAG_OFFSET
+#define FRAG_OFFSET 154 // MTU - IPv6 - Fragment
+#endif
+
+Hdr_Fragment frag_from_host_2nd {
+	NextHeader = 17;        // UDP
+	FragmentOffset = FRAG_OFFSET;
+	MFlag = 0;
+	Identification = 0x0001;
+}
+
+#ifndef LEFT_DATA_OFFSET
+#define LEFT_DATA_OFFSET 1294 //Ether Header + MTU
+#endif
+
+Payload paylod_2nd {
+	data = right(echo_request_from_host1_net0_to_host2_net3, LEFT_DATA_OFFSET);
+}
+
+//======================================================================
+//
+// Echo Request from Host2 (Net3) to Host1 (Net0) on Net1
+//
+
+FEM_udp6(
+	echo_request_from_host2_net3_to_host1_net0,
+	hether_router2nut,
+	{
+		_SRC(v6(IPSEC_HOST2_NET3_ADDR));
+		_DST(v6(IPSEC_HOST1_NET0_ADDR));
+	},
+	{
+		SourcePort	= 10000;
+		DestinationPort	= DESTINATION_PORT;
+	},
+	{
+		header = _HDR_UDP_NAME(echo_request_from_host2_net3_to_host1_net0);
+		payload = IPSEC_ECHO_DATA;
+	}
+)
+
+//======================================================================
+//
+// Echo Request from Host2 (Net3) to Host1 (Net0) on Net0 via NUT
+//
+
+FEM_udp6(
+	echo_request_from_host2_net3_to_host1_net0_via_nut,
+	hether_nut2host,
+	{
+		_SRC(v6(IPSEC_HOST2_NET3_ADDR));
+		_DST(v6(IPSEC_HOST1_NET0_ADDR));
+	},
+	{
+		SourcePort	= 10000;
+		DestinationPort	= DESTINATION_PORT;
+	},
+	{
+		header = _HDR_UDP_NAME(echo_request_from_host2_net3_to_host1_net0_via_nut);
+		payload = IPSEC_ECHO_DATA;
+	}
+)
+
+//======================================================================
+//
+// Echo Reply from Host1 (Net0) to Host2 (Net3) on Net0
+//
+
+FEM_udp6(
+	echo_reply_from_host1_net0_to_host2_net3,
+	hether_host2nut,
+	{
+		_SRC(v6(IPSEC_HOST1_NET0_ADDR));
+		_DST(v6(IPSEC_HOST2_NET3_ADDR));
+	},
+	{
+		SourcePort	= DESTINATION_PORT;
+		DestinationPort	= 10000;
+	},
+	{
+		header = _HDR_UDP_NAME(echo_reply_from_host1_net0_to_host2_net3);
+		payload = IPSEC_ECHO_DATA;
+	}
+)
+
+//======================================================================
+//
+// Echo Reply from Host1 (Net0) to Host2 (Net3) on Net1 via NUT
+//
+
+FEM_udp6(
+	echo_reply_from_host1_net0_to_host2_net3_via_nut,
+	hether_nut2router,
+	{
+		_SRC(v6(IPSEC_HOST1_NET0_ADDR));
+		_DST(v6(IPSEC_HOST2_NET3_ADDR));
+	},
+	{
+		SourcePort	= DESTINATION_PORT;
+		DestinationPort	= 10000;
+	},
+	{
+		header = _HDR_UDP_NAME(echo_reply_from_host1_net0_to_host2_net3_via_nut);
+		payload = IPSEC_ECHO_DATA;
+	}
+)
+
+//======================================================================
+//
+// Echo Request from Host2 (Net3) to Host1 (Net0) on Net1
+//
+
+FEM_udp6(
+	echo_request_from_host2_net3_to_host1_net0_pad,
+	hether_router2nut,
+	{
+		_SRC(v6(IPSEC_HOST2_NET3_ADDR));
+		_DST(v6(IPSEC_HOST1_NET0_ADDR));
+	},
+	{
+		SourcePort	= 10000;
+		DestinationPort	= DESTINATION_PORT;
+	},
+	{
+		header = _HDR_UDP_NAME(echo_request_from_host2_net3_to_host1_net0_pad);
+		payload = IPSEC_ECHO_DATA;
+	}
+)
+
+
+//======================================================================
+// Host3 <--> SGW(TN) <--> Router <--> SGW(NUT) <--> Host1
+//======================================================================
+//======================================================================
+//
+// Echo Request from Host3 (Net3) to Host1 (Net0) on Net1
+//
+
+FEM_udp6(
+	echo_request_from_host3_net3_to_host1_net0,
+	hether_router2nut,
+	{
+		_SRC(v6(IPSEC_HOST3_NET3_ADDR));
+		_DST(v6(IPSEC_HOST1_NET0_ADDR));
+	},
+	{
+		SourcePort	= DESTINATION_PORT;
+		DestinationPort	= 20000;
+	},
+	{
+		header = _HDR_UDP_NAME(echo_request_from_host3_net3_to_host1_net0);
+		payload = IPSEC_ECHO_DATA;
+	}
+)
+
+//======================================================================
+//
+// Echo Request from Host3 (Net3) to Host1 (Net0) on Net0 via NUT
+//
+
+FEM_udp6(
+	echo_request_from_host3_net3_to_host1_net0_via_nut,
+	hether_nut2host,
+	{
+		_SRC(v6(IPSEC_HOST3_NET3_ADDR));
+		_DST(v6(IPSEC_HOST1_NET0_ADDR));
+	},
+	{
+		SourcePort	= DESTINATION_PORT;
+		DestinationPort	= 20000;
+	},
+	{
+		header = _HDR_UDP_NAME(echo_request_from_host3_net3_to_host1_net0_via_nut);
+		payload = IPSEC_ECHO_DATA;
+	}
+)
+
+//======================================================================
+//
+// Echo Reply from Host1 (Net0) to Host3 (Net3) on Net0
+//
+
+FEM_udp6(
+	echo_reply_from_host1_net0_to_host3_net3,
+	hether_host2nut,
+	{
+		_SRC(v6(IPSEC_HOST1_NET0_ADDR));
+		_DST(v6(IPSEC_HOST3_NET3_ADDR));
+	},
+	{
+		SourcePort	= 20000;
+		DestinationPort	= DESTINATION_PORT;
+	},
+	{
+		header = _HDR_UDP_NAME(echo_reply_from_host1_net0_to_host3_net3);
+		payload = IPSEC_ECHO_DATA;
+	}
+)
+
+//======================================================================
+// Host4 <--> SGW(TN) <--> Router <--> SGW(NUT) <--> Host1
+//======================================================================
+//======================================================================
+//
+// Echo Request from Host4 (Net4) to Host1 (Net0) on Net1
+//
+
+FEM_udp6(
+	echo_request_from_host4_net4_to_host1_net0,
+	hether_router2nut,
+	{
+		_SRC(v6(IPSEC_HOST4_NET4_ADDR));
+		_DST(v6(IPSEC_HOST1_NET0_ADDR));
+	},
+	{
+		SourcePort	= 10000;
+		DestinationPort	= DESTINATION_PORT;
+	},
+	{
+		header = _HDR_UDP_NAME(echo_request_from_host4_net4_to_host1_net0);
+		payload = IPSEC_ECHO_DATA;
+	}
+)
+
+//======================================================================
+//
+// Echo Request from Host4 (Net4) to Host1 (Net0) on Net0 via NUT
+//
+
+FEM_udp6(
+	echo_request_from_host4_net4_to_host1_net0_via_nut,
+	hether_nut2host,
+	{
+		_SRC(v6(IPSEC_HOST4_NET4_ADDR));
+		_DST(v6(IPSEC_HOST1_NET0_ADDR));
+	},
+	{
+		SourcePort	= 10000;
+		DestinationPort	= DESTINATION_PORT;
+	},
+	{
+		header = _HDR_UDP_NAME(echo_request_from_host4_net4_to_host1_net0_via_nut);
+		payload = IPSEC_ECHO_DATA;
+	}
+)
+
+//======================================================================
+//
+// Echo Reply from Host1 (Net0) to Host4 (Net4) on Net0
+//
+
+FEM_udp6(
+	echo_reply_from_host1_net0_to_host4_net4,
+	hether_host2nut,
+	{
+		_SRC(v6(IPSEC_HOST1_NET0_ADDR));
+		_DST(v6(IPSEC_HOST4_NET4_ADDR));
+	},
+	{
+		SourcePort	= 10000;
+		DestinationPort	= DESTINATION_PORT;
+	},
+	{
+		header = _HDR_UDP_NAME(echo_reply_from_host1_net0_to_host4_net4);
+		payload = IPSEC_ECHO_DATA;
+	}
+)
+
+//======================================================================
+// Host2 <--> Router <--> SGW(NUT) <--> Host1
+//======================================================================
+//======================================================================
+//
+// Echo Request from Host2 (Net2) to Host1 (Net0) on Net1
+//
+
+FEM_udp6(
+	echo_request_from_host2_net2_to_host1_net0,
+	hether_router2nut,
+	{
+		_SRC(v6(IPSEC_HOST2_NET2_ADDR));
+		_DST(v6(IPSEC_HOST1_NET0_ADDR));
+	},
+	{
+		SourcePort	= 10000;
+		DestinationPort	= DESTINATION_PORT;
+	},
+	{
+		header = _HDR_UDP_NAME(echo_request_from_host2_net2_to_host1_net0);
+		payload = IPSEC_ECHO_DATA;
+	}
+)
+
+//======================================================================
+//
+// Echo Request from Host2 (Net2) to Host1 (Net0) on Net0 via NUT
+//
+
+FEM_udp6(
+	echo_request_from_host2_net2_to_host1_net0_via_nut,
+	hether_nut2host,
+	{
+		_SRC(v6(IPSEC_HOST2_NET2_ADDR));
+		_DST(v6(IPSEC_HOST1_NET0_ADDR));
+	},
+	{
+		SourcePort	= 10000;
+		DestinationPort	= DESTINATION_PORT;
+	},
+	{
+		header = _HDR_UDP_NAME(echo_request_from_host2_net2_to_host1_net0_via_nut);
+		payload = IPSEC_ECHO_DATA;
+	}
+)
+
+//======================================================================
+//
+// Echo Reply from Host1 (Net0) to Host2 (Net2) on Net0
+//
+
+FEM_udp6(
+	echo_reply_from_host1_net0_to_host2_net2,
+	hether_host2nut,
+	{
+		_SRC(v6(IPSEC_HOST1_NET0_ADDR));
+		_DST(v6(IPSEC_HOST2_NET2_ADDR));
+	},
+	{
+		SourcePort	= DESTINATION_PORT;
+		DestinationPort	= 10000;
+	},
+	{
+		header = _HDR_UDP_NAME(echo_reply_from_host1_net0_to_host2_net2);
+		payload = IPSEC_ECHO_DATA;
+	}
+)
+
+//======================================================================
+//
+// Echo Reply from Host1 (Net0) to Host2 (Net2) on Net1 via NUT
+//
+
+FEM_udp6(
+	echo_reply_from_host1_net0_to_host2_net2_via_nut,
+	hether_nut2router,
+	{
+		_SRC(v6(IPSEC_HOST1_NET0_ADDR));
+		_DST(v6(IPSEC_HOST2_NET2_ADDR));
+	},
+	{
+		SourcePort	= DESTINATION_PORT;
+		DestinationPort	= 10000;
+	},
+	{
+		header = _HDR_UDP_NAME(echo_reply_from_host1_net0_to_host2_net2_via_nut);
+		payload = IPSEC_ECHO_DATA;
+	}
+)
+
+//======================================================================
+// SGW(NUT) <--> Router
+//======================================================================
+//======================================================================
+//
+// Echo Request from Router to SGW
+//
+
+FEM_udp6(
+	echo_request_from_router,
+	hether_router2nut,
+	{
+		_SRC(v6(IPSEC_ROUTER_NET1_ADDR));
+		_DST(v6(IPSEC_NUT_NET1_ADDR));
+	},
+	{
+		SourcePort	= 10000;
+		DestinationPort	= DESTINATION_PORT;
+	},
+	{
+		header = _HDR_UDP_NAME(echo_request_from_router);
+		payload = IPSEC_ECHO_DATA;
+	}
+)
+
+//======================================================================
+//
+// Echo Reply to Router from SGW
+//
+
+FEM_udp6(
+	echo_reply_to_router,
+	hether_nut2router,
+	{
+		_SRC(v6(IPSEC_NUT_NET1_ADDR));
+		_DST(v6(IPSEC_ROUTER_NET1_ADDR));
+	},
+	{
+		SourcePort	= DESTINATION_PORT;
+		DestinationPort	= 10000;
+	},
+	{
+		header = _HDR_UDP_NAME(echo_reply_to_router);
+		payload = IPSEC_ECHO_DATA;
+	}
+)
+
+//======================================================================
+//
+// Packet Too Big from Router to SGW
+//
+
+#ifndef MTU_SIZE
+#define MTU_SIZE any
+#endif
+
+#ifndef ORIGINAL_PACKET
+#define ORIGINAL_PACKET esptun_to_sg1_net2_echo_request_from_host1_net0_to_host2_net3
+#endif
+
+FEM_icmp6_packet_too_big (
+	pkt_too_big_from_router,
+	hether_router2nut,
+	{
+		_SRC(v6(IPSEC_ROUTER_NET2_ADDR));
+		_DST(v6(IPSEC_NUT_NET1_ADDR));
+	},
+	{
+		MTU     = MTU_SIZE;
+		payload = TooBigData;
+	}
+)
+
+Payload TooBigData {
+	data=substr(ORIGINAL_PACKET, 14, 1232);
+}
+
+//======================================================================
+// Host1 <--> SGW(NUT) <--> Router <--> SGW(TN)
+//======================================================================
+//======================================================================
+//
+// Echo Request from Host1 to SGW(TN) on Net0
+//
+
+FEM_udp6(
+	echo_request_from_host1_net0_to_sgw1_net2,
+	hether_host2nut,
+	{
+		_SRC(v6(IPSEC_HOST1_NET0_ADDR));
+		_DST(v6(IPSEC_SGW1_NET2_ADDR));
+	},
+	{
+		SourcePort	= 10000;
+		DestinationPort	= DESTINATION_PORT;
+	},
+	{
+		header = _HDR_UDP_NAME(echo_request_from_host1_net0_to_sgw1_net2);
+		payload = IPSEC_ECHO_DATA;
+	}
+)
+
+//======================================================================
+//
+// Echo Request from Host1 to SGW(TN) on Net1 via SGW(NUT)
+//
+
+FEM_udp6(
+	echo_request_from_host1_net0_to_sgw1_net2_via_nut,
+	hether_nut2router,
+	{
+		_SRC(v6(IPSEC_HOST1_NET0_ADDR));
+		_DST(v6(IPSEC_SGW1_NET2_ADDR));
+	},
+	{
+		SourcePort	= 10000;
+		DestinationPort	= DESTINATION_PORT;
+	},
+	{
+		header = _HDR_UDP_NAME(echo_request_from_host1_net0_to_sgw1_net2_via_nut);
+		payload = IPSEC_ECHO_DATA;
+	}
+)
+
+//======================================================================
+//
+// Echo Reply to Host1 (Net0) from SGW(TN) (Net2) on Net1 via Router
+//
+
+FEM_udp6(
+	echo_reply_from_sgw1_net2_to_host1_net0,
+	hether_router2nut,
+	{
+		_SRC(v6(IPSEC_SGW1_NET2_ADDR));
+		_DST(v6(IPSEC_HOST1_NET0_ADDR));
+	},
+	{
+		SourcePort	= DESTINATION_PORT;
+		DestinationPort	= 10000;
+	},
+	{
+		header = _HDR_UDP_NAME(echo_reply_from_sgw1_net2_to_host1_net0);
+		payload = IPSEC_ECHO_DATA;
+	}
+)
+
+//======================================================================
+//
+// Echo Reply to Host1 (Net0) from SGW(TN) (Net2) on Net0 via NUT
+//
+
+FEM_udp6(
+	echo_reply_from_sgw1_net2_to_host1_net0_via_nut,
+	hether_nut2host,
+	{
+		_SRC(v6(IPSEC_SGW1_NET2_ADDR));
+		_DST(v6(IPSEC_HOST1_NET0_ADDR));
+	},
+	{
+		SourcePort	= DESTINATION_PORT;
+		DestinationPort	= 10000;
+	},
+	{
+		header = _HDR_UDP_NAME(echo_reply_from_sgw1_net2_to_host1_net0);
+		payload = IPSEC_ECHO_DATA;
+	}
+)
+

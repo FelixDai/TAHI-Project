@@ -1,0 +1,717 @@
+//
+// Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010
+// Yokogawa Electric Corporation.
+// All rights reserved.
+// 
+// Redistribution and use of this software in source and binary
+// forms, with or without modification, are permitted provided that
+// the following conditions and disclaimer are agreed and accepted
+// by the user:
+// 
+// 1. Redistributions of source code must retain the above copyright
+//    notice, this list of conditions and the following disclaimer.
+// 
+// 2. Redistributions in binary form must reproduce the above copyright
+//    notice, this list of conditions and the following disclaimer in
+//    the documentation and/or other materials provided with
+//    the distribution.
+// 
+// 3. Neither the names of the copyrighters, the name of the project
+//    which is related to this software (hereinafter referred to as
+//    "project") nor the names of the contributors may be used to
+//    endorse or promote products derived from this software without
+//    specific prior written permission.
+// 
+// 4. No merchantable use may be permitted without prior written
+//    notification to the copyrighters.
+// 
+// 5. The copyrighters, the project and the contributors may prohibit
+//    the use of this software at any time.
+// 
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+// CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+// BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+// FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+// COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+// INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+// SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+// HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+// STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+// IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+// POSSIBILITY OF SUCH DAMAGE.
+//
+// $Name: V6PC_P2_IPsec_1_10_0 $
+//
+// $TAHI: ct/ipsec.p2/p2_ALGO_common.def,v 1.27 2010/05/31 10:56:37 doo Exp $
+//
+
+#include "./keys.def"
+
+//======================================================================
+//
+// Algorithm predefinition
+//
+
+//======================================================================
+//
+// Encryption Only
+//
+
+ESPAlgorithm ealgo_descbc_in {
+	crypt = descbc(E_descbc_in_key);
+}
+
+ESPAlgorithm ealgo_descbc_out {
+	crypt = descbc(E_descbc_out_key);
+}
+
+ESPAlgorithm ealgo_3descbc_in_2 {
+	crypt = des3cbc(E_3descbc_in_key_2);
+}
+
+ESPAlgorithm ealgo_3descbc_out_2 {
+	crypt = des3cbc(E_3descbc_out_key_2);
+}
+
+ESPAlgorithm ealgo_3descbc_in {
+	crypt = des3cbc(E_3descbc_in_key);
+}
+
+ESPAlgorithm ealgo_3descbc_out {
+	crypt = des3cbc(E_3descbc_out_key);
+}
+
+ESPAlgorithm ealgo_aescbc_in {
+	crypt = rijndael_128(E_aescbc_in_key);
+}
+
+ESPAlgorithm ealgo_aescbc_out {
+	crypt = rijndael_128(E_aescbc_out_key);
+}
+
+ESPAlgorithm ealgo_camelliacbc_in {
+	crypt = camellia_128(E_camelliacbc_in_key);
+}
+
+ESPAlgorithm ealgo_camelliacbc_out {
+	crypt = camellia_128(E_camelliacbc_out_key);
+}
+
+
+ESPAlgorithm ealgo_null_out {
+	crypt = null_crypt(4);
+}
+
+ESPAlgorithm ealgo_null_in {
+	crypt = null_crypt(4);
+}
+
+
+//======================================================================
+//
+// Encryption and Authentication
+// various Encryption algorithm
+//
+//  These parametor are specified from *.seq
+//
+
+ESPAlgorithm ealgo_3descbc_hmacsha1_in_2 {
+	crypt = des3cbc(E_3descbc_in_key_2);
+	auth = hmacsha1(A_hmacsha1_in_key_2);
+}
+
+ESPAlgorithm ealgo_3descbc_hmacsha1_in_4 {
+	crypt = des3cbc(E_3descbc_in_key_4);
+	auth = hmacsha1(A_hmacsha1_in_key_4);
+}
+
+ESPAlgorithm ealgo_3descbc_hmacsha1_out_2 {
+	crypt = des3cbc(E_3descbc_out_key_2);
+	auth = hmacsha1(A_hmacsha1_out_key_2);
+}
+
+ESPAlgorithm ealgo_3descbc_hmacsha1_out_3 {
+	crypt = des3cbc(E_3descbc_out_key_3);
+	auth = hmacsha1(A_hmacsha1_out_key_3);
+}
+
+ESPAlgorithm ealgo_3descbc_hmacsha1_in {
+	crypt = des3cbc(E_3descbc_in_key);
+	auth = hmacsha1(A_hmacsha1_in_key);
+}
+
+ESPAlgorithm ealgo_3descbc_hmacsha1_in_esn {
+	crypt = des3cbc(E_3descbc_in_key);
+	auth = hmacsha1(A_hmacsha1_in_key, 0x0000);
+}
+
+ESPAlgorithm ealgo_3descbc_hmacsha1_out {
+	crypt = des3cbc(E_3descbc_out_key);
+	auth = hmacsha1(A_hmacsha1_out_key);
+}
+
+ESPAlgorithm ealgo_3descbc_hmacsha1_out_esn {
+	crypt = des3cbc(E_3descbc_out_key);
+	auth = hmacsha1(A_hmacsha1_out_key, 0x0000);
+}
+
+#ifndef INITIAL_VECTOR
+#define INITIAL_VECTOR "0000000000000000"
+#endif
+
+ESPAlgorithm ealgo_3descbc_hmacsha1_out_iv {
+	crypt = des3cbc_2(ascii(E_3descbc_out_key, 24), hexstr(INITIAL_VECTOR, 16));
+	auth = hmacsha1(A_hmacsha1_out_key);
+//	auth = hmacsha1_2(A_hmacsha1_out_key, 20);
+}
+
+// XXXX
+//
+// This parametor should be same with PADDING_LENGTH,
+// but v6eval only support octet alignment padding length value.  
+// 
+// #ifndef PADDING_ALIGNMENT
+// #define PADDING_ALIGNMENT 1
+// #endif
+
+ESPAlgorithm ealgo_3descbc_hmacsha1_pad_in {
+//	crypt = des3cbc(E_3descbc_in_key,INITIAL_VECTOR,PADDING_ALIGNMENT);
+	crypt = des3cbc(E_3descbc_in_key);
+	auth = hmacsha1(A_hmacsha1_in_key);
+	pad = sequential();
+}
+
+ESPAlgorithm ealgo_3descbc_hmacsha1_pad_out {
+	crypt = des3cbc(E_3descbc_out_key);
+	auth = hmacsha1(A_hmacsha1_out_key);
+	pad = sequential();
+}
+
+ESPAlgorithm ealgo_null_hmacsha1_in {
+	crypt = null_crypt(4);
+	auth = hmacsha1(A_hmacsha1_in_key);
+}
+
+ESPAlgorithm ealgo_null_hmacsha1_out {
+	crypt = null_crypt(4);
+	auth = hmacsha1(A_hmacsha1_out_key);
+}
+
+ESPAlgorithm ealgo_aescbc_hmacsha1_in {
+	crypt = rijndael_128(E_aescbc_in_key);
+	auth = hmacsha1(A_hmacsha1_in_key);
+}
+
+ESPAlgorithm ealgo_aescbc_hmacsha1_out {
+	crypt = rijndael_128(E_aescbc_out_key);
+	auth = hmacsha1(A_hmacsha1_out_key);
+}
+
+ESPAlgorithm ealgo_aesctr_hmacsha1_in {
+	crypt	= aesctr_160(E_aesctr_in_key);
+	auth	= hmacsha1(A_hmacsha1_in_key);
+}
+
+ESPAlgorithm ealgo_aesctr_hmacsha1_out {
+	crypt	= aesctr_160(E_aesctr_out_key);
+	auth	= hmacsha1(A_hmacsha1_out_key);
+}
+
+ESPAlgorithm ealgo_descbc_hmacsha1_in {
+	crypt = descbc(E_descbc_in_key);
+	auth = hmacsha1(A_hmacsha1_in_key);
+}
+
+ESPAlgorithm ealgo_descbc_hmacsha1_out {
+	crypt = descbc(E_descbc_out_key);
+	auth = hmacsha1(A_hmacsha1_out_key);
+}
+
+ESPAlgorithm ealgo_camelliacbc_hmacsha1_in {
+	crypt = camellia_128(E_camelliacbc_in_key);
+	auth = hmacsha1(A_hmacsha1_in_key);
+}
+
+ESPAlgorithm ealgo_camelliacbc_hmacsha1_out {
+	crypt = camellia_128(E_camelliacbc_out_key);
+	auth = hmacsha1(A_hmacsha1_out_key);
+}
+
+//======================================================================
+//
+// Encryption and Authentication
+// various Authentication algorithm
+//
+//  These parametor are specified from *.seq
+//
+
+
+ESPAlgorithm ealgo_3descbc_aesxcbc_in {
+	crypt = des3cbc(E_3descbc_in_key);
+	auth = aesxcbc(A_aesxcbc_in_key);
+}
+
+ESPAlgorithm ealgo_3descbc_aesxcbc_out {
+	crypt = des3cbc(E_3descbc_out_key);
+	auth = aesxcbc(A_aesxcbc_out_key);
+}
+
+ESPAlgorithm ealgo_3descbc_null_in {
+	crypt = des3cbc(E_3descbc_in_key);
+	auth = null_auth(4);
+}
+
+ESPAlgorithm ealgo_3descbc_null_out {
+	crypt = des3cbc(E_3descbc_out_key);
+	auth = null_auth(4);
+}
+
+ESPAlgorithm ealgo_3descbc_hmacmd5_in {
+	crypt = des3cbc(E_3descbc_in_key);
+	auth = hmacmd5(A_hmacmd5_in_key);
+}
+
+ESPAlgorithm ealgo_3descbc_hmacmd5_out {
+	crypt = des3cbc(E_3descbc_out_key);
+	auth = hmacmd5(A_hmacmd5_out_key);
+}
+
+ESPAlgorithm ealgo_3descbc_hmacsha2256_in {
+	crypt = des3cbc(E_3descbc_in_key);
+	auth = hmacsha2_256(A_hmacsha2256_in_key);
+}
+
+ESPAlgorithm ealgo_3descbc_hmacsha2256_out {
+	crypt = des3cbc(E_3descbc_out_key);
+	auth = hmacsha2_256(A_hmacsha2256_out_key);
+}
+
+
+
+//======================================================================
+//
+// ESP definition (default use)
+//
+
+#ifndef EALGO_FROM_SGW1_NET2
+#define EALGO_FROM_SGW1_NET2 ealgo_3descbc_in
+#endif
+
+#ifndef EALGO_TO_SGW1_NET2
+#define EALGO_TO_SGW1_NET2 ealgo_3descbc_out
+#endif
+
+#ifndef EALGO_FROM_SGW1_NET2_HOST2
+#define EALGO_FROM_SGW1_NET2_HOST2 ealgo_3descbc_in
+#endif
+
+#ifndef EALGO_TO_SGW1_NET2_HOST2
+#define EALGO_TO_SGW1_NET2_HOST2 ealgo_3descbc_out
+#endif
+
+#ifndef EALGO_FROM_SGW1_NET2_HOST3
+#define EALGO_FROM_SGW1_NET2_HOST3 ealgo_3descbc_in_2
+#endif
+
+#ifndef EALGO_TO_SGW1_NET2_HOST3
+#define EALGO_TO_SGW1_NET2_HOST3 ealgo_3descbc_out_2
+#endif
+
+#ifndef EALGO_FROM_SGW1_NET1
+#define EALGO_FROM_SGW1_NET1 ealgo_3descbc_in
+#endif
+
+#ifndef EALGO_TO_SGW1_NET1
+#define EALGO_TO_SGW1_NET1 ealgo_3descbc_out
+#endif
+
+#ifndef EALGO_FROM_SGW1_NET2
+#define EALGO_FROM_SGW1_NET2 ealgo_3descbc_in
+#endif
+
+#ifndef EALGO_TO_SGW1_NET2
+#define EALGO_TO_SGW1_NET2 ealgo_3descbc_out
+#endif
+
+#ifndef EALGO_FROM_SGW2_NET2
+#define EALGO_FROM_SGW2_NET2 ealgo_3descbc_in_2
+#endif
+
+#ifndef EALGO_TO_SGW2_NET2
+#define EALGO_TO_SGW2_NET2 ealgo_3descbc_out_2
+#endif
+
+#ifndef EALGO_FROM_HOST2
+#define EALGO_FROM_HOST2 ealgo_3descbc_in_2
+#endif
+
+#ifndef EALGO_TO_HOST2
+#define EALGO_TO_HOST2 ealgo_3descbc_out_2
+#endif
+
+#ifndef EALGO_FROM_HOST1
+#define EALGO_FROM_HOST1 ealgo_3descbc_in
+#endif
+
+#ifndef EALGO_TO_HOST1
+#define EALGO_TO_HOST1 ealgo_3descbc_out
+#endif
+
+#ifndef SPI_FROM_SGW1_HOST1
+#define SPI_FROM_SGW1_HOST1 0x1000
+#endif
+
+#ifndef SPI_TO_SGW1_HOST1
+#define SPI_TO_SGW1_HOST1 0x2000
+#endif
+
+#ifndef SPI_FROM_SGW1_HOST2
+#define SPI_FROM_SGW1_HOST2 0x1000
+#endif
+
+#ifndef SPI_TO_SGW1_HOST2
+#define SPI_TO_SGW1_HOST2 0x2000
+#endif
+
+#ifndef SPI_FROM_SGW1_HOST3
+#define SPI_FROM_SGW1_HOST3 0x3000
+#endif
+
+#ifndef SPI_TO_SGW1_HOST3
+#define SPI_TO_SGW1_HOST3 0x4000
+#endif
+
+#ifndef SPI_FROM_SGW1
+#define SPI_FROM_SGW1 0x1000
+#endif
+
+#ifndef SPI_TO_SGW1
+#define SPI_TO_SGW1 0x2000
+#endif
+
+#ifndef SPI_FROM_SGW2
+#define SPI_FROM_SGW2 0x3000
+#endif
+
+#ifndef SPI_TO_SGW2
+#define SPI_TO_SGW2 0x4000
+#endif
+
+#ifndef SPI_FROM_HOST2_NET2
+#define SPI_FROM_HOST2_NET2 0x1000
+#endif
+
+#ifndef SPI_TO_HOST2_NET2
+#define SPI_TO_HOST2_NET2 0x2000
+#endif
+
+#ifndef SPI_FROM_HOST2
+#define SPI_FROM_HOST2 0x3000
+#endif
+
+#ifndef SPI_TO_HOST2
+#define SPI_TO_HOST2 0x4000
+#endif
+
+#ifndef SPI_FROM_HOST1
+#define SPI_FROM_HOST1 0x1000
+#endif
+
+#ifndef SPI_TO_HOST1
+#define SPI_TO_HOST1 0x2000
+#endif
+
+#ifndef TO_SEQUENCENUMBER
+#define TO_SEQUENCENUMBER 1
+#endif
+
+#ifndef FROM_SEQUENCENUMBER
+#define FROM_SEQUENCENUMBER 1
+#endif
+
+#ifndef PADDING_LENGTH
+#define PADDING_LENGTH 7
+#endif
+
+//=========== DEFAULT NEXT HEADER VALUE (ICMPv6) ========
+#ifndef NEXTHEADER_VALUE
+#define NEXTHEADER_VALUE 58
+#endif
+
+//
+// EALGO_FROM_*/EALGO_TO_* parametors are specified from p2_*_E_*_common.def
+//
+
+///// For HOST1 on tunnel test /////
+
+Hdr_ESP esp_from_sg_host1_seq2 {
+	SPI = SPI_FROM_SGW1_HOST1;
+	SequenceNumber = 2;
+	algorithm = EALGO_FROM_SGW1_NET1;
+}
+
+Hdr_ESP esp_from_sg_host1_pad {
+        SPI = SPI_FROM_SGW1_HOST1;
+	SequenceNumber = 1;
+        algorithm = EALGO_FROM_SGW1_NET1;
+	PadLength = PADDING_LENGTH;
+}
+
+Hdr_ESP esp_to_sg_host1_pad {
+        SPI = SPI_TO_SGW1_HOST1;
+	SequenceNumber = any;
+        algorithm = EALGO_TO_SGW1_NET1;
+}
+
+Hdr_ESP esp_from_sg_host1_pad2 {
+        SPI = SPI_FROM_SGW1_HOST1;
+	SequenceNumber = 2;
+        algorithm = EALGO_FROM_SGW1_NET1;
+	PadLength = PADDING_LENGTH;
+	NextHeader = NEXTHEADER_VALUE;
+}
+
+Hdr_ESP esp_to_sg_host1_pad2 {
+        SPI = SPI_TO_SGW1_HOST1;
+	SequenceNumber = any;
+        algorithm = EALGO_TO_SGW1_NET1;
+}
+
+///// For HOST2 on tunnel test /////
+
+Hdr_ESP esp_from_sg_host2 {
+        SPI = SPI_FROM_SGW1_HOST2;
+        SequenceNumber = 1;
+        algorithm = EALGO_FROM_SGW1_NET2_HOST2;
+}
+
+Hdr_ESP esp_to_sg_host2 {
+        SPI = SPI_TO_SGW1_HOST2;
+        SequenceNumber = any;   // 1;
+        algorithm = EALGO_TO_SGW1_NET2_HOST2;
+}
+
+Hdr_ESP esp_to_sg_host2_seq {
+        SPI = SPI_TO_SGW1_HOST2;
+	SequenceNumber = TO_SEQUENCENUMBER;
+        algorithm = EALGO_TO_SGW1_NET2_HOST2;
+}
+
+Hdr_ESP esp_from_sg_host2_seq2 {
+        SPI = SPI_FROM_SGW1_HOST2;
+        SequenceNumber = 2;
+        algorithm = EALGO_FROM_SGW1_NET2_HOST2;
+}
+
+Hdr_ESP esp_from_sg_host2_seq3 {
+        SPI = SPI_FROM_SGW1_HOST2;
+        SequenceNumber = 3;
+        algorithm = EALGO_FROM_SGW1_NET2_HOST2;
+}
+
+Hdr_ESP esp_from_sg_host2_seq4 {
+        SPI = SPI_FROM_SGW1_HOST2;
+        SequenceNumber = 4;
+        algorithm = EALGO_FROM_SGW1_NET2_HOST2;
+}
+
+Hdr_ESP esp_from_sg_host2_pad {
+        SPI = SPI_FROM_SGW1_HOST2;
+	SequenceNumber = 1;
+        algorithm = EALGO_FROM_SGW1_NET2_HOST2;
+	PadLength = PADDING_LENGTH;
+}
+
+Hdr_ESP esp_to_sg_host2_pad {
+        SPI = SPI_TO_SGW1_HOST2;
+	SequenceNumber = any;
+        algorithm = EALGO_TO_SGW1_NET2_HOST2;
+//	PadLength = PADDING_LENGTH;
+}
+
+Hdr_ESP esp_from_sg_host2_pad2 {
+        SPI = SPI_FROM_SGW1_HOST2;
+	SequenceNumber = 2;
+        algorithm = EALGO_FROM_SGW1_NET2_HOST2;
+	PadLength = PADDING_LENGTH;
+	NextHeader = 41;
+}
+
+Hdr_ESP esp_to_sg_host2_pad2 {
+        SPI = SPI_TO_SGW1_HOST2;
+	SequenceNumber = any;
+        algorithm = EALGO_TO_SGW1_NET2_HOST2;
+//	PadLength = PADDING_LENGTH;
+}
+
+///// For HOST3 on tunnel test /////
+
+Hdr_ESP esp_from_sg_host3 {
+        SPI = SPI_FROM_SGW1_HOST3;
+        SequenceNumber = 1;
+        algorithm = EALGO_FROM_SGW1_NET2_HOST3;
+}
+
+Hdr_ESP esp_to_sg_host3 {
+        SPI = SPI_TO_SGW1_HOST3;
+        SequenceNumber = any;   // 1;
+        algorithm = EALGO_TO_SGW1_NET2_HOST3;
+}
+
+///// For HOST4 on tunnel test /////
+
+Hdr_ESP esp_from_sg2_host4 {
+        SPI = SPI_FROM_SGW2;
+        SequenceNumber = 1;
+        algorithm = EALGO_FROM_SGW2_NET2;
+}
+
+Hdr_ESP esp_to_sg2_host4 {
+        SPI = SPI_TO_SGW2;
+        SequenceNumber = any;   // 1;
+        algorithm = EALGO_TO_SGW2_NET2;
+}
+
+///// For Security Gateway /////
+
+Hdr_ESP esp_from_sg {
+        SPI = SPI_FROM_SGW1;
+        SequenceNumber = 1;
+        algorithm = EALGO_FROM_SGW1_NET1;
+}
+
+Hdr_ESP esp_to_sg {
+        SPI = SPI_TO_SGW1;
+        SequenceNumber = any;   // 1;
+        algorithm = EALGO_TO_SGW1_NET1;
+}
+
+Hdr_ESP esp_from_host2_net2 {
+	SPI = SPI_FROM_HOST2_NET2;
+	SequenceNumber = 1;
+	algorithm = EALGO_FROM_HOST2_NET2;
+}
+
+Hdr_ESP esp_to_host2_net2 {
+	SPI = SPI_TO_HOST2_NET2;
+	SequenceNumber = any;
+	algorithm = EALGO_TO_HOST2_NET2;
+}
+
+Hdr_ESP esp_from_sg_seq {
+        SPI = SPI_FROM_SGW1;
+	SequenceNumber = FROM_SEQUENCENUMBER;
+        algorithm = EALGO_FROM_SGW1_NET1;
+}
+
+Hdr_ESP esp_from_sg_pad {
+        SPI = SPI_FROM_SGW1_HOST1;
+	SequenceNumber = FROM_SEQUENCENUMBER;
+        algorithm = EALGO_FROM_SGW1_NET1;
+	PadLength = PADDING_LENGTH;
+	NextHeader = NEXTHEADER_VALUE;
+}
+
+
+///// For HOST2 /////
+
+Hdr_ESP esp_from_host2 {
+	SPI = SPI_FROM_HOST2;
+	SequenceNumber = 1;
+	algorithm = EALGO_FROM_HOST2;
+}
+
+Hdr_ESP esp_from_host2_seq2 {
+	SPI = SPI_FROM_HOST2;
+	SequenceNumber = 2;
+	algorithm = EALGO_FROM_HOST2;
+}
+
+Hdr_ESP esp_to_host2 {
+	SPI = SPI_TO_HOST2;
+	SequenceNumber = any;
+	algorithm = EALGO_TO_HOST2;
+}
+
+///// For HOST1 /////
+
+Hdr_ESP esp_from_host {
+	SPI = SPI_FROM_HOST1;
+	SequenceNumber = 1;
+	algorithm = EALGO_FROM_HOST1;
+}
+
+Hdr_ESP esp_from_host_seq {
+	SPI = SPI_FROM_HOST1;
+	SequenceNumber = FROM_SEQUENCENUMBER;
+	algorithm = EALGO_FROM_HOST1;
+}
+
+Hdr_ESP esp_from_host_seq_pad {
+	SPI = SPI_FROM_HOST1;
+	SequenceNumber = FROM_SEQUENCENUMBER;
+	algorithm = EALGO_FROM_HOST1;
+	PadLength = PADDING_LENGTH;
+	NextHeader = NEXTHEADER_VALUE;
+}
+
+Hdr_ESP esp_from_host_pad {
+	SPI = SPI_FROM_HOST1;
+	SequenceNumber = 1;
+	algorithm = EALGO_FROM_HOST1;
+	PadLength = PADDING_LENGTH;
+}
+
+Hdr_ESP esp_from_host_pad2 {
+	SPI = SPI_FROM_HOST1;
+	SequenceNumber = 2;
+	algorithm = EALGO_FROM_HOST1;
+	PadLength = PADDING_LENGTH;
+	NextHeader = NEXTHEADER_VALUE;
+}
+
+Hdr_ESP esp_from_host_seq2 {
+	SPI = SPI_FROM_HOST1;
+	SequenceNumber = 2;
+	algorithm = EALGO_FROM_HOST1;
+}
+
+Hdr_ESP esp_from_host_seq3 {
+	SPI = SPI_FROM_HOST1;
+	SequenceNumber = 3;
+	algorithm = EALGO_FROM_HOST1;
+}
+
+Hdr_ESP esp_from_host_seq4 {
+	SPI = SPI_FROM_HOST1;
+	SequenceNumber = 4;
+	algorithm = EALGO_FROM_HOST1;
+}
+
+Hdr_ESP esp_to_host {
+	SPI = SPI_TO_HOST1;
+	SequenceNumber = any;
+	algorithm = EALGO_TO_HOST1;
+}
+
+Hdr_ESP esp_to_host_seq {
+	SPI = SPI_TO_HOST1;
+	SequenceNumber = TO_SEQUENCENUMBER;
+	algorithm = EALGO_TO_HOST1;
+}
+
+Hdr_ESP esp_to_host_pad {
+	SPI = SPI_TO_HOST1;
+	SequenceNumber = any;
+	algorithm = EALGO_TO_HOST1;
+//	PadLength = PADDING_LENGTH;
+}
+
+Hdr_ESP esp_to_host_pad2 {
+	SPI = SPI_TO_HOST1;
+	SequenceNumber = any;
+	algorithm = EALGO_TO_HOST1;
+//	PadLength = PADDING_LENGTH;
+}
+

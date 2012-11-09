@@ -1,0 +1,594 @@
+//
+// Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010
+// Yokogawa Electric Corporation.
+// All rights reserved.
+// 
+// Redistribution and use of this software in source and binary
+// forms, with or without modification, are permitted provided that
+// the following conditions and disclaimer are agreed and accepted
+// by the user:
+// 
+// 1. Redistributions of source code must retain the above copyright
+//    notice, this list of conditions and the following disclaimer.
+// 
+// 2. Redistributions in binary form must reproduce the above copyright
+//    notice, this list of conditions and the following disclaimer in
+//    the documentation and/or other materials provided with
+//    the distribution.
+// 
+// 3. Neither the names of the copyrighters, the name of the project
+//    which is related to this software (hereinafter referred to as
+//    "project") nor the names of the contributors may be used to
+//    endorse or promote products derived from this software without
+//    specific prior written permission.
+// 
+// 4. No merchantable use may be permitted without prior written
+//    notification to the copyrighters.
+// 
+// 5. The copyrighters, the project and the contributors may prohibit
+//    the use of this software at any time.
+// 
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+// CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+// BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+// FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+// COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+// INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+// SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+// HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+// STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+// IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+// POSSIBILITY OF SUCH DAMAGE.
+//
+// $Name: V6PC_P2_IPsec_1_10_0 $
+//
+// $TAHI: ct/ipsec.p2/p2_SGW_ICMP_common.def,v 1.14 2005/04/20 04:56:23 ozoe Exp $
+//
+
+#include "./p2_SGW_common.def"
+
+//======================================================================
+// Host2 <--> SGW(TN) <--> Router <--> SGW(NUT) <--> Host1
+//======================================================================
+//======================================================================
+//
+// Echo Request from Host1 (Net0) to Host2 (Net3) on Net0
+//
+
+FEM_icmp6_echo_request(
+	echo_request_from_host1_net0_to_host2_net3,
+	hether_host2nut,
+	{
+		_SRC(v6(IPSEC_HOST1_NET0_ADDR));
+		_DST(v6(IPSEC_HOST2_NET3_ADDR));
+	},
+	{
+		payload = IPSEC_ECHO_DATA;
+	}
+)
+
+//======================================================================
+//
+// Packet Too Big from NUT
+//
+
+FEM_icmp6_packet_too_big (
+	pkt_too_big_to_host1,
+	hether_nut2host,
+	{
+		_SRC(v6(IPSEC_NUT_NET0_ADDR));
+		_DST(v6(IPSEC_HOST1_NET0_ADDR));
+	},
+	{
+		MTU	= any;
+		payload = any;
+	}
+)
+
+//======================================================================
+//
+// Echo Request from Host1 (1st Fragment)
+//
+
+#ifndef OFFSET_LENGTH
+#define OFFSET_LENGTH 1232
+#endif
+
+FEM_hdr_ipv6_exth(
+	echo_request_from_host1_net0_to_host2_net3_1st,
+	hether_host2nut,
+	{
+		_SRC(v6(IPSEC_HOST1_NET0_ADDR));
+		_DST(v6(IPSEC_HOST2_NET3_ADDR));
+	},
+        {
+                header = _HDR_IPV6_NAME(echo_request_from_host1_net0_to_host2_net3_1st);
+                exthdr = frag_from_host_1st;
+                upper = paylod_1st;
+        }
+)
+
+Hdr_Fragment frag_from_host_1st {
+	NextHeader = 58;        // ICMPv6
+	FragmentOffset = 0;
+	MFlag = 1;
+	Identification = 0x0000;
+}
+
+#ifndef DATA_LENGTH
+#define DATA_LENGTH 1232 // MTU - IPv6 - Fragment
+#endif
+
+Payload paylod_1st {
+	data = substr(echo_request_from_host1_net0_to_host2_net3, 54, DATA_LENGTH);
+}
+
+//======================================================================
+//
+// Echo Request from Host1 (2nd Fragment)
+//
+
+FEM_hdr_ipv6_exth(
+	echo_request_from_host1_net0_to_host2_net3_2nd,
+	hether_host2nut,
+	{
+		_SRC(v6(IPSEC_HOST1_NET0_ADDR));
+		_DST(v6(IPSEC_HOST2_NET3_ADDR));
+	},
+        {
+                header = _HDR_IPV6_NAME(echo_request_from_host1_net0_to_host2_net3_2nd);
+                exthdr = frag_from_host_2nd;
+                upper = paylod_2nd;
+        }
+)
+
+#ifndef FRAG_OFFSET
+#define FRAG_OFFSET 154 // MTU - IPv6 - Fragment
+#endif
+
+Hdr_Fragment frag_from_host_2nd {
+	NextHeader = 58;        // ICMPv6
+	FragmentOffset = FRAG_OFFSET;
+	MFlag = 0;
+	Identification = 0x0001;
+}
+
+#ifndef LEFT_DATA_OFFSET
+#define LEFT_DATA_OFFSET 1294 //Ether Header + MTU
+#endif
+
+Payload paylod_2nd {
+	data = right(echo_request_from_host1_net0_to_host2_net3, LEFT_DATA_OFFSET);
+}
+
+//======================================================================
+//
+// Echo Request from Host2 (Net3) to Host1 (Net0) on Net1
+//
+
+FEM_icmp6_echo_request(
+	echo_request_from_host2_net3_to_host1_net0,
+	hether_router2nut,
+	{
+		_SRC(v6(IPSEC_HOST2_NET3_ADDR));
+		_DST(v6(IPSEC_HOST1_NET0_ADDR));
+	},
+	{
+		payload = IPSEC_ECHO_DATA;
+	}
+)
+
+//======================================================================
+//
+// Echo Request from Host2 (Net3) to Host1 (Net0) on Net0 via NUT
+//
+
+FEM_icmp6_echo_request(
+	echo_request_from_host2_net3_to_host1_net0_via_nut,
+	hether_nut2host,
+	{
+		_SRC(v6(IPSEC_HOST2_NET3_ADDR));
+		_DST(v6(IPSEC_HOST1_NET0_ADDR));
+	},
+	{
+		payload = IPSEC_ECHO_DATA;
+	}
+)
+
+//======================================================================
+//
+// Echo Reply from Host1 (Net0) to Host2 (Net3) on Net0
+//
+
+FEM_icmp6_echo_reply(
+	echo_reply_from_host1_net0_to_host2_net3,
+	hether_host2nut,
+	{
+		_SRC(v6(IPSEC_HOST1_NET0_ADDR));
+		_DST(v6(IPSEC_HOST2_NET3_ADDR));
+	},
+	{
+		payload = IPSEC_ECHO_DATA;
+	}
+)
+
+//======================================================================
+//
+// Echo Reply from Host1 (Net0) to Host2 (Net3) on Net1 via NUT
+//
+
+FEM_icmp6_echo_reply(
+	echo_reply_from_host1_net0_to_host2_net3_via_nut,
+	hether_nut2router,
+	{
+		_SRC(v6(IPSEC_HOST1_NET0_ADDR));
+		_DST(v6(IPSEC_HOST2_NET3_ADDR));
+	},
+	{
+		payload = IPSEC_ECHO_DATA;
+	}
+)
+
+//======================================================================
+//
+// Echo Request from Host2 (Net3) to Host1 (Net0) on Net1
+//
+
+FEM_icmp6_echo_request(
+	echo_request_from_host2_net3_to_host1_net0_pad,
+	hether_router2nut,
+	{
+		_SRC(v6(IPSEC_HOST2_NET3_ADDR));
+		_DST(v6(IPSEC_HOST1_NET0_ADDR));
+	},
+	{
+		payload = IPSEC_ECHO_DATA;
+	}
+)
+
+//======================================================================
+// Host3 <--> SGW(TN) <--> Router <--> SGW(NUT) <--> Host1
+//======================================================================
+//======================================================================
+//
+// Echo Request from Host3 (Net3) to Host1 (Net0) on Net1
+//
+
+FEM_icmp6_echo_request(
+	echo_request_from_host3_net3_to_host1_net0,
+	hether_router2nut,
+	{
+		_SRC(v6(IPSEC_HOST3_NET3_ADDR));
+		_DST(v6(IPSEC_HOST1_NET0_ADDR));
+	},
+	{
+		payload = IPSEC_ECHO_DATA;
+	}
+)
+
+//======================================================================
+//
+// Echo Request from Host3 (Net3) to Host1 (Net0) on Net0 via NUT
+//
+
+FEM_icmp6_echo_request(
+	echo_request_from_host3_net3_to_host1_net0_via_nut,
+	hether_nut2host,
+	{
+		_SRC(v6(IPSEC_HOST3_NET3_ADDR));
+		_DST(v6(IPSEC_HOST1_NET0_ADDR));
+	},
+	{
+		payload = IPSEC_ECHO_DATA;
+	}
+)
+
+//======================================================================
+//
+// Echo Reply from Host1 (Net0) to Host3 (Net3) on Net0
+//
+
+FEM_icmp6_echo_reply(
+	echo_reply_from_host1_net0_to_host3_net3,
+	hether_host2nut,
+	{
+		_SRC(v6(IPSEC_HOST1_NET0_ADDR));
+		_DST(v6(IPSEC_HOST3_NET3_ADDR));
+	},
+	{
+		payload = IPSEC_ECHO_DATA;
+	}
+)
+
+//======================================================================
+// Host4 <--> SGW(TN) <--> Router <--> SGW(NUT) <--> Host1
+//======================================================================
+//======================================================================
+//
+// Echo Request from Host4 (Net4) to Host1 (Net0) on Net1
+//
+
+FEM_icmp6_echo_request(
+	echo_request_from_host4_net4_to_host1_net0,
+	hether_router2nut,
+	{
+		_SRC(v6(IPSEC_HOST4_NET4_ADDR));
+		_DST(v6(IPSEC_HOST1_NET0_ADDR));
+	},
+	{
+		payload = IPSEC_ECHO_DATA;
+	}
+)
+
+//======================================================================
+//
+// Echo Request from Host4 (Net4) to Host1 (Net0) on Net0 via NUT
+//
+
+FEM_icmp6_echo_request(
+	echo_request_from_host4_net4_to_host1_net0_via_nut,
+	hether_nut2host,
+	{
+		_SRC(v6(IPSEC_HOST4_NET4_ADDR));
+		_DST(v6(IPSEC_HOST1_NET0_ADDR));
+	},
+	{
+		payload = IPSEC_ECHO_DATA;
+	}
+)
+
+//======================================================================
+//
+// Echo Reply from Host1 (Net0) to Host4 (Net4) on Net0
+//
+
+FEM_icmp6_echo_reply(
+	echo_reply_from_host1_net0_to_host4_net4,
+	hether_host2nut,
+	{
+		_SRC(v6(IPSEC_HOST1_NET0_ADDR));
+		_DST(v6(IPSEC_HOST4_NET4_ADDR));
+	},
+	{
+		payload = IPSEC_ECHO_DATA;
+	}
+)
+
+//======================================================================
+//
+// Echo Reply from Host1 (Net0) to Host4 (Net4) via NUT
+//
+
+FEM_icmp6_echo_reply(
+	echo_reply_from_host1_net0_to_host4_net4_via_nut,
+	hether_nut2router,
+	{
+		_SRC(v6(IPSEC_HOST1_NET0_ADDR));
+		_DST(v6(IPSEC_HOST4_NET4_ADDR));
+	},
+	{
+		payload = IPSEC_ECHO_DATA;
+	}
+)
+
+//======================================================================
+// Host2 <--> Router <--> SGW(NUT) <--> Host1
+//======================================================================
+//======================================================================
+//
+// Echo Request from Host2 (Net2) to Host1 (Net0) on Net1
+//
+
+FEM_icmp6_echo_request(
+	echo_request_from_host2_net2_to_host1_net0,
+	hether_router2nut,
+	{
+		_SRC(v6(IPSEC_HOST2_NET2_ADDR));
+		_DST(v6(IPSEC_HOST1_NET0_ADDR));
+	},
+	{
+		payload = IPSEC_ECHO_DATA;
+	}
+)
+
+//======================================================================
+//
+// Echo Request from Host2 (Net2) to Host1 (Net0) on Net0 via NUT
+//
+
+FEM_icmp6_echo_request(
+	echo_request_from_host2_net2_to_host1_net0_via_nut,
+	hether_nut2host,
+	{
+		_SRC(v6(IPSEC_HOST2_NET2_ADDR));
+		_DST(v6(IPSEC_HOST1_NET0_ADDR));
+	},
+	{
+		payload = IPSEC_ECHO_DATA;
+	}
+)
+
+//======================================================================
+//
+// Echo Reply from Host1 (Net0) to Host2 (Net2) on Net0
+//
+
+FEM_icmp6_echo_reply(
+	echo_reply_from_host1_net0_to_host2_net2,
+	hether_host2nut,
+	{
+		_SRC(v6(IPSEC_HOST1_NET0_ADDR));
+		_DST(v6(IPSEC_HOST2_NET2_ADDR));
+	},
+	{
+		payload = IPSEC_ECHO_DATA;
+	}
+)
+
+//======================================================================
+//
+// Echo Reply from Host1 (Net0) to Host2 (Net2) on Net1 via NUT
+//
+
+FEM_icmp6_echo_reply(
+	echo_reply_from_host1_net0_to_host2_net2_via_nut,
+	hether_nut2router,
+	{
+		_SRC(v6(IPSEC_HOST1_NET0_ADDR));
+		_DST(v6(IPSEC_HOST2_NET2_ADDR));
+	},
+	{
+		payload = IPSEC_ECHO_DATA;
+	}
+)
+
+//======================================================================
+// SGW(NUT) <--> Router
+//======================================================================
+//======================================================================
+//
+// Echo Request from Router to SGW
+//
+
+FEM_icmp6_echo_request(
+	echo_request_from_router,
+	hether_router2nut,
+	{
+		_SRC(v6(IPSEC_ROUTER_NET1_ADDR));
+		_DST(v6(IPSEC_NUT_NET1_ADDR));
+	},
+	{
+		payload = IPSEC_ECHO_DATA;
+	}
+)
+
+//======================================================================
+//
+// Echo Reply to Router from SGW
+//
+
+FEM_icmp6_echo_reply(
+	echo_reply_to_router,
+	hether_nut2router,
+	{
+		_SRC(v6(IPSEC_NUT_NET1_ADDR));
+		_DST(v6(IPSEC_ROUTER_NET1_ADDR));
+	},
+	{
+		payload = IPSEC_ECHO_DATA;
+	}
+)
+
+//======================================================================
+//
+// Packet Too Big from Router to SGW
+//
+
+#ifndef MTU_SIZE
+#define MTU_SIZE any
+#endif
+
+#ifndef ORIGINAL_PACKET
+#define ORIGINAL_PACKET esptun_to_sg1_net2_echo_request_from_host1_net0_to_host2_net3
+#endif
+
+FEM_icmp6_packet_too_big (
+	pkt_too_big_from_router,
+	hether_router2nut,
+	{
+		_SRC(v6(IPSEC_ROUTER_NET2_ADDR));
+		_DST(v6(IPSEC_NUT_NET1_ADDR));
+	},
+	{
+		MTU	= MTU_SIZE;
+		payload = TooBigData;
+	}
+)
+
+Payload TooBigData {
+	data=substr(ORIGINAL_PACKET, 14, 1232);
+}
+
+//======================================================================
+// Host1 <--> SGW(NUT) <--> Router <--> SGW(TN)
+//======================================================================
+//======================================================================
+//
+// Echo Request from Host1 to SGW(TN) on Net0
+//
+
+FEM_icmp6_echo_request(
+	echo_request_from_host1_net0_to_sgw1_net2,
+	hether_host2nut,
+	{
+		_SRC(v6(IPSEC_HOST1_NET0_ADDR));
+		_DST(v6(IPSEC_SGW1_NET2_ADDR));
+	},
+	{
+		payload = IPSEC_ECHO_DATA;
+	}
+)
+
+//======================================================================
+//
+// Echo Request from Host1 to SGW(TN) on Net1 via SGW(NUT)
+//
+
+FEM_icmp6_echo_request(
+	echo_request_from_host1_net0_to_sgw1_net2_via_nut,
+	hether_nut2router,
+	{
+		_SRC(v6(IPSEC_HOST1_NET0_ADDR));
+		_DST(v6(IPSEC_SGW1_NET2_ADDR));
+	},
+	{
+		payload = IPSEC_ECHO_DATA;
+	}
+)
+
+//======================================================================
+//
+// Echo Reply to Host1 (Net0) from SGW(TN) (Net2) on Net1 via Router
+//
+
+FEM_icmp6_echo_reply(
+	echo_reply_from_sgw1_net2_to_host1_net0,
+	hether_router2nut,
+	{
+		_SRC(v6(IPSEC_SGW1_NET2_ADDR));
+		_DST(v6(IPSEC_HOST1_NET0_ADDR));
+	},
+	{
+		payload = IPSEC_ECHO_DATA;
+	}
+)
+
+//======================================================================
+//
+// Echo Reply to Host1 (Net0) from SGW(TN) (Net2) on Net0 via NUT
+//
+
+FEM_icmp6_echo_reply(
+	echo_reply_from_sgw1_net2_to_host1_net0_via_nut,
+	hether_nut2host,
+	{
+		_SRC(v6(IPSEC_SGW1_NET2_ADDR));
+		_DST(v6(IPSEC_HOST1_NET0_ADDR));
+	},
+	{
+		payload = IPSEC_ECHO_DATA;
+	}
+)
+
+//======================================================================
+//
+// Default Payload Data ("EchoData")
+//
+
+Payload echo_data24 {
+	data = { 0x45, 0x63, 0x68, 0x6f, 0x44, 0x61, 0x74, 0x61};
+	data = { 0x45, 0x63, 0x68, 0x6f, 0x44, 0x61, 0x74, 0x61};
+	data = { 0x45, 0x63, 0x68, 0x6f, 0x44, 0x61, 0x74, 0x61};
+}
+

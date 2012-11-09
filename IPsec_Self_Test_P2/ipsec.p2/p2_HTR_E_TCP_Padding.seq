@@ -1,0 +1,1816 @@
+#!/usr/bin/perl
+#
+# Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010
+# Yokogawa Electric Corporation.
+# All rights reserved.
+# 
+# Redistribution and use of this software in source and binary
+# forms, with or without modification, are permitted provided that
+# the following conditions and disclaimer are agreed and accepted
+# by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in
+#    the documentation and/or other materials provided with
+#    the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project
+#    which is related to this software (hereinafter referred to as
+#    "project") nor the names of the contributors may be used to
+#    endorse or promote products derived from this software without
+#    specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written
+#    notification to the copyrighters.
+# 
+# 5. The copyrighters, the project and the contributors may prohibit
+#    the use of this software at any time.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+# STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+# IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+# $TAHI: ct/ipsec.p2/p2_HTR_E_TCP_Padding.seq,v 1.27 2005/04/20 04:56:23 ozoe Exp $
+#
+######################################################################
+BEGIN {
+	$V6evalTool::TestVersion = '$Name: V6PC_P2_IPsec_1_10_0 $ ';
+}
+
+use V6evalTool;
+use IPSEC;
+
+require './keys.pl';
+
+######################################################################
+#----- Set defalut value
+$EALGO_FROM="ealgo_3descbc_hmacsha1_in";
+$EALGO_TO="ealgo_3descbc_hmacsha1_out";
+
+##----- get sequence arguments
+foreach (@ARGV) {
+	/^app_type=(\S+)/ && do {$IPSEC::APP_TYPE=$1; # APPLICATION TYPE
+					next; };
+#	/^ealgo_from=(\S+)/ && do {$EALGO_FROM=$1;    # ESP ENCRYPTION ALGORITHM FOR INBOUND PACKET
+#					next; };
+#	/^ealgo_to=(\S+)/   && do {$EALGO_TO=$1;      # ESP ENCRYPTION ALGORITHM FOR OUTBOUND PACKET
+#					next; };
+#	/^ealgo=(\S+)/      && do {$EALGO=$1;         # ESP ENCRYPTION ALGORITHM PACKET
+#					next; };
+#	/^eauth=(\S+)/      && do {$EAUTH=$1;         # ESP with AUTHENTICATION ALGORITHM FOR INBOUND PACKET 
+#					next; };
+#	/^einkey=(\S+)/     && do {$E_IN_KEY=$$1;     # ESP ENCRYPTION KEY FOR INBOUND PACKET
+#					next; };
+#	/^eoutkey=(\S+)/    && do {$E_OUT_KEY=$$1;    # ESP ENCRYPTION KEY FOR OUTBOUND PACKET
+#					next; };
+#	/^ainkey=(\S+)/     && do {$A_IN_KEY=$$1;     # AH KEY FOR INBOUND PACKET
+#					next; };
+#	/^aoutkey=(\S+)/    && do {$A_OUT_KEY=$$1;    # AH KEY FOR OUTBOUND PACKET
+#					next; };
+	/^test_type=(\S+)/  && do {$TEST_TYPE=$1;     # TEST TYPE
+					next; };
+	/^support=(\S+)/    && do {$SUPPORT=$1;       # SUPPORT FUNCTION CHECK
+					next; };
+	seqERROR("Unknown sequence option '$_'");
+}
+######################################################################
+
+my $IF = Link0;
+
+#----- Check NUT type
+ipsecCheckNUT(host, $TEST_TYPE, $SUPPORT);
+
+#----- Initilize target SA, SPD
+vLogHTML("<FONT SIZE=3>*** Target initialization phase ***</FONT><BR>");
+ipsecClearAll();
+
+#----- Start capturing
+vCapture($IF);
+
+#----- Set Algorithms
+my $seqcount = 1;
+my $seq = 0;
+my $ack = 0;
+my $port = undef;
+my $cpp = "-DEALGO_FROM_HOST1=$EALGO_FROM -DEALGO_TO_HOST1=$EALGO_TO";
+$cpp .= " -DESP_FROM_HOST1=esp_from_host_seq -DESP_TO_HOST1=esp_to_host";
+$cpp .= " -DFROM_SEQUENCENUMBER=$seqcount";
+$cpp .= " -DSEQ=$seq -DACK=$ack";
+if ($IPSEC::NUT_RECV_PORT ne undef){
+	$port = $IPSEC::NUT_RECV_PORT;
+	$cpp .= " -DDESTINATION_PORT=$port";
+}
+else{
+	$port = $IPSEC::DEF_PORT;
+}
+
+#----- Set SAD,SPD
+## HOST1 vs NUT, Inbound
+ipsecSetSAD(
+	"src=$IPSEC::IPsecAddr{IPSEC_HOST1_NET1_ADDR}" ,
+	"dst=$IPSEC::IPsecAddr{IPSEC_NUT_NET0_ADDR}" ,
+	"spi=0x1000" ,
+	"mode=transport" ,
+	"protocol=esp" ,
+	"ealgo=3des-cbc" ,
+	"ealgokey=$E_3descbc_in_key" ,
+	"eauth=hmac-sha1" ,
+	"eauthkey=$A_hmacsha1_in_key"
+	);
+
+ipsecSetSPD(
+	"src=$IPSEC::IPsecAddr{IPSEC_HOST1_NET1_ADDR}" ,
+	"dst=$IPSEC::IPsecAddr{IPSEC_NUT_NET0_ADDR}" ,
+	"upperspec=any" ,
+	"direction=in" ,
+	"protocol=esp-auth" ,
+	"mode=transport" ,
+	);
+
+## HOST1 vs NUT, Outbound
+ipsecSetSAD(
+	"src=$IPSEC::IPsecAddr{IPSEC_NUT_NET0_ADDR}" ,
+	"dst=$IPSEC::IPsecAddr{IPSEC_HOST1_NET1_ADDR}" ,
+	"spi=0x2000" ,
+	"mode=transport" ,
+	"protocol=esp" ,
+	"ealgo=3des-cbc" ,
+	"ealgokey=$E_3descbc_out_key" ,
+	"eauth=hmac-sha1" ,
+	"eauthkey=$A_hmacsha1_out_key"
+	);
+
+ipsecSetSPD(
+	"src=$IPSEC::IPsecAddr{IPSEC_NUT_NET0_ADDR}" ,
+	"dst=$IPSEC::IPsecAddr{IPSEC_HOST1_NET1_ADDR}" ,
+	"upperspec=any" ,
+	"direction=out" ,
+	"protocol=esp-auth" ,
+	"mode=transport" ,
+	);
+
+## HOST2 vs NUT, Inbound
+ipsecSetSAD(
+	"src=$IPSEC::IPsecAddr{IPSEC_HOST2_NET1_ADDR}" ,
+	"dst=$IPSEC::IPsecAddr{IPSEC_NUT_NET0_ADDR}" ,
+	"spi=0x3000" ,
+	"mode=transport" ,
+	"protocol=esp" ,
+	"ealgo=3des-cbc" ,
+	"ealgokey=$E_3descbc_in_key_2" ,
+	"eauth=hmac-sha1" ,
+	"eauthkey=$A_hmacsha1_in_key_2"
+	);
+
+ipsecSetSPD(
+	"src=$IPSEC::IPsecAddr{IPSEC_HOST2_NET1_ADDR}" ,
+	"dst=$IPSEC::IPsecAddr{IPSEC_NUT_NET0_ADDR}" ,
+	"upperspec=any" ,
+	"direction=in" ,
+	"protocol=esp-auth" ,
+	"mode=transport" ,
+	);
+
+## HOST1 vs NUT, Outbound
+ipsecSetSAD(
+	"src=$IPSEC::IPsecAddr{IPSEC_NUT_NET0_ADDR}" ,
+	"dst=$IPSEC::IPsecAddr{IPSEC_HOST2_NET1_ADDR}" ,
+	"spi=0x4000" ,
+	"mode=transport" ,
+	"protocol=esp" ,
+	"ealgo=3des-cbc" ,
+	"ealgokey=$E_3descbc_out_key_2" ,
+	"eauth=hmac-sha1" ,
+	"eauthkey=$A_hmacsha1_out_key_2"
+	);
+
+ipsecSetSPD(
+	"src=$IPSEC::IPsecAddr{IPSEC_NUT_NET0_ADDR}" ,
+	"dst=$IPSEC::IPsecAddr{IPSEC_HOST2_NET1_ADDR}" ,
+	"upperspec=any" ,
+	"direction=out" ,
+	"protocol=esp-auth" ,
+	"mode=transport" ,
+	);
+
+## Enable IPsec
+ipsecEnable();
+
+#-----------------------------------------------------------------------------
+# Packet description
+#-----------------------------------------------------------------------------
+$IPSEC::pktdesc{'ack_data_reply_to_host1_esp'}
+	= 'Received Ack w/ TCP data reply from End-Node(NUT) to Host-1(TN)';
+$IPSEC::pktdesc{'ack_reply_to_host1_esp'}
+	= 'Received Ack reply from End-Node(NUT) to Host-1(TN)';
+$IPSEC::pktdesc{'fin_ack_request_to_host1_esp'}
+	= 'Received Fin, Ack request from End-Node(NUT) to Host-1(TN)';
+$IPSEC::pktdesc{'tcp_to_host1_esp'}
+	= 'Received TCP packet from End-Node(NUT) to Host-1(TN)';
+$IPSEC::pktdesc{'tcp_from_host1_esp'}
+	= 'Send TCP packet from Host-1(TN) to End-Node(NUT)';
+
+#=============================================================================
+vLogHTML("<FONT SIZE=3>*** Target testing phase ***</FONT><BR>");
+#-----------------------------------------------------------------------------
+vLogHTML("<FONT SIZE=3>*** Check Padding Length 7 is start ***<FONT><BR>");
+#-----------------------------------------------------------------------------
+
+my $base_path = "Frame_Ether.Packet_IPv6.Hdr_ESP.Decrypted.ESPPayload.Upp_TCP";
+
+vLogHTML("Host-1 sent Syn SequenceNumber=$seq, AcknowledgmentNumber=$ack to End-Node(NUT).<BR>");
+vClear($IF);
+my ($stat, %ret) = ipsecEstTcp2NUT($IF, $cpp, $seqcount, $base_path,
+				'syn_request_from_host1_esp', 
+				'synack_reply_to_host1_esp',
+				'ack_request_from_host1_esp');
+
+if ($stat ne 'GOT_REPLY') {
+	vLogHTML('Cannot receive TCP Syn, Ack Reply from HOST2(NUT) to HOST1(TN).<BR>');
+	ipsecRebootByError($IF);
+	ipsecExitFail();
+}
+
+$seq=$ret{$base_path.'.Hdr_TCP.SequenceNumber'};
+$ack=$ret{$base_path.'.Hdr_TCP.AcknowledgmentNumber'};
+
+vLogHTML("Host-1 received Syn, Ack SequenceNumber=$seq, AcknowledgmentNumber=$ack from End-Node(NUT).<BR>");
+
+#=============================================================================
+vLogHTML("<FONT SIZE=3>***  Data Transfer Start ***<FONT><BR>");
+#=============================================================================
+
+$seqcount = $seqcount + 2;
+$seq++;
+$cpp = "-DEALGO_FROM_HOST1=$EALGO_FROM -DEALGO_TO_HOST1=$EALGO_TO";
+$cpp .= " -DESP_FROM_HOST1=esp_from_host_seq_pad -DESP_TO_HOST1=esp_to_host";
+$cpp .= " -DFROM_SEQUENCENUMBER=$seqcount";
+$cpp .= " -DSEQ=$ack -DACK=$seq";
+$cpp .= " -DDESTINATION_PORT=$port";
+$cpp .= " -DPADDING_LENGTH=7";
+$cpp .= " -DNEXTHEADER_VALUE=6";
+
+vClear($IF);
+vLogHTML("Host-1 sent Ack w/ TCP data to End-Node(NUT) SequenceNumber=$seq, AcknowledgmentNumber=$ack to End-Node(NUT).<BR>");
+my ($stat2, %ret2) = ipsecAckDataTcp2NUT($IF, $cpp, $seqcount, $base_path,
+			'ack_data_request_from_host1_esp',
+			'ack_data_reply_to_host1_esp');
+
+if ($stat2 ne 'GOT_REPLY') {
+	vLogHTML('Cannot receive TCP Ack w/ Data Reply from NUT to HOST1(TN).<BR>');
+	ipsecRebootByError($IF);
+	ipsecExitFail();
+}
+
+$seq=$ret2{$base_path.'.Hdr_TCP.SequenceNumber'};
+$ack=$ret2{$base_path.'.Hdr_TCP.AcknowledgmentNumber'};
+
+vLogHTML("Host-1 received Ack w/ Data SequenceNumber=$seq, AcknowledgmentNumber=$ack from End-Node(NUT)<BR>") if $IPSEC::test_debug;
+
+#=============================================================================
+vLogHTML("<FONT SIZE=3>*** Target Connection closed phase ***<FONT><BR>");
+#=============================================================================
+
+$seqcount++;
+$seq = $seq + $payloadlength;
+$cpp = "-DEALGO_FROM_HOST1=$EALGO_FROM -DEALGO_TO_HOST1=$EALGO_TO";
+$cpp .= " -DESP_FROM_HOST1=esp_from_host_seq";
+$cpp .= " -DFROM_SEQUENCENUMBER=$seqcount";
+$cpp .= " -DSEQ=$ack -DACK=$seq";
+if ($IPSEC::NUT_RECV_PORT ne undef){
+	$port = $IPSEC::NUT_RECV_PORT;
+	$cpp .= " -DDESTINATION_PORT=$port";
+}
+else{
+	$port = $IPSEC::DEF_PORT;
+}
+
+($stat, %ret) = ipsecFinAckTcp2NUT($IF, $cpp, $seqcount, $base_path,
+			'tcp_to_host1_esp', 'tcp_from_host1_esp',
+			'tcp_from_host1_esp', 'tcp_to_host1_esp');
+
+if ($stat ne 'GOT_REPLY') {
+	vLogHTML('TCP connection is not closed between End-Node(NUT) and HOST1(TN).<BR>');
+	ipsecRebootByError($IF);
+	ipsecExitFail();
+}
+
+vLogHTML("TCP connection is closed between End-Node(NUT) and HOST1(TN).<BR>");
+vLogHTML("OK<BR>");
+
+#------------------------
+# Padding check
+#------------------------
+if ($IPSEC::test_debug > 3){
+	foreach my $key (keys %ret) {
+		vLogHTML("$key: $ret{$key}<BR>");
+	}
+}
+
+my $dataoffset=$ret2{$base_path.'.Hdr_TCP.DataOffset'};
+my $payloaddata=$ret2{$base_path.'.Payload.data'};
+chomp($payloaddata);
+my $payloadlength = length($payloaddata)/2;
+vLogHTML("TCP Payload Length: $payloadlength<BR>") if $IPSEC::test_debug;
+my $pl_len = 1;
+my $nh_len = 1;
+my $padlength = $ret2{$base_path.'.Payload.PadLength'};
+my $blocksize = 4*$dataoffset + $payloadlength + $pl_len + $nh_len + $padlength;
+
+if(0<=$padlength && $padlength<=255){
+	vLogHTML("Padding Length: $padlength<BR>");
+}
+else{
+	vLogHTML("<FONT COLOR=\"#FF0000\">Padding Length ($padlength) is outof order.</FONT><BR>");
+	ipsecRebootByError($IF);
+	ipsecExitFail();
+}
+
+$remainder = $blocksize * 10 % 8;
+vLogHTML("The size of a block ciphere: $blocksize<BR>") if $IPSEC::test_debug;
+if($padlength != 0 &&  $remainder == 0){
+	vLogHTML("<FONT COLOR=\"#006600\">Padding Length is OK.</FONT><BR>") if $IPSEC::test_debug;
+	vLogHTML("<FONT COLOR=\"#006600\">Judgement #1: Processing Padding Length 7 is OK.</FONT><BR>");
+}
+else{
+	vLogHTML("<FONT COLOR=\"#FF0000\">Padding Length ($padlength) is invalid.</FONT><BR>");
+	ipsecRebootByError($IF);
+	ipsecExitFail();
+}
+
+#=============================================================================
+vLogHTML("<FONT SIZE=3>*** Check Padding Length 255 is start ***<FONT><BR>");
+#=============================================================================
+#----- Set Algorithms
+$seqcount = $seqcount + 2;
+$seq = 2000000000;
+$ack = 0;
+$cpp = "-DEALGO_FROM_HOST1=$EALGO_FROM -DEALGO_TO_HOST1=$EALGO_TO";
+$cpp .= " -DESP_FROM_HOST1=esp_from_host_seq -DESP_TO_HOST1=esp_to_host";
+$cpp .= " -DSEQ=$seq -DACK=$ack";
+$cpp .= " -DFROM_SEQUENCENUMBER=$seqcount";
+if ($IPSEC::NUT_RECV_PORT ne undef){
+	$port = $IPSEC::NUT_RECV_PORT;
+	$cpp .= " -DDESTINATION_PORT=$port";
+}
+else{
+	$port = $IPSEC::DEF_PORT;
+}
+
+vLogHTML("Host-1 sent Syn End-Node(NUT)  SequenceNumber=$seq, AcknowledgmentNumber=$ack to End-Node(NUT).<BR>");
+
+($stat, %ret) = ipsecEstTcp2NUT($IF, $cpp, $seqcount, $base_path,
+				'syn_request_from_host1_esp', 
+				'synack_reply_to_host1_esp',
+				'ack_request_from_host1_esp'
+				);
+
+if ($stat ne 'GOT_REPLY') {
+	vLogHTML('Cannot receive TCP Syn, Ack Reply from HOST2(NUT) to HOST1(TN).<BR>');
+	ipsecRebootByError($IF);
+	ipsecExitFail();
+}
+
+$seq=$ret{$base_path.'.Hdr_TCP.SequenceNumber'};
+$ack=$ret{$base_path.'.Hdr_TCP.AcknowledgmentNumber'};
+
+vLogHTML("Host-1 received Syn, Ack SequenceNumber=$seq, AcknowledgmentNumber=$ack from End-Node(NUT).<BR>");
+
+#=============================================================================
+vLogHTML("<FONT SIZE=3>***  Data Transfer start ***<FONT><BR>");
+#=============================================================================
+
+$seqcount = $seqcount + 2;
+$seq++;
+$cpp = "-DEALGO_FROM_HOST1=$EALGO_FROM -DEALGO_TO_HOST1=$EALGO_TO";
+$cpp .= " -DESP_FROM_HOST1=esp_from_host_seq_pad -DESP_TO_HOST1=esp_to_host";
+$cpp .= " -DFROM_SEQUENCENUMBER=$seqcount";
+$cpp .= " -DSEQ=$ack -DACK=$seq";
+$cpp .= " -DDESTINATION_PORT=$port";
+$cpp .= " -DPADDING_LENGTH=255";
+$cpp .= " -DNEXTHEADER_VALUE=6";
+
+vClear($IF);
+vLogHTML("Host-1 sent Ack w/ TCP data to End-Node(NUT) SequenceNumber=$seq, AcknowledgmentNumber=$ack to End-Node(NUT).<BR>");
+($stat2, %ret2) = ipsecAckDataTcp2NUT($IF, $cpp, $seqcount, $base_path,
+			'ack_data_request_from_host1_esp_pad255',
+			'ack_data_reply_to_host1_esp');
+
+if ($stat2 ne 'GOT_REPLY') {
+	vLogHTML('Cannot receive TCP Ack w/ Data Reply from HOST2(NUT) to HOST1(TN).<BR>');
+	ipsecRebootByError($IF);
+	ipsecExitFail();
+}
+
+$seq=$ret2{$base_path.'.Hdr_TCP.SequenceNumber'};
+$ack=$ret2{$base_path.'.Hdr_TCP.AcknowledgmentNumber'};
+
+vLogHTML("Host-1 received Ack w/ Data SequenceNumber=$seq, AcknowledgmentNumber=$ack from End-Node(NUT)<BR>") if $IPSEC::test_debug;
+
+#=============================================================================
+vLogHTML("<FONT SIZE=3>*** Target Connection closed phase ***<FONT><BR>");
+#=============================================================================
+
+$seqcount++;
+$seq = $seq + $payloadlength;
+$cpp = "-DEALGO_FROM_HOST1=$EALGO_FROM -DEALGO_TO_HOST1=$EALGO_TO";
+$cpp .= " -DESP_FROM_HOST1=esp_from_host_seq";
+$cpp .= " -DFROM_SEQUENCENUMBER=$seqcount";
+$cpp .= " -DSEQ=$ack -DACK=$seq";
+if ($IPSEC::NUT_RECV_PORT ne undef){
+	$port = $IPSEC::NUT_RECV_PORT;
+	$cpp .= " -DDESTINATION_PORT=$port";
+}
+else{
+	$port = $IPSEC::DEF_PORT;
+}
+
+($stat, %ret) = ipsecFinAckTcp2NUT($IF, $cpp, $seqcount, $base_path,
+			'tcp_to_host1_esp', 'tcp_from_host1_esp',
+			'tcp_from_host1_esp', 'tcp_to_host1_esp');
+
+if ($stat ne 'GOT_REPLY') {
+	vLogHTML('TCP connection is not closed between End-Node(NUT) and HOST1(TN).<BR>');
+	ipsecRebootByError($IF);
+	ipsecExitFail();
+}
+
+vLogHTML("TCP connection is closed between End-Node(NUT) and HOST1(TN).<BR>");
+vLogHTML("OK<BR>");
+
+#-----------------------
+# Padding check
+#-----------------------
+if ($IPSEC::test_debug > 3){
+	foreach my $key (keys %ret) {
+		vLogHTML("$key: $ret{$key}<BR>");
+	}
+}
+$dataoffset = $ret2{$base_path.'.Hdr_TCP.DataOffset'};
+$payloaddata = $ret2{$base_path.'.Payload.data'};
+chomp($payloaddata);
+$payloadlength = length($payloaddata)/2;
+vLogHTML("TCP Payload Length: $payloadlength<BR>") if $IPSEC::test_debug;
+$pl_len = 1;
+$nh_len = 1;
+$padlength = $ret2{'Frame_Ether.Packet_IPv6.Hdr_ESP.Decrypted.ESPPayload.Upp_TCP.Payload.PadLength'};
+$blocksize = 4*$dataoffset + $payloadlength + $pl_len + $nh_len + $padlength;
+
+if(0<=$padlength && $padlength<=255){
+	vLogHTML("Padding Length: $padlength<BR>");
+}
+else{
+	vLogHTML("<FONT COLOR=\"#FF0000\">Padding Length ($padlength) is outof order.</FONT><BR>");
+	ipsecRebootByError($IF);
+	ipsecExitFail();
+}
+
+$remainder = $blocksize * 10 % 8;
+vLogHTML("The size of a block ciphere: $blocksize<BR>") if $IPSEC::test_debug;
+if($padlength != 0 &&  $remainder == 0){
+	vLogHTML("<FONT COLOR=\"#006600\">Padding Length is OK.</FONT><BR>") if $IPSEC::test_debug;
+	vLogHTML("<FONT COLOR=\"#006600\">Judgement #2: Processing Padding Length 255 is OK.</FONT><BR>");
+}
+else{
+	vLogHTML("<FONT COLOR=\"#FF0000\">Padding Length ($padlength) is invalid.</FONT><BR>");
+	ipsecRebootByError($IF);
+	ipsecExitFail();
+}
+
+vStop($IF);
+vSleep($IPSEC::TCP_TIME_WAIT);
+ipsecExitPass();
+
+######################################################################
+__END__
+
+=head1 NAME
+
+  p2_HTR_E_TCP_Padding 
+        - Processing Padding
+        - End-Node Transport Mode ESP 3DES-CBC with HMAC-SHA1 authentication using Padding
+
+=head1 TARGET
+
+  End-Node
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./p2_HTR_E_TCP_Padding.seq">p2_HTR_E_TCP_Padding.seq</A> [-tooloption ...] -pkt <A HREF="./p2_HTR_E_TCP_common.def">p2_HTR_E_TCP_common.def</A>
+    -tooloption : v6eval tool option
+  See also <A HREF="./p2_HTR_TCP_common.def">p2_HTR_TCP_common.def</A>
+  See also <A HREF="./p2_ALGO_common.def">p2_ALGO_common.def</A>
+</PRE>
+
+=end html
+
+=head1 INITIALIZATION
+
+=begin html
+<P>
+For details of Network Topology, see <A HREF="00README">00README</A>
+</P>
+<P>
+Set NUT's SAD and SPD as following:
+</P>
+<PRE>
+                  NUT
+                   |
+   ------------+---+-------- NET0
+               |
+             Router
+               |
+   ------------+---+-------- NET1
+                   |
+                 HOST1
+<BR>
+                NET1          NET0
+    HOST1_NET1 ------ Router ------ NUT
+               ===================> SA1-I Transport
+               <=================== SA1-O Transport
+</PRE>
+<P>
+Security Association Database (SAD)
+</P>
+<TABLE border="1">
+  <TR>
+    <TD colspan=2 bgcolor="#ffffbb"><center>SAD for SA1-I</center></TD></TR>
+  <TR>
+    <TD>source address</TD>
+    <TD>HOST1_NET1</TD></TR>
+  <TR>
+    <TD>destination address</TD>
+    <TD>NUT_NET0</TD></TR>
+  <TR>
+    <TD>SPI</TD>
+    <TD>0x1000</TD></TR>
+  <TR>
+    <TD>mode</TD>
+    <TD>transport</TD></TR>
+  <TR>
+    <TD>protocol</TD>
+    <TD>ESP</TD></TR>
+  <TR>
+    <TD>ESP algorithm</TD>
+    <TD>3DES-CBC</TD></TR>
+  <TR>
+    <TD>ESP algorithm key</TD>
+    <TD>ipv6readylogo3descbcin01</TD></TR>
+  <TR>
+    <TD>ESP authentication</TD>
+    <TD>HMAC-SHA1</TD></TR>
+  <TR>
+    <TD>ESP authentication key</TD>
+    <TD>ipv6readylogsha1in01</TD></TR>
+</TABLE>
+<BR>
+<TABLE border="1">
+  <TR>
+    <TD colspan=2 bgcolor="#ffffbb"><center>SAD for SA1-O</center></TD></TR>
+  <TR>
+    <TD>source address</TD>
+    <TD>NUT_NET0</TD></TR>
+  <TR>
+    <TD>destination address</TD>
+    <TD>HOST1_NET1</TD></TR>
+  <TR>
+    <TD>SPI</TD>
+    <TD>0x2000</TD></TR>
+  <TR>
+    <TD>mode</TD>
+    <TD>transport</TD></TR>
+  <TR>
+    <TD>protocol</TD>
+    <TD>ESP</TD></TR>
+  <TR>
+    <TD>ESP algorithm</TD>
+    <TD>3DES-CBC</TD></TR>
+  <TR>
+    <TD>ESP algorithm key</TD>
+    <TD>ipv6readylogo3descbcout1</TD></TR>
+  <TR>
+    <TD>ESP authentication</TD>
+    <TD>HMAC-SHA1</TD></TR>
+  <TR>
+    <TD>ESP authentication key</TD>
+    <TD>ipv6readylogsha1out1</TD></TR>
+</TABLE>
+<P>
+Security Policy Database (SPD)
+</P>
+<TABLE border="1">
+  <TR>
+    <TD colspan=2 bgcolor="#ffffbb"><center>SPD for SA1-I</center></TD>
+  <TR>
+    <TD>source address</TD>
+    <TD>HOST1_NET1</TD></TR>
+  <TR>
+    <TD>destination address</TD>
+    <TD>NUT_NET0</TD></TR>
+  <TR>
+    <TD>upper spec</TD>
+    <TD>any</TD></TR>
+  <TR>
+    <TD>direction</TD>
+    <TD>in</TD></TR>
+  <TR>
+    <TD>protocol</TD>
+    <TD>ESP</TD></TR>
+  <TR>
+    <TD>mode</TD>
+    <TD>transport</TD></TR>
+</TABLE>
+<BR>
+<TABLE border="1">
+  <TR>
+    <TD colspan=2 bgcolor="#ffffbb"><center>SPD for SA1-O</center></TD>
+  <TR>
+    <TD>source address</TD>
+    <TD>NUT_NET0</TD></TR>
+  <TR>
+    <TD>destination address</TD>
+    <TD>HOST1_NET1</TD></TR>
+  <TR>
+    <TD>upper spec</TD>
+    <TD>any</TD></TR>
+  <TR>
+    <TD>direction</TD>
+    <TD>out</TD></TR>
+  <TR>
+    <TD>protocol</TD>
+    <TD>ESP</TD></TR>
+  <TR>
+    <TD>mode</TD>
+    <TD>transport</TD></TR>
+</TABLE>
+
+=end html
+
+=head1 TEST PROCEDURE
+
+=begin html
+<PRE>
+ Tester                      Target
+   |                           |
+   |-------------------------->| From HOST1_NET1
+   |        TCP syn            |
+   |        (with ESP)         |
+   |                           |
+   |<--------------------------| To HOST1_NET1
+   |        TCP ack, syn       |
+   |        (with ESP)         |
+   |                           |
+   |-------------------------->| From HOST1_NET1
+   |        TCP ack            |
+   |        (with ESP)         |
+   |                           |
+   |-------------------------->| From HOST1_NET1 (Padding Length 7)
+   |    TCP ack w/ TCP data    |
+   |        (with ESP)         |
+   |                           |
+   |<--------------------------| To HOST1_NET1
+   |    TCP ack w/ TCP data    | (Judgement #1)
+   |        (with ESP)         |
+   |                           |
+   |<--------------------------| To HOST1_NET1
+   |        TCP ack, fin       |
+   |        (with ESP)         |
+   |                           |
+   |-------------------------->| From HOST1_NET1
+   |        TCP ack            |
+   |        (with ESP)         |
+   |                           |
+   |-------------------------->| From HOST1_NET1
+   |        TCP ack, fin       |
+   |        (with ESP)         |
+   |                           |
+   |<--------------------------| To HOST1_NET1
+   |        TCP ack            |
+   |        (with ESP)         |
+   |                           |
+   |                           |
+   |-------------------------->| From HOST1_NET1
+   |        TCP syn            |
+   |        (with ESP)         |
+   |                           |
+   |<--------------------------| To HOST1_NET1
+   |        TCP ack, syn       |
+   |        (with ESP)         |
+   |                           |
+   |-------------------------->| From HOST1_NET1
+   |        TCP ack            |
+   |        (with ESP)         |
+   |                           |
+   |-------------------------->| From HOST1_NET1 (Padding Length 255)
+   |    TCP ack w/ TCP data    |
+   |        (with ESP)         |
+   |                           |
+   |<--------------------------| To HOST1_NET1
+   |    TCP ack w/ TCP data    | (Judgement #2)
+   |        (with ESP)         |
+   |                           |
+   |<--------------------------| To HOST1_NET1
+   |        TCP ack, fin       |
+   |        (with ESP)         |
+   |                           |
+   |-------------------------->| From HOST1_NET1
+   |        TCP ack            |
+   |        (with ESP)         |
+   |                           |
+   |-------------------------->| From HOST1_NET1
+   |        TCP ack, fin       |
+   |        (with ESP)         |
+   |                           |
+   |<--------------------------| To HOST1_NET1
+   |        TCP ack            |
+   |        (with ESP)         |
+   |                           |
+   v                           v
+</PRE>
+<OL>
+  <LI>Send &quot;TCP Syn with ESP from HOST1_NET1&quot;
+  <LI>Receive &quot;TCP Syn/Ack with ESP to HOST1_NET1&quot;
+  <LI>Send &quot;TCP Ack with ESP from HOST1_NET1&quot;
+  <LI>Send &quot;TCP Ack w/ TCP data with ESP from HOST1_NET1 (Padding Length 7)&quot;
+  <LI>Receive &quot;TCP Ack w/ TCP data  with ESP to HOST1_NET1&quot;
+  <LI>Receive &quot;TCP Ack/Fin with ESP to HOST1_NET1&quot;
+  <LI>Send &quot;TCP Ack with ESP from HOST1_NET1&quot;
+  <LI>Send &quot;TCP Ack/Fin with ESP from HOST1_NET1&quot;
+  <LI>Receive &quot;TCP Ack/Fin with ESP to HOST1_NET1&quot;
+  <LI>Send &quot;TCP Syn with ESP from HOST1_NET1&quot;
+  <LI>Receive &quot;TCP Syn/Ack with ESP to HOST1_NET1&quot;
+  <LI>Send &quot;TCP Ack with ESP from HOST1_NET1&quot;
+  <LI>Send &quot;TCP Ack w/ TCP data with ESP from HOST1_NET1 (Padding Length 255)&quot;
+  <LI>Receive &quot;TCP Ack w/ TCP data  with ESP to HOST1_NET1&quot;
+  <LI>Receive &quot;TCP Ack/Fin with ESP to HOST1_NET1&quot;
+  <LI>Send &quot;TCP Ack with ESP from HOST1_NET1&quot;
+  <LI>Send &quot;TCP Ack/Fin with ESP from HOST1_NET1&quot;
+  <LI>Receive &quot;TCP Ack/Fin with ESP to HOST1_NET1&quot;
+</OL>
+<P>
+Packet Description
+</P>
+<TABLE border="1">
+  <TR bgcolor="#ffffbb">
+    <TD colspan="3"><center>TCP Syn with ESP from HOST1_NET1</center></TD></TR>
+  <TR bgcolor="#ddffdd">
+    <TD rowspan="2">IP Header</TD>
+    <TD>Source Address</TD>
+    <TD>HOST1_NET1</TD></TR>
+  <TR bgcolor="#ddffdd">
+    <TD>Destination Address</TD>
+    <TD>NUT_NET0</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD rowspan="5">ESP</TD>
+    <TD>SPI</TD>
+    <TD>0x1000</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Algorithm</TD>
+    <TD>3DES-CBC</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Key</TD>
+    <TD>ipv6readylogo3descbcin01</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Authentication Algorithm</TD>
+    <TD>HMAC-SHA1</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Authentication Key</TD>
+    <TD>ipv6readylogsha1in01</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD rowspan="9">TCP</TD>
+    <TD>Source Port</TD>
+    <TD>10000</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>Destination Port</TD>
+    <TD>80</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>SequenceNumber</TD>
+    <TD>0</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>AcknowledgmentNumber</TD>
+    <TD>0</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>ACKFlag</TD>
+    <TD>0</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>RSTFlag</TD>
+    <TD>0</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>SYNFlag</TD>
+    <TD>1</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>FINFlag</TD>
+    <TD>0</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>TCP Data Length</TD>
+    <TD>0</TD></TR>
+</TABLE>
+<BR>
+<TABLE border="1">
+  <TR bgcolor="#ffffbb">
+    <TD colspan="3"><center>TCP Syn/Ack with ESP to HOST1_NET1</center></TD></TR>
+  <TR bgcolor="#ddffdd">
+    <TD rowspan="2">IP Header</TD>
+    <TD>Source Address</TD>
+    <TD>NUT_NET0</TD></TR>
+  <TR bgcolor="#ddffdd">
+    <TD>Destination Address</TD>
+    <TD>HOST1_NET1</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD rowspan="5">ESP</TD>
+    <TD>SPI</TD>
+    <TD>0x2000</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Algorithm</TD>
+    <TD>3DES-CBC</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Key</TD>
+    <TD>ipv6readylogo3descbcout1</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Authentication Algorithm</TD>
+    <TD>HMAC-SHA1</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Authentication Key</TD>
+    <TD>ipv6readylogsha1out1</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD rowspan="9">TCP</TD>
+    <TD>Source Port</TD>
+    <TD>80</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>Destination Port</TD>
+    <TD>10000</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>SequenceNumber</TD>
+    <TD>N(any)</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>AcknowledgmentNumber</TD>
+    <TD>1</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>ACKFlag</TD>
+    <TD>1</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>RSTFlag</TD>
+    <TD>0</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>SYNFlag</TD>
+    <TD>1</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>FINFlag</TD>
+    <TD>0</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>TCP Data Length</TD>
+    <TD>0</TD></TR>
+</TABLE>
+<BR>
+<TABLE border="1">
+  <TR bgcolor="#ffffbb">
+    <TD colspan="3"><center>TCP Ack with ESP from HOST1_NET1</center></TD></TR>
+  <TR bgcolor="#ddffdd">
+    <TD rowspan="2">IP Header</TD>
+    <TD>Source Address</TD>
+    <TD>HOST1_NET1</TD></TR>
+  <TR bgcolor="#ddffdd">
+    <TD>Destination Address</TD>
+    <TD>NUT_NET0</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD rowspan="5">ESP</TD>
+    <TD>SPI</TD>
+    <TD>0x1000</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Algorithm</TD>
+    <TD>3DES-CBC</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Key</TD>
+    <TD>ipv6readylogo3descbcin01</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Authentication Algorithm</TD>
+    <TD>HMAC-SHA1</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Authentication Key</TD>
+    <TD>ipv6readylogsha1in01</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD rowspan="9">TCP</TD>
+    <TD>Source Port</TD>
+    <TD>10000</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>Destination Port</TD>
+    <TD>80</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>SequenceNumber</TD>
+    <TD>1</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>AcknowledgmentNumber</TD>
+    <TD>N+1</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>ACKFlag</TD>
+    <TD>1</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>RSTFlag</TD>
+    <TD>0</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>SYNFlag</TD>
+    <TD>0</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>FINFlag</TD>
+    <TD>0</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>TCP Data Length</TD>
+    <TD>0</TD></TR>
+</TABLE>
+<BR>
+<TABLE border="1">
+  <TR bgcolor="#ffffbb">
+    <TD colspan="3"><center>TCP Ack w/ TCP data with ESP from HOST1_NET1 (Padding Length 7)</center></TD></TR>
+  <TR bgcolor="#ddffdd">
+    <TD rowspan="2">IP Header</TD>
+    <TD>Source Address</TD>
+    <TD>HOST1_NET1</TD></TR>
+  <TR bgcolor="#ddffdd">
+    <TD>Destination Address</TD>
+    <TD>NUT_NET0</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD rowspan="6">ESP</TD>
+    <TD>SPI</TD>
+    <TD>0x1000</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Algorithm</TD>
+    <TD>3DES-CBC</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Key</TD>
+    <TD>ipv6readylogo3descbcin01</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Authentication Algorithm</TD>
+    <TD>HMAC-SHA1</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Authentication Key</TD>
+    <TD>ipv6readylogsha1in01</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Padding Length</TD>
+    <TD>7</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD rowspan="9">TCP</TD>
+    <TD>Source Port</TD>
+    <TD>10000</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>Destination Port</TD>
+    <TD>80</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>SequenceNumber</TD>
+    <TD>1</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>AcknowledgmentNumber</TD>
+    <TD>N+1</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>ACKFlag</TD>
+    <TD>1</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>RSTFlag</TD>
+    <TD>0</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>SYNFlag</TD>
+    <TD>0</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>FINFlag</TD>
+    <TD>0</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>TCP Data Length</TD>
+    <TD>11</TD></TR>
+</TABLE>
+<BR>
+<TABLE border="1">
+  <TR bgcolor="#ffffbb">
+    <TD colspan="3"><center>TCP Ack w/ TCP data with ESP to HOST1_NET1</center></TD></TR>
+  <TR bgcolor="#ddffdd">
+    <TD rowspan="2">IP Header</TD>
+    <TD>Source Address</TD>
+    <TD>NUT_NET0</TD></TR>
+  <TR bgcolor="#ddffdd">
+    <TD>Destination Address</TD>
+    <TD>HOST1_NET1</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD rowspan="6">ESP</TD>
+    <TD>SPI</TD>
+    <TD>0x2000</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Algorithm</TD>
+    <TD>3DES-CBC</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Key</TD>
+    <TD>ipv6readylogo3descbcout1</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Authentication Algorithm</TD>
+    <TD>HMAC-SHA1</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Authentication Key</TD>
+    <TD>ipv6readylogsha1out1</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Padding Length</TD>
+    <TD>0-255 bytes<BR>
+        to ensure that the resulting ciphertext<BR>
+        terminates on a 4-byte boundary</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD rowspan="9">TCP</TD>
+    <TD>Source Port</TD>
+    <TD>80</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>Destination Port</TD>
+    <TD>10000</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>SequenceNumber</TD>
+    <TD>N+1</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>AcknowledgmentNumber</TD>
+    <TD>12</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>ACKFlag</TD>
+    <TD>1</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>RSTFlag</TD>
+    <TD>0</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>SYNFlag</TD>
+    <TD>0</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>FINFlag</TD>
+    <TD>0</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>TCP Data Length</TD>
+    <TD>M(any)</TD></TR>
+</TABLE>
+<BR>
+<TABLE border="1">
+  <TR bgcolor="#ffffbb">
+    <TD colspan="3"><center>TCP Ack/Fin with ESP to HOST1_NET1</center></TD></TR>
+  <TR bgcolor="#ddffdd">
+    <TD rowspan="2">IP Header</TD>
+    <TD>Source Address</TD>
+    <TD>NUT_NET0</TD></TR>
+  <TR bgcolor="#ddffdd">
+    <TD>Destination Address</TD>
+    <TD>HOST1_NET1</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD rowspan="5">ESP</TD>
+    <TD>SPI</TD>
+    <TD>0x2000</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Algorithm</TD>
+    <TD>3DES-CBC</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Key</TD>
+    <TD>ipv6readylogo3descbcout1</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Authentication Algorithm</TD>
+    <TD>HMAC-SHA1</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Authentication Key</TD>
+    <TD>ipv6readylogsha1out1</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD rowspan="9">TCP</TD>
+    <TD>Source Port</TD>
+    <TD>80</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>Destination Port</TD>
+    <TD>10000</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>SequenceNumber</TD>
+    <TD>N+M+1</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>AcknowledgmentNumber</TD>
+    <TD>12</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>ACKFlag</TD>
+    <TD>1</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>RSTFlag</TD>
+    <TD>0</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>SYNFlag</TD>
+    <TD>0</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>FINFlag</TD>
+    <TD>1</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>TCP Data Length</TD>
+    <TD>0</TD></TR>
+</TABLE>
+<BR>
+<TABLE border="1">
+  <TR bgcolor="#ffffbb">
+    <TD colspan="3"><center>TCP Ack with ESP from HOST1_NET1</center></TD></TR>
+  <TR bgcolor="#ddffdd">
+    <TD rowspan="2">IP Header</TD>
+    <TD>Source Address</TD>
+    <TD>HOST1_NET1</TD></TR>
+  <TR bgcolor="#ddffdd">
+    <TD>Destination Address</TD>
+    <TD>NUT_NET0</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD rowspan="5">ESP</TD>
+    <TD>SPI</TD>
+    <TD>0x1000</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Algorithm</TD>
+    <TD>3DES-CBC</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Key</TD>
+    <TD>ipv6readylogo3descbcin01</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Authentication Algorithm</TD>
+    <TD>HMAC-SHA1</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Authentication Key</TD>
+    <TD>ipv6readylogsha1in01</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD rowspan="9">TCP</TD>
+    <TD>Source Port</TD>
+    <TD>10000</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>Destination Port</TD>
+    <TD>80</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>SequenceNumber</TD>
+    <TD>12</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>AcknowledgmentNumber</TD>
+    <TD>N+M+2</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>ACKFlag</TD>
+    <TD>1</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>RSTFlag</TD>
+    <TD>0</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>SYNFlag</TD>
+    <TD>0</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>FINFlag</TD>
+    <TD>0</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>TCP Data Length</TD>
+    <TD>0</TD></TR>
+</TABLE>
+<BR>
+<TABLE border="1">
+  <TR bgcolor="#ffffbb">
+    <TD colspan="3"><center>TCP Ack/Fin with ESP from HOST1_NET1</center></TD></TR>
+  <TR bgcolor="#ddffdd">
+    <TD rowspan="2">IP Header</TD>
+    <TD>Source Address</TD>
+    <TD>HOST1_NET1</TD></TR>
+  <TR bgcolor="#ddffdd">
+    <TD>Destination Address</TD>
+    <TD>NUT_NET0</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD rowspan="5">ESP</TD>
+    <TD>SPI</TD>
+    <TD>0x1000</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Algorithm</TD>
+    <TD>3DES-CBC</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Key</TD>
+    <TD>ipv6readylogo3descbcin01</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Authentication Algorithm</TD>
+    <TD>HMAC-SHA1</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Authentication Key</TD>
+    <TD>ipv6readylogsha1in01</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD rowspan="9">TCP</TD>
+    <TD>Source Port</TD>
+    <TD>10000</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>Destination Port</TD>
+    <TD>80</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>SequenceNumber</TD>
+    <TD>12</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>AcknowledgmentNumber</TD>
+    <TD>N+M+2</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>ACKFlag</TD>
+    <TD>1</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>RSTFlag</TD>
+    <TD>0</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>SYNFlag</TD>
+    <TD>0</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>FINFlag</TD>
+    <TD>1</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>TCP Data Length</TD>
+    <TD>0</TD></TR>
+</TABLE>
+<BR>
+<TABLE border="1">
+  <TR bgcolor="#ffffbb">
+    <TD colspan="3"><center>TCP Ack with ESP to HOST1_NET1</center></TD></TR>
+  <TR bgcolor="#ddffdd">
+    <TD rowspan="2">IP Header</TD>
+    <TD>Source Address</TD>
+    <TD>NUT_NET0</TD></TR>
+  <TR bgcolor="#ddffdd">
+    <TD>Destination Address</TD>
+    <TD>HOST1_NET1</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD rowspan="5">ESP</TD>
+    <TD>SPI</TD>
+    <TD>0x2000</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Algorithm</TD>
+    <TD>3DES-CBC</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Key</TD>
+    <TD>ipv6readylogo3descbcout1</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Authentication Algorithm</TD>
+    <TD>HMAC-SHA1</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Authentication Key</TD>
+    <TD>ipv6readylogsha1out1</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD rowspan="9">TCP</TD>
+    <TD>Source Port</TD>
+    <TD>80</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>Destination Port</TD>
+    <TD>10000</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>SequenceNumber</TD>
+    <TD>N+M+2</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>AcknowledgmentNumber</TD>
+    <TD>13</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>ACKFlag</TD>
+    <TD>1</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>RSTFlag</TD>
+    <TD>0</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>SYNFlag</TD>
+    <TD>0</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>FINFlag</TD>
+    <TD>0</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>TCP Data Length</TD>
+    <TD>0</TD></TR>
+</TABLE>
+<BR>
+<BR>
+<TABLE border="1">
+  <TR bgcolor="#ffffbb">
+    <TD colspan="3"><center>TCP Syn with ESP from HOST1_NET1</center></TD></TR>
+  <TR bgcolor="#ddffdd">
+    <TD rowspan="2">IP Header</TD>
+    <TD>Source Address</TD>
+    <TD>HOST1_NET1</TD></TR>
+  <TR bgcolor="#ddffdd">
+    <TD>Destination Address</TD>
+    <TD>NUT_NET0</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD rowspan="5">ESP</TD>
+    <TD>SPI</TD>
+    <TD>0x1000</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Algorithm</TD>
+    <TD>3DES-CBC</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Key</TD>
+    <TD>ipv6readylogo3descbcin01</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Authentication Algorithm</TD>
+    <TD>HMAC-SHA1</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Authentication Key</TD>
+    <TD>ipv6readylogsha1in01</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD rowspan="9">TCP</TD>
+    <TD>Source Port</TD>
+    <TD>10000</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>Destination Port</TD>
+    <TD>80</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>SequenceNumber</TD>
+    <TD>0</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>AcknowledgmentNumber</TD>
+    <TD>2000000000</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>ACKFlag</TD>
+    <TD>0</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>RSTFlag</TD>
+    <TD>0</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>SYNFlag</TD>
+    <TD>1</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>FINFlag</TD>
+    <TD>0</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>TCP Data Length</TD>
+    <TD>0</TD></TR>
+</TABLE>
+<BR>
+<TABLE border="1">
+  <TR bgcolor="#ffffbb">
+    <TD colspan="3"><center>TCP Syn/Ack with ESP to HOST1_NET1</center></TD></TR>
+  <TR bgcolor="#ddffdd">
+    <TD rowspan="2">IP Header</TD>
+    <TD>Source Address</TD>
+    <TD>NUT_NET0</TD></TR>
+  <TR bgcolor="#ddffdd">
+    <TD>Destination Address</TD>
+    <TD>HOST1_NET1</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD rowspan="5">ESP</TD>
+    <TD>SPI</TD>
+    <TD>0x2000</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Algorithm</TD>
+    <TD>3DES-CBC</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Key</TD>
+    <TD>ipv6readylogo3descbcout1</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Authentication Algorithm</TD>
+    <TD>HMAC-SHA1</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Authentication Key</TD>
+    <TD>ipv6readylogsha1out1</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD rowspan="9">TCP</TD>
+    <TD>Source Port</TD>
+    <TD>80</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>Destination Port</TD>
+    <TD>10000</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>SequenceNumber</TD>
+    <TD>N(any)</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>AcknowledgmentNumber</TD>
+    <TD>2000000001</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>ACKFlag</TD>
+    <TD>1</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>RSTFlag</TD>
+    <TD>0</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>SYNFlag</TD>
+    <TD>1</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>FINFlag</TD>
+    <TD>0</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>TCP Data Length</TD>
+    <TD>0</TD></TR>
+</TABLE>
+<BR>
+<TABLE border="1">
+  <TR bgcolor="#ffffbb">
+    <TD colspan="3"><center>TCP Ack with ESP from HOST1_NET1</center></TD></TR>
+  <TR bgcolor="#ddffdd">
+    <TD rowspan="2">IP Header</TD>
+    <TD>Source Address</TD>
+    <TD>HOST1_NET1</TD></TR>
+  <TR bgcolor="#ddffdd">
+    <TD>Destination Address</TD>
+    <TD>NUT_NET0</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD rowspan="5">ESP</TD>
+    <TD>SPI</TD>
+    <TD>0x1000</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Algorithm</TD>
+    <TD>3DES-CBC</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Key</TD>
+    <TD>ipv6readylogo3descbcin01</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Authentication Algorithm</TD>
+    <TD>HMAC-SHA1</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Authentication Key</TD>
+    <TD>ipv6readylogsha1in01</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD rowspan="9">TCP</TD>
+    <TD>Source Port</TD>
+    <TD>10000</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>Destination Port</TD>
+    <TD>80</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>SequenceNumber</TD>
+    <TD>2000000001</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>AcknowledgmentNumber</TD>
+    <TD>N+1</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>ACKFlag</TD>
+    <TD>1</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>RSTFlag</TD>
+    <TD>0</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>SYNFlag</TD>
+    <TD>0</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>FINFlag</TD>
+    <TD>0</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>TCP Data Length</TD>
+    <TD>0</TD></TR>
+</TABLE>
+<BR>
+<TABLE border="1">
+  <TR bgcolor="#ffffbb">
+    <TD colspan="3"><center>TCP Ack w/ TCP data with ESP from HOST1_NET1 (Padding Length 255)</center></TD></TR>
+  <TR bgcolor="#ddffdd">
+    <TD rowspan="2">IP Header</TD>
+    <TD>Source Address</TD>
+    <TD>HOST1_NET1</TD></TR>
+  <TR bgcolor="#ddffdd">
+    <TD>Destination Address</TD>
+    <TD>NUT_NET0</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD rowspan="6">ESP</TD>
+    <TD>SPI</TD>
+    <TD>0x1000</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Algorithm</TD>
+    <TD>3DES-CBC</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Key</TD>
+    <TD>ipv6readylogo3descbcin01</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Authentication Algorithm</TD>
+    <TD>HMAC-SHA1</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Authentication Key</TD>
+    <TD>ipv6readylogsha1in01</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Padding Length</TD>
+    <TD>255</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD rowspan="9">TCP</TD>
+    <TD>Source Port</TD>
+    <TD>10000</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>Destination Port</TD>
+    <TD>80</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>SequenceNumber</TD>
+    <TD>2000000001</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>AcknowledgmentNumber</TD>
+    <TD>N+1</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>ACKFlag</TD>
+    <TD>1</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>RSTFlag</TD>
+    <TD>0</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>SYNFlag</TD>
+    <TD>0</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>FINFlag</TD>
+    <TD>0</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>TCP Data Length</TD>
+    <TD>11</TD></TR>
+</TABLE>
+<BR>
+<TABLE border="1">
+  <TR bgcolor="#ffffbb">
+    <TD colspan="3"><center>TCP Ack w/ TCP data with ESP to HOST1_NET1</center></TD></TR>
+  <TR bgcolor="#ddffdd">
+    <TD rowspan="2">IP Header</TD>
+    <TD>Source Address</TD>
+    <TD>NUT_NET0</TD></TR>
+  <TR bgcolor="#ddffdd">
+    <TD>Destination Address</TD>
+    <TD>HOST1_NET1</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD rowspan="6">ESP</TD>
+    <TD>SPI</TD>
+    <TD>0x2000</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Algorithm</TD>
+    <TD>3DES-CBC</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Key</TD>
+    <TD>ipv6readylogo3descbcout1</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Authentication Algorithm</TD>
+    <TD>HMAC-SHA1</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Authentication Key</TD>
+    <TD>ipv6readylogsha1out1</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Padding Length</TD>
+    <TD>0-255 bytes<BR>
+        to ensure that the resulting ciphertext<BR>
+        terminates on a 4-byte boundary</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD rowspan="9">TCP</TD>
+    <TD>Source Port</TD>
+    <TD>80</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>Destination Port</TD>
+    <TD>10000</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>SequenceNumber</TD>
+    <TD>N+1</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>AcknowledgmentNumber</TD>
+    <TD>2000000012</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>ACKFlag</TD>
+    <TD>1</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>RSTFlag</TD>
+    <TD>0</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>SYNFlag</TD>
+    <TD>0</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>FINFlag</TD>
+    <TD>0</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>TCP Data Length</TD>
+    <TD>M(any)</TD></TR>
+</TABLE>
+<BR>
+<TABLE border="1">
+  <TR bgcolor="#ffffbb">
+    <TD colspan="3"><center>TCP Ack/Fin with ESP to HOST1_NET1</center></TD></TR>
+  <TR bgcolor="#ddffdd">
+    <TD rowspan="2">IP Header</TD>
+    <TD>Source Address</TD>
+    <TD>NUT_NET0</TD></TR>
+  <TR bgcolor="#ddffdd">
+    <TD>Destination Address</TD>
+    <TD>HOST1_NET1</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD rowspan="5">ESP</TD>
+    <TD>SPI</TD>
+    <TD>0x2000</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Algorithm</TD>
+    <TD>3DES-CBC</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Key</TD>
+    <TD>ipv6readylogo3descbcout1</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Authentication Algorithm</TD>
+    <TD>HMAC-SHA1</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Authentication Key</TD>
+    <TD>ipv6readylogsha1out1</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD rowspan="9">TCP</TD>
+    <TD>Source Port</TD>
+    <TD>80</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>Destination Port</TD>
+    <TD>10000</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>SequenceNumber</TD>
+    <TD>N+M+1</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>AcknowledgmentNumber</TD>
+    <TD>2000000012</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>ACKFlag</TD>
+    <TD>1</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>RSTFlag</TD>
+    <TD>0</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>SYNFlag</TD>
+    <TD>0</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>FINFlag</TD>
+    <TD>1</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>TCP Data Length</TD>
+    <TD>0</TD></TR>
+</TABLE>
+<BR>
+<TABLE border="1">
+  <TR bgcolor="#ffffbb">
+    <TD colspan="3"><center>TCP Ack with ESP from HOST1_NET1</center></TD></TR>
+  <TR bgcolor="#ddffdd">
+    <TD rowspan="2">IP Header</TD>
+    <TD>Source Address</TD>
+    <TD>HOST1_NET1</TD></TR>
+  <TR bgcolor="#ddffdd">
+    <TD>Destination Address</TD>
+    <TD>NUT_NET0</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD rowspan="5">ESP</TD>
+    <TD>SPI</TD>
+    <TD>0x1000</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Algorithm</TD>
+    <TD>3DES-CBC</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Key</TD>
+    <TD>ipv6readylogo3descbcin01</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Authentication Algorithm</TD>
+    <TD>HMAC-SHA1</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Authentication Key</TD>
+    <TD>ipv6readylogsha1in01</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD rowspan="9">TCP</TD>
+    <TD>Source Port</TD>
+    <TD>10000</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>Destination Port</TD>
+    <TD>80</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>SequenceNumber</TD>
+    <TD>2000000012</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>AcknowledgmentNumber</TD>
+    <TD>N+M+2</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>ACKFlag</TD>
+    <TD>1</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>RSTFlag</TD>
+    <TD>0</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>SYNFlag</TD>
+    <TD>0</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>FINFlag</TD>
+    <TD>0</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>TCP Data Length</TD>
+    <TD>0</TD></TR>
+</TABLE>
+<BR>
+<TABLE border="1">
+  <TR bgcolor="#ffffbb">
+    <TD colspan="3"><center>TCP Ack/Fin with ESP from HOST1_NET1</center></TD></TR>
+  <TR bgcolor="#ddffdd">
+    <TD rowspan="2">IP Header</TD>
+    <TD>Source Address</TD>
+    <TD>HOST1_NET1</TD></TR>
+  <TR bgcolor="#ddffdd">
+    <TD>Destination Address</TD>
+    <TD>NUT_NET0</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD rowspan="5">ESP</TD>
+    <TD>SPI</TD>
+    <TD>0x1000</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Algorithm</TD>
+    <TD>3DES-CBC</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Key</TD>
+    <TD>ipv6readylogo3descbcin01</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Authentication Algorithm</TD>
+    <TD>HMAC-SHA1</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Authentication Key</TD>
+    <TD>ipv6readylogsha1in01</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD rowspan="9">TCP</TD>
+    <TD>Source Port</TD>
+    <TD>10000</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>Destination Port</TD>
+    <TD>80</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>SequenceNumber</TD>
+    <TD>2000000012</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>AcknowledgmentNumber</TD>
+    <TD>N+M+2</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>ACKFlag</TD>
+    <TD>1</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>RSTFlag</TD>
+    <TD>0</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>SYNFlag</TD>
+    <TD>0</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>FINFlag</TD>
+    <TD>1</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>TCP Data Length</TD>
+    <TD>0</TD></TR>
+</TABLE>
+<BR>
+<TABLE border="1">
+  <TR bgcolor="#ffffbb">
+    <TD colspan="3"><center>TCP Ack with ESP to HOST1_NET1</center></TD></TR>
+  <TR bgcolor="#ddffdd">
+    <TD rowspan="2">IP Header</TD>
+    <TD>Source Address</TD>
+    <TD>NUT_NET0</TD></TR>
+  <TR bgcolor="#ddffdd">
+    <TD>Destination Address</TD>
+    <TD>HOST1_NET1</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD rowspan="5">ESP</TD>
+    <TD>SPI</TD>
+    <TD>0x2000</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Algorithm</TD>
+    <TD>3DES-CBC</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Key</TD>
+    <TD>ipv6readylogo3descbcout1</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Authentication Algorithm</TD>
+    <TD>HMAC-SHA1</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Authentication Key</TD>
+    <TD>ipv6readylogsha1out1</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD rowspan="9">TCP</TD>
+    <TD>Source Port</TD>
+    <TD>80</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>Destination Port</TD>
+    <TD>10000</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>SequenceNumber</TD>
+    <TD>N+M+2</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>AcknowledgmentNumber</TD>
+    <TD>2000000013</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>ACKFlag</TD>
+    <TD>1</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>RSTFlag</TD>
+    <TD>0</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>SYNFlag</TD>
+    <TD>0</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>FINFlag</TD>
+    <TD>0</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>TCP Data Length</TD>
+    <TD>0</TD></TR>
+</TABLE>
+
+=end html
+
+=head1 JUDGEMENT
+
+=begin html
+<UL>
+PASS:
+    <UL>
+        Step-5:&quot;TCP Ack w/ TCP data with ESP to HOST1_NET1&quot; Recieved<BR>
+        Step-14:&quot;TCP Ack w/ TCP data with ESP to HOST1_NET1&quot; Recieved<BR>
+    </UL>
+</UL>
+
+=end html
+
+=head1 SEE ALSO
+
+  perldoc V6evalTool
+
+=begin html
+<PRE>
+  <A HREF="./IPSEC.html">IPSEC.html</A> IPsec Test Common Utility
+</PRE>
+
+=cut

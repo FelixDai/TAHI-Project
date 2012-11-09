@@ -1,0 +1,120 @@
+#
+# $Name: V6PC_P2_IPsec_1_10_0 $
+#
+# $TAHI: ct/ipsec.p2/INDEX_P2_HOST_TCP,v 1.34 2010/05/31 10:57:18 doo Exp $
+#
+#<seq>:<def>:[<opt>]:[<log>]:<desc>
+#
+
+
+
+########################################################################
+&print:<font size=+1><B>Initialize for using TCP</B></font>
+########################################################################
+
+./p2_HTR_Reset.seq:./p2_HTR_Reset.def:::Set Global Address and Check (End-Node)
+
+
+
+########################################################################
+&print:<font size=+1 color="0xff0000"><B>End-Node test: Architecture test</B></font>
+########################################################################
+
+#### Select SPD, 3DES-CBC/HMAC-SHA1 #####
+./p2_HTR_E_TCP_SelectSPD.seq:./p2_HTR_E_TCP_common.def:app_type=tcp::5.1.1 Select SPD, ESP=3DES-CBC
+
+#### Select SPD (ICMP Type), 3DES-CBC/HMAC-SHA1 #####
+./p2_HTR_E_SelectSPD_ICMP_Type.seq:./p2_HTR_E_ICMP_Type.def:app_type=tcp test_type=ADVANCED support=ICMP_TYPE_CODE_SELECTOR_SUPPORT::5.1.2 Select SPD (ICMP Type), ESP=3DES-CBC HMAC-SHA1
+
+#### Sequence Number Increment #####
+&#./p2_HTR_E_TCP_SequenceNumber.seq:./p2_HTR_E_TCP_common.def:::5.1.3 Sequence Number Increment, ESP=3DES-CBC HMAC-SHA1
+
+#### Packet Too Big Reception #####
+&#./p2_HTR_E_TCP_PacketTooBigReception.seq:./p2_HTR_E_TCP_common.def:::5.1.4 Packet Too Big Reception, ESP=3DES-CBC HMAC-SHA1
+
+#### Receipt of No Next Header #####
+&#./XXX.seq:./XXX.def:::5.1.5 Receipt of No Next Header, ESP=3DES-CBC HMAC-SHA1
+
+
+
+#### Bypass, 3DES-CBC/HMAC-SHA1 #####
+./p2_HTR_E_TCP_Bypass.seq:./p2_HTR_E_TCP_common.def:app_type=tcp test_type=ADVANCED support=BYPASS_POLICY_SUPPORT::5.1.6 Bypass, ESP=3DES-CBC
+
+#### Discard, 3DES-CBC/HMAC-SHA1 #####
+./p2_HTR_E_TCP_Discard.seq:./p2_HTR_E_TCP_common.def:app_type=tcp test_type=ADVANCED support=DISCARD_POLICY_SUPPORT::5.1.7 Discard, ESP=3DES-CBC HMAC-SHA1
+
+#### Padding, 3DES-CBC/HMAC-SHA1 #####
+./p2_HTR_E_TCP_Padding.seq:./p2_HTR_E_TCP_common.def:app_type=tcp::5.1.8 Padding, ESP=3DES-CBC HMAC-SHA1
+
+#### TFC Padding (Transport Mode), 3DES-CBC/HMAC-SHA1 #####
+&#./XXX.seq:./XXX.def:app_type=tcp::5.1.9 TFC Padding (Transport Mode), ESP=3DES-CBC HMAC-SHA1
+
+#### Non Registered SPI, 3DES-CBC/HMAC-SHA1 #####
+./p2_HTR_E_TCP_nonRegSPI.seq:./p2_HTR_E_TCP_common.def:app_type=tcp ealgo=3des-cbc eauth=hmac-sha1 einkey=E_3descbc_in_key ainkey=A_hmacsha1_in_key eoutkey=E_3descbc_out_key aoutkey=A_hmacsha1_out_key ealgo_from=ealgo_3descbc_hmacsha1_in ealgo_to=ealgo_3descbc_hmacsha1_out::5.1.10 Non-Registered SPI, ESP=3DES-CBC HMAC-SHA1
+
+#### Invalid ICV, 3DES-CBC/HMAC-SHA1 #####
+./p2_HTR_E_TCP_invalidICV.seq:./p2_HTR_E_TCP_common.def:app_type=tcp ealgo=3des-cbc eauth=hmac-sha1 einkey=E_3descbc_in_key ainkey=A_hmacsha1_in_key eoutkey=E_3descbc_out_key aoutkey=A_hmacsha1_out_key ealgo_from=ealgo_3descbc_hmacsha1_in ealgo_to=ealgo_3descbc_hmacsha1_out::5.1.11 Invalid ICV value, ESP=3DES-CBC HMAC-SHA1
+
+
+
+########################################################################
+&print:<font size=+1 color="0xff0000"><B>End-Node test: Authentication Algorithm test</B></font>
+########################################################################
+
+#### 3DES-CBC/HMAC-SHA1 #####
+./p2_HTR_E_TCP_Common.seq:./p2_HTR_E_TCP_common.def:app_type=tcp ealgo=3des-cbc eauth=hmac-sha1 einkey=E_3descbc_in_key ainkey=A_hmacsha1_in_key eoutkey=E_3descbc_out_key aoutkey=A_hmacsha1_out_key ealgo_from=ealgo_3descbc_hmacsha1_in ealgo_to=ealgo_3descbc_hmacsha1_out::5.2.1 Host transport mode, ESP=3DES-CBC HMAC-SHA1
+
+#### 3DES-CBC/AES-XCBC-MAC #####
+./p2_HTR_E_TCP_Common.seq:./p2_HTR_E_TCP_common.def:app_type=tcp test_type=ADVANCED support=3DES_CBC_AES_XCBC_SUPPORT ealgo=3des-cbc eauth=aes-xcbc-mac einkey=E_3descbc_in_key ainkey=A_aesxcbc_in_key eoutkey=E_3descbc_out_key aoutkey=A_aesxcbc_out_key ealgo_from=ealgo_3descbc_aesxcbc_in ealgo_to=ealgo_3descbc_aesxcbc_out::5.2.2 Host transport mode, ESP=3DES-CBC AES-XCBC-MAC
+
+#### 3DES-CBC/NULL #####
+./p2_HTR_E_TCP_Common.seq:./p2_HTR_E_TCP_common.def:app_type=tcp test_type=ADVANCED support=3DES_CBC_NULL_SUPPORT ealgo=3des-cbc eauth=null einkey=E_3descbc_in_key ainkey=A_null_in_key eoutkey=E_3descbc_out_key aoutkey=A_null_out_key ealgo_from=ealgo_3descbc_null_in ealgo_to=ealgo_3descbc_null_out::5.2.3 Host transport mode, ESP=3DES-CBC HMAC-NULL
+
+
+
+########################################################################
+&print:<font size=+1 color="0xff0000"><B>End-Node test: Encryption Algorithm test</B></font>
+########################################################################
+
+#### AES-CBC/HMAC-SHA1 #####
+./p2_HTR_E_TCP_Common.seq:./p2_HTR_E_TCP_common.def:app_type=tcp test_type=ADVANCED support=AES_CBC_HMAC_SHA1_SUPPORT ealgo=rijndael-cbc eauth=hmac-sha1 einkey=E_aescbc_in_key ainkey=A_hmacsha1_in_key eoutkey=E_aescbc_out_key aoutkey=A_hmacsha1_out_key ealgo_from=ealgo_aescbc_hmacsha1_in ealgo_to=ealgo_aescbc_hmacsha1_out::5.2.4 Host transport mode, ESP=AES-CBC(128-bit) HMAC-SHA1
+
+#### AES-CTR/HMAC-SHA1 #####
+&#./XXX.seq:./XXX.def:::5.2.5 Host transport mode, ESP=AES-CTR HMAC-SHA1
+
+#### NULL/HMAC-SHA1 #####
+./p2_HTR_E_TCP_Common.seq:./p2_HTR_E_TCP_common.def:app_type=tcp test_type=ADVANCED support=NULL_HMAC_SHA1_SUPPORT ealgo=null eauth=hmac-sha1 einkey=E_null_in_key ainkey=A_hmacsha1_in_key eoutkey=E_null_out_key aoutkey=A_hmacsha1_out_key ealgo_from=ealgo_null_hmacsha1_in ealgo_to=ealgo_null_hmacsha1_out::5.2.6 Host transport mode, ESP=NULL HMAC-SHA1
+
+#### CAMELLIA-CBC/HMAC-SHA1 #####
+./p2_HTR_E_TCP_Common.seq:./p2_HTR_E_TCP_common.def:app_type=tcp test_type=ADVANCED support=CAMELLIA_CBC_HMAC_SHA1_SUPPORT ealgo=camellia-cbc eauth=hmac-sha1 einkey=E_camelliacbc_in_key ainkey=A_hmacsha1_in_key eoutkey=E_camelliacbc_out_key aoutkey=A_hmacsha1_out_key ealgo_from=ealgo_camelliacbc_hmacsha1_in ealgo_to=ealgo_camelliacbc_hmacsha1_out::5.2.7 Host transport mode, ESP=CAMELLIA-CBC(128-bit) HMAC-SHA1
+
+
+
+########################################################################
+&print:<font size=+1 color="0xff0000"><B>End-Node test: Authentication Algorithm test</B></font>
+########################################################################
+
+#### 3DES-CBC/HMAC-SHA2-256 #####
+./p2_HTR_E_TCP_Common.seq:./p2_HTR_E_TCP_common.def:app_type=tcp test_type=ADVANCED support=3DES_CBC_HMAC_SHA2_256_SUPPORT ealgo=3des-cbc eauth=hmac-sha2-256 einkey=E_3descbc_in_key ainkey=A_hmacsha2256_in_key eoutkey=E_3descbc_out_key aoutkey=A_hmacsha2256_out_key ealgo_from=ealgo_3descbc_hmacsha2256_in ealgo_to=ealgo_3descbc_hmacsha2256_out::5.2.8 Host transport mode, ESP=3DES-CBC HMAC-SHA2-256
+
+
+
+########################################################################
+&print:<font size=+1 color="0xff0000"><B>End-Node test: Tunnel Mode test</B></font>
+########################################################################
+
+#### Tunnel Mode with End-Node, 3DES-CBC/HMAC-SHA1 #####
+./p2_HTR_E_TCP_tunnelwEndNode.seq:./p2_HTR_E_TCP_common.def:app_type=tcp test_type=ADVANCED support=TUNNEL_MODE_WITH_SGW_SUPPORT emode=tunnel ealgo=3des-cbc eauth=hmac-sha1 einkey=E_3descbc_in_key ainkey=A_hmacsha1_in_key eoutkey=E_3descbc_out_key aoutkey=A_hmacsha1_out_key ealgo_from=ealgo_3descbc_hmacsha1_in ealgo_to=ealgo_3descbc_hmacsha1_out::5.3.1 Tunnel Mode with End-Node, ESP=3DES-CBC HMAC-SHA1
+
+#### Tunnel Mode with SGW, 3DES-CBC/HMAC-SHA1 #####
+./p2_HTR_E_TCP_tunnelwSGW.seq:./p2_HTR_E_TCP_common.def:app_type=tcp test_type=ADVANCED support=TUNNEL_MODE_WITH_SGW_SUPPORT emode=tunnel ealgo=3des-cbc eauth=hmac-sha1 einkey=E_3descbc_in_key ainkey=A_hmacsha1_in_key eoutkey=E_3descbc_out_key aoutkey=A_hmacsha1_out_key ealgo_from=ealgo_3descbc_hmacsha1_in ealgo_to=ealgo_3descbc_hmacsha1_out::5.3.2 Tunnel Mode with SGW, ESP=3DES-CBC HMAC-SHA1
+
+#### Select SPD for 2 Hosts behind 1 SGW, 3DES-CBC/HMAC-SHA1 ##### 
+./p2_HTR_E_TCP_SelectSPD_w_1SGW.seq:./p2_HTR_E_TCP_common.def:app_type=tcp test_type=ADVANCED support=TUNNEL_MODE_WITH_SGW_SUPPORT::5.3.3 Select SPD for 2 Hosts behind 1 SGW, ESP=3DES-CBC HMAC-SHA1
+
+#### Padding w/ Tunnel Mode, 3DES-CBC/HMAC-SHA1 #####
+./p2_HTR_E_TCP_tunnelPadding.seq:./p2_HTR_E_TCP_common.def:app_type=tcp test_type=ADVANCED support=TUNNEL_MODE_WITH_SGW_SUPPORT emode=tunnel ealgo=3des-cbc eauth=hmac-sha1 einkey=E_3descbc_in_key ainkey=A_hmacsha1_in_key eoutkey=E_3descbc_out_key aoutkey=A_hmacsha1_out_key ealgo_from=ealgo_3descbc_hmacsha1_in ealgo_to=ealgo_3descbc_hmacsha1_out::5.3.4 Padding w/ Tunnel Mode with SGW, ESP=3DES-CBC HMAC-SHA1
+
+#### TFC Padding (Tunnel Mode), 3DES-CBC/HMAC-SHA1 #####
+&#./XXX.seq:./XXX.def:app_type=tcp::5.3.5 TFC Padding (Tunnel Mode), ESP=3DES-CBC HMAC-SHA1
+#########################################################################

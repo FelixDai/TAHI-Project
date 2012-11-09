@@ -1,0 +1,307 @@
+#
+# $Name: V6PC_P2_IPsec_1_10_0 $
+# 
+# $TAHI: ct/ipsec.p2/p2_ipsec_config,v 1.32 2010/05/31 10:55:35 doo Exp $
+# 
+########################################################################
+
+
+
+#----------------------------------------------------------------------#
+# Device Type: default is End-Node, sgw: Security Gateway              #
+#----------------------------------------------------------------------#
+
+#
+# DEV_TYPE:
+#
+#     if NUT is SGW set 'sgw'
+#     if NUT is End-Node, comment out
+#
+
+# DEV_TYPE	sgw
+
+
+
+#----------------------------------------------------------------------#
+# Advanced Function for End-Node and SGW                               #
+#----------------------------------------------------------------------#
+
+#
+# BYPASS_POLICY_SUPPORT: Bypass policy
+#
+#     if support set 'yes'
+#     if NUT does not support, comment out
+#
+
+BYPASS_POLICY_SUPPORT	yes
+
+
+
+#
+# DISCARD_POLICY_SUPPORT: Discard policy
+#
+#     if NUT supports, set 'yes'
+#     if NUT does not support, comment out
+#
+
+DISCARD_POLICY_SUPPORT	yes
+
+
+
+#
+# DUMMY_PACKET_SUPPORT: TFC Dummy Packet (No Next Header) handling
+#
+#     if NUT supports, set 'yes'
+#     if NUT does not support, comment out
+#
+
+DUMMY_PACKET_SUPPORT	yes
+
+
+
+#
+# TFC_PADDING_TUNNEL_SUPPORT: TFC Padding (Tunnel Mode)
+#
+#     if NUT supports, set 'yes'
+#     if NUT does not support, comment out
+#
+
+TFC_PADDING_TUNNEL_SUPPORT	yes
+
+
+
+#----------------------------------------------------------------------#
+# Advanced Function only for End-Node only                             #
+#----------------------------------------------------------------------#
+
+#
+# TFC_PADDING_TRANS_SUPPORT: TFC Padding (Transport Mode)
+#
+#     if NUT supports, set 'yes'
+#     if NUT does not support, comment out
+#
+
+TFC_PADDING_TRANS_SUPPORT	yes
+
+
+
+#
+# TUNNEL_MODE_WITH_SGW_SUPPORT: Available for End-Node device
+#
+# if NUT supports, set 'yes'
+#
+
+TUNNEL_MODE_WITH_SGW_SUPPORT	yes
+
+
+
+#
+# ICMP_TYPE_CODE_SELECTOR_SUPPORT: Support of ICMP message type/code
+#
+#     if NUT supports, set 'yes'
+#     if NUT does not support, comment out
+#
+#     This parameter has the followign substructure.
+#
+#         + ICMP_TYPE_CODE_SELECTOR_SUPPORT
+#         |   |
+#         |   + PASSIVE_NODE
+#         |   |   |
+#         |   |   + USE_PORT_UNREACHABLE
+#
+#
+#     if (ICMP_TYPE_CODE_SELECTOR_SUPPORT is 'yes') {
+#         if (PASSIVE_NODE is 'yes') {
+#             if (USE_PORT_UNREACHABLE is 'yes') {
+#                 Test 5.1.2. Select SPD (ICMP Type) is performed
+#                 by ICMPv6 Destination Unreachable from NUT
+#             } else {
+#                 Test 5.1.2. Select SPD (ICMP Type) is performed
+#                 by ICMPv6 Neighbor Solicitation from NUT
+#             }
+#         } else {
+#             Test 5.1.2. Select SPD (ICMP Type) is performed
+#             by ICMPv6 Echo Request from NUT
+#         }
+#     } else {
+#         Test 5.1.2. Select SPD (ICMP Type) is skipped.
+#     }
+#
+
+ICMP_TYPE_CODE_SELECTOR_SUPPORT	yes
+
+
+
+#
+# PASSIVE_NODE: (requires ICMP_TYPE_CODE_SELECTOR_SUPPORT)
+#
+#     if NUT doesn't have ping6, set 'yes'
+#     if NUT has it, comment out
+#
+
+# PASSIVE_NODE	yes
+
+
+
+#
+# USE_PORT_UNREACHABLE: (requires PASSIVE_NODE)
+#
+#     if NUT supports to send ICMPv6 Destination Unreachable
+#         (Port unreachable) when receiving UDP packet to closed port,
+#         set 'yes'
+#     if NUT does not support, comment out
+#
+
+USE_PORT_UNREACHABLE	yes
+
+
+
+#----------------------------------------------------------------------#
+# Supporting Cryptographic Algorithm                                   #
+#----------------------------------------------------------------------#
+
+#
+# Authentication Algorithms
+#
+#     3DES_CBC_AES_XCBC_SUPPORT: AES-XCBC-MAC-96
+#     3DES_CBC_NULL_SUPPORT:     NULL
+#     3DES_CBC_HMAC_SHA2_256_SUPPORT:     HMAC_SHA2_256
+#
+#         if NUT supports, set 'yes'
+#         if NUT does not support, comment out
+#
+
+3DES_CBC_AES_XCBC_SUPPORT	yes
+3DES_CBC_NULL_SUPPORT		yes
+3DES_CBC_HMAC_SHA2_256_SUPPORT	yes
+
+
+
+# Encryption Algorithms
+#
+#     AES_CBC_HMAC_SHA1_SUPPORT:      AES-CBC with 128-bit keys
+#     AES_CTR_HMAC_SHA1_SUPPORT:      AES-CTR
+#     NULL_HMAC_SHA1_SUPPORT:         NULL
+#     CAMELLIA_CBC_HMAC_SHA1_SUPPORT: CAMELLIA-CBC
+#
+#     if NUT supports, set 'yes'
+#     if NUT does not support, comment out
+#
+
+AES_CBC_HMAC_SHA1_SUPPORT		yes
+AES_CTR_HMAC_SHA1_SUPPORT		yes
+NULL_HMAC_SHA1_SUPPORT			yes
+CAMELLIA_CBC_HMAC_SHA1_SUPPORT	yes
+
+
+
+#----------------------------------------------------------------------#
+# Address configuration only for End-Node                              #
+#----------------------------------------------------------------------#
+
+#
+# MANUAL_ADDR_CONF:
+#
+#     if NUT requires to set address manualy, set 'yes'
+#
+
+# MANUAL_ADDR_CONF	yes
+
+
+
+#
+# IPSEC_NUT_NET0_ADDR:
+#
+#     if NUT requires to set address manualy, set address
+#
+
+# IPSEC_NUT_NET0_ADDR	3ffe:501:ffff:0::a
+
+
+
+#----------------------------------------------------------------------#
+# Application                                                          #
+#----------------------------------------------------------------------#
+
+#
+# NUT_RECV_PORT:
+#
+#     In case of TCP, default port is 80.
+#     If NUT requires to use another port, set following parameters.
+#
+
+# NUT_RECV_PORT	7
+
+
+
+#----------------------------------------------------------------------#
+# Others                                                               #
+#----------------------------------------------------------------------#
+
+#
+# REBOOT_WAIT_TIME:
+#
+#     [sec] default 60 sec
+#     if NUT requires more time to reboot, change this value. 
+#
+
+REBOOT_WAIT_TIME	180
+
+
+
+#
+# WAIT_ASSIGN_ADDR:
+#
+#     [sec] default 3 sec
+#     if NUT requires more time to assign address, change this value. 
+#
+
+# WAIT_ASSIGN_ADDR	6
+
+
+
+#
+# REBOOT_TO_RESET_MTU:
+#
+#     if NUT requires reboot to reset MTU, set 'yes'
+#     if NUT does not require, comment out
+#
+
+REBOOT_TO_RESET_MTU	yes
+
+
+
+#
+# REBOOT_TO_CLEAR_SA_CONF:
+#
+#     if NUT requires reboot to set flush SA configuration, set 'yes'
+#     if NUT does not require, comment out
+#
+
+# REBOOT_TO_CLEAR_SA_CONF	yes
+
+
+
+#
+# REBOOT_AFTER_SET_SA_CONF:
+#
+#     if NUT requires reboot to enable new SA configuration, set 'yes'
+#     if NUT does not require, comment out
+
+# REBOOT_AFTER_SET_SA_CONF	yes
+
+
+
+#
+# TCP_TIME_WAIT:
+#
+#     [sec] default 120sec
+#
+
+# TCP_TIME_WAIT	30
+
+
+
+########################################################################
+# END                                                                  #
+########################################################################

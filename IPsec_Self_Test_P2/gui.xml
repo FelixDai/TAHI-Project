@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+    <package name="IPsec_Self_Test_P2_1-9-2" protocol="IPsec">
+        <config name="config.pl" path="./ipsec.p2/config.pl" title="Phase-2 IPsec Configuration">
+            <item name="$DEV_TYPE" type="String" defaultvalue="en" minimumvalue="" maximumvalue="" unit="" description="Device Type (en/sgw)"></item>
+            <item name="$BYPASS_POLICY_SUPPORT" type="String" defaultvalue="yes" minimumvalue="" maximumvalue="" unit="" description="Support Bypass Policy (yes/no)"></item>
+            <item name="$DISCARD_POLICY_SUPPORT" type="String" defaultvalue="yes" minimumvalue="" maximumvalue="" unit="" description="Support Discard Policy (yes/no)"></item>
+            <item name="$DUMMY_PACKET_SUPPORT" type="String" defaultvalue="yes" minimumvalue="" maximumvalue="" unit="" description="Support TFC Dummy Packet (No Next Header) handling (yes/no)"></item>
+            <item name="$TFC_PADDING_TUNNEL_SUPPORT" type="String" defaultvalue="yes" minimumvalue="" maximumvalue="" unit="" description="Support TFC Padding for Tunnel Mode (yes/no)"></item>
+            <item name="$TFC_PADDING_TRANS_SUPPORT" type="String" defaultvalue="yes" minimumvalue="" maximumvalue="" unit="" description="Support TFC Padding for Transport Mode (yes/no)"></item>
+            <item name="$TUNNEL_MODE_WITH_SGW_SUPPORT" type="String" defaultvalue="yes" minimumvalue="" maximumvalue="" unit="" description="Supoort Tunnel Mode for End Node (yes/no)"></item>
+            <item name="$ICMP_TYPE_CODE_SELECTOR_SUPPORT" type="String" defaultvalue="yes" minimumvalue="" maximumvalue="" unit="" description="Support ICMP message type/code (yes/no)"></item>
+            <item name="$PASSIVE_NODE" type="String" defaultvalue="yes" minimumvalue="" maximumvalue="" unit="" description="If NUT is Passive Node, set yes (yes/no)"></item>
+            <item name="$USE_PORT_UNREACHABLE" type="String" defaultvalue="yes" minimumvalue="" maximumvalue="" unit="" description="If NUT can send ICMPv6 Destination Unreachable (Port Unreachable), set yes (yes/no)"></item>
+            <item name="$TripleDES_CBC_AES_XCBC_SUPPORT" type="String" defaultvalue="yes" minimumvalue="" maximumvalue="" unit="" description="Support Authentication Algorithm AES-XCBC-MAC-96 (yes/no)"></item>
+            <item name="$TripleDES_CBC_NULL_SUPPORT" type="String" defaultvalue="yes" minimumvalue="" maximumvalue="" unit="" description="Support Authentication Algorithm NULL (yes/no)"></item>
+            <item name="$AES_CBC_HMAC_SHA1_SUPPORT" type="String" defaultvalue="yes" minimumvalue="" maximumvalue="" unit="" description="Support Encryption Algorithm AES-CBC with 128-bit key (yes/no)"></item>
+            <item name="$AES_CTR_HMAC_SHA1_SUPPORT" type="String" defaultvalue="yes" minimumvalue="" maximumvalue="" unit="" description="Support Encryption Algorithm AES-CTR (yes/no)"></item>
+            <item name="$NULL_HMAC_SHA1_SUPPORT" type="String" defaultvalue="yes" minimumvalue="" maximumvalue="" unit="" description="Support Encryption Algorithm NULL (yes/no)"></item>
+            <item name="$CAMELLIA_CBC_HMAC_SHA1_SUPPORT" type="String" defaultvalue="yes" minimumvalue="" maximumvalue="" unit="" description="Support Encryption Algorithm CAMELLIA-CBC (yes/no)"></item>
+            <item name="$MANUAL_ADDR_CONF" type="String" defaultvalue="no" minimumvalue="" maximumvalue="" unit="" description="If NUT uses Manual Address Configuration, set yes (yes/no)"></item>
+            <item name="$IPSEC_NUT_NET0_ADDR" type="String" defaultvalue="3ffe:501:ffff:0::a" minimumvalue="" maximumvalue="" unit="IPv6 Address" description="(If NUT uses Manual Address Configuration is yes) Set Global Address"></item>
+            <item name="$NUT_RECV_PORT" type="String" defaultvalue="80" minimumvalue="" maximumvalue="" unit="" description="If NUT requires to use another TCP port, set port number"></item>
+            <item name="$REBOOT_WAIT_TIME" type="int" defaultvalue="60" minimumvalue="" maximumvalue="" unit="seconds" description="Time to wait for reboot"></item>
+            <item name="$WAIT_ASSIGN_ADDR" type="int" defaultvalue="3" minimumvalue="" maximumvalue="" unit="seconds" description="Time to wait for assigning address"></item>
+            <item name="$REBOOT_TO_RESET_MTU" type="String" defaultvalue="yes" minimumvalue="" maximumvalue="" unit="" description="If NUT requires reboot to reset MTU, set yes (yes/no)"></item>
+            <item name="$REBOOT_TO_CLEAR_SA_CONF" type="String" defaultvalue="yes" minimumvalue="" maximumvalue="" unit="" description="if NUT requires reboot to flush SA configuration, set yes (yes/no)"></item>
+            <item name="$REBOOT_AFTER_SET_SA_CONF" type="String" defaultvalue="yes" minimumvalue="" maximumvalue="" unit="" description="If NUT requires reboot to enable new SA configuration, set yes (yes/no)"></item>
+            <item name="$TCP_TIME_WAIT" type="int" defaultvalue="120" minimumvalue="" maximumvalue="" unit="" description="Time to wait for TCP connection"></item>
+        </config>
+
+        <target name="ipv6ready_p2_end_node" title="IPv6 Conformance Test For IPv6 IPsec (End-Node)">
+
+                <subdir name="" path="./ipsec.p2" title="IPv6 Conformance Test For IPv6 IPsec (End-Node)">
+                    <index>./ipsec.p2/INDEX_P2_HOST</index>
+                </subdir>
+        </target>
+
+        <target name="ipv6ready_p2_end_node_udp" title="IPv6 Conformance Test For IPv6 IPsec Using UDP (End-Node)">
+
+                <subdir name="" path="./ipsec.p2" title="IPv6 Conformance Test For IPv6 IPsec Using UDP (End-Node)">
+                    <index>./ipsec.p2/INDEX_P2_HOST_UDP</index>
+                </subdir>
+
+        </target>
+
+        <target name="ipv6ready_p2_end_node_tcp" title="IPv6 Conformance Test For IPv6 IPsec Using TCP (End-Node)">
+
+                <subdir name="" path="./ipsec.p2" title="IPv6 Conformance Test For IPv6 IPsec Using TCP (End-Node)">
+                    <index>./ipsec.p2/INDEX_P2_HOST_TCP</index>
+                </subdir>
+        </target>
+
+        <target name="ipv6ready_p2_sgw" title="IPv6 Conformance Test For IPv6 IPsec (Security Gatewayt)">
+
+                <subdir name="" path="./ipsec.p2" title="IPv6 Conformance Test For IPv6 IPsec (Security Gateway)">
+                    <index>./ipsec.p2/INDEX_P2_SGW</index>
+                </subdir>
+        </target>
+
+        <target name="ipv6ready_p2_sgw_udp" title="IPv6 Conformance Test For IPv6 IPsec Using UDP (Security Gateway)">
+
+                <subdir name="" path="./ipsec.p2" title="IPv6 Conformance Test For IPv6 IPsec Using UDP (Security Gateway)">
+                    <index>./ipsec.p2/INDEX_P2_SGW_UDP</index>
+                </subdir>
+        </target>
+    </package>
+

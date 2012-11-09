@@ -1,0 +1,298 @@
+
+
+                                CHANGELOG
+
+                                   for
+
+         IPv6 Ready Logo Phase-2 IPsec Conformance Test Package
+
+
+2010/07/23	Release 1.10.0
+	Official release
+
+
+2010/05/31      Hiroki Endo
+        M ipsec.p2/keys.def
+        M ipsec.p2/keys.pl
+        M ipsec.p2/p2_ALGO_common.def
+        M ipsec.p2/INDEX_P2_HOST
+        M ipsec.p2/INDEX_P2_HOST_TCP
+        M ipsec.p2/INDEX_P2_HOST_UDP
+        M ipsec.p2/INDEX_P2_SGW
+        M ipsec.p2/INDEX_P2_SGW_UDP
+                - Support HMAC-SHA2-256
+
+2010/03/30      Hiroki Endo
+        A config.pl
+        M IPSEC.pm
+        M p2_HTR_common.def
+                - Changed user configuration file from config.txt to config.pl
+
+2009/06/24	Yukiyo Akisada
+	M ipsec.p2/IPSEC.pm
+		- fixed TCP session close procedure at port 7 in the function
+		  IPSEC::ipsecFinAckTcp2NUT(), even though the current version
+		  never support TCP
+
+
+2009/06/23	Yukiyo Akisada
+	M ipsec.p2/p2_HTR_TCP_common.def
+		- fixed the TCP header packet definition
+		  "for esptun_from_sg1_net1_ack_request_from_host1_net2_to_host0_net0",
+		  even though the current version never support TCP
+
+
+2009/01/23	Release 1.9.2
+	Official release
+
+
+2009/01/23	Yukiyo Akisada
+	M ipsec.p2/p2_HTR_ipsecaddr.def.tmpl
+		- fix the lack of the address definition by adding IPSEC_HOST1_NET0_ADDR
+
+	M ipsec.p2/IPSEC.pm
+		- improve the parser to read ipsec.p2/p2_ipsec_config
+
+
+2009/01/22	Release 1.9.1
+	Official release
+
+
+2009/01/08	Yukiyo Akisada
+	M ipsec.p2/IPSEC.pm
+	M ipsec.p2/keys.def
+	M ipsec.p2/keys.pl
+	M ipsec.p2/p2_ALGO_common.def
+	M ipsec.p2/p2_HTR_E_ICMP_Type.def
+	M ipsec.p2/p2_HTR_E_SelectSPD_ICMP_Type.seq
+	M ipsec.p2/p2_ipsec_config
+		- support the passive node which doesn't have ping6 application
+		  for Test 5.1.2. Select SPD (ICMP Type) in End-Node Test
+		- for switching to support the passive node,
+		  add the configurable parameters PASSIVE_NODE and USE_PORT_UNREACHABLE
+		  into p2_ipsec_config
+
+
+2008/12/09	Release 1.9.0
+	Official release
+
+
+2008/10/28	Release 1.9.0b1
+	Pre-release for the public review
+	<http://www.ipv6ready.org/announcement/public_review20081024_p2ipsec.html>
+
+
+2008/10/27	Yukiyo Akisada
+	M INSTALL.ct
+	M ipsec.p2/INDEX_P2_HOST
+	M ipsec.p2/INDEX_P2_HOST_TCP
+	M ipsec.p2/INDEX_P2_HOST_UDP
+	M ipsec.p2/INDEX_P2_SGW
+	M ipsec.p2/INDEX_P2_SGW_UDP
+	M ipsec.p2/IPSEC.pm
+	M ipsec.p2/keys.def
+	M ipsec.p2/keys.pl
+	M ipsec.p2/p2_ALGO_common.def
+	M ipsec.p2/p2_HTR_E_Common.seq
+	M ipsec.p2/p2_HTR_E_TCP_Common.seq
+	M ipsec.p2/p2_SGW_E_Common.seq
+	M ipsec.p2/p2_ipsec_config
+		- support RFC 4312
+		  (The Camellia Cipher Algorithm and Its Use With IPsec)
+		- fix typo
+		- contributed by NTT
+		  <http://info.isl.ntt.co.jp/crypt/camellia/patch.html>
+
+
+2008/01/30	Yukiyo Akisada
+	M INSTALL.ct
+	M ipsec.p2/IPSEC.pm
+	M ipsec.p2/p2_ipsec_config
+		- remove the key ESN_SUPPORT
+
+
+2007/10/15	Release 1.1.2
+	Official release
+
+
+2007/10/11	Yukiyo Akisada
+	Remove tests:
+		ipsec.p2/INDEX_P2_HOST, INDEX_P2_HOST_TCP, INDEX_P2_HOST_UDP,
+		         INDEX_P2_SGW, INDEX_P2_SGW_UDP,
+		         p2_HTR_E_ICV_ESN.seq, p2_SGW_E_ICV_ESN.seq
+			- remove ESN test cases
+			  because ESN configuration always requires to use IKEv2
+
+
+2007/08/31	Release 1.1.1
+	Official release
+
+
+2007/08/31	Yukiyo Akisada
+	Bug fix:
+		ipsec.p2/p2_HTR_E_SelectSPD_ICMP_Type.seq
+		         p2_SGW_E_SelectSPD_ICMP_Type.seq
+			- change to require SAD/SPD mapping
+			  as following Implementation Guidance
+			  at section 4.4.2. in RFC 4301.
+
+
+2007/04/27	Release 1.1.0
+	Official release
+
+
+2007/03/16	Release 1.1.0b1
+	Beta release for "dry run"
+
+
+2007/03/14	Yukiyo Akisada
+	New tests:
+		- Select SPD (ICMP Type)
+		- Receipt of No Next Header
+		- TFC Padding
+		- ICV calculation (ESN)
+		- Encryption Algorithm: AES-CTR
+
+	Remove tests:
+		- Authentication Algorithm: HMAC-MD5
+		- Encryption Algorithm: DES-CBC
+
+
+2005/12/26	Release 1.0.7
+	Bugfix release
+		- test tool bugs are fixed.
+
+
+2005/12/22	Nobumichi Ozoe
+	ipsec.p2/INDEX_P2_SGW, INDEX_P2_SGW_UDP
+		- modified test number corresponding to test specification.
+
+
+2005/12/22	Mitsuru Chinen, Kazunori Miyazawa
+	ipsec.p2/p2_SGW_E_PacketTooBigForwarding.seq
+		- modified expected MTU value of ICMP error message
+
+
+2005/11/17	Release 1.0.6
+	Bugfix release
+		- test tool bugs are fixed.
+
+
+2005/10/26	Mitsuru Chinen
+	ipsec.p2/p2_HTR_Reset.seq
+		- use not system() but copy()
+
+
+2005/10/6	Nobumichi Ozoe
+	ipsec.p2/p2_HTR_E_Bypass.seq,     p2_HTR_E_Discard.seq,
+	         p2_HTR_E_TCP_Bypass.seq, p2_HTR_E_TCP_Discard.seq
+	         p2_SGW_E_Bypass.seq,     p2_SGW_E_Discard.seq
+		- modified SPD keyward from "::" to "any"
+
+
+2005/10/2	Nobumichi Ozoe
+	ipsec.p2/IPSEC.pm
+		- modified function of reseting NUT's MTU
+		- modified function of receiving NS for SGW test case
+
+
+2005/9/27 	Release 1.0.5
+	Official release
+		- The tool is updated according to the change of the test specification.
+
+
+2005/9/20	Nobumichi Ozoe
+	ipsec.p2/p2_SGW_E_PacketTooBigTransmission.seq
+		- modified the maximum MTU value of ICMP error message
+
+
+2005/7/22	Release 1.0.4
+	Official release
+		- test tool supports AES-XCBC-MAC
+
+
+2005/7/04	Release 1.0.3
+	Bugfix release
+		- test tool bugs are fixed.
+
+
+2005/7/04	Nobumichi Ozoe
+	ipsec.p2/IPSEC.pm
+		- modified return code check
+		- added one more Router Solicitation (RS) packet as expected frame
+		  in waiting RS function.
+		- default reboot and address assign time was shortened.
+
+	ipsec.p2/p2_HTR_common.def p2_SGW_common.def
+		- added packet define of Router Solicitation
+
+	ipsec.p2/p2_HTR_E_PacketTooBigReception.seq
+		- modified return code check
+
+
+2005/6/22	Release 1.0.2
+	Official release
+
+
+2005/6/22	Nobumichi Ozoe
+	ipsec.p2/INDEX_P2_SGW, INDEX_P2_SGW_UDP
+		- deleted p2_SGW_E_PacketTooBigForwardingKnown.seq from test item
+		- its test name is Packet Too Big Forwarding Known Original Host.
+
+	ipsec.p2/IPSEC.pm, p2_HTR_Reset.seq
+		- When MANUAL_ADDR_CONF=yes is configured and NUT is rebooted,
+		  now it executes the address assign and default route configuration.
+		- If TN received NS probing neighbor from NUT, TN sends NA to NUT.
+
+
+2005/5/12	Release 1.0.1
+	Bugfix release
+		- test tool bugs are fixed.
+
+
+2005/5/12	Nobumichi Ozoe
+	ipsec.p2/IPSEC.pm
+		- define default vaule of wait time after rebooting
+		- modify the function of address assignment
+	ipsec.p2/p2_HTR_Reset.seq
+	ipsec.p2/p2_SGW_Reset.seq
+		- theses test are ignored,
+		  because it are only used for initialization of NUT.
+	ipsec.p2/p2_HTR_E_TCP_invalidICV.seq
+		- modify the port of NUT is changeable
+
+
+2005/5/09	Nobumichi Ozoe
+	ipsec.p2/INSTALL.ct
+		- more detailed explanation
+
+	ipsec.p2/INDEX_P2_HOST, INDEX_P2_HOST_TCP,
+	         INDEX_P2_HOST_UDP, INDEX_P2_SGW, INDEX_P2_SGW_UDP
+		- using keyword 'null' as ESP NULL encryption algorithm
+
+	ipsec.p2/Makefile, Makefile.test
+		- using keyword 'ipv6ready_p2_end_node' to start test for IPsec End-Node
+
+	ipsec.p2/p2_HTR_E_Common.seq, p2_SGW_E_Common.seq, keys.def, keys.pl
+		- using keyword 'null' as ESP NULL encryption algorithm
+		- correct some displayed messsage
+
+	ipsec.p2/p2_HTR_E_PacketTooBigReception.seq
+	         p2_SGW_E_PacketTooBigForwarding.seq
+	         p2_SGW_E_PacketTooBigForwardingKnown.seq
+	         p2_SGW_E_PacketTooBigTransmission.seq
+	         p2_ipsec_config IPSEC.pm
+		- modify the method to reset MTU of NUT
+
+
+2005/01/11	Yukiyo Akisada
+	Makefile.inc
+		- define V6EVALROOT variable
+
+
+2005/4/29	Release 1.0
+	1st official release
+
+
+
+                                                      [end of CHANGELOG]

@@ -1,0 +1,116 @@
+#
+# $Name: V6PC_P2_IPsec_1_10_0 $
+#
+# $TAHI: ct/ipsec.p2/Makefile.test,v 1.13 2010/03/30 01:07:06 akisada Exp $
+#
+
+IFILES_ENDNODE	= INDEX_P2_HOST INDEX_P2_HOST_UDP INDEX_P2_HOST_TCP
+IFILES_SGW	= INDEX_P2_SGW INDEX_P2_SGW_UDP
+
+TITLE		= 'IPv6 Conformance Test For IPv6 IPsec'
+TITLE_ENDNODE	= 'IPv6 Conformance Test For IPv6 IPsec (End-Node)'
+TITLE_SGW	= 'IPv6 Conformance Test For IPv6 IPsec (Security Gateway)'
+
+ADDR_DEF_TMPL	= p2_HTR_ipsecaddr.def.tmpl
+ADDR_DEF	= p2_HTR_ipsecaddr.def
+
+PERL	= /usr/bin/perl
+POD2HTML= -$(PERL) -e 'use Pod::Html; pod2html("--noindex", @ARGV);'
+
+
+check:
+	$(AUTORUN) -t INDEX_P2_HOST INDEX_P2_SGW
+
+document:
+	$(AUTORUN) -G \
+	-title=$(TITLE) \
+	$(IFILES_ENDNODE) \
+	$(IFILES_SGW)
+	$(POD2HTML) IPSEC.pm > IPSEC.html
+	rm -f pod2html-dircache pod2html-itemcache
+
+document_end_node:
+	$(AUTORUN) -G \
+	-title=$(TITLE_ENDNODE) \
+	$(IFILES_ENDNODE)
+	$(POD2HTML) IPSEC.pm > IPSEC.html
+	rm -f pod2html-dircache pod2html-itemcache
+
+document_sgw:
+	$(AUTORUN) -G \
+	-title=$(TITLE_SGW) \
+	$(IFILES_SGW)
+	$(POD2HTML) IPSEC.pm > IPSEC.html
+	rm -f pod2html-dircache pod2html-itemcache
+
+clean:
+	-/bin/rm -f *.log *.dump *.pcap [0-9]*.html \
+		index.html summary.html report.html pod2htmd.tmp pod2htmi.tmp
+
+test:
+	if [ ! -f ${ADDR_DEF} ] ; then cp ${ADDR_DEF_TMPL} ${ADDR_DEF} ; fi
+	$(AUTORUN) $(AROPT)\
+	-title=$(TITLE) \
+	$(IFILES_ENDNODE) \
+	$(IFILES_SGW)
+
+test_end_node:
+	if [ ! -f ${ADDR_DEF} ] ; then cp ${ADDR_DEF_TMPL} ${ADDR_DEF} ; fi
+	$(AUTORUN) $(AROPT)\
+	-title=$(TITLE_ENDNODE) \
+	$(IFILES_ENDNODE)
+
+test_sgw:
+	if [ ! -f ${ADDR_DEF} ] ; then cp ${ADDR_DEF_TMPL} ${ADDR_DEF} ; fi
+	$(AUTORUN) $(AROPT)\
+	-title=$(TITLE_SGW) \
+	$(IFILES_SGW)
+
+tahi:	document
+	if [ ! -f ${ADDR_DEF} ] ; then cp ${ADDR_DEF_TMPL} ${ADDR_DEF} ; fi
+	/bin/rm -f index.html summary.html report.html
+	$(AUTORUN) $(AROPT) -dump2txt \
+	-title=$(TITLE) \
+	$(IFILES_ENDNODE) \
+	$(IFILES_SGW)
+
+demo:
+	if [ ! -f ${ADDR_DEF} ] ; then cp ${ADDR_DEF_TMPL} ${ADDR_DEF} ; fi
+	$(AUTORUN) $(AROPT)\
+	-title='IPv6 Conformance Test For IPv6 IPsec demonstration ' \
+	INDEX_P2_HOST
+
+ipv6ready_p2_end_node:	document_end_node
+	if [ ! -f ${ADDR_DEF} ] ; then cp ${ADDR_DEF_TMPL} ${ADDR_DEF} ; fi
+	/bin/rm -f index.html summary.html report.html
+	$(AUTORUN) $(AROPT) -F -tiny \
+	-title=$(TITLE_ENDNODE) \
+	INDEX_P2_HOST
+
+ipv6ready_p2_end_node_udp:	document_end_node
+	if [ ! -f ${ADDR_DEF} ] ; then cp ${ADDR_DEF_TMPL} ${ADDR_DEF} ; fi
+	/bin/rm -f index.html summary.html report.html
+	$(AUTORUN) $(AROPT) -F -tiny \
+	-title=$(TITLE_ENDNODE) \
+	INDEX_P2_HOST_UDP
+
+# ipv6ready_p2_end_node_tcp:	document_end_node
+# 	if [ ! -f ${ADDR_DEF} ] ; then cp ${ADDR_DEF_TMPL} ${ADDR_DEF} ; fi
+# 	/bin/rm -f index.html summary.html report.html
+# 	$(AUTORUN) $(AROPT) -F -tiny \
+# 	-title=$(TITLE_ENDNODE) \
+# 	INDEX_P2_HOST_TCP
+
+ipv6ready_p2_sgw:	document_sgw
+	/bin/rm -f index.html summary.html report.html
+	$(AUTORUN) $(AROPT) -F -tiny \
+	-title=$(TITLE_SGW) \
+	INDEX_P2_SGW
+
+ipv6ready_p2_sgw_udp:	document_sgw
+	/bin/rm -f index.html summary.html report.html
+	$(AUTORUN) $(AROPT) -F -tiny \
+	-title=$(TITLE_SGW) \
+	INDEX_P2_SGW_UDP
+
+.include "../Makefile.inc"

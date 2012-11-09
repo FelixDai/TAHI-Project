@@ -1,0 +1,480 @@
+//
+// $Intap$
+//
+// $Name: V6PC_P2_IPsec_1_10_0 $
+//
+
+#include "./p2_SGW_common.def"
+
+//======================================================================
+//
+// TCP Option 
+//
+
+Opt_TCP_MaximumSegmentSize opt_syn {
+	Kind       = 2;
+	Length     = 4;
+	MaxSegSize = 1440;
+}
+
+//======================================================================
+//
+// Sync Request from Host1 (Net2) via SGW1 to NUT (Net0) on Net0
+//
+
+FEM_tcp6(
+	syn_request_from_host1_net2_to_host0_net0,
+	hether_router2nut,
+	{
+		_SRC(v6(IPSEC_HOST1_NET2_ADDR));
+		_DST(v6(IPSEC_NUT_NET0_ADDR));
+	},
+	{
+		_SPORT(10000);
+		_DPORT(DESTINATION_PORT);
+		SequenceNumber       = SEQ;
+		SYNFlag              = 1;
+//		Window               = 16384;
+//		option               = opt_syn;
+	},
+	{
+		header = _HDR_TCP_NAME(syn_request_from_host1_net2_to_host0_net0);
+		payload = payload_syn;
+	}
+
+)
+
+//======================================================================
+//
+// Syn, Ack Reply from Host1 (Net2) to Host2 (Net0) on Net0
+//
+
+FEM_tcp6(
+	synack_reply_from_host0_net0_to_host1_net2,
+	hether_nut2router,
+	{
+		_SRC(v6(IPSEC_NUT_NET0_ADDR));
+		_DST(v6(IPSEC_HOST1_NET2_ADDR));
+	},
+	{
+		_SPORT(DESTINATION_PORT);
+		_DPORT(10000);
+		SequenceNumber=any;
+		AcknowledgmentNumber=any;
+		ACKFlag=1;
+		SYNFlag=1;
+		Window=any;
+		option = opt_syn; 
+	},
+	{
+		header = _HDR_TCP_NAME(synack_reply_from_host0_net0_to_host1_net2);
+		payload = payload_syn;
+	}
+)
+
+//======================================================================
+//
+// TCP Syn Request from ROUTER1
+//
+
+FEM_tcp6(
+	syn_request_from_router,
+	hether_router2nut,
+	{
+		_SRC(v6(IPSEC_ROUTER_NET0_ADDR));
+//		_DST(v6(IPSEC_NUT_NET0_ADDR));
+		_DST(v6merge(IPSEC_NET0_PREFIX, IPSEC_NET0_PREFIX_LEN, nutv6()));
+	},
+	{
+		_SPORT(10000);
+		_DPORT(DESTINATION_PORT);
+		SequenceNumber       = SEQ;
+		SYNFlag              = 1;
+//		Window               = 16384;
+//		option               = opt_syn;
+	},
+	{
+		header = _HDR_TCP_NAME(syn_request_from_router);
+		payload = payload_syn;
+	}
+)
+
+
+//======================================================================
+//
+// TCP Syn,Ack Reply to HOST1
+//
+
+FEM_tcp6(
+	synack_reply_to_router,
+	hether_nut2router,
+	{
+//		_SRC(v6(IPSEC_NUT_NET0_ADDR));
+		_SRC(v6merge(IPSEC_NET0_PREFIX, IPSEC_NET0_PREFIX_LEN, nutv6()));
+		_DST(v6(IPSEC_ROUTER_NET0_ADDR));
+	},
+	{
+		_SPORT(DESTINATION_PORT);
+		_DPORT(10000);
+		SequenceNumber=any;
+		AcknowledgmentNumber=any;
+		ACKFlag=1;
+		SYNFlag=1;
+		Window=any;
+		option = opt_syn; 
+	},
+	{
+		header = _HDR_TCP_NAME(synack_reply_to_router);
+		payload = payload_syn;
+	}
+)
+
+
+//======================================================================
+//
+// TCP Syn Request from HOST1
+//
+
+FEM_tcp6(
+	syn_request_from_host1,
+	hether_router2nut,
+	{
+		_SRC(v6(IPSEC_HOST1_NET1_ADDR));
+//		_DST(v6(IPSEC_NUT_NET0_ADDR));
+		_DST(v6merge(IPSEC_NET0_PREFIX, IPSEC_NET0_PREFIX_LEN, nutv6()));
+	},
+	{
+		_SPORT(10000);
+		_DPORT(DESTINATION_PORT);
+		SequenceNumber       = SEQ;
+		SYNFlag              = 1;
+//		Window               = 16384;
+//		option               = opt_syn;
+	},
+	{
+		header = _HDR_TCP_NAME(syn_request_from_host1);
+		payload = payload_syn;
+	}
+)
+
+
+//======================================================================
+//
+// TCP Syn,Ack Reply to HOST1
+//
+
+FEM_tcp6(
+	synack_reply_to_host1,
+	hether_nut2router,
+	{
+//		_SRC(v6(IPSEC_NUT_NET0_ADDR));
+		_SRC(v6merge(IPSEC_NET0_PREFIX, IPSEC_NET0_PREFIX_LEN, nutv6()));
+		_DST(v6(IPSEC_HOST1_NET1_ADDR));
+	},
+	{
+		_SPORT(DESTINATION_PORT);
+		_DPORT(10000);
+		SequenceNumber=any;
+		AcknowledgmentNumber=any;
+		ACKFlag=1;
+		SYNFlag=1;
+		Window=any;
+		option = opt_syn; 
+	},
+	{
+		header = _HDR_TCP_NAME(synack_reply_to_host1);
+		payload = payload_syn;
+	}
+)
+
+
+//======================================================================
+//
+// TCP Syn Request from HOST1 (Destination Port 23)
+//
+
+FEM_tcp6(
+	syn_request_from_host1_23,
+	hether_router2nut,
+	{
+		_SRC(v6(IPSEC_HOST1_NET1_ADDR));
+//		_DST(v6(IPSEC_NUT_NET0_ADDR));
+		_DST(v6merge(IPSEC_NET0_PREFIX, IPSEC_NET0_PREFIX_LEN, nutv6()));
+	},
+	{
+		_SPORT(10000);
+		_DPORT(23);
+		SequenceNumber       = SEQ;
+		SYNFlag              = 1;
+//		Window               = 16384;
+//		option               = opt_syn;
+	},
+	{
+		header = _HDR_TCP_NAME(syn_request_from_host1_23);
+		payload = payload_syn;
+	}
+)
+
+
+//======================================================================
+//
+// TCP Syn,Ack Reply to HOST1 (Source Rort 23)
+//
+
+FEM_tcp6(
+	synack_reply_to_host1_23,
+	hether_nut2router,
+	{
+//		_SRC(v6(IPSEC_NUT_NET0_ADDR));
+		_SRC(v6merge(IPSEC_NET0_PREFIX, IPSEC_NET0_PREFIX_LEN, nutv6()));
+		_DST(v6(IPSEC_HOST1_NET1_ADDR));
+	},
+	{
+		_SPORT(23);
+		_DPORT(10000);
+		SequenceNumber=any;
+		AcknowledgmentNumber=any;
+		ACKFlag=1;
+		SYNFlag=1;
+		Window=any;
+		option = opt_syn; 
+	},
+	{
+		header = _HDR_TCP_NAME(synack_reply_to_host1_23);
+		payload = payload_syn;
+	}
+)
+
+
+//======================================================================
+//
+// TCP Syn Request from HOST2
+//
+
+FEM_tcp6(
+	syn_request_from_host2,
+	hether_router2nut,
+	{
+		_SRC(v6(IPSEC_HOST2_NET1_ADDR));
+//		_DST(v6(IPSEC_NUT_NET0_ADDR));
+		_DST(v6merge(IPSEC_NET0_PREFIX, IPSEC_NET0_PREFIX_LEN, nutv6()));
+	},
+	{
+		_SPORT(10000);
+		_DPORT(DESTINATION_PORT);
+		SequenceNumber       = SEQ;
+		SYNFlag              = 1;
+//		Window               = 16384;
+//		option               = opt_syn;
+	},
+	{
+		header = _HDR_TCP_NAME(syn_request_from_host2);
+		payload = payload_syn;
+	}
+)
+
+
+//======================================================================
+//
+// TCP Syn,Ack Reply to HOST2
+//
+
+FEM_tcp6(
+	synack_reply_to_host2,
+	hether_nut2router,
+	{
+//		_SRC(v6(IPSEC_NUT_NET0_ADDR));
+		_SRC(v6merge(IPSEC_NET0_PREFIX, IPSEC_NET0_PREFIX_LEN, nutv6()));
+		_DST(v6(IPSEC_HOST2_NET1_ADDR));
+	},
+	{
+		_SPORT(DESTINATION_PORT);
+		_DPORT(10000);
+		SequenceNumber=any;
+		AcknowledgmentNumber=any;
+		ACKFlag=1;
+		SYNFlag=1;
+		Window=any;
+		option = opt_syn; 
+	},
+	{
+		header = _HDR_TCP_NAME(synack_reply_to_host2);
+		payload = payload_syn;
+	}
+)
+
+
+//======================================================================
+//
+// TCP Reset Request from Router
+//
+
+FEM_tcp6(
+	reset_request_from_router,
+	hether_router2nut,
+	{
+		_SRC(v6(IPSEC_ROUTER_NET0_ADDR));
+//		_DST(v6(IPSEC_NUT_NET0_ADDR));
+		_DST(v6merge(IPSEC_NET0_PREFIX, IPSEC_NET0_PREFIX_LEN, nutv6()));
+	},
+	{
+		_SPORT(10000);
+		_DPORT(DESTINATION_PORT);
+		SequenceNumber=SEQ;
+		AcknowledgmentNumber=ACK;       //* default 0 *//
+		RSTFlag=1;
+//		option = opt_syn;
+	},
+	{
+		header = _HDR_TCP_NAME(reset_request_from_router);
+		payload = payload_syn;
+	}
+)
+
+//======================================================================
+//
+// Reset from Host1 (Net2) via SGW1 to NUT (Net0) on Net0
+//
+
+FEM_tcp6(
+	reset_request_from_host1_net2_to_host0_net0,
+	hether_router2nut,
+	{
+		_SRC(v6(IPSEC_HOST1_NET2_ADDR));
+		_DST(v6(IPSEC_NUT_NET0_ADDR));
+	},
+	{
+		_SPORT(10000);
+		_DPORT(DESTINATION_PORT);
+		SequenceNumber=SEQ;
+		AcknowledgmentNumber=ACK;       //* default 0 *//
+		RSTFlag=1;
+	},
+	{
+		header = _HDR_TCP_NAME(reset_request_from_host1_net2_to_host0_net0);
+		payload = payload_syn;
+	}
+
+)
+
+//======================================================================
+//
+// TCP Reset Request from HOST1
+//
+
+FEM_tcp6(
+	reset_request_from_host1,
+	hether_router2nut,
+	{
+		_SRC(v6(IPSEC_HOST1_NET1_ADDR));
+		_DST(v6(IPSEC_NUT_NET0_ADDR));
+	},
+	{
+		_SPORT(10000);
+		_DPORT(DESTINATION_PORT);
+		SequenceNumber=SEQ;
+		AcknowledgmentNumber=ACK;       //* default 0 *//
+		RSTFlag=1;
+//		option = opt_syn;
+	},
+	{
+		header = _HDR_TCP_NAME(reset_request_from_host1);
+		payload = payload_syn;
+	}
+)
+
+
+//======================================================================
+//
+// TCP Reset Request from HOST1 (Destination Port 23)
+//
+
+FEM_tcp6(
+	reset_request_from_host1_23,
+	hether_router2nut,
+	{
+		_SRC(v6(IPSEC_HOST1_NET1_ADDR));
+		_DST(v6(IPSEC_NUT_NET0_ADDR));
+	},
+	{
+		_SPORT(10000);
+		_DPORT(23);
+		SequenceNumber=SEQ;
+		AcknowledgmentNumber=ACK;       //* default 0 *//
+		RSTFlag=1;
+//		option = opt_syn;
+	},
+	{
+		header = _HDR_TCP_NAME(reset_request_from_host1_23);
+		payload = payload_syn;
+	}
+)
+
+
+//======================================================================
+//
+// TCP Reset Request from HOST2
+//
+
+FEM_tcp6(
+	reset_request_from_host2,
+	hether_router2nut,
+	{
+		_SRC(v6(IPSEC_HOST2_NET1_ADDR));
+		_DST(v6(IPSEC_NUT_NET0_ADDR));
+	},
+	{
+		_SPORT(10000);
+		_DPORT(DESTINATION_PORT);
+		SequenceNumber=SEQ;
+		AcknowledgmentNumber=ACK;       //* default 0 *//
+		RSTFlag=1;
+//		option = opt_syn;
+	},
+	{
+		header = _HDR_TCP_NAME(reset_request_from_host2);
+		payload = payload_syn;
+	}
+)
+
+
+//======================================================================
+//
+// TCP Reset Request from HOST2 (Destination Port 23)
+//
+
+FEM_tcp6(
+	reset_request_from_host2_23,
+	hether_router2nut,
+	{
+		_SRC(v6(IPSEC_HOST2_NET1_ADDR));
+		_DST(v6(IPSEC_NUT_NET0_ADDR));
+	},
+	{
+		_SPORT(10000);
+		_DPORT(23);
+		SequenceNumber=SEQ;
+		AcknowledgmentNumber=ACK;       //* default 0 *//
+		RSTFlag=1;
+//		option = opt_syn;
+	},
+	{
+		header = _HDR_TCP_NAME(reset_request_from_host2_23);
+		payload = payload_syn;
+	}
+)
+
+
+//======================================================================
+//
+// Payload Data ("TCP syn") 
+//
+
+Payload payload_syn {
+        data = {};
+}
+
+Payload payload_syn_1 {
+	data = { 0x44, 0x61, 0x74, 0x61, 0x20, 0x31 };
+}
+

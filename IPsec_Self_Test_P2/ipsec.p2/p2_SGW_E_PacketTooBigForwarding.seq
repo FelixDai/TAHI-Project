@@ -1,0 +1,821 @@
+#!/usr/bin/perl
+#
+# Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010
+# Yokogawa Electric Corporation.
+# All rights reserved.
+# 
+# Redistribution and use of this software in source and binary
+# forms, with or without modification, are permitted provided that
+# the following conditions and disclaimer are agreed and accepted
+# by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in
+#    the documentation and/or other materials provided with
+#    the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project
+#    which is related to this software (hereinafter referred to as
+#    "project") nor the names of the contributors may be used to
+#    endorse or promote products derived from this software without
+#    specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written
+#    notification to the copyrighters.
+# 
+# 5. The copyrighters, the project and the contributors may prohibit
+#    the use of this software at any time.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+# STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+# IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+# $TAHI: ct/ipsec.p2/p2_SGW_E_PacketTooBigForwarding.seq,v 1.11 2007/03/09 10:48:05 akisada Exp $
+#
+######################################################################
+BEGIN {
+	$V6evalTool::TestVersion = '$Name: V6PC_P2_IPsec_1_10_0 $ ';
+}
+
+use V6evalTool;
+use IPSEC;
+
+require './keys.pl';
+
+######################################################################
+#----- Set defalut value
+$EALGO_FROM="ealgo_3descbc_hmacsha1_in";
+$EALGO_TO="ealgo_3descbc_hmacsha1_out";
+
+##----- get sequence arguments
+foreach (@ARGV) {
+	/^app_type=(\S+)/ && do {$IPSEC::APP_TYPE=$1; # APPLICATION TYPE
+					next; };
+#       /^ealgo_from=(\S+)/ && do {$EALGO_FROM=$1;    # ESP ENCRYPTION ALGORITHM FOR INBOUND PACKET
+#                                       next; };
+#       /^ealgo_to=(\S+)/   && do {$EALGO_TO=$1;      # ESP ENCRYPTION ALGORITHM FOR OUTBOUND PACKET
+#                                       next; };
+#       /^ealgo=(\S+)/      && do {$EALGO=$1;         # ESP ENCRYPTION ALGORITHM PACKET
+#                                       next; };
+#       /^eauth=(\S+)/      && do {$EAUTH=$1;         # ESP with AUTHENTICATION ALGORITHM FOR INBOUND PACKET
+#                                       next; };
+#       /^einkey=(\S+)/     && do {$E_IN_KEY=$$1;     # ESP ENCRYPTION KEY FOR INBOUND PACKET
+#                                       next; };
+#       /^eoutkey=(\S+)/    && do {$E_OUT_KEY=$$1;    # ESP ENCRYPTION KEY FOR OUTBOUND PACKET
+#                                       next; };
+#       /^ainkey=(\S+)/     && do {$A_IN_KEY=$$1;     # AH KEY FOR INBOUND PACKET
+#                                       next; };
+#       /^aoutkey=(\S+)/    && do {$A_OUT_KEY=$$1;    # AH KEY FOR OUTBOUND PACKET
+#                                       next; };
+	/^test_type=(\S+)/  && do {$TEST_TYPE=$1;     # TEST TYPE
+					next; };
+	/^support=(\S+)/    && do {$SUPPORT=$1;       # SUPPORT FUNCTION CHECK
+					next; };
+	seqERROR("Unknown sequence option '$_'");
+}
+#######################################################################
+
+my $IF0 = Link0;
+my $IF1 = Link1;
+
+#----- check NUT type
+ipsecCheckNUT(sgw, $TEST_TYPE, $SUPPORT);
+
+#----- Initilize target SA, SPD
+vLogHTML("<FONT SIZE=3>*** Target initialization phase ***</FONT><BR>");
+ipsecClearAll();
+
+#----- Start capturing
+vCapture($IF0);
+vCapture($IF1);
+
+# Confirmation is not required
+#ipsecSetAddrSGW($IF0, $IF1);
+
+#----- Set Algorithms
+my $cpp  = "-DEALGO_FROM_SGW1_NET2_HOST2=$EALGO_FROM -DEALGO_TO_SGW1_NET2_HOST2=$EALGO_TO"; 
+vCPP($cpp);
+
+#----- Set SAD,SPD
+## SGW1 vs NUT, Inbound
+ipsecSetSAD(
+	"src=$IPSEC::IPsecAddr{IPSEC_SGW1_NET2_ADDR}" ,
+	"dst=$IPSEC::IPsecAddr{IPSEC_NUT_NET1_ADDR}" ,
+	"nsrc=$IPSEC::IPsecAddr{IPSEC_NET3_ADDR}" ,
+	"ndst=$IPSEC::IPsecAddr{IPSEC_NET0_ADDR}" ,
+	"spi=0x1000" ,
+	"mode=tunnel" ,
+	"protocol=esp" ,
+	"ealgo=3des-cbc" ,
+	"ealgokey=$E_3descbc_in_key" ,
+	"eauth=hmac-sha1" ,
+	"eauthkey=$A_hmacsha1_in_key"
+	);
+
+ipsecSetSPD(
+        "tsrc=$IPSEC::IPsecAddr{IPSEC_SGW1_NET2_ADDR}" ,
+        "tdst=$IPSEC::IPsecAddr{IPSEC_NUT_NET1_ADDR}" ,
+	"src=$IPSEC::IPsecAddr{IPSEC_NET3_ADDR}" ,
+	"dst=$IPSEC::IPsecAddr{IPSEC_NET0_ADDR}" ,
+	"upperspec=any" ,
+	"direction=in" ,
+	"protocol=esp-auth" ,
+	"mode=tunnel" ,
+	);
+
+## SGW1 vs NUT, Outbound
+ipsecSetSAD(
+	"src=$IPSEC::IPsecAddr{IPSEC_NUT_NET1_ADDR}" ,
+	"dst=$IPSEC::IPsecAddr{IPSEC_SGW1_NET2_ADDR}" ,
+	"nsrc=$IPSEC::IPsecAddr{IPSEC_NET0_ADDR}" ,
+	"ndst=$IPSEC::IPsecAddr{IPSEC_NET3_ADDR}" ,
+	"spi=0x2000" ,
+	"mode=tunnel" ,
+	"protocol=esp" ,
+	"ealgo=3des-cbc" ,
+	"ealgokey=$E_3descbc_out_key" ,
+	"eauth=hmac-sha1" ,
+	"eauthkey=$A_hmacsha1_out_key"
+	);
+
+ipsecSetSPD(
+        "tsrc=$IPSEC::IPsecAddr{IPSEC_NUT_NET1_ADDR}" ,
+        "tdst=$IPSEC::IPsecAddr{IPSEC_SGW1_NET2_ADDR}" ,
+	"src=$IPSEC::IPsecAddr{IPSEC_NET0_ADDR}" ,
+	"dst=$IPSEC::IPsecAddr{IPSEC_NET3_ADDR}" ,
+	"upperspec=any" ,
+	"direction=out" ,
+	"protocol=esp-auth" ,
+	"mode=tunnel" ,
+	);
+
+## Enable IPsec
+ipsecEnable();
+
+#======================================================================
+vLogHTML("<FONT SIZE=3>*** Target testing phase ***<FONT><BR>");
+
+$IPSEC::pktdesc{'pkt_too_big_from_router'} 
+	= 'Send ICMP Error Message from Router(TN) to SGW(NUT)';
+$IPSEC::pktdesc{'pkt_too_big_to_host1'} 
+	= 'Receive ICMP Error Message from SGW(NUT) to Host1(TN)';
+
+$cpp .= " -DIPSEC_ECHO_DATA=echo_data_big_1352 -DTO_SEQUENCENUMBER=any";
+vCPP($cpp);
+
+#----- 1st Echo Request
+# ping TN(Host-1) on Net0 -> TN(Host-2) on Net3 via NUT
+my ($stat, %ret ) = ipsecForwardOneWay($IF0, $IF1,
+		'echo_request_from_host1_net0_to_host2_net3',
+		'esptun_to_sg1_net2_echo_request_from_host1_net0_to_host2_net3'
+		);
+if ($stat ne 'GOT_REPLY') {
+	vLogHTML("TN received no Echo Request from HOST-1(TN) to HOST-2(TN) via SGW(NUT).<BR>");
+	ipsecExitFail();
+}
+
+my $base_path = 'Frame_Ether.Packet_IPv6.Hdr_ESP';
+my $seq_number = $ret{$base_path.'.SequenceNumber'};
+my $initial_vector = $ret{$base_path.'.IVEC'};
+
+$cpp = "-DEALGO_TO_SGW1_NET2_HOST2=ealgo_3descbc_hmacsha1_out_iv"; 
+$cpp .= " -DTO_SEQUENCENUMBER=$seq_number -DINITIAL_VECTOR=\\\"$initial_vector\\\"";
+$cpp .= " -DIPSEC_ECHO_DATA=echo_data_big_1352";
+$cpp .= " -DMTU_SIZE=1356";
+vCPP($cpp);
+
+#----- Router(TN) between SGW1(TN) and SGW(NUT) reply ICMP error message (Packet Too Big) to NUT.
+# ICMP error (Packet Too Big) from Router(TN) on Net2 -> NUT on Net1
+#my $pkt_frames='pkt_too_big_from_router';
+#my ($stat, %ret ) = ipsecForwardOneWay($IF1, $IF0,
+#		'pkt_too_big_from_router',
+#		'pkt_too_big_to_host1'
+#		);
+($stat, %ret) = vSend($IF1, pkt_too_big_from_router);
+
+#----- 1st Echo Request again
+# ping TN(Host-1) on Net0 -> TN(Host-2) on Net3
+#                         <- ICMP error (Packet Too Big) from NUT
+my $pkt_frames='pkt_too_big_to_host1';
+($stat, %ret) = ipsecPing2NUT($IF0,
+		'echo_request_from_host1_net0_to_host2_net3',
+		$pkt_frames
+		);
+if ($stat ne 'GOT_REPLY') {
+	vLogHTML("TN received no ICMP Error (Packet Too Big) from SGW(NUT) to HOST-1(TN).<BR>");
+	ipsecExitFail();
+}
+
+vLogHTML("TN received echo request within ESP from HOST-1(TN) to HOST-2(TN) via SGW(NUT).<BR>");
+vLogHTML("<FONT COLOR=\"#006600\">Judgement #1: Encapuslating ICMP Echo Request: OK</FONT><BR>");
+
+#----- MTU size check
+my $mtu_size = $ret{'Frame_Ether.Packet_IPv6.ICMPv6_PacketTooBig.MTU'};
+#my $mtu_size=1280;
+##---- Alignment 8 bounday
+my $data_length = int(($mtu_size - 48)/8)*8; # 48: IPv6 + Fragment Header
+my $fragment_offset = $data_length/8; 
+my $left_data_offset = 54 + $data_length; #54: Ether + IPv6 Header
+my $left_data_length = 1460 - $left_data_offset if $IPSEC::test_debug;
+vLogHTML("MTU: $mtu_size, Alimented Data Length: $data_length, Fragment Offset: $fragment_offset, Left Data Length: $left_data_length<BR>") if $IPSEC::test_debug;
+
+vLogHTML("TN received ICMP Error (Packet Too Big) from SGW(NUT) to HOST-1(TN).<BR>");
+if ($mtu_size >= 1280 && $mtu_size <= 1286){
+	vLogHTML("<FONT COLOR=\"#006600\">Judgement #2: ICMP Error Message (Packet Too Big), MTU=$mtu_size : OK</FONT><BR>");
+}
+else{
+	vLogHTML("<FONT COLOR=\"#FF0000\">Judgement #2: ICMP Error Message (Packet Too Big), MTU=$mtu_size is not correct : NG</FONT><BR>");
+	ipsecResetNUT($IF0, $IF1);
+	ipsecExitFail();
+}
+
+#----- 2nd/3rd Fragment Echo Request TN(Host-1) -> TN(Host-2) via NUT
+#----- To check encapsulating fragmented packet and forwarding it.
+$IPSEC::pktdesc{'echo_request_from_host1_net0_to_host2_net3_1st'} 
+	= 'Send 1st Fragmented Echo Request from Host1(TN) to Host2(TN)';
+$IPSEC::pktdesc{'echo_request_from_host1_net0_to_host2_net3_2nd'} 
+	= 'Send 2nd Fragmented Echo Request from Host1(TN) to Host2(TN)';
+$IPSEC::pktdesc{'esptun_to_sg1_net2_echo_request_from_host1_net0_to_host2_net3_1st'} 
+	= 'Receive Encapsulated Fragmented Echo Request winthin ESP 1 from Host1(TN) to Host2(TN) via SGW(NUT)';
+$IPSEC::pktdesc{'esptun_to_sg1_net2_echo_request_from_host1_net0_to_host2_net3_2nd'} 
+	= 'Receive Encapsulated Fragmented Echo Request winthin ESP 2 from Host1(TN) to Host2(TN) via SGW(NUT)';
+
+$cpp  = "-DEALGO_TO_SGW1_NET2_HOST2=$EALGO_TO"; 
+$cpp .= " -DIPSEC_ECHO_DATA=echo_data_big_1352";
+$cpp .= " -DESP_TO_SGW1_NET2=esp_to_sg_host2_seq -DTO_SEQUENCENUMBER=any";
+$cpp .= " -DDATA_LENGTH=$data_length -DFRAG_OFFSET=$fragment_offset -DLEFT_DATA_OFFSET=$left_data_offset";
+vLogHTML("cpp: $cpp<BR>") if $IPSEC::test_debug;
+vCPP($cpp);
+
+$pkt_frames = 'esptun_to_sg1_net2_echo_request_from_host1_net0_to_host2_net3_1st
+		esptun_to_sg1_net2_echo_request_from_host1_net0_to_host2_net3_2nd';
+
+($stat, %ret) = ipsecPingFragForward(
+		$IF0, $IF1,
+		'echo_request_from_host1_net0_to_host2_net3_1st',
+		'echo_request_from_host1_net0_to_host2_net3_2nd',
+		$pkt_frames
+		);
+
+if ($stat ne 'GOT_REPLY') {
+	vLogHTML("TN received no echo request within ESP from HOST-1(TN) to HOST-2 via SGW(NUT).<BR>");
+	ipsecResetNUT($IF0, $IF1);
+	ipsecExitFail();
+}
+
+vLogHTML("TN received echo request within ESP from HOST-1(TN) to HOST-2(TN) via SGW(NUT).<BR>");
+vLogHTML("<FONT COLOR=\"#006600\">Judgement #3: Encapuslating fragmented ICMP Echo Request: OK</FONT><BR>");
+
+##----- Target clean nup to change MTU again
+vLogHTML("<FONT SIZE=3>*** Target cleanup phase ***<FONT><BR>");
+ipsecResetNUT($IF0, $IF1);
+#-- stop capturing
+vStop($IF0);
+vStop($IF1);
+ipsecExitPass();
+
+######################################################################
+__END__
+
+=head1 NAME
+
+  p2_SGW_E_PacketTooBigForwarding
+	- Packet Too Big Forwarding (Unknown Original Host)
+	- SGW Tunnel Mode ESP 3DES-CBC with HMAC-SHA1 authentication
+
+=head1 TARGET
+
+  SGW
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+ICMP Case:
+  <A HREF="./p2_SGW_E_PacketTooBigForwarding.seq">p2_SGW_E_PacketTooBigForwarding.seq</A> [-tooloption ...] -pkt <A HREF="./p2_SGW_E_ICMP_common.def">p2_SGW_E_ICMP_common.def</A>
+    -tooloption : v6eval tool option
+  See also <A HREF="./p2_SGW_ICMP_common.def">p2_SGW_ICMP_common.def</A>
+  See also <A HREF="./p2_ALGO_common.def">p2_ALGO_common.def</A>
+<BR>
+UDP Case:
+  <A HREF="./p2_SGW_E_PacketTooBigForwarding.seq">p2_SGW_E_PacketTooBigForwarding.seq</A> [-tooloption ...] -pkt <A HREF="./p2_SGW_E_UDP_common.def">p2_SGW_E_UDP_common.def</A>
+    -tooloption : v6eval tool option
+  See also <A HREF="./p2_SGW_UDP_common.def">p2_SGW_UDP_common.def</A>
+  See also <A HREF="./p2_ALGO_common.def">p2_ALGO_common.def</A>
+<BR>
+</PRE>
+
+=end html
+
+=head1 INITIALIZATION
+
+=begin html
+<P>
+For details of Network Topology, see <A HREF="00README">00README</A>
+</P>
+<P>
+Set NUT's SAD and SPD as following:
+</P>
+<PRE>
+                  HOST1
+                   |
+   ------------+---+------------------ NET0
+               |
+              NUT
+               |
+   ------------+---+------------------ NET1
+                   |
+                 Router
+                   |
+   ------------+---+------------------ NET2
+               |
+              SGW1
+               |
+   ---+--------+-- NET3
+      |
+    HOST2
+<BR>
+                NET3        NET2          NET1       NET0
+    HOST2_NET3 ------ SGW1 ------ Router ------ NUT ------ HOST1_NET0
+                          =====================> SA1-I Tunnel
+                          <===================== SA1-O Tunnel
+<BR>
+</PRE>
+<P>
+Security Association Database (SAD)
+</P>
+<TABLE border="1">
+  <TR>
+    <TD colspan=2 bgcolor="#ffffbb"><center>SAD for SA1-I</center></TD></TR>
+  <TR>
+    <TD>source address</TD>
+    <TD>SGW1_NET2</TD></TR>
+  <TR>
+    <TD>destination address</TD>
+    <TD>NUT_NET1</TD></TR>
+  <TR>
+    <TD>SPI</TD>
+    <TD>0x1000</TD></TR>
+  <TR>
+    <TD>mode</TD>
+    <TD>tunnel</TD></TR>
+  <TR>
+    <TD>protocol</TD>
+    <TD>ESP</TD></TR>
+  <TR>
+    <TD>ESP algorithm</TD>
+    <TD>3DES-CBC</TD><TR>
+  <TR>
+    <TD>ESP algorithm key</TD>
+    <TD>ipv6readylogo3descbcin01</TD></TR>
+  <TR>
+    <TD>ESP authentication</TD>
+    <TD>HMAC-SHA1</TD><TR>
+  <TR>
+    <TD>ESP authentication key</TD>
+    <TD>ipv6readylogsha1in01</TD></TR>
+</TABLE>
+<BR>
+<TABLE border="1">
+  <TR>
+    <TD colspan=2 bgcolor="#ffffbb"><center>SAD for SA1-O</center></TD></TR>
+  <TR>
+    <TD>source address</TD>
+    <TD>NUT_NET1</TD></TR>
+  <TR>
+    <TD>destination address</TD>
+    <TD>SGW1_NET2</TD></TR>
+  <TR>
+    <TD>SPI</TD>
+    <TD>0x2000</TD></TR>
+  <TR>
+    <TD>mode</TD>
+    <TD>tunnel</TD></TR>
+  <TR>
+    <TD>protocol</TD>
+    <TD>ESP</TD></TR>
+  <TR>
+    <TD>ESP algorithm</TD>
+    <TD>3DES-CBC</TD><TR>
+  <TR>
+    <TD>ESP algorithm key</TD>
+    <TD>ipv6readylogo3descbcout1</TD></TR>
+  <TR>
+    <TD>ESP authentication</TD>
+    <TD>HMAC-SHA1</TD><TR>
+  <TR>
+    <TD>ESP authentication key</TD>
+    <TD>ipv6readylogsha1out1</TD></TR>
+</TABLE>
+<P>
+Security Policy Database (SPD)
+</P>
+<TABLE border="1">
+  <TR>
+    <TD colspan=2 bgcolor="#ffffbb"><center>SPD for SA1-I</center></TD>
+  <TR>
+    <TD>tunnel source address</TD>
+    <TD>SGW1_NET2</TD></TR>
+  <TR>
+    <TD>tunnel destination address</TD>
+    <TD>NUT_NET1</TD></TR>
+  <TR>
+    <TD>source address</TD>
+    <TD>NET3</TD></TR>
+  <TR>
+    <TD>destination address</TD>
+    <TD>NET0</TD></TR>
+  <TR>
+    <TD>upper spec</TD>
+    <TD>any</TD></TR>
+  <TR>
+    <TD>direction</TD>
+    <TD>in</TD></TR>
+  <TR>
+    <TD>protocol</TD>
+    <TD>ESP</TD></TR>
+  <TR>
+    <TD>mode</TD>
+    <TD>tunnel</TD></TR>
+</TABLE>
+<BR>
+<TABLE border="1">
+  <TR>
+    <TD colspan=2 bgcolor="#ffffbb"><center>SPD for SA1-O</center></TD>
+  <TR>
+    <TD>tunnel source address</TD>
+    <TD>NUT_NET1</TD></TR>
+  <TR>
+    <TD>tunnel destination address</TD>
+    <TD>SGW1_NET2</TD></TR>
+  <TR>
+    <TD>source address</TD>
+    <TD>NET0</TD></TR>
+  <TR>
+    <TD>destination address</TD>
+    <TD>NET3</TD></TR>
+  <TR>
+    <TD>upper spec</TD>
+    <TD>any</TD></TR>
+  <TR>
+    <TD>direction</TD>
+    <TD>out</TD></TR>
+  <TR>
+    <TD>protocol</TD>
+    <TD>ESP</TD></TR>
+  <TR>
+    <TD>mode</TD>
+    <TD>tunnel</TD></TR>
+</TABLE>
+
+=end html
+
+=head1 TEST PROCEDURE
+
+=begin html
+<PRE>
+   Tester                         Target                          Tester
+     |                              |                               |
+     |                              |<------------------------------| From HOST1_NET0 to HOST2_NET3
+     |                              |  ICMP Echo Request            |
+     |                              |    (without ESP)              |
+     |                              |                               |
+     |<-----------------------------|                               | From HOST1_NET0 to HOST2_NET3 via SGW1
+     |     ICMP Echo Request        |                               | (Tunnel)
+     |      (within ESP)            |                               |
+     |                              |                               |
+     |----------------------------->|                               | From ROUTER_NET2 to NUT_NET1
+     |     ICMP Error Message       |                               |
+     |      (Packet Too Big)        |                               |
+     |                              |<------------------------------| From HOST1_NET0 to HOST2_NET3 again
+     |                              |  ICMP Echo Request            |
+     |                              |    (without ESP)              |
+     |                              |                               |
+     |                              |------------------------------>| From NUT_NET0 to HOST1_NET0
+     |                              |  ICMP Error Message           |
+     |                              |   (Packet Too Big)            |
+     |                              |                               |
+     |                              |<------------------------------| From HOST1_NET0 to HOST2_NET3
+     |                              |  Fragmented ICMP Echo Request |
+     |                              |    (without ESP 1)            |
+     |                              |<------------------------------| From HOST1_NET0 to HOST2_NET3
+     |                              |  Fragmented ICMP Echo Request |
+     |                              |    (without ESP 2)            |
+     |<-----------------------------|                               | From HOST1_NET0 to HOST2_NET3 via SGW1
+     | Fragmented ICMP Echo Request |                               | (Tunnel)
+     |     (within ESP 1)           |                               |
+     |<-----------------------------|                               | From HOST1_NET0 to HOST2_NET3 via SGW1
+     | Fragmented ICMP Echo Request |                               | (Tunnel)
+     |     (within ESP 2)           |                               |
+     |                              |                               |
+     v                              v                               v
+</PRE>
+<OL>
+  <LI>Send &quot;ICMP Echo Request from HOST1_NET0&quot;
+  <LI>Receive &quot;ICMP Echo Request within ESP 1 from HOST1_NET0&quot;
+  <LI>Send &quot;ICMP Error Message from ROUTER_NET2&quot;
+  <LI>Send &quot;ICMP Echo Request from HOST1_NET0&quot again;
+  <LI>Receive &quot;ICMP Error Message from NUT_NET0&quot;
+  <LI>Send &quot;Fragmented ICMP Echo Request 1 from HOST1_NET0&quot;<BR>
+      and &quot;Fragmented ICMP Echo Request 2 from HOST1_NET0&quot;
+  <LI>Receive &quot;Fragmented ICMP Echo Request within ESP 1 from HOST1_NET0&quot;<BR>
+      and &quot;Fragmented ICMP Echo Request within ESP 2 from HOST1_NET0&quot;
+</OL>
+<P>
+Packet Description
+</P>
+<TABLE border="1">
+  <TR bgcolor="#ffffbb">
+    <TD colspan="3"><center>ICMP Echo Request from HOST1_NET0</center></TD></TR>
+  <TR bgcolor="#ddffdd">
+    <TD rowspan="3">IP Header</TD>
+    <TD>Source Address</TD>
+    <TD>HOST1_NET0</TD></TR>
+  <TR bgcolor="#ddffdd">
+    <TD>Destination Address</TD>
+    <TD>HOST2_NET3</TD></TR>
+  <TR bgcolor="#ddffdd">
+    <TD>Payload Length</TD>
+    <TD>1360</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>ICMP</TD>
+    <TD>Type</TD>
+    <TD>128 (Echo Request)</TD></TR>
+</TABLE>
+<BR>
+<TABLE border="1">
+  <TR bgcolor="#ffffbb">
+    <TD colspan="3"><center>ICMP Echo Request within ESP from HOST1_NET0</center></TD></TR>
+  <TR bgcolor="#ddffdd">
+    <TD rowspan="2">IP Header</TD>
+    <TD>Source Address</TD>
+    <TD>NUT_NET1</TD></TR>
+  <TR bgcolor="#ddffdd">
+    <TD>Destination Address</TD>
+    <TD>SGW1_NET2</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD rowspan="5">ESP</TD>
+    <TD>SPI</TD>
+    <TD>0x2000</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Algorithm</TD>
+    <TD>3DES-CBC</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Key</TD>
+    <TD>ipv6readylogo3descbcout1</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Authentication Algorithm</TD>
+    <TD>HMAC-SHA1</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Authentication Key</TD>
+    <TD>ipv6readylogsha1out1</TD></TR>
+  <TR bgcolor="#ddffdd">
+    <TD rowspan="3">IP Header</TD>
+    <TD>Source Address</TD>
+    <TD>HOST1_NET0</TD></TR>
+  <TR bgcolor="#ddffdd">
+    <TD>Destination Address</TD>
+    <TD>HOST2_NET3</TD></TR>
+  <TR bgcolor="#ddffdd">
+    <TD>Payload Length</TD>
+    <TD>1360</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>ICMP</TD>
+    <TD>Type</TD>
+    <TD>128 (Echo Request)</TD></TR>
+</TABLE>
+<BR>
+<TABLE border="1">
+  <TR bgcolor="#ffffbb">
+    <TD colspan="3"><center>ICMP Error Message (Packet Too Big) from ROUTER_NET2</center></TD></TR>
+  <TR bgcolor="#ddffdd">
+    <TD rowspan="2">IP Header</TD>
+    <TD>Source Address</TD>
+    <TD>ROUTER_NET2</TD></TR>
+  <TR bgcolor="#ddffdd">
+    <TD>Destination Address</TD>
+    <TD>NUT_NET1</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD rowspan="3">ICMP</TD>
+    <TD>Type</TD>
+    <TD>2 (Packet Too Big)</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>MTU</TD>
+    <TD>1356</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>Data</TD>
+    <TD>1232 byte of ICMP Echo Reply</TD></TR>
+</TABLE>
+<BR>
+<TABLE border="1">
+  <TR bgcolor="#ffffbb">
+    <TD colspan="3"><center>ICMP Error Message (Packet Too Big) from NUT_NET0</center></TD></TR>
+  <TR bgcolor="#ddffdd">
+    <TD rowspan="2">IP Header</TD>
+    <TD>Source Address</TD>
+    <TD>NUT_NET0</TD></TR>
+  <TR bgcolor="#ddffdd">
+    <TD>Destination Address</TD>
+    <TD>HOST1_NET0</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD rowspan="3">ICMP</TD>
+    <TD>Type</TD>
+    <TD>2 (Packet Too Big)</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>MTU</TD>
+    <TD>1280</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>Data</TD>
+    <TD>1232 byte of ICMP Echo Reply</TD></TR>
+</TABLE>
+<BR>
+<TABLE border="1">
+  <TR bgcolor="#ffffbb">
+    <TD colspan="3"><center>ICMP Echo Request to HOST2_NET3 1</center></TD></TR>
+  <TR bgcolor="#ddffdd">
+    <TD rowspan="3">IP Header</TD>
+    <TD>Source Address</TD>
+    <TD>HOST1_NET0</TD></TR>
+  <TR bgcolor="#ddffdd">
+    <TD>Destination Address</TD>
+    <TD>HOST2_NET3</TD></TR>
+  <TR bgcolor="#ddffdd">
+    <TD>Payload Length</TD>
+    <TD>1240</TD></TR>
+  <TR bgcolor="#ddccff">
+    <TD rowspan="2">Fragment</TD>
+    <TD>Offset</TD>
+    <TD>0</TD></TR>
+  <TR bgcolor="#ddccff">
+    <TD>More Flag</TD>
+    <TD>1</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>ICMP</TD>
+    <TD>Type</TD>
+    <TD>128 (Echo Request)</TD></TR>
+</TABLE>
+<BR>
+<TABLE border="1">
+  <TR bgcolor="#ffffbb">
+    <TD colspan="3"><center>ICMP Echo Request to HOST2_NET3 2</center></TD></TR>
+  <TR bgcolor="#ddffdd">
+    <TD rowspan="3">IP Header</TD>
+    <TD>Source Address</TD>
+    <TD>HOST1_NET0</TD></TR>
+  <TR bgcolor="#ddffdd">
+    <TD>Destination Address</TD>
+    <TD>HOST2_NET3</TD></TR>
+  <TR bgcolor="#ddffdd">
+    <TD>Payload Length</TD>
+    <TD>136</TD></TR>
+  <TR bgcolor="#ddccff">
+    <TD rowspan="2">Fragment</TD>
+    <TD>Offset</TD>
+    <TD>154</TD></TR>
+  <TR bgcolor="#ddccff">
+    <TD>More Flag</TD>
+    <TD>0</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>Data</TD>
+    <TD>Data</TD>
+    <TD>Rest of ICMP Echo Reply</TD></TR>
+</TABLE>
+<BR>
+<TABLE border="1">
+  <TR bgcolor="#ffffbb">
+    <TD colspan="3"><center>ICMP Echo Request within ESP 1 from HOST1_NET0</center></TD></TR>
+  <TR bgcolor="#ddffdd">
+    <TD rowspan="2">IP Header</TD>
+    <TD>Source Address</TD>
+    <TD>NUT_NET1</TD></TR>
+  <TR bgcolor="#ddffdd">
+    <TD>Destination Address</TD>
+    <TD>SGW1_NET2</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD rowspan="5">ESP</TD>
+    <TD>SPI</TD>
+    <TD>0x2000</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Algorithm</TD>
+    <TD>3DES-CBC</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Key</TD>
+    <TD>ipv6readylogo3descbcout1</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Authentication Algorithm</TD>
+    <TD>HMAC-SHA1</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Authentication Key</TD>
+    <TD>ipv6readylogsha1out1</TD></TR>
+  <TR bgcolor="#ddffdd">
+    <TD rowspan="3">IP Header</TD>
+    <TD>Source Address</TD>
+    <TD>HOST1_NET0</TD></TR>
+  <TR bgcolor="#ddffdd">
+    <TD>Destination Address</TD>
+    <TD>HOST2_NET3</TD></TR>
+  <TR bgcolor="#ddffdd">
+    <TD>Payload Length</TD>
+    <TD>1240</TD></TR>
+  <TR bgcolor="#ddccff">
+    <TD rowspan="2">Fragment</TD>
+    <TD>Offset</TD>
+    <TD>0</TD></TR>
+  <TR bgcolor="#ddccff">
+    <TD>More Flag</TD>
+    <TD>1</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>ICMP</TD>
+    <TD>Type</TD>
+    <TD>128 (Echo Request)</TD></TR>
+</TABLE>
+<BR>
+<TABLE border="1">
+  <TR bgcolor="#ffffbb">
+    <TD colspan="3"><center>ICMP Echo Request within ESP 2 from HOST1_NET0</center></TD></TR>
+  <TR bgcolor="#ddffdd">
+    <TD rowspan="2">IP Header</TD>
+    <TD>Source Address</TD>
+    <TD>NUT_NET1</TD></TR>
+  <TR bgcolor="#ddffdd">
+    <TD>Destination Address</TD>
+    <TD>SGW1_NET2</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD rowspan="5">ESP</TD>
+    <TD>SPI</TD>
+    <TD>0x2000</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Algorithm</TD>
+    <TD>3DES-CBC</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Key</TD>
+    <TD>ipv6readylogo3descbcout1</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Authentication Algorithm</TD>
+    <TD>HMAC-SHA1</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Authentication Key</TD>
+    <TD>ipv6readylogsha1out1</TD></TR>
+  <TR bgcolor="#ddffdd">
+    <TD rowspan="3">IP Header</TD>
+    <TD>Source Address</TD>
+    <TD>HOST1_NET0</TD></TR>
+  <TR bgcolor="#ddffdd">
+    <TD>Destination Address</TD>
+    <TD>HOST2_NET3</TD></TR>
+  <TR bgcolor="#ddffdd">
+    <TD>Payload Length</TD>
+    <TD>136</TD></TR>
+  <TR bgcolor="#ddccff">
+    <TD rowspan="2">Fragment</TD>
+    <TD>Offset</TD>
+    <TD>154</TD></TR>
+  <TR bgcolor="#ddccff">
+    <TD>More Flag</TD>
+    <TD>0</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>Data</TD>
+    <TD>Data</TD>
+    <TD>Rest of ICMP Echo Request</TD></TR>
+</TABLE>
+
+=end html
+
+=head1 JUDGEMENT
+
+=begin html
+<UL>
+PASS:
+    <UL>
+        Step-2: NUT transmits &quot;ICMP Echo Request within ESP to HOST2_NET3&quot;<BR>
+        Step-5: NUT sends &quot;ICMP Error Message (Packet Too Big) to HOST1_NET0&quot;<BR>
+        Step-7: NUT transmits &quot;Fragmeted ICMP Echo Reply within ESP 1 to HOST2_NET3&quot;<BR>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        and &quot;Fragmeted ICMP Echo Reply within ESP 2 to HOST2_NET3&quot;<BR>
+    </UL>
+</UL>
+
+=end html
+
+=head1 SEE ALSO
+
+  perldoc V6evalTool
+
+=begin html
+<PRE>
+  <A HREF="./IPSEC.html">IPSEC.html</A> IPsec Test Common Utility
+</PRE>
+
+=cut

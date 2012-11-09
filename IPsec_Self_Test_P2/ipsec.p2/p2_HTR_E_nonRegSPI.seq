@@ -1,0 +1,537 @@
+#!/usr/bin/perl
+#
+# Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010
+# Yokogawa Electric Corporation.
+# All rights reserved.
+# 
+# Redistribution and use of this software in source and binary
+# forms, with or without modification, are permitted provided that
+# the following conditions and disclaimer are agreed and accepted
+# by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in
+#    the documentation and/or other materials provided with
+#    the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project
+#    which is related to this software (hereinafter referred to as
+#    "project") nor the names of the contributors may be used to
+#    endorse or promote products derived from this software without
+#    specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written
+#    notification to the copyrighters.
+# 
+# 5. The copyrighters, the project and the contributors may prohibit
+#    the use of this software at any time.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+# STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+# IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+# $TAHI: ct/ipsec.p2/p2_HTR_E_nonRegSPI.seq,v 1.17 2005/04/20 04:56:23 ozoe Exp $
+#
+######################################################################
+BEGIN {
+	$V6evalTool::TestVersion = '$Name: V6PC_P2_IPsec_1_10_0 $ ';
+}
+
+use V6evalTool;
+use IPSEC;
+
+require './keys.pl';
+
+######################################################################
+#----- get sequence arguments
+foreach (@ARGV) {
+	/^app_type=(\S+)/ && do {$IPSEC::APP_TYPE=$1; # APPLICATION TYPE
+					next; };
+	/^ealgo_from=(\S+)/ && do {$EALGO_FROM=$1;    # ENCRYPTION ALGORITHM FOR INBOUND PACKET
+					next; };
+	/^ealgo_to=(\S+)/   && do {$EALGO_TO=$1;      # ENCRYPTION ALGORITHM FOR OUTBOUND PACKET
+					next; };
+	/^ealgo=(\S+)/      && do {$EALGO=$1;         # ESP ENCRYPTION ALGORITHM PACKET
+					next; };
+	/^eauth=(\S+)/      && do {$EAUTH=$1;         # ESP with AUTHENTICATION ALGORITHM FOR INBOUND PACKET
+					next; };
+	/^einkey=(\S+)/     && do {$E_IN_KEY=$$1;     # ESP ENCRYPTION KEY FOR INBOUND PACKET
+					next; };
+	/^eoutkey=(\S+)/    && do {$E_OUT_KEY=$$1;    # ESP ENCRYPTION KEY FOR OUTBOUND PACKET
+					next; };
+	/^ainkey=(\S+)/     && do {$A_IN_KEY=$$1;     # AH KEY FOR INBOUND PACKET
+					next; };
+	/^aoutkey=(\S+)/    && do {$A_OUT_KEY=$$1;    # AH KEY FOR OUTBOUND PACKET
+					next; };
+	/^test_type=(\S+)/  && do {$TEST_TYPE=$1;     # TEST TYPE
+					next; };
+	/^support=(\S+)/    && do {$SUPPORT=$1;       # SUPPORT FUNCTION CHECK
+					next; };
+	seqERROR("Unknown sequence option '$_'");
+}
+######################################################################
+
+$IF = Link0;
+
+#----- Check NUT type
+ipsecCheckNUT(host, $TEST_TYPE, $SUPPORT);
+
+#----- Initilize target SA, SPD
+vLogHTML("<FONT SIZE=3>*** Target initialization phase ***</FONT><BR>");
+ipsecClearAll();
+
+#----- Start capturing
+vCapture($IF);
+
+#----- Set Algorithms
+vCPP("-DEALGO_FROM_HOST1=$EALGO_FROM -DEALGO_TO_HOST1=$EALGO_TO");
+
+#----- Set SAD,SPD
+## HOST1 vs NUT, Inbound
+ipsecSetSAD(
+	"src=$IPSEC::IPsecAddr{IPSEC_HOST1_NET1_ADDR}" ,
+	"dst=$IPSEC::IPsecAddr{IPSEC_NUT_NET0_ADDR}" ,
+	"spi=0x1000" ,
+	"mode=transport" ,
+	"protocol=esp" ,
+	"ealgo=$EALGO" ,
+	"ealgokey=$E_IN_KEY" ,
+	"eauth=$EAUTH" ,
+	"eauthkey=$A_IN_KEY"
+	);
+
+ipsecSetSPD(
+	"src=$IPSEC::IPsecAddr{IPSEC_HOST1_NET1_ADDR}" ,
+	"dst=$IPSEC::IPsecAddr{IPSEC_NUT_NET0_ADDR}" ,
+	"upperspec=any" ,
+	"direction=in" ,
+	"protocol=esp-auth" ,
+	"mode=transport" ,
+	);
+
+## HOST1 vs NUT, Outbound
+ipsecSetSAD(
+	"src=$IPSEC::IPsecAddr{IPSEC_NUT_NET0_ADDR}" ,
+	"dst=$IPSEC::IPsecAddr{IPSEC_HOST1_NET1_ADDR}" ,
+	"spi=0x2000" ,
+	"mode=transport" ,
+	"protocol=esp" ,
+	"ealgo=$EALGO" ,
+	"ealgokey=$E_OUT_KEY" ,
+	"eauth=$EAUTH" ,
+	"eauthkey=$A_OUT_KEY"
+	);
+
+ipsecSetSPD(
+	"src=$IPSEC::IPsecAddr{IPSEC_NUT_NET0_ADDR}" ,
+	"dst=$IPSEC::IPsecAddr{IPSEC_HOST1_NET1_ADDR}" ,
+	"upperspec=any" ,
+	"direction=out" ,
+	"protocol=esp-auth" ,
+	"mode=transport" ,
+	);
+
+## Enable IPsec
+ipsecEnable();
+
+#======================================================================
+vLogHTML("<FONT SIZE=3>*** Target testing phase ***</FONT><BR>");
+
+# Confirm TN(Host1) <-> NUT
+
+($stat, %ret) = ipsecPing2NUT($IF, 'echo_request_from_host1_esp', 'echo_reply_to_host1_esp');
+
+if ($stat ne 'GOT_REPLY') {
+	vLogHTML("TN received no echo reply from End-Node(NUT) to HOST-1(TN).<BR>");
+	ipsecExitFail();
+}
+
+vLogHTML("TN received echo reply from NUT to HOST1.<BR>");
+vLogHTML("<FONT COLOR=\"#006600\">Judgement #1: OK</FONT><BR>");
+
+# non-Registered SPI ping TN(Host1) <-> NUT
+
+vCPP("-DEALGO_FROM_HOST1=$EALGO_FROM -DEALGO_TO_HOST1=$EALGO_TO -DSPI_FROM_HOST1=0x9000");
+
+($stat, %ret) = ipsecPing2NUT($IF, 'echo_request_from_host1_esp', 'echo_reply_to_host1_esp');
+
+if ($stat eq 'GOT_REPLY') {
+	vLogHTML("TN received echo reply from End-Node(NUT) to HOST-1(TN).<BR>");
+	ipsecExitFail();
+}
+
+vLogHTML("TN didn't receive echo reply from End-Node(NUT) to HOST-1(TN).<BR>");
+vLogHTML("<FONT COLOR=\"#006600\">Judgement #2: Non-Registered SPI OK</FONT><BR>");
+
+#----- End capturing
+vStop($IF);
+ipsecExitPass();
+
+######################################################################
+__END__
+
+=head1 NAME
+
+  p2_HTR_E_nonRegSPI
+        - Receiption of Not Registered SPI
+        - End-Node Transport Mode with SGW ESP 3DES-CBC with HMAC-SHA1 authentication
+
+=head1 TARGET
+
+  End-Node
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+ICMP Case:
+  <A HREF="./p2_HTR_E_nonRegSPI.seq">p2_HTR_E_nonRegSPI.seq</A> [-tooloption ...] -pkt <A HREF="./p2_HTR_E_ICMP_common.def">p2_HTR_E_ICMP_common.def</A>
+    -tooloption : v6eval tool option
+  See also <A HREF="./p2_HTR_ICMP_common.def">p2_HTR_ICMP_common.def</A>
+  See also <A HREF="./p2_ALGO_common.def">p2_ALGO_common.def</A>
+<BR>
+UDP Case:
+  <A HREF="./p2_HTR_E_nonRegSPI.seq">p2_HTR_E_p2_HTR_E_nonRegSPI.seq</A> [-tooloption ...] -pkt <A HREF="./p2_HTR_E_UDP_common.def">p2_HTR_E_UDP_common.def</A>
+    -tooloption : v6eval tool option
+  See also <A HREF="./p2_HTR_UDP_common.def">p2_HTR_UDP_common.def</A>
+  See also <A HREF="./p2_ALGO_common.def">p2_ALGO_common.def</A>
+<BR>
+Parameters:
+  ealgo=3des-cbc
+  eauth=hmac-sha1
+  einkey=encryption key name for incoming packet (See <A HREF="./keys.pl">keys.pl</A> or <A HREF="./keys.def">keys.def</A>)
+  ainkey=authentication key name for incoming packet (See <A HREF="./keys.pl">keys.pl</A> or <A HREF="./keys.def">keys.def</A>)
+  eoutkey=encryption key name for outgoing packet (See <A HREF="./keys.pl">keys.pl</A> or <A HREF="./keys.def">keys.def</A>)
+  aoutkey=authentication key name for incoming packet (See <A HREF="./keys.pl">keys.pl</A> or <A HREF="./keys.def">keys.def</A>)
+  ealgo_from=packet define name for incoming packet (e.g., ealgo_3descbc_hmacsha1_in) (See <A HREF="./p2_ALGO_common.def">p2_ALGO_common.def</A>)
+  ealgo_to=packet define name for outgoing packet (e.g., ealgo_3descbc_hmacsha1_out) (See <A HREF="./p2_ALGO_common.def">p2_ALGO_common.def</A>)
+</PRE>
+
+=end html
+
+=head1 INITIALIZATION
+
+=begin html
+<P>
+For details of Network Topology, see <A HREF="00README">00README</A>
+</P>
+<P>
+Set NUT's SAD and SPD as following:
+</P>
+<PRE>
+                  NUT
+                   |
+   ------------+---+-------- NET0
+               |
+             Router
+               |
+   ------------+---+-------- NET1
+                   |
+                 HOST1
+<BR>
+                NET1          NET0
+    HOST1_NET1 ------ Router ------ NUT
+               ===================> SA1-I Transport
+               <=================== SA1-O Transport
+</PRE>
+<P>
+Security Association Database (SAD)
+</P>
+<TABLE border="1">
+  <TR>
+    <TD colspan=2 bgcolor="#ffffbb"><center>SAD for SA1-I</center></TD></TR>
+  <TR>
+    <TD>source address</TD>
+    <TD>HOST1_NET1</TD></TR>
+  <TR>
+    <TD>destination address</TD>
+    <TD>NUT_NET0</TD></TR>
+  <TR>
+    <TD>SPI</TD>
+    <TD>0x1000</TD></TR>
+  <TR>
+    <TD>mode</TD>
+    <TD>transport</TD></TR>
+  <TR>
+    <TD>protocol</TD>
+    <TD>ESP</TD></TR>
+  <TR>
+    <TD>ESP algorithm</TD>
+    <TD>3DES-CBC</TD></TR>
+  <TR>
+    <TD>ESP algorithm key</TD>
+    <TD>ipv6readylogo3descbcin01</TD></TR>
+  <TR>
+    <TD>ESP authentication</TD>
+    <TD>HMAC-SHA1</TD></TR>
+  <TR>
+    <TD>ESP authentication key</TD>
+    <TD>ipv6readylogsha1in01</TD></TR>
+</TABLE>
+<BR>
+<TABLE border="1">
+  <TR>
+    <TD colspan=2 bgcolor="#ffffbb"><center>SAD for SA1-O</center></TD></TR>
+  <TR>
+    <TD>source address</TD>
+    <TD>NUT_NET0</TD></TR>
+  <TR>
+    <TD>destination address</TD>
+    <TD>HOST1_NET1</TD></TR>
+  <TR>
+    <TD>SPI</TD>
+    <TD>0x2000</TD></TR>
+  <TR>
+    <TD>mode</TD>
+    <TD>transport</TD></TR>
+  <TR>
+    <TD>protocol</TD>
+    <TD>ESP</TD></TR>
+  <TR>
+    <TD>ESP algorithm</TD>
+    <TD>3DES-CBC</TD></TR>
+  <TR>
+    <TD>ESP algorithm key</TD>
+    <TD>ipv6readylogo3descbcout1</TD></TR>
+  <TR>
+    <TD>ESP authentication</TD>
+    <TD>HMAC-SHA1</TD></TR>
+  <TR>
+    <TD>ESP authentication key</TD>
+    <TD>ipv6readylogsha1out1</TD></TR>
+</TABLE>
+<P>
+Security Policy Database (SPD)
+</P>
+<TABLE border="1">
+  <TR>
+    <TD colspan=2 bgcolor="#ffffbb"><center>SPD for SA1-I</center></TD>
+  <TR>
+    <TD>source address</TD>
+    <TD>HOST1_NET1</TD></TR>
+  <TR>
+    <TD>destination address</TD>
+    <TD>NUT_NET0</TD></TR>
+  <TR>
+    <TD>upper spec</TD>
+    <TD>any</TD></TR>
+  <TR>
+    <TD>direction</TD>
+    <TD>in</TD></TR>
+  <TR>
+    <TD>protocol</TD>
+    <TD>ESP</TD></TR>
+  <TR>
+    <TD>mode</TD>
+    <TD>transport</TD></TR>
+</TABLE>
+<BR>
+<TABLE border="1">
+  <TR>
+    <TD colspan=2 bgcolor="#ffffbb"><center>SPD for SA1-O</center></TD>
+  <TR>
+    <TD>source address</TD>
+    <TD>NUT_NET0</TD></TR>
+  <TR>
+    <TD>destination address</TD>
+    <TD>HOST1_NET1</TD></TR>
+  <TR>
+    <TD>upper spec</TD>
+    <TD>any</TD></TR>
+  <TR>
+    <TD>direction</TD>
+    <TD>out</TD></TR>
+  <TR>
+    <TD>protocol</TD>
+    <TD>ESP</TD></TR>
+  <TR>
+    <TD>mode</TD>
+    <TD>transport</TD></TR>
+</TABLE>
+
+=end html
+
+=head1 TEST PROCEDURE
+
+=begin html
+<PRE>
+ Tester                      Target
+   |                           |
+   |-------------------------->| From HOST1_NET1 (registered SPI)
+   |      ICMP Echo Request    |
+   |        (with ESP)         |
+   |                           |
+   |<--------------------------| To HOST1_NET1
+   |      ICMP Echo Reply      |
+   |        (with ESP)         |
+   |                           |
+   |                           |
+   |-------------------------->| From HOST1_NET1 (non-registered SPI)
+   |      ICMP Echo Request    |
+   |        (with ESP)         |
+   |                           |
+   |(<------------------------)| To HOST1_NET1
+   |      ICMP Echo Reply      |
+   |        (with ESP)         |
+   |                           |
+   v                           v
+</PRE>
+<OL>
+  <LI>Send &quot;ICMP Echo Request with ESP from HOST1_NET1&quot;
+  <LI>Receive &quot;ICMP Echo Reply with ESP to HOST1_NET1&quot;
+  <LI>Send &quot;ICMP Echo Request with ESP from HOST1_NET1(non-registered SPI)&quot;
+  <LI>Receive &quot;ICMP Echo Reply with ESP to HOST1_NET1&quot; (must not be received)
+</OL>
+<P>
+Packet Description
+</P>
+<TABLE border="1">
+  <TR bgcolor="#ffffbb">
+    <TD colspan="3"><center>ICMP Echo Request with ESP from HOST1_NET1</center></TD></TR>
+  <TR bgcolor="#ddffdd">
+    <TD rowspan="2">IP Header</TD>
+    <TD>Source Address</TD>
+    <TD>HOST1_NET1</TD></TR>
+  <TR bgcolor="#ddffdd">
+    <TD>Destination Address</TD>
+    <TD>NUT_NET0</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD rowspan="5">ESP</TD>
+    <TD>SPI</TD>
+    <TD>0x1000</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Algorithm</TD>
+    <TD>3DES-CBC</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Key</TD>
+    <TD>ipv6readylogo3descbcin01</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Authentication Algorithm</TD>
+    <TD>HMAC-SHA1</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Authentication Key</TD>
+    <TD>ipv6readylogsha1in01</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>ICMP</TD>
+    <TD>Type</TD>
+    <TD>128 (Echo Request)</TD></TR>
+</TABLE>
+<BR>
+<TABLE border="1">
+  <TR bgcolor="#ffffbb">
+    <TD colspan="3"><center>ICMP Echo Reply with ESP to HOST1_NET1</center></TD></TR>
+  <TR bgcolor="#ddffdd">
+    <TD rowspan="2">IP Header</TD>
+    <TD>Source Address</TD>
+    <TD>NUT_NET0</TD></TR>
+  <TR bgcolor="#ddffdd">
+    <TD>Destination Address</TD>
+    <TD>HOST1_NET1</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD rowspan="5">ESP</TD>
+    <TD>SPI</TD>
+    <TD>0x2000</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Algorithm</TD>
+    <TD>3DES-CBC</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Key</TD>
+    <TD>ipv6readylogo3descbcout1</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Authentication Algorithm</TD>
+    <TD>HMAC-SHA1</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Authentication Key</TD>
+    <TD>ipv6readylogsha1out1</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>ICMP</TD>
+    <TD>Type</TD>
+    <TD>129 (Echo Reply)</TD></TR>
+</TABLE>
+<BR>
+<TABLE border="1">
+  <TR bgcolor="#ffffbb">
+    <TD colspan="3"><center>ICMP Echo Request with ESP from HOST1_NET1(non-registerd SPI)</center></TD></TR>
+  <TR bgcolor="#ddffdd">
+    <TD rowspan="2">IP Header</TD>
+    <TD>Source Address</TD>
+    <TD>HOST1_NET1</TD></TR>
+  <TR bgcolor="#ddffdd">
+    <TD>Destination Address</TD>
+    <TD>NUT_NET0</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD rowspan="5">ESP</TD>
+    <TD>SPI</TD>
+    <TD>0x9000</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Algorithm</TD>
+    <TD>3DES-CBC</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Key</TD>
+    <TD>ipv6readylogo3descbcin01</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Authentication Algorithm</TD>
+    <TD>HMAC-SHA1</TD></TR>
+  <TR bgcolor="#ffdddd">
+    <TD>Authentication Key</TD>
+    <TD>ipv6readylogsha1in01</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>ICMP</TD>
+    <TD>Type</TD>
+    <TD>128 (Echo Request)</TD></TR>
+</TABLE>
+<BR>
+<TABLE border="1">
+  <TR bgcolor="#ffffbb">
+    <TD colspan="3"><center>ICMP Echo Reply without ESP to HOST1_NET1</center></TD></TR>
+  <TR bgcolor="#ddffdd">
+    <TD rowspan="2">IP Header</TD>
+    <TD>Source Address</TD>
+    <TD>NUT_NET0</TD></TR>
+  <TR bgcolor="#ddffdd">
+    <TD>Destination Address</TD>
+    <TD>HOST1_NET1</TD></TR>
+  <TR bgcolor="#ddddff">
+    <TD>ICMP</TD>
+    <TD>Type</TD>
+    <TD>129 (Echo Reply)</TD></TR>
+</TABLE>
+
+=end html
+
+=head1 JUDGEMENT
+
+=begin html
+<UL>
+PASS:
+    <UL>
+        Step-2:&quot;ICMP Echo Reply with ESP to HOST1_NET1&quot; Recieved<BR>
+        Step-4:Neither &quot;ICMP Echo Reply with ESP to HOST1_NET1&quot;<BR>
+        NOR &quot;ICMP Echo Reply without ESP to HOST1_NET1&quot; Recieved<BR>
+    </UL>
+</UL>
+
+=end html
+
+=head1 SEE ALSO
+
+  perldoc V6evalTool
+
+=begin html
+<PRE>
+  <A HREF="./IPSEC.html">IPSEC.html</A> IPsec Test Common Utility
+</PRE>
+
+=cut

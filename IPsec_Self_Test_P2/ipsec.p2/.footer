@@ -1,0 +1,22 @@
+<BR>
+<BR>
+Terminology
+<UL>
+  End-Node: A node who can use IPsec only for itself. Host and Router can be an End-Node.<BR>
+  SGW: Security Gateway, A node who can provide IPsec tunnel mode for nodes behind it. Router can be a SGW.<BR> 
+  DAD: Duplicate Address Detection<BR>
+  MTU: Maximum Transmission Unit<BR>
+  NA: Neighbor Advertisement<BR>
+  NCE: Neighbor Cache Entry<BR>
+  NONCE: No Neighbor Cache Entry<BR>
+  NS: Neighbor Solicitation<BR>
+  NUT: Node Under Test<BR>
+  RUT: Router Under Test<BR>
+  TN: Tester Node<BR>
+  TR: Testing Router<BR>
+</UL>
+<HR>	
+Index
+<UL>
+  <LI>IPsec
+</UL>

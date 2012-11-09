@@ -1,0 +1,120 @@
+Network topology
+=================
+$TAHI: ct/ipsec.p2/00README,v 1.1 2005/04/05 05:22:54 ozoe Exp $
+
+For End-Node: Tunnel Mode with SGW Test
+---------------------------------------
+
+    PF0=3ffe:501:ffff:0000::/64
+    PF1=3ffe:501:ffff:0001::/64
+
+                         NUT
+                          |NUT_NET0=PF0::some_address
+                          |
+              --------+---+--------------------- NET0=PF0
+                      |
+                      |ROUTER1_NET0=PF0::f
+                    Router
+                      |ROUTER1_NET1=PF1::f
+                      |
+              ---+----+-------------+----------- NET1=PF1
+                 |                  |
+                 |HOST1_NET1=PF1::1 |HOST2_NET1=PF1::2
+               HOST1               HOST2
+
+    Fig. 1 Topology for End-Node: Transport and Tunnel mode with End-Node
+
+For End-Node: Tunnel Mode with SGW Test
+---------------------------------------
+
+    PF0=3ffe:501:ffff:0000::/64
+    PF1=3ffe:501:ffff:0001::/64
+    PF2=3ffe:501:ffff:0002::/64
+
+                         NUT
+                          |NUT_NET0=PF0::some_address
+                          |
+              --------+---+--------------------- NET0=PF0
+                      |
+                      |ROUTER1_NET0=PF0::f
+                    Router
+                      |ROUTER1_NET1=PF1::f
+                      |
+              --------+---+--------------------- NET1=PF1
+                          |
+                          |SGW1_NET1=PF1::e
+                         SGW1
+                          |SGW1_NET2=PF2::e
+                          |
+              ---+--------+---------+----------- NET2=PF2
+                 |                  |
+                 |HOST1_NET2=PF2::1 |HOST2_NET2=PF2::2
+               HOST1               HOST2
+
+         Fig. 2 Topology for End-Node: Tunnel mode with SGW
+
+For SGW: Tunnel Mode with End-Node Test
+---------------------------------------
+
+    PF0=3ffe:501:ffff:0000::/64
+    PF1=3ffe:501:ffff:0001::/64
+    PF2=3ffe:501:ffff:0002::/64
+
+                    HOST1
+                      |HOST1_NET0=PF0::1
+                      |
+              --------+---+--------------------- NET0=PF0
+                          |
+                          |NUT_NET0=PF0::f
+                         NUT
+                          |NUT_NET1=PF1::f
+                          |
+              --------+---+--------------------- NET1=PF1
+                      |
+                      |ROUTER1_NET1=PF1::e
+                    Router
+                      |ROUTER1_NET2=PF2::e
+                      |
+              --------+---+--------------------- NET2=PF2
+                          |
+                          |HOST2_NET2=PF2::1
+                        HOST2
+
+         Fig. 3 Topology for SGW: Tunnel mode with End-Node
+
+For SGW: Tunnel Mode Test
+-------------------------
+
+    PF0=3ffe:501:ffff:0000::/64
+    PF1=3ffe:501:ffff:0001::/64
+    PF2=3ffe:501:ffff:0002::/64
+    PF3=3ffe:501:ffff:0003::/64
+    PF4=3ffe:501:ffff:0004::/64
+
+                                   HOST1
+                                    |HOST1_NET0=PF0::1
+                                    |
+                    ------------+---+--------------------- NET0=PF0
+                                |
+                                |NUT_NET0=PF0::f
+                               NUT
+                                |NUT_NET1=PF1::f
+                                |
+                    ------------+---+--------------------- NET1=PF1
+                                    |
+                                    |ROUTER1_NET1=PF1::e
+                                  Router
+                                    |ROUTER1_NET2=PF2::e
+                                    |
+   ------------+--------------------+---------+----------- NET2=PF2
+               |                              |
+               |SGW1_NET2=PF2::d              |SGW2_NET2=PF2::c
+              SGW1                           SGW2
+               |SGW1_NET3=PF3::d              |SGW2_NET4=PF4::c
+               |                              |
+   ---+--------+----------+--- NET3=PF3      -+---+------- NET4=PF4
+      |                   |                       |
+      |HOST2_NET3=PF3::1  |HOST3_NET3=PF3::2      |HOST4_NET4=PF4::3
+    HOST2               HOST3                   HOST4
+
+             Fig. 4 Topology for SGW: Tunnel mode with SGW
