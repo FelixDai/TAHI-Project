@@ -1,0 +1,30 @@
+EN-EN.def
+    done:	send: ipsec_ereq (transport)
+    done:	recv: ipsec_erep (transport)
+    done:	send: ipsec_tcp_syn
+    done:	recv: ipsec_tcp_syn_ack
+    done:	recv: ipsec_tcp_rst_ack
+EN.def
+    done:	send: ra_setup
+    done:	send: ra_cleanup
+EN-SGW.def
+    send: ipsec_ereq (tunnel) 内側パケット
+    recv: ipsec_erep (tunnel) 内側パケット
+SGW-SGW.def
+    recv: ereq 内側パケット
+    send: erep 内側パケット
+
+    以下は macro で実現?
+        recv: ereq_th3
+        send: erep_th3
+SGW-EN.def
+    recv: ereq 内側パケット
+    send: erep 内側パケット
+ICMPv6.def
+    send: dst_unreach
+    send/recv: エコーデータ 定義
+IPsec.def
+    send/recv: ESP 定義
+Tunnel.def
+    send: ipsec_ereq (tunnel)
+    recv: ipsec_erep (tunnel)

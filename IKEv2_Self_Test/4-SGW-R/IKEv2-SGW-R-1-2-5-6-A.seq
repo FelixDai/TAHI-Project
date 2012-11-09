@@ -1,0 +1,758 @@
+#!/usr/bin/perl
+#
+# Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009
+# Yokogawa Electric Corporation.
+# All rights reserved.
+# 
+# Redistribution and use of this software in source and binary
+# forms, with or without modification, are permitted provided that
+# the following conditions and disclaimer are agreed and accepted
+# by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in
+#    the documentation and/or other materials provided with
+#    the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project
+#    which is related to this software (hereinafter referred to as
+#    "project") nor the names of the contributors may be used to
+#    endorse or promote products derived from this software without
+#    specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written
+#    notification to the copyrighters.
+# 
+# 5. The copyrighters, the project and the contributors may prohibit
+#    the use of this software at any time.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+# STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+# IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+# $Id: IKEv2-SGW-R-1-2-5-6-A.seq,v 1.6 2010/09/17 10:15:48 doo Exp $
+#
+################################################################
+
+
+
+BEGIN
+{
+	push(@INC, '..');
+}
+
+END { }
+
+
+
+use IKEv2;
+use strict;
+
+
+
+my $remote	= 'common_remote_index';
+my $ike_sa_init_req_param	= undef;
+my $ike_sa_init_resp_param	= undef;
+my $ike_auth_req_param	= undef;
+my $ike_auth_resp_param	= undef;
+my $create_child_sa_req_param = undef;
+my $create_child_sa_resp_param = undef;
+my $informational_req_param	= undef;
+my $informational_resp_param	= undef;
+
+my $session	= undef;
+my $material	= undef;
+my $child_sa_material	= undef;
+my $str	= undef;
+my $ret	= undef;
+
+my @local_create_child_sa_req = undef;
+
+
+#------------------------------#
+# register IKEv2.pm            #
+#------------------------------#
+kLogHTML('<FONT COLOR="#FF0000" SIZE="+1"><U><B>TEST SETUP</B></U></FONT>');
+
+my $tn = 'SGW';
+my $nut = 'SGW';
+
+unless(IKEv2initialize($tn, $nut)) {
+	IKEv2exitFatal('<FONT COLOR="#ff0000">IKEv2 module initializing failure</FONT>');
+}
+
+
+
+#------------------------------#
+# configure TN                 #
+#------------------------------#
+unless(IKEv2setupTN()) {
+	IKEv2exitFatal('<FONT COLOR="#ff0000">TN setup failure</FONT>');
+}
+
+
+
+#------------------------------#
+# configure NUT                #
+#------------------------------#
+unless(IKEv2setupNUT()) {
+	IKEv2exitFatal('<FONT COLOR="#ff0000">NUT setup failure</FONT>');
+}
+
+
+
+#------------------------------#
+# prepare session handler      #
+#------------------------------#
+kLogHTML('<FONT COLOR="#FF0000" SIZE="+1"><U><B>TEST PROCEDURE</B></U></FONT>');
+
+
+
+$session = IKEv2create_session($remote);
+unless(defined($session)) {
+	IKEv2exitFatal('<FONT COLOR="#ff0000">IKEv2 session creation failure</FONT>');
+}
+
+
+
+#--------------------------------------#
+# send IKE_SA_INIT request to NUT      #
+#--------------------------------------#
+$str  = '<PRE>';
+$str .= "    (R)             (I)\n";
+$str .= "    NUT             TN1\n";
+$str .= "     |               |\n";
+$str .= "     |<--------------| IKE_SA_INIT request (HDR, SAi1, KEi, Ni)\n";
+$str .= "     |               |\n";
+$str .= "     V               V";
+$str .= '</PRE>';
+
+kLogHTML($str);
+
+
+
+$ike_sa_init_req_param = devel_IKEv2send_IKE_SA_INIT_request($session, $remote);
+unless(defined($ike_sa_init_req_param)) {
+	kLogHTML(kDump_Common_Error());
+	IKEv2exitFatal('<FONT COLOR="#ff0000">Can\'t send IKE_SA_INIT request.</FONT>');
+}
+
+
+
+#--------------------------------------#
+# receive IKE_SA_INIT response by NUT  #
+#--------------------------------------#
+$str  = '<PRE>';
+$str .= "    (R)             (I)\n";
+$str .= "    NUT             TN1\n";
+$str .= "     |               |\n";
+$str .= "     |-------------->| IKE_SA_INIT response (HDR, SAr1, KEr, Nr)\n";
+$str .= "     |               |\n";
+$str .= "     V               V";
+$str .= '</PRE>';
+
+kLogHTML($str);
+
+
+
+$ike_sa_init_resp_param = devel_IKEv2receive_IKE_SA_INIT_response($session,
+							$remote,
+							$ike_sa_init_req_param);
+unless(defined($ike_sa_init_resp_param)) {
+	kLogHTML(kDump_Common_Error());
+	kLogHTML('<FONT COLOR="#ff0000">Can\'t observe IKE_SA_INIT response.</FONT>');
+	IKEv2exitFail();
+}
+
+
+
+#--------------------------------------#
+# generate keying material             #
+#--------------------------------------#
+$material = devel_IKEv2gen_keymat(1, $ike_sa_init_req_param, $ike_sa_init_resp_param);
+unless(defined($material)) {
+	kLogHTML(kDump_Common_Error());
+	IKEv2exitFatal('<FONT COLOR="#ff0000">Can\'t generate keying material.</FONT>');
+}
+
+
+
+#--------------------------------------#
+# send IKE_AUTH request to NUT         #
+#--------------------------------------#
+$str  = '<PRE>';
+$str .= "    (R)             (I)\n";
+$str .= "    NUT             TN1\n";
+$str .= "     |               |\n";
+$str .= "     |<--------------| IKE_AUTH request (HDR, SK {IDi, AUTH, SAi2, TSi, TSr})\n";
+$str .= "     |               |\n";
+$str .= "     V               V";
+$str .= '</PRE>';
+
+kLogHTML($str);
+
+
+
+$ike_auth_req_param = devel_IKEv2send_IKE_AUTH_request($session, $remote, $ike_sa_init_req_param, $ike_sa_init_resp_param, $material);
+unless(defined($ike_auth_req_param)) {
+	kLogHTML(kDump_Common_Error());
+	IKEv2exitFatal('<FONT COLOR="#ff0000">Can\'t send IKE_AUTH request.</FONT>');
+}
+
+
+
+#--------------------------------------#
+# receive IKE_AUTH response by NUT     #
+#--------------------------------------#
+$str  = '<PRE>';
+$str .= "    (R)             (I)\n";
+$str .= "    NUT             TN1\n";
+$str .= "     |               |\n";
+$str .= "     |-------------->| IKE_AUTH response (HDR, SK {IDr, AUTH, SAr2, TSi, TSr)\n";
+$str .= "     |               |\n";
+$str .= "     V               V";
+$str .= '</PRE>';
+
+kLogHTML($str);
+
+
+
+$ike_auth_resp_param = devel_IKEv2receive_IKE_AUTH_response($session,
+							    $remote,
+							    $ike_sa_init_req_param,
+							    $ike_sa_init_resp_param,
+							    $ike_auth_req_param,
+							    $material);
+unless(defined($ike_auth_resp_param)) {
+	kLogHTML(kDump_Common_Error());
+	kLogHTML('<FONT COLOR="#ff0000">Can\'t observe IKE_AUTH response.</FONT>');
+	IKEv2exitFail();
+}
+
+
+
+#--------------------------------------#
+# set keying material                  #
+#--------------------------------------#
+my $keymat = undef;
+{
+	#--------------------------------------#
+	# generate keying material (CHILD_SA)  #
+	#--------------------------------------#
+	$keymat = IKEv2_v6eval_generate_IPsecSA(1,	# Initial Exchanges
+						$material,
+						$ike_sa_init_req_param,
+						$ike_sa_init_resp_param,
+						$ike_auth_req_param,
+						$ike_auth_resp_param);
+
+	my $ret = IKEv2_v6eval_set_IPsecSA(1, $keymat, $ike_auth_req_param, $ike_auth_resp_param);
+	unless($ret) {
+		IKEv2log(kDump_Common_Error());
+		IKEv2exitFatal('<FONT COLOR="#ff0000">Can\'t set keying material.</FONT>');
+	}
+}
+
+
+
+#------------------------------#
+# send Echo Request            #
+#------------------------------#
+{
+	$str  = '<PRE>';
+	$str .= "                    (I)             (R)\n";
+	$str .= "    TH1             NUT             TN1             TH2\n";
+	$str .= "     |               |               |               |\n";
+	$str .= "     |<--------------+===============+---------------| IPsec {Echo Request}\n";
+	$str .= "     |               |               |               |\n";
+	$str .= "     V               V               V               V";
+	$str .= '</PRE>';
+	IKEv2log($str);
+
+	my $slink = 'Link0';
+	my $rlink = 'Link1';
+	my $spkt = 'ipsec_ereq';
+	my @rpkts = ('ereq');
+	my ($ret, %vrecv) = IKEv2_v6eval_send_recv($slink, $rlink, $spkt, @rpkts);
+	unless ($ret) {
+		my $strerror = kDump_Common_Error();
+		IKEv2log('<FONT COLOR="#ff0000">Can\'t observe ICMP packet.</FONT>');
+		IKEv2exitFail();
+	}
+}
+
+
+
+#------------------------------#
+# send Echo Reply              #
+#------------------------------#
+my $esp_seq_out = 1;
+my $esp_seq_in = undef;
+{
+	$str  = '<PRE>';
+	$str .= "                    (I)             (R)\n";
+	$str .= "    TH1             NUT             TN1             TH2\n";
+	$str .= "     |               |               |               |\n";
+	$str .= "     |---------------+===============+-------------->| IPsec {Echo Reply}\n";
+	$str .= "     |               |               |               |\n";
+	$str .= "     V               V               V               V";
+	$str .= '</PRE>';
+	IKEv2log($str);
+
+	my $slink = 'Link1';
+	my $rlink = 'Link0';
+	my $spkt = 'erep';
+	my @rpkts = ('ipsec_erep');
+	my ($ret, %vrecv) = IKEv2_v6eval_send_recv($slink, $rlink, $spkt, @rpkts);
+	unless ($ret) {
+		my $strerror = kDump_Common_Error();
+		IKEv2log('<FONT COLOR="#ff0000">Can\'t observe ICMP packet.</FONT>');
+		IKEv2exitFail();
+	}
+
+
+
+	#------------------------------#
+	# update IPsec SA              #
+	#------------------------------#
+	{
+		$esp_seq_out++;
+		$esp_seq_in = $vrecv{'Frame_Ether.Packet_IPv6.Hdr_ESP.SequenceNumber'};
+		$esp_seq_in++;
+		my $cpp	= '';
+		$cpp .= '-DCPP_ECHO_ID=1 ';
+		$cpp .= "-DCPP_ESP_SEQ_OUT=$esp_seq_out ";
+		$cpp .= "-DCPP_ESP_SEQ_IN=$esp_seq_in ";
+
+		my $conf = { 'cpp' => $cpp };
+		my $ret = IKEv2_v6eval_set_IPsecSA(1, $keymat, $ike_auth_req_param, $ike_auth_resp_param, $conf);
+	}
+}
+
+
+
+#--------------------------------------#
+# prepare CREATE_CHILD_SA request      #
+#--------------------------------------#
+my $req_notify_for_rekey =
+{	# Notify Payload
+	'self'		=> 'N',		# *** MUST BE HERE ***
+	'nexttype'	=> undef,	# Next Payload
+	'critical'	=> undef,	# Critical
+	'reserved'	=> undef,	# RESERVED
+	'length'	=> undef,	# Payload Length
+	'id'		=> '3',		# Protocol ID
+	'spiSize'	=> '4',		# SPI Size
+	'type'		=> 'REKEY_SA',	# Notify Message Type
+	'spi'		=> $ike_auth_req_param->{'spi'}[0],	  # SPI
+	'data'		=> undef	# Notification Data
+};
+my $common_create_child_sa_req = $gen_create_child_sa_req->{'common_remote_index'};
+@local_create_child_sa_req = @{$common_create_child_sa_req};
+# change N(USE_TRANSPORT_MODE) & add N(REKEY_SA)
+for (my $i = 0; $i < scalar(@local_create_child_sa_req); $i++) {
+	my $payload = $local_create_child_sa_req[$i];
+
+        if (($payload->{'self'} eq 'E')) {
+                splice(@local_create_child_sa_req, $i+1, 0, $req_notify_for_rekey);
+                last;
+        }
+}
+my $index = 'rekey_create_child_sa';
+$gen_create_child_sa_req->{$index} = \@local_create_child_sa_req;
+
+
+
+#--------------------------------------#
+# send CREATE_CHILD_SA request to NUT  #
+#--------------------------------------#
+$str  = '<PRE>';
+$str .= "    (R)             (I)\n";
+$str .= "    NUT             TN1\n";
+$str .= "     |               |\n";
+$str .= "     |<--------------| CREATE_CHILD_SA request (HDR, SK {N(REKEY_SA), SA, Ni, TSi, TSr})\n";
+$str .= "     |               |\n";
+$str .= "     V               V";
+$str .= '</PRE>';
+
+kLogHTML($str);
+
+
+
+$create_child_sa_req_param = devel_IKEv2send_CREATE_CHILD_SA_request($session,
+								     $index,
+								     $ike_sa_init_req_param,
+								     $ike_sa_init_resp_param,
+								     $ike_auth_req_param,
+								     $material);
+unless(defined($create_child_sa_req_param)) {
+	kLogHTML(kDump_Common_Error());
+	IKEv2exitFatal('<FONT COLOR="#ff0000">Can\'t send CREATE_CHILD_SA request.</FONT>');
+}
+
+
+
+#------------------------------------------#
+# receive CREATE_CHILD_SA response by NUT  #
+#------------------------------------------#
+$str  = '<PRE>';
+$str .= "    (R)             (I)\n";
+$str .= "    NUT             TN1\n";
+$str .= "     |               |\n";
+$str .= "     |-------------->| CREATE_CHILD_SA response (HDR, SK {SA, Nr, TSi, TSr})\n";
+$str .= "     |               |\n";
+$str .= "     V               V";
+$str .= '</PRE>';
+
+kLogHTML($str);
+
+
+
+$create_child_sa_resp_param = devel_IKEv2receive_CREATE_CHILD_SA_response($session,
+									  $remote,
+									  $ike_sa_init_req_param,
+									  $ike_sa_init_resp_param,
+									  $create_child_sa_req_param,
+									  $material);
+unless(defined($create_child_sa_resp_param)) {
+	kLogHTML(kDump_Common_Error());
+	kLogHTML('<FONT COLOR="#ff0000">Can\'t observe CREATE_CHILD_SA response.</FONT>');
+	IKEv2exitFail();
+}
+
+
+
+#--------------------------------------#
+# generate keying material (CHILD_SA)  #
+#--------------------------------------#
+my $rekeyed_keymat = undef;
+{
+	$rekeyed_keymat = IKEv2_v6eval_generate_IPsecSA(0,	# CREATE_CHILD_SA Exchange
+							$material,
+							$ike_sa_init_req_param,
+							$ike_sa_init_resp_param,
+							$ike_auth_req_param,
+							$ike_auth_resp_param,
+							$create_child_sa_req_param,
+							$create_child_sa_resp_param);
+
+}
+
+
+
+my $pass = 1;
+{
+	{
+		my $cpp = '';
+		$cpp .= '-DCPP_ECHO_ID=1 ';
+		$cpp .= "-DCPP_ESP_SEQ_OUT=$esp_seq_out ";
+		$cpp .= "-DCPP_ESP_SEQ_IN=any ";
+		my $conf = { 'cpp' => $cpp };
+		my $ret = IKEv2_v6eval_set_IPsecSA(1,
+						   $keymat,
+						   $ike_auth_req_param,
+						   $ike_auth_resp_param,
+						   $conf);
+		unless($ret) {
+			IKEv2log(kDump_Common_Error());
+			IKEv2exitFatal('<FONT COLOR="#ff0000">Can\'t set keying material.</FONT>');
+		}
+	}
+
+	$str  = '<PRE>';
+	$str .= "                    (I)             (R)\n";
+	$str .= "    TH1             NUT             TN1             TH2\n";
+	$str .= "     |               |               |               |\n";
+	$str .= "     |<--------------+===============+---------------| IPsec {Echo Request} (old)\n";
+	$str .= "     |               |               |               |\n";
+	$str .= "     V               V               V               V";
+	$str .= '</PRE>';
+	IKEv2log($str);
+
+	my $slink = 'Link0';
+	my $rlink = 'Link1';
+	my $spkt = 'ipsec_ereq';
+	my @rpkts = ('ereq');
+	my ($ret, %vrecv) = IKEv2_v6eval_send_recv($slink, $rlink, $spkt, @rpkts);
+	unless ($ret) {
+		my $strerror = kDump_Common_Error();
+		IKEv2log('<FONT COLOR="#ff0000">Can\'t observe ICMP packet.</FONT>');
+		$pass = 0;
+	}
+}
+{
+	$str  = '<PRE>';
+	$str .= "                    (I)             (R)\n";
+	$str .= "    TH1             NUT             TN1             TH2\n";
+	$str .= "     |               |               |               |\n";
+	$str .= "     |---------------+===============+-------------->| IPsec {Echo Reply} (old)\n";
+	$str .= "     |               |               |               |\n";
+	$str .= "     V               V               V               V";
+	$str .= '</PRE>';
+	IKEv2log($str);
+
+	my $slink = 'Link1';
+	my $rlink = 'Link0';
+	my $spkt = 'erep';
+	my @rpkts = ('ipsec_erep');
+	my ($ret, %vrecv) = IKEv2_v6eval_send_recv($slink, $rlink, $spkt, @rpkts);
+	unless ($ret) {
+		my $strerror = kDump_Common_Error();
+		IKEv2log('<FONT COLOR="#ff0000">Can\'t observe ICMP packet.</FONT>');
+		$pass = 0;
+	}
+}
+
+if ($pass) {
+	IKEv2exitPass();
+}
+
+my $pass = 1;
+{
+	{
+		$esp_seq_out++;
+		my $cpp = '';
+		$cpp .= '-DCPP_ECHO_ID=1 ';
+		$cpp .= "-DCPP_ESP_SEQ_OUT=$esp_seq_out ";
+		$cpp .= "-DCPP_ESP_SEQ_IN=any ";
+		$rekeyed_keymat->{'er'} = $keymat->{'er'};
+		$rekeyed_keymat->{'ar'} = $keymat->{'ar'};
+		my $conf = { 'cpp' => $cpp };
+		my $ret = IKEv2_v6eval_set_IPsecSA(1,
+						   $rekeyed_keymat,
+						   $create_child_sa_req_param,
+						   $ike_auth_resp_param,
+						   $conf);
+		unless($ret) {
+			IKEv2log(kDump_Common_Error());
+			IKEv2exitFatal('<FONT COLOR="#ff0000">Can\'t set keying material.</FONT>');
+		}
+	}
+
+	$str  = '<PRE>';
+	$str .= "                    (I)             (R)\n";
+	$str .= "    TH1             NUT             TN1             TH2\n";
+	$str .= "     |               |               |               |\n";
+	$str .= "     |<--------------+===============+---------------| IPsec {Echo Request} (old)\n";
+	$str .= "     |               |               |               |\n";
+	$str .= "     V               V               V               V";
+	$str .= '</PRE>';
+	IKEv2log($str);
+
+	my $slink = 'Link0';
+	my $rlink = 'Link1';
+	my $spkt = 'ipsec_ereq';
+	my @rpkts = ('ereq');
+	my ($ret, %vrecv) = IKEv2_v6eval_send_recv($slink, $rlink, $spkt, @rpkts);
+	unless ($ret) {
+		my $strerror = kDump_Common_Error();
+		IKEv2log('<FONT COLOR="#ff0000">Can\'t observe ICMP packet.</FONT>');
+		$pass = 0;
+	}
+}
+{
+	$str  = '<PRE>';
+	$str .= "                    (I)             (R)\n";
+	$str .= "    TH1             NUT             TN1             TH2\n";
+	$str .= "     |               |               |               |\n";
+	$str .= "     |---------------+===============+-------------->| IPsec {Echo Reply} (new)\n";
+	$str .= "     |               |               |               |\n";
+	$str .= "     V               V               V               V";
+	$str .= '</PRE>';
+	IKEv2log($str);
+
+	my $slink = 'Link1';
+	my $rlink = 'Link0';
+	my $spkt = 'erep';
+	my @rpkts = ('ipsec_erep');
+	my ($ret, %vrecv) = IKEv2_v6eval_send_recv($slink, $rlink, $spkt, @rpkts);
+	unless ($ret) {
+		my $strerror = kDump_Common_Error();
+		IKEv2log('<FONT COLOR="#ff0000">Can\'t observe ICMP packet.</FONT>');
+		$pass = 0;
+	}
+}
+
+if ($pass) {
+	IKEv2exitPass();
+}
+
+#--------------------------------------#
+# exit with cleanup                    #
+#--------------------------------------#
+IKEv2exitFail();
+# NOTREACHED
+
+
+
+#
+# perldoc
+#
+########################################################################
+__END__
+
+=head1 Title
+
+  Test IKEv2.SGW.R.1.2.5.6: Use of the old CHILD_SA
+  Part A: (BASIC)
+
+=head1 Purpose
+
+  To verify an IKEv2 device properly handles new CHILD_SA and old CHILD_SA.
+
+=head1 References
+
+  * [RFC 4306] - Sections 2.8
+
+=head1 Test Setup
+
+  * Network Topology
+      Connect the devices according to the Common Topology.
+  * Configuration
+      In each part, configure the devices according to the Common Configuration.
+  * Pre-Sequence and Cleanup Sequence
+      IKEv2 on the NUT is disabled after each part.
+
+=head1 Procedure
+
+=begin html
+
+<BLOCKQUOTE>
+<PRE>
+
+   TH1            NUT           TN1           TH2
+ (HOST)          (SGW)         (SGW)         (Host)
+    |              |             |             |
+    |              |<------------|             | IKE_SA_INIT request (HDR, SAi1, KEi, Ni)
+    |              |             |             | (Packet #1)
+    |              |------------>|             | IKE_SA_INIT Response (HDR, SAr1, KEr, Nr)
+    |              |             |             | (Judgement #1)
+    |              |             |             |
+    |              |<------------|             | IKE_AUTH request (HDR, SK {IDi, AUTH, SAi2, TSi, TSr})
+    |              |             |             | (Packet #2)
+    |              |------------>|             | IKE_AUTH Response (HDR, SK {IDr, AUTH, SAr2, TSi, TSr})
+    |              |             |             | (Judgement #2)
+    |              |             |             |
+    |<-------------+=============+-------------| IPSec {Echo Request}     
+    |              |             |             | (Packet #3) (Judgement #3)
+    |--------------+=============+------------>| IPSec {Echo Reply}       
+    |              |             |             | (Packet #4) (Judgement #4)
+    |              |             |             |
+    |              |<------------|             | CREATE_CHILD_SA request (HDR, SK {N, SA, Ni, TSi, TSr})
+    |              |             |             | (Packet #5)
+    |              |------------>|             | CREATE_CHILD_SA response (HDR, SK {SA, Nr, TSi, TSr})
+    |              |             |             | (Judgement #5)
+    |              |             |             |
+    |<-------------+=============+-------------| IPSec {Echo Request}   (old CHILD_SA) 
+    |              |             |             | (Packet #6) (Judgement #6)
+    |--------------+=============+------------>| IPSec {Echo Reply}     (old CHILD_SA) 
+    |              |             |             | (Packet #7) (Judgement #7)
+    |              |             |             |
+    V              V             V             V
+ N: REKEY_SA
+</PRE>
+</BLOCKQUOTE>
+
+<BLOCKQUOTE>
+<TABLE BORDER>
+<TR>
+<TD><TT>Packet #1</TT></TD>
+<TD><TT>See Common Packet #1</TT></TD>
+</TR>
+<TR>
+<TD><TT>Packet #2</TT></TD>
+<TD><TT>See Common Packet #3</TT></TD>
+</TR>
+<TR>
+<TD><TT>Packet #3</TT></TD>
+<TD><TT>See Common Packet #21</TT></TD>
+</TR>
+<TR>
+<TD><TT>Packet #4</TT></TD>
+<TD><TT>See Common Packet #25</TT></TD>
+</TR>
+<TR>
+<TD><TT>Packet #5</TT></TD>
+<TD><TT>See Common Packet #15</TT></TD>
+</TR>
+<TR>
+<TD><TT>Packet #6</TT></TD>
+<TD><TT>See Common Packet #21<br>(encrypted by the old CHILD_SA)</TT></TD>
+</TR>
+<TR>
+<TD><TT>Packet #7</TT></TD>
+<TD><TT>See Common Packet #25</TT></TD>
+</TR>
+</TABLE>
+</BLOCKQUOTE>
+<br>
+
+=end html
+
+  Part A: (BASIC)
+     1. TN1 starts to negotiate with NUT by sending IKE_SA_INIT request.
+     2. Observe the messages transmitted on Link A.
+     3. After reception of IKE_SA_INIT response from the NUT, TN1 transmits an IKE_AUTH
+        request to the NUT.
+     4. Observe the messages transmitted on Link A.
+     5. TH2 transmits an Echo Request to TH1. TN1 forwards an Echo Request using the first
+        negotiated algorithms to the NUT.
+     6. Observe the messages transmitted on Link B.
+     7. TH1 transmits an Echo Reply to TH2.
+     8. Observe the messages transmitted on Link A.
+     9. TN1 transmits a CREATE_CHILD_SA request including a Notify Payload of type
+        REKEY_SA and rekeyed CHILD_SA's SPI value in the SPI field to the NUT.
+    10. Observe the messages transmitted on Link A.
+    11. TH2 transmits an Echo Request to TH1. TN1 forwards an Echo Request using the first
+        negotiated algorithms again.
+    12. Observe the messages transmitted on Link B.
+    13. TH1 transmits an Echo Reply to TH2.
+    14. Observe the messages transmitted on Link A.
+
+=head1 Observable Result
+
+  Part A
+       Step 2: Judgment #1
+       The NUT transmits an IKE_SA_INIT response including "ENCR_3DES",
+       "PRF_HMAC_SHA1", "AUTH_HMAC_SHA1_96" and "D-H group 2" as accepted
+       algorithms.
+
+       Step 4: Judgment #2
+       The NUT transmits an IKE_AUTH response including "ENCR_3DES",
+       "AUTH_HMAC_SHA1_96" and "No Extended Sequence Numbers" as accepted algorithms.
+
+       Step 6: Judgment #3
+       The NUT forwards an Echo Request.
+
+       Step 8: Judgment #4
+       The NUT forwards an Echo Reply with IPsec ESP using the first negotiated algorithms.
+
+       Step 10: Judgment #5
+       The NUT transmits a CREATE_CHILD_SA response including "ENCR_3DES",
+       "AUTH_HMAC_SHA1_96" and "No Extended Sequence Numbers" as proposed algorithms.
+
+       Step 12: Judgment #6
+       The NUT forwards an Echo Request.
+
+       Step 14: Judgment #7
+       The NUT forwards an Echo Reply with IPsec ESP using the first negotiated algorithms.
+
+=head1 Possible Problems
+
+  * None.
+
+=cut
+
+

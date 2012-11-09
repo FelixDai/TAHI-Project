@@ -1,0 +1,1322 @@
+#!/usr/bin/perl
+#
+# Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009
+# Yokogawa Electric Corporation.
+# All rights reserved.
+# 
+# Redistribution and use of this software in source and binary
+# forms, with or without modification, are permitted provided that
+# the following conditions and disclaimer are agreed and accepted
+# by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in
+#    the documentation and/or other materials provided with
+#    the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project
+#    which is related to this software (hereinafter referred to as
+#    "project") nor the names of the contributors may be used to
+#    endorse or promote products derived from this software without
+#    specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written
+#    notification to the copyrighters.
+# 
+# 5. The copyrighters, the project and the contributors may prohibit
+#    the use of this software at any time.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+# STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+# IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+# $Id: IKEv2-EN-I-1-1-5-2-A.seq,v 1.9 2010/07/22 13:32:49 doo Exp $
+#
+################################################################
+
+BEGIN
+{
+	push(@INC, '..');
+}
+
+END {}
+
+use IKEv2;
+use strict;
+
+
+
+my $remote	= 'common_remote_index';
+my $selector	= 'common_selector_index_outbound';
+
+
+my $session	= undef;
+my $ret	= undef;
+my $str = undef;
+my $ike_sa_init_req_param_1	= undef;
+my $ike_sa_init_req_param_2	= undef;
+my $ike_sa_init_req_param_3	= undef;
+my $ike_sa_init_req_param_4	= undef;
+my $ike_sa_init_resp_param_1	= undef;
+my $ike_sa_init_resp_param_2	= undef;
+my $ike_sa_init_resp_param_3	= undef;
+my $ike_sa_init_resp_param_4	= undef;
+my $ike_auth_req_param = undef;
+my $material	= undef;
+
+my @local_ike_sa_init_resp = undef;
+my @local_ike_sa_init_req = undef;
+
+
+kLogHTML('<FONT COLOR="#FF0000" SIZE="+1"><U><B>TEST SETUP</B></U></FONT>');
+
+
+
+
+#------------------------------#
+# register IKEv2.pm            #
+#------------------------------#
+unless(IKEv2initialize('EN', 'EN')) {
+	IKEv2exitFatal('<FONT COLOR="#ff0000">IKEv2 module initializing failure</FONT>');
+}
+
+
+
+#---------------------------------#
+# switch Support or Not Support   #
+#---------------------------------#
+unless ($config_pl->{'advanced_support_cookie'}) {
+	IKEv2exitNS('Not support ' . "'advanced_support_cookie'");
+}
+
+unless ($config_pl->{'advanced_support_dh_group14'}) {
+       IKEv2exitNS('Not support ' . "'advanced_support_dh_group14'");
+}
+
+unless ($config_pl->{'advanced_multiple_transform_initial_ike_sa'}) {
+       IKEv2exitNS('Not support ' . "'advanced_multiple_transform_initial_ike_sa'");
+}
+
+
+
+#------------------------------#
+# customize configuration      #
+#------------------------------#
+my $conf = {
+	'kmp_dh_group' => [
+		'modp2048',
+		'modp1024',
+	],
+};
+unless (IKEv2customize($conf)) {
+	IKEv2exitFatal('<FONT COLOR="#ff0000">IKEv2 configuration failure</FONT>');
+}
+
+
+
+#------------------------------#
+# configure TN                 #
+#------------------------------#
+unless(IKEv2setupTN()) {
+	IKEv2exitFatal('<FONT COLOR="#ff0000">TN setup failure</FONT>');
+}
+
+
+
+#------------------------------#
+# configure NUT                #
+#------------------------------#
+unless(IKEv2setupNUT()) {
+	IKEv2exitFatal('<FONT COLOR="#ff0000">NUT setup failure</FONT>');
+}
+
+
+
+kLogHTML('<FONT COLOR="#FF0000" SIZE="+1"><U><B>TEST PROCEDURE</B></U></FONT>');
+
+
+
+#------------------------------#
+# prepare session handler      #
+#------------------------------#
+$session = IKEv2create_session($remote);
+unless(defined($session)) {
+	IKEv2exitFatal('<FONT COLOR="#ff0000">IKEv2 session creation failure</FONT>');
+}
+
+
+
+{
+	#--------------------------------------#
+	# prepare expected IKE_SA_INIT Request #
+	#--------------------------------------#
+	my $transform_dh14 = {
+		# Transform Substructure
+		'nexttype'	=> '0',		# 0 (last) or 3 (more)
+		'reserved1'	=> '0',		# RESERVED
+		'transformLen'	=> '8',		# Transform Length
+		'type'		=> 'D-H',	# Transform Type
+		'reserved2'	=> '0',		# RESERVED
+		'id'		=> '2048 MODP Group',	# Transform ID
+		'attributes'	=> [		# Transform Attributes
+		]
+	};
+	my $transform_len = 8;
+	my $common_ike_sa_init_req = IKEv2load_packet($exp_ike_sa_init_req, $remote);
+	@local_ike_sa_init_req = @{$common_ike_sa_init_req};
+
+	# add transform payload
+	for (my $i = 0; $i < scalar(@local_ike_sa_init_req); $i++) {
+		my $payload = $local_ike_sa_init_req[$i];
+
+		if ($payload->{'self'} eq 'SA') {
+			$payload->{'length'} += $transform_len;
+
+			for (my $j = 0; $j < scalar(@{$payload->{'proposals'}}); $j++) {
+				my $proposal = @{$payload->{'proposals'}}[$j];
+
+				$proposal->{'transformCount'} += 1;
+				$proposal->{'proposalLen'} += $transform_len;
+
+				if (defined($proposal->{'transforms'})) {
+					for (my $k = 0; $k < scalar(@{$proposal->{'transforms'}}); $k++) {
+						my $transform = @{$proposal->{'transforms'}}[$k];
+
+						if ($transform->{'type'} eq 'D-H') {
+							$transform->{'nexttype'} = '3';
+							splice(@{$proposal->{'transforms'}}, $k+1, 0, $transform_dh14);
+							last;
+						}
+					}
+				}
+			}
+		}
+		elsif ($payload->{'self'} eq 'KE') {
+			$payload->{'length'} = 264; # '2048 MODP Group';
+			$payload->{'group'} = 14; # '2048 MODP Group';
+		}
+	}
+	my $index = 'ike_sa_init_req_multiple_dh_transforms_dh14';
+	$exp_ike_sa_init_req->{$index} = \@local_ike_sa_init_req;
+
+	$str  = '<PRE>';
+	$str .= "    (I)             (R)\n";
+	$str .= "    NUT             TN1\n";
+	$str .= "     |               |\n";
+	$str .= "     |-------------->| IKE_SA_INIT request (HDR, SAi1(DH#2, DH#14), KEi(DH#14), Ni)\n";
+	$str .= "     |               |\n";
+	$str .= "     V               V";
+	$str .= '</PRE>';
+
+	kLogHTML($str);
+
+
+
+	#--------------------------------------#
+	# invoke IKE_SA_INIT request           #
+	#--------------------------------------#
+	unless(IKEv2initiateNUT($selector)) {
+		IKEv2exitFatal('<FONT COLOR="#ff0000">NUT initiation failure</FONT>');
+	}
+
+
+
+	#--------------------------------------#
+	# receive IKE_SA_INIT request          #
+	#--------------------------------------#
+	$ike_sa_init_req_param_1 = devel_IKEv2receive_IKE_SA_INIT_request($session,
+									  $index);
+	unless(defined($ike_sa_init_req_param_1)) {
+		kLogHTML(kDump_Common_Error());
+		kLogHTML('<FONT COLOR="#ff0000">Can\'t observe IKE_SA_INIT request.</FONT>');
+		IKEv2exitFail();
+	}
+}
+
+
+
+$str  = '<PRE>';
+$str .= "    (I)             (R)\n";
+$str .= "    NUT             TN1\n";
+$str .= "     |               |\n";
+$str .= "     |<--------------| IKE_SA_INIT response (HDR, N(COOKIE))\n";
+$str .= "     |               |\n";
+$str .= "     V               V";
+$str .= '</PRE>';
+
+kLogHTML($str);
+
+
+#--------------------------------------------------#
+# prepare send packet for IKE_SA_INIT response     #
+# including Notify payload of type cookie          #
+#--------------------------------------------------#
+my $send_notify =
+{       # Notify Payload
+        'self'          => 'N',         # *** MUST BE HERE ***
+        'nexttype'      => undef,       # Next Payload
+        'critical'      => undef,       # Critical
+        'reserved'      => undef,       # RESERVED
+        'length'        => undef,     # Payload Length
+        'id'            => undef,         # Protocol ID
+        'spiSize'       => undef,         # SPI Size
+        'type'          => 'COOKIE',    # Notify Type
+        'data'          => 'generate',  # Notification Data ***!! libraly support  ***
+};
+my $common_ike_sa_init_resp = IKEv2load_packet($gen_ike_sa_init_resp , 'common_remote_index');
+@local_ike_sa_init_resp = @{$common_ike_sa_init_resp};
+# remove payload without HDR
+@local_ike_sa_init_resp = grep {
+                my $ret = 0;
+                if ($_->{'self'} eq 'HDR') { $ret = 1; }
+                $ret;
+        } @local_ike_sa_init_resp;
+
+foreach my $payload (@local_ike_sa_init_resp) {
+	if ($payload->{'self'} eq 'HDR') {
+		$payload->{'respSPI'} = '0000000000000000';
+		last;
+	}
+}
+push(@local_ike_sa_init_resp, $send_notify);
+my $index = 'cookie.1';
+$gen_ike_sa_init_resp->{$index} = \@local_ike_sa_init_resp;
+
+#--------------------------------------#
+# send IKE_SA_INIT response            #
+#--------------------------------------#
+$ike_sa_init_resp_param_1 = devel_IKEv2send_IKE_SA_INIT_response($session,
+								 $index,
+								 $ike_sa_init_req_param_1);
+unless(defined($ike_sa_init_resp_param_1)) {
+	kLogHTML(kDump_Common_Error());
+	IKEv2exitFatal('<FONT COLOR="#ff0000">Can\'t send IKE_SA_INIT response.</FONT>');
+}
+
+
+
+{
+	#--------------------------------------------------#
+	# prepare expected packet for IKE_SA_INIT request  #
+	# including Notify payload of type cookie          #
+	#--------------------------------------------------#
+	my $recv_notify =
+	{	# Notify Payload
+		'self'		=> 'N',		# *** MUST BE HERE ***
+		'nexttype'	=> 'SA',	# Next Payload
+		'critical'	=> '0',		# Critical
+		'reserved'	=> '0',		# RESERVED
+		'length'	=> [9, 72],	# Payload Length
+		'length_comparator'	=> 'range',	# Payload Length
+		'id'		=> '0',		# Protocol ID
+		'spiSize'	=> '0',		# SPI Size
+		'type'		=> 'COOKIE',	# Notify Type
+		'data'		=> $ike_sa_init_resp_param_1->{'cookie'},	# Notification Data
+	};
+
+	my $transform_dh14 = {
+		# Transform Substructure
+		'nexttype'	=> '0',		# 0 (last) or 3 (more)
+		'reserved1'	=> '0',		# RESERVED
+		'transformLen'	=> '8',		# Transform Length
+		'type'		=> 'D-H',	# Transform Type
+		'reserved2'	=> '0',		# RESERVED
+		'id'		=> '2048 MODP Group',	# Transform ID
+		'attributes'	=> [		# Transform Attributes
+		]
+	};
+	my $transform_len = 8;
+	my $common_ike_sa_init_req = IKEv2load_packet($exp_ike_sa_init_req, $remote);
+	@local_ike_sa_init_req = @{$common_ike_sa_init_req};
+
+	# add transform payload
+	for (my $i = 0; $i < scalar(@local_ike_sa_init_req); $i++) {
+		my $payload = $local_ike_sa_init_req[$i];
+
+		if ($payload->{'self'} eq 'SA') {
+			# insert transform
+			$payload->{'length'} += $transform_len;
+
+			for (my $j = 0; $j < scalar(@{$payload->{'proposals'}}); $j++) {
+				my $proposal = @{$payload->{'proposals'}}[$j];
+
+				$proposal->{'transformCount'} += 1;
+				$proposal->{'proposalLen'} += $transform_len;
+
+				if (defined($proposal->{'transforms'})) {
+					for (my $k = 0; $k < scalar(@{$proposal->{'transforms'}}); $k++) {
+						my $transform = @{$proposal->{'transforms'}}[$k];
+
+						if ($transform->{'type'} eq 'D-H') {
+							$transform->{'nexttype'} = '3';
+							splice(@{$proposal->{'transforms'}}, $k+1, 0, $transform_dh14);
+							last;
+						}
+					}
+				}
+			}
+		}
+		elsif ($payload->{'self'} eq 'KE') {
+			$payload->{'length'} = 264; # '2048 MODP Group';
+			$payload->{'group'} = 14; # '2048 MODP Group';
+		}
+	}
+	# add cookie
+	for (my $i = 0; $i < scalar(@local_ike_sa_init_req); $i++) {
+		my $payload = $local_ike_sa_init_req[$i];
+		if ($payload->{'self'} eq 'SA') {
+			# insert cookie
+			splice(@local_ike_sa_init_req, $i, 0, $recv_notify);
+			last;
+		}
+	}
+	#set correct nexttype
+	for (my $i = 0; $i < scalar(@local_ike_sa_init_req); $i++) {
+		my $payload = $local_ike_sa_init_req[$i];
+		my $next = $local_ike_sa_init_req[$i+1];
+
+		unless (defined($next)) {
+			$payload->{'nexttype'} = '0';
+			next;
+		}
+		if ($payload->{'nexttype'} eq $next->{'self'}) {
+			next;
+		}
+		$payload->{'nexttype'} = $next->{'self'};
+	}
+	my $index = 'ike_sa_init_req_multiple_dh_transforms_dh14_cookie';
+	$exp_ike_sa_init_req->{$index} = \@local_ike_sa_init_req;
+
+	$str  = '<PRE>';
+	$str .= "    (I)             (R)\n";
+	$str .= "    NUT             TN1\n";
+	$str .= "     |               |\n";
+	$str .= "     |-------------->| IKE_SA_INIT request (HDR, N(COOKIE), SAi1(DH#2, DH#14), KEi(DH#2), Ni)\n";
+	$str .= "     |               |\n";
+	$str .= "     V               V";
+	$str .= '</PRE>';
+
+	kLogHTML($str);
+
+
+
+	#--------------------------------------#
+	# invoke IKE_SA_INIT request           #
+	#--------------------------------------#
+	unless(IKEv2initiateNUT($selector)) {
+		IKEv2exitFatal('<FONT COLOR="#ff0000">NUT initiation failure</FONT>');
+	}
+
+	#--------------------------------------#
+	# receive IKE_SA_INIT request          #
+	#--------------------------------------#
+	$ike_sa_init_req_param_2 = devel_IKEv2receive_IKE_SA_INIT_request($session,
+									  $index);
+	unless(defined($ike_sa_init_req_param_2)) {
+		kLogHTML(kDump_Common_Error());
+		kLogHTML('<FONT COLOR="#ff0000">Can\'t observe IKE_SA_INIT request.</FONT>');
+		IKEv2exitFail();
+	}
+}
+
+
+
+$str  = '<PRE>';
+$str .= "    (I)             (R)\n";
+$str .= "    NUT             TN1\n";
+$str .= "     |               |\n";
+$str .= "     |<--------------| IKE_SA_INIT response (HDR, N(INVALID_KE_PAYLOAD(DH#2)))\n";
+$str .= "     |               |\n";
+$str .= "     V               V";
+$str .= '</PRE>';
+
+kLogHTML($str);
+
+
+#-----------------------------------------------------#
+# prepare send packet for IKE_SA_INIT response        #
+# including Notify payload of type INVALID_KE_PAYLOAD #
+#-----------------------------------------------------#
+my $send_notify =
+{       # Notify Payload
+        'self'          => 'N',         # *** MUST BE HERE ***
+        'nexttype'      => undef,       # Next Payload
+        'critical'      => undef,       # Critical
+        'reserved'      => undef,       # RESERVED
+        'length'        => undef,     # Payload Length
+        'length_comparator'     => 'range',     # Payload Length
+        'id'            => undef,         # Protocol ID
+        'spiSize'       => undef,         # SPI Size
+        'type'          => 'INVALID_KE_PAYLOAD',    # Notify Type
+        'data'          => unpack('H*', pack('n', 2)),             # Notification Data
+};
+
+my $common_ike_sa_init_resp = IKEv2load_packet($gen_ike_sa_init_resp, 'common_remote_index');
+@local_ike_sa_init_resp = @{$common_ike_sa_init_resp};
+# remove payload without HDR
+@local_ike_sa_init_resp = grep {
+                my $ret = 0;
+                if ($_->{'self'} eq 'HDR') { $ret = 1; }
+                $ret;
+        } @local_ike_sa_init_resp;
+
+foreach my $payload (@local_ike_sa_init_resp) {
+	if ($payload->{'self'} eq 'HDR') {
+		$payload->{'respSPI'} = '0000000000000000';
+		last;
+	}
+}
+
+push(@local_ike_sa_init_resp, $send_notify);
+my $index = 'invalid_ke_payload.1';
+$gen_ike_sa_init_resp->{$index} = \@local_ike_sa_init_resp;
+
+#--------------------------------------#
+# send IKE_SA_INIT response            #
+#--------------------------------------#
+$ike_sa_init_resp_param_2 = devel_IKEv2send_IKE_SA_INIT_response($session,
+								 $index,
+								 $ike_sa_init_req_param_2);
+unless(defined($ike_sa_init_resp_param_2)) {
+	kLogHTML(kDump_Common_Error());
+	IKEv2exitFatal('<FONT COLOR="#ff0000">Can\'t send IKE_SA_INIT request.</FONT>');
+}
+
+
+{
+	$str  = '<PRE>';
+	$str .= "    (I)             (R)\n";
+	$str .= "    NUT             TN1\n";
+	$str .= "     |               |\n";
+	$str .= "     |-------------->| IKE_SA_INIT request (HDR, SAi1(DH#2, DH#14), KEi'(DH#2), Ni)\n";
+	$str .= "     |               |   or\n";
+	$str .= "     |-------------->| IKE_SA_INIT request (HDR, N(COOKIE), SAi1(DH#2, DH#14), KEi'(DH#2), Ni)\n";
+	$str .= "     |               |\n";
+	$str .= "     V               V";
+	$str .= '</PRE>';
+
+	kLogHTML($str);
+
+
+	#--------------------------------------------------#
+	# prepare expected packet for IKE_SA_INIT request  #
+	# including Notify payload of type cookie          #
+	#--------------------------------------------------#
+	my $recv_notify =
+	{	# Notify Payload
+		'self'		=> 'N',		# *** MUST BE HERE ***
+		'nexttype'	=> 'SA',	 # Next Payload
+		'critical'	=> '0',		# Critical
+		'reserved'	=> '0',		# RESERVED
+		'length'	=> [9, 72],	# Payload Length
+		'length_comparator'	=> 'range',	# Payload Length
+		'id'		=> '0',		# Protocol ID
+		'spiSize'	=> '0',		# SPI Size
+		'type'		=> 'COOKIE',	# Notify Type
+		'data'		=> $ike_sa_init_resp_param_1->{'cookie'},	# Notification Data
+	};
+
+	my $transform_dh14 = {
+		# Transform Substructure
+		'nexttype'	=> '0',		# 0 (last) or 3 (more)
+		'reserved1'	=> '0',		# RESERVED
+		'transformLen'	=> '8',		# Transform Length
+		'type'		=> 'D-H',	# Transform Type
+		'reserved2'	=> '0',		# RESERVED
+		'id'		=> '2048 MODP Group',	# Transform ID
+		'attributes'	=> [		# Transform Attributes
+		]
+	};
+	my $transform_len = 8;
+
+	# 1
+	my $common_ike_sa_init_req = IKEv2load_packet($exp_ike_sa_init_req, 'common_remote_index');
+	my @local_ike_sa_init_req = @{$common_ike_sa_init_req};
+	# add transform
+	for (my $i = 0; $i < scalar(@local_ike_sa_init_req); $i++) {
+		my $payload = $local_ike_sa_init_req[$i];
+
+		if ($payload->{'self'} eq 'SA') {
+			# insert transform
+			$payload->{'length'} += $transform_len;
+
+			for (my $j = 0; $j < scalar(@{$payload->{'proposals'}}); $j++) {
+				my $proposal = @{$payload->{'proposals'}}[$j];
+
+				$proposal->{'transformCount'} += 1;
+				$proposal->{'proposalLen'} += $transform_len;
+
+				if (defined($proposal->{'transforms'})) {
+					for (my $k = 0; $k < scalar(@{$proposal->{'transforms'}}); $k++) {
+						my $transform = @{$proposal->{'transforms'}}[$k];
+
+						if ($transform->{'type'} eq 'D-H') {
+							$transform->{'nexttype'} = '3';
+							splice(@{$proposal->{'transforms'}}, $k+1, 0, $transform_dh14);
+							last;
+						}
+					}
+				}
+			}
+		}
+		elsif ($payload->{'self'} eq 'KE') {
+			$payload->{'length'} = 136; # '1024 MODP Group';
+			$payload->{'group'} = 2; # '1024 MODP Group';
+		}
+	}
+	# set correct nexttype
+	for (my $i = 0; $i < scalar(@local_ike_sa_init_req); $i++) {
+		my $payload = $local_ike_sa_init_req[$i];
+		my $next = $local_ike_sa_init_req[$i+1];
+
+		unless (defined($next)) {
+			$payload->{'nexttype'} = '0';
+			next;
+		}
+		if ($payload->{'nexttype'} eq $next->{'self'}) {
+			next;
+		}
+		$payload->{'nexttype'} = $next->{'self'};
+	}
+	$exp_ike_sa_init_req->{'EN-I-1-1-5-2.4'} = \@local_ike_sa_init_req;
+
+	# 2
+	my $common_ike_sa_init_req = IKEv2load_packet($exp_ike_sa_init_req, 'common_remote_index');
+	my @local_ike_sa_init_req = @{$common_ike_sa_init_req};
+	# add transform
+	for (my $i = 0; $i < scalar(@local_ike_sa_init_req); $i++) {
+		my $payload = $local_ike_sa_init_req[$i];
+
+		if ($payload->{'self'} eq 'SA') {
+			# insert transform
+			$payload->{'length'} += $transform_len;
+
+			for (my $j = 0; $j < scalar(@{$payload->{'proposals'}}); $j++) {
+				my $proposal = @{$payload->{'proposals'}}[$j];
+
+				$proposal->{'transformCount'} += 1;
+				$proposal->{'proposalLen'} += $transform_len;
+
+				if (defined($proposal->{'transforms'})) {
+					for (my $k = 0; $k < scalar(@{$proposal->{'transforms'}}); $k++) {
+						my $transform = @{$proposal->{'transforms'}}[$k];
+
+						if ($transform->{'type'} eq 'D-H') {
+							$transform->{'nexttype'} = '3';
+							splice(@{$proposal->{'transforms'}}, $k+1, 0, $transform_dh14);
+							last;
+						}
+					}
+				}
+			}
+		}
+		elsif ($payload->{'self'} eq 'KE') {
+			$payload->{'length'} = 136; # '1024 MODP Group';
+			$payload->{'group'} = 2; # '1024 MODP Group';
+		}
+	}
+	# add cookie
+	for (my $i = 0; $i < scalar(@local_ike_sa_init_req); $i++) {
+		my $payload = $local_ike_sa_init_req[$i];
+
+		if ($payload->{'self'} eq 'SA') {
+			# insert cookie
+			splice(@local_ike_sa_init_req, $i, 0, $recv_notify);
+			last;
+		}
+	}
+	#set correct nexttype
+	for (my $i = 0; $i < scalar(@local_ike_sa_init_req); $i++) {
+		my $payload = $local_ike_sa_init_req[$i];
+		my $next = $local_ike_sa_init_req[$i+1];
+
+		unless (defined($next)) {
+			$payload->{'nexttype'} = '0';
+			next;
+		}
+		if ($payload->{'nexttype'} eq $next->{'self'}) {
+			next;
+		}
+		$payload->{'nexttype'} = $next->{'self'};
+	}
+	$exp_ike_sa_init_req->{'EN-I-1-1-5-2.5'} = \@local_ike_sa_init_req;
+
+	#--------------------------------------#
+	# receive IKE_SA_INIT request          #
+	#--------------------------------------#
+	$ike_sa_init_req_param_3 = devel_IKEv2receive_IKE_SA_INIT_request($session,
+									  [
+									   'EN-I-1-1-5-2.4',
+									   'EN-I-1-1-5-2.5',
+									  ]
+									 );
+	unless(defined($ike_sa_init_req_param_3)) {
+		kLogHTML(kDump_Common_Error());
+		kLogHTML('<FONT COLOR="#ff0000">Can\'t observe IKE_SA_INIT request.</FONT>');
+		IKEv2exitFail();
+	}
+}
+
+
+
+#--------------------------------------#
+# send IKE_SA_INIT response            #
+#--------------------------------------#
+if ($ike_sa_init_req_param_3->{'matched_index'} eq 'EN-I-1-1-5-2.4') {
+	# received IKE_SA_INIT request (HDR, SAi1, KEi', Ni)
+
+	#--------------------------------------------------#
+	# prepare send packet for IKE_SA_INIT response     #
+	# including Notify payload of type cookie          #
+	#--------------------------------------------------#
+	$str  = '<PRE>';
+	$str .= "    (I)             (R)\n";
+	$str .= "    NUT             TN1\n";
+	$str .= "     |               |\n";
+	$str .= "     |<--------------| IKE_SA_INIT response (HDR, N(COOKIE'))\n";
+	$str .= "     |               |\n";
+	$str .= "     V               V";
+	$str .= '</PRE>';
+
+	kLogHTML($str);
+
+	my $send_notify =
+	{	# Notify Payload
+		'self'		=> 'N',		# *** MUST BE HERE ***
+		'nexttype'	=> undef,	# Next Payload
+		'critical'	=> undef,	# Critical
+		'reserved'	=> undef,	# RESERVED
+		'length'	=> undef,	# Payload Length
+		'id'		=> undef,	# Protocol ID
+		'spiSize'	=> undef,	# SPI Size
+		'type'		=> 'COOKIE',	# Notify Type
+		'data'		=> 'generate',	# Notification Data ***!! libraly support  ***
+	};
+	my $common_ike_sa_init_resp = IKEv2load_packet($gen_ike_sa_init_resp, 'common_remote_index');
+	@local_ike_sa_init_resp = @{$common_ike_sa_init_resp};
+	# remove payload without HDR
+	@local_ike_sa_init_resp = grep {
+			my $ret = 0;
+			if ($_->{'self'} eq 'HDR') { $ret = 1; }
+			$ret;
+		} @local_ike_sa_init_resp;
+
+	foreach my $payload (@local_ike_sa_init_resp) {
+		if ($payload->{'self'} eq 'HDR') {
+			$payload->{'respSPI'} = '0000000000000000';
+			last;
+		}
+	}
+	push(@local_ike_sa_init_resp, $send_notify);
+	my $index = 'cookie.2';
+	$gen_ike_sa_init_resp->{$index} = \@local_ike_sa_init_resp;
+
+	#--------------------------------------#
+	# send IKE_SA_INIT response            #
+	#--------------------------------------#
+	$ike_sa_init_resp_param_3 = devel_IKEv2send_IKE_SA_INIT_response($session,
+									 $index,
+									 $ike_sa_init_req_param_3);
+	unless(defined($ike_sa_init_resp_param_3)) {
+		kLogHTML(kDump_Common_Error());
+		IKEv2exitFatal('<FONT COLOR="#ff0000">Can\'t send IKE_SA_INIT request.</FONT>');
+	}
+
+
+	#--------------------------------------------------#
+	# prepare expected packet for IKE_SA_INIT request  #
+	# including Notify payload of type cookie          #
+	#--------------------------------------------------#
+	$str  = '<PRE>';
+	$str .= "    (I)             (R)\n";
+	$str .= "    NUT             TN1\n";
+	$str .= "     |               |\n";
+	$str .= "     |-------------->| IKE_SA_INIT request (HDR, N(COOKIE'), SAi1(DH#2, DH#14), KEi(DH#2), Ni})\n";
+	$str .= "     |               |\n";
+	$str .= "     V               V";
+	$str .= '</PRE>';
+
+	kLogHTML($str);
+
+	my $recv_notify =
+	{	# Notify Payload
+		'self'		=> 'N',		# *** MUST BE HERE ***
+		'nexttype'	=> 'SA',	# Next Payload
+		'critical'	=> '0',		# Critical
+		'reserved'	=> '0',		# RESERVED
+		'length'	=> [9, 72],	# Payload Length
+		'length_comparator'	=> 'range',	# Payload Length
+		'id'		=> '0',		# Protocol ID
+		'spiSize'	=> '0',		# SPI Size
+		'type'		=> 'COOKIE',	# Notify Type
+		'data'		=> $ike_sa_init_resp_param_3->{'cookie'},	# Notification Data
+	};
+
+	my $transform_dh14 = {
+		# Transform Substructure
+		'nexttype'	=> '0',		# 0 (last) or 3 (more)
+		'reserved1'	=> '0',		# RESERVED
+		'transformLen'	=> '8',		# Transform Length
+		'type'		=> 'D-H',	# Transform Type
+		'reserved2'	=> '0',		# RESERVED
+		'id'		=> '2048 MODP Group',	# Transform ID
+		'attributes'	=> [		# Transform Attributes
+		]
+	};
+	my $transform_len = 8;
+	my $common_ike_sa_init_req = $exp_ike_sa_init_req->{'common_remote_index'};
+	@local_ike_sa_init_req = @{$common_ike_sa_init_req};
+
+	# add transform payload
+	for (my $i = 0; $i < scalar(@local_ike_sa_init_req); $i++) {
+		my $payload = $local_ike_sa_init_req[$i];
+
+		if ($payload->{'self'} eq 'SA') {
+			# insert transform
+			$payload->{'length'} += $transform_len;
+
+			for (my $j = 0; $j < scalar(@{$payload->{'proposals'}}); $j++) {
+				my $proposal = @{$payload->{'proposals'}}[$j];
+
+				$proposal->{'transformCount'} += 1;
+				$proposal->{'proposalLen'} += $transform_len;
+
+				if (defined($proposal->{'transforms'})) {
+					for (my $k = 0; $k < scalar(@{$proposal->{'transforms'}}); $k++) {
+						my $transform = @{$proposal->{'transforms'}}[$k];
+
+						if ($transform->{'type'} eq 'D-H') {
+							$transform->{'nexttype'} = '3';
+							splice(@{$proposal->{'transforms'}}, $k+1, 0, $transform_dh14);
+							last;
+						}
+					}
+				}
+			}
+		}
+		elsif ($payload->{'self'} eq 'KE') {
+			$payload->{'length'} = 136; # '2048 MODP Group';
+			$payload->{'group'} = 2; # '2048 MODP Group';
+		}
+	}
+
+	# add Notify payload & set respSPI
+	for (my $i = 0; $i < scalar(@local_ike_sa_init_req); $i++) {
+		if ($local_ike_sa_init_req[$i]->{'self'} eq 'SA') {
+			splice(@local_ike_sa_init_req, $i, 0, $recv_notify);
+			last;
+		}
+	}
+
+	# set correct nexttype
+	for (my $i = 0; $i < scalar(@local_ike_sa_init_req); $i++) {
+		my $payload = $local_ike_sa_init_req[$i];
+
+		if ($payload->{'self'} eq 'HDR') {
+			my $next = $local_ike_sa_init_req[$i+1];
+			unless (defined($next)) {
+				$payload->{'nexttype'} = '0';
+				next;
+			}
+			if ($payload->{'nexttype'} eq $next->{'self'}) {
+				next;
+			}
+			$payload->{'nexttype'} = $next->{'self'};
+		}
+	}
+	my $index = 'EN-I-1-1-5-2.6';
+	$exp_ike_sa_init_req->{$index} = \@local_ike_sa_init_req;
+
+
+	#--------------------------------------#
+	# receive IKE_SA_INIT request          #
+	#--------------------------------------#
+	$ike_sa_init_req_param_4 = devel_IKEv2receive_IKE_SA_INIT_request($session,
+									  $index);
+	unless(defined($ike_sa_init_req_param_4)) {
+		kLogHTML(kDump_Common_Error());
+		kLogHTML('<FONT COLOR="#ff0000">Can\'t observe IKE_SA_INIT request.</FONT>');
+		IKEv2exitFail();
+	}
+
+	#--------------------------------------#
+	# send IKE_SA_INIT response            #
+	#--------------------------------------#
+	$str  = '<PRE>';
+	$str .= "    (I)             (R)\n";
+	$str .= "    NUT             TN1\n";
+	$str .= "     |               |\n";
+	$str .= "     |<--------------| IKE_SA_INIT response (HDR, SAr1(DH#2), KEr(DH#2), Nr)\n";
+	$str .= "     |               |\n";
+	$str .= "     V               V";
+	$str .= '</PRE>';
+
+	kLogHTML($str);
+
+	$ike_sa_init_resp_param_4 = devel_IKEv2send_IKE_SA_INIT_response($session,
+									 'common_remote_index',
+									 $ike_sa_init_req_param_4);
+	unless(defined($ike_sa_init_resp_param_4)) {
+		kLogHTML(kDump_Common_Error());
+		IKEv2exitFatal('<FONT COLOR="#ff0000">Can\'t send IKE_SA_INIT request.</FONT>');
+	}
+
+	#--------------------------------------#
+	# generate keying material             #
+	#--------------------------------------#
+	$material = devel_IKEv2gen_keymat(0, $ike_sa_init_req_param_4, $ike_sa_init_resp_param_4);
+	unless(defined($material)) {
+		kLogHTML(kDump_Common_Error());
+		IKEv2exitFatal('<FONT COLOR="#ff0000">Can\'t generate keying material.</FONT>');
+	}
+
+	#--------------------------------------#
+	# receive IKE_AUTH request             #
+	#--------------------------------------#
+	$str  = '<PRE>';
+	$str .= "    (I)             (R)\n";
+	$str .= "    NUT             TN1\n";
+	$str .= "     |               |\n";
+	$str .= "     |-------------->| IKE_AUTH request (HDR, SK {IDi, AUTH, N(USE_TRANSPORT_MODE), SAi2, TSi, TSr})\n";
+	$str .= "     |               |\n";
+	$str .= "     V               V";
+	$str .= '</PRE>';
+
+	kLogHTML($str);
+
+	$ike_auth_req_param = devel_IKEv2receive_IKE_AUTH_request($session,
+								  $remote,
+								  $ike_sa_init_req_param_4,
+								  $ike_sa_init_resp_param_4,
+								  $material);
+	unless(defined($ike_auth_req_param)) {
+		kLogHTML(kDump_Common_Error());
+		kLogHTML('<FONT COLOR="#ff0000">Can\'t observe IKE_AUTH request.</FONT>');
+		IKEv2exitFail();
+	}
+
+}
+elsif ($ike_sa_init_req_param_3->{'matched_index'} eq 'EN-I-1-1-5-2.5') {
+	# received IKE_SA_INIT request (HDR, N (COOKIE), SAi1, KEi', Ni)
+
+	#--------------------------------------#
+	# send IKE_SA_INIT response            #
+	#--------------------------------------#
+	$str  = '<PRE>';
+	$str .= "    (I)             (R)\n";
+	$str .= "    NUT             TN1\n";
+	$str .= "     |               |\n";
+	$str .= "     |<--------------| IKE_SA_INIT response (HDR, SAr1, KEr, Nr)\n";
+	$str .= "     |               |\n";
+	$str .= "     V               V";
+	$str .= '</PRE>';
+
+	kLogHTML($str);
+
+	$ike_sa_init_resp_param_4 = devel_IKEv2send_IKE_SA_INIT_response($session,
+									 'common_remote_index',
+									 $ike_sa_init_req_param_3);
+	unless(defined($ike_sa_init_resp_param_4)) {
+		kLogHTML(kDump_Common_Error());
+		IKEv2exitFatal('<FONT COLOR="#ff0000">Can\'t send IKE_SA_INIT request.</FONT>');
+	}
+
+	#--------------------------------------#
+	# generate keying material             #
+	#--------------------------------------#
+	$material = devel_IKEv2gen_keymat(0, $ike_sa_init_req_param_3, $ike_sa_init_resp_param_4);
+	unless(defined($material)) {
+		kLogHTML(kDump_Common_Error());
+		IKEv2exitFatal('<FONT COLOR="#ff0000">Can\'t generate keying material.</FONT>');
+	}
+
+	#--------------------------------------#
+	# receive IKE_AUTH request             #
+	#--------------------------------------#
+	$str  = '<PRE>';
+	$str .= "    (I)             (R)\n";
+	$str .= "    NUT             TN1\n";
+	$str .= "     |               |\n";
+	$str .= "     |-------------->| IKE_AUTH request (HDR, SK {IDi, AUTH, N(USE_TRANSPORT_MODE), SAi2, TSi, TSr})\n";
+	$str .= "     |               |\n";
+	$str .= "     V               V";
+	$str .= '</PRE>';
+
+	kLogHTML($str);
+
+	$ike_auth_req_param = devel_IKEv2receive_IKE_AUTH_request($session,
+								  $remote,
+								  $ike_sa_init_req_param_3,
+								  $ike_sa_init_resp_param_4,
+								  $material);
+	unless(defined($ike_auth_req_param)) {
+		kLogHTML(kDump_Common_Error());
+		kLogHTML('<FONT COLOR="#ff0000">Can\'t observe IKE_AUTH request.</FONT>');
+		IKEv2exitFail();
+	}
+
+}
+else {
+	# error
+	kLogHTML(kDump_Common_Error());
+	IKEv2exitFatal('<FONT COLOR="#ff0000">Undefined Sequence</FONT>');
+}
+
+
+
+#--------------------------------------#
+# exit with cleanup                    #
+#--------------------------------------#
+IKEv2exitPass();
+
+
+
+#
+# perldoc
+#
+########################################################################
+__END__
+
+=head1 Title
+
+  Test IKEv2.EN.I.1.1.5.2: Interaction of COOKIE and INVALID_KE_PAYLOAD
+  Part A: (ADVANCED)
+
+=head1 Purpose
+
+  To verify an IKEv2 device properly handles a series of the Initial Exchanges using a Notify
+  ayload of type COOKIE and type INVALID_KE_PAYLOAD.
+
+=head1 References
+
+  * [RFC 4306] - Sections 2.6, 2.7 and 3.10.1
+  * [RFC 4718] - Sections 2.2 and 2.4
+
+=head1 Test Setup
+
+  * Network Topology
+      Connect the devices according to the Common Topology.
+  * Configuration
+      In each part, configure the devices according to the Common Configuration.
+  * Pre-Sequence and Cleanup Sequence
+      IKEv2 on the NUT is disabled after each part.
+
+=head1 Procedure
+
+=begin html
+
+<BLOCKQUOTE>
+<PRE>
+    
+   NUT                  TN1
+(End-Node)           (End-Node)
+    |                    |
+    |------------------->| IKE_SA_INIT request (HDR, SAi1, KEi, Ni)
+    |                    | (Judgement #1)
+    |<-------------------| IKE_SA_INIT Response (HDR, N(COOKIE))
+    |                    | (Packet #1)
+    |                    |
+    |------------------->| IKE_SA_INIT request (HDR, N(COOKIE), SAi1, KEi, Ni) 
+    |                    | (Judgement #2)
+    |<-------------------| IKE_SA_INIT Response (HDR, N(INVALID_KE_PAYLOAD))
+    |                    | (Packet #2)
+    |                    |
+    |------------------->| IKE_SA_INIT request (HDR, SAi1, KEi', Ni)
+    |                    |   or
+    |------------------->| IKE_SA_INIT request (HDR, N(COOKIE), SAi1, KEi', Ni) 
+    |                    | (Judgement #3)
+    |                    |
+    V                    V
+</PRE>
+</BLOCKQUOTE>
+
+<BLOCKQUOTE>
+<TABLE BORDER>
+<TR>
+<TD><TT>Packet #1</TT></TD>
+<TD><TT>See below</TT></TD>
+</TR>
+<TR>
+<TD><TT>Packet #2</TT></TD>
+<TD><TT>See below</TT></TD>
+</TR>
+</TABLE>
+</BLOCKQUOTE>
+
+<BLOCKQUOTE>
+Packet #1: IKE_SA_INIT request
+<TABLE BORDER>
+<TR>
+<TD rowspan="2">IPv6 Header</TD>
+<TD>Source Address</TD>
+<TD>TN1's Global Address on Link X</TD>
+</TR>
+<TR>
+<TD>Destination Address</TD>
+<TD>NUT's Global Address on Link A</TD>
+</TR>
+
+<TR>
+<TD rowspan="2">UDP Header</TD>
+<TD>Source Port</TD>
+<TD>500</TD>
+</TR>
+<TR>
+<TD>Destination Port</TD>
+<TD>500</TD>
+</TR>
+
+<TR>
+<TD rowspan="13">IKEv2 Header</TD>
+<TD>IKE_SA Initiator's SPI</TD>
+<TD>The same value as corresponding<br>request's IKE_SA Initiator's SPI value</TD>
+</TR>
+<TR>
+<TD>IKE_SA Responder's SPI</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>Next Payload</TD>
+<TD>41(N)</TD>
+</TR>
+<TR>
+<TD>Major Version</TD>
+<TD>2</TD>
+</TR>
+<TR>
+<TD>Minor Version</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>Exchange Type</TD>
+<TD>34 (IKE_SA_INIT)</TD>
+</TR>
+<TR>
+<TD>X (bits 0-2 of Flags)</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>I (bit 3 of Flags)</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>V (bit 4 of Flags)</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>R (bit 5 of Flags)</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>X (bits 6-7 Flags)</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>Message ID</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>Length</TD>
+<TD>any</TD>
+</TR>
+
+<TR>
+<TD rowspan="8">N Payload</TD>
+<TD>Next Payload</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>Critical</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>Reserved</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>Payload Length</TD>
+<TD>any</TD>
+</TR>
+<TR>
+<TD>Protocol ID</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>SPI Size</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>Notify Message Type</TD>
+<TD>COOKIE (16390)</TD>
+</TR>
+<TR>
+<TD>Notification Data</TD>
+<TD>Cookie value</TD>
+</TR>
+
+</TABLE>
+</BLOCKQUOTE>
+
+<BLOCKQUOTE>
+Packet #2: IKE_SA_INIT request
+<TABLE BORDER>
+    
+<TR>
+<TD rowspan="2">IPv6 Header</TD>
+<TD>Source Address</TD>
+<TD>TN1's Global Address on Link X</TD>
+</TR>
+<TR>
+<TD>Destination Address</TD>
+<TD>NUT's Global Address on Link A</TD>
+</TR>
+
+<TR>
+<TD rowspan="2">UDP Header</TD>
+<TD>Source Port</TD>
+<TD>500</TD>
+</TR>
+<TR>
+<TD>Destination Port</TD>
+<TD>500</TD>
+</TR>
+
+<TR>
+<TD rowspan="13">IKEv2 Header</TD>
+<TD>IKE_SA Initiator's SPI</TD>
+<TD>The same value as corresponding<br>request's IKE_SA Initiator's SPI value</TD>
+</TR>
+<TR>
+<TD>IKE_SA Responder's SPI</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>Next Payload</TD>
+<TD>41(N)</TD>
+</TR>
+<TR>
+<TD>Major Version</TD>
+<TD>2</TD>
+</TR>
+<TR>
+<TD>Minor Version</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>Exchange Type</TD>
+<TD>34 (IKE_SA_INIT)</TD>
+</TR>
+<TR>
+<TD>X (bits 0-2 of Flags)</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>I (bit 3 of Flags)</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>V (bit 4 of Flags)</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>R (bit 5 of Flags)</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>X (bits 6-7 Flags)</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>Message ID</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>Length</TD>
+<TD>any</TD>
+</TR>
+
+<TR>
+<TD rowspan="8">N Payload</TD>
+<TD>Next Payload</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>Critical</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>Reserved</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>Payload Length</TD>
+<TD>10</TD>
+</TR>
+<TR>
+<TD>Protocol ID</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>SPI Size</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>Notify Message Type</TD>
+<TD>INVALID_KE_PAYLOAD (17)</TD>
+</TR>
+<TR>
+<TD>Notification Data</TD>
+<TD>The accepted D-H Group # (2)</TD>
+</TR>
+
+</TABLE>
+</BLOCKQUOTE>
+
+=end html
+
+  Part A: (ADVANCED)
+       1. NUT starts to negotiate with TN1 by sending IKE_SA_INIT request.
+       2. Observe the messages transmitted on Link A.
+       3. TN1 responds with an IKE_SA_INIT response including a Notify payload of type COOKIE
+          to the NUT.
+       4. Observe the messages transmitted on Link A.
+       5. TN1 responds with an IKE_SA_INIT response including a Notify payload of type
+          INVALID_KE_PAYLOAD to the NUT.
+       6. Observe the messages transmitted on Link A.
+
+=head1 Observable Result
+
+  Part A
+    Step 2: Judgment #1
+      The NUT transmits an IKE_SA_INIT request including "ENCR_3DES",
+      "PRF_HMAC_SHA1", "AUTH_HMAC_SHA1_96" and "D-H group 2" as proposed
+      lgorithms.
+  
+    Step 4: Judgment #2
+      The NUT transmits an IKE_SA_INIT request including a Notify payload of type COOKIE
+      ontaining the responder supplied cookie data as the first payload and all other payloads
+      nchanged.
+  
+    Step 6: Judgment #3
+      The NUT transmits an IKE_SA_INIT request including a Notify payload of type COOKIE
+      ontaining the responder supplied cookie data as the first payload, a KE payload containing the
+      orrected Diffie-Hellman group and all other payloads unchanged..
+
+=head1 Possible Problems
+
+  * None.
+
+=cut
+

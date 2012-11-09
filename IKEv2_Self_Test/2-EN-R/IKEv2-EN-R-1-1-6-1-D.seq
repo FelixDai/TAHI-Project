@@ -1,0 +1,502 @@
+#!/usr/bin/perl
+#
+# Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009
+# Yokogawa Electric Corporation.
+# All rights reserved.
+# 
+# Redistribution and use of this software in source and binary
+# forms, with or without modification, are permitted provided that
+# the following conditions and disclaimer are agreed and accepted
+# by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in
+#    the documentation and/or other materials provided with
+#    the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project
+#    which is related to this software (hereinafter referred to as
+#    "project") nor the names of the contributors may be used to
+#    endorse or promote products derived from this software without
+#    specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written
+#    notification to the copyrighters.
+# 
+# 5. The copyrighters, the project and the contributors may prohibit
+#    the use of this software at any time.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+# STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+# IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+# $Id: IKEv2-EN-R-1-1-6-1-D.seq,v 1.3 2008/11/28 10:16:21 doo Exp $
+#
+################################################################
+
+
+
+BEGIN
+{
+	push(@INC, '..');
+}
+
+END { }
+
+
+
+use IKEv2;
+use strict;
+
+
+
+my $remote	= 'common_remote_index';
+my $ike_sa_init_req_param	= undef;
+my $ike_sa_init_resp_param	= undef;
+my $ike_auth_req_param	= undef;
+my $ike_auth_resp_param	= undef;
+
+my $session	= undef;
+my $material	= undef;
+my $str	= undef;
+
+my @local_ike_sa_init_req = undef;
+my @local_ike_sa_init_resp = undef;
+
+
+#------------------------------#
+# register IKEv2.pm            #
+#------------------------------#
+kLogHTML('<FONT COLOR="#FF0000" SIZE="+1"><U><B>TEST SETUP</B></U></FONT>');
+
+
+
+unless(IKEv2initialize('EN', 'EN')) {
+	IKEv2exitFatal('<FONT COLOR="#ff0000">IKEv2 module initializing failure</FONT>');
+}
+
+
+
+#---------------------------------#
+# switch Support or Not Support   #
+#---------------------------------#
+unless ($config_pl->{'advanced_alg_nego_ike_sa'}) {
+	IKEv2exitNS('Not support ' . "'advanced_alg_nego_ike_sa'");
+}
+
+unless ($config_pl->{'advanced_support_auth_aes_xcbc_96'}) {
+	IKEv2exitNS('Not support ' . "'advanced_support_auth_aes_xcbc_96'");
+}
+
+
+
+#------------------------------#
+# customize configuration      #
+#------------------------------#
+my $conf = {
+	'kmp_hash_alg' => [
+		'aes_xcbc',
+	],
+};
+unless (IKEv2customize($conf)) {
+	IKEv2exitFatal('<FONT COLOR="#ff0000">IKEv2 configuration failure</FONT>');
+}
+
+
+
+#------------------------------#
+# configure TN                 #
+#------------------------------#
+unless(IKEv2setupTN()) {
+	IKEv2exitFatal('<FONT COLOR="#ff0000">TN setup failure</FONT>');
+}
+
+
+
+#------------------------------#
+# configure NUT                #
+#------------------------------#
+unless(IKEv2setupNUT()) {
+	IKEv2exitFatal('<FONT COLOR="#ff0000">NUT setup failure</FONT>');
+}
+
+
+
+#------------------------------#
+# prepare session handler      #
+#------------------------------#
+kLogHTML('<FONT COLOR="#FF0000" SIZE="+1"><U><B>TEST PROCEDURE</B></U></FONT>');
+kLogHTML('<FONT COLOR="#000000" SIZE="+1"><U><B>Part D: Integrity Algorithm AUTH_AES_XCBC_96.</B></U></FONT>');
+
+
+$session = IKEv2create_session($remote);
+unless(defined($session)) {
+	IKEv2exitFatal('<FONT COLOR="#ff0000">IKEv2 session creation failure</FONT>');
+}
+
+
+
+#-------------------------------------#
+# prepare IKE_SA_INIT Request         #
+#-------------------------------------#
+my $common_ike_sa_init_req = $gen_ike_sa_init_req->{'common_remote_index'};
+@local_ike_sa_init_req = @{$common_ike_sa_init_req};
+# change Encryption Algorithm
+for (my $i = 0; $i < scalar(@local_ike_sa_init_req); $i++) {
+        my $payload = $local_ike_sa_init_req[$i];
+
+        if ($payload->{'self'} eq 'SA') {
+                for (my $j = 0; $j < scalar(@{$payload->{'proposals'}}); $j++) {
+                        my $proposal = @{$payload->{'proposals'}}[$j];
+
+                        if (defined($proposal->{'transforms'})) {
+                                for (my $k = 0; $k < scalar(@{$proposal->{'transforms'}}); $k++) {
+                                        my $transform = @{$proposal->{'transforms'}}[$k];
+
+                                        if ($transform->{'type'} eq 'INTEG') {
+                                                $transform->{'id'} = 'AES_XCBC_96';
+                                        }
+                                }
+                        }
+                }
+        }
+}
+$gen_ike_sa_init_req->{'EN-R-1-1-7-1.D.1'} = \@local_ike_sa_init_req;
+
+
+
+#--------------------------------------#
+# send IKE_SA_INIT request to NUT      #
+#--------------------------------------#
+$str  = '<PRE>';
+$str .= "    (R)             (I)\n";
+$str .= "    NUT             TN1\n";
+$str .= "     |               |\n";
+$str .= "     |<--------------| IKE_SA_INIT request (HDR, SAi1, KEi, Ni)\n";
+$str .= "     |               |\n";
+$str .= "     V               V";
+$str .= '</PRE>';
+
+kLogHTML($str);
+
+
+$ike_sa_init_req_param = devel_IKEv2send_IKE_SA_INIT_request($session,
+                                                             'EN-R-1-1-7-1.D.1');
+unless(defined($ike_sa_init_req_param)) {
+	kLogHTML(kDump_Common_Error());
+	IKEv2exitFatal('<FONT COLOR="#ff0000">Can\'t send IKE_SA_INIT request.</FONT>');
+}
+
+
+
+#-------------------------------------#
+# prepare IKE_SA_INIT Response        #
+#-------------------------------------#
+my $common_ike_sa_init_resp = $exp_ike_sa_init_resp->{'common_remote_index'};
+@local_ike_sa_init_resp = @{$common_ike_sa_init_resp};
+# change Encryption Algorithm
+for (my $i = 0; $i < scalar(@local_ike_sa_init_resp); $i++) {
+        my $payload = $local_ike_sa_init_resp[$i];
+
+        if ($payload->{'self'} eq 'SA') {
+                for (my $j = 0; $j < scalar(@{$payload->{'proposals'}}); $j++) {
+                        my $proposal = @{$payload->{'proposals'}}[$j];
+
+                        if (defined($proposal->{'transforms'})) {
+                                for (my $k = 0; $k < scalar(@{$proposal->{'transforms'}}); $k++) {
+                                        my $transform = @{$proposal->{'transforms'}}[$k];
+
+                                        if ($transform->{'type'} eq 'INTEG') {
+                                                $transform->{'id'} = 'AES_XCBC_96';
+                                        }
+                                }
+                        }
+                }
+        }
+}
+$exp_ike_sa_init_resp->{'EN-R-1-1-7-1.D.2'} = \@local_ike_sa_init_resp;
+
+
+
+#--------------------------------------#
+# receive IKE_SA_INIT response by NUT  #
+#--------------------------------------#
+$str  = '<PRE>';
+$str .= "    (R)             (I)\n";
+$str .= "    NUT             TN1\n";
+$str .= "     |               |\n";
+$str .= "     |-------------->| IKE_SA_INIT response (HDR, SAr1, KEr, Nr)\n";
+$str .= "     |               |\n";
+$str .= "     V               V";
+$str .= '</PRE>';
+
+kLogHTML($str);
+
+
+$ike_sa_init_resp_param = devel_IKEv2receive_IKE_SA_INIT_response($session,
+                                                                  'EN-R-1-1-7-1.D.2',
+                                                                  $ike_sa_init_req_param);
+unless(defined($ike_sa_init_resp_param)) {
+	kLogHTML(kDump_Common_Error());
+	kLogHTML('<FONT COLOR="#ff0000">Can\'t observe IKE_SA_INIT response.</FONT>');
+	IKEv2exitFail();
+}
+
+
+#--------------------------------------#
+# generate keying material             #
+#--------------------------------------#
+$material = devel_IKEv2gen_keymat(1, $ike_sa_init_req_param, $ike_sa_init_resp_param);
+unless(defined($material)) {
+	kLogHTML(kDump_Common_Error());
+	IKEv2exitFatal('<FONT COLOR="#ff0000">Can\'t generate keying material.</FONT>');
+}
+
+
+
+#--------------------------------------#
+# send IKE_AUTH request to NUT         #
+#--------------------------------------#
+$str  = '<PRE>';
+$str .= "    (R)             (I)\n";
+$str .= "    NUT             TN1\n";
+$str .= "     |               |\n";
+$str .= "     |<--------------| IKE_AUTH request (HDR, SK {IDi, AUTH, N(USE_TRANSPORT_MODE), SAi2, TSi, TSr})\n";
+$str .= "     |               |\n";
+$str .= "     V               V";
+$str .= '</PRE>';
+
+kLogHTML($str);
+
+
+$ike_auth_req_param = devel_IKEv2send_IKE_AUTH_request($session,
+                                                       $remote,
+                                                       $ike_sa_init_req_param,
+                                                       $ike_sa_init_resp_param,
+                                                       $material);
+unless(defined($ike_auth_req_param)) {
+        kLogHTML(kDump_Common_Error());
+        IKEv2exitFatal('<FONT COLOR="#ff0000">Can\'t send IKE_AUTH request.</FONT>');
+}
+
+
+
+#--------------------------------------#
+# receive IKE_AUTH response by NUT     #
+#--------------------------------------#
+$str  = '<PRE>';
+$str .= "    (R)             (I)\n";
+$str .= "    NUT             TN1\n";
+$str .= "     |               |\n";
+$str .= "     |-------------->| IKE_AUTH response (HDR, SK {IDr, AUTH, N(USE_TRANSPORT_MODE), SAr2, TSi, TSr)\n";
+$str .= "     |               |\n";
+$str .= "     V               V";
+$str .= '</PRE>';
+
+kLogHTML($str);
+
+
+$ike_auth_resp_param = devel_IKEv2receive_IKE_AUTH_response($session,
+                                                            $remote,
+                                                            $ike_sa_init_req_param,
+                                                            $ike_sa_init_resp_param,
+                                                            $ike_auth_req_param,
+                                                            $material);
+unless(defined($ike_auth_resp_param)) {
+        kLogHTML(kDump_Common_Error());
+        kLogHTML('<FONT COLOR="#ff0000">Can\'t observe IKE_AUTH response.</FONT>');
+        IKEv2exitFail();
+}
+
+
+
+#--------------------------------------#
+# exit with cleanup                    #
+#--------------------------------------#
+IKEv2exitPass();
+# NOTREACHED
+
+
+
+#
+# perldoc
+#
+########################################################################
+__END__
+
+=head1 Title
+
+  Test IKEv2.EN.R.1.1.6.1: Cryptographic Algorithm Negotiation for IKE_SA
+  Part D: Integrity Algorithm AUTH_AES_XCBC_96 (ADVANCED)
+
+=head1 Purpose
+
+  To verify an IKEv2 device properly handles various algorithms for IKE_SA.
+
+=head1 References
+
+  * [RFC 4306] - Sections 2.7 and 3.3
+
+=head1 Test Setup
+
+  * Network Topology
+      Connect the devices according to the Common Topology.
+  * Configuration
+      From part A to part E, configure the devices according to the Common
+      Configuration except for Italic parameters.
+
+=begin html
+
+<BLOCKQUOTE>
+<TABLE BORDER>
+<TR>
+<TD rowspan="2"></TD>
+<TD colspan="4">IKE_SA_INIT exchanges Algorithms</TD>
+</TR>
+<TR>
+<TD>Encryption</TD>
+<TD>PRF</TD>
+<TD>Integrity</TD>
+<TD>D-H Group</TD>
+</TR>
+<TR>
+<TD>Part D</TD>
+<TD>ENCR_3DES</TD>
+<TD>PRF_HMAC_SHA1</TD>
+<TD><b><i>AUTH_AES_XCBC_96</i></b></TD>
+<TD>Group 2</TD>
+</TR>
+</TABLE>
+</BLOCKQUOTE>
+<br>
+
+=end html
+
+  * Pre-Sequence and Cleanup Sequence
+      IKEv2 on the NUT is disabled after each part.
+
+=head1 Procedure
+
+=begin html
+
+<BLOCKQUOTE>
+<PRE>
+
+   NUT                  TN1
+(End-Node)           (End-Node)
+    |                    |
+    |<-------------------| IKE_SA_INIT request (HDR, SAi1, KEi, Ni)
+    |                    | (Packet #1)
+    |------------------->| IKE_SA_INIT response (HDR, SAr1, KEr, Nr)
+    |                    | (Judgement #1)
+    |                    |
+    |<-------------------| IKE_AUTH request (HDR, SK {IDi, AUTH, N, SAi2, TSi, TSr})
+    |                    | (Packet #2)
+    |------------------->| IKE_AUTH response (HDR, SK {IDr, AUTH, N, SAr2, TSi, TSr})
+    |                    | (Judgement #2)
+    |                    |
+    V                    V<br>
+<br>
+ N: USE_TRANSPORT_MODE
+<br>
+</BLOCKQUOTE>
+
+<BLOCKQUOTE>
+<TABLE BORDER>
+<TR>
+<TD><TT>Packet #1</TT></TD>
+<TD><TT>See Common Packet #1</TT></TD>
+</TR>
+<TR>
+<TD><TT>Packet #2</TT></TD>
+<TD><TT>See Common Packet #3</TT></TD>
+</TR>
+</TABLE>
+</BLOCKQUOTE>
+<br>
+
+=end html   
+
+  Packet #1: IKE_SA_INIT requet
+         Packet #1 is same as Common Packet #1 except SA Transform proposed in each test.
+
+=begin html
+    
+<BLOCKQUOTE>
+
+  Part D:
+    SA Transform of Tranform Type INTEG is replaced by the following SA
+    Transfrom.
+<br>
+<br>
+<TABLE BORDER>
+<TR>
+<TD rowspan="6">SA Transform</TD>
+<TD>Next Payload</TD>
+<TD>3 (more)</TD>
+</TR>
+<TR>
+<TD>Reserved</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>Transform Length</TD>
+<TD>8</TD>
+</TR>
+<TR>
+<TD>Transform Type</TD>
+<TD>3 (INTEG)</TD>
+</TR>
+<TR>
+<TD>Reserved</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>Transform ID</TD>
+<TD>5 (AES_XCBC_96)</TD>
+</TR>
+</TABLE>
+</BLOCKQUOTE>
+<br>
+
+=end html
+
+  Part D: Integrity Algorithm AUTH_AES_XCBC_96 (ADVANCED)
+      13. TN1 starts to negotiate with NUT by sending IKE_SA_INIT request including a SA payload
+          as described above.
+      14. Observe the messages transmitted on Link A.
+      15. After reception of IKE_SA_INIT response from the NUT, TN transmits an IKE_AUTH
+          request protected with the accepted proposal to the NUT.
+      16. Observe the messages transmitted on Link A.
+
+=head1 Observable Result
+    
+  Part D
+    Step 14: Judgment #1
+      The NUT transmits an IKE_SA_INIT response including "ENCR_3DES",
+      "PRF_HMAC_SHA1", "AUTH_AES_XCBC_96" and "D-H group 2" as accepted
+      algorithms.
+  
+    Step 16: Judgment #2
+      The NUT transmits an IKE_AUTH response including "ENCR_3DES",
+      "AUTH_HMAC_SHA1_96" and "No Extended Sequence Numbers" as accepted algorithms.
+
+=head1 Possible Problems
+
+  * None.
+
+=cut
+
+

@@ -1,0 +1,599 @@
+#!/usr/bin/perl
+#
+# Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009
+# Yokogawa Electric Corporation.
+# All rights reserved.
+# 
+# Redistribution and use of this software in source and binary
+# forms, with or without modification, are permitted provided that
+# the following conditions and disclaimer are agreed and accepted
+# by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in
+#    the documentation and/or other materials provided with
+#    the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project
+#    which is related to this software (hereinafter referred to as
+#    "project") nor the names of the contributors may be used to
+#    endorse or promote products derived from this software without
+#    specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written
+#    notification to the copyrighters.
+# 
+# 5. The copyrighters, the project and the contributors may prohibit
+#    the use of this software at any time.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+# STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+# IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+# $Id: IKEv2-EN-I-2-1-2-1-A.seq,v 1.4 2008/11/28 10:16:18 doo Exp $
+#
+################################################################
+
+BEGIN
+{
+	push(@INC, '..');
+}
+
+END {}
+
+use IKEv2;
+use strict;
+
+use Socket6;
+
+
+my $remote	= 'common_remote_index';
+my $selector	= 'common_selector_index_outbound';
+
+
+
+my $session	= undef;
+my $ret	= undef;
+my $str = undef;
+my $ike_sa_init_req_param	= undef;
+my $ike_sa_init_resp_param	= undef;
+my $ike_auth_req_param	= undef;
+my $dh	= undef;
+my $material	= undef;
+
+$need_vpn	= $true;
+
+
+kLogHTML('<FONT COLOR="#FF0000" SIZE="+1"><U><B>TEST SETUP</B></U></FONT>');
+
+
+
+#------------------------------#
+# register IKEv2.pm            #
+#------------------------------#
+unless(IKEv2initialize('EN', 'SGW')) {
+	IKEv2exitFatal('<FONT COLOR="#ff0000">IKEv2 module initializing failure</FONT>');
+}
+
+
+
+#---------------------------------#
+# switch Support or Not Support   #
+#---------------------------------#
+unless ($config_pl->{'advanced_support_cfg_payload'}) {
+	IKEv2exitNS('Not support ' . "'advanced_support_cfg_payload'");
+}
+
+
+
+#------------------------------#
+# change configuration         #
+#------------------------------#
+my $conf = {
+	'request' => [
+		'ip6',
+	],
+};
+unless (IKEv2customize($conf)) {
+	IKEv2exitFatal('<FONT COLOR="#ff0000">IKEv2 configuration failure</FONT>');
+}
+
+
+
+#------------------------------#
+# configure TN                 #
+#------------------------------#
+unless(IKEv2setupTN()) {
+	IKEv2exitFatal('<FONT COLOR="#ff0000">TN setup failure</FONT>');
+}
+
+
+
+#------------------------------#
+# configure NUT                #
+#------------------------------#
+unless(IKEv2setupNUT()) {
+	IKEv2exitFatal('<FONT COLOR="#ff0000">NUT setup failure</FONT>');
+}
+
+
+
+kLogHTML('<FONT COLOR="#FF0000" SIZE="+1"><U><B>TEST PROCEDURE</B></U></FONT>');
+
+
+
+#------------------------------#
+# prepare session handler      #
+#------------------------------#
+$session = IKEv2create_session($remote);
+unless(defined($session)) {
+	IKEv2exitFatal('<FONT COLOR="#ff0000">IKEv2 session creation failure</FONT>');
+}
+
+
+
+$str  = '<PRE>';
+$str .= "    (I)             (R)\n";
+$str .= "    NUT             TN1\n";
+$str .= "     |               |\n";
+$str .= "     |-------------->| IKE_SA_INIT request (HDR, SAi1, KEi, Ni)\n";
+$str .= "     |               |\n";
+$str .= "     V               V";
+$str .= '</PRE>';
+
+kLogHTML($str);
+
+
+
+my $stored_timeout = $session->{'timeout'};
+
+$session->timeout(60);
+
+#--------------------------------------#
+# invoke IKE_SA_INIT request           #
+#--------------------------------------#
+unless(IKEv2initiateNUT($selector)) {
+	IKEv2exitFatal('<FONT COLOR="#ff0000">NUT initiation failure</FONT>');
+}
+
+
+
+#--------------------------------------#
+# receive IKE_SA_INIT request          #
+#--------------------------------------#
+$ike_sa_init_req_param = devel_IKEv2receive_IKE_SA_INIT_request($session, $remote);
+unless(defined($ike_sa_init_req_param)) {
+	kLogHTML(kDump_Common_Error());
+	kLogHTML('<FONT COLOR="#ff0000">Can\'t observe IKE_SA_INIT request.</FONT>');
+	IKEv2exitFail();
+}
+
+$session->timeout($stored_timeout);
+
+
+
+$str  = '<PRE>';
+$str .= "    (I)             (R)\n";
+$str .= "    NUT             TN1\n";
+$str .= "     |               |\n";
+$str .= "     |<--------------| IKE_SA_INIT response (HDR, SAr1, KEr, Nr)\n";
+$str .= "     |               |\n";
+$str .= "     V               V";
+$str .= '</PRE>';
+
+kLogHTML($str);
+
+
+
+#--------------------------------------#
+# send IKE_SA_INIT response            #
+#--------------------------------------#
+$ike_sa_init_resp_param = devel_IKEv2send_IKE_SA_INIT_response($session, $remote, $ike_sa_init_req_param);
+unless(defined($ike_sa_init_resp_param)) {
+	kLogHTML(kDump_Common_Error());
+	IKEv2exitFatal('<FONT COLOR="#ff0000">Can\'t send IKE_SA_INIT response.</FONT>');
+}
+
+
+
+#--------------------------------------#
+# generate keying material             #
+#--------------------------------------#
+$material = devel_IKEv2gen_keymat(0, $ike_sa_init_req_param, $ike_sa_init_resp_param);
+unless(defined($material)) {
+	kLogHTML(kDump_Common_Error());
+	IKEv2exitFatal('<FONT COLOR="#ff0000">Can\'t generate keying material.</FONT>');
+}
+
+
+
+$str  = '<PRE>';
+$str .= "    (I)             (R)\n";
+$str .= "    NUT             TN1\n";
+$str .= "     |               |\n";
+$str .= "     |-------------->| IKE_AUTH request (HDR, SK {IDi, AUTH, N(USE_TRANSPORT_MODE), SAi2, TSi, TSr})\n";
+$str .= "     |               |\n";
+$str .= "     V               V";
+$str .= '</PRE>';
+
+kLogHTML($str);
+
+
+
+#--------------------------------------#
+# prepare IKE_AUTH request             #
+#--------------------------------------#
+my $cp_cfg_request =
+{       # CP Payload
+	'self'          => 'CP',        # *** MUST BE HERE ***
+
+	'nexttype'	=> 'SA',	# Next Payload
+	'critical'	=> '0',	# Critical
+	'reserved'	=> '0',	# RESERVED
+	'length'	=> '12',	# Payload Length
+	'cfg_type'	=> 'CFG_REQUEST',  # CFG Type
+	'reserved1'	=> '0',	# RESERVED
+	'attributes'	=> [		# Configuration Attributes
+		{
+			'reserved' => '0',
+			'attr_type' => (IKEv2::ADDRESS_FAMILY eq AF_INET6) ?
+					'INTERNAL_IP6_ADDRESS' :
+					'INTERNAL_IP4_ADDRESS',
+			'length' => '0',
+			'value' => '',
+		},
+	],
+};
+my $common_exp_ike_auth_req = $exp_ike_auth_req->{'common_remote_index'};
+my @local_ike_auth_req = @{$common_exp_ike_auth_req};
+
+# add CP payload
+for (my $i = 0; $i < scalar(@local_ike_auth_req); $i++) {
+	my $payload = $local_ike_auth_req[$i];
+
+	if ($payload->{'self'} eq 'E') {
+		for (my $j = 0; $j < scalar(@{$payload->{'innerPayloads'}}); $j++) {
+
+			if ($payload->{'innerPayloads'}->[$j]->{'self'} eq 'AUTH') {
+				splice(@{$payload->{'innerPayloads'}}, $j+1, 0, $cp_cfg_request);
+				last;
+			}
+		}
+
+		last;
+	}
+}
+
+# remove N(USE_TRANSPORT_MODE)
+foreach my $payload (@local_ike_auth_req) {
+	if ($payload->{'self'} eq 'E') {
+		my @payloads = grep {
+				my $ret = 0;
+				if ($_->{'self'} ne 'N') { $ret = 1; }
+				if ($_->{'type'} ne 'USE_TRANSPORT_MODE') { $ret = 1; }
+				$ret;
+			} @{$payload->{'innerPayloads'}};
+
+		$payload->{'innerPayloads'} = \@payloads;
+	}
+}
+# set correct nexttype
+for (my $i = 0; $i < scalar(@local_ike_auth_req); $i++) {
+	my $payload = $local_ike_auth_req[$i];
+
+	if ($payload->{'self'} eq 'E') {
+		for (my $j = 0; $j < scalar(@{$payload->{'innerPayloads'}}); $j++) {
+			my $cur = $payload->{'innerPayloads'}->[$j];
+			my $next = $payload->{'innerPayloads'}->[$j+1];
+			unless (defined($next)) {
+				$cur->{'nexttype'} = '0';
+				next;
+			}
+			if ($cur->{'nexttype'} eq $next->{'self'}) {
+				next;
+			}
+			$cur->{'nexttype'} = $next->{'self'};
+		}
+
+		next;
+	}
+}
+
+my $exp_index = 'EN-I-2-1-2-1.1';
+$exp_ike_auth_req->{$exp_index} = \@local_ike_auth_req;
+
+
+
+#--------------------------------------#
+# receive IKE_AUTH request             #
+#--------------------------------------#
+$ike_auth_req_param = devel_IKEv2receive_IKE_AUTH_request($session,
+							  $exp_index,
+							  $ike_sa_init_req_param,
+							  $ike_sa_init_resp_param,
+							  $material);
+unless(defined($ike_auth_req_param)) {
+	kLogHTML(kDump_Common_Error());
+	kLogHTML('<FONT COLOR="#ff0000">Can\'t observe IKE_AUTH request.</FONT>');
+	IKEv2exitFail();
+}
+
+
+
+#--------------------------------------#
+# exit with cleanup                    #
+#--------------------------------------#
+IKEv2exitPass();
+
+
+
+#
+# perldoc
+#
+########################################################################
+__END__
+
+=head1 Title
+
+  Test IKEv2.EN.I.2.1.2.1: Sending CFG_REQUEST
+  Part A: (ADVANCED)
+
+=head1 Purpose
+
+  To verify an IKEv2 device transmits IKE_AUTH request using properly Configuration
+  Payload format
+
+=head1 References
+
+  * [RFC 4306] - Sections 3.15
+
+=head1 Test Setup
+
+  * Network Topology
+      Connect the devices according to the following topology.
+
+=begin html
+
+<BLOCKQUOTE>
+<PRE>
+
+   NUT
+(End-Node)
+    |
+----+-------+--- Link A (Prefix A, MTU=1500)
+            |
+           TR1
+         (Router)
+            |
+----+-------+--- Link X (Prefix X, MTU=1500)
+    |
+   TN1
+  (SGW)
+    |
+----+-------+--- Link Y (Prefix Y, MTU=1500)
+            |
+           TH1
+          (Host)
+<br>
+Prefix A = 2001:0db8:0001:0001::/64
+Prefix X = 2001:0db8:000f:0001::/64
+Prefix Y = 2001:0db8:000f:0002::/64
+<br>
+
+<TABLE BORDER>
+<TR>
+<TD rowspan="2">NUT</TD>
+<TD rowspan="2">End-Node</TD>
+<TD rowspan="2">Link A</TD>
+<TD>Prefix A::any_interface_ID (External Address) </TD>
+</TR>
+<TR>
+<TD>Prefix Y::1 (Internal Address) (assigned by CP)</TD>
+</TR>
+<TR>
+<TD>TR1</TD>
+<TD>Router</TD>
+<TD>Link A</TD>
+<TD>fe80::f </TD>
+</TR>
+<TR>
+<TD>TN1</TD>
+<TD>SGW</TD>
+<TD>Link X</TD>
+<TD>Prefix X::1</TD>
+</TR>
+<TR>
+<TD>TH1</TD>
+<TD>Host </TD>
+<TD>Link Y</TD>
+<TD>Prefix Y::f</TD>
+</TR>
+</TABLE>
+
+</PRE>
+</BLOCKQUOTE>
+
+=end html
+  
+  * Configuration
+      In each part, configure NUT according to the Common Configuration except the traffic
+      selector. Configure NUT to transmit CFG_REQUEST for
+      INTERNAL_IP6_ADDRESS. The traffic selector must be configured by the following
+      table.
+
+=begin html 
+
+<BLOCKQUOTE>
+<TABLE BORDER>
+<TR>
+<TD rowspan="3"></TD>
+<TD colspan="6"><center>Traffic Selector</center></TD>
+</TR>
+<TR>
+<TD colspan="3"><center>Source</center></TD>
+<TD colspan="3"><center>Destination</center></TD>
+</TR>
+<TR>
+<TD>Address<br>Range</TD>
+<TD>Next Layer<br>Protocol</TD>
+<TD>Port<br>Range</TD>
+<TD>Address<br>Range</TD>
+<TD>Next Layer<br>Protocol</TD>
+<TD>Port<br>Range</TD>
+</TR>
+<TR>
+<TD>Inbound</TD>
+<TD>Link Y</TD>
+<TD>ANY</TD>
+<TD>ANY</TD>
+<TD>NUT<br>(internal address)</TD>
+<TD>ANY</TD>
+<TD>ANY</TD>
+</TR>
+<TR>
+<TD>Outbound</TD>
+<TD>NUT<br>(internal address)</TD>
+<TD>ANY</TD>
+<TD>ANY</TD>
+<TD>Link Y</TD>
+<TD>ANY</TD>
+<TD>ANY</TD>
+</TR>
+</TABLE>
+ NUT must propose Traffic Selector covering above address range.<br>
+</BLOCKQUOTE>
+
+=end html
+
+  * Pre-Sequence and Cleanup Sequence
+      IKEv2 on the NUT is disabled after each part.
+
+=head1 Procedure
+
+=begin html
+
+<BLOCKQUOTE>
+<PRE>   
+    
+   NUT                  TN1
+(End-Node)           (End-Node)
+    |                    |
+    |------------------->| IKE_SA_INIT request (HDR, SAi1, KEi, Ni)
+    |                    | (Judgement #1)
+    |<-------------------| IKE_SA_INIT Response (HDR, SAr1, KEr, Nr)
+    |                    | (Packet #1)
+    |                    |
+    |------------------->| IKE_AUTH request (HDR, SK {IDi, AUTH, CP(CFG_REQUEST), SAi2, TSi, TSr})
+    |                    | (Judgement #2)
+    |                    |
+    V                    V
+<br>
+
+</BLOCKQUOTE>
+      
+<BLOCKQUOTE>
+<TABLE BORDER>
+<TR>
+<TD><TT>Packet #1</TT></TD>
+<TD><TT>See Common Packet #2</TT></TD>
+</TR>
+</TABLE>
+</BLOCKQUOTE>
+
+=end html
+
+  Part A: (ADVANCED)
+       1. NUT starts to negotiate with TN1 by sending IKE_SA_INIT request.
+       2. Observe the messages transmitted on Link A.
+       3. TN1 responds with an IKE_SA_INIT response to the NUT.
+       4. Observe the messages transmitted on Link A.
+       5. TN1 responds with an IKE_SA_INIT response to the NUT.
+       6. Observe the messages transmitted on Link A.
+
+=head1 Observable Result
+
+  Part A
+    Step 2: Judgment #1
+      The NUT transmits an IKE_SA_INIT request including "ENCR_3DES",
+      "PRF_HMAC_SHA1", "AUTH_HMAC_SHA1_96" and "D-H group 2" as proposed
+      algorithms.
+  
+    Step 4: Judgment #2
+      The NUT transmits an IKE_AUTH request including properly formatted Configuration
+      Payload containing following values:
+
+=begin html
+     
+<BLOCKQUOTE>
+<PRE>   
+<br>
+                           1                   2                   3
+       0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      ! Next Payload  !C! RESERVED    !         Payload Length        !
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      !   CFG Type    !                    RESERVED                   !
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      !                                                               !
+      ~                   Configuration Attributes                    ~
+      !                                                               !
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+<br>
+                   Figure 47 Configuration Payload format<br> 
+  
+      * A Next Payload field is set to SA Payload (33).
+      * A Critical field is set to zero.
+      * A RESERVED field is set to zero.
+      * A Payload Length field is set to length of the current payload.
+      * A CFG Type field is set to CFG_REQUEST (1).
+      * A RESERVED field is set to zero.
+
+</BLOCKQUOTE>
+
+=end html
+
+=begin html
+
+<BLOCKQUOTE>
+  The following configuration attribute must be included in Configuration Attributes field.
+<PRE>
+<br>
+                           1                   2                   3
+       0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      !R|         Attribute Type      !            Length             |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |                                                               |
+      ~                             Value                             ~
+      |                                                               |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+<br>
+                  Figure 48 Configuration Attributes format<br>
+ 
+      Configuration Attribute #1
+      * Reserved field is set to zero.
+      * Attribute Type field is set to INTERNAL_IP6_ADDRESS (8).
+      * Length field is set to zero.
+      * Value field is empty.
+
+</BLOCKQUOTE>
+
+=end html
+
+=head1 Possible Problems
+
+  * The implementation may not set single configuration attribute by the implementation
+    policy. In this case, Configuration Payload contains multiple configuration attributes.
+
+=cut
+

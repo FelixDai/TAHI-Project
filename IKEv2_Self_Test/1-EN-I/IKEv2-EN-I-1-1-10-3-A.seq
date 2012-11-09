@@ -1,0 +1,630 @@
+#!/usr/bin/perl
+#
+# Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009
+# Yokogawa Electric Corporation.
+# All rights reserved.
+# 
+# Redistribution and use of this software in source and binary
+# forms, with or without modification, are permitted provided that
+# the following conditions and disclaimer are agreed and accepted
+# by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in
+#    the documentation and/or other materials provided with
+#    the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project
+#    which is related to this software (hereinafter referred to as
+#    "project") nor the names of the contributors may be used to
+#    endorse or promote products derived from this software without
+#    specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written
+#    notification to the copyrighters.
+# 
+# 5. The copyrighters, the project and the contributors may prohibit
+#    the use of this software at any time.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+# STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+# IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+# $Id: IKEv2-EN-I-1-1-10-3-A.seq,v 1.5 2012/06/22 07:48:51 doo Exp $
+#
+################################################################
+
+BEGIN
+{
+	push(@INC, '..');
+}
+
+END {}
+
+use IKEv2;
+use strict;
+
+
+
+my $remote	= 'common_remote_index';
+my $selector	= 'common_selector_index_outbound';
+
+
+
+my $session	= undef;
+my $ret	= undef;
+my $str = undef;
+my $ike_sa_init_req_param	= undef;
+my $ike_sa_init_resp_param	= undef;
+my $ike_auth_req_param	= undef;
+my $ike_auth_resp_param	= undef;
+my $dh	= undef;
+my $material	= undef;
+my $child_sa_material = undef;
+
+
+kLogHTML('<FONT COLOR="#FF0000" SIZE="+1"><U><B>TEST SETUP</B></U></FONT>');
+
+my $tn = 'EN';
+my $nut = 'EN';
+
+
+#------------------------------#
+# register IKEv2.pm            #
+#------------------------------#
+unless(IKEv2initialize($tn, $nut)) {
+	IKEv2exitFatal('<FONT COLOR="#ff0000">IKEv2 module initializing failure</FONT>');
+}
+
+
+
+#---------------------------------#
+# switch Support or Not Support   #
+#---------------------------------#
+unless ($config_pl->{'advanced_support_rsa_digital_signature'}) {
+	IKEv2exitNS('Not support ' . "'advanced_support_rsa_digital_signature'");
+}
+
+
+
+#------------------------------#
+# customize configuration      #
+#------------------------------#
+my $conf = {
+	'kmp_auth_method' => [
+		'rsa',
+	],
+};
+unless (IKEv2customize($conf)) {
+	IKEv2exitFatal('<FONT COLOR="#ff0000">IKEv2 configuration failure</FONT>');
+}
+
+
+
+#------------------------------#
+# configure TN                 #
+#------------------------------#
+unless(IKEv2setupTN()) {
+	IKEv2exitFatal('<FONT COLOR="#ff0000">TN setup failure</FONT>');
+}
+
+
+
+#------------------------------#
+# configure NUT                #
+#------------------------------#
+unless(IKEv2setupNUT()) {
+	IKEv2exitFatal('<FONT COLOR="#ff0000">NUT setup failure</FONT>');
+}
+
+
+
+kLogHTML('<FONT COLOR="#FF0000" SIZE="+1"><U><B>TEST PROCEDURE</B></U></FONT>');
+
+
+#------------------------------#
+# prepare session handler      #
+#------------------------------#
+$session = IKEv2create_session($remote);
+unless(defined($session)) {
+	IKEv2exitFatal('<FONT COLOR="#ff0000">IKEv2 session creation failure</FONT>');
+}
+
+
+
+$str  = '<PRE>';
+$str .= "    (I)             (R)\n";
+$str .= "    NUT             TN1\n";
+$str .= "     |               |\n";
+$str .= "     |-------------->| IKE_SA_INIT request (HDR, SAi1, KEi, Ni)\n";
+$str .= "     |               |\n";
+$str .= "     V               V";
+$str .= '</PRE>';
+
+kLogHTML($str);
+
+
+
+#--------------------------------------#
+# invoke IKE_SA_INIT request           #
+#--------------------------------------#
+unless(IKEv2initiateNUT($selector)) {
+	IKEv2exitFatal('<FONT COLOR="#ff0000">NUT initiation failure</FONT>');
+}
+
+
+
+#--------------------------------------#
+# receive IKE_SA_INIT request          #
+#--------------------------------------#
+$ike_sa_init_req_param = devel_IKEv2receive_IKE_SA_INIT_request($session, $remote);
+unless(defined($ike_sa_init_req_param)) {
+	kLogHTML(kDump_Common_Error());
+	kLogHTML('<FONT COLOR="#ff0000">Can\'t observe IKE_SA_INIT request.</FONT>');
+	IKEv2exitFail();
+}
+
+
+
+$str  = '<PRE>';
+$str .= "    (I)             (R)\n";
+$str .= "    NUT             TN1\n";
+$str .= "     |               |\n";
+$str .= "     |<--------------| IKE_SA_INIT response (HDR, SAr1, KEr, Nr)\n";
+$str .= "     |               |\n";
+$str .= "     V               V";
+$str .= '</PRE>';
+
+kLogHTML($str);
+
+
+
+#--------------------------------------#
+# send IKE_SA_INIT response            #
+#--------------------------------------#
+$ike_sa_init_resp_param = devel_IKEv2send_IKE_SA_INIT_response($session,
+							       $remote,
+							       $ike_sa_init_req_param);
+unless(defined($ike_sa_init_resp_param)) {
+	kLogHTML(kDump_Common_Error());
+	IKEv2exitFatal('<FONT COLOR="#ff0000">Can\'t send IKE_SA_INIT response.</FONT>');
+}
+
+
+
+#--------------------------------------#
+# generate keying material             #
+#--------------------------------------#
+$material = devel_IKEv2gen_keymat(0, $ike_sa_init_req_param, $ike_sa_init_resp_param);
+unless(defined($material)) {
+	kLogHTML(kDump_Common_Error());
+	IKEv2exitFatal('<FONT COLOR="#ff0000">Can\'t generate keying material.</FONT>');
+}
+
+
+
+#--------------------------------------#
+# prepare IKE_AUTH request             #
+#--------------------------------------#
+my $certreq_payload =
+{       # Certificate Request Payload
+	'self'		=> 'CERTREQ',	# *** MUST BE HERE ***
+	'nexttype'	=> undef,	# Next Payload
+	'critical'	=> '0',		# Critical
+	'reserved'	=> '0',		# RESERVED
+	'length'	=> '5',
+	'cert_encoding'	=> 'X.509 Certificate - Signature',
+	'cert_data'	=> undef,
+};
+my $common_ike_auth_req = $exp_ike_auth_req->{'common_remote_index'};
+my @local_ike_auth_req = @{$common_ike_auth_req};
+foreach my $payload1 (@local_ike_auth_req) {
+	if ($payload1->{'self'} eq 'E') {
+		# insert CERT and modify AUTH
+		for (my $i = 0; $i < scalar(@{$payload1->{'innerPayloads'}}); $i++) {
+			my $inner = ${$payload1->{'innerPayloads'}}[$i];
+
+			if ($inner->{'self'} eq 'IDi') {
+				splice(@{$payload1->{'innerPayloads'}}, $i+1, 0, $certreq_payload);
+			}
+			if ($inner->{'self'} eq 'AUTH') {
+				$inner->{'method'} = 'RSA_DS';
+			}
+		}
+
+		#set correct nexttype
+		$payload1->{'innerType'} = @{$payload1->{'innerPayloads'}}[0]->{'self'};
+		for (my $i = 0; $i < scalar(@{$payload1->{'innerPayloads'}}); $i++) {
+			my $inner = ${$payload1->{'innerPayloads'}}[$i];
+			my $next = ${$payload1->{'innerPayloads'}}[$i+1];
+			if (defined($next)) {
+				$inner->{'nexttype'} = $next->{'self'};
+			}
+			else {
+				$inner->{'nexttype'} = '0';
+			}
+		}
+	}
+}
+my $index = 'sending_cert.1';
+$exp_ike_auth_req->{$index} = \@local_ike_auth_req;
+
+
+#--------------------------------------#
+# receive IKE_AUTH request             #
+#--------------------------------------#
+$str  = '<PRE>';
+$str .= "    (I)             (R)\n";
+$str .= "    NUT             TN1\n";
+$str .= "     |               |\n";
+$str .= "     |-------------->| IKE_AUTH request (HDR, SK {IDi, CERTREQ, AUTH, N(USE_TRANSPORT_MODE), SAi2, TSi, TSr})\n";
+$str .= "     |               |\n";
+$str .= "     V               V";
+$str .= '</PRE>';
+
+kLogHTML($str);
+
+
+
+$ike_auth_req_param = devel_IKEv2receive_IKE_AUTH_request($session,
+							  $index,
+							  $ike_sa_init_req_param,
+							  $ike_sa_init_resp_param,
+							  $material);
+unless(defined($ike_auth_req_param)) {
+	kLogHTML(kDump_Common_Error());
+	kLogHTML('<FONT COLOR="#ff0000">Can\'t observe IKE_AUTH request.</FONT>');
+	IKEv2exitFail();
+}
+
+
+
+#--------------------------------------#
+# prepare IKE_AUTH response            #
+#--------------------------------------#
+my $cert_data = der2hexstr('./cert/TNcert.der');
+my $cert_payload =
+{	# Certificate Payload
+	'self'		=> 'CERT',	# *** MUST BE HERE ***
+	'nexttype'	=> 'AUTH',	# specify CERT
+	'critical'	=> '0',		# Critical
+	'reserved'	=> '0',		# RESERVED
+	'length'	=> undef,
+	'cert_encoding'	=> 'X.509 Certificate - Signature',
+	'cert_data'	=> $cert_data,
+};
+
+my $common_ike_auth_resp = $gen_ike_auth_resp->{'common_remote_index'};
+my @local_ike_auth_resp = @{$common_ike_auth_resp};
+
+for (my $i = 0; $i < scalar(@local_ike_auth_resp); $i++) {
+	my $payload = $local_ike_auth_resp[$i];
+
+	if ($payload->{'self'} eq 'IDi') {
+		splice(@local_ike_auth_resp, $i+1, 0, $cert_payload);
+		$payload->{'nexttype'} = 'CERT';
+		next;
+	}
+	if ($payload->{'self'} eq 'AUTH') {
+		$payload->{'method'} = 'RSA_DS';
+		next;
+	}
+}
+$index = 'sending_cert.2';
+$gen_ike_auth_resp->{$index} = \@local_ike_auth_resp;
+
+
+#--------------------------------------#
+# send IKE_AUTH response               #
+#--------------------------------------#
+$str  = '<PRE>';
+$str .= "    (I)             (R)\n";
+$str .= "    NUT             TN1\n";
+$str .= "     |               |\n";
+$str .= "     |<--------------| IKE_AUTH response (HDR, SK {IDr, CERT, AUTH, N(USE_TRANSPORT_MODE), SAr2, TSi, TSr})\n";
+$str .= "     |               |\n";
+$str .= "     V               V";
+$str .= '</PRE>';
+
+kLogHTML($str);
+
+
+
+$ike_auth_resp_param = devel_IKEv2send_IKE_AUTH_response($session,
+							 $index,
+							 $ike_sa_init_req_param,
+							 $ike_sa_init_resp_param,
+							 $material);
+unless (defined($ike_auth_resp_param)) {
+	kLogHTML(kDump_Common_Error());
+	IKEv2exitFatal('<FONT COLOR="#ff0000">Can\'t send IKE_AUTH response.</FONT>');
+}
+
+
+
+#--------------------------------------#
+# generate keying material (CHILD_SA)  #
+#--------------------------------------#
+$child_sa_material = devel_IKEv2gen_child_sa_keymat(1,	# Initial Exchanges
+						    $material,
+						    $ike_sa_init_req_param,
+						    $ike_sa_init_resp_param,
+						    $ike_auth_req_param,
+						    $ike_auth_resp_param);
+
+
+
+#--------------------------------------#
+# set keying material                  #
+#--------------------------------------#
+$ret = IKEv2set_child_sa_keymat(0, $child_sa_material, $ike_auth_req_param, $ike_auth_resp_param);
+unless($ret) {
+	kLogHTML(kDump_Common_Error());
+	IKEv2exitFatal('<FONT COLOR="#ff0000">Can\'t set keying material.</FONT>');
+}
+
+
+
+#--------------------------------------#
+# prepare ICMP session handler         #
+#--------------------------------------#
+my $icmp_session = ICMPcreate_session('TN1sendtoNUT');
+unless(defined($icmp_session)) {
+	IKEv2exitFatal('<FONT COLOR="#ff0000">ICMP session creation failure</FONT>');
+}
+
+
+
+#--------------------------------------#
+# send Echo Request                    #
+# receive Echo Reply                   #
+#--------------------------------------#
+$ret = ICMPexchange($tn, $nut, $icmp_session);
+if ($ret == -1) {
+	kLogHTML(kDump_Common_Error());
+	IKEv2exitFatal('<FONT COLOR="#ff0000">Can\'t send ICMP packet.</FONT>');
+} elsif ($ret == 0) {
+	my $strerror = kDump_Common_Error();
+	kLogHTML('<FONT COLOR="#ff0000">Can\'t observe ICMP packet.</FONT>');
+	IKEv2exitFail();
+}
+
+
+
+#--------------------------------------#
+# exit with cleanup                    #
+#--------------------------------------#
+IKEv2exitPass();
+
+
+
+#
+# perldoc
+#
+########################################################################
+__END__
+
+=head1 Title
+
+  Test IKEv2.EN.I.1.1.10.3:  RSA Digital Signature
+  Part A: (ADVANCED)
+
+=head1 Purpose
+
+  To verify an IKEv2 device authenticates the corresponding node by RSA Digital Signature.
+
+=head1 References
+
+  [RFC 4306] - Sections 1.2 and 3.7
+
+=head1 Test Setup
+
+  * Network Topology
+     Connect the devices according to the Common Topology.
+  * Configuration
+     In each part, configure the devices according to the following IKE peer configuration.
+
+=begin html
+
+<BLOCKQUOTE>
+<PRE>
+<TABLE BORDER>
+<TR>
+<TD></TD>
+<TD>Authentication Method</TD>
+</TR>
+<TR>
+<TD>Remote</TD>
+<TD>X.509 Certificate - Signature</TD>
+</TR>
+</TABLE> 
+</PRE>
+</BLOCKQUOTE>
+
+=end html
+
+  * Pre-Sequence and Cleanup Sequence
+     IKEv2 on the NUT is disabled after each part.
+
+=head1 Procedure
+
+=begin html
+<BLOCKQUOTE>
+<PRE>
+
+   NUT                  TN1
+(End-Node)           (End-Node)
+    |                    |
+    |------------------->| IKE_SA_INIT request (HDR, SAi1, KEi, Ni)
+    |                    | (Judgement #1)
+    |<-------------------| IKE_SA_INIT Response (HDR, SAr1, KEr, Nr)
+    |                    | (Packet #1)
+    |                    |
+    |------------------->| IKE_AUTH request (HDR, SK {IDi, CERTREQ, AUTH, N, SAi2, TSi, TSr})
+    |                    | (Judgement #2)
+    |<-------------------| IKE_AUTH Response (HDR, SK {IDr, iCERT, AUTH, N, SAr2, TSi, TSr})
+    |                    | (Packet #2)
+    |                    |  
+    |<-------------------| IPSec {Echo Request}
+    |                    | (Packet #3)
+    |------------------->| IPSec {Echo Reply}
+    |                    | (Judgement #3)
+    |                    |
+    V                    V
+
+<br>
+ N+: USE_TRANSPORT_MODE
+
+</PRE>
+</BLOCKQUOTE>
+
+<BLOCKQUOTE>  
+<TABLE BORDER>
+<TR>
+<TD><TT>Packet #1</TT></TD>
+<TD><TT>See Common Packet #2</TT></TD>
+</TR>
+<TR>
+<TD><TT>Packet #2</TT></TD>
+<TD><TT>See below</TT></TD>
+</TR>
+<TR>
+<TD><TT>Packet #3</TT></TD>
+<TD><TT>See Common Packet #19</TT></TD>
+</TR>
+</TABLE>
+</BLOCKQUOTE>
+<br>
+
+<BLOCKQUOTE>
+Packet #2: IKE_AUTH response
+<TABLE BORDER>
+<TR>
+<TD>IPv6 Header</TD>
+<TD colspan="2">Same as Common Packet #4</TD>
+</TR>
+<TR>
+<TD>UDP Header</TD>
+<TD colspan="2">Same as Common Packet #4</TD>
+</TR>
+<TR>
+<TD>IKEv2 Header</TD>
+<TD colspan="2">Same as Common Packet #4</TD>
+</TR>
+<TR>
+<TD>E Payloa</TD>
+<TD colspan="2">Same as Common Packet #4</TD>
+</TR>
+<TR>
+<TD rowspan="2">IDr Payload</TD>
+<TD>Next Payload</TD>
+<TD>37 (CERT)</TD>
+</TR>
+<TR>
+<TD colspan="2">Other fields are same as the Common Packet #4</TD>
+</TR>
+<TR>
+<TD>CERT Payload</TD>
+<TD colspan="2">See below</TD>
+</TR>
+<TR>
+<TD>AUTH Payload</TD>
+<TD colspan="2">Same as Common Packet #4</TD>
+</TR>
+<TR>
+<TD>N Payload</TD>
+<TD colspan="2">Same as Common Packet #4</TD>
+</TR>
+<TR>
+<TD>SA Payload</TD>
+<TD colspan="2">Same as Common Packet #4</TD>
+</TR>
+<TR>
+<TD>TSi Payload</TD>
+<TD colspan="2">Same as Common Packet #4</TD>
+</TR>
+<TR>
+<TD>TSr Payload</TD>
+<TD colspan="2">Same as Common Packet #4</TD>
+</TR>
+</TABLE>
+</BLOCKQUOTE>
+
+<BLOCKQUOTE>
+<TABLE BORDER>
+<TR>
+<TD rowspan="6">CERT Payload</TD>
+<TD>Next Payload</TD>
+<TD>39 (AUTH)</TD>
+</TR>
+<TR>
+<TD>Critical</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>Reserved</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>Payload Length</TD>
+<TD>Any</TD>
+</TR>
+<TR>
+<TD>Certificate Encoding</TD>
+<TD>4 (X.509 Certificate - Signature)</TD>
+</TR>
+<TR>
+<TD>Certificate Data</TD>
+<TD>TN1's X.509 Certificate</TD>
+</TR>
+</TABLE>
+</BLOCKQUOTE>
+
+=end html
+
+  Part A: (ADVANCED)
+     1. NUT starts to negotiate with TN1 by sending IKE_SA_INIT request.
+     2. Observe the messages transmitted on Link A.
+     3. TN1 responds with an IKE_SA_INIT response to the NUT.
+     4. Observe the messages transmitted on Link A.
+     5. After reception of IKE_AUTH request from the NUT, TN1 responds with an IKE_AUTH
+         response including IDr payload as describe above to the NUT
+     6. TN1 transmits an Echo Request with IPsec ESP using corresponding algorithms to NUT.
+     7. Observe the messages transmitted on Link A.
+
+
+=head1 Observable Results
+
+  Part A
+       Step 2: Judgment #1
+       The NUT transmits an IKE_SA_INIT request including "ENCR_3DES",
+       "PRF_HMAC_SHA1", "AUTH_HMAC_SHA1_96" and "D-H group 2" as proposed
+       algorithms.
+
+       Step 4: Judgment #2
+       The NUT transmits an IKE_AUTH request with a CERTREQ payload which contains 4
+       (X.509 Certificate - Signature) as Certificate Encoding.
+
+       Step 7: Judgment #3
+       The NUT transmits an Echo Reply with IPsec ESP using ENCR_3DES an
+       AUTH_HMAC_SHA1_96.
+
+
+=head1 Possible Problems
+
+  * None
+
+=cut
+

@@ -1,0 +1,883 @@
+#!/usr/bin/perl
+#
+# Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009
+# Yokogawa Electric Corporation.
+# All rights reserved.
+# 
+# Redistribution and use of this software in source and binary
+# forms, with or without modification, are permitted provided that
+# the following conditions and disclaimer are agreed and accepted
+# by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in
+#    the documentation and/or other materials provided with
+#    the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project
+#    which is related to this software (hereinafter referred to as
+#    "project") nor the names of the contributors may be used to
+#    endorse or promote products derived from this software without
+#    specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written
+#    notification to the copyrighters.
+# 
+# 5. The copyrighters, the project and the contributors may prohibit
+#    the use of this software at any time.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+# STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+# IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+# $Id: IKEv2-EN-I-1-2-4-5-A.seq,v 1.4 2010/07/22 13:32:49 doo Exp $
+#
+################################################################
+
+BEGIN
+{
+	push(@INC, '..');
+}
+
+END {}
+
+use IKEv2;
+use strict;
+
+
+
+my $remote	= 'common_remote_index';
+my $selector	= 'common_selector_index_outbound';
+
+my $session	= undef;
+my $ike_sa_init_req_param	= undef;
+my $ike_sa_init_resp_param	= undef;
+my $ike_auth_req_param	= undef;
+my $ike_auth_resp_param	= undef;
+my $create_child_sa_req_param	= undef;
+my $create_child_sa_resp_param	= undef;
+my $informational_req_param = undef;
+my $informational_resp_param = undef;
+
+my $material	= undef;
+my $child_sa_material = undef;
+my $ret	= undef;
+my $str = undef;
+
+my @local_create_child_sa_req = undef;
+my @local_create_child_sa_resp	= undef;
+
+
+
+kLogHTML('<FONT COLOR="#FF0000" SIZE="+1"><U><B>TEST SETUP</B></U></FONT>');
+
+my $tn = 'EN';
+my $nut = 'EN';
+
+
+#------------------------------#
+# register IKEv2.pm            #
+#------------------------------#
+unless(IKEv2initialize($tn, $nut)) {
+	IKEv2exitFatal('<FONT COLOR="#ff0000">IKEv2 module initializing failure</FONT>');
+}
+
+
+
+#---------------------------------#
+# switch Support or Not Support   #
+#---------------------------------#
+unless ($config_pl->{'advanced_multiple_proposal_rekey_ike_sa'}) {
+	IKEv2exitNS('Not support ' . "'advanced_multiple_proposal_rekey_ike_sa'");
+}
+
+unless ($config_pl->{'advanced_support_encr_aes_cbc'}) {
+	IKEv2exitNS('Not support ' . "'advanced_support_encr_aes_cbc'");
+}
+
+unless ($config_pl->{'advanced_support_prf_aes128_cbc'}) {
+	IKEv2exitNS('Not support ' . "'advanced_support_prf_aes128_cbc'");
+}
+
+unless ($config_pl->{'advanced_support_auth_aes_xcbc_96'}) {
+	IKEv2exitNS('Not support ' . "'advanced_support_auth_aes_xcbc_96'");
+}
+
+unless ($config_pl->{'advanced_support_dh_group14'}) {
+	IKEv2exitNS('Not support ' . "'advanced_support_dh_group14'");
+}
+
+
+
+#------------------------------#
+# customize configuration      #
+#------------------------------#
+my $conf = {
+	'kmp_sa_lifetime' => '60',
+	'ipsec_sa_lifetime' => '300',
+};
+unless (IKEv2customize($conf)) {
+	IKEv2exitFatal('<FONT COLOR="#ff0000">IKEv2 configuration failure</FONT>');
+}
+
+
+
+#------------------------------#
+# configure TN                 #
+#------------------------------#
+unless(IKEv2setupTN()) {
+	IKEv2exitFatal('<FONT COLOR="#ff0000">TN setup failure</FONT>');
+}
+
+
+
+#------------------------------#
+# configure NUT                #
+#------------------------------#
+unless(IKEv2setupNUT()) {
+	IKEv2exitFatal('<FONT COLOR="#ff0000">NUT setup failure</FONT>');
+}
+
+
+
+kLogHTML('<FONT COLOR="#FF0000" SIZE="+1"><U><B>TEST PROCEDURE</B></U></FONT>');
+
+
+#------------------------------#
+# prepare session handler      #
+#------------------------------#
+$session = IKEv2create_session($remote);
+unless(defined($session)) {
+	IKEv2exitFatal('<FONT COLOR="#ff0000">IKEv2 session creation failure</FONT>');
+}
+
+
+
+$str  = '<PRE>';
+$str .= "    (I)             (R)\n";
+$str .= "    NUT             TN1\n";
+$str .= "     |               |\n";
+$str .= "     |-------------->| IKE_SA_INIT request (HDR, SAi1, KEi, Ni)\n";
+$str .= "     |               |\n";
+$str .= "     V               V";
+$str .= '</PRE>';
+
+kLogHTML($str);
+
+
+
+#--------------------------------------#
+# invoke IKE_SA_INIT request           #
+#--------------------------------------#
+unless(IKEv2initiateNUT($selector)) {
+	IKEv2exitFatal('<FONT COLOR="#ff0000">NUT initiation failure</FONT>');
+}
+
+
+
+#--------------------------------------#
+# receive IKE_SA_INIT request          #
+#--------------------------------------#
+$ike_sa_init_req_param = devel_IKEv2receive_IKE_SA_INIT_request($session, $remote);
+unless(defined($ike_sa_init_req_param)) {
+	kLogHTML(kDump_Common_Error());
+	kLogHTML('<FONT COLOR="#ff0000">Can\'t observe IKE_SA_INIT request.</FONT>');
+	IKEv2exitFail();
+}
+
+
+
+#--------------------------------------#
+# send IKE_SA_INIT response            #
+#--------------------------------------#
+$str  = '<PRE>';
+$str .= "    (I)             (R)\n";
+$str .= "    NUT             TN1\n";
+$str .= "     |               |\n";
+$str .= "     |<--------------| IKE_SA_INIT response (HDR, SAr1, KEr, Nr)\n";
+$str .= "     |               |\n";
+$str .= "     V               V";
+$str .= '</PRE>';
+
+kLogHTML($str);
+
+$ike_sa_init_resp_param = devel_IKEv2send_IKE_SA_INIT_response($session, $remote, $ike_sa_init_req_param);
+unless(defined($ike_sa_init_resp_param)) {
+	kLogHTML(kDump_Common_Error());
+	IKEv2exitFatal('<FONT COLOR="#ff0000">Can\'t send IKE_SA_INIT response.</FONT>');
+}
+
+
+
+#--------------------------------------#
+# generate keying material             #
+#--------------------------------------#
+$material = devel_IKEv2gen_keymat(0, $ike_sa_init_req_param, $ike_sa_init_resp_param);
+unless(defined($material)) {
+	kLogHTML(kDump_Common_Error());
+	IKEv2exitFatal('<FONT COLOR="#ff0000">Can\'t generate keying material.</FONT>');
+}
+
+
+
+#--------------------------------------#
+# receive IKE_AUTH request             #
+#--------------------------------------#
+$str  = '<PRE>';
+$str .= "    (I)             (R)\n";
+$str .= "    NUT             TN1\n";
+$str .= "     |               |\n";
+$str .= "     |-------------->| IKE_AUTH request (HDR, SK {IDi, AUTH, N(USE_TRANSPORT_MODE), SAi2, TSi, TSr})\n";
+$str .= "     |               |\n";
+$str .= "     V               V";
+$str .= '</PRE>';
+
+kLogHTML($str);
+
+
+
+$ike_auth_req_param = devel_IKEv2receive_IKE_AUTH_request($session,
+							  $remote,
+							  $ike_sa_init_req_param,
+							  $ike_sa_init_resp_param,
+							  $material);
+unless(defined($ike_auth_req_param)) {
+	kLogHTML(kDump_Common_Error());
+	kLogHTML('<FONT COLOR="#ff0000">Can\'t observe IKE_AUTH request.</FONT>');
+	IKEv2exitFail();
+}
+
+
+
+#--------------------------------------#
+# send IKE_AUTH response               #
+#--------------------------------------#
+$str  = '<PRE>';
+$str .= "    (I)             (R)\n";
+$str .= "    NUT             TN1\n";
+$str .= "     |               |\n";
+$str .= "     |<--------------| IKE_AUTH response (HDR, SK {IDr, AUTH, N(USE_TRANSPORT_MODE), SAr2, TSi, TSr})\n";
+$str .= "     |               |\n";
+$str .= "     V               V";
+$str .= '</PRE>';
+
+kLogHTML($str);
+
+
+
+$ike_auth_resp_param = devel_IKEv2send_IKE_AUTH_response($session,
+							 $remote,
+							 $ike_sa_init_req_param,
+							 $ike_sa_init_resp_param,
+							 $material);
+unless (defined($ike_auth_resp_param)) {
+	kLogHTML(kDump_Common_Error());
+	IKEv2exitFatal('<FONT COLOR="#ff0000">Can\'t send IKE_AUTH response.</FONT>');
+}
+
+
+
+#--------------------------------------#
+# set keying material                  #
+#--------------------------------------#
+my $keymat = undef;
+{
+	#--------------------------------------#
+	# generate keying material (CHILD_SA)  #
+	#--------------------------------------#
+	$keymat = IKEv2_v6eval_generate_IPsecSA(1,	# Initial Exchanges
+						$material,
+						$ike_sa_init_req_param,
+						$ike_sa_init_resp_param,
+						$ike_auth_req_param,
+						$ike_auth_resp_param);
+
+	my $ret = IKEv2_v6eval_set_IPsecSA(0, $keymat, $ike_auth_req_param, $ike_auth_resp_param);
+	unless($ret) {
+		IKEv2log(kDump_Common_Error());
+		IKEv2exitFatal('<FONT COLOR="#ff0000">Can\'t set keying material.</FONT>');
+	}
+}
+
+
+
+IKEv2waitNUT();
+
+
+
+#------------------------------------------#
+# prepare expected CREATE_CHILD_SA request #
+#------------------------------------------#
+# get IKE_SA_INIT's transform
+my $common_ike_sa_init_req = $exp_ike_sa_init_req->{'common_remote_index'};
+my @tmp_ike_sa_init_req = @{$common_ike_sa_init_req};
+my @ike_sa_init_transform = undef;
+for (my $i = 0; $i < scalar(@tmp_ike_sa_init_req); $i++) {
+	my $payload = $tmp_ike_sa_init_req[$i];
+
+	if ($payload->{'self'} eq 'SA') {
+		for (my $j = 0; $j < scalar(@{$payload->{'proposals'}}); $j++) {
+			my $proposal = @{$payload->{'proposals'}}[$j];
+
+			if (defined($proposal->{'transforms'})) {
+				@ike_sa_init_transform = @{$proposal->{'transforms'}};
+				last;
+			}
+		}
+	}
+}
+
+my $second_proposal = {	# Proposal Substructure
+	'nexttype'	=> '0',		# 0 (last) or 2 (more)
+	'reserved'	=> '0',		# RESERVED
+	'proposalLen'	=> '52',	# Proposal Length
+	'number'	=> '2',		# Proposal #
+	'id'		=> 'IKE',	# Protocol ID
+	'spiSize'	=> '8',		# SPI Size
+	'transformCount'=> '4',		# # of Transforms
+	'spi'		=> undef,	# SPI
+	'transforms'	=> [	# Transforms
+		{	# Transform Substructure
+			'nexttype'	=> '3',			# 0 (last) or 3 (more)
+			'reserved1'	=> '0',			# RESERVED
+			'transformLen'	=> '12',			# Transform Length
+			'type'		=> 'ENCR',		# Transform Type
+			'reserved2'	=> '0',			# RESERVED
+			'id'		=> 'AES_CBC',		# Transform ID
+			'attributes'	=> [	# Transform Attributes
+				{
+					'af'		=> '1',
+					'type'		=> 'Key Length',
+					'value'		=> '128',
+					'length'	=> undef,
+				},
+			]
+		},
+		{	# Transform Substructure
+			'nexttype'	=> '3',			# 0 (last) or 3 (more)
+			'reserved1'	=> '0',			# RESERVED
+			'transformLen'	=> '8',			# Transform Length
+			'type'		=> 'PRF',		# Transform Type
+			'reserved2'	=> '0',			# RESERVED
+			'id'		=> 'AES128_XCBC',	# Transform ID
+			'attributes'	=> [	# Transform Attributes
+			]
+		},
+		{	# Transform Substructure
+			'nexttype'	=> '3',			# 0 (last) or 3 (more)
+			'reserved1'	=> '0',			# RESERVED
+			'transformLen'	=> '8',			# Transform Length
+			'type'		=> 'INTEG',		# Transform Type
+			'reserved2'	=> '0',			# RESERVED
+			'id'		=> 'AES_XCBC_96',	# Transform ID
+			'attributes'	=> [	# Transform Attributes
+			]
+		},
+		{	# Transform Substructure
+			'nexttype'	=> '0',			# 0 (last) or 3 (more)
+			'reserved1'	=> '0',			# RESERVED
+			'transformLen'	=> '8',			# Transform Length
+			'type'		=> 'D-H',		# Transform Type
+			'reserved2'	=> '0',			# RESERVED
+			'id'		=> '2048 MODP Group',	# Transform ID
+			'attributes' => [	# Transform Attributes
+			]
+		}
+	],
+};
+
+# generete CREATE_CHILD_SA request for IKE_SA
+my $common_create_child_sa_req = IKEv2load_packet($exp_create_child_sa_req, $remote);
+@local_create_child_sa_req = @{$common_create_child_sa_req};
+foreach my $payload1 (@local_create_child_sa_req) {
+	if ($payload1->{'self'} eq 'E') {
+		# make a request to rekey IKE_SA
+		for (my $i = 0; $i < scalar(@{$payload1->{'innerPayloads'}}); $i++) {
+			my $payload2 = @{$payload1->{'innerPayloads'}}[$i];
+
+			# delete N, TSi, TSr
+			if ( (($payload2->{'self'} eq 'N') && ($payload2->{'type'} eq 'USE_TRANSPORT_MODE'))
+			    || ($payload2->{'self'} eq 'TSi') || ($payload2->{'self'} eq 'TSr') ) {
+				splice(@{$payload1->{'innerPayloads'}}, $i, 1);
+				redo;
+			}
+
+			# change proposal setting
+			if ($payload2->{'self'} eq 'SA') {
+				# modify first proposal
+				foreach my $proposal (@{$payload2->{'proposals'}}) {
+					$proposal->{'id'} = 'IKE';				# ProtocolID(1=IKE)
+					$proposal->{'spiSize'} = '8';				# SPI size
+					$proposal->{'proposalLen'} = $proposal->{'proposalLen'} +8 +4; # +transform +spi
+					$proposal->{'nexttype'} = 2;
+					$proposal->{'number'} = 1;
+
+					@{$proposal->{'transforms'}} = @ike_sa_init_transform;
+				}
+
+				# modify SA payload length
+				$payload2->{'length'} = $payload2->{'length'} +8 +4 + $second_proposal->{'proposalLen'};
+
+				# add second proposal
+				push(@{$payload2->{'proposals'}}, $second_proposal);
+			}
+		}
+
+		# set correct nexttype
+		$payload1->{'innerType'} = @{$payload1->{'innerPayloads'}}[0]->{'self'};
+		for (my $i = 0; $i < scalar(@{$payload1->{'innerPayloads'}}); $i++) {
+			my $inner = ${$payload1->{'innerPayloads'}}[$i];
+			my $next = ${$payload1->{'innerPayloads'}}[$i+1];
+			if (defined($next)) {
+				$inner->{'nexttype'} = $next->{'self'};
+			}
+			else {
+				$inner->{'nexttype'} = '0';
+			}
+		}
+	}
+}
+my $index = 'sending_multiple_proposal';
+$exp_create_child_sa_req->{$index} = \@local_create_child_sa_req;
+
+
+
+#-------------------------------------------------------------#
+# repeat Echo exchange until lifetime of NUT's SA is expired  #
+#-------------------------------------------------------------#
+my $sa_life = $config_pl->{'ikev2_nut_ike_sa_lifetime'};
+my $t1 = time;
+my $t2 = time;
+my $esp_seq_out = 1;
+my $esp_seq_in = undef;
+
+while (($t2 - $t1) < $sa_life)
+{
+	$str  = '<PRE>';
+	$str .= "    (I)             (R)\n";
+	$str .= "    NUT             TN1\n";
+	$str .= "     |               |\n";
+	$str .= "     |<--------------| IPsec {Echo Request}\n";
+	$str .= "     |               |\n";
+	$str .= "     |-------------->| IPsec {Echo Reply}\n";
+	$str .= "     |               |\n";
+	$str .= "     V               V";
+	$str .= '</PRE>';
+	IKEv2log($str);
+
+	my $slink = 'Link0';
+	my $rlink = 'Link0';
+	my $spkt = 'ipsec_ereq';
+	my @rpkts = ('ipsec_erep');
+
+	my ($ret, %vrecv) = IKEv2_v6eval_send_recv($slink, $rlink, $spkt, @rpkts);
+	unless ($ret) {
+		my $strerror = kDump_Common_Error();
+		IKEv2log('<FONT COLOR="#ff0000">Can\'t observe ICMP packet.</FONT>');
+		IKEv2exitFail();
+	}
+
+	unless(($vrecv{'recvFrame'} eq 'ipsec_erep') &&
+		   (defined($vrecv{'recvHexDump'}))) {
+		# NOTREACHED
+		IKEv2og('<FONT COLOR="#ff0000">should not be reached to here</FONT>');
+		IKEv2exitFatal();
+	}
+
+	#------------------------------#
+	# update IPsec SA              #
+	#------------------------------#
+	{
+		$esp_seq_out++;
+		$esp_seq_in = $vrecv{'Frame_Ether.Packet_IPv6.Hdr_ESP.SequenceNumber'};
+		$esp_seq_in++;
+		my $cpp = '';
+		$cpp .= '-DCPP_ECHO_ID=1 ';
+		$cpp .= "-DCPP_ESP_SEQ_OUT=$esp_seq_out ";
+		$cpp .= "-DCPP_ESP_SEQ_IN=$esp_seq_in ";
+
+		my $conf = { 'cpp' => $cpp };
+		my $ret = IKEv2_v6eval_set_IPsecSA(0, $keymat, $ike_auth_req_param, $ike_auth_resp_param, $conf);
+	}
+
+
+
+	#------------------------------------------#
+	# receive CREATE_CHILD_SA request by NUT   #
+	#------------------------------------------#
+	$str  = '<PRE>';
+	$str .= "    (I)             (R)\n";
+	$str .= "    NUT             TN1\n";
+	$str .= "     |               |\n";
+	$str .= "     |-------------->| CREATE_CHILD_SA request (HDR, SK {SA, Ni})\n";
+	$str .= "     |               |\n";
+	$str .= "     V               V";
+	$str .= '</PRE>';
+
+	kLogHTML($str);
+
+
+	$session->timeout(3);
+	$create_child_sa_req_param = devel_IKEv2receive_CREATE_CHILD_SA_request($session,
+										$index,
+										$ike_sa_init_req_param,
+										$ike_sa_init_resp_param,
+										$ike_auth_req_param,
+										$material);
+	$t2 = time;
+
+	if (defined($create_child_sa_req_param)) {
+		last;
+	}
+}
+
+if (($t2 - $t1) >= $sa_life)
+{
+	kLogHTML(kDump_Common_Error());
+	kLogHTML('<FONT COLOR="#ff0000">Can\'t observe CREATE_CHILD_SA request.</FONT>');
+	IKEv2exitFail();
+}
+
+
+
+#-------------------------------------------#
+# prepare generate CREATE_CHILD_SA response #
+#-------------------------------------------#
+# get IKE_SA_INIT's transform
+my $common_ike_sa_init_resp = $gen_ike_sa_init_resp->{'common_remote_index'};
+my @tmp_ike_sa_init_resp = @{$common_ike_sa_init_resp};
+my @ike_sa_init_transform = undef;
+my $ike_sa_init_ke = undef;
+for (my $i = 0; $i < scalar(@tmp_ike_sa_init_resp); $i++) {
+	my $payload = $tmp_ike_sa_init_resp[$i];
+
+	if ($payload->{'self'} eq 'SA') {
+		for (my $j = 0; $j < scalar(@{$payload->{'proposals'}}); $j++) {
+			my $proposal = @{$payload->{'proposals'}}[$j];
+
+			if (defined($proposal->{'transforms'})) {
+				@ike_sa_init_transform = @{$proposal->{'transforms'}};
+				last;
+			}
+		}
+	}
+
+	if ($payload->{'self'} eq 'KE') {
+		$ike_sa_init_ke = $payload;
+	}
+}
+# generete CREATE_CHILD_SA Response for IKE_SA
+my $common_create_child_sa_resp = $gen_create_child_sa_resp->{'common_remote_index'};
+@local_create_child_sa_resp = @{$common_create_child_sa_resp};
+for (my $i = 0; $i < scalar(@local_create_child_sa_resp); $i++) {
+	my $payload = $local_create_child_sa_resp[$i];
+
+	# delete N, TSi, TSr
+	if ( (($payload->{'self'} eq 'N') && ($payload->{'type'} eq 'USE_TRANSPORT_MODE'))
+	     || ($payload->{'self'} eq 'TSi')
+	     || ($payload->{'self'} eq 'TSr')) {
+		splice(@local_create_child_sa_resp, $i, 1);
+		redo;
+	}
+	# change proposal setting
+	if ($payload->{'self'} eq 'SA') {
+		for (my $j = 0; $j < scalar(@{$payload->{'proposals'}}); $j++) {
+			my $proposal = @{$payload->{'proposals'}}[$j];
+
+			$proposal->{'id'} = 'IKE'; # ProtocolID(1=IKE)
+			$proposal->{'spiSize'} = '8'; # SPI size
+
+			@{$proposal->{'transforms'}} = @ike_sa_init_transform;
+		}
+
+		splice(@local_create_child_sa_resp, $i+1, 0, $ike_sa_init_ke);
+	}
+}
+$gen_create_child_sa_resp->{'EN-I-1-2-5-1.2'} = \@local_create_child_sa_resp;
+
+
+
+#-------------------------------#
+# send CREATE_CHILD_SA response #
+#-------------------------------#
+$str  = '<PRE>';
+$str .= "    (I)             (R)\n";
+$str .= "    NUT             TN1\n";
+$str .= "     |               |\n";
+$str .= "     |<--------------| CREATE_CHILD_SA response (HDR, SK {SA, Nr})\n";
+$str .= "     |               |\n";
+$str .= "     V               V";
+$str .= '</PRE>';
+
+kLogHTML($str);
+
+
+
+$create_child_sa_resp_param = devel_IKEv2send_CREATE_CHILD_SA_response($session,
+								       'EN-I-1-2-5-1.2',
+								       $ike_sa_init_req_param,
+								       $ike_sa_init_resp_param,
+								       $create_child_sa_req_param,
+								       $material);
+unless(defined($create_child_sa_resp_param)) {
+	kLogHTML(kDump_Common_Error());
+	kLogHTML('<FONT COLOR="#ff0000">Can\'t send CREATE_CHILD_SA response.</FONT>');
+	IKEv2exitFail();
+}
+
+
+
+#--------------------------------------#
+# generate keying material             #
+#--------------------------------------#
+$material = devel_IKEv2gen_keymat(0,
+				  $ike_sa_init_req_param,
+				  $ike_sa_init_resp_param,
+				  $create_child_sa_req_param,
+				  $create_child_sa_resp_param,
+				  $material);
+unless(defined($material)) {
+	kLogHTML(kDump_Common_Error());
+	IKEv2exitFatal('<FONT COLOR="#ff0000">Can\'t generate keying material.</FONT>');
+}
+
+
+
+#--------------------------------------#
+# send INFORMATIONAL request to NUT    #
+#--------------------------------------#
+$str  = '<PRE>';
+$str .= "    (I)             (R)\n";
+$str .= "    NUT             TN1\n";
+$str .= "     |               |\n";
+$str .= "     |<--------------| INFORMATION Request (HDR, SK {})\n";
+$str .= "     |               |\n";
+$str .= "     V               V";
+$str .= '</PRE>';
+
+kLogHTML($str);
+
+$ike_sa_init_req_param->{'spi'} = $create_child_sa_req_param->{'spi'}->[0];
+$ike_sa_init_resp_param->{'spi'} = $create_child_sa_resp_param->{'spi'};
+
+$informational_req_param = devel_IKEv2send_INFORMATIONAL_request($session,
+								 $remote,
+								 $ike_sa_init_req_param,
+								 $ike_sa_init_resp_param,
+								 $ike_auth_req_param,
+								 $material);
+unless (defined($informational_req_param)) {
+	kLogHTML(kDump_Common_Error());
+	IKEv2exitFatal('<FONT COLOR="#ff0000">Can\'t send INFORMATIONAL request.</FONT>');
+}
+
+
+#------------------------------------------#
+# receive INFORMATIONAL response to NUT    #
+#------------------------------------------#
+$str  = '<PRE>';
+$str .= "    (I)             (R)\n";
+$str .= "    NUT             TN1\n";
+$str .= "     |               |\n";
+$str .= "     |-------------->| INFORMATION Response (HDR, SK {})\n";
+$str .= "     |               |\n";
+$str .= "     V               V";
+$str .= '</PRE>';
+
+kLogHTML($str);
+
+$informational_resp_param = devel_IKEv2receive_INFORMATIONAL_response($session,
+								      $remote,
+								      $ike_sa_init_req_param,
+								      $ike_sa_init_resp_param,
+								      $informational_req_param,
+								      $material);
+unless (defined($informational_resp_param)) {
+	kLogHTML(kDump_Common_Error());
+	IKEv2exitFail('<FONT COLOR="#ff0000">Can\'t Observe INFORMATIONAL response.</FONT>');
+}
+
+
+
+#--------------------------------------#
+# exit with cleanup                    #
+#--------------------------------------#
+IKEv2exitPass();
+
+
+
+#
+# perldoc
+#
+########################################################################
+__END__
+
+=head1 Title
+
+  Test IKEv2.EN.I.1.2.4.5: Sending Multiple Proposal
+  Part A: (ADVANCED)
+
+=head1 Purpose
+
+  To verify an IKEv2 device properly transmits CREATE_CHILD_SA request with multiple
+  proposal to rekey IKE_SA.
+
+=head1 References
+
+  * [RFC 4306] - Sections 2.7 and 3.3
+
+=head1 Test Setup
+
+  * Network Topology
+      Connect the devices according to the Common Topology.
+  * Configuration
+      In each part, configure the devices according to the following configuration:
+
+=begin html
+
+<BLOCKQUOTE>
+<TABLE BORDER>
+<TR>
+<TD rowspan="2"></TD>
+<TD colspan="6">CREATE_CHILD_SA exchanges Algorithms</TD>
+</TR>
+<TR>
+<TD>Proposal</TD>
+<TD>ProtocolID</TD>
+<TD>Encryption</TD>
+<TD>PRF</TD>
+<TD>Integrity</TD>
+<TD>D-H Group</TD>
+</TR>
+<TR>
+<TD rowspan="2">Part A</TD>
+<TD>Proposal #1</TD>
+<TD>IKE</TD>
+<TD>ENCR_3DES</TD>
+<TD>PRF_HMAC_SHA1</TD>
+<TD>AUTH_HMAC_SHA1_96</TD>
+<TD>Group 2</TD>
+</TR>
+<TR>
+<TD>Proposal #2</TD>
+<TD>IKE</TD>
+<TD>ENCR_AES_CBC</TD>
+<TD>PRF_AES128_CBC</TD>
+<TD>AUTH_AES_XCBC_96</TD>
+<TD>Group 14</TD>
+</TR>
+</TABLE>
+</BLOCKQUOTE>
+
+=end html
+
+  * Pre-Sequence and Cleanup Sequence
+      IKEv2 on the NUT is disabled after each part.
+
+=head1 Procedure
+
+=begin html
+
+<BLOCKQUOTE>
+<PRE>
+   NUT                  TN1
+(End-Node)           (End-Node)
+    |                    |
+    |------------------->| IKE_SA_INIT request (HDR, SAi1, KEi, Ni)
+    |                    | (Judgement #1)
+    |<-------------------| IKE_SA_INIT Response (HDR, SAr1, KEr, Nr)
+    |                    | (Packet #1)
+    |                    |
+    |------------------->| IKE_AUTH request (HDR, SK {IDi, AUTH, N, SAi2, TSi, TSr})
+    |                    | (Judgement #2)
+    |<-------------------| IKE_AUTH Response (HDR, SK {IDr, AUTH, N, SAr2, TSi, TSr})
+    |                    | (Packet #2)
+    |                    |
+   ---                  ---
+    |                    |                        ---
+    |<-------------------| IPSec {Echo Request}    |
+    |                    | (Packet #3)             |
+    |------------------->| IPSec {Echo Reply}      | repeat Echo exchange until lifetime of SA is expired
+    |                    | (Judgement #3)          |
+    |                    |                        ---
+   ---                  ---
+    |                    |
+    |------------------->| CREATE_CHILD_SA request (HDR, SK {SA, Ni})
+    |                    | (Judgement #4)
+    |                    |
+    V                    V
+  
+ N: USE_TRANSPORT_MODE
+
+</BLOCKQUOTE>
+
+<BLOCKQUOTE>
+<TABLE BORDER>
+<TR>
+<TD><TT>Packet #1</TT></TD>
+<TD><TT>See Common Packet #2</TT></TD>
+</TR>
+<TR>
+<TD><TT>Packet #2</TT></TD>
+<TD><TT>See Common Packet #4</TT></TD>
+</TR>
+<TR>
+<TD><TT>Packet #3</TT></TD>
+<TD><TT>See Common Packet #19</TT></TD>
+</TR>
+</TABLE>
+</BLOCKQUOTE>
+
+=end html
+
+  Part A: Multiple Encryption Algorithms (ADVANCED)
+     1. NUT starts to negotiate with TN1 by sending IKE_SA_INIT request.
+     2. Observe the messages transmitted on Link A.
+     3. TN1 responds with an IKE_SA_INIT response to the NUT.
+     4. Observe the messages transmitted on Link A.
+     5. After reception of IKE_AUTH request from the NUT, TN1 responds with an IKE_AUTH
+         response to the NUT
+     6. TN1 transmits an Echo Request with IPsec ESP using corresponding algorithms to NUT.
+     7. Observe the messages transmitted on Link A.
+     8. Repeat Steps 6 and 7 until lifetime of SA is expired.
+     9. Observe the messages transmitted on Link A.
+
+=head1 Observable Result
+
+  Part A
+       Step 2: Judgment #1
+       The NUT transmits an IKE_SA_INIT request including "ENCR_3DES",
+       "PRF_HMAC_SHA1", "AUTH_HMAC_SHA1_96" and "D-H group 2" as proposed
+       algorithms.
+
+       Step 4: Judgment #2
+       The NUT transmits an IKE_AUTH request including "ENCR_3DES",
+       "AUTH_HMAC_SHA1_96" and "No Extended Sequence Numbers" as proposed algorithms.
+
+       Step 7: Judgment #3
+       The NUT transmits an Echo Reply with IPsec ESP using corresponding algorithms.
+
+       Step 9: Judgment #4
+       The NUT transmits a CREATE_CHILD_SA request including "ENCR_3DES",
+       "PRF_HMAC_SHA1", "AUTH_HMAC_SHA1_96" and "D-H group 2" in SA Proposal #1
+       (ESP) and "ENCR_AES_CBC", "PRF_AES128_CBC", "AUTH_AES_XCBC_96" and "D-
+       H group 14" in SA Proposal #2 (ESP) as proposed algorithms.
+
+=head1 Possible Problems
+
+  * Each NUT has the different lifetime of SA.
+
+=cut
+

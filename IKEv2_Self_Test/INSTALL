@@ -1,0 +1,411 @@
+
+
+
+               Installing IKEv2 Conformance Test Package
+
+                              TAHI Project
+
+                      $Date: 2009/12/11 04:24:39 $
+
+
+
+Terminology
+===========
+
+    Tester Node (TN)
+        A tester node for the conformance tests.
+
+    Node Under Test (NUT)
+        A testee node for the conformance tests.
+
+    Network Under Test
+        The network where the conformance tests are executed.
+
+    Tester Interface
+        The network interface of TN hooked up to the Network Under Test.
+
+    Interface Under Test
+        The network interface of NUT hooked up to the Network Under Test.
+
+    Security Gateway (SGW)
+        The intermediate system that implements IPsec protocols,
+        for example, a router or a firewall.
+
+    End Node (EN)
+        Any system that implements IPsec protocols that is not SGW.
+
+
+
+Prerequisites
+=============
+
+    Prerequisites for TN:
+        - The package supports
+            FreeBSD/i386 6.4-RELEASE or higher
+
+        - It is mandatory to install IPv6 Conformance Test Platform
+          "koi" and "v6eval" developed by TAHI project.
+
+
+
+Installing the package onto TN
+==============================
+
+    1. Before Starting
+
+        Make sure that you completed to install "koi" and "v6eval" package.
+
+
+    2. Install additional Perl modules.
+
+        IKEv2_Self_Test needs following Perl modules.
+          - Crypt-DES_EDE3
+          - Crypt-Random
+          - Crypt-Rijndael
+          - Crypt-OpenSSL-Random
+          - Crypt-OpenSSL-RSA
+          - Crypt-OpenSSL-X509
+          - Digest-HMAC
+
+        These Perl modules can be installed by following commands:
+
+          $ su
+          # ( cd /usr/ports/security/p5-Crypt-DES_EDE3/ && make install )
+          # ( cd /usr/ports/security/p5-Crypt-Random/ && make install )
+          # ( cd /usr/ports/security/p5-Crypt-Rijndael/ && make install )
+          # ( cd /usr/ports/security/p5-Crypt-OpenSSL-Random/ && make install )
+          # ( cd /usr/ports/security/p5-Crypt-OpenSSL-RSA/ && make install )
+          # ( cd /usr/ports/security/p5-Crypt-OpenSSL-X509/ && make install )
+          # ( cd /usr/ports/security/p5-Digest-HMAC/ && make install )
+
+
+    3. Recompile the kernel to enable IPsec function
+
+        For FreeBSD/i386 6.X, the configuration file must include following
+        "options" directives.
+
+          options    IPSEC
+          options    IPSEC_ESP
+
+        For FreeBSD/i386 7.X, the configuration file must include following
+        "device" and "options" directives.
+
+          device     crypto
+          options    IPSEC
+
+
+    4. Install the another version of "setkey" command
+
+          $ su
+          # ( cd /usr/ports/security/ipsec-tools/ && make install )
+
+
+    5. Extracting ct package
+
+        $ tar zxvf ${SOMEWHERE}/IKEv2_Self_Test_X-X-X.tgz
+
+
+
+Configuration
+============
+
+    1. Physical Configurations
+
+    1.1. Network Under Test
+
+        Hook up the Tester Interface of TN to the Network Under Test.
+        Tester Interface of TN can be configured for IPv4 and for IPv6 as well.
+
+        Hook up the Interface Under Test of NUT to the Network Under Test.
+        Interface Under Test of NUT must be configured for IPv6, while it can
+        be configured for IPv4 too.
+
+        Make sure that any other nodes are not hooked up to the network
+        because their packets would disturb the conformance tests.
+
+            Example: (If NUT is a host or a special device)
+
+                TN                      NUT
+                 |the Tester I/F: ed1    |the I/F Under Test: fxp0
+                 |                       |
+                 |                       |
+                -+-----------------------+- Link0
+                  the Network Under Test
+
+            Example: (If NUT is router)
+
+                -+-----------------------+- Link1
+                 |                       |
+                 |                       |
+                 |the Tester I/F: ed2    |the I/F Under Test: fxp1
+                 TN                     NUT
+                 |the Tester I/F: ed1    |the I/F Under Test: fxp0
+                 |                       |
+                 |                       |
+                -+-----------------------+- Link0
+                 the Network Under Test
+
+        more specific Network configurations are described in
+        00README of each directory respectively.
+
+
+    1.2. Physical wiring image
+
+            Example: (If NUT is a host or a special device)
+
+                 TN (tester)                       NUT (host or special device)
+                +------------+ Ether cross cable  +------------+
+                |       [ed1]+--------------------+[fxp0]      |
+                +------------+                    +------------+
+
+            Example: (If NUT is router)
+
+                 TN (tester)                       NUT (router)
+                +------------+ Ether cross cable  +------------+
+                |       [ed2]+--------------------+[fxp1]      |
+                |            | Ether cross cable  |            |
+                |       [ed1]+--------------------+[fxp0]      |
+                +------------+                    +------------+
+
+
+    2. Configuration of NUT
+
+        Please refer to
+        Common Topology and Common Configuration section in
+        the Test Specification.
+        Test Specification can be downloaded from <http://cert.v6pc.jp/ikev2/>.
+
+
+    3. Configuration of TN
+
+    3.1. /etc/resolv.conf
+
+        It is recommended to remove /etc/resolv.conf,
+        though it is not mandatory.
+
+
+    3.2. Default route
+
+        It is required to remove default route.
+
+
+    3.3. /usr/local/koi/etc/tn.def
+
+        Copy sample tn.def to tn.def.
+        Then, adjust Link0 and Link1 entry in the file.
+
+            # cd /usr/local/koi/etc
+            # cp tn.def.sample tn.def
+            # vi tn.def
+
+                "Link0" entry MUST have:
+                    - the EXACT name of Tester Interface.
+
+                "Link1" entries are required for a SGW test.
+
+            Example: /usr/local/koi/etc/tn.def
+            ==========================================================
+            RemoteMethod    ssh
+            RemoteTarget    127.0.0.1
+
+            Link0   fxp0
+            ==========================================================
+            If NUT is a SGW, you need to specify also Link1.
+
+
+    3.4. /usr/local/koi/etc/nut.def
+
+        Copy sample nut.def to nut.def.
+        Then, adjust Link0 and Link1 entry in the file.
+
+            # cd /usr/local/koi/etc
+            # cp nut.def.sample nut.def
+            # vi nut.def
+
+                "UserID"
+                "UserPassword"
+                "UserPrompt"
+                "RootID"
+                "RootPassword"
+                "RootPrompt"
+                "LoginPrompt"
+                "PasswordPrompt"
+                    - These parameters are ignored when "System" is manual.
+
+                "Link0" entry MUST have:
+                    - the EXACT name of the Interface Under Test.
+
+                "Link1" entries are required only for a router test.
+
+            Example:
+            ==========================================================
+            System          manual
+            Link0   em0
+            ==========================================================
+            If NUT is a SGW, you need to specify also Link1.
+
+
+    3.5. /usr/local/v6eval/etc/tn.def
+
+        Copy sample tn.def to tn.def.
+        Then, adjust Link0 and Link1 entry in the file.
+
+            # cd /usr/local/v6eval/etc
+            # cp tn.def.sample tn.def
+            # vi tn.def
+
+                "Link0" entry MUST have:
+                    - the EXACT name of Tester Interface.
+                    - a BOGUS MAC address.
+
+                "Link1" entries are required for a router test.
+
+            Example: /usr/local/v6eval/etc/tn.def
+            ==========================================================
+            Link0   ed1     00:00:00:00:01:00
+            ==========================================================
+            If NUT is a SGW, you need to specify also Link1.
+
+
+    3.6. /usr/local/v6eval/etc/nut.def
+
+        Copy sample nut.def to nut.def.
+        Then, adjust Link0 and Link1 entry in the file.
+
+            # cd /usr/local/v6eval/etc
+            # cp nut.def.sample nut.def
+            # vi nut.def
+
+                "Link0" entry MUST have:
+                    - the EXACT name of the Interface Under Test.
+                    - the EXACT MAC address of the Interface Under Test.
+
+                "Link1" entries are required only for a router test.
+
+            Example: /usr/local/v6eval/etc/nut.def
+            ==========================================================
+            Link0   fxp0    00:90:27:14:ce:da
+            ==========================================================
+            If NUT is a SGW, you need to specify also Link1.
+
+
+
+    3.7. adjust test parameter
+
+        Some of test can adjust it's test parameters.
+        The parameters can be configured at <config.pl>
+
+        Especially, following parameters are important
+        to run the test correctly.
+
+        If your device is EN,
+        you must use $ikev2_prefix0 for Link0 prefix.
+
+            ==========================================================
+            42 # NUT is EN
+            43 # Link A: Common Topology for EN: EN to End-Node
+            44 # Link A: Common Topology for EN: EN to SGW
+            45 $ikev2_global_addr_nut_link0    = $ikev2_prefix0. '::1234';
+            ==========================================================
+
+        If your device is SGW,
+        you must use $ikev2_prefix1 for Link0 prefix.
+        Furthermore,
+        you also must enable $ikev2_global_addr_nut_link1 with $ikev2_prefix0.
+
+            ==========================================================
+            49 # NUT is SGW
+            50 # Link B: Common Topology for SGW: SGW to SGW
+            51 # Link B: Common Topology for SGW: SGW to EN
+            52 $ikev2_global_addr_nut_link0   = $ikev2_prefix1. '::1234';
+            53
+            54
+            55
+            56 # NUT is SGW
+            57 # Link A: Common Topology for SGW: SGW to SGW
+            58 # Link A: Common Topology for SGW: SGW to EN
+            59 $ikev2_global_addr_nut_link1   = $ikev2_prefix0. '::1234';
+            ==========================================================
+
+
+
+Run the Tests
+=============
+
+        $ cd ${SOMEWHERE}/IKEv2_Self_Test_X-X-X/
+
+    To run the test
+
+        $ su
+
+        # make test_enode           (To perform whole EN tests)
+        # make test_enode_initiator (To perform EN initiator tests)
+        # make test_enode_responder (To perform EN responder tests)
+        # make test_sgw             (To perform whole SGW tests)
+        # make test_sgw_initiator   (To perform SGW initiator tests)
+        # make test_sgw_responder   (To perform SGW responder tests)
+
+    When TN needs you to operate on NUT, TN will show you the message
+    which describes how to operate NUT.
+    Then you can operate NUT as described by the message.
+    When all tests are completed,
+    you can see the test results at
+    <${SOMEWHERE}/IKEv2_Self_Test_X-X-X/index.html>.
+
+    Note that running the tests clears the previous test results.
+    If you do not want to lose them,
+    you should make a new copy of IKEv2_Self_Test package
+    in a different directory.
+
+
+
+Run the Tests with Certificates
+=============
+
+    To get certificate, please run a script.
+    For detail, please see cert/MakeCert.sh and cert/MakeCert.log file
+    for the input examples.
+
+        $ make certificate
+
+    Or execute all commands described in the next section by manually.
+    After running commands, you can get the following files and directory.
+
+        - demoCA/
+        - demoCA/cacert.pem
+        - demoCA/cacert.der
+        - NUTcert.pem
+	    NUT's certificate (PEM)
+        - NUTcert.der
+	    NUT's certificate (DER)
+	- NUTprivkey.pem
+	    NUT's private key (PEM)
+	- NUTprivkey.der
+	    NUT's private key (DER)
+	- NUTrequest.pem
+	    NUT's CSR (PEM)
+        - TNcert.pem
+	    TN's certificate (PEM)
+        - TNcert.der
+	    TN's certificate (DER)
+	- TNprivkey.pem
+	    TN's private key (PEM)
+	- TNprivkey.der
+	    TN's private key (DER)
+	- TNrequest.pem
+	    TN's CSR (DER)
+
+    To use certificates in NUT, please put the following files to your device
+    and configure use them.
+
+        - demoCA/cacert.pem
+        - demoCA/cacert.der
+        - NUTcert.pem
+        - NUTcert.der
+	- NUTprivkey.pem
+	- NUTprivkey.der
+	- NUTrequest.pem
+
+    To use certificates in TN, you don't have to do something especially.
+
+                                                        [End of INSTALL]

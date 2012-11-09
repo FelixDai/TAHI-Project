@@ -1,0 +1,537 @@
+#!/usr/bin/perl
+#
+# Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009
+# Yokogawa Electric Corporation.
+# All rights reserved.
+# 
+# Redistribution and use of this software in source and binary
+# forms, with or without modification, are permitted provided that
+# the following conditions and disclaimer are agreed and accepted
+# by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in
+#    the documentation and/or other materials provided with
+#    the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project
+#    which is related to this software (hereinafter referred to as
+#    "project") nor the names of the contributors may be used to
+#    endorse or promote products derived from this software without
+#    specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written
+#    notification to the copyrighters.
+# 
+# 5. The copyrighters, the project and the contributors may prohibit
+#    the use of this software at any time.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+# STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+# IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+# $Id: IKEv2-EN-I-1-1-1-1.seq,v 1.5 2008/11/28 10:16:17 doo Exp $
+#
+################################################################
+
+BEGIN
+{
+	push(@INC, '..');
+}
+
+END {}
+
+use IKEv2;
+use strict;
+
+
+
+my $session	= undef;
+my $ret	= undef;
+my $str = undef;
+my $expected_ike_sa_init_request	= undef;
+
+
+
+kLogHTML('<FONT COLOR="#FF0000" SIZE="+1"><U><B>TEST SETUP</B></U></FONT>');
+
+
+
+#------------------------------#
+# register IKEv2.pm            #
+#------------------------------#
+unless(IKEv2initialize('EN', 'EN')) {
+	IKEv2exitFatal('<FONT COLOR="#ff0000">IKEv2 module initializing failure</FONT>');
+}
+
+
+
+#------------------------------#
+# configure TN                 #
+#------------------------------#
+unless(IKEv2setupTN()) {
+	IKEv2exitFatal('<FONT COLOR="#ff0000">TN setup failure</FONT>');
+}
+
+
+
+#------------------------------#
+# configure NUT                #
+#------------------------------#
+unless(IKEv2setupNUT()) {
+	IKEv2exitFatal('<FONT COLOR="#ff0000">NUT setup failure</FONT>');
+}
+
+
+
+kLogHTML('<FONT COLOR="#FF0000" SIZE="+1"><U><B>TEST PROCEDURE</B></U></FONT>');
+
+
+
+#------------------------------#
+# prepare session handler      #
+#------------------------------#
+$session = IKEv2create_session('common_remote_index');
+unless(defined($session)) {
+	IKEv2exitFatal('<FONT COLOR="#ff0000">IKEv2 session creation failure</FONT>');
+}
+
+
+
+$str  = '<PRE>';
+$str .= "    (I)             (R)\n";
+$str .= "    NUT             TN1\n";
+$str .= "     |               |\n";
+$str .= "     |-------------->| IKE_SA_INIT request (HDR, SAi1, KEi, Ni)\n";
+$str .= "     |               |\n";
+$str .= "     V               V";
+$str .= '</PRE>';
+
+kLogHTML($str);
+
+
+
+#--------------------------------------#
+# invoke IKE_SA_INIT request by NUT    #
+#--------------------------------------#
+unless(IKEv2initiateNUT('common_selector_index_outbound')) {
+	IKEv2exitFatal('<FONT COLOR="#ff0000">NUT initiation failure</FONT>');
+}
+
+
+
+#--------------------------------------#
+# receive IKE_SA_INIT request by NUT   #
+#--------------------------------------#
+unless(devel_IKEv2receive_IKE_SA_INIT_request($session, 'common_remote_index')) {
+	kLogHTML(kDump_Common_Error());
+	kLogHTML('<FONT COLOR="#ff0000">Can\'t observe IKE_SA_INIT request.</FONT>');
+	IKEv2exitFail();
+}
+
+
+
+#--------------------------------------#
+# exit with cleanup                    #
+#--------------------------------------#
+IKEv2exitPass();
+
+
+
+#
+# perldoc
+#
+########################################################################
+__END__
+
+=head1 Title
+
+  Test IKEv2.EN.I.1.1.1.1: Sending IKE_SA_INIT request 
+  Part A: IKE Header Format (BASIC) 
+  Part B: SA Payload Format (BASIC)
+  Part C: KE Payload Format (BASIC)
+  Part D: Nonce Payload Format (BASIC)
+
+=head1 Purpose
+
+  To verify an IKEv2 device transmits IKE_SA_INIT request using 
+  properly Header and Payloads format.
+
+=head1 References
+
+  [RFC4306] - Section 1.2, 2.10, 3.1, 3.3, 3.4 and 3.9
+  [RFC4718] - Sections 7.4
+
+=head1 Test Setup
+
+  * Network Topology
+     Connect the devices according to the Common Topology.
+  * Configuration
+     In each part, configure the devices according to the Common Configuration. 
+  * Pre-Sequence and Cleanup Sequence
+     IKEv2 on the NUT is disabled after each part.
+
+=head1 Procedure
+
+=begin html
+<BLOCKQUOTE>
+<PRE>
+   NUT                  TN1
+(End-Node)           (End-Node) 
+    |                    |
+    |------------------->| IKE_SA_INIT request (HDR, SAi1, KEi, Ni)
+    |                    | (Judgement #1) 
+    |                    |
+    V                    V
+</PRE>
+</BLOCKQUOTE>
+
+=end html
+
+  Part A: IKE Header Format (BASIC) 
+    1. NUT starts to negotiate with TN1 by sending IKE_SA_INIT request. 
+    2. Observe the messages transmitted on Link A.
+
+  Part B: SA Payload Format (BASIC)
+    3. NUT starts to negotiate with TN1 by sending IKE_SA_INIT request.
+    4. Observe the messages transmitted on Link A.
+
+  Part C: KE Payload Format (BASIC)
+    5. NUT starts to negotiate with TN1 by sending IKE_SA_INIT request.
+    6. Observe the messages transmitted on Link A.
+
+  Part D: Nonce Payload Format (BASIC)
+    7. NUT starts to negotiate with TN1 by sending IKE_SA_INIT request.
+    8. Observe the messages transmitted on Link A.
+
+=head1 Observable Results
+
+  Part A 
+    Step 2: Judgement #1
+    The NUT transmits an IKE_SA_INIT request including properly  
+    formatted IKE Header containing following values: 
+
+=begin html
+<BLOCKQUOTE>
+<PRE>
+                      1                   2                   3
+  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+ +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ !                      IKE_SA Initiator s SPI                   ! 
+ !                                                               !
+ +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ !                      IKE_SA responder s SPI                   !
+ !                                                               !
+ +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ !  Next Payload ! MjVer ! MnVer ! Exchange Type !     Flags     !
+ +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ !                            Message ID                         !
+ +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ !                              Length                           !
+ +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+                         Figure 1 Header format
+
+</PRE>
+</BLOCKQUOTE>
+
+
+=end html
+
+ 
+      * An IKE_SA Initiator's SPI fieled set to a 64-bits   
+        value chosen by the NUT.It MUST not be Zero.  
+      * An IKE_SA Responder's SPI field set to zero.
+      * A next Payload field set to SA Payload (33).
+      * A Major Version field is set to 2.
+      * A Minor Version field is set to zero.
+      * An Exchange Type field is set to IKE_SA_INIT (34).
+      * A Flags field is set to (00010000)2 = (16)10.
+      * A Message ID field is set to zero. 
+      * A Length field is set to the lemgth of the message (header + payloads) in octets.
+  
+  
+  
+  Part B
+    Step 4: Judgment #1
+
+=begin html
+<BLOCKQUOTE>
+<PRE>
+                                   1                   2                   3
+               0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+              +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+--------------
+              ! Next    34    !0!      0      ! Length          44            !             |    
+              +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+---          |
+              !       0       !       0       ! Length          40            !  |          |
+              +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+  |          |
+              ! Number    1   ! Prot ID   1   ! SPI Size  0   ! Trans Cnt  4  !  |          |
+          --- +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+  |          |
+           |  !       3       !       0       ! Length           8            !  |          |
+ Transform |  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+  |          |
+           |  ! Type  1  (EN) !       0       ! Transform ID     3     (3DES) !  |          |
+          --- +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+  |          |
+           |  !       3       !       0       ! Length           8            !  |          | SA Payload
+ Transform |  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+  | Proposal |
+           |  ! Type  2  (PR) !       0       ! Transform ID     2     (SHA1) !  |          |
+          --- +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+  |          |
+           |  !       3       !       0       ! Length           8            !  |          |
+ Transform |  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+  |          |
+           |  ! Type  3  (IN) !       0       ! Transform ID     2     (SHA1) !  |          |
+          --- +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+  |          |
+           |  !       0       !       0       ! Length           8            !  |          | 
+ Transform |  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+  |          |
+           |  ! Type  4  (DH) !       0       ! Transform ID     2     (1024) !  |          |
+          --- +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+  |          |<br>
+  
+                                  Figure 2 SA Payload contents<br> 
+  
+</PRE>
+</BLOCKQUOTE>
+
+=end html
+
+=begin html
+<BLOCKQUOTE>
+<PRE>
+  
+              The NUT transmits an IKE_SA_INIT request including properly formatted SA Payload
+              containing following values (refer following figures):<br>
+    
+                                  1                   2                   3
+              0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+             +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+             ! Next Payload  |C|  RESERVED   |         Payload Length        !
+             +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+             !                                                               !
+             ~                        &lt;Proposals>                            ~
+             !                                                               !
+             +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+<br>
+                      
+                                 Figure 3 SA Payload format<br> 
+  
+                    * A Next Payload field is set to KE Payload (34).
+                    * A Critical field is set to zero.
+                    * A RESERVED field is set to zero.
+                    * A Payload Length field is set to length of the current payload.<br>
+   
+</PRE>
+</BLOCKQUOTE>
+
+=end html
+
+=begin html
+<BLOCKQUOTE>
+<PRE>
+  
+             The following proposal must be included in Proposals field.
+   
+                                 1                   2                   3
+             0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            ! 0 (last) or 2 !   RESERVED    !         Proposal Length       !
+            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            ! Proposal #    !  Protocol ID  !    SPI Size   !# of Transforms!
+            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            !                        SPI (variable)                         !
+            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            !                                                               !
+            ~                         &lt;Transforms>                          ~
+            !                                                               !
+            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+<br>
+  
+                           Figure 4 Proposal sub-structure format<br> 
+  
+     Proposal #1
+ 
+      * A 0 or 2 firld is set to zero if this structure is the last proposal, otherwise set to 2.
+      * A RESREVD field is set to zero.
+      * A Proposal Length field is set to length of this proposal, including all transforms
+        and attributes. It is 40 bytes for this proposal according to Common Configuration
+      * A Proposal # field is set to 1 if this structure is the first proposal, otherwise set
+        to 1 greater than the previous proposal.
+      * A Protocol ID field is set to IKE (1).
+      * A SPI Size field is set to zero.
+      * A # of Transforms field is set to 4.<br>
+
+</PRE>
+</BLOCKQUOTE>
+
+=end html
+
+=begin html
+<BLOCKQUOTE>
+<PRE>
+ 
+             A Transform field is set to following (There are 4 Transform Structures).
+  
+                                 1                   2                   3
+             0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            ! 0 (last) or 3 !   RESERVED    !       Transform Length        !
+            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            !Transform Type !   RESERVED    !          Transform ID         ! 
+            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            !                                                               !
+            ~                      Transform Attributes                     ! 
+            !                                                               !
+            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+<br>
+  
+                           Figure 5 Transform sub-structure format<br>
+   
+    Transform #1
+ 
+     * A 0 or 3 field is set to zero if this structure is the last transform, otherwise set to 3.
+     * A RESERVED field is set to zero.
+     * A Transform Length set to length of the Transform Substructure including
+       Header and Attribute. It is 8 bytes for ENCR_3DES.
+     * A Transform Type field is set to ENCR (1).
+     * A RESERVED field is set to zero.
+     * A Transform ID set to ENCR_3DES (3).
+  
+    Transform #2
+  
+     * A 0 or 3 field is set to zero if this structure is the last transform, otherwise set to 3.
+     * A RESERVED field is set to zero.
+     * A Transform Length set to length of the Transform Substructure including
+       Header and Attribute. It is 8 bytes for PRF_HMAC_SHA1.
+     * A Transform Type field is set to PRF (2).
+     * A RESERVED field is set to zero.
+     * A Transform ID set to PRF_HMAC_SHA1 (2).
+
+    Transform #3
+ 
+     * A 0 or 3 field is set to zero if this structure is the last transform, otherwise set to 3.
+     * A RESERVED field is set to zero.
+     * A Transform Length set to length of the Transform Substructure including
+       Header and Attribute. It is 8 bytes for AUTH_HMAC_SHA1.
+     * A Transform Type field is set to INTEG (3).
+     * A RESERVED field is set to zero.
+     * A Transform ID set to AUTH_HMAC_SHA1 (2).
+ 
+    Transform #4
+ 
+     * A 0 or 3 field is set to zero if this structure is the last transform, otherwise set to 3.
+     * A RESERVED field is set to zero.
+     * A Transform Length set to length of the Transform Substructure including
+       Header and Attribute. It is 8 bytes for 1024 MODP Group.
+     * A Transform Type field is set to D-H (4).
+     * A RESERVED field is set to zero.
+     * A Transform ID set to Group2 (2).
+ 
+</PRE>
+</BLOCKQUOTE>
+
+=end html
+
+
+  part C
+    Step 6: Judgment #1
+      The NUT transmits an IKE_SA_INIT request including properly formatted KE Payload
+      containing following values:
+
+=begin html
+<BLOCKQUOTE>
+<PRE>
+  
+                                 1                   2                   3
+             0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            ! Next Payload  !C!  RESERVED   !         Payload Length        ! 
+            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            !          DH Group #           !             RESERVED          ! 
+            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            !                                                               !
+            ~                        Key Exchange Data                      ~ 
+            !                                                               !
+            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+<br>
+  
+                               Figure 6 KE Payload format<br>
+  
+             * A Next Payload field is set to Nonce Payload (40).
+             * A Critical field is set to zero.
+             * A RESERVED field is set to zero.
+             * A Payload Length field is set to length of the current payload.
+               It is 136 bytes for Group 2.
+             * A DH Group field is set to Group2 (2).
+             * A RESERVED field is set to zero.
+             * A Key Exchange Data field is set to Diffie-Hellman public value. The length of
+               the Key Exchange Data field must be equal to 1024bit.
+
+</PRE>
+</BLOCKQUOTE>
+
+=end html
+
+
+  Part D
+    Step 8: Judgment #1
+      The NUT transmits an IKE_SA_INIT request including properly formatted Nonce Payload
+      containing following values:
+
+=begin html
+<BLOCKQUOTE>
+<PRE>
+                                 1                   2                   3
+             0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            ! Next Payload  !C!  RESERVED   !         Payload Length        !
+            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            !                                                               !
+            ~                           Nonce Data                          ~
+            !                                                               !
+            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+<br>
+                               Figure 7 Nonce Payload format<br>
+  
+              * A Next Payload field is set to zero.
+              * A Critical field is set to zero.
+              * A RESERVED field is set to zero.
+              * A Payload Length field is set to length of the current payload.
+              * A Nonce Data field is set to random data generated by the transmitting entity.
+              * The size of the Nonce must between 16 and 256 octets.<br>
+ 
+</PRE>
+</BLOCKQUOTE>
+
+=end html
+
+=head1 Possible Problems
+
+  * IKE_SA_INIT request has following packet format. It may have additional payloads
+    described below. Additional payloads can be ignored by this test. The order of payload
+    may be different from this sample.
+
+=begin html
+<BLOCKQUOTE>
+<PRE>
+<br>   
+    [N(COOKIE)],
+    SA, KE, Ni,
+    [N(NAT_DETECTION_SOURCE_IP)+,
+    N(NAT_DETECTION_DESTINATION_IP)],
+    [V+]
+<br>    
+</PRE>
+</BLOCKQUOTE>
+
+=end html
+
+  * The implementation may not set single proposal by the implementation policy. In this
+    case, Security Association Payload contains multiple proposals.
+
+  * Each of transforms can be located in the any order.
+   
+
+=cut
+

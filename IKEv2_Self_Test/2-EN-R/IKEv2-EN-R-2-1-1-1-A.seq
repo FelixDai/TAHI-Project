@@ -1,0 +1,947 @@
+#!/usr/bin/perl
+#
+# Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009
+# Yokogawa Electric Corporation.
+# All rights reserved.
+# 
+# Redistribution and use of this software in source and binary
+# forms, with or without modification, are permitted provided that
+# the following conditions and disclaimer are agreed and accepted
+# by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in
+#    the documentation and/or other materials provided with
+#    the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project
+#    which is related to this software (hereinafter referred to as
+#    "project") nor the names of the contributors may be used to
+#    endorse or promote products derived from this software without
+#    specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written
+#    notification to the copyrighters.
+# 
+# 5. The copyrighters, the project and the contributors may prohibit
+#    the use of this software at any time.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+# STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+# IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+# $Id: IKEv2-EN-R-2-1-1-1-A.seq,v 1.3 2008/11/28 10:16:22 doo Exp $
+#
+################################################################
+
+
+
+BEGIN
+{
+	push(@INC, '..');
+}
+
+END { }
+
+
+
+use IKEv2;
+use strict;
+
+
+
+my $remote	= 'common_remote_index';
+my $ike_sa_init_req_param	= undef;
+my $ike_sa_init_resp_param	= undef;
+my $ike_auth_req_param	= undef;
+my $ike_auth_resp_param	= undef;
+
+
+
+my $session	= undef;
+my $material	= undef;
+my $str	= undef;
+
+
+
+#------------------------------#
+# register IKEv2.pm            #
+#------------------------------#
+kLogHTML('<FONT COLOR="#FF0000" SIZE="+1"><U><B>TEST SETUP</B></U></FONT>');
+
+
+
+unless(IKEv2initialize('EN', 'SGW')) {
+	IKEv2exitFatal('<FONT COLOR="#ff0000">IKEv2 module initializing failure</FONT>');
+}
+
+
+
+#------------------------------#
+# configure TN                 #
+#------------------------------#
+unless(IKEv2setupTN()) {
+	IKEv2exitFatal('<FONT COLOR="#ff0000">TN setup failure</FONT>');
+}
+
+
+
+#------------------------------#
+# configure NUT                #
+#------------------------------#
+unless(IKEv2setupNUT()) {
+	IKEv2exitFatal('<FONT COLOR="#ff0000">NUT setup failure</FONT>');
+}
+
+
+
+#------------------------------#
+# prepare session handler      #
+#------------------------------#
+kLogHTML('<FONT COLOR="#FF0000" SIZE="+1"><U><B>TEST PROCEDURE</B></U></FONT>');
+
+
+
+$session = IKEv2create_session($remote);
+unless(defined($session)) {
+	IKEv2exitFatal('<FONT COLOR="#ff0000">IKEv2 session creation failure</FONT>');
+}
+
+
+
+#--------------------------------------#
+# send IKE_SA_INIT request to NUT      #
+#--------------------------------------#
+$str  = '<PRE>';
+$str .= "    (R)             (I)\n";
+$str .= "    NUT             TN1\n";
+$str .= "     |               |\n";
+$str .= "     |<--------------| IKE_SA_INIT request (HDR, SAi1, KEi, Ni)\n";
+$str .= "     |               |\n";
+$str .= "     V               V";
+$str .= '</PRE>';
+
+kLogHTML($str);
+
+
+
+$ike_sa_init_req_param = devel_IKEv2send_IKE_SA_INIT_request($session, $remote);
+unless(defined($ike_sa_init_req_param)) {
+	kLogHTML(kDump_Common_Error());
+	IKEv2exitFatal('<FONT COLOR="#ff0000">Can\'t send IKE_SA_INIT request.</FONT>');
+}
+
+
+
+#--------------------------------------#
+# receive IKE_SA_INIT response by NUT  #
+#--------------------------------------#
+$str  = '<PRE>';
+$str .= "    (R)             (I)\n";
+$str .= "    NUT             TN1\n";
+$str .= "     |               |\n";
+$str .= "     |-------------->| IKE_SA_INIT response (HDR, SAr1, KEr, Nr)\n";
+$str .= "     |               |\n";
+$str .= "     V               V";
+$str .= '</PRE>';
+
+kLogHTML($str);
+
+
+
+$ike_sa_init_resp_param = devel_IKEv2receive_IKE_SA_INIT_response($session,
+							$remote,
+							$ike_sa_init_req_param);
+unless(defined($ike_sa_init_resp_param)) {
+	kLogHTML(kDump_Common_Error());
+	kLogHTML('<FONT COLOR="#ff0000">Can\'t observe IKE_SA_INIT response.</FONT>');
+	IKEv2exitFail();
+}
+
+
+
+#--------------------------------------#
+# generate keying material             #
+#--------------------------------------#
+$material = devel_IKEv2gen_keymat(1, $ike_sa_init_req_param, $ike_sa_init_resp_param);
+unless(defined($material)) {
+	kLogHTML(kDump_Common_Error());
+	IKEv2exitFatal('<FONT COLOR="#ff0000">Can\'t generate keying material.</FONT>');
+}
+
+
+
+#--------------------------------------#
+# prepare IKE_AUTH request             #
+#--------------------------------------#
+my $common_gen_ike_auth_req = $gen_ike_auth_req->{'common_remote_index'};
+my @my_gen_ike_auth_req = @{$common_gen_ike_auth_req};
+# remove N(USE_TRANSPORT_MODE)
+@my_gen_ike_auth_req = grep {
+		my $ret = 0;
+		if ($_->{'self'} ne 'N') { $ret = 1; }
+		if ($_->{'type'} ne 'USE_TRANSPORT_MODE') { $ret = 1; }
+		$ret;
+	} @my_gen_ike_auth_req;
+
+my $gen_index = 'EN-R-1-1-1-2.1';
+$gen_ike_auth_req->{$gen_index} = \@my_gen_ike_auth_req;
+
+
+
+#--------------------------------------#
+# send IKE_AUTH request to NUT         #
+#--------------------------------------#
+$str  = '<PRE>';
+$str .= "    (R)             (I)\n";
+$str .= "    NUT             TN1\n";
+$str .= "     |               |\n";
+$str .= "     |<--------------| IKE_AUTH request (HDR, SK {IDi, AUTH, N(USE_TRANSPORT_MODE), SAi2, TSi, TSr})\n";
+$str .= "     |               |\n";
+$str .= "     V               V";
+$str .= '</PRE>';
+
+kLogHTML($str);
+
+
+
+$ike_auth_req_param = devel_IKEv2send_IKE_AUTH_request($session,
+						       $gen_index,
+						       $ike_sa_init_req_param,
+						       $ike_sa_init_resp_param,
+						       $material);
+unless(defined($ike_auth_req_param)) {
+	kLogHTML(kDump_Common_Error());
+	IKEv2exitFatal('<FONT COLOR="#ff0000">Can\'t send IKE_AUTH request.</FONT>');
+}
+
+
+
+#--------------------------------------#
+# prepare IKE_AUTH response            #
+#--------------------------------------#
+my $common_exp_ike_auth_resp = $exp_ike_auth_resp->{'common_remote_index'};
+my @my_exp_ike_auth_resp = @{$common_exp_ike_auth_resp};
+# remove N(USE_TRANSPORT_MODE)
+foreach my $payload (@my_exp_ike_auth_resp) {
+	if ($payload->{'self'} eq 'E') {
+		my @payloads = grep {
+				my $ret = 0;
+				if ($_->{'self'} ne 'N') { $ret = 1; }
+				if ($_->{'type'} ne 'USE_TRANSPORT_MODE') { $ret = 1; }
+				$ret;
+			} @{$payload->{'innerPayloads'}};
+
+		$payload->{'innerPayloads'} = \@payloads;
+	}
+}
+# set correct nexttype
+for (my $i = 0; $i < scalar(@my_exp_ike_auth_resp); $i++) {
+	my $payload = $my_exp_ike_auth_resp[$i];
+
+	if ($payload->{'self'} eq 'E') {
+		for (my $j = 0; $j < scalar(@{$payload->{'innerPayloads'}}); $j++) {
+			my $cur = $payload->{'innerPayloads'}->[$j];
+			my $next = $payload->{'innerPayloads'}->[$j+1];
+			unless (defined($next)) {
+				$cur->{'nexttype'} = '0';
+				next;
+			}
+			if ($cur->{'nexttype'} eq $next->{'self'}) {
+				next;
+			}
+			$cur->{'nexttype'} = $next->{'self'};
+		}
+
+		next;
+	}
+}
+
+my $exp_index = 'EN-R-1-1-1-2.2';
+$exp_ike_auth_resp->{$exp_index} = \@my_exp_ike_auth_resp;
+
+
+
+#--------------------------------------#
+# receive IKE_AUTH response by NUT     #
+#--------------------------------------#
+$str  = '<PRE>';
+$str .= "    (R)             (I)\n";
+$str .= "    NUT             TN1\n";
+$str .= "     |               |\n";
+$str .= "     |-------------->| IKE_AUTH response (HDR, SK {IDr, AUTH, N(USE_TRANSPORT_MODE), SAr2, TSi, TSr)\n";
+$str .= "     |               |\n";
+$str .= "     V               V";
+$str .= '</PRE>';
+
+kLogHTML($str);
+
+
+
+$ike_auth_resp_param = devel_IKEv2receive_IKE_AUTH_response($session,
+							$remote,
+							$ike_sa_init_req_param,
+							$ike_sa_init_resp_param,
+							$ike_auth_req_param,
+							$material);
+unless(defined($ike_auth_resp_param)) {
+	kLogHTML(kDump_Common_Error());
+	kLogHTML('<FONT COLOR="#ff0000">Can\'t observe IKE_AUTH response.</FONT>');
+	IKEv2exitFail();
+}
+
+
+
+#--------------------------------------#
+# exit with cleanup                    #
+#--------------------------------------#
+IKEv2exitPass();
+# NOTREACHED
+
+
+
+#
+# perldoc
+#
+########################################################################
+__END__
+
+=head1 Title
+
+  Test IKEv2.EN.R.2.1.1.1: Sending IKE_AUTH request
+  Part A: IKE Header Format (BASIC)
+  Part B: Encrypted Payload Format (BASIC)
+  Part C: IDr Payload Format (BASIC)
+  Part D: AUTH Payload Format (BASIC)
+  Part E: SA Payload Format (BASIC)
+  Part F: TSi Payload Format (BASIC)
+  Part G: TSr Payload Format (BASIC)
+
+=head1 Purpose
+
+  To verify an IKEv2 device transmits IKE_AUTH request using properly Header and
+  Payloads format
+
+=head1 References
+
+  * [RFC 4306] - Sections 1.2, 2.15, 3.1, 3.2, 3.3, 3.5, 3.8, 3.10, 3.13 and 3.14
+
+=head1 Test Setup
+
+  * Network Topology
+     Connect the devices according to the Common Topology.
+  * Configuration
+     In each part, configure the devices according to the Common Configuration.
+  * Pre-Sequence and Cleanup Sequence
+     IKEv2 on the NUT is disabled after each part.
+
+=head1 Procedure
+
+=begin html
+
+<BLOCKQUOTE>
+<PRE>
+
+   NUT                  TN1
+(End-Node)           (End-Node)
+    |                    |
+    |<-------------------| IKE_SA_INIT request (HDR, SAi1, KEi, Ni)
+    |                    | (Packet #1)
+    |------------------->| IKE_SA_INIT response (HDR, SAr1, KEr, Nr)
+    |                    | (Judgement #1)
+    |                    |
+    |<-------------------| IKE_AUTH request (HDR, SK {IDi, AUTH, SAi2, TSi, TSr})
+    |                    | (Packet #2)
+    |------------------->| IKE_AUTH response (HDR, SK {IDr, AUTH, SAr2, TSi, TSr})
+    |                    | (Judgement #2)
+    |                    |
+    V                    V<br>
+<br>
+</BLOCKQUOTE>
+
+<BLOCKQUOTE>
+<TABLE BORDER>
+<TR>
+<TD><TT>Packet #1</TT></TD>
+<TD><TT>See Common Packet #1</TT></TD>
+</TR>
+<TR>
+<TD><TT>Packet #2</TT></TD>
+<TD><TT>See Common Packet #5</TT></TD>
+</TR>
+</TABLE>
+</BLOCKQUOTE>
+<br>
+
+=end html
+
+  Part A: IKE Header Format (BASIC)
+     1. TN1 transmits an IKE_SA_INIT request to NUT.
+     2. Observe the messages transmitted on Link A.
+     3. TN1 transmits an IKE_SA_INIT request to NUT.
+     4. Observe the messages transmitted on Link A.
+
+  Part B: Encrypted Payload Format (BASIC)
+     5. TN1 transmits an IKE_SA_INIT request to NUT.
+     6. Observe the messages transmitted on Link A.
+     7. TN1 transmits an IKE_SA_INIT request to NUT.
+     8. Observe the messages transmitted on Link A.
+
+  Part C: IDr Payload Format (BASIC)
+     9. TN1 transmits an IKE_SA_INIT request to NUT.
+     10. Observe the messages transmitted on Link A.
+     11. TN1 transmits an IKE_SA_INIT request to NUT.
+     12. Observe the messages transmitted on Link A.
+
+  Part D: AUTH Payload Format (BASIC)
+     13. TN1 transmits an IKE_SA_INIT request to NUT.
+     14. Observe the messages transmitted on Link A.
+     15. TN1 transmits an IKE_SA_INIT request to NUT.
+     16. Observe the messages transmitted on Link A.
+
+  Part E: SA Payload Format (BASIC)
+     17. TN1 transmits an IKE_SA_INIT request to NUT.
+     18. Observe the messages transmitted on Link A.
+     19. TN1 transmits an IKE_SA_INIT request to NUT.
+     20. Observe the messages transmitted on Link A.
+
+  Part F: TSi Payload Format (BASIC)
+     21. TN1 transmits an IKE_SA_INIT request to NUT.
+     22. Observe the messages transmitted on Link A.
+     23. TN1 transmits an IKE_SA_INIT request to NUT.
+     24. Observe the messages transmitted on Link A.
+
+  Part G: TSr Payload Format (BASIC)
+     25. TN1 transmits an IKE_SA_INIT request to NUT.
+     26. Observe the messages transmitted on Link A.
+     27. TN1 transmits an IKE_SA_INIT request to NUT.
+     28. Observe the messages transmitted on Link A.
+
+=head1 Observable Result
+
+  Part A
+       Step 2: Judgment #1
+       The NUT transmits an IKE_SA_INIT response including "ENCR_3DES",
+       "PRF_HMAC_SHA1", "AUTH_HMAC_SHA1_96" and "D-H group 2" as proposed
+       algorithms.
+       Step 4: Judgment #2
+       The NUT transmits an IKE_AUTH response including properly formatted IKE Header
+       containing following values:
+
+=begin html
+<BLOCKQUOTE>
+<PRE>
+                           1                   2                   3
+       0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      !                      IKE_SA Initiator s SPI                   !
+      !                                                               !
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      !                      IKE_SA Responder s SPI                   !
+      !                                                               !
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      !  Next Payload ! MjVer ! MnVer ! Exchange Type !     Flags     !
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      !                            Message ID                         !
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      !                              Length                           !
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ 
+                              Figure 87 Header format<br>
+ 
+    * An IKE_SA Initiator's SPI field set to same as the IKE_SA_INIT request's IKE_SA
+      Initiator's SPI field value.
+    * An IKE_SA Responder's SPI field set to same as the IKE_SA_INIT response's
+      IKE_SA Responder's SPI field value.
+    * A Next Payload field set to Encrypted Payload (46).
+    * A Major Version field set to 2.
+    * A Minor Version field set to zero.
+    * An Exchange Type field set to IKE_AUTH (35).
+    * A Flags field set to (00010000)2 = (16)10.
+    * A Message ID field set to 1.
+    * A Length field set to the length of the message (header + payloads) in octets.
+
+</PRE>
+</BLOCKQUOTE>
+
+=end html
+
+  
+  
+  Part B
+       Step 6: Judgment #1
+       The NUT transmits an IKE_SA_INIT response including "ENCR_3DES",
+       "PRF_HMAC_SHA1", "AUTH_HMAC_SHA1_96" and "D-H group 2" as proposed
+       algorithms.
+       Step 8: Judgment #2
+       The NUT transmits an IKE_AUTH response including properly formatted Encrypted Payload
+       containing following values:
+
+=begin html
+<BLOCKQUOTE>
+<PRE>
+  
+                           1                   2                   3
+       0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      ! Next Payload  !C!  RESERVED   !         Payload Length        !
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      !                     Initialization Vector                     !
+      !         (length is block size for encryption algorithm)       !
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      ~                    Encrypted IKE Payloads                     ~
+      +               +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      !               !             Padding (0-255 octets)            !
+      +-+-+-+-+-+-+-+-+                               --+-+-+-+-+-+-+-+
+      !                                               !  Pad Length   !
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      ~                    Integrity Checksum Data                    ~   
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+<br>  
+                       Figure 88 Encrypted payload<br>
+  
+     * A Next Payload field set to IDr Payload (36).
+     * A Critical field set to zero.
+     * A RESERVED field set to zero.
+     * A Payload Length field set to length in octets of the header, IV, Encrypted IKE
+     * Payloads, Padding, Pad Length, and Integrity Check sum Data.
+     * An Initialization Vector field set to a randomly chosen value whose length is
+       equal to the block length of the underlying encryption algorithm.
+     * An Encrypted IKE Payloads field set to encrypted IKE Payloads
+     * A Padding field set to any value which to be a multiple of the encryption block
+       size.
+     * A Pad Length field set to the length of the Padding field.
+     * An Integrity Checksum Data set to the cryptographic checksum of the entire
+       message. The checksum must be valid.
+
+</PRE>
+</BLOCKQUOTE>
+
+=end html
+
+  
+  
+  Part C
+       Step 10: Judgment #1
+       The NUT transmits an IKE_SA_INIT response including "ENCR_3DES",
+       "PRF_HMAC_SHA1", "AUTH_HMAC_SHA1_96" and "D-H group 2" as proposed
+       algorithms.
+       Step 12: Judgment #2
+       The NUT transmits an IKE_AUTH response including properly formatted ID Payload
+       containing following values:
+
+=begin html
+<BLOCKQUOTE>
+<PRE>
+   
+                           1                   2                   3
+       0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      ! Next Payload  !C!  RESERVED   !         Payload Length        ! 
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      !   ID Type     !              RESERVED                         !
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      !                                                               !
+      ~                   Identification Data                         ~ 
+      !                                                               !
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+<br>   
+                         Figure 89 ID Payload format<br>
+<br>
+    * A Next Payload field set to AUTH Payload (39).
+    * A Critical field set to zero.
+    * A RESERVED field set to zero.
+    * A Payload Length field set to length of the current payload.
+    * An ID Type field set to ID_IPV6_ADDR (5).
+    * A RESERVED field set to zero.
+    * An Identification Data field set to the NUT address.
+
+</PRE>
+</BLOCKQUOTE>
+
+=end html
+
+  
+  
+  Part D
+       Step 14: Judgment #1
+       The NUT transmits an IKE_SA_INIT response including "ENCR_3DES",
+       "PRF_HMAC_SHA1", "AUTH_HMAC_SHA1_96" and "D-H group 2" as proposed
+       algorithms.
+
+       Step 16: Judgment #2
+       The NUT transmits an IKE_AUTH response including properly formatted AUTH Payload
+       containing following values:
+
+=begin html
+<BLOCKQUOTE>
+<PRE>
+
+                           1                   2                   3
+       0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      ! Next Payload  !C!  RESERVED   !         Payload Length        !
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      ! Auth Method   !              RESERVED                         !
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      !                                                               !
+      ~                    Authentication  Data                       ~  
+      !                                                               !
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+  
+<br>
+                          Figure 90 AUTH Payload format
+  
+      * A Next Payload field set to SA Payload (33).
+      * A Critical field set to zero.
+      * A RESERVED field set to zero.
+      * A Payload Length field set to length of the current payload.
+      * An Auth Method field set to Shared Key Message Integrity Code (2).
+      * A RESERVED field set to zero.
+      * An Authentication Data field set to correct authentication value.
+
+</PRE>
+</BLOCKQUOTE>
+
+=end html
+
+  
+  
+  Part E
+       Step 18: Judgment #1
+       The NUT transmits an IKE_SA_INIT response including "ENCR_3DES",
+       "PRF_HMAC_SHA1", "AUTH_HMAC_SHA1_96" and "D-H group 2" as proposed
+       algorithms.
+
+       Step 20: Judgment #2
+
+=begin html
+
+<BLOCKQUOTE>
+<PRE>
+
+                                   1                   2                   3
+               0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+              +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+--------------
+              ! Next    44    !0!      0      ! Length          40            !             |
+              +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+---          |
+              !       0       !       0       ! Length          36            !  |          |
+              +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+  |          |
+              ! Number    1   ! Prot ID   3   ! SPI Size  4   ! Trans Cnt  3  !  |          |
+              +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+  |          |
+              ! SPI value                                                     !  |          |
+          --- +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+  |          |
+           |  !       3       !       0       ! Length           8            !  |          | 
+ Transform |  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+  |          |SA Payload 
+           |  ! Type  1  (EN) !       0       ! Transform ID     3     (3DES) !  | Proposal |
+          --- +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+  |          |
+           |  !       3       !       0       ! Length           8            !  |          |
+ Transform |  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+  |          |
+           |  ! Type  3  (IN) !       0       ! Transform ID     2     (SHA1) !  |          |
+          --- +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+  |          |
+           |  !       0       !       0       ! Length           8            !  |          |
+ Transform |  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+  |          |
+           |  ! Type  5  (ESN)!       0       ! Transform ID     0       (No) !  |          |
+          --- +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+  |          |<br>
+  
+                                  Figure 91 SA Payload contents<br>
+
+</PRE>
+</BLOCKQUOTE>
+
+=end html
+
+       The NUT transmits an IKE_AUTH response including properly formatted SA Payload
+       containing following values (refer following figures):
+
+=begin html
+
+<BLOCKQUOTE>
+<PRE>
+
+                                  1                   2                   3
+              0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+             +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+             ! Next Payload  !C!  RESERVED   !         Payload Length        !
+             +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+             !                                                               !
+             ~                        &lt;Proposals>                            ~
+             !                                                               !
+             +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+<br>
+    
+                                 Figure 92 SA Payload format<br>
+  
+             * A Next Payload field set to TSi Payload (44).
+             * A Critical field set to zero.
+             * A RESERVED field set to zero.
+             * A Payload Length field set to length of the current payload.
+
+</PRE>
+</BLOCKQUOTE>
+
+=end html
+
+       A Proposals field set to following.
+
+=begin html
+
+<BLOCKQUOTE>
+<PRE>
+
+                                 1                   2                   3
+             0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            ! 0 (last) or 2 !   RESERVED    !         Proposal Length       !
+            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            ! Proposal #    !  Protocol ID  !    SPI Size   !# of Transforms!
+            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            !                        SPI (variable)                         !
+            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            !                                                               !
+            ~                         &lt;Transforms>                          ~
+            !                                                               !
+            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+<br>
+   
+                      Figure 93 Proposal sub-structure format<br>
+    
+             * A 0 or 2 field set to zero (last).
+             * A RESREVD field set to zero.
+             * A Proposal Length field set to length of this proposal, including all transforms
+               and attributes.
+             * A Proposal # field set to 1.
+             * A Protocol ID field set to ESP (3).
+             * A SPI Size field set to 4.
+             * A # of Transforms field set to 3.
+             * A SPI field set to the sending entity's SPI (4 octets value)
+
+</PRE>
+</BLOCKQUOTE>
+
+=end html
+
+       Transform field set to following (There are 3 Transform Structures).
+
+=begin html
+
+<BLOCKQUOTE>
+<PRE>
+
+                                 1                   2                   3
+             0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            ! 0 (last) or 3 !   RESERVED    !       Transform Length        !
+            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            !Transform Type !   RESERVED    !          Transform ID         !
+            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            !                                                               !
+            ~                      Transform Attributes                     !
+            !                                                               !
+            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+<br>
+   
+                       Figure 94 Transform sub-structure format<br>
+  
+             * A 0 or 3 field set to 3.
+             * A RESERVED field set to zero.
+             * A Transform Length set to length of the Transform Substructure including
+               Header and Attribute.
+             * A Transform Type field set to ENCR (1).
+             * A RESERVED field set to zero.
+             * A Transform ID set to ENCR_3DES (3).
+             * A 0 or 3 field set to 3.
+             * A RESERVED field set to zero.
+             * A Transform Length set to length of the Transform Substructure including
+               Header and Attribute.
+             * A Transform Type field set to INTEG (3).
+             * A RESERVED field set to zero.
+             * A Transform ID set to AUTH_HMAC_SHA1 (2).
+             * A 0 or 3 field set to zero.
+             * A RESERVED field set to zero.
+             * A Transform Length set to length of the Transform Substructure including
+               Header and Attribute.
+             * A Transform Type field set to ESN (5).
+             * A RESERVED field set to zero.
+             * A Transform ID set to No Extended Sequence Numbers (0).
+
+</PRE>
+</BLOCKQUOTE>
+
+=end html
+
+  
+  
+  Part F
+       Step 22: Judgment #1
+       The NUT transmits an IKE_SA_INIT response including "ENCR_3DES",
+       "PRF_HMAC_SHA1", "AUTH_HMAC_SHA1_96" and "D-H group 2" as proposed
+       algorithms.
+
+       Step 24: Judgment #2
+       The NUT transmits an IKE_AUTH response including properly formatted TSi Payload
+       containing following values:
+
+=begin html
+
+<BLOCKQUOTE>
+<PRE>
+
+                           1                   2                   3
+       0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      ! Next Payload  !C!  RESERVED   !         Payload Length        !
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      ! Number of TSs !                 RESERVED                      !
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      !                                                               !
+      ~                       &lt;Traffic Selector>                      ~
+      !                                                               !
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+<br>
+                        Figure 95 TSi Payload format<br>
+   
+      * A Next Payload field set to TSr Payload (45).
+      * A Critical field set to zero.
+      * A RESERVED field set to zero.
+      * A Payload Length field set to length of the current payload.
+      * A Number of TSs field set to 1.
+      * A RESERVED field set to zero.
+
+</PRE>
+</BLOCKQUOTE>
+
+=end html
+
+       Traffic Selectors field set to following.
+
+=begin html
+
+<BLOCKQUOTE>
+<PRE>
+
+                           1                   2                   3
+       0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      !   TS Type     !IP Protocol ID*|       Selector  Length        | 
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      !           Start Port*         |            End Port*          |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      !                                                               !
+      ~                       Starting Address*                       ~ 
+      !                                                               !
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      !                                                               !
+      ~                         Ending Address*                       ~ 
+      !                                                               !
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+<br>
+                        Figure 96 Traffic Selector <br>
+    
+      * A TS Type set to TS_IPV6_ADDR_RANGE (8).
+      * An IP Protocol ID field set to zero.
+      * A Selector Length field set to length of this Traffic Selector Substructure
+        including the header.
+      * A Start Port field set to zero.
+      * An End Port field set to 65535.
+      * A Starting Address field set to NUT address.
+      * A Ending Address field set to NUT address.
+
+</PRE>
+</BLOCKQUOTE>
+
+=end html
+
+  
+  
+  Part G
+       Step 26: Judgment #1
+       The NUT transmits an IKE_SA_INIT response including "ENCR_3DES",
+       "PRF_HMAC_SHA1", "AUTH_HMAC_SHA1_96" and "D-H group 2" as proposed
+       algorithms.
+
+       Step 28: Judgment #2
+       The NUT transmits an IKE_AUTH response including properly formatted TSr Payload
+       containing following values:
+
+=begin html
+
+<BLOCKQUOTE>
+<PRE>
+
+                           1                   2                   3
+       0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      ! Next Payload  !C!  RESERVED   !         Payload Length        !
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      ! Number of TSs !                 RESERVED                      !
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      !                                                               !
+      ~                       &lt;Traffic Selectors>                     ~
+      !                                                               !
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+<br>
+                        Figure 97 TSr Payload format<br>
+   
+      * A Next Payload field set to zero.
+      * A Critical field set to zero.
+      * A RESERVED field set to zero.
+      * A Payload Length field set to length of the current payload.
+      * A Number of TSs field set to 1.
+      * A RESERVED field set to zero.
+
+</PRE>
+</BLOCKQUOTE>
+
+=end html
+
+       Traffic Selectors field set to following.
+
+=begin html
+
+<BLOCKQUOTE>
+<PRE>
+
+                           1                   2                   3
+       0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      !   TS Type     !IP Protocol ID*|       Selector  Length        | 
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      !           Start Port*         |            End Port*          |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      !                                                               !
+      ~                       Starting Address*                       ~ 
+      !                                                               !
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      !                                                               !
+      ~                         Ending Address*                       ~ 
+      !                                                               !
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+<br>
+                        Figure 98 Traffic Selector <br>
+    
+      * A TS Type set to TS_IPV6_ADDR_RANGE (8).
+      * An IP Protocol ID field set to zero.
+      * A Selector Length field set to length of this Traffic Selector Substructure
+        including the header.
+      * A Start Port field set to zero.
+      * An End Port field set to 65535.
+      * A Starting Address field set to TN1 address.
+      * An Ending Address field set to TN1 address.
+
+</PRE>
+</BLOCKQUOTE>
+
+=end html
+
+=head1 Possible Problems
+
+  * None.
+
+=cut
+
+

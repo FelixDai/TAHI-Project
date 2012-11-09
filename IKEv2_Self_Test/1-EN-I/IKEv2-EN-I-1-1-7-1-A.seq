@@ -1,0 +1,625 @@
+#!/usr/bin/perl
+#
+# Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009
+# Yokogawa Electric Corporation.
+# All rights reserved.
+# 
+# Redistribution and use of this software in source and binary
+# forms, with or without modification, are permitted provided that
+# the following conditions and disclaimer are agreed and accepted
+# by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in
+#    the documentation and/or other materials provided with
+#    the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project
+#    which is related to this software (hereinafter referred to as
+#    "project") nor the names of the contributors may be used to
+#    endorse or promote products derived from this software without
+#    specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written
+#    notification to the copyrighters.
+# 
+# 5. The copyrighters, the project and the contributors may prohibit
+#    the use of this software at any time.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+# STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+# IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+# $Id: IKEv2-EN-I-1-1-7-1-A.seq,v 1.4 2010/07/22 13:32:49 doo Exp $
+#
+################################################################
+
+BEGIN
+{
+	push(@INC, '..');
+}
+
+END {}
+
+use IKEv2;
+use strict;
+
+
+
+my $remote	= 'common_remote_index';
+my $selector	= 'common_selector_index_outbound';
+
+my $session	= undef;
+my $ret	= undef;
+my $str = undef;
+
+my $ike_sa_init_req_param	= undef;
+my $ike_sa_init_resp_param	= undef;
+my $ike_auth_req_param	= undef;
+my $ike_auth_resp_param	= undef;
+my $informational_req_param = undef;
+
+my $material	= undef;
+my $child_sa_material = undef;
+
+my @local_ike_auth_resp = undef;
+
+
+kLogHTML('<FONT COLOR="#FF0000" SIZE="+1"><U><B>TEST SETUP</B></U></FONT>');
+
+
+
+#------------------------------#
+# register IKEv2.pm            #
+#------------------------------#
+unless(IKEv2initialize('EN', 'EN')) {
+	IKEv2exitFatal('<FONT COLOR="#ff0000">IKEv2 module initializing failure</FONT>');
+}
+
+
+
+#------------------------------#
+# configure TN                 #
+#------------------------------#
+unless(IKEv2setupTN()) {
+	IKEv2exitFatal('<FONT COLOR="#ff0000">TN setup failure</FONT>');
+}
+
+
+
+#------------------------------#
+# configure NUT                #
+#------------------------------#
+unless(IKEv2setupNUT()) {
+	IKEv2exitFatal('<FONT COLOR="#ff0000">NUT setup failure</FONT>');
+}
+
+
+
+kLogHTML('<FONT COLOR="#FF0000" SIZE="+1"><U><B>TEST PROCEDURE</B></U></FONT>');
+
+
+#------------------------------#
+# prepare session handler      #
+#------------------------------#
+$session = IKEv2create_session($remote);
+unless(defined($session)) {
+	IKEv2exitFatal('<FONT COLOR="#ff0000">IKEv2 session creation failure</FONT>');
+}
+
+
+
+$str  = '<PRE>';
+$str .= "    (I)             (R)\n";
+$str .= "    NUT             TN1\n";
+$str .= "     |               |\n";
+$str .= "     |-------------->| IKE_SA_INIT request (HDR, SAi1, KEi, Ni)\n";
+$str .= "     |               |\n";
+$str .= "     V               V";
+$str .= '</PRE>';
+
+kLogHTML($str);
+
+
+
+#--------------------------------------#
+# invoke IKE_SA_INIT request           #
+#--------------------------------------#
+unless(IKEv2initiateNUT($selector)) {
+	IKEv2exitFatal('<FONT COLOR="#ff0000">NUT initiation failure</FONT>');
+}
+
+
+
+#--------------------------------------#
+# receive IKE_SA_INIT request          #
+#--------------------------------------#
+$ike_sa_init_req_param = devel_IKEv2receive_IKE_SA_INIT_request($session, $remote);
+unless(defined($ike_sa_init_req_param)) {
+	kLogHTML(kDump_Common_Error());
+	kLogHTML('<FONT COLOR="#ff0000">Can\'t observe IKE_SA_INIT request.</FONT>');
+	IKEv2exitFail();
+}
+
+
+
+#--------------------------------------#
+# send IKE_SA_INIT response            #
+#--------------------------------------#
+$str  = '<PRE>';
+$str .= "    (I)             (R)\n";
+$str .= "    NUT             TN1\n";
+$str .= "     |               |\n";
+$str .= "     |<--------------| IKE_SA_INIT response (HDR, SAr1, KEr, Nr)\n";
+$str .= "     |               |\n";
+$str .= "     V               V";
+$str .= '</PRE>';
+
+kLogHTML($str);
+
+
+$ike_sa_init_resp_param = devel_IKEv2send_IKE_SA_INIT_response($session, $remote, $ike_sa_init_req_param);
+unless(defined($ike_sa_init_resp_param)) {
+	kLogHTML(kDump_Common_Error());
+	IKEv2exitFatal('<FONT COLOR="#ff0000">Can\'t send IKE_SA_INIT response.</FONT>');
+}
+
+
+
+#--------------------------------------#
+# generate keying material             #
+#--------------------------------------#
+$material = devel_IKEv2gen_keymat(0, $ike_sa_init_req_param, $ike_sa_init_resp_param);
+unless(defined($material)) {
+	kLogHTML(kDump_Common_Error());
+	IKEv2exitFatal('<FONT COLOR="#ff0000">Can\'t generate keying material.</FONT>');
+}
+
+
+
+#--------------------------------------#
+# receive IKE_AUTH request             #
+#--------------------------------------#
+$str  = '<PRE>';
+$str .= "    (I)             (R)\n";
+$str .= "    NUT             TN1\n";
+$str .= "     |               |\n";
+$str .= "     |-------------->| IKE_AUTH request (HDR, SK {IDi, AUTH, N(USE_TRANSPORT_MODE), SAi2, TSi, TSr})\n";
+$str .= "     |               |\n";
+$str .= "     V               V";
+$str .= '</PRE>';
+
+kLogHTML($str);
+
+
+$ike_auth_req_param = devel_IKEv2receive_IKE_AUTH_request($session,
+							  $remote,
+							  $ike_sa_init_req_param,
+							  $ike_sa_init_resp_param,
+							  $material);
+unless(defined($ike_auth_req_param)) {
+	kLogHTML(kDump_Common_Error());
+	kLogHTML('<FONT COLOR="#ff0000">Can\'t observe IKE_AUTH request.</FONT>');
+	IKEv2exitFail();
+}
+
+
+
+#--------------------------------#
+# prepare send IKE_AUTH Response #
+#--------------------------------#
+my $common_ike_auth_resp = $gen_ike_auth_resp->{'common_remote_index'};
+@local_ike_auth_resp = @{$common_ike_auth_resp};
+
+# change Traffic Selector 
+for (my $i = 0; $i < scalar(@local_ike_auth_resp); $i++) {
+        my $payload = $local_ike_auth_resp[$i];
+
+        if ( ($payload->{'self'} eq 'TSi') || ($payload->{'self'} eq 'TSr') ) {
+                for (my $j = 0; $j < scalar(@{$payload->{'selectors'}}); $j++) {
+                        my $selector = @{$payload->{'selectors'}}[$j];
+
+                        if (defined($selector->{'protocol'})) {
+                               $selector->{'protocol'} = '6';    # TCP=6
+                               $selector->{'sport'} = '0';
+                               $selector->{'eport'} = '65535';
+                        }
+                }
+        }
+}
+$gen_ike_auth_resp->{'EN-I-1-1-7-1.1'} = \@local_ike_auth_resp;
+
+
+
+#--------------------------------------#
+# send IKE_AUTH response               #
+#--------------------------------------#
+$str  = '<PRE>';
+$str .= "    (I)             (R)\n";
+$str .= "    NUT             TN1\n";
+$str .= "     |               |\n";
+$str .= "     |<--------------| IKE_AUTH response (HDR, SK {IDr, AUTH, N(USE_TRANSPORT_MODE), SAr2, TSi, TSr})\n";
+$str .= "     |               |\n";
+$str .= "     V               V";
+$str .= '</PRE>';
+
+kLogHTML($str);
+
+$ike_auth_resp_param = devel_IKEv2send_IKE_AUTH_response($session,
+							 'EN-I-1-1-7-1.1',
+							 $ike_sa_init_req_param,
+							 $ike_sa_init_resp_param,
+							 $material);
+unless (defined($ike_auth_resp_param)) {
+	kLogHTML(kDump_Common_Error());
+	IKEv2exitFatal('<FONT COLOR="#ff0000">Can\'t send IKE_AUTH response.</FONT>');
+}
+
+
+
+#--------------------------------------#
+# set keying material                  #
+#--------------------------------------#
+{
+	#--------------------------------------#
+	# generate keying material (CHILD_SA)  #
+	#--------------------------------------#
+	my $keymat = IKEv2_v6eval_generate_IPsecSA(1,	# Initial Exchanges
+						   $material,
+						   $ike_sa_init_req_param,
+						   $ike_sa_init_resp_param,
+						   $ike_auth_req_param,
+						   $ike_auth_resp_param);
+
+	my $ret = IKEv2_v6eval_set_IPsecSA(0, $keymat, $ike_auth_req_param, $ike_auth_resp_param);
+	unless($ret) {
+		IKEv2log(kDump_Common_Error());
+		IKEv2exitFatal('<FONT COLOR="#ff0000">Can\'t set keying material.</FONT>');
+	}
+}
+
+
+
+#--------------------------------------#
+# send TCP SYN & receive TCP RST       #
+#--------------------------------------#
+{
+	$str  = '<PRE>';
+	$str .= "    (I)             (R)\n";
+	$str .= "    NUT             TN1\n";
+	$str .= "     |               |\n";
+	$str .= "     |<--------------| IPsec (TCP SYN)\n";
+	$str .= "     |               |\n";
+	$str .= "     |-------------->| IPsec (TCP RST)\n";
+	$str .= "     |               |\n";
+	$str .= "     V               V";
+	$str .= '</PRE>';
+
+	kLogHTML($str);
+
+	my $slink = 'Link0';
+	my $rlink = 'Link0';
+	my $spkt = 'ipsec_tcp_syn';
+	my @rpkts = ('ipsec_tcp_rst_ack');
+
+	my ($ret, %vrecv) = IKEv2_v6eval_send_recv($slink, $rlink, $spkt, @rpkts);
+	unless ($ret) {
+		my $strerror = kDump_Common_Error();
+		IKEv2log('<FONT COLOR="#ff0000">Can\'t observe TCP packet.</FONT>');
+		IKEv2exitFail();
+	}
+}
+
+
+
+#--------------------------------------#
+# send Echo Request                    #
+#--------------------------------------#
+{
+	$str  = '<PRE>';
+	$str .= "    (I)             (R)\n";
+	$str .= "    NUT             TN1\n";
+	$str .= "     |               |\n";
+	$str .= "     |<--------------| IPsec {Echo Request}\n";
+	$str .= "     |               |\n";
+	$str .= "     |-------X       | IPsec {Echo Reply}\n";
+	$str .= "     |               |\n";
+	$str .= "     V               V";
+	$str .= '</PRE>';
+	IKEv2log($str);
+
+	my $slink = 'Link0';
+	my $rlink = 'Link0';
+	my $spkt = 'ipsec_ereq';
+	my @rpkts = ('ipsec_erep');
+
+	my ($ret, %vrecv) = IKEv2_v6eval_send_recv($slink, $rlink, $spkt, @rpkts);
+	if ($ret) {
+		my $strerror = kDump_Common_Error();
+		IKEv2log('<FONT COLOR="#ff0000">Can observe ICMP packet.</FONT>');
+		IKEv2exitFail();
+	}
+}
+
+
+
+#--------------------------------------#
+# exit with cleanup                    #
+#--------------------------------------#
+IKEv2exitPass();
+
+
+
+#
+# perldoc
+#
+########################################################################
+__END__
+
+=head1 Title
+
+  Test IKEv2.EN.I.1.1.7.1: Narrowing the range of members of the set of traffic selectors
+  Part A (BASIC) 
+
+=head1 Purpose
+
+  To verify an IKEv2 device allows the responder to choose a subset of the traffic proposed by
+  the initiator.
+
+=head1 References
+
+  * [RFC4306] - Section 2.9
+
+=head1 Test Setup
+
+  * Network Topology
+      Connect the devices according to the Common Topology.
+  * Configuration
+      In each part, configure the devices according to the Common Configuration
+  * Pre-Sequence and Cleanup Sequence
+      IKEv2 on the NUT is disabled after each part.
+
+=head1 Procedure
+
+=begin html
+
+<BLOCKQUOTE>
+<PRE>
+
+   NUT                  TN1
+(End-Node)           (End-Node)
+    |                    |
+    |------------------->| IKE_SA_INIT request (HDR, SAi1, KEi, Ni)
+    |                    | (Judgement #1)
+    |<-------------------| IKE_SA_INIT Response (HDR, SAr1, KEr, Nr)
+    |                    | (Packet #1)
+    |                    |
+    |------------------->| IKE_AUTH request (HDR, SK {IDi, AUTH, N, SAi2, TSi, TSr})
+    |                    | (Judgement #2)
+    |<-------------------| IKE_AUTH response (HDR, SK {IDr, AUTH, N, SAr2, TSi, TSr})
+    |                    | (Packet #2)
+    |                    |
+    |<-------------------| IPSec {TCP SYN}
+    |                    | (Packet #3)
+    |------------------->| IPSec {TCP RST}
+    |                    | (Judgement #3)  
+    |                    |                
+    |<-------------------| IPsec {ICMPv6 Echo Request} 
+    |                    | (Packet #4)
+    |---------X          | IPsec {ICMPv6 Echo Reply} 
+    |                    | (Judgement #4)
+    |                    |
+    V                    V
+ 
+ N: USE_TRANSPORT_MODE
+
+</BLOCKQUOTE>
+
+<BLOCKQUOTE>
+<TABLE BORDER>
+<TR>
+<TD><TT>Packet #1</TT></TD>
+<TD><TT>See Common Packet #2</TT></TD>
+</TR>
+<TR>
+<TD><TT>Packet #2</TT></TD>
+<TD><TT>See below</TT></TD>
+</TR>
+<TR>
+<TD><TT>Packet #3</TT></TD>
+<TD><TT>See below</TT></TD>
+</TR>
+<TR>
+<TD><TT>Packet #4</TT></TD>
+<TD><TT>See Common Packet #19</TT></TD>
+</TR>
+</TABLE>
+</BLOCKQUOTE>
+<br>
+
+<BLOCKQUOTE>
+Packet #2: IKE_AUTH response
+<TABLE BORDER>
+<TR>
+<TD rowspan="8">TSi Payload</TD>
+<TD colspan="3"><br></TD>
+</TR>
+<TR>
+<TD rowspan="7">Traffic Selector</TD>
+<TD>TS Type</TD>
+<TD>8 (IPV6_ADDR_RANGE)</TD>
+</TR>
+<TR>
+<TD>IP Protocol ID</TD>
+<TD>6 (tcp)</TD>
+</TR>
+<TR>
+<TD>Selector Length</TD>
+<TD>40</TD>
+</TR>
+<TR>
+<TD>Start Port</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>End Port</TD>
+<TD>65535</TD>
+</TR>
+<TR>
+<TD>Starting Address</TD>
+<TD>TN1's Global Address on Link X</TD>
+</TR>
+<TR>
+<TD>Ending Address</TD>
+<TD>TN1's Global Address on Link X</TD>
+</TR>
+</TABLE>
+<br>
+<TABLE BORDER>
+<TR>
+<TD rowspan="8">TSr Payload</TD>
+<TD colspan="3"><br></TD>
+</TR>
+<TR>
+<TD rowspan="7">Traffic Selector</TD>
+<TD>TS Type</TD>
+<TD>8 (IPV6_ADDR_RANGE)</TD>
+</TR>
+<TR>
+<TD>IP Protocol ID</TD>
+<TD>6 (tcp)</TD>
+</TR>
+<TR>
+<TD>Selector Length</TD>
+<TD>40</TD>
+</TR>
+<TR>
+<TD>Start Port</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>End Port</TD>
+<TD>65535</TD>
+</TR>
+<TR>
+<TD>Starting Address</TD>
+<TD>NUT's Global Address on Link A</TD>
+</TR>
+<TR>
+<TD>Ending Address</TD>
+<TD>NUT's Global Address on Link A</TD>
+</TR>
+</TABLE>
+</BLOCKQUOTE>
+<br>
+<BLOCKQUOTE>
+Packet #3: TCP-SYN
+<TABLE BORDER>
+<TR>
+<TD rowspan="2">IPv6 Header</TD>
+<TD>Source Address</TD>
+<TD>TN1's Global Address on Link X</TD>
+</TR>
+<TR>
+<TD>Destination Address</TD>
+<TD>NUT's Global Address on Link A</TD>
+</TR>
+<TR>
+<TD rowspan="7">ESP</TD>
+<TD>Security Parameter Index</TD>
+<TD>CHILD_SA's SPI value used by<br>this message</TD>
+</TR>
+<TR>
+<TD>Sequence Number</TD>
+<TD>The value incremented the<br>previous encrypted packet's<br>Sequence Number by one.</TD>
+</TR>
+<TR>
+<TD>Payload Data</TD>
+<TD>Subsequent data encrypted by<br>underlying encryption algorithm</TD>
+</TR>
+<TR>
+<TD>Padding</TD>
+<TD>Any value which to be a multiple<br>of the encryption block size</TD>
+</TR>
+<TR>
+<TD>Pad Length</TD>
+<TD>The length of the Padding field</TD>
+</TR>
+<TR>
+<TD>Next Header</TD>
+<TD>6 (TCP)</TD>
+</TR>
+<TR>
+<TD>Integrity Check Value</TD>
+<TD>The cryptographic checksum of<br>the entire message</TD>
+</TR>
+<TR>
+<TD rowspan="3">TCP Header</TD>
+<TD>Source Port</TD>
+<TD>500</TD>
+</TR>
+<TR>
+<TD>Destination Port</TD>
+<TD>500</TD>
+</TR>
+<TR>
+<TD>Flags</TD>
+<TD>SYN (0x02)</TD>
+</TR>
+
+</TABLE>
+</BLOCKQUOTE>
+
+=end html
+
+  Part A (BASIC)
+       1. NUT starts to negotiate with TN1 by sending IKE_SA_INIT request.
+       2. Observe the messages transmitted on Link A.
+       3. TN1 responds with an IKE_SA_INIT response to the NUT.
+       4. Observe the messages transmitted on Link A.
+       5. After reception of IKE_AUTH request from the NUT, TN1 responds with an IKE_AUTH
+          response to the NUT.
+       6. TN1 transmits a TCP-SYN packet with IPsec ESP using corresponding algorithms to closed
+          port on NUT.
+       7. Observe the messages transmitted on Link A.
+       8. TN1 transmits an Echo Request with IPsec ESP using corresponding algorithms to NUT.
+       9. Observe the messages transmitted on Link A.
+
+=head1 Observable Result
+
+  Part A
+    Step 2: Judgment #1
+      The NUT transmits an IKE_SA_INIT request including "ENCR_3DES",
+      "PRF_HMAC_SHA1", "AUTH_HMAC_SHA1_96" and "D-H group 2" as proposed
+      algorithms.
+  
+    Step 4: Judgment #2
+      The NUT transmits an IKE_AUTH request including "ENCR_3DES",
+      "AUTH_HMAC_SHA1_96" and "No Extended Sequence Numbers" as proposed algorithms.
+  
+    Step 7: Judgment #3
+      The NUT transmits a TCP-RST packet with IPsec ESP using corresponding algorithms.
+  
+    Step 9: Judgment #4
+      The NUT never transmit an Echo Reply with IPsec ESP using corresponding algorithms.
+
+=head1 Possible Problems
+
+  * None.
+
+
+=cut
+
+

@@ -1,0 +1,160 @@
+[File Diffs]
+openssl.nut.cnf
+--- /etc/ssl/openssl.cnf        2008-02-25 02:53:19.000000000 +0900
++++ openssl.nut.cnf     2008-10-20 19:53:51.000000000 +0900
+@@ -39,7 +39,7 @@
+ certs          = $dir/certs            # Where the issued certs are kept
+ crl_dir                = $dir/crl              # Where the issued crl are kept
+ database       = $dir/index.txt        # database index file.
+-#unique_subject        = no                    # Set to 'no' to allow creation of
++unique_subject = yes                   # Set to 'no' to allow creation of
+                                        # several ctificates with same subject.
+ new_certs_dir  = $dir/newcerts         # default place for new certs.
+
+
+openssl.tn.cnf
+--- /etc/ssl/openssl.cnf        2008-02-25 02:53:19.000000000 +0900
++++ openssl.tn.cnf      2008-10-20 19:53:59.000000000 +0900
+@@ -39,7 +39,7 @@
+ certs          = $dir/certs            # Where the issued certs are kept
+ crl_dir                = $dir/crl              # Where the issued crl are kept
+ database       = $dir/index.txt        # database index file.
+-#unique_subject        = no                    # Set to 'no' to allow creation of
++unique_subject = yes                   # Set to 'no' to allow creation of
+                                        # several ctificates with same subject.
+ new_certs_dir  = $dir/newcerts         # default place for new certs.
+
+
+
+[Input Examples]
+===> enter CA phase
+> openssl req -config openssl.nut.cnf -new -x509 -newkey rsa:1024 -sha1 \
+                -keyform PEM -keyout ./demoCA/private/cakey.pem \
+                -outform PEM -out ./demoCA/cacert.pem \
+                -days 365
+
+Generating a 1024 bit RSA private key
+..............++++++
+.++++++
+writing new private key to './demoCA/private/cakey.pem'
+Enter PEM pass phrase:
+Verifying - Enter PEM pass phrase:
+-----
+You are about to be asked to enter information that will be incorporated
+into your certificate request.
+What you are about to enter is what is called a Distinguished Name or a DN.
+There are quite a few fields but you can leave some blank
+For some fields there will be a default value,
+If you enter '.', the field will be left blank.
+-----
+Country Name (2 letter code) [AU]:JP
+State or Province Name (full name) [Some-State]:Tokyo
+Locality Name (eg, city) []:City
+Organization Name (eg, company) [Internet Widgits Pty Ltd]:Test CA
+Organizational Unit Name (eg, section) []:Test Section
+Common Name (eg, YOUR name) []:Test User
+Email Address []:root@test.com
+Using configuration from openssl.nut.cnf
+Enter pass phrase for ./demoCA/private/cakey.pem:
+===> leave CA phase
+
+===> enter NUT phase
+Generating a 1024 bit RSA private key
+.........++++++
+................................................................................++++++
+writing new private key to 'NUTprivkey.pem'
+-----
+You are about to be asked to enter information that will be incorporated
+into your certificate request.
+What you are about to enter is what is called a Distinguished Name or a DN.
+There are quite a few fields but you can leave some blank
+For some fields there will be a default value,
+If you enter '.', the field will be left blank.
+-----
+Country Name (2 letter code) [AU]:JP
+State or Province Name (full name) [Some-State]:Tokyo
+Locality Name (eg, city) []:
+Organization Name (eg, company) [Internet Widgits Pty Ltd]:
+Organizational Unit Name (eg, section) []:
+Common Name (eg, YOUR name) []:NUT User
+Email Address []:root@nut.com
+
+Please enter the following 'extra' attributes
+to be sent with your certificate request
+A challenge password []:
+An optional company name []:
+Using configuration from openssl.nut.cnf
+Enter pass phrase for ./demoCA/private/cakey.pem:
+Check that the request matches the signature
+Signature ok
+Certificate Details:
+        Serial Number: 1 (0x1)
+        Validity
+            Not Before: Oct 20 10:54:58 2008 GMT
+            Not After : Oct 20 10:54:58 2009 GMT
+        Subject:
+            countryName               = JP
+            stateOrProvinceName       = Tokyo
+            organizationName          = Internet Widgits Pty Ltd
+            commonName                = NUT User
+            emailAddress              = root@nut.com
+        X509v3 extensions:
+            X509v3 Basic Constraints:
+                CA:FALSE
+            Netscape Comment:
+                OpenSSL Generated Certificate
+            X509v3 Subject Key Identifier:
+                97:53:CA:9D:BF:AF:FE:22:C5:B3:DA:73:B7:92:4E:36:29:40:37:07
+            X509v3 Authority Key Identifier:
+                keyid:7D:4C:61:77:0A:4D:F3:2F:37:DE:60:35:04:8D:FD:37:C1:D4:AB:0D
+
+Certificate is to be certified until Oct 20 10:54:58 2009 GMT (365 days)
+Sign the certificate? [y/n]:y
+
+
+1 out of 1 certificate requests certified, commit? [y/n]y
+Write out database with 1 new entries
+Data Base Updated
+===> leave NUT phase
+
+===> enter TN phase
+Generating a 1024 bit RSA private key
+...........++++++
+...++++++
+####################################################################
+/TAHI/cvs/v6eval/ct-ikev2/4-SGW-R/IKEv2-SGW-R-1-2-6-6-B.seq,v  <--  IKEv2-SGW-R-1-2-6-6-B.seq
+initial revision: 1.1
+done
+RCS file: /TAHI/cvs/v6eval/ct-ikev2/4-SGW-R/IKEv2-SGW-R-1-2-6-6-C.seq,v
+If you enter '.', the field will be left blank.                                                                       |
+            Not Before: Oct 20 10:55:22 2008 GMT
+            Not After : Oct 20 10:55:22 2009 GMT
+        Subject:
+            countryName               = JP
+            stateOrProvinceName       = Tokyo
+            organizationName          = Internet Widgits Pty Ltd
+            commonName                = TN User
+            emailAddress              = root@tn.com
+        X509v3 extensions:
+            X509v3 Basic Constraints:
+                CA:FALSE
+            Netscape Comment:
+                OpenSSL Generated Certificate
+            X509v3 Subject Key Identifier:
+                4F:87:2D:0E:EC:95:51:8F:3F:0F:B1:1C:9F:5D:62:13:B1:E1:BD:13
+            X509v3 Authority Key Identifier:
+                keyid:7D:4C:61:77:0A:4D:F3:2F:37:DE:60:35:04:8D:FD:37:C1:D4:AB:0D
+
+Certificate is to be certified until Oct 20 10:55:22 2009 GMT (365 days)
+Sign the certificate? [y/n]:y
+
+
+1 out of 1 certificate requests certified, commit? [y/n]y
+Write out database with 1 new entries
+Data Base Updated
+===> leave TN phase
+
+===> enter convert phase
+writing RSA key
+writing RSA key
+===> leave convert phase

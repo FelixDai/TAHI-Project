@@ -1,0 +1,91 @@
+
+                README of IKEv2 Conformance Test Package
+
+                              TAHI Project
+
+                      $Date: 2009/06/09 05:19:44 $
+
+
+
+Project Overview
+================
+
+    TAHI Project is the joint effort formed with the objective of
+    developing and providing the verification technology for IPv6.
+
+    The growth process of IPv4 was the history of encountering
+    various kinds of obstacles and conquering such obstacles.
+    However, once the position as infrastructure was established,
+    it is not allowed to repeat the same history.
+    This is a reason why the verification technology is essential for IPv6
+    deployment.
+
+        We research and develop conformance tests and interoperability tests
+        for IPv6.
+
+        We closely work with the KAME project and USAGI project.
+        We help activities of these projects in the quality side by offering
+        the verification technology we develop in TAHI project and improve
+        the development efficiency.
+
+        We open the results and fruits of the project to the public for FREE.
+        Any developer concerned with IPv6 can utilize the results and fruits
+        of TAHI project freely. A free software plays an important role
+        in progress of the Internet. We believe that providing the
+        verification technology for FREE contributes to advances of IPv6.
+        Besides the programs, the specifications and criteria of verification
+        will be included in the Package.
+
+
+Organizations
+=============
+
+    TAHI Project started at October 1, 1998,
+    then the project was formed by following three organizations
+    (in alphabetical order):
+
+        The University of Tokyo
+        YDC Corp.
+        Yokogawa Electric Corp.
+
+    Now the project is formed by following two organizations.
+
+        The University of Tokyo
+        Yokogawa Electric Corp.
+
+
+Introduction of the Package
+===========================
+
+    "IKEv2_Self_Test" is the IKEv2 Conformance Test Program Package
+    developed by TAHI project.
+
+    "IKEv2_Self_Test" can be executed on the IPv6 Conformance Test Tool
+    Package -- "koi" and "v6eval" which are also developed by TAHI project.
+
+    All packages "IKEv2_Self_Test", "koi" and "v6eval" can be obtained
+    from our site <http://www.tahi.org/>.
+
+
+Copyright
+=========
+
+    Please refer to the COPYRIGHT file for copyright notice.
+
+
+Install and Run
+===============
+
+    Complete installation instructions can be found in the INSTALL file.
+
+
+Contact Points
+==============
+
+    o TAHI Project
+        For more information about TAHI project, please visit our site:
+            <http://www.tahi.org/>
+
+        If you have any questions about Self Test, please e-mail to:
+            <contact@tahi.org>
+                                                         [End of README]

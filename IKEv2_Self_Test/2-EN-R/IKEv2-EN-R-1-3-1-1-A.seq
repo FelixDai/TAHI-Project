@@ -1,0 +1,554 @@
+#!/usr/bin/perl
+#
+# Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009
+# Yokogawa Electric Corporation.
+# All rights reserved.
+# 
+# Redistribution and use of this software in source and binary
+# forms, with or without modification, are permitted provided that
+# the following conditions and disclaimer are agreed and accepted
+# by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in
+#    the documentation and/or other materials provided with
+#    the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project
+#    which is related to this software (hereinafter referred to as
+#    "project") nor the names of the contributors may be used to
+#    endorse or promote products derived from this software without
+#    specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written
+#    notification to the copyrighters.
+# 
+# 5. The copyrighters, the project and the contributors may prohibit
+#    the use of this software at any time.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+# STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+# IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+# $Id: IKEv2-EN-R-1-3-1-1-A.seq,v 1.4 2010/08/06 06:06:16 doo Exp $
+#
+################################################################
+
+
+
+BEGIN
+{
+	push(@INC, '..');
+}
+
+END { }
+
+
+
+use IKEv2;
+use strict;
+
+
+
+my $remote	= 'common_remote_index';
+my $ike_sa_init_req_param	= undef;
+my $ike_sa_init_resp_param	= undef;
+my $ike_auth_req_param	= undef;
+my $ike_auth_resp_param	= undef;
+my $informational_req_param = undef;
+my $informational_resp_param = undef;
+
+my $session	= undef;
+my $material	= undef;
+my $child_sa_material	= undef;
+my $str	= undef;
+my $ret	= undef;
+
+my $local_informational_req = undef;
+
+
+#------------------------------#
+# register IKEv2.pm            #
+#------------------------------#
+kLogHTML('<FONT COLOR="#FF0000" SIZE="+1"><U><B>TEST SETUP</B></U></FONT>');
+
+
+
+unless(IKEv2initialize('EN', 'EN')) {
+	IKEv2exitFatal('<FONT COLOR="#ff0000">IKEv2 module initializing failure</FONT>');
+}
+
+
+
+#------------------------------#
+# configure TN                 #
+#------------------------------#
+unless(IKEv2setupTN()) {
+	IKEv2exitFatal('<FONT COLOR="#ff0000">TN setup failure</FONT>');
+}
+
+
+
+#------------------------------#
+# configure NUT                #
+#------------------------------#
+unless(IKEv2setupNUT()) {
+	IKEv2exitFatal('<FONT COLOR="#ff0000">NUT setup failure</FONT>');
+}
+
+
+
+#------------------------------#
+# prepare session handler      #
+#------------------------------#
+kLogHTML('<FONT COLOR="#FF0000" SIZE="+1"><U><B>TEST PROCEDURE</B></U></FONT>');
+
+
+
+$session = IKEv2create_session($remote);
+unless(defined($session)) {
+	IKEv2exitFatal('<FONT COLOR="#ff0000">IKEv2 session creation failure</FONT>');
+}
+
+
+
+#--------------------------------------#
+# send IKE_SA_INIT request to NUT      #
+#--------------------------------------#
+$str  = '<PRE>';
+$str .= "    (R)             (I)\n";
+$str .= "    NUT             TN1\n";
+$str .= "     |               |\n";
+$str .= "     |<--------------| IKE_SA_INIT request (HDR, SAi1, KEi, Ni)\n";
+$str .= "     |               |\n";
+$str .= "     V               V";
+$str .= '</PRE>';
+
+kLogHTML($str);
+
+
+
+$ike_sa_init_req_param = devel_IKEv2send_IKE_SA_INIT_request($session, $remote);
+unless(defined($ike_sa_init_req_param)) {
+	kLogHTML(kDump_Common_Error());
+	IKEv2exitFatal('<FONT COLOR="#ff0000">Can\'t send IKE_SA_INIT request.</FONT>');
+}
+
+
+
+#--------------------------------------#
+# receive IKE_SA_INIT response by NUT  #
+#--------------------------------------#
+$str  = '<PRE>';
+$str .= "    (R)             (I)\n";
+$str .= "    NUT             TN1\n";
+$str .= "     |               |\n";
+$str .= "     |-------------->| IKE_SA_INIT response (HDR, SAr1, KEr, Nr)\n";
+$str .= "     |               |\n";
+$str .= "     V               V";
+$str .= '</PRE>';
+
+kLogHTML($str);
+
+
+
+$ike_sa_init_resp_param = devel_IKEv2receive_IKE_SA_INIT_response($session,
+							$remote,
+							$ike_sa_init_req_param);
+unless(defined($ike_sa_init_resp_param)) {
+	kLogHTML(kDump_Common_Error());
+	kLogHTML('<FONT COLOR="#ff0000">Can\'t observe IKE_SA_INIT response.</FONT>');
+	IKEv2exitFail();
+}
+
+
+
+#--------------------------------------#
+# generate keying material             #
+#--------------------------------------#
+$material = devel_IKEv2gen_keymat(1, $ike_sa_init_req_param, $ike_sa_init_resp_param);
+unless(defined($material)) {
+	kLogHTML(kDump_Common_Error());
+	IKEv2exitFatal('<FONT COLOR="#ff0000">Can\'t generate keying material.</FONT>');
+}
+
+
+
+#--------------------------------------#
+# send IKE_AUTH request to NUT         #
+#--------------------------------------#
+$str  = '<PRE>';
+$str .= "    (R)             (I)\n";
+$str .= "    NUT             TN1\n";
+$str .= "     |               |\n";
+$str .= "     |<--------------| IKE_AUTH request (HDR, SK {IDi, AUTH, N(USE_TRANSPORT_MODE), SAi2, TSi, TSr})\n";
+$str .= "     |               |\n";
+$str .= "     V               V";
+$str .= '</PRE>';
+
+kLogHTML($str);
+
+
+
+$ike_auth_req_param = devel_IKEv2send_IKE_AUTH_request($session, $remote, $ike_sa_init_req_param, $ike_sa_init_resp_param, $material);
+unless(defined($ike_auth_req_param)) {
+	kLogHTML(kDump_Common_Error());
+	IKEv2exitFatal('<FONT COLOR="#ff0000">Can\'t send IKE_AUTH request.</FONT>');
+}
+
+
+
+#--------------------------------------#
+# receive IKE_AUTH response by NUT     #
+#--------------------------------------#
+$str  = '<PRE>';
+$str .= "    (R)             (I)\n";
+$str .= "    NUT             TN1\n";
+$str .= "     |               |\n";
+$str .= "     |-------------->| IKE_AUTH response (HDR, SK {IDr, AUTH, N(USE_TRANSPORT_MODE), SAr2, TSi, TSr)\n";
+$str .= "     |               |\n";
+$str .= "     V               V";
+$str .= '</PRE>';
+
+kLogHTML($str);
+
+
+
+$ike_auth_resp_param = devel_IKEv2receive_IKE_AUTH_response($session,
+							$remote,
+							$ike_sa_init_req_param,
+							$ike_sa_init_resp_param,
+							$ike_auth_req_param,
+							$material);
+unless(defined($ike_auth_resp_param)) {
+	kLogHTML(kDump_Common_Error());
+	kLogHTML('<FONT COLOR="#ff0000">Can\'t observe IKE_AUTH response.</FONT>');
+	IKEv2exitFail();
+}
+
+
+
+#--------------------------------------#
+# generate keying material (CHILD_SA)  #
+#--------------------------------------#
+$child_sa_material = devel_IKEv2gen_child_sa_keymat(1,    # IKE_AUTH exchange
+                                                    $material,
+					            $ike_sa_init_req_param,
+					            $ike_sa_init_resp_param,
+					            $ike_auth_req_param,
+					            $ike_auth_resp_param);
+
+
+
+#--------------------------------------#
+# set keying material                  #
+#--------------------------------------#
+$ret = IKEv2set_child_sa_keymat(1, $child_sa_material, $ike_auth_req_param, $ike_auth_resp_param);
+unless($ret) {
+	kLogHTML(kDump_Common_Error());
+	IKEv2exitFatal('<FONT COLOR="#ff0000">Can\'t set keying material.</FONT>');
+}
+
+
+
+#--------------------------------------#
+# SPD flush                            #
+#--------------------------------------#
+IKEv2flush_SPD();
+
+
+
+#--------------------------------------#
+# send INFORMATIONAL request to NUT    #
+#--------------------------------------#
+$str  = '<PRE>';
+$str .= "    (R)             (I)\n";
+$str .= "    NUT             TN1\n";
+$str .= "     |               |\n";
+$str .= "     |<--------------| INFORMATION Request (HDR, SK {})\n";
+$str .= "     |               |\n";
+$str .= "     V               V";
+$str .= '</PRE>';
+
+kLogHTML($str);
+
+$informational_req_param = devel_IKEv2send_INFORMATIONAL_request($session,
+                                                                 $remote,
+                                                                 $ike_sa_init_req_param,
+                                                                 $ike_sa_init_resp_param,
+                                                                 $ike_auth_req_param,
+                                                                 $material);
+unless (defined($informational_req_param)) {
+        kLogHTML(kDump_Common_Error());
+        IKEv2exitFatal('<FONT COLOR="#ff0000">Can\'t send INFORMATIONAL request.</FONT>');
+}
+
+
+#------------------------------------------#
+# receive INFORMATIONAL response to NUT    #
+#------------------------------------------#
+$str  = '<PRE>';
+$str .= "    (R)             (I)\n";
+$str .= "    NUT             TN1\n";
+$str .= "     |               |\n";
+$str .= "     |-------------->| INFORMATION Response (HDR, SK {})\n";
+$str .= "     |               |\n";
+$str .= "     V               V";
+$str .= '</PRE>';
+
+kLogHTML($str);
+
+$informational_resp_param = devel_IKEv2receive_INFORMATIONAL_response($session,
+                                                                      $remote,
+                                                                      $ike_sa_init_req_param,
+                                                                      $ike_sa_init_resp_param,
+                                                                      $informational_req_param,
+                                                                      $material);
+unless (defined($informational_resp_param)) {
+        kLogHTML(kDump_Common_Error());
+	kLogHTML('<FONT COLOR="#ff0000">Can\'t observe INFORMATIONAL response.</FONT>');
+	IKEv2exitFail();
+}
+
+
+
+#--------------------------------------#
+# exit with cleanup                    #
+#--------------------------------------#
+IKEv2exitPass();
+# NOTREACHED
+
+
+
+#
+# perldoc
+#
+########################################################################
+__END__
+
+=head1 Title
+
+  Test IKEv2.EN.R.1.3.1.1: Sending INFORMATIONAL response
+  Part A: IKE Header Format (BASIC)
+  Part B: Encrypted Payload Format (BASIC)
+
+=head1 Purpose
+
+  To verify an IKEv2 device properly handles the Initial Exchanges using Pre-shared key
+
+=head1 References
+
+  * [RFC 4306] - Sections 1.1.2, 1.4, 3.1 and 3.14
+
+=head1 Test Setup
+
+  * Network Topology
+      Connect the devices according to the Common Topology.
+  * Configuration
+      In each part, configure the devices according to the Common Configuration.
+  * Pre-Sequence and Cleanup Sequence
+      IKEv2 on the NUT is disabled after each part.
+
+=head1 Procedure
+
+=begin html
+
+<BLOCKQUOTE>
+<PRE>
+
+   NUT                  TN1
+(End-Node)           (End-Node)
+    |                    |
+    |<-------------------| IKE_SA_INIT request (HDR, SAi1, KEi, Ni)
+    |                    | (Packet #1)
+    |------------------->| IKE_SA_INIT response (HDR, SAr1, KEr, Nr)
+    |                    | (Judgement #1)
+    |                    |
+    |<-------------------| IKE_AUTH request (HDR, SK {IDi, AUTH, N, SAi2, TSi, TSr})
+    |                    | (Packet #2)
+    |------------------->| IKE_AUTH response (HDR, SK {IDr, AUTH, N, SAr2, TSi, TSr})
+    |                    | (Judgement #2)
+    |                    |
+    |<-------------------| INFORMATIONAL request (HDR, SK {})
+    |                    | (Packet #3)
+    |------------------->| INFORMATIONAL response (HDR, SK {})
+    |                    | (Judgement #3)
+    |                    |
+    V                    V<br>
+<br>
+N: USE_TRANSPORT_MODE
+</BLOCKQUOTE>
+
+<BLOCKQUOTE>
+<TABLE BORDER>
+<TR>
+<TD><TT>Packet #1</TT></TD>
+<TD><TT>See Common Packet #1</TT></TD>
+</TR>
+<TR>
+<TD><TT>Packet #2</TT></TD>
+<TD><TT>See Common Packet #3</TT></TD>
+</TR>
+<TR>
+<TD><TT>Packet #3</TT></TD>
+<TD><TT>See Common Packet #17</TT></TD>
+</TR>
+</TABLE>
+</BLOCKQUOTE>
+<br>
+
+=end html
+
+  Part A: IKE Header Format (BASIC)
+     1. TN1 starts to negotiate with NUT by sending IKE_SA_INIT request.
+     2. Observe the messages transmitted on Link A.
+     3. After reception of IKE_SA_INIT_SA Response from the NUT, TN1 transmits an
+        IKE_AUTH request to the NUT.
+     4. Observe the messages transmitted on Link A.
+     5. After reception of IKE_AUTH response from the NUT, TN1 transmits an
+        INFORMATIONAL request with no payloads to the NUT.
+     6. Observe the messages transmitted on Link A.
+
+  Part B: Encrypted Payload Format (BASIC)
+     7. TN1 starts to negotiate with NUT by sending IKE_SA_INIT request.
+     8. Observe the messages transmitted on Link A.
+     9. After reception of IKE_SA_INIT_SA Response from the NUT, TN1 transmits an
+         IKE_AUTH request to the NUT.
+     10. Observe the messages transmitted on Link A.
+     11. After reception of IKE_AUTH response from the NUT, TN1 transmits an
+         INFORMATIONAL request with no payloads to the NUT.
+     12. Observe the messages transmitted on Link A.
+
+=head1 Observable Result
+
+  Part A
+       Step 2: Judgment #1
+       The NUT transmits an IKE_SA_INIT response including "ENCR_3DES",
+       "PRF_HMAC_SHA1", "AUTH_HMAC_SHA1_96" and "D-H group 2" as proposed
+       algorithms.
+
+       Step 4: Judgment #2
+       The NUT transmits an IKE_AUTH response including "ENCR_3DES",
+       "AUTH_HMAC_SHA1_96" and "No Extended Sequence Numbers" as proposed algorithms.
+
+       Step 7: Judgment #3
+       The NUT transmits an INFORMATIONAL response including properly formatted IKE
+       Header containing following values:
+
+=begin html
+
+<BLOCKQUOTE>
+<PRE>
+<br>
+                           1                   2                   3
+       0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      !                       IKE_SA Initiator's SPI                  !
+      !                                                               !
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      !                       IKE_SA Responder's SPI                  !
+      !                                                               !
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      !  Next Payload ! MjVer ! MnVer ! Exchange Type !     Flags     !
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      !                          Message ID                           !
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      !                            Length                             !
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+<br>
+                            Figure 85 Header format<br>
+    
+</BLOCKQUOTE>
+
+=end html
+
+    * An IKE_SA Initiator's SPI field is set to same as the IKE_SA_INIT request's IKE_SA
+      Initiator's SPI field value.
+    * An IKE_SA Responder's SPI field is set to same as the IKE_SA_INIT response's
+      IKE_SA Responder's SPI field value.
+    * A Next Payload field is set to Encrypted Payload (46).
+    * A Major Version field is set to 2.
+    * A Minor Version field is set to zero.
+    * An Exchange Type field is set to INFORMATIONAL (37).
+    * A Flags field is set to (00000100)2 = (4)10.
+    * A Message ID field is set to the same value as corresponding IKEv2 request message's
+      Message ID.
+    * A Length field is set to the length of the message (header + payloads) in octets.
+
+  
+  
+  Part B
+       Step 9: Judgment #1
+       The NUT transmits an IKE_SA_INIT response including "ENCR_3DES",
+       "PRF_HMAC_SHA1", "AUTH_HMAC_SHA1_96" and "D-H group 2" as proposed
+       algorithms.
+
+       Step 11: Judgment #2
+       The NUT transmits an IKE_AUTH response including "ENCR_3DES",
+       "AUTH_HMAC_SHA1_96" and "No Extended Sequence Numbers" as proposed algorithms.
+
+       Step 14: Judgment #3
+       The NUT transmits an INFORMATIONAL response including properly formatted
+       Encrypted Payload containing following values:
+
+=begin html
+
+<BLOCKQUOTE>
+<PRE>
+<br>
+                           1                   2                   3
+       0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      ! Next Payload  !C!  RESERVED   !         Payload Length        !
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      !                     Initialization Vector                     !
+      !         (length is block size for encryption algorithm)       !
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      ~                    Encrypted IKE Payloads                     ~
+      +               +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      !               !             Padding (0-255 octets)            !
+      +-+-+-+-+-+-+-+-+                               +-+-+-+-+-+-+-+-+
+      !                                               !  Pad Length   !
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      ~                    Integrity Checksum Data                    ~
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+<br>
+                         Figure 86 Encrypted payload<br>    
+</BLOCKQUOTE>
+
+=end html
+
+    * A Next Payload field is set to zero.
+    * A Critical field is set to zero.
+    * A RESERVED field is set to zero.
+    * A Payload Length field is set to length in octets of the header, IV, Encrypted
+      IKE Payloads, Padding, Pad Length, and Integrity Check sum Data.
+    * An Initialization Vector field is set to a randomly chosen value whose length is
+      equal to the block length of the underlying encryption algorithm. It is 64 bits
+      length in ENCR_3DES case.
+    * An Encrypted IKE Payloads field is set to subsequent payloads encrypted by
+      ENCR_3DES.
+    * A Padding field is set to any value which to be a multiple of the encryption
+      block size. It is 64 bits length in ENCR_3DES case.
+    * A Pad Length field is set to the length of the Padding field.
+    * An Integrity Checksum Data set to the cryptographic checksum of the entire
+      message. It is 96 bits length in AUTH_HMAC_SHA1_96 case. The checksum
+      must be valid by calculation according to the manner described in RFC.
+
+=head1 Possible Problems
+
+  * None.
+
+=cut
+
+

@@ -1,0 +1,418 @@
+#!/usr/bin/perl
+#
+# Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009
+# Yokogawa Electric Corporation.
+# All rights reserved.
+# 
+# Redistribution and use of this software in source and binary
+# forms, with or without modification, are permitted provided that
+# the following conditions and disclaimer are agreed and accepted
+# by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in
+#    the documentation and/or other materials provided with
+#    the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project
+#    which is related to this software (hereinafter referred to as
+#    "project") nor the names of the contributors may be used to
+#    endorse or promote products derived from this software without
+#    specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written
+#    notification to the copyrighters.
+# 
+# 5. The copyrighters, the project and the contributors may prohibit
+#    the use of this software at any time.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+# STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+# IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+# $Id: IKEv2-SGW-I-1-1-6-5-B.seq,v 1.4 2010/07/22 13:33:15 doo Exp $
+#
+################################################################
+
+BEGIN
+{
+	push(@INC, '..');
+}
+
+END {}
+
+use IKEv2;
+use strict;
+
+
+
+my $remote	= 'common_remote_index';
+my $selector	= 'common_selector_index_outbound';
+
+
+my $session	= undef;
+my $str = undef;
+
+my $ike_sa_init_req_param	= undef;
+my $ike_sa_init_resp_param	= undef;
+my $ike_auth_req_param	= undef;
+
+my $material = undef;
+my @local_ike_auth_req = undef;
+
+
+
+kLogHTML('<FONT COLOR="#FF0000" SIZE="+1"><U><B>TEST SETUP</B></U></FONT>');
+
+
+
+#------------------------------#
+# register IKEv2.pm            #
+#------------------------------#
+unless(IKEv2initialize('SGW', 'SGW')) {
+	IKEv2exitFatal('<FONT COLOR="#ff0000">IKEv2 module initializing failure</FONT>');
+}
+
+
+
+#---------------------------------#
+# switch Support or Not Support   #
+#---------------------------------#
+unless ($config_pl->{'advanced_multiple_transform_initial_child_sa'}) {
+	IKEv2exitNS('Not support ' . "'advanced_multiple_transform_initial_child_sa'");
+}
+    
+unless ($config_pl->{'advanced_support_auth_aes_xcbc_96'}) {
+	IKEv2exitNS('Not support ' . "'advanced_support_auth_aes_xcbc_96'");
+}
+
+
+
+#------------------------------#
+# customize configuration      #
+#------------------------------#
+my $conf = {
+	'esp_auth_alg' => [
+		'hmac_sha1',
+		'aes_xcbc',
+	],
+};
+unless (IKEv2customize($conf)) {
+	IKEv2exitFatal('<FONT COLOR="#ff0000">IKEv2 configuration failure</FONT>');
+}
+
+
+
+#------------------------------#
+# configure TN                 #
+#------------------------------#
+unless(IKEv2setupTN()) {
+	IKEv2exitFatal('<FONT COLOR="#ff0000">TN setup failure</FONT>');
+}
+
+
+
+#------------------------------#
+# configure NUT                #
+#------------------------------#
+unless(IKEv2setupNUT()) {
+	IKEv2exitFatal('<FONT COLOR="#ff0000">NUT setup failure</FONT>');
+}
+
+
+
+kLogHTML('<FONT COLOR="#FF0000" SIZE="+1"><U><B>TEST PROCEDURE</B></U></FONT>');
+kLogHTML('<FONT COLOR="#000000" SIZE="+1"><U><B>Part B: Multiple Integrity Algorithms(ADVANCED).</B></U></FONT>');
+
+
+
+#------------------------------#
+# prepare session handler      #
+#------------------------------#
+$session = IKEv2create_session($remote);
+unless(defined($session)) {
+	IKEv2exitFatal('<FONT COLOR="#ff0000">IKEv2 session creation failure</FONT>');
+}
+
+
+
+$str  = '<PRE>';
+$str .= "    (I)             (R)\n";
+$str .= "    NUT             TN1\n";
+$str .= "     |               |\n";
+$str .= "     |-------------->| IKE_SA_INIT request (HDR, SAi1, KEi, Ni)\n";
+$str .= "     |               |\n";
+$str .= "     V               V";
+$str .= '</PRE>';
+
+kLogHTML($str);
+
+
+
+#--------------------------------------#
+# invoke IKE_SA_INIT request           #
+#--------------------------------------#
+unless(IKEv2initiateNUT($selector)) {
+	IKEv2exitFatal('<FONT COLOR="#ff0000">NUT initiation failure</FONT>');
+}
+
+
+#--------------------------------------#
+# receive IKE_SA_INIT request          #
+#--------------------------------------#
+$ike_sa_init_req_param = devel_IKEv2receive_IKE_SA_INIT_request($session, $remote);
+unless(defined($ike_sa_init_req_param)) {
+	kLogHTML(kDump_Common_Error());
+	kLogHTML('<FONT COLOR="#ff0000">Can\'t observe IKE_SA_INIT request.</FONT>');
+	IKEv2exitFail();
+}
+
+
+
+#--------------------------------------#
+# send IKE_SA_INIT response            #
+#--------------------------------------#
+$str  = '<PRE>';
+$str .= "    (I)             (R)\n";
+$str .= "    NUT             TN1\n";
+$str .= "     |               |\n";
+$str .= "     |<--------------| IKE_SA_INIT response (HDR, SAr1, KEr, Nr)\n";
+$str .= "     |               |\n";
+$str .= "     V               V";
+$str .= '</PRE>';
+
+kLogHTML($str);
+
+$ike_sa_init_resp_param = devel_IKEv2send_IKE_SA_INIT_response($session, $remote, $ike_sa_init_req_param);
+unless(defined($ike_sa_init_resp_param)) {
+	kLogHTML(kDump_Common_Error());
+	IKEv2exitFatal('<FONT COLOR="#ff0000">Can\'t send IKE_SA_INIT response.</FONT>');
+}
+
+
+#--------------------------------------#
+# generate keying material             #
+#--------------------------------------#
+$material = devel_IKEv2gen_keymat(0, $ike_sa_init_req_param, $ike_sa_init_resp_param);
+unless(defined($material)) {
+	kLogHTML(kDump_Common_Error());
+	IKEv2exitFatal('<FONT COLOR="#ff0000">Can\'t generate keying material.</FONT>');
+}
+
+
+#--------------------------------------#
+# prepare IKE_AUTH request             #
+#--------------------------------------#
+my $partB_transform = {
+	# Transform Substructure
+	'nexttype'	=> '3',		# 0 (last) or 3 (more)
+	'reserved1'	=> '0',		# RESERVED
+	'transformLen'	=> '8',	# Transform Length
+	'type'		=> 'INTEG',	# Transform Type
+	'reserved2'	=> '0',		# RESERVED
+	'id'		=> 'AES_XCBC_96',	# Transform ID
+	'attributes'	=> [		# Transform Attributes
+       ]
+};
+my $transform_len = 8;
+my $common_ike_auth_req = IKEv2load_packet($exp_ike_auth_req, $remote);
+@local_ike_auth_req = @{$common_ike_auth_req};
+# add Encryption Algorithm
+for (my $i = 0; $i < scalar(@local_ike_auth_req); $i++) {
+        my $payload = $local_ike_auth_req[$i];
+
+        if ($payload->{'self'} eq 'E') {
+                for (my $l = 0; $l < scalar(@{$payload->{'innerPayloads'}}); $l++) {
+			my $inner = @{$payload->{'innerPayloads'}}[$l];
+			if ($inner->{'self'} eq 'SA') {
+				$inner->{'length'} += $transform_len;
+
+				for (my $j = 0; $j < scalar(@{$inner->{'proposals'}}); $j++) {
+					my $proposal = @{$inner->{'proposals'}}[$j];
+
+					$proposal->{'transformCount'} += 1;
+					$proposal->{'proposalLen'} += $transform_len;
+
+					if (defined($proposal->{'transforms'})) {
+						for (my $k = 0; $k < scalar(@{$proposal->{'transforms'}}); $k++) {
+							my $transform = @{$proposal->{'transforms'}}[$k];
+
+							if ($transform->{'type'} eq 'INTEG') {
+								splice(@{$proposal->{'transforms'}}, $k+1, 0, $partB_transform);
+								last;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
+$exp_ike_auth_req->{'SGW-I-1-1-6-101.B.1'} = \@local_ike_auth_req;
+
+
+#--------------------------------------#
+# receive IKE_AUTH request             #
+#--------------------------------------#
+$str  = '<PRE>';
+$str .= "    (I)             (R)\n";
+$str .= "    NUT             TN1\n";
+$str .= "     |               |\n";
+$str .= "     |-------------->| IKE_AUTH request (HDR, SK {IDi, AUTH, SAi2, TSi, TSr})\n";
+$str .= "     |               |\n";
+$str .= "     V               V";
+$str .= '</PRE>';
+
+kLogHTML($str);
+
+
+$ike_auth_req_param = devel_IKEv2receive_IKE_AUTH_request($session,
+							  'SGW-I-1-1-6-101.B.1',
+							  $ike_sa_init_req_param,
+							  $ike_sa_init_resp_param,
+							  $material);
+unless(defined($ike_auth_req_param)) {
+	kLogHTML(kDump_Common_Error());
+	kLogHTML('<FONT COLOR="#ff0000">Can\'t observe IKE_AUTH request.</FONT>');
+	IKEv2exitFail();
+}
+
+
+
+#--------------------------------------#
+# exit with cleanup                    #
+#--------------------------------------#
+IKEv2exitPass();
+
+
+
+#
+# perldoc
+#
+########################################################################
+__END__
+
+=head1 Title
+
+  Test IKEv2.SGW.I.1.1.6.5: Sending Multiple Transforms for CHILD_SA
+  Part B: Multiple Integrity Algorithms (ADVANCED)
+
+=head1 Purpose
+
+  To verify an IKEv2 device properly transmits IKE_AUTH request with multiple transforms
+  for CHILD_SA.
+
+=head1 References
+
+  * [RFC 4306] - Sections 3.3
+
+=head1 Test Setup
+
+  * Network Topology
+      Connect the devices according to the Common Topology.
+  * Configuration
+      In each part, configure the devices according to the following configuration.
+
+=begin html
+
+<BLOCKQUOTE>
+<TABLE BORDER>
+<TR>
+<TD rowspan="2"></TD>
+<TD colspan="3">IKE_AUTH exchanges Algorithms</TD>
+</TR>
+<TR>
+<TD>Encryption</TD>
+<TD>Integrity</TD>
+<TD>ESN</TD>
+</TR>
+<TR>
+<TD>Part B</TD>
+<TD>ENCR_3DES</TD>
+<TD>AUTH_HMAC_SHA1_96<br>AUTH_AES_XCBC_96</TD>
+<TD>No ESN</TD>
+</TR>
+</TABLE>
+</BLOCKQUOTE>
+
+=end html
+
+  * Pre-Sequence and Cleanup Sequence
+      IKEv2 on the NUT is disabled after each part.
+
+=head1 Procedure
+
+=begin html
+
+<BLOCKQUOTE>
+<PRE>
+
+
+   NUT                  TN1
+(End-Node)           (End-Node)
+    |                    |
+    |------------------->| IKE_SA_INIT request (HDR, SAi1, KEi, Ni)
+    |                    | (Judgement #1)
+    |<-------------------| IKE_SA_INIT Response (HDR, SAr1, KEr, Nr)
+    |                    | (Packet #1)
+    |                    |
+    |------------------->| IKE_AUTH request (HDR, SK {IDi, AUTH, SAi2, TSi, TSr})
+    |                    | (Judgement #2)
+    |                    |
+    V                    V
+  
+<BLOCKQUOTE>
+<TABLE BORDER>
+<TR>
+<TD><TT>Packet #1</TT></TD>
+<TD><TT>See Common Packet #2</TT></TD>
+</TR>
+</TABLE>
+</BLOCKQUOTE>
+</BLOCKQUOTE>
+
+</PRE>
+</BLOCKQUOTE>
+
+=end html
+
+  Part B: Multiple Integrity Algorithms (ADVANCED)
+     5. NUT starts to negotiate with TN1 by sending IKE_SA_INIT request including a SA payload
+        as described above to the TN1.
+     6. Observe the messages transmitted on Link B.
+     7. NUT transmits an IKE_AUTH request including a SA payload as described above to the
+        TN1.
+     8. Observe the messages transmitted on Link B.
+
+=head1 Observable Result
+
+  Part B
+       Step 6: Judgment #1
+       The NUT transmits an IKE_SA_INIT request including "ENCR_3DES",
+       "PRF_HMAC_SHA1", "AUTH_HMAC_SHA1_96" and "D-H group 2" as proposed
+       algorithms.
+
+       Step 8: Judgment #2
+       The NUT transmits an IKE_AUTH request including "ENCR_3DES",
+       "AUTH_HMAC_SHA1_96", "AUTH_AES_XCBC_96" and "No Extended Sequence
+       Numbers" as proposed algorithms.
+
+=head1 Possible Problems
+
+  * None.
+
+=cut
+
+

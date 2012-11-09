@@ -1,0 +1,488 @@
+#!/usr/bin/perl
+#
+# Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009
+# Yokogawa Electric Corporation.
+# All rights reserved.
+# 
+# Redistribution and use of this software in source and binary
+# forms, with or without modification, are permitted provided that
+# the following conditions and disclaimer are agreed and accepted
+# by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in
+#    the documentation and/or other materials provided with
+#    the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project
+#    which is related to this software (hereinafter referred to as
+#    "project") nor the names of the contributors may be used to
+#    endorse or promote products derived from this software without
+#    specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written
+#    notification to the copyrighters.
+# 
+# 5. The copyrighters, the project and the contributors may prohibit
+#    the use of this software at any time.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+# STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+# IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+# $Id: IKEv2-SGW-R-1-1-5-2-A.seq,v 1.3 2008/11/28 10:16:29 doo Exp $
+#
+################################################################
+
+BEGIN
+{
+	push(@INC, '..');
+}
+
+END { }
+
+use IKEv2;
+use strict;
+
+
+my $remote	= 'common_remote_index';
+
+
+my $session = undef;
+my $ret = undef;
+my $str = undef;
+
+my $ike_sa_init_req_param = undef;
+my $ike_sa_init_resp_param = undef;
+
+my @local_ike_sa_init_req = undef;
+my @local_ike_sa_init_resp = undef;
+
+
+kLogHTML('<FONT COLOR="#FF0000" SIZE="+1"><U><B>TEST SETUP</B></U></FONT>');
+
+#------------------------------#
+# register IKEv2.pm            #
+#------------------------------#
+unless (IKEv2initialize('SGW', 'SGW')) {
+	IKEv2exitFatal('<FONT COLOR="#ff0000">IKEv2 module initializing failure</FONT>');
+}
+
+
+
+#---------------------------------#
+# switch Support or Not Support   #
+#---------------------------------#
+unless ($config_pl->{'advanced_support_cookie'}) {
+	IKEv2exitNS('Not support ' . "'advanced_support_cookie'");
+}
+
+
+
+#------------------------------#
+# configure TN                 #
+#------------------------------#
+unless (IKEv2setupTN()) {
+	IKEv2exitFatal('<FONT COLOR="#ff0000">TN setup failure</FONT>');
+}
+
+
+#------------------------------#
+# configure NUT                #
+#------------------------------#
+unless (IKEv2setupNUT()) {
+	IKEv2exitFatal('<FONT COLOR="#ff0000">NUT setup failure</FONT>');
+}
+
+kLogHTML('<FONT COLOR="#FF0000" SIZE="+1"><U><B>TEST PROCEDURE</B></U></FONT>');
+
+
+#------------------------------#
+# prepare session handler      #
+#------------------------------#
+$session = IKEv2create_session('common_remote_index');
+unless (defined($session)) {
+	IKEv2exitFatal('<FONT COLOR="#ff0000">IKEv2 session creation failure</FONT>');
+}
+
+
+$str  = '<PRE>';
+$str .= "    (R)             (I)\n";
+$str .= "    NUT             TN1\n";
+$str .= "     |               |\n";
+$str .= "     |<--------------| IKE_SA_INIT request (HDR, SAi1, KEi, Ni)\n";
+$str .= "     |     . . .     | . . .\n";
+$str .= "     |<--------------| IKE_SA_INIT request (HDR, SAi1, KEi, Ni)\n";
+$str .= "     |               |\n";
+$str .= "     |-------------->| IKE_SA_INIT response (HDR, N(COOKIE))\n";
+$str .= "     V               V";
+$str .= '</PRE>';
+
+kLogHTML($str);
+
+
+#--------------------------------------#
+# prepare IKE_SA_INIT response         #
+#--------------------------------------#
+my $recv_notify =
+{       # Notify Payload
+        'self'          => 'N',             # *** MUST BE HERE ***
+        'nexttype'      => '0',             # Next Payload
+        'critical'      => '0',             # Critical
+        'reserved'      => '0',             # RESERVED
+        'length'        => [9, 72],         # Payload Length
+        'length_comparator'     => 'range', # Payload Length
+        'id'            => '0',             # Protocol ID
+        'spiSize'       => '0',             # SPI Size
+        'type'          => 'COOKIE',        # Notify Type
+        'data'          => undef,           # Notification Data
+};
+my $common_ike_sa_init_resp = $exp_ike_sa_init_resp->{'common_remote_index'};
+@local_ike_sa_init_resp = @{$common_ike_sa_init_resp};
+# remove payload without HDR
+@local_ike_sa_init_resp = grep {
+                my $ret = 0;
+                if ($_->{'self'} eq 'HDR') { $ret = 1; }
+                $ret;
+        } @local_ike_sa_init_resp;
+# add Notify payload 
+for (my $i = 0; $i < scalar(@local_ike_sa_init_resp); $i++) {
+        if ($local_ike_sa_init_resp[$i]->{'self'} eq 'HDR') {
+                $local_ike_sa_init_resp[$i]->{'respSPI'} = undef;
+                splice(@local_ike_sa_init_resp, $i+1, 0, $recv_notify);
+                last;
+        }
+}
+#set correct nexttype
+for (my $i = 0; $i < scalar(@local_ike_sa_init_resp); $i++) {
+        my $payload = $local_ike_sa_init_resp[$i];
+
+        if ($payload->{'self'} eq 'HDR') {
+                my $next = $local_ike_sa_init_resp[$i+1]; 
+                unless (defined($next)) {
+                        $payload->{'nexttype'} = '0';
+                        next;
+                }
+                if ($payload->{'nexttype'} eq $next->{'self'}) {
+                        next;
+                }
+                $payload->{'nexttype'} = $next->{'self'};
+        }
+}
+$exp_ike_sa_init_resp->{'SGW-R-1-1-6-2.1'} = \@local_ike_sa_init_resp;
+
+
+
+#------------------------------------------#
+# make a large number of half-open IKE_SAs #
+#------------------------------------------#
+my $largeNum = $config_pl->{'ikev2_nut_num_of_half_opens_cookie'};        #set to config.pl value
+my $lpnum = 0;
+for ($lpnum = 0; $lpnum < $largeNum; $lpnum++){
+        #--------------------------------------#
+        # send IKE_SA_INIT request to NUT      #
+        #--------------------------------------#
+        $ike_sa_init_req_param = devel_IKEv2send_IKE_SA_INIT_request($session, $remote);
+        unless(defined($ike_sa_init_req_param)) {
+                kLogHTML(kDump_Common_Error());
+                IKEv2exitFatal('<FONT COLOR="#ff0000">Can\'t send IKE_SA_INIT request.</FONT>');
+        }
+
+        #--------------------------------------------------#
+        # receive IKE_SA_INIT response (w/ COOKIE) by NUT  #
+        #--------------------------------------------------#
+        $ike_sa_init_resp_param = devel_IKEv2receive_IKE_SA_INIT_response($session,
+                                                                          'SGW-R-1-1-6-2.1',
+                                                                          $ike_sa_init_req_param);
+        if (defined($ike_sa_init_resp_param)) {
+                last;
+        }
+
+        sleep(3);
+}
+
+if ($lpnum >= $largeNum){
+        kLogHTML(kDump_Common_Error());
+        kLogHTML('<FONT COLOR="#ff0000">Can\'t observe IKE_SA_INIT response(w/ Notify(COOKIE)).</FONT>');
+        IKEv2exitFail();
+}
+
+
+#--------------------------------------#
+# prepare expected packet              #
+# for IKE_SA_INIT request              #
+#--------------------------------------#
+my $reply_notify = 
+{       # Notify Payload
+        'self'          => 'N',         # *** MUST BE HERE ***
+        'nexttype'      => undef,       # Next Payload
+        'critical'      => undef,       # Critical
+        'reserved'      => undef,       # RESERVED
+        'length'        => undef,       # Payload Length
+        'id'            => undef,       # Protocol ID
+        'spiSize'       => undef,       # SPI Size
+        'type'          => 'COOKIE',    # Notify Type
+        'spi'           => undef,       # SPI
+	'data'		=>  substr(unpack("H*", pack("C", hex(substr($ike_sa_init_resp_param->{'cookie'}, 0, 1)) + 1)), 1) .
+			   (substr($ike_sa_init_resp_param->{'cookie'}, 1)), # Notification Data
+};
+my $common_ike_sa_init_req = $gen_ike_sa_init_req->{'common_remote_index'};
+@local_ike_sa_init_req = @{$common_ike_sa_init_req};
+
+# add Notify payload
+for (my $i = 0; $i < scalar(@local_ike_sa_init_req); $i++) {
+        if ($local_ike_sa_init_req[$i]->{'self'} eq 'HDR') {
+		# set SPI value as same as the previous IKE_SA_INIT request
+		$local_ike_sa_init_req[$i]->{'initSPI'} = $ike_sa_init_req_param->{'spi'};
+		splice(@local_ike_sa_init_req, $i+1, 0, $reply_notify);
+	}
+	elsif ($local_ike_sa_init_req[$i]->{'self'} eq 'KE') {
+		$local_ike_sa_init_req[$i]->{'publicKey'} =
+			kIKE::kHelpers::as_hex2($ike_sa_init_req_param->{'public'},
+						kIKE::kConsts::kDHPublicValueLength($ike_sa_init_req_param->{'dh_group'}) / 8);
+	}
+	elsif ($local_ike_sa_init_req[$i]->{'self'} eq 'Ni, Nr') {
+		$local_ike_sa_init_req[$i]->{'nonce'} =
+			kIKE::kHelpers::as_hex2($ike_sa_init_req_param->{'nonce'},
+						$ike_sa_init_req_param->{'nonceLen'});
+	}
+}
+$gen_ike_sa_init_req->{'SGW-R-1-1-6-2.2'} = \@local_ike_sa_init_req;
+
+
+
+#------------------------------------------------------------#
+# send IKE_SA_INIT request(w/ Notify(cookie value+1)) to NUT #
+#------------------------------------------------------------#
+$str  = '<PRE>';
+$str .= "    (R)             (I)\n";
+$str .= "    NUT             TN1\n";
+$str .= "     |               |\n";
+$str .= "     |<--------------| IKE_SA_INIT request (HDR, N(COOKIE), SAi1, KEi, Ni)\n";
+$str .= "     |               |\n";
+$str .= "     V               V";
+$str .= '</PRE>';
+
+kLogHTML($str);
+
+$ike_sa_init_req_param = devel_IKEv2send_IKE_SA_INIT_request($session, 'SGW-R-1-1-6-2.2');
+unless(defined($ike_sa_init_req_param)) {
+        kLogHTML(kDump_Common_Error());
+        IKEv2exitFatal('<FONT COLOR="#ff0000">Can\'t send IKE_SA_INIT request.</FONT>');
+}
+
+
+
+#--------------------------------------------------#
+# receive IKE_SA_INIT response (w/ COOKIE) by NUT  #
+#--------------------------------------------------#
+$str  = '<PRE>';
+$str .= "    (R)             (I)\n";
+$str .= "    NUT             TN1\n";
+$str .= "     |               |\n";
+$str .= "     |-------------->| IKE_SA_INIT response (HDR, N(COOKIE))\n";
+$str .= "     |               |\n";
+$str .= "     V               V";
+$str .= '</PRE>';
+
+kLogHTML($str);
+
+$ike_sa_init_resp_param = devel_IKEv2receive_IKE_SA_INIT_response($session,
+								  'SGW-R-1-1-6-2.1',
+								  $ike_sa_init_req_param);
+unless (defined($ike_sa_init_resp_param)) {
+        kLogHTML(kDump_Common_Error());
+        kLogHTML('<FONT COLOR="#ff0000">Can\'t observe IKE_SA_INIT response.</FONT>');
+        IKEv2exitFail();
+}
+
+
+
+#--------------------------------------#
+# exit with cleanup                    #
+#--------------------------------------#
+IKEv2exitPass();
+
+#
+# perldoc
+#
+########################################################################
+__END__
+
+=head1 Title
+
+  Test IKEv2.SGW.R.1.1.5.2: Invalid Cookies
+  Part A: (ADVANCED)
+
+=head1 Purpose
+
+  To verify an IKEv2 device handles IKE_SA_INIT request with an invalid cookie data.
+
+=head1 References
+
+  * [RFC 4306] - Sections 2.6 and 3.10.1
+  * [RFC 4718] - Sections 2.2, 2.4 and 2.5
+
+=head1 Test Setup
+
+  * Network Topology
+      Connect the devices according to the Common Topology.
+  * Configuration
+      In each part, configure the devices according to the Common Configuration.
+  * Pire-Sequence and Cleanup Sequence
+      IKEv2 on the NUT is disabled after each part.
+
+=head1 Procedure
+
+=begin html
+
+<BLOCKQUOTE>
+<PRE>
+
+   NUT                  TN1
+  (SGW)                (SGW)
+    |                    |
+    |<-------------------| IKE_SA_INIT request (HDR, SAi1, KEi, Ni)
+    |                    | (Packet #1)
+    |       ...          | ...
+    |<-------------------| IKE_SA_INIT request (HDR, SAi1, KEi, Ni)
+    |                    | (Packet #2)
+    |                    |
+    |------------------->| IKE_SA_INIT response (HDR, N(COOKIE))
+    |                    | (Judgement #1)
+    |                    |
+    |<-------------------| IKE_SA_INIT request (HDR, N(COOKIE'), SAi1, KEi, Ni)
+    |                    | (Packet #3)
+    |------------------->| IKE_SA_INIT response (HDR, N(COOKIE"))
+    |                    | (Judgement #2)
+    |                    |
+    V                    V
+</PRE>
+</BLOCKQUOTE>
+
+<BLOCKQUOTE>
+<TABLE BORDER>
+<TR>
+<TD><TT>Packet #1</TT></TD>
+<TD><TT>See Common Packet #1</TT></TD>
+</TR>
+<TR>
+<TD><TT>Packet #2</TT></TD>
+<TD><TT>See Common Packet #1</TT></TD>
+</TR>
+<TR>
+<TD><TT>Packet #3</TT></TD>
+<TD><TT>See below</TT></TD>
+</TR>
+</TABLE>
+</BLOCKQUOTE>
+
+<BLOCKQUOTE>
+Packet #3: IKE_SA_INIT request packet
+<TABLE BORDER>
+<TR>
+<TD>IPv6 Header</TD>
+<TD colspan="2">Same as the Common Packet #1</TD>
+</TR>
+<TR>
+<TD>UDP Header</TD>
+<TD colspan="2">Same as the Common Packet #1</TD>
+</TR>
+<TR>
+<TD rowspan="2">IKEv2 Header</TD>
+<TD colspan="2">>Other fields are same as the Common Packet #1</TD>
+</TR>
+<TR>
+<TD>Next Payload</TD>
+<TD>41 (N)</TD>
+</TR>
+<TR>
+<TD rowspan="8">N Payload</TD>
+<TD>Next Payload</TD>
+<TD>33 (SA)</TD>
+</TR>
+<TR>
+<TD>Critical</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>Reserved</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>Payload Length</TD>
+<TD>Any</TD>
+</TR>
+<TR>
+<TD>Protocol ID</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>SPI Size</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>Notify Message Type</TD>
+<TD>COOKIE (16390)</TD>
+</TR>
+<TR>
+<TD>Notification Data</TD>
+<TD>The difference value than COOKIE in IKE_SA_INIT response sent by NUT</TD>
+</TR>
+<TR>
+<TD>SA Payload</TD>
+<TD colspan="2">Same as the Common Packet #1</TD>
+</TR>
+<TR>
+<TD>KE Payload</TD>
+<TD colspan="2">Same as the Common Packet #1</TD>
+</TR>
+<TR>
+<TD>Ni, Nr Payload</TD>
+<TD colspan="2">Same as the common packet #1</TD>
+</TR>
+</TABLE>
+</BLOCKQUOTE>
+
+=end html
+
+  Part A: (ADVANCED)
+     1. TN1 starts to negotiate with NUT by sending IKE_SA_INIT request.
+     2. TN1 transmits a large number of IKE_SA_INIT requests to the NUT.
+     3. Observe the messages transmitted on Link A..
+     4. After reception of IKE_SA_INIT response with a Notify payload of type COOKIE, TN1
+        transmits an IKE_SA_INIT request which includes a Notify payload of type COOKIE with
+        a cookie data unexpected by NUT.
+     5. Observe the messages transmitted on Link A..
+
+=head1 Observable Result
+
+  Part A
+       Step 3: Judgment #1
+       The NUT transmits an IKE_SA_INIT response including an IKE Header which contains zero
+       as IKE_SA Responder's SPI field and a Notify payload of type COOKIE.
+
+       Step 5: Judgment #2
+       The NUT transmits an IKE_SA_INIT response including an IKE Header which contains zero
+       as IKE_SA Responder's SPI field and a Notify payload of type COOKIE with a new cookie
+       data.
+
+=head1 Possible Problems
+    
+  * None.
+
+=cut 
+
+

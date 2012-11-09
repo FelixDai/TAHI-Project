@@ -1,0 +1,339 @@
+
+                                CHANGELOG
+
+                                   for
+
+                     IKEv2 Conformance Test Package
+
+2012/08/13	Release 1.1.1
+	Minor revision up
+
+
+2012/06/22	Hiroki Endo
+	M IKEv2.pm
+	M 1-EN-I/IKEv2-EN-I-1-1-10-1-A.seq
+	M 1-EN-I/IKEv2-EN-I-1-1-10-2-A.seq
+	M 1-EN-I/IKEv2-EN-I-1-1-10-3-A.seq
+	M 2-EN-R/IKEv2-EN-R-1-1-10-1-A.seq
+	M 2-EN-R/IKEv2-EN-R-1-1-10-2-A.seq
+	M 2-EN-R/IKEv2-EN-R-1-1-10-3-A.seq
+	M 3-SGW-I/IKEv2-SGW-I-1-1-10-1-A.seq
+	M 3-SGW-I/IKEv2-SGW-I-1-1-10-2-A.seq
+	M 3-SGW-I/IKEv2-SGW-I-1-1-10-3-A.seq
+	M 4-SGW-R/IKEv2-SGW-R-1-1-10-1-A.seq
+	M 4-SGW-R/IKEv2-SGW-R-1-1-10-2-A.seq
+	M 4-SGW-R/IKEv2-SGW-R-1-1-10-3-A.seq
+		- Add 'kmp_auth_method' attribute
+
+	* INDEX_EN_R
+		- Remove unnecessary characters
+
+2010/10/27	Hiroki Endo
+	M 1-EN-I/IKEv2-EN-I-1-1-4-2-A.seq
+	M 3-SGW-I/IKEv2-SGW-I-1-1-4-2-A.seq
+		- Correct exit status
+
+	M 3-SGW-I/IKEv2-SGW-I-1-1-7-1-A.seq
+	M 4-SGW-R/IKEv2-SGW-R-1-1-7-1-A.seq
+	M 4-SGW-R/IKEv2-SGW-R-1-1-7-2-A.seq
+	M 4-SGW-R/IKEv2-SGW-R-1-1-7-3-A.seq
+		- Correct traffic selector
+
+2010/09/17	Hiroki Endo
+	M 3-SGW-I/IKEv2-SGW-I-1-1-3-3-A.seq
+		- Correct sequence
+
+	M 3-SGW-I/IKEv2-SGW-I-1-2-2-2-A.seq
+		- Set timer to wait retransmission
+
+	M 1-EN-I/IKEv2-EN-I-1-2-3-2-A.seq
+	M 3-SGW-I/IKEv2-SGW-I-1-2-3-2-A.seq
+		- Receive INFORMATIONAL request
+
+	M 1-EN-I/IKEv2-EN-I-1-2-6-5-A.seq
+	M 3-SGW-I/IKEv2-SGW-I-1-2-6-5-A.seq
+		- Receive INFORMATIONAL request
+
+	M 1-EN-I/IKEv2-EN-I-1-2-4-2-A.seq
+	M 3-SGW-I/IKEv2-SGW-I-1-2-4-2-A.seq
+		- Correct sequence
+
+	M 2-EN-R/IKEv2-EN-R-1-1-2-2-A.seq
+	M 4-SGW-R/IKEv2-SGW-R-1-1-2-2-A.seq
+		- Correct transmitted data
+
+	M 2-EN-R/IKEv2-EN-R-1-2-5-6-A.seq
+	M 4-SGW-R/IKEv2-SGW-R-1-2-5-6-A.seq
+		- Accept both new IPsec SA packet and old IPsec SA packet
+
+
+2010/08/16	Hiroki Endo
+	M IKEv2.pm
+	M 2-EN-R/IKEv2-EN-R-1-2-6-3-A.seq
+	M 4-SGW-R/IKEv2-SGW-R-1-2-6-3-A.seq
+		- Correct IKE_SA Initiator's SPI value used in rekeyed IKE_SA
+
+
+2010/08/12	Hiroki Endo
+	M IKEv2.pm
+		- Store transmitted CREATE_CHILD_SA request packet
+
+	M 2-EN-R/IKEv2-EN-R-1-1-6-9-A.seq
+		- Correct judgement condition
+
+	M 1-EN-I/IKEv2-EN-I-1-1-10-4-A.seq
+	M 2-EN-R/IKEv2-EN-R-1-1-10-4-A.seq
+	M 3-SGW-I/IKEv2-SGW-I-1-1-10-4-A.seq
+	M 4-SGW-R/IKEv2-SGW-R-1-1-10-4-A.seq
+		- Inject pre-shared key
+
+	M 2-EN-R/IKEv2-EN-R-1-2-2-1-A.seq
+	M 4-SGW-R/IKEv2-SGW-R-1-2-2-1-A.seq
+		- Correct retransmitted CREATE_CHILD_SA request packet
+
+	M 1-EN-I/IKEv2-EN-I-1-2-3-8-A.seq
+	M 3-SGW-I/IKEv2-SGW-I-1-2-3-8-A.seq
+		- Accept ESP pakcet encapsulated by new IPsec SA
+
+	M 1-EN-I/IKEv2-EN-I-1-2-6-5-A.seq
+	M 3-SGW-I/IKEv2-SGW-I-1-2-6-5-A.seq
+		- Expand timeout
+
+	A 2-EN-R/IKEv2-EN-R-1-2-6-9-A.seq
+	A 4-SGW-R/IKEv2-SGW-R-1-2-6-9-A.seq
+		- Add new tests
+
+
+2010/08/06	Hiroki Endo
+	M IKEv2.pm
+		- Store transmitted INFORMATIONAL request packet
+
+	M 1-EN-I/IKEv2-EN-I-1-2-3-2-A.seq
+	M 1-EN-I/IKEv2-EN-I-1-2-3-6-A.seq
+	M 3-SGW-I/IKEv2-SGW-I-1-2-3-2-A.seq
+	M 3-SGW-I/IKEv2-SGW-I-1-2-3-6-A.seq
+		- Insert INFORMAITONAL exhcange
+
+	M 2-EN-R/IKEv2-EN-R-1-3-1-1-A.seq
+	M 4-SGW-R/IKEv2-SGW-R-1-3-1-1-A.seq
+		- Correct judgement output message
+
+	M 2-EN-R/IKEv2-EN-R-1-3-2-1-A.seq
+	M 4-SGW-R/IKEv2-SGW-R-1-3-2-1-A.seq
+		- Correct retransmitted INFORMATIONAL request packet
+
+
+2010/07/23	Release 1.1.0
+	Major revision up
+
+
+2010/07/22	Hiroki Endo
+	M IKEv2.pm
+	M IKEv2packet.pm
+	M 1-EN-I/
+	M 2-EN-R/
+	M 3-SGW-I/
+	M 4-SGW-R/
+		- Support Major revision up except ADVANCED functions
+
+2009/11/16	Yukiyo Akisada
+	M 2-EN-R/IKEv2-EN-R-1-1-8-2-A.seq, IKEv2-EN-R-1-2-7-1-A.seq
+		- Flushed CHILD_SA before sending CREATE_CHILD_SA request
+
+	M 2-EN-R/IKEv2-EN-R-1-2-7-1-A.seq
+		- Changed to require NUT to use Common Configuration
+
+
+2009/10/01	Hiroki Endo
+	* 2-EN-R/IKEv2-EN-R-1-2-6-8-A.seq
+	* 4-SGW-R/IKEv2-SGW-R-1-2-6-8-A.seq
+		Modified expected packet definition to receive CREATE_CHILD_SA
+		response with Notify payload of type NO_PROPOSAL_CHOSEN
+
+
+2009/09/15	Release 1.0.3
+	Minor revision up
+
+
+2009/09/09	Hiroki Endo
+	* IKEv2.pm
+	* config.pl
+	* 1-EN-I/IKEv2-EN-I-1-1-6-7-A.seq
+	* 1-EN-I/IKEv2-EN-I-1-2-3-7-A.seq
+	* 2-EN-R/IKEv2-EN-R-1-1-6-7-A.seq
+	* 2-EN-R/IKEv2-EN-R-1-2-5-5-A.seq
+	* 3-SGW-I/IKEv2-SGW-I-1-1-6-7-A.seq
+	* 3-SGW-I/IKEv2-SGW-I-1-2-3-7-A.seq
+	* 4-SGW-R/IKEv2-SGW-R-1-1-6-7-A.seq
+	* 4-SGW-R/IKEv2-SGW-R-1-2-5-5-A.seq
+		Added advanced_support_pfs flag to switch PFS 
+
+
+2009/09/08	Hiroki Endo
+	* 1-EN-I/IKEv2-EN-I-1-1-5-[2-3]-A.seq
+	* 1-EN-I/IKEv2-EN-I-1-1-6-7-A.seq
+	* 1-EN-I/IKEv2-EN-I-1-1-6-11-[A-B].seq
+	* 3-SGW-I/IKEv2-SGW-I-1-1-5-[2-3]-A.seq
+	* 3-SGW-I/IKEv2-SGW-I-1-1-6-7-A.seq
+	* 3-SGW-I/IKEv2-SGW-I-1-1-6-11-[A-B].seq
+	* 2-EN-R/IKEv2-EN-R-1-1-6-7-A.seq
+	* 2-EN-R/IKEv2-EN-R-1-1-6-8-A.seq
+	* 2-EN-R/IKEv2-EN-R-1-1-5-[3-4]-A.seq
+	* 4-SGW-R/IKEv2-SGW-R-1-1-6-7-A.seq
+	* 4-SGW-R/IKEv2-SGW-R-1-1-6-8-A.seq
+	* 4-SGW-R/IKEv2-SGW-R-1-1-5-[3-4]-A.seq
+		Changed test sequence to invoke INVALID_KE_PAYLOAD
+
+	* IKEv2.pm
+		Generate SAs even though INTEG_NONE is omitted
+
+
+2009/08/31	Hiroki Endo
+	* 1-EN-I/IKEv2-EN-I-1-1-3-4-A.seq
+	* 3-SGW-I/IKEv2-SGW-I-1-1-3-4-A.seq
+		Added N(INITIAL_CONTACT) to 2nd IKE_AUTH request
+
+	* 1-EN-I/IKEv2-EN-I-1-1-3-8-A.seq
+	* 3-SGW-I/IKEv2-SGW-I-1-1-3-8-A.seq
+		Check if Echo Reply is not received
+
+	* 1-EN-I/IKEv2-EN-I-1-2-4-2-A.seq
+	* 3-SGW-I/IKEv2-SGW-I-1-2-4-2-A.seq
+		Add deleting IKE_SA INFORMATIONAL exchange
+
+	* 2-EN-R/IKEv2-EN-R-1-2-5-6-A.seq
+	* 4-SGW-R/IKEv2-SGW-R-1-2-5-6-A.seq
+		Add ICMPv6 Echo exchange
+
+	* 2-EN-R/IKEv2-EN-R-1-2-5-3-[B-C].seq
+		Remove unnecessary ICMPv6 Echo exchange
+
+	* 2-EN-R/IKEv2-EN-R-1-2-5-4-[A-C].seq
+	* 4-EN-R/IKEv2-EN-R-1-2-5-4-[A-C].seq
+		Modify CREATE_CHILD_SA request not to send KE payload
+
+	* debug.pl
+		Disable $ikev2_optimize_initialization by default
+
+
+2009/06/17	Release 1.0.2
+	release version 1.0.2
+
+
+2009/06/16	Hiroki Endo
+	* INDEX_EN_I, INDEX_EN_R, INDEX_SGW_I, INDEX_SGW_R
+		Removed ID payload test cases
+
+	* config.pl
+		Explained Advanced Functions flags
+		Added $advanced_support_creating_new_child_sa flag
+
+	* IKEv2.pm 
+		Added $advanced_support_creating_new_child_sa flag
+
+	* 1-EN-I/IKEv2-EN-I-1-2-5-1-A.seq, IKEv2-EN-I-1-2-5-2-A.seq
+	* 2-EN-R/IKEv2-EN-R-1-2-7-1-A.seq
+	* 3-SGW-I/IKEv2-SGW-I-1-2-5-1-A.seq, IKEv2-SGW-I-1-2-5-2-A.seq
+	* 4-SGW-R/IKEv2-SGW-R-1-2-7-1-A.seq
+		Added $advanced_support_creating_new_child_sa flag
+
+	* 1-EN-I/IKEv2-EN-I-1-1-6-11-A.seq, IKEv2-EN-I-1-1-6-11-B.seq
+	* 3-SGW-I/IKEv2-SGW-I-1-1-6-11-A.seq, IKEv2-SGW-I-1-1-6-11-B.seq
+		Corrected sequence diagram
+
+	* 1-EN-I/IKEv2-EN-I-1-1-8-2-A.seq
+	* 3-SGW-I/IKEv2-SGW-I-1-1-8-2-A.seq
+		Added INVALID_SELECTORS
+
+	* 2-EN-R/IKEv2-EN-R-1-1-3-4-A.seq
+		Removed Delete payload in INFORMATIONAL request
+
+	* 1-EN-I/IKEv2-EN-I-1-1-10-4-A.seq
+	* 3-SGW-I/IKEv2-EN-I-1-1-10-4-A.seq
+		Removed unnecessary ICMP Echo exchange
+
+
+2009/06/09	Yukiyo Akisada
+	M 3-SGW-I/IKEv2-SGW-I-1-3-1-1-A.seq, IKEv2-SGW-I-1-3-2-[1-2]-A.seq
+		Changed to use $ikev2_nut_liveness_check_timer specified in config.pl
+		as the timeout
+
+	M 1-EN-I/IKEv2-EN-I-1-3-2-[1-2]-A.seq,
+	         IKEv2-EN-I-1-1-3-4-A.seq, IKEv2-EN-I-1-3-2-2-A.seq
+	M 3-SGW-I/IKEv2-SGW-I-1-2-6-1-A.seq
+		Fixed typo
+
+
+2009/05/28	Yukiyo Akisada
+	M 1-EN-I/IKEv2-EN-I-1-3-1-1-A.seq, IKEv2-EN-I-1-3-2-[1-2]-A.seq,
+		Changed to use $ikev2_nut_liveness_check_timer specified in config.pl
+		as the timeout
+
+	M 1-EN-I/IKEv2-EN-I-1-1-3-[5-8]-A.seq, IKEv2-EN-I-1-1-6-12-A.seq,
+	         IKEv2-EN-I-1-2-{[3-4],7}-1-A.seq,
+	         IKEv2-EN-I-1-2-6-{[1-7],12,15}-A.seq, IKEv2-EN-I-1-3-[1-3]-1-A.seq,
+	         IKEv2-EN-I-2-1-2-[4-5]-A.seq,
+	M 2-EN-R/IKEv2-EN-R-1-1-3-[4-6]-A.seq, IKEv2-EN-R-1-1-4-2-A.seq,
+	         IKEv2-EN-R-1-1-6-9-A.seq, IKEv2-EN-R-1-2-{3,5}-1-A.seq,
+             IKEv2-EN-R-1-3-[2-3]-1-A.seq,
+	M 3-SGW-I/IKEv2-SGW-I-1-1-3-[5-8]-A.seq, IKEv2-SGW-I-1-1-6-12-A.seq,
+	          IKEv2-SGW-I-1-2-{[3-4],7}-1-A.seq,
+	          IKEv2-SGW-I-1-2-6-{[1-7],12,15}-A.seq, IKEv2-SGW-I-1-3-3-1-A.seq,
+	M 4-SGW-R/IKEv2-SGW-R-1-1-3-[4-6]-A.seq, IKEv2-SGW-R-1-1-6-9-A.seq,
+	          IKEv2-SGW-R-1-2-{3,5}-1-A.seq, IKEv2-SGW-R-1-3-[2-3]-1-A.seq
+		Fixed typo
+
+
+2009/04/28	Hiroki Endo
+	* 2-EN-R/IKEv2-EN-R-1-2-4-1-A.seq
+	* 4-SGW-R/IKEv2-SGW-R-1-2-4-1-A.seq
+		Corrected SA proposal to elicit NO_PROPOSAL_CHOSEN
+
+
+2009/04/28	Release 1.0.1
+	release version 1.0.1
+
+
+2009/04/14	Hiroki Endo
+	* 1-EN-I/IKEv2-EN-I-1-1-5-2-A.seq
+	* 3-SGW-I/IKEv2-SGW-I-1-1-5-2-A.seq
+	accept IKE_SA_INIT request without N(COOKIE) at 5th message and
+	check IKE_AUTH exchange
+
+	* 1-EN-I/IKEv2-EN-I-1-1-5-3-A.seq
+	* 3-SGW-I/IKEv2-SGW-I-1-1-5-3-A.seq
+	add new test case for Interaction of COOKIE and INVALID_KE_PAYLOAD
+	with unoptimized Responder
+
+	* 2-EN-R/IKEv2-EN-R-1-1-5-3-A.seq
+	* 2-EN-R/IKEv2-EN-R-1-1-5-4-A.seq
+	* 4-SGW-R/IKEv2-SGW-R-1-1-5-3-A.seq
+	* 4-SGW-R/IKEv2-SGW-R-1-1-5-4-A.seq
+	check IKE_AUTH exchange
+
+
+2008/12/11	Release 1.0.0
+	release for Program start
+
+
+2008/10/20	Release 1.0.0.b1
+	release for public review
+
+
+2008/08/01	Release 1.0.0.a2
+	pre-release for 1st delivery
+
+
+2008/08/01	Hiroki Endo
+	change test scripts' number as same as test specification
+
+
+2008/07/28	Release 1.0.0.a1
+	release for internal review
+
+
+2008/06/06	Release 0.7.0
+	pre-release for 1st delivery
+
+
+                                                      [end of CHANGELOG]

@@ -1,0 +1,294 @@
+#
+# Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009
+# Yokogawa Electric Corporation.
+# All rights reserved.
+# 
+# Redistribution and use of this software in source and binary
+# forms, with or without modification, are permitted provided that
+# the following conditions and disclaimer are agreed and accepted
+# by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in
+#    the documentation and/or other materials provided with
+#    the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project
+#    which is related to this software (hereinafter referred to as
+#    "project") nor the names of the contributors may be used to
+#    endorse or promote products derived from this software without
+#    specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written
+#    notification to the copyrighters.
+# 
+# 5. The copyrighters, the project and the contributors may prohibit
+#    the use of this software at any time.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+# STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+# IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+# $Name: REL_1_1_1 $
+#
+# $Id: INDEX_SGW_I,v 1.43 2010/07/22 13:34:34 doo Exp $
+#
+########################################################################
+
+
+
+&print:<B><FONT SIZE="+2" COLOR="#FF0000">Section SGW-I. Security Gateway - Initiator</FONT></B>
+&print:<B><FONT SIZE="+2">Sub-Section 1. Security Gateway to Security Gateway Tunnel</FONT></B>
+./3-SGW-I/IKEv2-SGW-I-1-A-A-A.seq::::Global Setup:1
+
+
+
+&print:<B><FONT SIZE="+1">Group 1. The Initial Exchanges</FONT></B>
+&print:<B>Sub-Group 1. Header and Payload Formats</B>
+./3-SGW-I/IKEv2-SGW-I-1-1-1-1.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.1.1.1&#58; Sending IKE_SA_INIT request:2
+./3-SGW-I/IKEv2-SGW-I-1-1-1-2.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.1.1.2&#58; Sending IKE_AUTH request:2
+./3-SGW-I/IKEv2-SGW-I-1-1-1-3-A.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.1.1.3&#58; Use of CHILD_SA:2
+
+
+
+&print:<B>Sub-Group 2. Use of Retransmission Timers</B>
+./3-SGW-I/IKEv2-SGW-I-1-1-2-1-A.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.1.2.1&#58; Retransmission of IKE_SA_INIT request:2
+./3-SGW-I/IKEv2-SGW-I-1-1-2-2-A.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.1.2.2&#58; Stop of retransmission of IKE_SA_INIT request:2
+./3-SGW-I/IKEv2-SGW-I-1-1-2-3-A.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.1.2.3&#58; Retransmission of IKE_AUTH request:2
+./3-SGW-I/IKEv2-SGW-I-1-1-2-4-A.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.1.2.4&#58; Stop of retransmission of IKE_AUTH request:2
+
+
+
+&print:<B>Sub-Group 3. State Synchronization and Connection Timeouts</B>
+./3-SGW-I/IKEv2-SGW-I-1-1-3-1-A.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.1.3.1&#58; State Synchronization with ICMP message:2
+./3-SGW-I/IKEv2-SGW-I-1-1-3-2-A.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.1.3.2&#58; State Synchronization with IKE message:2
+./3-SGW-I/IKEv2-SGW-I-1-1-3-3-A.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.1.3.3&#58; Close Connection when repeated attempts fail:2
+&#./3-SGW-I/IKEv2-SGW-I-1-1-3-4-A.seq:./packets/SGW-SGW.def:::Test IKEv2.SGW.I.1.1.3.4&#58; Close Connection when receiving INITIAL_CONTACT:2
+&#./3-SGW-I/IKEv2-SGW-I-1-1-3-5-A.seq:./packets/SGW-SGW.def:::Test IKEv2.SGW.I.1.1.3.5&#58; Sending Liveness check:2
+./3-SGW-I/IKEv2-SGW-I-1-1-3-6-A.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.1.3.6&#58; Sending Delete Payload for IKE_SA:2
+&#./3-SGW-I/IKEv2-SGW-I-1-1-3-7-A.seq:./packets/SGW-SGW.def:::Test IKEv2.SGW.I.1.1.3.7&#58; Sending Delete Payload for CHILD_SA:2
+&#./3-SGW-I/IKEv2-SGW-I-1-1-3-8-A.seq:./packets/SGW-SGW.def:::Test IKEv2.SGW.I.1.1.3.8&#58; Sending Liveness check with unprotected messages:2
+
+
+
+&print:<B>Sub-Group 4. Version Numbers and Forward Compatibility</B>
+&print:<B>Test IKEv2.SGW.I.1.1.4.1: Unrecognized payload types and critical bit is not set</B>
+./3-SGW-I/IKEv2-SGW-I-1-1-4-1-A.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.1.4.1 Part A&#58; Invalid payload type 1:2
+./3-SGW-I/IKEv2-SGW-I-1-1-4-1-B.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.1.4.1 Part B&#58; Invalid payload type 32:2
+./3-SGW-I/IKEv2-SGW-I-1-1-4-1-C.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.1.4.1 Part C&#58; Invalid payload type 49:2
+./3-SGW-I/IKEv2-SGW-I-1-1-4-1-D.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.1.4.1 Part D&#58; Invalid payload type 255:2
+
+&print:<B>Test IKEv2.SGW.I.1.1.4.2: Unrecognized payload types and critical bit is set</B>
+./3-SGW-I/IKEv2-SGW-I-1-1-4-2-A.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.1.4.2 Part A&#58; Invalid payload type 1:2
+./3-SGW-I/IKEv2-SGW-I-1-1-4-2-B.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.1.4.2 Part B&#58; Invalid payload type 32:2
+./3-SGW-I/IKEv2-SGW-I-1-1-4-2-C.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.1.4.2 Part C&#58; Invalid payload type 49:2
+./3-SGW-I/IKEv2-SGW-I-1-1-4-2-D.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.1.4.2 Part D&#58; Invalid payload type 255:2
+
+
+
+&print:<B>Sub-Group 5. Cookies</B>
+./3-SGW-I/IKEv2-SGW-I-1-1-5-1-A.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.1.5.1&#58; Retrying IKE_SA_INIT request with a Notify payload of type COOKIE:2
+./3-SGW-I/IKEv2-SGW-I-1-1-5-2-A.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.1.5.2&#58; Interaction of COOKIE and INVALID_KE_PAYLOAD:2
+./3-SGW-I/IKEv2-SGW-I-1-1-5-3-A.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.1.5.3&#58; Interaction of COOKIE and INVALID_KE_PAYLOAD with unoptimized Responder:2
+
+
+
+&print:<B>Sub-Group 6. Cryptographic Algorithm Negotiation</B>
+&print:<B>Test IKEv2.SGW.I.1.1.6.1: Cryptographic Algorithm Negotiation for IKE_SA</B>
+./3-SGW-I/IKEv2-SGW-I-1-1-6-1-A.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.1.6.1 Part A&#58; Encryption Algorithm ENCR_AES_CBC:2
+&#./3-SGW-I/IKEv2-SGW-I-1-1-6-1-B.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.1.6.1 Part B&#58; Encryption Algorithm ENCR_AES_CTR:2
+./3-SGW-I/IKEv2-SGW-I-1-1-6-1-C.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.1.6.1 Part C&#58; Pseudo-random Function PRF_AES128_XCBC:2
+./3-SGW-I/IKEv2-SGW-I-1-1-6-1-D.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.1.6.1 Part D&#58; Integrity Algorithm AUTH_AES_XCBC_96:2
+./3-SGW-I/IKEv2-SGW-I-1-1-6-1-E.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.1.6.1 Part E&#58; D-H Group Group 14:2
+
+&print:<B>Test IKEv2.SGW.I.1.1.6.2: Cryptographic Algorithm Negotiation for CHILD_SA</B>
+./3-SGW-I/IKEv2-SGW-I-1-1-6-2-A.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.1.6.2 Part A&#58; Encryption Algorithm ENCR_AES_CBC:2
+./3-SGW-I/IKEv2-SGW-I-1-1-6-2-B.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.1.6.2 Part B&#58; Encryption Algorithm ENCR_AES_CTR:2
+./3-SGW-I/IKEv2-SGW-I-1-1-6-2-C.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.1.6.2 Part C&#58; Encryption Algorithm ENCR_NULL:2
+./3-SGW-I/IKEv2-SGW-I-1-1-6-2-D.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.1.6.2 Part D&#58; Integrity Algorithm AUTH_AES_XCBC_96:2
+./3-SGW-I/IKEv2-SGW-I-1-1-6-2-E.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.1.6.2 Part E&#58; Integrity Algorithm NONE:2
+./3-SGW-I/IKEv2-SGW-I-1-1-6-2-F.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.1.6.2 Part F&#58; Extended Sequence Number:2
+
+&print:<B>Test IKEv2.SGW.I.1.1.6.3: Sending Multiple Transforms for IKE_SA</B>
+./3-SGW-I/IKEv2-SGW-I-1-1-6-3-A.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.1.6.3 Part A&#58; Multiple Encryption Algorithms:2
+./3-SGW-I/IKEv2-SGW-I-1-1-6-3-B.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.1.6.3 Part B&#58; Multiple Pseudo-random Functions:2
+./3-SGW-I/IKEv2-SGW-I-1-1-6-3-C.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.1.6.3 Part C&#58; Multiple Integrity Algorithms:2
+./3-SGW-I/IKEv2-SGW-I-1-1-6-3-D.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.1.6.3 Part D&#58; Multiple D-H Groups:2
+
+./3-SGW-I/IKEv2-SGW-I-1-1-6-4-A.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.1.6.4&#58; Sending Multiple Proposals for IKE_SA:2
+
+&print:<B>Test IKEv2.SGW.I.1.1.6.5: Sending Multiple Transforms for CHILD_SA</B>
+./3-SGW-I/IKEv2-SGW-I-1-1-6-5-A.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.1.6.5 Part A&#58; Multiple Encryption Algorithms:2
+./3-SGW-I/IKEv2-SGW-I-1-1-6-5-B.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.1.6.5 Part B&#58; Multiple Integrity Algorithms:2
+./3-SGW-I/IKEv2-SGW-I-1-1-6-5-C.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.1.6.5 Part C&#58; Extended Sequence Numbers:2
+
+./3-SGW-I/IKEv2-SGW-I-1-1-6-6-A.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.1.6.6&#58; Sending Multiple Proposals for CHILD_SA:2
+./3-SGW-I/IKEv2-SGW-I-1-1-6-7-A.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.1.6.7&#58; Receipt of INVALID_KE_PAYLOAD:2
+&#./3-SGW-I/IKEv2-SGW-I-1-1-6-8-A.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.1.6.8&#58; Receipt of NO_PROPOSAL_CHOSEN:2
+./3-SGW-I/IKEv2-SGW-I-1-1-6-9-A.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.1.6.9&#58; Response with inconsistent SA Proposal for IKE_SA:2
+./3-SGW-I/IKEv2-SGW-I-1-1-6-10-A.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.1.6.10&#58; Response with inconsistent SA Proposal for IKE_SA:2
+./3-SGW-I/IKEv2-SGW-I-1-1-6-11-A.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.1.6.11 Part A&#58; Receiving IKE_SA_INIT response with INVALID_KE_PAYLOAD:2
+./3-SGW-I/IKEv2-SGW-I-1-1-6-11-B.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.1.6.11 Part B&#58; Receiving IKE_SA_INIT response with INVALID_KE_PAYLOAD:2
+./3-SGW-I/IKEv2-SGW-I-1-1-6-12-A.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.1.6.12&#58; Creating an IKE_SA without a CHILD_SA:2
+
+
+
+&print:<B>Sub-Group 7. Traffic Selector Negotiation</B>
+./3-SGW-I/IKEv2-SGW-I-1-1-7-1-A.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.1.7.1&#58; Narrowing the range of members of the set of traffic selectors:2
+
+
+
+&print:<B>Sub-Group 8. Error Handling</B>
+&#./3-SGW-I/IKEv2-SGW-I-1-1-8-1-A.seq:./packets/SGW-SGW.def:::Test IKEv2.SGW.I.1.1.8.1 Part A&#58; INVALID_IKE_SPI Different IKE_SA Initiator's SPI:2
+&#./3-SGW-I/IKEv2-SGW-I-1-1-8-1-B.seq:./packets/SGW-SGW.def:::Test IKEv2.SGW.I.1.1.8.1 Part B&#58; INVALID_IKE_SPI Different IKE_SA Responder's SPI:2
+&#./3-SGW-I/IKEv2-SGW-I-1-1-8-2-A.seq:./packets/SGW-SGW.def:::Test IKEv2.SGW.I.1.1.8.2&#58; INVALID_SELECTORS:2
+
+
+
+&print:<B>Sub-Group 10. Authentication of the IKE_SA</B>
+&#./3-SGW-I/IKEv2-SGW-I-1-1-10-1-A.seq:./packets/SGW-SGW.def:::Test IKEv2.SGW.I.1.1.10.1 Part A&#58; Sending Certificate Payload with ID_IPV6_ADDR:2
+&#./3-SGW-I/IKEv2-SGW-I-1-1-10-1-A.seq:./packets/SGW-SGW.def:::Test IKEv2.SGW.I.1.1.10.1 Part B&#58; Sending Certificate Payload with ID_FQDN:2
+&#./3-SGW-I/IKEv2-SGW-I-1-1-10-1-A.seq:./packets/SGW-SGW.def:::Test IKEv2.SGW.I.1.1.10.1 Part C&#58; Sending Certificate Payload with ID_RFC822_ADDR:2
+&#./3-SGW-I/IKEv2-SGW-I-1-1-10-2-A.seq:./packets/SGW-SGW.def:::Test IKEv2.SGW.I.1.1.10.2 Part A&#58; Sending Certificate Request Payload with ID_IPV6_ADDR:2
+&#./3-SGW-I/IKEv2-SGW-I-1-1-10-2-A.seq:./packets/SGW-SGW.def:::Test IKEv2.SGW.I.1.1.10.2 Part B&#58; Sending Certificate Request Payload with ID_FQDN:2
+&#./3-SGW-I/IKEv2-SGW-I-1-1-10-2-A.seq:./packets/SGW-SGW.def:::Test IKEv2.SGW.I.1.1.10.2 Part C&#58; Sending Certificate Request Payload with ID_RFC822_ADDR:2
+&#./3-SGW-I/IKEv2-SGW-I-1-1-10-3-A.seq:./packets/SGW-SGW.def:::Test IKEv2.SGW.I.1.1.10.3 Part A&#58; RSA Digital Signature with ID_IPV6_ADDR:2
+&#./3-SGW-I/IKEv2-SGW-I-1-1-10-3-A.seq:./packets/SGW-SGW.def:::Test IKEv2.SGW.I.1.1.10.3 Part B&#58; RSA Digital Signature with ID_FQDN:2
+&#./3-SGW-I/IKEv2-SGW-I-1-1-10-3-A.seq:./packets/SGW-SGW.def:::Test IKEv2.SGW.I.1.1.10.3 Part C&#58; RSA Digital Signature with ID_RFC822_ADDR:2
+./3-SGW-I/IKEv2-SGW-I-1-1-10-4-A.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.1.10.4&#58; HEX string PSK:2
+
+
+
+&print:<B>Sub-Group 11. Invalid Values</B>
+./3-SGW-I/IKEv2-SGW-I-1-1-11-1-A.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.1.11.1&#58; Non zero RESERVED fields in IKE_SA_INIT response:2
+./3-SGW-I/IKEv2-SGW-I-1-1-11-2-A.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.1.11.2&#58; Non zero RESERVED fields in IKE_AUTH response:2
+./3-SGW-I/IKEv2-SGW-I-1-1-11-3-A.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.1.11.3&#58; Version bit is set:2
+./3-SGW-I/IKEv2-SGW-I-1-1-11-4-A.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.1.11.4&#58; Unrecognized Notify Message Type of Error:2
+./3-SGW-I/IKEv2-SGW-I-1-1-11-5-A.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.1.11.5&#58; Unrecognized Notify Message Type of Status:2
+
+
+
+&print:<B><FONT SIZE="+1">Group 2. The CREATE_CHILD_SA Exchange</FONT></B>
+&print:<B>Sub-Group 1. Header and Payload Formats</B>
+./3-SGW-I/IKEv2-SGW-I-1-2-1-1-A.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.2.1.1&#58; Sending CREATE_CHILD_SA request:2
+
+
+
+&print:<B>Sub-Group 2. Use of Retransmission Timers</B>
+./3-SGW-I/IKEv2-SGW-I-1-2-2-1-A.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.2.2.1&#58; Retransmission of CREATE_CHILD_SA request:2
+./3-SGW-I/IKEv2-SGW-I-1-2-2-2-A.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.2.2.2&#58; Stop of retransmission of CREATE_CHILD_SA request:2
+
+
+
+&print:<B>Sub-Group 3. Rekeying</B>
+./3-SGW-I/IKEv2-SGW-I-1-2-3-1-A.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.2.3.1&#58; Close the replaced CHILD_SA:2
+./3-SGW-I/IKEv2-SGW-I-1-2-3-2-A.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.2.3.2&#58; Use of the new CHILD_SA:2
+./3-SGW-I/IKEv2-SGW-I-1-2-3-3-A.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.2.3.3&#58; Lifetime of CHILD_SA expires:2
+&#./3-SGW-I/IKEv2-SGW-I-1-2-3-4-A.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.2.3.4 Part A&#58; Sending Multiple Transform for Rekeying CHILD_SA:2
+&#./3-SGW-I/IKEv2-SGW-I-1-2-3-4-B.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.2.3.4 Part B&#58; Sending Multiple Transform for Rekeying CHILD_SA:2
+&#./3-SGW-I/IKEv2-SGW-I-1-2-3-4-C.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.2.3.4 Part C&#58; Sending Multiple Transform for Rekeying CHILD_SA:2
+&#./3-SGW-I/IKEv2-SGW-I-1-2-3-5-A.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.2.3.5&#58; Sending Multiple Proposal for Rekeying CHILD_SA:2
+./3-SGW-I/IKEv2-SGW-I-1-2-3-6-A.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.2.3.6&#58; Rekeying Failure:2
+./3-SGW-I/IKEv2-SGW-I-1-2-3-7-A.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.2.3.7&#58; Perfect Forward Secrecy:2
+./3-SGW-I/IKEv2-SGW-I-1-2-3-8-A.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.2.3.8&#58; Use of the old CHILD_SA:2
+
+
+
+&print:<B>Sub-Group 4. Rekeying IKE_SAs Using a CREATE_CHILD_SA exchange</B>
+./3-SGW-I/IKEv2-SGW-I-1-2-4-1-A.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.2.4.1&#58; Close the replaced IKE_SA:2
+./3-SGW-I/IKEv2-SGW-I-1-2-4-2-A.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.2.4.2&#58; Use of the new IKE_SA:2
+./3-SGW-I/IKEv2-SGW-I-1-2-4-3-A.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.2.4.3&#58; Lifetime of IKE_SA expires:2
+./3-SGW-I/IKEv2-SGW-I-1-2-4-4-A.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.2.4.4 Part A&#58; Sending Multiple Transform for Rekeying IKE_SA:2
+./3-SGW-I/IKEv2-SGW-I-1-2-4-4-B.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.2.4.4 Part B&#58; Sending Multiple Transform for Rekeying IKE_SA:2
+./3-SGW-I/IKEv2-SGW-I-1-2-4-4-C.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.2.4.4 Part C&#58; Sending Multiple Transform for Rekeying IKE_SA:2
+./3-SGW-I/IKEv2-SGW-I-1-2-4-4-D.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.2.4.4 Part D&#58; Sending Multiple Transform for Rekeying IKE_SA:2
+./3-SGW-I/IKEv2-SGW-I-1-2-4-5-A.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.2.4.5&#58; Sending Multiple Proposal for Rekeying IKE_SA:2
+./3-SGW-I/IKEv2-SGW-I-1-2-4-6-A.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.2.4.6&#58; Use of the old IKE_SA:2
+./3-SGW-I/IKEv2-SGW-I-1-2-4-7-A.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.2.4.7&#58; Changing PRFs when rekeying the IKE_SA:2
+
+
+
+&print:<B>Sub-Group 5. Creating New CHILD_SAs with the CREATE_CHILD_SA Exchange</B>
+&#./3-SGW-I/IKEv2-SGW-I-1-2-5-1-A.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.2.5.1&#58; Sending CREATE_CHILD_SA request:2
+&#./3-SGW-I/IKEv2-SGW-I-1-2-5-2-A.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.2.5.2&#58; Receipt of cryptographically valid message on the new SA:2
+
+
+
+&print:<B>Sub-Group 6. Exchange Collisions</B>
+&#./3-SGW-I/IKEv2-SGW-I-1-2-6-1-A.seq:./packets/SGW-SGW.def:::Test IKEv2.SGW.I.1.2.6.1&#58; Simulataneous CHILD_SA Close:2
+&#./3-SGW-I/IKEv2-SGW-I-1-2-6-2-A.seq:./packets/SGW-SGW.def:::Test IKEv2.SGW.I.1.2.6.2&#58; Simulataneous IKE_SA Close:2
+./3-SGW-I/IKEv2-SGW-I-1-2-6-3-A.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.2.6.3&#58; Simulataneous CHILD_SA Rekeying:2
+./3-SGW-I/IKEv2-SGW-I-1-2-6-4-A.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.2.6.4&#58; Simulataneous CHILD_SA Rekeying with retransmission:2
+./3-SGW-I/IKEv2-SGW-I-1-2-6-5-A.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.2.6.5&#58; Simulataneous IKE_SA Rekeying:2
+./3-SGW-I/IKEv2-SGW-I-1-2-6-6-A.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.2.6.6&#58; Simulataneous IKE_SA Rekeying with retransmission:2
+&#./3-SGW-I/IKEv2-SGW-I-1-2-6-7-A.seq:./packets/SGW-SGW.def:::Test IKEv2.SGW.I.1.2.6.7&#58; Closing and Rekeying CHILD_SA:2
+&#./3-SGW-I/IKEv2-SGW-I-1-2-6-8-A.seq:./packets/SGW-SGW.def:::Test IKEv2.SGW.I.1.2.6.8&#58; Closing a new CHILD_SA:2
+&#./3-SGW-I/IKEv2-SGW-I-1-2-6-9-A.seq:./packets/SGW-SGW.def:::Test IKEv2.SGW.I.1.2.6.9&#58; Rekeying a new CHILD_SA:2
+&#./3-SGW-I/IKEv2-SGW-I-1-2-6-10-A.seq:./packets/SGW-SGW.def:::Test IKEv2.SGW.I.1.2.6.10&#58; Rekeying an IKE_SA with half-open CHILD_SAs:2
+&#./3-SGW-I/IKEv2-SGW-I-1-2-6-11-A.seq:./packets/SGW-SGW.def:::Test IKEv2.SGW.I.1.2.6.11&#58; Rekeying a CHILD_SA while rekeying an IKE_SA:2
+&#./3-SGW-I/IKEv2-SGW-I-1-2-6-12-A.seq:./packets/SGW-SGW.def:::Test IKEv2.SGW.I.1.2.6.12&#58; Rekeying an IKE_SA with half-closed CHILD_SAs:2
+&#./3-SGW-I/IKEv2-SGW-I-1-2-6-13-A.seq:./packets/SGW-SGW.def:::Test IKEv2.SGW.I.1.2.6.13&#58; Closing a CHILD_SA while rekeying an IKE_SA:2
+&#./3-SGW-I/IKEv2-SGW-I-1-2-6-14-A.seq:./packets/SGW-SGW.def:::Test IKEv2.SGW.I.1.2.6.14&#58; Closing an IKE_SA while rekeying an IKE_SA:2
+&#./3-SGW-I/IKEv2-SGW-I-1-2-6-15-A.seq:./packets/SGW-SGW.def:::Test IKEv2.SGW.I.1.2.6.15&#58; Rekeying an IKE_SA while closing the IKE_SA:2
+
+
+
+&print:<B>Sub-Group 7. Non zero RESERVED fields</B>
+./3-SGW-I/IKEv2-SGW-I-1-2-7-1-A.seq:./packets/SGW-SGW.def:-v6eval::Test IKEv2.SGW.I.1.2.7.1&#58; Non zero RESERVED fields in CREATE_CHILD_SA response:2
+
+
+
+&print:<B><FONT SIZE="+1">Group 3. The INFORMATIONAL Exchange</FONT></B>
+&print:<B>Sub-Group 1. Header and Payload Formats</B>
+&#./3-SGW-I/IKEv2-SGW-I-1-3-1-1-A.seq:./packets/SGW-SGW.def:::Test IKEv2.SGW.I.1.3.1.1&#58; Sending INFORMATIONAL request:2
+
+
+
+&print:<B>Sub-Group 2. Use of Retransmission Timers</B>
+&#./3-SGW-I/IKEv2-SGW-I-1-3-2-1-A.seq:./packets/SGW-SGW.def:::Test IKEv2.SGW.I.1.3.2.1&#58; Retransmission of INFORMATIONAL request:2
+&#./3-SGW-I/IKEv2-SGW-I-1-3-2-2-A.seq:./packets/SGW-SGW.def:::Test IKEv2.SGW.I.1.3.2.2&#58; Stop of retransmission of INFORMATIONAL request:2
+
+
+
+&print:<B>Sub-Group 3. Non zero RESERVED fields</B>
+&#./3-SGW-I/IKEv2-SGW-I-1-3-3-1-A.seq:./packets/SGW-SGW.def:::Test IKEv2.SGW.I.1.3.3.1&#58; Non zero RESERVED fields in INFORMATIONAL response:2
+
+
+
+&print:<B>Sub-Group 4. Error Handling</B>
+&#./3-SGW-I/IKEv2-SGW-I-1-3-4-1-A.seq:./packets/SGW-SGW.def:::Test IKEv2.SGW.I.1.3.4.1&#58; INVALID_SPI:2
+
+
+
+./3-SGW-I/IKEv2-SGW-I-1-Z-Z-Z.seq::::Global Cleanup:1
+
+
+
+&print:<B><FONT SIZE="+2">Sub-Section 2. Endpoint to Security Gateway Tunnel</FONT></B>
+
+
+
+./3-SGW-I/IKEv2-SGW-I-2-A-A-A.seq::::Global Setup:1
+
+
+
+&print:<B><FONT SIZE="+1">Group 1. The Initial Exchanges</FONT></B>
+&print:<B>Sub-Group 1. Header and Payload Formats</B>
+./3-SGW-I/IKEv2-SGW-I-2-1-1-1-A.seq:./packets/SGW-EN.def:-v6eval::Test IKEv2.SGW.I.2.1.1.1&#58; Sending IKE_AUTH request:2
+./3-SGW-I/IKEv2-SGW-I-2-1-1-2-A.seq:./packets/SGW-EN.def:-v6eval::Test IKEv2.SGW.I.2.1.1.2&#58; Use of CHILD_SA:2
+
+
+
+./3-SGW-I/IKEv2-SGW-I-2-Z-Z-Z.seq::::Global Cleanup:1
