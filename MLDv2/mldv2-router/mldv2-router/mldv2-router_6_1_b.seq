@@ -1,0 +1,613 @@
+#!/usr/bin/perl
+# 
+# Copyright (C) IPv6 Promotion Council, NTT Advanced Technology Corporation
+# (NTT-AT), Yokogwa Electoric Corporation and YASKAWA INFORMATION SYSTEMS
+# Corporation All rights reserved.
+# 
+# Redistribution and use of this software in source and binary forms, with
+# or without modification, are permitted provided that the following
+# conditions and disclaimer are agreed and accepted by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright
+# notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright
+# notice, this list of conditions and the following disclaimer in the
+# documentation and/or other materials provided with the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project which
+# is related to this software (hereinafter referred to as "project") nor
+# the names of the contributors may be used to endorse or promote products
+# derived from this software without specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written
+# notification to the copyrighters. However, using this software for the
+# purpose of testing or evaluating any products including merchantable
+# products may be permitted without any notification to the copyrighters.
+# 
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+# CONTRACT,STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+# THE POSSIBILITY OF SUCH DAMAGE.
+# 
+###############################################################################
+BEGIN {}
+END   {}
+
+#------------------------------------------------------------------------------
+# Include
+#------------------------------------------------------------------------------
+# Include Module
+use strict;
+use warnings;
+use V6evalTool;
+use MLDv2R;
+
+#------------------------------------------------------------------------------
+vLog2("Setup");
+#------------------------------------------------------------------------------
+# Variable
+my $stp = 0;
+my $rtn;
+my $wk;
+
+# Requirement configuration
+%T_REQ = (
+	FUNC_SPECIFIC_SSM => 1,
+);
+
+# Specification configuration
+%T_CONF = (
+	SSM_RANGE => 1,
+);
+
+# Topology
+@T_LINK = ("Link0");
+@T_NODE = ("TN1");
+
+# Setup Tester
+$rtn = Setup();
+if ($rtn != $RES_OK) {
+	goto TERM;
+}
+
+#------------------------------------------------------------------------------
+vLog2("Procedure");
+#------------------------------------------------------------------------------
+# Sequence
+%T_SEQ = (
+	$stp++ => {
+		caption => [ "Step 19. Configure the RUT to have a SSM range to be FF3E::9000:0000/100." ],
+		func    => "ConfProc",
+		status  => 0,
+	},
+	$stp++ => {
+		caption => [ "Step 20. Enable MLDv2 on the RUT." ],
+		func    => "EnableProc",
+		status  => 0,
+	},
+	$stp++ => {
+		caption => [ "Step 21. Observe the packets on all networks." ],
+		qg_int  => $CONF_DATA{SQI},
+		func    => $CONF_DATA{FUNC_ENABLE_QUERY} ? "RecvProc" : "BaseProc",
+		link    => "Link0",
+		wtime   => [ $CONF_DATA{ENABLE_TIME}, $CONF_DATA{SQI} + $CONF_DATA{MARGIN_TIME} ],
+		count   => $CONF_DATA{SQC},
+		msgs    => [ "MLDv2Q_rut0l_allnodes_m0" ],
+		status  => 0,
+		stack   => "L0SQG",
+	},
+	$stp++ => {
+		caption => [ "Step 22. TN1 transmits Report I." ],
+		func    => "SendProc",
+		link    => "Link0",
+		msgs    => [ "MLDv2R_tn1l_mld2r_r1_t2asm3n0" ],
+		status  => 0,
+	},
+	$stp++ => {
+		caption => [ "Step 23. Observe the packets on all networks." ],
+		qg_int  => $CONF_DATA{QI},
+		func    => "RecvProc",
+		link    => "Link0",
+		wtime   => [ $CONF_DATA{LLQI} + $CONF_DATA{MARGIN_TIME} + $CONF_DATA{CHECK_TIME} ],
+		count   => 1,
+		msgs    => [ "MLDv2Q_any_any_except_qg" ],
+		status  => 1,
+	},
+	$stp++ => {
+		caption => [ "Step 24. TN1 transmits Report J." ],
+		func    => "SendProc",
+		link    => "Link0",
+		msgs    => [ "MLDv2R_tn1l_mld2r_r1_t3asm3n0" ],
+		status  => 0,
+	},
+	$stp++ => {
+		caption => [ "Step 25. Observe the packets on all networks." ],
+		func    => "RecvProc",
+		link    => "Link0",
+		wtime   => [ $CONF_DATA{LLQI} + $CONF_DATA{MARGIN_TIME} ],
+		count   => $CONF_DATA{LLQC},
+		msgs    => [ "MLDv2Q_rut0l_asmcast3_asm3n0" ],
+		status  => 0,
+	},
+	$stp++ => {
+		caption => [ "Step 26. TN1 transmits Report K." ],
+		func    => "SendProc",
+		link    => "Link0",
+		msgs    => [ "MLDv2R_tn1l_mld2r_r1_t2ssm3n0" ],
+		status  => 0,
+	},
+	$stp++ => {
+		caption => [ "Step 27. Observe the packets on all networks." ],
+		func    => "RecvProc",
+		link    => "Link0",
+		wtime   => [ $CONF_DATA{LLQI} + $CONF_DATA{MARGIN_TIME} + $CONF_DATA{CHECK_TIME} ],
+		count   => 1,
+		msgs    => [ "MLDv2Q_any_any_except_qg" ],
+		status  => 1,
+	},
+	$stp++ => {
+		caption => [ "Step 28. TN1 transmits Report L." ],
+		func    => "SendProc",
+		link    => "Link0",
+		msgs    => [ "MLDv2R_tn1l_mld2r_r1_t3ssm3n0" ],
+		status  => 0,
+	},
+	$stp++ => {
+		caption => [ "Step 29. Observe the packets on all networks." ],
+		func    => "RecvProc",
+		link    => "Link0",
+		wtime   => [ $CONF_DATA{LLQI} + $CONF_DATA{MARGIN_TIME} + $CONF_DATA{CHECK_TIME} ],
+		count   => 1,
+		msgs    => [ "MLDv2Q_any_any_except_qg" ],
+		status  => 1,
+	},
+	$stp++ => {
+		caption => [ "Step 30. TN1 transmits Report M." ],
+		func    => "SendProc",
+		link    => "Link0",
+		msgs    => [ "MLDv2R_tn1l_mld2r_r1_t2ssm4n0" ],
+		status  => 0,
+	},
+	$stp++ => {
+		caption => [ "Step 31. Observe the packets on all networks." ],
+		func    => "RecvProc",
+		link    => "Link0",
+		wtime   => [ $CONF_DATA{LLQI} + $CONF_DATA{MARGIN_TIME} + $CONF_DATA{CHECK_TIME} ],
+		count   => 1,
+		msgs    => [ "MLDv2Q_any_any_except_qg" ],
+		status  => 1,
+	},
+	$stp++ => {
+		caption => [ "Step 32. TN1 transmits Report N." ],
+		func    => "SendProc",
+		link    => "Link0",
+		msgs    => [ "MLDv2R_tn1l_mld2r_r1_t3ssm4n0" ],
+		status  => 0,
+	},
+	$stp++ => {
+		caption => [ "Step 33. Observe the packets on all networks." ],
+		func    => "RecvProc",
+		link    => "Link0",
+		wtime   => [ $CONF_DATA{LLQI} + $CONF_DATA{MARGIN_TIME} + $CONF_DATA{CHECK_TIME} ],
+		count   => 1,
+		msgs    => [ "MLDv2Q_any_any_except_qg" ],
+		status  => 1,
+	},
+	$stp++ => {
+		caption => [ "Step 34. TN1 transmits Report O." ],
+		func    => "SendProc",
+		link    => "Link0",
+		msgs    => [ "MLDv2R_tn1l_mld2r_r1_t2asm4n0" ],
+		status  => 0,
+	},
+	$stp++ => {
+		caption => [ "Step 35. Observe the packets on all networks." ],
+		func    => "RecvProc",
+		link    => "Link0",
+		wtime   => [ $CONF_DATA{LLQI} + $CONF_DATA{MARGIN_TIME} + $CONF_DATA{CHECK_TIME} ],
+		count   => 1,
+		msgs    => [ "MLDv2Q_any_any_except_qg" ],
+		status  => 1,
+	},
+	$stp++ => {
+		caption => [ "Step 36. TN1 transmits Report P." ],
+		func    => "SendProc",
+		link    => "Link0",
+		msgs    => [ "MLDv2R_tn1l_mld2r_r1_t3asm4n0" ],
+		status  => 0,
+	},
+	$stp++ => {
+		caption => [ "Step 37. Observe the packets on all networks." ],
+		func    => "RecvProc",
+		link    => "Link0",
+		wtime   => [ $CONF_DATA{LLQI} + $CONF_DATA{MARGIN_TIME} ],
+		count   => $CONF_DATA{LLQC},
+		msgs    => [ "MLDv2Q_rut0l_asmcast4_asm4n0" ],
+		status  => 0,
+	},
+	$stp++ => {
+		func    => "RecvProc",
+		link    => "Link0",
+		wtime   => [ $CONF_DATA{LLQI} + $CONF_DATA{MARGIN_TIME} + $CONF_DATA{CHECK_TIME} ],
+		count   => 1,
+		msgs    => [ "MLDv2Q_any_any_except_qg" ],
+		status  => 1,
+	},
+);
+
+# local packet
+$pktdesc{MLDv2R_tn1l_mld2r_r1_t2asm3n0} = "Send: TN1 -> All MLDv2-capable routers, MLDv2 Report IS_EX(ASM3,{null})";
+$pktdesc{MLDv2R_tn1l_mld2r_r1_t3asm3n0} = "Send: TN1 -> All MLDv2-capable routers, MLDv2 Report TO_IN(ASM3,{null})";
+$pktdesc{MLDv2R_tn1l_mld2r_r1_t2ssm3n0} = "Send: TN1 -> All MLDv2-capable routers, MLDv2 Report IS_EX(SSM3,{null})";
+$pktdesc{MLDv2R_tn1l_mld2r_r1_t3ssm3n0} = "Send: TN1 -> All MLDv2-capable routers, MLDv2 Report TO_IN(SSM3,{null})";
+$pktdesc{MLDv2R_tn1l_mld2r_r1_t2ssm4n0} = "Send: TN1 -> All MLDv2-capable routers, MLDv2 Report IS_EX(SSM4,{null})";
+$pktdesc{MLDv2R_tn1l_mld2r_r1_t3ssm4n0} = "Send: TN1 -> All MLDv2-capable routers, MLDv2 Report TO_IN(SSM4,{null})";
+$pktdesc{MLDv2R_tn1l_mld2r_r1_t2asm4n0} = "Send: TN1 -> All MLDv2-capable routers, MLDv2 Report IS_EX(ASM4,{null})";
+$pktdesc{MLDv2R_tn1l_mld2r_r1_t3asm4n0} = "Send: TN1 -> All MLDv2-capable routers, MLDv2 Report TO_IN(ASM4,{null})";
+$pktdesc{MLDv2Q_rut0l_asmcast3_asm3n0} = "Recv: RUT0 -> ASM1, MLDv2 Query (ASM3)";
+$pktdesc{MLDv2Q_rut0l_asmcast4_asm4n0} = "Recv: RUT0 -> ASM1, MLDv2 Query (ASM4)";
+
+# Execute
+for ($stp = 0; $T_SEQ{$stp}; $stp++) {
+	no strict 'refs';
+	$rtn = &{$T_SEQ{$stp}{func}}($stp);
+	if ($rtn != $RES_OK) {
+		last;
+	}
+}
+
+#------------------------------------------------------------------------------
+vLog2("Complement Judgement");
+#------------------------------------------------------------------------------
+$wk = JudgeCommon();
+if (($wk != $RES_OK) && ($rtn == $RES_OK)) {
+	$rtn = $wk;
+}
+
+TERM:
+#------------------------------------------------------------------------------
+vLog2("Termination");
+#------------------------------------------------------------------------------
+Term($rtn);
+
+###############################################################################
+__END__
+
+
+=head1 Test Label
+
+=begin html
+MLD.6.1: SSM Range<BR>
+Part B: Configured SSM Range
+
+=end html
+
+=head1 Purpose
+
+=begin html
+To verify that an MLDv2 router properly process SSM range.
+
+=end html
+
+=head1 References
+
+=begin html
+RFC4604 2.  Host Requirements for Source-Specific Multicast<BR>
+
+=cut
+<PRE>
+   A host or router may be configured to apply SSM semantics to
+   addresses other than those in the IANA-allocated range.  The GMP
+   module on a host or router SHOULD have a configuration option to set
+   the SSM address range(s).  If this configuration option exists, it
+   MUST default to the IANA-allocated SSM range.  The mechanism for
+   setting this configuration option MUST at least allow for manual
+   configuration.  Protocol mechanisms to set this option may be defined
+   in the future.
+</PRE>
+
+=pod
+
+=end html
+
+=begin html
+RFC4604 3.  Router Requirements for Source-Specific Multicast<BR>
+
+=cut
+<PRE>
+   Routers must be aware of the SSM address range in order to provide
+   the SSM service model.  A router that knows the SSM address range and
+   is capable of applying SSM semantics to it as described in this
+   section is described as an "SSM-aware" router.  An SSM-aware router
+   MAY have a configuration option to apply SSM semantics to addresses
+   other than the IANA-allocated range, but if such an option exists, it
+   MUST default to the IANA-allocated range.
+</PRE>
+
+=pod
+
+=end html
+
+=head1 Discussion
+
+=begin html
+None
+
+=end html
+
+=head1 Test Requirement
+
+=begin html
+None
+
+=end html
+
+=head1 Test Setup
+
+=begin html
+<UL><LI><FONT SIZE="+1"><B>Common Topology</B></FONT></UL>
+<PRE><FONT SIZE="+1">
+   RUT
+    |(I/F: Link0)
+    |
+   -+-------+-------+-------+---- Network 0
+            |       |       |
+           TR1     TR2     TN1
+</FONT></PRE>
+<BLOCKQUOTE><TABLE BORDER>
+<TR><TD><TT>ID</TT></TD>
+    <TD><TT>attribute</TT></TD>
+    <TD><TT>value</TT></TD>
+    <TD><TT>memo</TT></TD></TR>
+<TR><TD><TT>Network 0</TT></TD>
+    <TD><TT>prefix</TT></TD>
+    <TD><TT>3ffe:501:ffff:100::/64</TT></TD>
+    <TD><TT>I/F Link0 is connected.</TT></TD></TR>
+<TR><TD ROWSPAN="3"><TT>TR1</TT></TD>
+    <TD><TT>ether</TT></TD>
+    <TD><TT>00:00:00:00:00:01</TT></TD>
+    <TD ROWSPAN="3"><TT>Lower IP Address</TT></TD></TR>
+<TR><TD><TT>link-local</TT></TD>
+    <TD><TT>fe80::200:ff:fe00:1</TT></TD></TR>
+<TR><TD><TT>global</TT></TD>
+    <TD><TT>3ffe:501:ffff:100:200:ff:fe00:1</TT></TD></TR>
+<TR><TD ROWSPAN="3"><TT>TR2</TT></TD>
+    <TD><TT>ether</TT></TD>
+    <TD><TT>fc:fc:fc:fc:fc:fc</TT></TD>
+    <TD ROWSPAN="3"><TT>Higher IP Address</TT></TD></TR>
+<TR><TD><TT>link-local</TT></TD>
+    <TD><TT>fe80::fefc:fcff:fefc:fcfc</TT></TD></TR>
+<TR><TD><TT>global</TT></TD>
+    <TD><TT>3ffe:501:ffff:100:fefc:fcff:fefc:fcfc</TT></TD></TR>
+<TR><TD ROWSPAN="3"><TT>TN1</TT></TD>
+    <TD><TT>ether</TT></TD>
+    <TD><TT>00:00:00:11:11:11</TT></TD>
+    <TD ROWSPAN="3"><TT>&nbsp;</TT></TD></TR>
+<TR><TD><TT>link-local</TT></TD>
+    <TD><TT>fe80::200:ff:fe11:1111</TT></TD></TR>
+<TR><TD><TT>global</TT></TD>
+    <TD><TT>3ffe:501:ffff:100:200:ff:fe11:1111</TT></TD></TR>
+</TABLE></BLOCKQUOTE>
+<UL><LI><B><FONT SIZE="+1">Common Test Setup</FONT></B>
+    <OL><LI>Configure RUT to have:
+        <UL><LI>Robustness Variable of 2
+            <LI>Query Interval of 125 (seconds)
+            <LI>Query Response Interval of 10 (seconds)
+            <LI>Last Listener Query Interval of 1 (second)</UL>
+        <LI>Configure TR1, TR2, TR3 and TR4 to have:
+        <UL><LI>Robustness Variable of 2
+            <LI>Query Interval of 125 (seconds)
+            <LI>Query Response Interval of 10 (seconds)
+            <LI>Last Listener Query Interval of 1 (second)</UL></OL><BR>
+    <LI><B><FONT SIZE="+1">Common Test Cleanup</FONT></B>
+    <OL><LI>Disable MLD on all devices.
+        <LI>Return all timers and variables to their defaults values.
+        <LI>The Query Interval of RUT can be shortened to decrease time.</OL></UL>
+
+=end html
+
+=head1 Procedure
+
+=begin html
+<PRE>
+Step 19. Configure the RUT to have a SSM range to be FF3E::9000:0000/100.
+Step 20. Enable MLDv2 on the RUT.
+Step 21. Observe the packets on all networks.
+Step 22. TN1 transmits Report I.
+    -----
+    IPv6 Header
+        IPv6 Hop Limit                  = 1
+        IPv6 Source Address             = TN1 link-local address
+        IPv6 Destination Address        = All MLDv2-capable routers
+    Hop-by-Hop Options Header
+        Router Alert Option
+    ICMPv6 Header (MLDv2 Report)
+        Number of Mcast Address Records = 1
+        Multicast Address Record [1]
+            Type                            = 2 (IS_EX)
+            Num of Sources                  = 0
+            Multicast Address               = FF3E::8FFF:FFFF
+    -----
+Step 23. Observe the packets on all networks.
+Step 24. TN1 transmits Report J.
+    -----
+    IPv6 Header
+        IPv6 Hop Limit                  = 1
+        IPv6 Source Address             = TN1 link-local address
+        IPv6 Destination Address        = All MLDv2-capable routers
+    Hop-by-Hop Options Header
+        Router Alert Option
+    ICMPv6 Header (MLDv2 Report)
+        Number of Mcast Address Records = 1
+        Multicast Address Record [1]
+            Type                            = 3 (TO_IN)
+            Num of Sources                  = 0
+            Multicast Address               = FF3E::8FFF:FFFF
+    -----
+Step 25. Observe the packets on all networks.
+Step 26. TN1 transmits Report K.
+    -----
+    IPv6 Header
+        IPv6 Hop Limit                  = 1
+        IPv6 Source Address             = TN1 link-local address
+        IPv6 Destination Address        = All MLDv2-capable routers
+    Hop-by-Hop Options Header
+        Router Alert Option
+    ICMPv6 Header (MLDv2 Report)
+        Number of Mcast Address Records = 1
+        Multicast Address Record [1]
+            Type                            = 2 (IS_EX)
+            Num of Sources                  = 0
+            Multicast Address               = FF3E::9000:0001
+    -----
+Step 27. Observe the packets on all networks.
+Step 28. TN1 transmits Report L.
+    -----
+    IPv6 Header
+        IPv6 Hop Limit                  = 1
+        IPv6 Source Address             = TN1 link-local address
+        IPv6 Destination Address        = All MLDv2-capable routers
+    Hop-by-Hop Options Header
+        Router Alert Option
+    ICMPv6 Header (MLDv2 Report)
+        Number of Mcast Address Records = 1
+        Multicast Address Record [1]
+            Type                            = 3 (TO_IN)
+            Num of Sources                  = 0
+            Multicast Address               = FF3E::9000:0001
+    -----
+Step 29. Observe the packets on all networks.
+Step 30. TN1 transmits Report M.
+    -----
+    IPv6 Header
+        IPv6 Hop Limit                  = 1
+        IPv6 Source Address             = TN1 link-local address
+        IPv6 Destination Address        = All MLDv2-capable routers
+    Hop-by-Hop Options Header
+        Router Alert Option
+    ICMPv6 Header (MLDv2 Report)
+        Number of Mcast Address Records = 1
+        Multicast Address Record [1]
+            Type                            = 2 (IS_EX)
+            Num of Sources                  = 0
+            Multicast Address               = FF3E::9FFF:FFFF
+    -----
+Step 31. Observe the packets on all networks.
+Step 32. TN1 transmits Report N.
+    -----
+    IPv6 Header
+        IPv6 Hop Limit                  = 1
+        IPv6 Source Address             = TN1 link-local address
+        IPv6 Destination Address        = All MLDv2-capable routers
+    Hop-by-Hop Options Header
+        Router Alert Option
+    ICMPv6 Header (MLDv2 Report)
+        Number of Mcast Address Records = 1
+        Multicast Address Record [1]
+            Type                            = 3 (TO_IN)
+            Num of Sources                  = 0
+            Multicast Address               = FF3E::9FFF:FFFF
+    -----
+Step 33. Observe the packets on all networks.
+Step 34. TN1 transmits Report O.
+    -----
+    IPv6 Header
+        IPv6 Hop Limit                  = 1
+        IPv6 Source Address             = TN1 link-local address
+        IPv6 Destination Address        = All MLDv2-capable routers
+    Hop-by-Hop Options Header
+        Router Alert Option
+    ICMPv6 Header (MLDv2 Report)
+        Number of Mcast Address Records = 1
+        Multicast Address Record [1]
+            Type                            = 2 (IS_EX)
+            Num of Sources                  = 0
+            Multicast Address               = FF3E::a000:0001
+    -----
+Step 35. Observe the packets on all networks.
+Step 36. TN1 transmits Report P.
+    -----
+    IPv6 Header
+        IPv6 Hop Limit                  = 1
+        IPv6 Source Address             = TN1 link-local address
+        IPv6 Destination Address        = All MLDv2-capable routers
+    Hop-by-Hop Options Header
+        Router Alert Option
+    ICMPv6 Header (MLDv2 Report)
+        Number of Mcast Address Records = 1
+        Multicast Address Record [1]
+            Type                            = 3 (TO_IN)
+            Num of Sources                  = 0
+            Multicast Address               = FF3E::a000:0001
+    -----
+Step 37. Observe the packets on all networks.
+</PRE>
+
+=end html
+
+=head1 Observable Results
+
+=begin html
+<PRE>
+Step 21: The RUT must transmit 2 MLDv2 General Queries.
+Step 23: The RUT must not transmit Queries other then periodic MLDv2 General Queries.
+Step 25: The RUT must transmit 2 Multicast Address Specific Queries with a Multicast Address of FF3E::8FFF:FFFF.
+Step 27: The RUT must not transmit Queries other then periodic MLDv2 General Queries.
+Step 29: The RUT must not transmit Queries other then periodic MLDv2 General Queries.
+Step 31: The RUT must not transmit Queries other then periodic MLDv2 General Queries.
+Step 33: The RUT must not transmit Queries other then periodic MLDv2 General Queries.
+Step 35: The RUT must not transmit Queries other then periodic MLDv2 General Queries.
+Step 37: The RUT must transmit 2 Multicast Address Specific Queries with a Multicast Address of FF3E::A000:0001.
+<BR>
+   RUT     TR1     TR2     TN1
+    |       |       |       |
+    |       |       |       | 19. Configure the RUT to have a SSM range.
+    |       |       |       | 20. Enable MLDv2 on the RUT.
+    |       |       |       | 21. Observe the packets on all networks.
+    |- - - - - - - - - - - >|     RUT transmits TO_EX(FF02::16,{null}), [RV] times, [URI] seconds
+    |---------------------->|     RUT transmits Q(G), [SQC] times, [SQI] seconds
+    |<----------------------| 22. TN1 transmits Report A.
+    |       |       |       | 23. Observe the packets on all networks.
+    |       |       |       |     (no response)
+    |<----------------------| 24. TN1 transmits Report B.
+    |       |       |       | 25. Observe the packets on all networks.
+    |---------------------->|     RUT transmits Q(ASM), [LLQC] times, [LLQI] seconds
+    |<----------------------| 26. TN1 transmits Report C.
+    |       |       |       | 27. Observe the packets on all networks.
+    |       |       |       |     (no response)
+    |<----------------------| 28. TN1 transmits Report D.
+    |       |       |       | 29. Observe the packets on all networks.
+    |       |       |       |     (no response)
+    |<----------------------| 30. TN1 transmits Report E.
+    |       |       |       | 31. Observe the packets on all networks.
+    |       |       |       |     (no response)
+    |<----------------------| 32. TN1 transmits Report F.
+    |       |       |       | 33. Observe the packets on all networks.
+    |       |       |       |     (no response)
+    |<----------------------| 34. TN1 transmits Report G.
+    |       |       |       | 35. Observe the packets on all networks.
+    |       |       |       |     (no response)
+    |<----------------------| 36. TN1 transmits Report H.
+    |       |       |       | 37. Observe the packets on all networks.
+    |---------------------->|     RUT transmits Q(ASM), [LLQC] times, [LLQI] seconds
+    |       |       |       |
+</PRE>
+
+=end html
+
+=head1 Possible Problems
+
+=begin html
+None
+
+=end html

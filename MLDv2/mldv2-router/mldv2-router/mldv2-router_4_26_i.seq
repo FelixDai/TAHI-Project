@@ -1,0 +1,574 @@
+#!/usr/bin/perl
+# 
+# Copyright (C) IPv6 Promotion Council, NTT Advanced Technology Corporation
+# (NTT-AT), Yokogwa Electoric Corporation and YASKAWA INFORMATION SYSTEMS
+# Corporation All rights reserved.
+# 
+# Redistribution and use of this software in source and binary forms, with
+# or without modification, are permitted provided that the following
+# conditions and disclaimer are agreed and accepted by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright
+# notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright
+# notice, this list of conditions and the following disclaimer in the
+# documentation and/or other materials provided with the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project which
+# is related to this software (hereinafter referred to as "project") nor
+# the names of the contributors may be used to endorse or promote products
+# derived from this software without specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written
+# notification to the copyrighters. However, using this software for the
+# purpose of testing or evaluating any products including merchantable
+# products may be permitted without any notification to the copyrighters.
+# 
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+# CONTRACT,STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+# THE POSSIBILITY OF SUCH DAMAGE.
+# 
+###############################################################################
+BEGIN {}
+END   {}
+
+#------------------------------------------------------------------------------
+# Include
+#------------------------------------------------------------------------------
+# Include Module
+use strict;
+use warnings;
+use V6evalTool;
+use MLDv2R;
+
+#------------------------------------------------------------------------------
+vLog2("Setup");
+#------------------------------------------------------------------------------
+# Variable
+my $stp = 0;
+my $rtn;
+my $wk;
+
+# Requirement configuration
+%T_REQ = ();
+
+# Specification configuration
+%T_CONF = ();
+
+# Topology
+@T_LINK = ("Link0");
+@T_NODE = ("TN1");
+
+# Setup Tester
+$rtn = Setup();
+if ($rtn != $RES_OK) {
+	goto TERM;
+}
+
+#------------------------------------------------------------------------------
+vLog2("Procedure");
+#------------------------------------------------------------------------------
+# Sequence
+%T_SEQ = (
+	$stp++ => {
+		caption => [ "Step 0. Configure on the RUT." ],
+		func    => "ConfProc",
+		status  => 0,
+	},
+	$stp++ => {
+		caption => [ "Step 81. Enable MLDv2 on the RUT." ],
+		func    => "EnableProc",
+		status  => 0,
+	},
+	$stp++ => {
+		caption => [ "Step 82. Observe the packets on all networks." ],
+		qg_int  => $CONF_DATA{SQI},
+		func    => $CONF_DATA{FUNC_ENABLE_QUERY} ? "RecvProc" : "BaseProc",
+		link    => "Link0",
+		wtime   => [ $CONF_DATA{ENABLE_TIME}, $CONF_DATA{SQI} + $CONF_DATA{MARGIN_TIME} ],
+		count   => $CONF_DATA{SQC},
+		msgs    => [ "MLDv2Q_rut0l_allnodes_m0" ],
+		status  => 0,
+		stack   => "L0SQG",
+	},
+	$stp++ => {
+		caption => [ "Step 83. TN1 transmits Report A." ],
+		func    => "SendProc",
+		link    => "Link0",
+		msgs    => [ "MLDv2R_tn1l_mld2r_r1_t1m1n2s12" ],
+		status  => 0,
+	},
+	$stp++ => {
+		caption => [ "Step 84. Observe the packets on all networks." ],
+		qg_int  => $CONF_DATA{QI},
+		func    => "RecvProc",
+		link    => "Link0",
+		wtime   => [ $CONF_DATA{LLQI} + $CONF_DATA{MARGIN_TIME} + $CONF_DATA{CHECK_TIME} ],
+		count   => 1,
+		msgs    => [ "MLDv2Q_any_any_except_qg" ],
+		status  => 1,
+	},
+	$stp++ => {
+		caption => [ "Step 85. TN1 transmits Report L." ],
+		func    => "SendProc",
+		link    => "Link0",
+		msgs    => [ "MLDv2R_tn1l_mld2r_r1_t3m1n0" ],
+		status  => 0,
+	},
+	$stp++ => {
+		caption => [ "Step 86. Observe the packets on all networks.",
+		             "Step 87. Before Query is transmitted by the RUT." ],
+		func    => "RecvProc",
+		link    => "Link0",
+		wtime   => [ $CONF_DATA{LLQI} + $CONF_DATA{MARGIN_TIME} ],
+		count   => 1,
+		msgs    => [ "MLDv2Q_rut0l_mcast1_m1n2any" ],
+		status  => 0,
+		stack   => "L0R1",
+	},
+	$stp++ => {
+		caption => [ "Step 87. TN1 transmits Report C." ],
+		func    => "SendProc",
+		link    => "Link0",
+		msgs    => [ "MLDv2R_tn1l_mld2r_r1_t5m1n2s13" ],
+		status  => 0,
+	},
+	$stp++ => {
+		caption => [ "Step 88. Observe the packets on all networks." ],
+		func    => "RecvProc",
+		link    => "Link0",
+		wtime   => [ $CONF_DATA{LLQI} + $CONF_DATA{MARGIN_TIME} ],
+		count   => ($CONF_DATA{LLQC} - 1) * 2,
+		msgs    => [ "MLDv2Q_rut0l_mcast1_m1n1s1_s1", "MLDv2Q_rut0l_mcast1_m1n1s2" ],
+		status  => 0,
+		stack   => "L0R2",
+	},
+	$stp++ => {
+		caption => [ "Step 89. Wait [LLQI] seconds." ],
+		func    => "RecvProc",
+		link    => "Link0",
+		wtime   => [ $CONF_DATA{LLQI} ],
+		count   => 1,
+		msgs    => [ "MLDv2Q_any_any_except_qg" ],
+		status  => 1,
+	},
+	$stp++ => {
+		caption => [ "Step 89. TN1 transmits Report L." ],
+		func    => "SendProc",
+		link    => "Link0",
+		msgs    => [ "MLDv2R_tn1l_mld2r_r1_t3m1n0" ],
+		status  => 0,
+	},
+	$stp++ => {
+		caption => [ "Step 90. Observe the packets on all networks." ],
+		func    => "RecvProc",
+		link    => "Link0",
+		wtime   => [ $CONF_DATA{LLQI} + $CONF_DATA{MARGIN_TIME} ],
+		count   => $CONF_DATA{LLQC},
+		msgs    => [ "MLDv2Q_rut0l_mcast1_m1n2any" ],
+		status  => 0,
+		stack   => "L0R3",
+	},
+	$stp++ => {
+		func    => "RecvProc",
+		link    => "Link0",
+		wtime   => [ $CONF_DATA{LLQI} + $CONF_DATA{MARGIN_TIME} + $CONF_DATA{CHECK_TIME} ],
+		count   => 1,
+		msgs    => [ "MLDv2Q_rut0l_mcast1_m1n0" ],
+		status  => 1,
+	},
+);
+
+# local packet
+$pktdesc{MLDv2Q_rut0l_mcast1_m1n1s1_s1}  = "Recv: RUT0 -> M1, MLDv2 Query (M1,{S1}) with S Flag on";
+
+# Execute
+for ($stp = 0; $T_SEQ{$stp}; $stp++) {
+	no strict 'refs';
+	$rtn = &{$T_SEQ{$stp}{func}}($stp);
+	if ($rtn != $RES_OK) {
+		last;
+	}
+}
+
+#------------------------------------------------------------------------------
+vLog2("Complement Judgement");
+#------------------------------------------------------------------------------
+$wk = JudgeCommon();
+if (($wk != $RES_OK) && ($rtn == $RES_OK)) {
+	$rtn = $wk;
+}
+
+#------------------------------------------------------------------------------
+vLog1("Check: Source list of Multicast Address and Source Specific Query in Step 86.");
+#------------------------------------------------------------------------------
+$wk = JudgeStackQuerySeclist("L0R1", "S12");
+if (($wk != $RES_OK) && ($rtn == $RES_OK)) {
+	$rtn = $wk;
+}
+
+#------------------------------------------------------------------------------
+vLog1("Check: Number of MLDv2 Specific Query in Step 88.");
+#------------------------------------------------------------------------------
+$wk = JudgeStackMsgIDandNum("L0R2", ($CONF_DATA{LLQC} - 1), "MLDv2Q_rut0l_mcast1_m1n1s1_s1", "MLDv2Q_rut0l_mcast1_m1n1s2");
+if (($wk != $RES_OK) && ($rtn == $RES_OK)) {
+	$rtn = $wk;
+}
+
+#------------------------------------------------------------------------------
+vLog1("Check: Source list of Multicast Address and Source Specific Query in Step 90.");
+#------------------------------------------------------------------------------
+$wk = JudgeStackQuerySeclist("L0R3", "S13");
+if (($wk != $RES_OK) && ($rtn == $RES_OK)) {
+	$rtn = $wk;
+}
+
+TERM:
+#------------------------------------------------------------------------------
+vLog2("Termination");
+#------------------------------------------------------------------------------
+Term($rtn);
+
+###############################################################################
+__END__
+
+
+=head1 Test Label
+
+=begin html
+MLD.4.26: Receive State Change Record After Receiving State Change Record<BR>
+Part E: Including S1, Sends a Query after To Exclude S2, receives Allow S3
+
+=end html
+
+=head1 Purpose
+
+=begin html
+To verify that an MLDv2 router properly process state change records after a state change record.
+
+=end html
+
+=head1 References
+
+=begin html
+RFC3810 2.2.  Exchanging Messages between the Querier and the Listening Nodes<BR>
+
+=cut
+<PRE>
+                                       Nevertheless, while waiting for
+   the next scheduled queries to be sent, the Querier may receive a
+   report that updates the timers.  The scheduled queries still have to
+   be sent, in order to ensure that a non-querier router keeps its state
+   synchronized with the current Querier (the non-querier router might
+   have missed the first query).  Nevertheless, the timers should not be
+   lowered again, as a valid answer was already received.  Therefore, in
+   subsequent queries the Querier sets the S flag.
+</PRE>
+
+=pod
+
+=end html
+
+=begin html
+RFC3810 7.4.2.  Reception of Filter Mode Change and Source List Change Records<BR>
+
+=cut
+<PRE>
+   If while scheduling new queries, there are already pending queries to
+   be retransmitted for the same multicast address, the new and pending
+   queries have to be merged.  In addition, received host reports for a
+   multicast address with pending queries may affect the contents of
+   those queries.  Section 7.6.3. describes the process of building and
+   maintaining the state of pending queries.
+</PRE>
+
+=pod
+
+=end html
+
+=begin html
+RFC3810 7.6.3.1.  Building and Sending Multicast Address Specific Queries<BR>
+
+=cut
+<PRE>
+   When a table action "Send Q(MA)" is encountered, the Filter Timer
+   must be lowered to LLQT.  The Querier must then immediately send a
+   Multicast Address Specific query as well as schedule [Last Listener
+   Query Count - 1] query retransmissions to be sent every [Last
+   Listener Query Interval], over [Last Listener Query Time].
+
+   When transmitting a Multicast Address Specific Query, if the Filter
+   Timer is larger than LLQT, the "Suppress Router-Side Processing" bit
+   is set in the query message.
+</PRE>
+
+=pod
+
+=end html
+
+=begin html
+RFC3810 7.6.3.2.  Building and Sending Multicast Address and Source Specific Queries<BR>
+
+=cut
+<PRE>
+   When building a Multicast Address and Source Specific Query for a
+   multicast address MA, two separate query messages are sent for the
+   multicast address.  The first one has the "Suppress Router-Side
+   Processing" bit set and contains all the sources with retransmission
+   state (i.e., sources from the Retransmission List of that multicast
+   address), and timers greater than LLQT.  The second has the "Suppress
+   Router-Side Processing" bit clear and contains all the sources with
+   retransmission state and timers lower or equal to LLQT.  If either of
+   the two calculated messages does not contain any sources, then its
+   transmission is suppressed.
+   
+   Note: If a Multicast Address Specific query is scheduled to be
+   transmitted at the same time as a Multicast Address and Source
+   specific query for the same multicast address, then transmission of
+   the Multicast Address and Source Specific message with the "Suppress
+   Router-Side Processing" bit set may be suppressed.
+</PRE>
+
+=pod
+
+=end html
+
+=head1 Discussion
+
+=begin html
+None
+
+=cut
+<PRE>
+   Since Multicast and Source Specific Queries need to be merged with
+   the previous scheduled Queries, router sets up the transmission of
+   the [LLQC] times in the retransmission schedule.
+   
+RFC3810 7.6.3.2.  Building and Sending Multicast Address and Source Specific Queries
+   
+   When a table action "Send Q(MA,X)" is encountered by the Querier in
+   the table in section 7.4.2, the following actions must be performed
+   for each of the sources in X that send to multicast address MA, with
+   source timer larger than LLQT:
+   
+   o  Lower source timer to LLQT;
+   
+   o  Add the sources to the Retransmission List;
+   
+   o  Set the Source Retransmission Counter for each source to [Last
+      Listener Query Count].
+   
+   The Querier must then immediately send a Multicast Address and Source
+   Specific Query as well as schedule [Last Listener Query Count -1]
+   query retransmissions to be sent every [Last Listener Query
+   Interval], over [Last Listener Query Time].  The contents of these
+   queries are calculated as follows.
+</PRE>
+
+=pod
+
+=end html
+
+=head1 Test Requirement
+
+=begin html
+None
+
+=end html
+
+=head1 Test Setup
+
+=begin html
+<UL><LI><FONT SIZE="+1"><B>Common Topology</B></FONT></UL>
+<PRE><FONT SIZE="+1">
+   RUT
+    |(I/F: Link0)
+    |
+   -+-------+-------+-------+---- Network 0
+            |       |       |
+           TR1     TR2     TN1
+</FONT></PRE>
+<BLOCKQUOTE><TABLE BORDER>
+<TR><TD><TT>ID</TT></TD>
+    <TD><TT>attribute</TT></TD>
+    <TD><TT>value</TT></TD>
+    <TD><TT>memo</TT></TD></TR>
+<TR><TD><TT>Network 0</TT></TD>
+    <TD><TT>prefix</TT></TD>
+    <TD><TT>3ffe:501:ffff:100::/64</TT></TD>
+    <TD><TT>I/F Link0 is connected.</TT></TD></TR>
+<TR><TD ROWSPAN="3"><TT>TR1</TT></TD>
+    <TD><TT>ether</TT></TD>
+    <TD><TT>00:00:00:00:00:01</TT></TD>
+    <TD ROWSPAN="3"><TT>Lower IP Address</TT></TD></TR>
+<TR><TD><TT>link-local</TT></TD>
+    <TD><TT>fe80::200:ff:fe00:1</TT></TD></TR>
+<TR><TD><TT>global</TT></TD>
+    <TD><TT>3ffe:501:ffff:100:200:ff:fe00:1</TT></TD></TR>
+<TR><TD ROWSPAN="3"><TT>TR2</TT></TD>
+    <TD><TT>ether</TT></TD>
+    <TD><TT>fc:fc:fc:fc:fc:fc</TT></TD>
+    <TD ROWSPAN="3"><TT>Higher IP Address</TT></TD></TR>
+<TR><TD><TT>link-local</TT></TD>
+    <TD><TT>fe80::fefc:fcff:fefc:fcfc</TT></TD></TR>
+<TR><TD><TT>global</TT></TD>
+    <TD><TT>3ffe:501:ffff:100:fefc:fcff:fefc:fcfc</TT></TD></TR>
+<TR><TD ROWSPAN="3"><TT>TN1</TT></TD>
+    <TD><TT>ether</TT></TD>
+    <TD><TT>00:00:00:11:11:11</TT></TD>
+    <TD ROWSPAN="3"><TT>&nbsp;</TT></TD></TR>
+<TR><TD><TT>link-local</TT></TD>
+    <TD><TT>fe80::200:ff:fe11:1111</TT></TD></TR>
+<TR><TD><TT>global</TT></TD>
+    <TD><TT>3ffe:501:ffff:100:200:ff:fe11:1111</TT></TD></TR>
+</TABLE></BLOCKQUOTE>
+<UL><LI><B><FONT SIZE="+1">Common Test Setup</FONT></B>
+    <OL><LI>Configure RUT to have:
+        <UL><LI>Robustness Variable of 2
+            <LI>Query Interval of 125 (seconds)
+            <LI>Query Response Interval of 10 (seconds)
+            <LI>Last Listener Query Interval of 1 (second)</UL>
+        <LI>Configure TR1, TR2, TR3 and TR4 to have:
+        <UL><LI>Robustness Variable of 2
+            <LI>Query Interval of 125 (seconds)
+            <LI>Query Response Interval of 10 (seconds)
+            <LI>Last Listener Query Interval of 1 (second)</UL></OL><BR>
+    <LI><B><FONT SIZE="+1">Common Test Cleanup</FONT></B>
+    <OL><LI>Disable MLD on all devices.
+        <LI>Return all timers and variables to their defaults values.
+        <LI>The Query Interval of RUT can be shortened to decrease time.</OL></UL>
+
+=end html
+
+=head1 Procedure
+
+=begin html
+<PRE>
+Step 81. Enable MLDv2 on the RUT.
+Step 82. Observe the packets on all networks.
+Step 83. TN1 transmits Report A.
+    -----
+    IPv6 Header
+        IPv6 Hop Limit                  = 1
+        IPv6 Source Address             = TN1 link-local address
+        IPv6 Destination Address        = All MLDv2-capable routers
+    Hop-by-Hop Options Header
+        Router Alert Option
+    ICMPv6 Header (MLDv2 Report)
+        Number of Mcast Address Records = 1
+        Multicast Address Record [1]
+            Type                            = 1 (IS_IN)
+            Num of Sources                  = 2
+            Multicast Address               = M1
+            Source Address                  = S1
+            Source Address                  = S2
+    -----
+Step 84. Observe the packets on all networks.
+Step 85. TN1 transmits Report L.
+    -----
+    IPv6 Header
+        IPv6 Hop Limit                  = 1
+        IPv6 Source Address             = TN1 link-local address
+        IPv6 Destination Address        = All MLDv2-capable routers
+    Hop-by-Hop Options Header
+        Router Alert Option
+    ICMPv6 Header (MLDv2 Report)
+        Number of Mcast Address Records = 1
+        Multicast Address Record [1]
+            Type                            = 3 (TO_IN)
+            Num of Sources                  = 0
+            Multicast Address               = M1
+    -----
+Step 86. Observe the packets on all networks.
+Step 87. Before Query is transmitted by the RUT.  TN1 transmits Report C.
+    -----
+    IPv6 Header
+        IPv6 Hop Limit                  = 1
+        IPv6 Source Address             = TN1 link-local address
+        IPv6 Destination Address        = All MLDv2-capable routers
+    Hop-by-Hop Options Header
+        Router Alert Option
+    ICMPv6 Header (MLDv2 Report)
+        Number of Mcast Address Records = 1
+        Multicast Address Record [1]
+            Type                            = 5 (ALLOW)
+            Num of Sources                  = 2
+            Multicast Address               = M1
+            Source Address                  = S1
+            Source Address                  = S3
+    -----
+Step 88. Observe the packets on all networks.
+Step 89. Wait [LLQI] seconds.  TN1 transmits Report L.
+    -----
+    IPv6 Header
+        IPv6 Hop Limit                  = 1
+        IPv6 Source Address             = TN1 link-local address
+        IPv6 Destination Address        = All MLDv2-capable routers
+    Hop-by-Hop Options Header
+        Router Alert Option
+    ICMPv6 Header (MLDv2 Report)
+        Number of Mcast Address Records = 1
+        Multicast Address Record [1]
+            Type                            = 3 (TO_IN)
+            Num of Sources                  = 0
+            Multicast Address               = M1
+    -----
+Step 90. Observe the packets on all networks.
+</PRE>
+
+=end html
+
+=head1 Observable Results
+
+=begin html
+<PRE>
+Step 82: The RUT must transmit 2 MLDv2 General Queries.
+Step 84: The RUT must not transmit Queries other then periodic General Queries.
+Step 86: The RUT must transmit a Multicast Address and Source Specific Query with a Multicast Address of M1 and Source Addresses of S1 and S2 with the S Flag clear.
+Step 88: The RUT must transmit a Multicast Address and Source Specific Query with a Multicast Address of M1 and a Source Address of S1 with the S Flag set.
+         The RUT must transmit a Multicast Address and Source Specific Query with a Multicast Address of M1 and a Source Address of S2 with the S Flag clear.
+Step 90: The RUT must transmit 2 Multicast Address and Source Specific Query with a Multicast Address of M1 and Source Addresses of S1 and S3 with the S Flag clear.
+<BR>
+   RUT     TR1     TR2     TN1
+    |       |       |       |
+    |       |       |       | 81. Enable MLDv2 on the RUT.
+    |       |       |       | 82. Observe the packets on all networks.
+    |- - - - - - - - - - - >|     RUT transmits TO_EX(FF02::16,{null}), [RV] times, [URI] seconds.
+    |---------------------->|     RUT transmits Q(G), [SQC] times, [SQI] seconds.
+    |<----------------------| 83. TN1 transmits IS_IN(M1,{S1,S2}).
+    |       |       |       | 84. Observe the packets on all networks.
+    |       |       |       |     (no response)
+    |<----------------------| 85. TN1 transmits TO_IN(M1,{null}).
+    |       |       |       | 86. Observe the packets on all networks.
+    |---------------------->|     RUT transmits Q(M1,S=0,{S1,S2}).
+    |       |       |       | 87. Before Query is transmitted by the RUT.
+    |<----------------------|     TN1 transmits ALLOW(M1,{S1,S3}).
+    |       |       |       | 88. Observe the packets on all networks.
+    |---------------------->|     RUT transmits Q(M1,S=1,{S1}), [LLQC]-1 times, [LLQI] seconds.
+    |---------------------->|     RUT transmits Q(M1,S=0,{S2}), [LLQC]-1 times, [LLQI] seconds.
+    |       |       |       | 89. Wait [LLQI] seconds.
+    |<----------------------|     TN1 transmits TO_IN(M1,{null}).
+    |       |       |       | 90. Observe the packets on all networks.
+    |---------------------->|     RUT transmits Q(M1,S=0,{S1,S3}), [LLQC] times, [LLQI] seconds.
+    |       |       |       |
+</PRE>
+
+=end html
+
+=head1 Possible Problems
+
+=begin html
+This test has a timing matter. Before implementation retransmits the MLD Query by the 1st MLD Report, you have to make the 2nd MLD Report accepted in implementation. It may be possible by extending Last Listener Query Interval in the implementation.
+
+=end html

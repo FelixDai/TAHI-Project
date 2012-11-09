@@ -1,0 +1,806 @@
+#
+# Copyright (C) IPv6 Promotion Council, NTT Advanced Technology Corporation
+# (NTT-AT), Yokogwa Electoric Corporation and YASKAWA INFORMATION SYSTEMS
+# Corporation All rights reserved.
+# 
+# Redistribution and use of this software in source and binary forms, with
+# or without modification, are permitted provided that the following
+# conditions and disclaimer are agreed and accepted by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright
+# notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright
+# notice, this list of conditions and the following disclaimer in the
+# documentation and/or other materials provided with the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project which
+# is related to this software (hereinafter referred to as "project") nor
+# the names of the contributors may be used to endorse or promote products
+# derived from this software without specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written
+# notification to the copyrighters. However, using this software for the
+# purpose of testing or evaluating any products including merchantable
+# products may be permitted without any notification to the copyrighters.
+# 
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+# CONTRACT,STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+# THE POSSIBILITY OF SUCH DAMAGE.
+#
+###########################################################################
+#
+# $Name: MLDv2-Router_1_0_6 $
+#
+
+#==============================================================================
+# &print:<B> Group 0: Trial</B>
+#==============================================================================
+# ./mldv2-router_0_1.seq:mldv2-router_0_1.def:::0.1 Trial. TN transmits message:1
+# ./mldv2-router_0_2.seq:mldv2-router_0_2.def:::0.2 Trial. TN receives message:2
+
+
+
+#==============================================================================
+&print:<B> Group 1: Basic Functionality</B>
+#==============================================================================
+#------------------------------------------------------------------------------
+&print:<B> Group 1.1: General Query</B>
+#------------------------------------------------------------------------------
+./mldv2-router_1_1.seq:mldv2-router_1_1.def:::1.1 General Query:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 1.2: Robustness Variable</B>
+#------------------------------------------------------------------------------
+./mldv2-router_1_2_a.seq:mldv2-router_1_2_a.def:::1.2.a Robustness 3, Query Interval 60:1
+./mldv2-router_1_2_b.seq:mldv2-router_1_2_b.def:::1.2.b Exceed Query Robustness Variable:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 1.3: Query Interval</B>
+#------------------------------------------------------------------------------
+./mldv2-router_1_3_a.seq:mldv2-router_1_3_a.def:::1.3.a Query Interval Below 128 seconds:1
+./mldv2-router_1_3_b.seq:mldv2-router_1_3_b.def:::1.3.b Query Interval 128 Seconds:1
+./mldv2-router_1_3_c.seq:mldv2-router_1_3_c.def:::1.3.c Query Interval 160 Seconds:1
+./mldv2-router_1_3_d.seq:mldv2-router_1_3_d.def:::1.3.d Query Interval 164 Seconds:1
+./mldv2-router_1_3_e.seq:mldv2-router_1_3_e.def:::1.3.e Query Interval 31744 seconds:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 1.4: Query Response Interval</B>
+#------------------------------------------------------------------------------
+./mldv2-router_1_4_a.seq:mldv2-router_1_4_a.def:::1.4.a Query Response Interval 32767, Query Interval 132:1
+./mldv2-router_1_4_b.seq:mldv2-router_1_4_b.def:::1.4.b Query Response Interval 32768, Query Interval 132:1
+./mldv2-router_1_4_c.seq:mldv2-router_1_4_c.def:::1.4.c Query Response Interval 40000, Query Interval 160:1
+./mldv2-router_1_4_d.seq:mldv2-router_1_4_d.def:::1.4.d Query Response Interval 40007, Query Interval 161:1
+./mldv2-router_1_4_e.seq:mldv2-router_1_4_e.def:::1.4.e Query Response Interval 128000, Query Interval 512:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 1.5: Multicast Address Listener Interval</B>
+#------------------------------------------------------------------------------
+./mldv2-router_1_5_a.seq:mldv2-router_1_5_a.def:::1.5.a Default MALI of RFC, Before Filter Timer Expires:1
+./mldv2-router_1_5_b.seq:mldv2-router_1_5_b.def:::1.5.b Default MALI of RFC, After Filter Timer Expires:1
+./mldv2-router_1_5_c.seq:mldv2-router_1_5_c.def:::1.5.c Configure MALI, Before Filter Timer Expires:1
+./mldv2-router_1_5_d.seq:mldv2-router_1_5_d.def:::1.5.d Configure MALI, After Filter Timer Expires:1
+./mldv2-router_1_5_e.seq:mldv2-router_1_5_e.def:::1.5.e Updating Filter Timer, Before Timer Expires:1
+./mldv2-router_1_5_f.seq:mldv2-router_1_5_f.def:::1.5.f Updating Filter Timer, After Timer Expires:1
+./mldv2-router_1_5_g.seq:mldv2-router_1_5_g.def:::1.5.g Default MALI, Before Source Timer Expires:1
+./mldv2-router_1_5_h.seq:mldv2-router_1_5_h.def:::1.5.h Default MALI, After Source Timer Expires:1
+./mldv2-router_1_5_i.seq:mldv2-router_1_5_i.def:::1.5.i Configure MALI, Before Source Timer Expires:1
+./mldv2-router_1_5_j.seq:mldv2-router_1_5_j.def:::1.5.j Configure MALI, After Source Timer Expires:1
+./mldv2-router_1_5_k.seq:mldv2-router_1_5_k.def:::1.5.k Update Source Timer, Before Timer Expires:1
+./mldv2-router_1_5_l.seq:mldv2-router_1_5_l.def:::1.5.l Update Source Timer, After Timer Expires:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 1.6: Last Listener Query Timer</B>
+#------------------------------------------------------------------------------
+./mldv2-router_1_6_a.seq:mldv2-router_1_6_a.def:::1.6.a Default LLQT:1
+./mldv2-router_1_6_b.seq:mldv2-router_1_6_b.def:::1.6.b Robustness Variable and LLQI:1
+#./mldv2-router_1_6_c.seq:mldv2-router_1_6_c.def:::1.6.c Remaining time is below LLQT:1
+./mldv2-router_1_6_d.seq:mldv2-router_1_6_d.def:::1.6.d Source Specific Default LLQT:1
+./mldv2-router_1_6_e.seq:mldv2-router_1_6_e.def:::1.6.e Source Specific Robustness Variable and LLQI:1
+./mldv2-router_1_6_f.seq:mldv2-router_1_6_f.def:::1.6.f Source Specific Remaining time is below LLQT:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 1.7: RUT has an interface in each link</B>
+#------------------------------------------------------------------------------
+./mldv2-router_1_7_a.seq:mldv2-router_1_7_a.def:::1.7.a Include list:1
+./mldv2-router_1_7_b.seq:mldv2-router_1_7_b.def:::1.7.b Update:1
+./mldv2-router_1_7_c.seq:mldv2-router_1_7_c.def:::1.7.c Querier election:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 1.8: RUT has two interfaces in same link</B>
+#------------------------------------------------------------------------------
+./mldv2-router_1_8dummy.seq:mldv2-router_1_8.def:::1.8 RUT has two interfaces in same link (dummy):1
+
+
+
+#==============================================================================
+&print:<B> GROUP 2: Message Format</B>
+#==============================================================================
+#------------------------------------------------------------------------------
+&print:<B> Group 2.1: Transmitting General Query</B>
+#------------------------------------------------------------------------------
+./mldv2-router_2_1.seq:mldv2-router_2_1.def:::2.1 Transmitting General Query:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 2.2: Transmitting Multicast Address Specific Query</B>
+#------------------------------------------------------------------------------
+./mldv2-router_2_2.seq:mldv2-router_2_2.def:::2.2 Transmitting Multicast Address Specific Query:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 2.3: Transmitting Multicast Address and Source Specific Query</B>
+#------------------------------------------------------------------------------
+./mldv2-router_2_3.seq:mldv2-router_2_3.def:::2.3 Transmitting Multicast Address and Source Specific Query:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 2.4: Query Hop Limit</B>
+#------------------------------------------------------------------------------
+./mldv2-router_2_4_a.seq:mldv2-router_2_4_a.def:::2.4.a Hop Limit of 0:1
+./mldv2-router_2_4_b.seq:mldv2-router_2_4_b.def:::2.4.b Hop Limit of 2:1
+./mldv2-router_2_4_c.seq:mldv2-router_2_4_c.def:::2.4.c Hop Limit of 0xff:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 2.5: Query Source Address</B>
+#------------------------------------------------------------------------------
+./mldv2-router_2_5_a.seq:mldv2-router_2_5_a.def:::2.5.a Unspecified Address:1
+./mldv2-router_2_5_b.seq:mldv2-router_2_5_b.def:::2.5.b On-link Global Unicast Address:1
+./mldv2-router_2_5_c.seq:mldv2-router_2_5_c.def:::2.5.c Off-link Global Unicast Address:1
+./mldv2-router_2_5_d.seq:mldv2-router_2_5_d.def:::2.5.d All MLDv2 Routers Address:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 2.6: Query Destination Address</B>
+#------------------------------------------------------------------------------
+./mldv2-router_2_6_a.seq:mldv2-router_2_6_a.def:::2.6.a Link-local Address:1
+./mldv2-router_2_6_b.seq:mldv2-router_2_6_b.def:::2.6.b Global Address:1
+./mldv2-router_2_6_c.seq:mldv2-router_2_6_c.def:::2.6.c All MLDv2 Router Address:1
+./mldv2-router_2_6_d.seq:mldv2-router_2_6_d.def:::2.6.d Link Local Specific Query:1
+./mldv2-router_2_6_e.seq:mldv2-router_2_6_e.def:::2.6.e Global Specific Query:1
+./mldv2-router_2_6_f.seq:mldv2-router_2_6_f.def:::2.6.f All Nodes Specific Query:1
+./mldv2-router_2_6_g.seq:mldv2-router_2_6_g.def:::2.6.g Off-link global Address:2
+# ./mldv2-router_2_6_h.seq:mldv2-router_2_6_h.def:::2.6.h Mismatching as Destination Address:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 2.7: Query Router Alert Option</B>
+#------------------------------------------------------------------------------
+./mldv2-router_2_7_a.seq:mldv2-router_2_7_a.def:::2.7.a No Hop-by-Hop Option:1
+./mldv2-router_2_7_b.seq:mldv2-router_2_7_b.def:::2.7.b No Router Alert:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 2.8: Query Payload Length</B>
+#------------------------------------------------------------------------------
+./mldv2-router_2_8_a.seq:mldv2-router_2_8_a.def:::2.8.a Additional Data, payload doesn't match:1
+./mldv2-router_2_8_b.seq:mldv2-router_2_8_b.def:::2.8.b Two Sources, payload length for one source:1
+./mldv2-router_2_8_c.seq:mldv2-router_2_8_c.def:::2.8.c One Source, payload length for two sources:1
+./mldv2-router_2_8_d.seq:mldv2-router_2_8_d.def:::2.8.d MLD Query Length 24 octets:1
+./mldv2-router_2_8_e.seq:mldv2-router_2_8_e.def:::2.8.e MLD Query Length greater than 24 octets, and smaller than 28 octets:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 2.9: Report Hop Limit</B>
+#------------------------------------------------------------------------------
+./mldv2-router_2_9_a.seq:mldv2-router_2_9_a.def:::2.9.a Hop Limit of 0:1
+./mldv2-router_2_9_b.seq:mldv2-router_2_9_b.def:::2.9.b Hop Limit of 2:1
+./mldv2-router_2_9_c.seq:mldv2-router_2_9_c.def:::2.9.c Hop Limit of 0xff:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 2.10: Report Source Address</B>
+#------------------------------------------------------------------------------
+./mldv2-router_2_10_a.seq:mldv2-router_2_10_a.def:::2.10.a Unspecified:1
+./mldv2-router_2_10_b.seq:mldv2-router_2_10_b.def:::2.10.b On-link Global:1
+./mldv2-router_2_10_c.seq:mldv2-router_2_10_c.def:::2.10.c Off-link Global:1
+./mldv2-router_2_10_d.seq:mldv2-router_2_10_d.def:::2.10.d All MLDv2 Router:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 2.11: Report Destination Address</B>
+#------------------------------------------------------------------------------
+./mldv2-router_2_11_a.seq:mldv2-router_2_11_a.def:::2.11.a Link-local:1
+./mldv2-router_2_11_b.seq:mldv2-router_2_11_b.def:::2.11.b Global:1
+./mldv2-router_2_11_c.seq:mldv2-router_2_11_c.def:::2.11.c Multicast:1
+./mldv2-router_2_11_d.seq:mldv2-router_2_11_d.def:::2.11.d Global Off-link:2
+
+#------------------------------------------------------------------------------
+&print:<B> Group 2.12: Report Router Alert</B>
+#------------------------------------------------------------------------------
+./mldv2-router_2_12_a.seq:mldv2-router_2_12_a.def:::2.12.a No Hop-by-Hop Option:1
+./mldv2-router_2_12_b.seq:mldv2-router_2_12_b.def:::2.12.b No Router Alert:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 2.13: Report Payload Length</B>
+#------------------------------------------------------------------------------
+./mldv2-router_2_13_a.seq:mldv2-router_2_13_a.def:::2.13.a Additional data not included in payload:1
+./mldv2-router_2_13_b.seq:mldv2-router_2_13_b.def:::2.13.b One Source, payload includes two sources:1
+./mldv2-router_2_13_c.seq:mldv2-router_2_13_c.def:::2.13.c Two Sources, payload includes one source:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 2.14: Query ICMPv6 Message Type</B>
+#------------------------------------------------------------------------------
+./mldv2-router_2_14.seq:mldv2-router_2_14.def:::2.14 Query ICMPv6 Message Type:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 2.15: Query ICMPv6 Code</B>
+#------------------------------------------------------------------------------
+./mldv2-router_2_15.seq:mldv2-router_2_15.def:::2.15 Query ICMPv6 Code:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 2.16: Query ICMPv6 Checksum</B>
+#------------------------------------------------------------------------------
+./mldv2-router_2_16.seq:mldv2-router_2_16.def:::2.16 Query ICMPv6 Checksum:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 2.17: Query ICMPv6 Reserved</B>
+#------------------------------------------------------------------------------
+./mldv2-router_2_17.seq:mldv2-router_2_17.def:::2.17 Query ICMPv6 Reserved:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 2.18: Query Multicast Address Field</B>
+#------------------------------------------------------------------------------
+./mldv2-router_2_18_a.seq:mldv2-router_2_18_a.def:::2.18.a All Nodes Multicast Address:1
+./mldv2-router_2_18_b.seq:mldv2-router_2_18_b.def:::2.18.b All MLDv2 Routers:1
+./mldv2-router_2_18_c.seq:mldv2-router_2_18_c.def:::2.18.c All MLDv2 Routers with S Flag set:1
+./mldv2-router_2_18_d.seq:mldv2-router_2_18_d.def:::2.18.d No Previous Multicast Address:1
+./mldv2-router_2_18_e.seq:mldv2-router_2_18_e.def:::2.18.e Unspecified Address:1
+./mldv2-router_2_18_f.seq:mldv2-router_2_18_f.def:::2.18.f Link Local:1
+./mldv2-router_2_18_g.seq:mldv2-router_2_18_g.def:::2.18.g RUT Global Address:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 2.19: Query Number of Sources</B>
+#------------------------------------------------------------------------------
+./mldv2-router_2_19_a.seq:mldv2-router_2_19_a.def:::2.19.a Zero:1
+./mldv2-router_2_19_b.seq:mldv2-router_2_19_b.def:::2.19.b One, No sources included:1
+#./mldv2-router_2_19_c.seq:mldv2-router_2_19_c.def:::2.19.c One, Two source included:1
+./mldv2-router_2_19_d.seq:mldv2-router_2_19_d.def:::2.19.d Two, One Source included:1
+./mldv2-router_2_19_e.seq:mldv2-router_2_19_e.def:::2.19.e One, No sources included in querier query:1
+./mldv2-router_2_19_f.seq:mldv2-router_2_19_f.def:::2.19.f Two, One Source included in querier query:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 2.20: Query Multicast Source Address</B>
+#------------------------------------------------------------------------------
+#./mldv2-router_2_20_a.seq:mldv2-router_2_20_a.def:::2.20.a Unspecified Address:1
+#./mldv2-router_2_20_b.seq:mldv2-router_2_20_b.def:::2.20.b RUT link-local:1
+#./mldv2-router_2_20_c.seq:mldv2-router_2_20_c.def:::2.20.c Global:1
+#./mldv2-router_2_20_d.seq:mldv2-router_2_20_d.def:::2.20.d All Nodes:1
+#./mldv2-router_2_20_e.seq:mldv2-router_2_20_e.def:::2.20.e MLDv2-capable routers:1
+#./mldv2-router_2_20_f.seq:mldv2-router_2_20_f.def:::2.20.f Specific Multicast Address:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 2.21: Query Additional Data</B>
+#------------------------------------------------------------------------------
+./mldv2-router_2_21.seq:mldv2-router_2_21.def:::2.21 Query Additional Data:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 2.22: Report Message Type</B>
+#------------------------------------------------------------------------------
+./mldv2-router_2_22.seq:mldv2-router_2_22.def:::2.22 Report Message Type:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 2.23: Report Reserved Field</B>
+#------------------------------------------------------------------------------
+./mldv2-router_2_23.seq:mldv2-router_2_23.def:::2.23 Report Reserved Field:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 2.24: Report Checksum</B>
+#------------------------------------------------------------------------------
+./mldv2-router_2_24.seq:mldv2-router_2_24.def:::2.24 Report Checksum:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 2.25: Report Number of Multicast Address Records</B>
+#------------------------------------------------------------------------------
+./mldv2-router_2_25_a.seq:mldv2-router_2_25_a.def:::2.25.a Zero:1
+./mldv2-router_2_25_b.seq:mldv2-router_2_25_b.def:::2.25.b No Record:1
+./mldv2-router_2_25_c.seq:mldv2-router_2_25_c.def:::2.25.c One:1
+./mldv2-router_2_25_d.seq:mldv2-router_2_25_d.def:::2.25.d Two:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 2.26: Report Record Type</B>
+#------------------------------------------------------------------------------
+./mldv2-router_2_26_a.seq:mldv2-router_2_26_a.def:::2.26.a Unrecognized (0):1
+./mldv2-router_2_26_b.seq:mldv2-router_2_26_b.def:::2.26.b Unrecognized (7):1
+./mldv2-router_2_26_c.seq:mldv2-router_2_26_c.def:::2.26.c One Recognized and One Unrecognized:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 2.27: Report Aux Data Len</B>
+#------------------------------------------------------------------------------
+./mldv2-router_2_27_a.seq:mldv2-router_2_27_a.def:::2.27.a Zero:1
+./mldv2-router_2_27_b.seq:mldv2-router_2_27_b.def:::2.27.b One, Last record has no data included:1
+./mldv2-router_2_27_c.seq:mldv2-router_2_27_c.def:::2.27.c One, no data included:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 2.28: Report Number of Sources</B>
+#------------------------------------------------------------------------------
+./mldv2-router_2_28_a.seq:mldv2-router_2_28_a.def:::2.28.a Zero:1
+./mldv2-router_2_28_b.seq:mldv2-router_2_28_b.def:::2.28.b One, Last record as no data included:1
+./mldv2-router_2_28_c.seq:mldv2-router_2_28_c.def:::2.28.c One, no data included:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 2.29: Report Multicast Address</B>
+#------------------------------------------------------------------------------
+./mldv2-router_2_29_a.seq:mldv2-router_2_29_a.def:::2.29.a Unspecified:1
+./mldv2-router_2_29_b.seq:mldv2-router_2_29_b.def:::2.29.b RUT link-local:1
+./mldv2-router_2_29_c.seq:mldv2-router_2_29_c.def:::2.29.c RUT global address:1
+./mldv2-router_2_29_d.seq:mldv2-router_2_29_d.def:::2.29.d All Nodes multicast Address:1
+./mldv2-router_2_29_e.seq:mldv2-router_2_29_e.def:::2.29.e All MLDv2 Capable Routers:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 2.30: Report Source Address</B>
+#------------------------------------------------------------------------------
+./mldv2-router_2_30_a.seq:mldv2-router_2_30_a.def:::2.30.a Unspecified:1
+./mldv2-router_2_30_b.seq:mldv2-router_2_30_b.def:::2.30.b RUT link-local:1
+./mldv2-router_2_30_c.seq:mldv2-router_2_30_c.def:::2.30.c RUT global address:1
+./mldv2-router_2_30_d.seq:mldv2-router_2_30_d.def:::2.30.d All Nodes multicast Address:1
+./mldv2-router_2_30_e.seq:mldv2-router_2_30_e.def:::2.30.e All MLDv2 Capable Routers:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 2.31: Report Auxiliary Data</B>
+#------------------------------------------------------------------------------
+./mldv2-router_2_31.seq:mldv2-router_2_31.def:::2.31 Report Auxiliary Data:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 2.32: Report Additional Data</B>
+#------------------------------------------------------------------------------
+./mldv2-router_2_32.seq:mldv2-router_2_32.def:::2.32 Report Additional Data
+
+
+
+#==============================================================================
+&print:<B> GROUP 3: Value Adoption and Timers</B>
+#==============================================================================
+#------------------------------------------------------------------------------
+&print:<B> Group 3.1: Other Querier Present Timeout</B>
+#------------------------------------------------------------------------------
+./mldv2-router_3_1_a.seq:mldv2-router_3_1_a.def:::3.1.a Max Response Code of 10000:1
+./mldv2-router_3_1_b.seq:mldv2-router_3_1_b.def:::3.1.b Max Response Code of zero:1
+./mldv2-router_3_1_c.seq:mldv2-router_3_1_c.def:::3.1.c Max Response Code of 5000:1
+./mldv2-router_3_1_d.seq:mldv2-router_3_1_d.def:::3.1.d Max Response Code of 20000:1
+./mldv2-router_3_1_e.seq:mldv2-router_3_1_e.def:::3.1.e QRV of 0:1
+./mldv2-router_3_1_f.seq:mldv2-router_3_1_f.def:::3.1.f QQIC of 0:1
+./mldv2-router_3_1_g.seq:mldv2-router_3_1_g.def:::3.1.g QRV of 0 and QQIC 0:1
+./mldv2-router_3_1_h.seq:mldv2-router_3_1_h.def:::3.1.h QRV of 7 and QQIC 60:1
+./mldv2-router_3_1_i.seq:mldv2-router_3_1_i.def:::3.1.i QQIC of 127:1
+./mldv2-router_3_1_j.seq:mldv2-router_3_1_j.def:::3.1.j QQIC of 128:1
+./mldv2-router_3_1_k.seq:mldv2-router_3_1_k.def:::3.1.k QQIC of 132:1
+./mldv2-router_3_1_l.seq:mldv2-router_3_1_l.def:::3.1.l S Flag:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 3.2: Other Querier Specific Query</B>
+#------------------------------------------------------------------------------
+./mldv2-router_3_2_a.seq:mldv2-router_3_2_a.def:::3.2.a Other Querier MA Query:1
+./mldv2-router_3_2_b.seq:mldv2-router_3_2_b.def:::3.2.b Other Querier MAS Query:1
+./mldv2-router_3_2_c.seq:mldv2-router_3_2_c.def:::3.2.c Other Querier MA Query with S Flag set:1
+./mldv2-router_3_2_d.seq:mldv2-router_3_2_d.def:::3.2.d Other Querier MAS Query with S Flag set:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 3.3: Other Non-Querier Specific Query</B>
+#------------------------------------------------------------------------------
+./mldv2-router_3_3_a.seq:mldv2-router_3_3_a.def:::3.3.a Non-Querier General Query:1
+./mldv2-router_3_3_b.seq:mldv2-router_3_3_b.def:::3.3.b Non-Querier MA Query:1
+./mldv2-router_3_3_c.seq:mldv2-router_3_3_c.def:::3.3.c Non-Querier MAS Query:1
+#./mldv2-router_3_3_d.seq:mldv2-router_3_3_d.def:::3.3.d Non-Querier MAS Query and source timer:1
+#./mldv2-router_3_3_e.seq:mldv2-router_3_3_e.def:::3.3.e Non-Querier MA Query and filter timer:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 3.4: Query Adoption Filter Timer</B>
+#------------------------------------------------------------------------------
+./mldv2-router_3_4_a.seq:mldv2-router_3_4_a.def:::3.4.a Default MALI before Filter Timer expires:1
+./mldv2-router_3_4_b.seq:mldv2-router_3_4_b.def:::3.4.b Default MALI after Filter Timer expires:1
+./mldv2-router_3_4_c.seq:mldv2-router_3_4_c.def:::3.4.c Adoption RV and QI before Filter Timer expires:1
+./mldv2-router_3_4_d.seq:mldv2-router_3_4_d.def:::3.4.d Adoption RV and QI after Filter Timer expires:1
+./mldv2-router_3_4_e.seq:mldv2-router_3_4_e.def:::3.4.e Small QQIC before Filter Timer expires:1
+./mldv2-router_3_4_f.seq:mldv2-router_3_4_f.def:::3.4.f Small QQIC after Filter Timer expires:1
+./mldv2-router_3_4_g.seq:mldv2-router_3_4_g.def:::3.4.g QRV before Filter Timer expires:1
+./mldv2-router_3_4_h.seq:mldv2-router_3_4_h.def:::3.4.h QRV after Filter Timer expires:1
+./mldv2-router_3_4_i.seq:mldv2-router_3_4_i.def:::3.4.i QQIC before Filter Timer expires:1
+./mldv2-router_3_4_j.seq:mldv2-router_3_4_j.def:::3.4.j QQIC after Filter Timer expires:1
+./mldv2-router_3_4_k.seq:mldv2-router_3_4_k.def:::3.4.k Last Listener Timer:1
+./mldv2-router_3_4_l.seq:mldv2-router_3_4_l.def:::3.4.l Change Filter Mode before Filter Timer expires:1
+./mldv2-router_3_4_m.seq:mldv2-router_3_4_m.def:::3.4.m Change Filter Mode after Filter Timer expires:1
+./mldv2-router_3_4_n.seq:mldv2-router_3_4_n.def:::3.4.n S Flag:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 3.5: Query Adoption Source Timer</B>
+#------------------------------------------------------------------------------
+./mldv2-router_3_5_a.seq:mldv2-router_3_5_a.def:::3.5.a Default MALI before Source Timer expires:1
+./mldv2-router_3_5_b.seq:mldv2-router_3_5_b.def:::3.5.b Default MALI after Source Timer expires:1
+./mldv2-router_3_5_c.seq:mldv2-router_3_5_c.def:::3.5.c Adoption RV and QI before Source Timer expires:1
+./mldv2-router_3_5_d.seq:mldv2-router_3_5_d.def:::3.5.d Adoption RV and QI after Source Timer expires:1
+./mldv2-router_3_5_e.seq:mldv2-router_3_5_e.def:::3.5.e Small QQIC before Source Timer expires:1
+./mldv2-router_3_5_f.seq:mldv2-router_3_5_f.def:::3.5.f Small QQIC after Source Timer expires:1
+./mldv2-router_3_5_g.seq:mldv2-router_3_5_g.def:::3.5.g QRV before Source Timer expires:1
+./mldv2-router_3_5_h.seq:mldv2-router_3_5_h.def:::3.5.h QRV after Source Timer expires:1
+./mldv2-router_3_5_i.seq:mldv2-router_3_5_i.def:::3.5.i QQIC before Source Timer expires:1
+./mldv2-router_3_5_j.seq:mldv2-router_3_5_j.def:::3.5.j QQIC after Source Timer expires:1
+./mldv2-router_3_5_k.seq:mldv2-router_3_5_k.def:::3.5.k Last Listener Timer:1
+./mldv2-router_3_5_l.seq:mldv2-router_3_5_l.def:::3.5.l Change Source Mode before Source Timer expires:1
+./mldv2-router_3_5_m.seq:mldv2-router_3_5_m.def:::3.5.m Change Filter Mode after Source Timer expires:1
+./mldv2-router_3_5_n.seq:mldv2-router_3_5_n.def:::3.5.n S Flag:1
+
+
+
+#==============================================================================
+&print:<B> GROUP 4: Report Reception</B>
+#==============================================================================
+#------------------------------------------------------------------------------
+&print:<B> Group 4.1: Including - Receives Is Include</B>
+#------------------------------------------------------------------------------
+./mldv2-router_4_1_a.seq:mldv2-router_4_1_a.def:::4.1.a Including Nothing, Receives Is Include nothing:1
+./mldv2-router_4_1_b.seq:mldv2-router_4_1_b.def:::4.1.b Including Nothing, Receives Is Include nothing an Is Include Source:1
+./mldv2-router_4_1_c.seq:mldv2-router_4_1_c.def:::4.1.c Including A, Receives Is Include nothing:1
+./mldv2-router_4_1_d.seq:mldv2-router_4_1_d.def:::4.1.d Including A, Receives Is Include Source:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 4.2: Including - Receives Is Include and updates timer</B>
+#------------------------------------------------------------------------------
+./mldv2-router_4_2_a.seq:mldv2-router_4_2_a.def:::4.2.a Before first Source Timer expires:1
+./mldv2-router_4_2_b.seq:mldv2-router_4_2_b.def:::4.2.b After first Source Timer expires:1
+./mldv2-router_4_2_c.seq:mldv2-router_4_2_c.def:::4.2.c Before second Source Timer expires:1
+./mldv2-router_4_2_d.seq:mldv2-router_4_2_d.def:::4.2.d After second Source Timer expires:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 4.3: Including - Receives Is Exclude</B>
+#------------------------------------------------------------------------------
+./mldv2-router_4_3_a.seq:mldv2-router_4_3_a.def:::4.3.a Including Nothing, Receives Is Exclude nothing, Check Request List:1
+./mldv2-router_4_3_b.seq:mldv2-router_4_3_b.def:::4.3.b Including Nothing, Receives Is Exclude nothing, Check Exclude List:1
+./mldv2-router_4_3_c.seq:mldv2-router_4_3_c.def:::4.3.c Including Nothing, Receives Is Exclude Source, Check Request List:1
+./mldv2-router_4_3_d.seq:mldv2-router_4_3_d.def:::4.3.d Including Nothing, Receives Is Exclude Source, Check Exclude List:1
+./mldv2-router_4_3_e.seq:mldv2-router_4_3_e.def:::4.3.e Including Source, Receives Is Exclude nothing, Check Request List:1
+./mldv2-router_4_3_f.seq:mldv2-router_4_3_f.def:::4.3.f Including Source, Receives Is Exclude nothing, Check Exclude List:1
+./mldv2-router_4_3_g.seq:mldv2-router_4_3_g.def:::4.3.g Including Source, Receives Is Exclude Source, Check Request List:1
+./mldv2-router_4_3_h.seq:mldv2-router_4_3_h.def:::4.3.h Including Source, Receives Is Exclude Source, Check Exclude List:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 4.4: Including - Receives Is Exclude and Updates Timer</B>
+#------------------------------------------------------------------------------
+./mldv2-router_4_4_a.seq:mldv2-router_4_4_a.def:::4.4.a Before First source timer expires, Check Request List:1
+./mldv2-router_4_4_b.seq:mldv2-router_4_4_b.def:::4.4.b Before first source timer expires, Check Exclude List:1
+./mldv2-router_4_4_c.seq:mldv2-router_4_4_c.def:::4.4.c After first source timer expires, Check Request List:1
+./mldv2-router_4_4_d.seq:mldv2-router_4_4_d.def:::4.4.d After first source timer expires, Check Exclude List:1
+./mldv2-router_4_4_e.seq:mldv2-router_4_4_e.def:::4.4.e Before filter timer expires, Check Request List:1
+./mldv2-router_4_4_f.seq:mldv2-router_4_4_f.def:::4.4.f Before filter timer expires, Check Exclude List:1
+./mldv2-router_4_4_g.seq:mldv2-router_4_4_g.def:::4.4.g Before filter timer expires, Check Include List:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 4.5: Excluding - Receives Is Include</B>
+#------------------------------------------------------------------------------
+./mldv2-router_4_5_a.seq:mldv2-router_4_5_a.def:::4.5.a Exclude nothing, Report Is Include nothing, Check Request List:1
+./mldv2-router_4_5_b.seq:mldv2-router_4_5_b.def:::4.5.b Exclude nothing, Report Is Include nothing, Check Exclude List:1
+./mldv2-router_4_5_c.seq:mldv2-router_4_5_c.def:::4.5.c Excluding Nothing, Report Is Include nothing and a source, Check Request List:1
+./mldv2-router_4_5_d.seq:mldv2-router_4_5_d.def:::4.5.d Excluding Nothing, Report Is Include nothing and a source, Check Exclude List:1
+./mldv2-router_4_5_e.seq:mldv2-router_4_5_e.def:::4.5.e Excluding Source, Report Is Include nothing, Check Request List:1
+./mldv2-router_4_5_f.seq:mldv2-router_4_5_f.def:::4.5.f Excluding Source, Report Is Include nothing, Check Exclude List:1
+./mldv2-router_4_5_g.seq:mldv2-router_4_5_g.def:::4.5.g Excluding Source, Report Is Include Source, Check Request List:1
+./mldv2-router_4_5_h.seq:mldv2-router_4_5_h.def:::4.5.h Excluding Source, Report Is Include Source, Check Request List:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 4.6: Excluding - Receives Is Include and Updates Timer</B>
+#------------------------------------------------------------------------------
+./mldv2-router_4_6_a.seq:mldv2-router_4_6_a.def:::4.6.a Before filter timer expires, Check Request List:1
+./mldv2-router_4_6_b.seq:mldv2-router_4_6_b.def:::4.6.b After filter timer expires, Check Exclude List:1
+./mldv2-router_4_6_c.seq:mldv2-router_4_6_c.def:::4.6.c After filter timer expires, Check Include List:1
+./mldv2-router_4_6_d.seq:mldv2-router_4_6_d.def:::4.6.d Before second source timer expires, Check Include List:1
+./mldv2-router_4_6_e.seq:mldv2-router_4_6_e.def:::4.6.e After second source timer expires, Check Include List:1
+./mldv2-router_4_6_f.seq:mldv2-router_4_6_f.def:::4.6.f Before third source timer expires, Check Include List:1
+./mldv2-router_4_6_g.seq:mldv2-router_4_6_g.def:::4.6.g After third source timer expires, Check Include List:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 4.7: Excluding - Receives Is Exclude</B>
+#------------------------------------------------------------------------------
+./mldv2-router_4_7_a.seq:mldv2-router_4_7_a.def:::4.7.a Exclude nothing, Report Is Exclude nothing, Check Request List:1
+./mldv2-router_4_7_b.seq:mldv2-router_4_7_b.def:::4.7.b Exclude nothing, Report Is Exclude nothing, Check Exclude List:1
+./mldv2-router_4_7_c.seq:mldv2-router_4_7_c.def:::4.7.c Excluding Nothing, Report Is Exclude nothing and a source, Check Request List:1
+./mldv2-router_4_7_d.seq:mldv2-router_4_7_d.def:::4.7.d Excluding Nothing, Report Is Exclude nothing and a source, Check Exclude List:1
+./mldv2-router_4_7_e.seq:mldv2-router_4_7_e.def:::4.7.e Excluding Source, Report Is Exclude nothing, Check Request List:1
+./mldv2-router_4_7_f.seq:mldv2-router_4_7_f.def:::4.7.f Excluding Source, Report Is Exclude nothing, Check Exclude List:1
+./mldv2-router_4_7_g.seq:mldv2-router_4_7_g.def:::4.7.g Excluding Source, Report Is Exclude Source, Check Request List:1
+./mldv2-router_4_7_h.seq:mldv2-router_4_7_h.def:::4.7.h Excluding Source, Report Is Exclude Source, Check Request List:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 4.8: Excluding - Receives Is Exclude and Updates Timer</B>
+#------------------------------------------------------------------------------
+./mldv2-router_4_8_a.seq:mldv2-router_4_8_a.def:::4.8.a Before second source timer expires, Check Request List:1
+./mldv2-router_4_8_b.seq:mldv2-router_4_8_b.def:::4.8.b Before second timer expires, Check Exclude List:1
+./mldv2-router_4_8_c.seq:mldv2-router_4_8_c.def:::4.8.c After second source timer expires, Check Request List:1
+./mldv2-router_4_8_d.seq:mldv2-router_4_8_d.def:::4.8.d After second source timer expires, Check Exclude List:1
+./mldv2-router_4_8_e.seq:mldv2-router_4_8_e.def:::4.8.e Before filter timer expires, Check Exclude List:1
+./mldv2-router_4_8_f.seq:mldv2-router_4_8_f.def:::4.8.f After filter timer expires, Check Include List:1
+./mldv2-router_4_8_g.seq:mldv2-router_4_8_g.def:::4.8.g After third source timer expires, Check Include List:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 4.9: Including - Receives Allow</B>
+#------------------------------------------------------------------------------
+./mldv2-router_4_9_a.seq:mldv2-router_4_9_a.def:::4.9.a Including nothing, receives Allow:1
+./mldv2-router_4_9_b.seq:mldv2-router_4_9_b.def:::4.9.b Including nothing, receives Allow with second source:1
+./mldv2-router_4_9_c.seq:mldv2-router_4_9_c.def:::4.9.c Including Source, receives Allow:1
+./mldv2-router_4_9_d.seq:mldv2-router_4_9_d.def:::4.9.d Including Source, Receives Allow with second source:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 4.10: Including - Receives Allow and Updates Timer</B>
+#------------------------------------------------------------------------------
+./mldv2-router_4_10_a.seq:mldv2-router_4_10_a.def:::4.10.a Before source timer expires, Check Include List:1
+./mldv2-router_4_10_b.seq:mldv2-router_4_10_b.def:::4.10.b After source timer expires, Check Include List:1
+./mldv2-router_4_10_c.seq:mldv2-router_4_10_c.def:::4.10.c Before second source timer expires, Check Include List:1
+./mldv2-router_4_10_d.seq:mldv2-router_4_10_d.def:::4.10.d After second source timer expires, Check Include List:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 4.11: Including - Receives Block</B>
+#------------------------------------------------------------------------------
+./mldv2-router_4_11_a.seq:mldv2-router_4_11_a.def:::4.11.a Including nothing, receive BLOCK nothing:1
+./mldv2-router_4_11_b.seq:mldv2-router_4_11_b.def:::4.11.b Include nothing, Report BLOCK nothing and ALLOW source:1
+./mldv2-router_4_11_c.seq:mldv2-router_4_11_c.def:::4.11.c Include nothing, Report BLOCK Source:1
+./mldv2-router_4_11_d.seq:mldv2-router_4_11_d.def:::4.11.d Include nothing, Report BLOCK Source and ALLOW different source:1
+./mldv2-router_4_11_e.seq:mldv2-router_4_11_e.def:::4.11.e Including Source, receives BLOCK nothing:1
+./mldv2-router_4_11_f.seq:mldv2-router_4_11_f.def:::4.11.f Including Source, Report BLOCK different source:1
+./mldv2-router_4_11_g.seq:mldv2-router_4_11_g.def:::4.11.g Including Source, Report BLOCK different source and ALLOW third source:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 4.12: Including - Receives BLOCK and Updates Timer</B>
+#------------------------------------------------------------------------------
+./mldv2-router_4_12_a.seq:mldv2-router_4_12_a.def:::4.12.a Before source timer expires, Check Include List:1
+./mldv2-router_4_12_b.seq:mldv2-router_4_12_b.def:::4.12.b After source timer expires, Check Include List:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 4.13:  Including - Receives To Exclude</B>
+#------------------------------------------------------------------------------
+./mldv2-router_4_13_a.seq:mldv2-router_4_13_a.def:::4.13.a Including nothing, receives To Exclude nothing, Check Requested List:1
+./mldv2-router_4_13_b.seq:mldv2-router_4_13_b.def:::4.13.b Including nothing, receives To Exclude nothing, Check Exclude List:1
+./mldv2-router_4_13_c.seq:mldv2-router_4_13_c.def:::4.13.c Including nothing, receives To Exclude source, Check Requested List:1
+./mldv2-router_4_13_d.seq:mldv2-router_4_13_d.def:::4.13.d Including nothing, receives To Exclude source, Check Exclude List:1
+./mldv2-router_4_13_e.seq:mldv2-router_4_13_e.def:::4.13.e Including source, receives To Exclude nothing, Check Requested List:1
+./mldv2-router_4_13_f.seq:mldv2-router_4_13_f.def:::4.13.f Including source, receives To Exclude different source, Check Exclude List:1
+./mldv2-router_4_13_g.seq:mldv2-router_4_13_g.def:::4.13.g Including source, receives To Exclude different source, Check Requested List:1
+./mldv2-router_4_13_h.seq:mldv2-router_4_13_h.def:::4.13.h Including source, receives To Exclude different source, Check Exclude List:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 4.14: Including - Receives To Exclude and Updates Timer</B>
+#------------------------------------------------------------------------------
+./mldv2-router_4_14_a.seq:mldv2-router_4_14_a.def:::4.14.a Before filter timer expires, Check Requested List:1
+./mldv2-router_4_14_b.seq:mldv2-router_4_14_b.def:::4.14.b Before filter timer expires, Check Exclude List:1
+./mldv2-router_4_14_c.seq:mldv2-router_4_14_c.def:::4.14.c After filter timer expires, Check Include List:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 4.15: Including - Receives To Include</B>
+#------------------------------------------------------------------------------
+./mldv2-router_4_15_a.seq:mldv2-router_4_15_a.def:::4.15.a Including nothing, receives To Include nothing:1
+./mldv2-router_4_15_b.seq:mldv2-router_4_15_b.def:::4.15.b Including nothing, receives To Include with second source:1
+./mldv2-router_4_15_c.seq:mldv2-router_4_15_c.def:::4.15.c Including Source, receives To Include nothing:1
+./mldv2-router_4_15_d.seq:mldv2-router_4_15_d.def:::4.15.d  Including Source, Receives To Include with second source:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 4.16: Including - Receives To Include and Updates Timer</B>
+#------------------------------------------------------------------------------
+./mldv2-router_4_16_a.seq:mldv2-router_4_16_a.def:::4.16.a Before second source timer expires, Check Include List:1
+./mldv2-router_4_16_b.seq:mldv2-router_4_16_b.def:::4.16.b After second source timer expires, Check Include List:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 4.17: Excluding - Receives Allow</B>
+#------------------------------------------------------------------------------
+./mldv2-router_4_17_a.seq:mldv2-router_4_17_a.def:::4.17.a Excluding nothing, receives Allow nothing, Check Requested List:1
+./mldv2-router_4_17_b.seq:mldv2-router_4_17_b.def:::4.17.b Excluding nothing, receives Allow nothing, Check Exclude List:1
+./mldv2-router_4_17_c.seq:mldv2-router_4_17_c.def:::4.17.c Excluding nothing, receives Allow nothing and Allow source, Check Requested List:1
+./mldv2-router_4_17_d.seq:mldv2-router_4_17_d.def:::4.17.d Excluding nothing, receives Allow nothing and Allow source, Check Exclude List:1
+./mldv2-router_4_17_e.seq:mldv2-router_4_17_e.def:::4.17.e Excluding source and request different source, receives Allow nothing, Check Requested List:./1
+./mldv2-router_4_17_f.seq:mldv2-router_4_17_f.def:::4.17.f Excluding source and request different source, receives Allow nothing, Check Exclude List:1
+./mldv2-router_4_17_g.seq:mldv2-router_4_17_g.def:::4.17.g Excluding source and request different source, receives Allow source, Check Requested List:1
+./mldv2-router_4_17_h.seq:mldv2-router_4_17_h.def:::4.17.h Excluding source and request different source, receives Allow source, Check Exclude List:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 4.18: Excluding - Receives Allow and Updates Timer</B>
+#------------------------------------------------------------------------------
+./mldv2-router_4_18_a.seq:mldv2-router_4_18_a.def:::4.18.a Before filter timer expires, Check Requested List:1
+./mldv2-router_4_18_b.seq:mldv2-router_4_18_b.def:::4.18.b After filter timer expires, Check Exclude List:1
+./mldv2-router_4_18_c.seq:mldv2-router_4_18_c.def:::4.18.c After filter expire, Check Include List:1
+./mldv2-router_4_18_d.seq:mldv2-router_4_18_d.def:::4.18.d Before second timer expire, Check Include List:1
+./mldv2-router_4_18_e.seq:mldv2-router_4_18_e.def:::4.18.e After expiring second source timer, Check Include List:1
+./mldv2-router_4_18_f.seq:mldv2-router_4_18_f.def:::4.18.f Before expiring third source timer, Check Include List:1
+./mldv2-router_4_18_g.seq:mldv2-router_4_18_g.def:::4.18.g After expiring third source timer, Check Include List:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 4.19: Excluding - Receives Block</B>
+#------------------------------------------------------------------------------
+./mldv2-router_4_19_a.seq:mldv2-router_4_19_a.def:::4.19.a Excluding nothing, receives Block nothing, Check Requested List:1
+./mldv2-router_4_19_b.seq:mldv2-router_4_19_b.def:::4.19.b Excluding nothing, receives Block nothing, Check Exclude List:1
+./mldv2-router_4_19_c.seq:mldv2-router_4_19_c.def:::4.19.c Excluding nothing, receives Block nothing and Allow source, Check Requested List:1
+./mldv2-router_4_19_d.seq:mldv2-router_4_19_d.def:::4.19.d Excluding nothing, receives Block nothing and Allow source, Check Exclude List:1
+./mldv2-router_4_19_e.seq:mldv2-router_4_19_e.def:::4.19.e Excluding source and request different source, receives Block nothing, Check Requested List:1
+./mldv2-router_4_19_f.seq:mldv2-router_4_19_f.def:::4.19.f Excluding source and request different source, receives Block nothing, Check Exclude List:1
+./mldv2-router_4_19_g.seq:mldv2-router_4_19_g.def:::4.19.g Excluding source and request different source, receives Block source, Check Requested List:1
+./mldv2-router_4_19_h.seq:mldv2-router_4_19_h.def:::4.19.h Excluding source and request different source, receives Block source, Check Exclude List:1
+./mldv2-router_4_19_i.seq:mldv2-router_4_19_i.def:::4.19.i Excluding nothing, receives Block source and Allow different source, Check Requested List:1
+./mldv2-router_4_19_j.seq:mldv2-router_4_19_j.def:::4.19.j Excluding nothing, receives Block source and Allow different source, Check Exclude List:1
+./mldv2-router_4_19_k.seq:mldv2-router_4_19_k.def:::4.19.k Excluding source and request different source, receives Block source and Allow different source, Check Requested List:1
+./mldv2-router_4_19_l.seq:mldv2-router_4_19_l.def:::4.19.l Excluding source and request different source, receives Block source and Allow different source, Check Requested List:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 4.20: Excluding - Receives Block and Updates Timer</B>
+#------------------------------------------------------------------------------
+./mldv2-router_4_20_a.seq:mldv2-router_4_20_a.def:::4.20.a Before filter timer expires, Check Requested List:1
+./mldv2-router_4_20_b.seq:mldv2-router_4_20_b.def:::4.20.b Before filter timer expires, Check Exclude List:1
+./mldv2-router_4_20_c.seq:mldv2-router_4_20_c.def:::4.20.c After filter timer expires, Check Include List:1
+./mldv2-router_4_20_d.seq:mldv2-router_4_20_d.def:::4.20.d Before second timer expire, Check Include List:1
+./mldv2-router_4_20_e.seq:mldv2-router_4_20_e.def:::4.20.e After expiring second source timer, Check Include List:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 4.21: Excluding - Receives To Exclude</B>
+#------------------------------------------------------------------------------
+./mldv2-router_4_21_a.seq:mldv2-router_4_21_a.def:::4.21.a Excluding nothing, receives To Exclude nothing, Check Requested List:1
+./mldv2-router_4_21_b.seq:mldv2-router_4_21_b.def:::4.21.b Excluding nothing, receives To Exclude nothing, Check Exclude List:1
+./mldv2-router_4_21_c.seq:mldv2-router_4_21_c.def:::4.21.c Excluding nothing, receives To Exclude source, Check Requested List:1
+./mldv2-router_4_21_d.seq:mldv2-router_4_21_d.def:::4.21.d Excluding nothing, receives To Exclude source, Check Exclude List:1
+./mldv2-router_4_21_e.seq:mldv2-router_4_21_e.def:::4.21.e Excluding source and request different source, receives To Exclude nothing, Check Requested List:1
+./mldv2-router_4_21_f.seq:mldv2-router_4_21_f.def:::4.21.f Excluding source and request different source, receives To Exclude nothing, Check Exclude List:1
+./mldv2-router_4_21_g.seq:mldv2-router_4_21_g.def:::4.21.g Excluding source and request different source, receives To Exclude source, Check Requested List:1
+./mldv2-router_4_21_h.seq:mldv2-router_4_21_h.def:::4.21.h Excluding source and request different source, receives To Exclude source, Check Exclude List:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 4.22: Excluding - Receives To Exclude and Updates Timer</B>
+#------------------------------------------------------------------------------
+./mldv2-router_4_22_a.seq:mldv2-router_4_22_a.def:::4.22.a Before filter timer expires, Check Requested List:1
+./mldv2-router_4_22_b.seq:mldv2-router_4_22_b.def:::4.22.b Before filter timer expires, Check Exclude List:1
+./mldv2-router_4_22_c.seq:mldv2-router_4_22_c.def:::4.22.c After filter timer expires, Check Include List:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 4.23: Excluding - Receives To Include</B>
+#------------------------------------------------------------------------------
+./mldv2-router_4_23_a.seq:mldv2-router_4_23_a.def:::4.23.a Excluding nothing, receives To Include nothing, Check Include List:1
+./mldv2-router_4_23_b.seq:mldv2-router_4_23_b.def:::4.23.b Excluding nothing, receives To Include source, Check Include List:1
+./mldv2-router_4_23_c.seq:mldv2-router_4_23_c.def:::4.23.c Excluding source and request different source, receives To Include nothing, Check Requested List:1
+./mldv2-router_4_23_d.seq:mldv2-router_4_23_d.def:::4.23.d Excluding source and request different source, receives To Exclude source, Check Requested List:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 4.24: Excluding - Receives To Include and Updates Timer</B>
+#------------------------------------------------------------------------------
+./mldv2-router_4_24_a.seq:mldv2-router_4_24_a.def:::4.24.a Before second source timer expires, Check Include List:1
+./mldv2-router_4_24_b.seq:mldv2-router_4_24_b.def:::4.24.b Before filter timer expires, Check Include List:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 4.25: Receive Current State Record After Receiving State Change Record</B>
+#------------------------------------------------------------------------------
+./mldv2-router_4_25_a.seq:mldv2-router_4_25_a.def:::4.25.a Including S1, Sends a Query after Block S2, receives Is Include S3:1
+./mldv2-router_4_25_b.seq:mldv2-router_4_25_b.def:::4.25.b Including S1, Sends a Query after Block S2, receives Is Exclude S3:1
+./mldv2-router_4_25_c.seq:mldv2-router_4_25_c.def:::4.25.c Including S1, Sends a Query after To Exclude S2, receives Is Include S3:1
+./mldv2-router_4_25_d.seq:mldv2-router_4_25_d.def:::4.25.d Including S1, Sends a Query after To Exclude S2, receives Is Exclude S3:1
+./mldv2-router_4_25_e.seq:mldv2-router_4_25_e.def:::4.25.e Including S1, Sends a Query after To Include S2, receives Is Include S3:1
+./mldv2-router_4_25_f.seq:mldv2-router_4_25_f.def:::4.25.f Including S1, Sends a Query after To Include S2, receives Is Exclude S3:1
+./mldv2-router_4_25_g.seq:mldv2-router_4_25_g.def:::4.25.g Excluding nothing, Sends a Query after Block S2, receives Is Include S3:1
+./mldv2-router_4_25_h.seq:mldv2-router_4_25_h.def:::4.25.h Excluding nothing, Sends a Query after Block S2, receives Is Exclude S3:1
+./mldv2-router_4_25_i.seq:mldv2-router_4_25_i.def:::4.25.i Excluding nothing, Sends a Query after To Exclude S2, receives Is Include S3:1
+./mldv2-router_4_25_j.seq:mldv2-router_4_25_j.def:::4.25.j Excluding nothing, Sends a Query after Is Exclude S2, receives Is Exclude S3:1
+./mldv2-router_4_25_k.seq:mldv2-router_4_25_k.def:::4.25.k Excluding nothing with Requested S4, Sends a Query after To Include S2, receives Is Include S3:1
+./mldv2-router_4_25_l.seq:mldv2-router_4_25_l.def:::4.25.l Excluding nothing with Requested S4, Sends a Query after To Include S2, receives Is Exclude S3:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 4.26: Receive State Change Record After Receiving State Change Record</B>
+#------------------------------------------------------------------------------
+./mldv2-router_4_26_a.seq:mldv2-router_4_26_a.def:::4.26.a Including S1, Sends a Query after Block S2, receives Allow S3:1
+./mldv2-router_4_26_b.seq:mldv2-router_4_26_b.def:::4.26.b Including S1, Sends a Query after Block S2, receives Block S3:1
+./mldv2-router_4_26_c.seq:mldv2-router_4_26_c.def:::4.26.c Including S1, Sends a Query after Block S2, receives To Exclude S3:1
+./mldv2-router_4_26_d.seq:mldv2-router_4_26_d.def:::4.26.d Including S1, Sends a Query after Block S2, receives To Include S3:1
+./mldv2-router_4_26_e.seq:mldv2-router_4_26_e.def:::4.26.e Including S1, Sends a Query after To Exclude S2, receives Allow S3:1
+./mldv2-router_4_26_f.seq:mldv2-router_4_26_f.def:::4.26.f Including S1, Sends a Query after To Exclude S2, receives Block S3:1
+./mldv2-router_4_26_g.seq:mldv2-router_4_26_g.def:::4.26.g Including S1, Sends a Query after To Exclude S2, receives To Exclude S3:1
+./mldv2-router_4_26_h.seq:mldv2-router_4_26_h.def:::4.26.h Including S1, Sends a Query after To Exclude S2, receives To Include S3:1
+./mldv2-router_4_26_i.seq:mldv2-router_4_26_i.def:::4.26.i Including S1, Sends a Query after To Include S2, receives Allow S3:1
+./mldv2-router_4_26_j.seq:mldv2-router_4_26_j.def:::4.26.j Including S1, Sends a Query after To Include S2, receives Block S3:1
+./mldv2-router_4_26_k.seq:mldv2-router_4_26_k.def:::4.26.k Including S1, Sends a Query after To Include S2, receives To Exclude S3:1
+./mldv2-router_4_26_l.seq:mldv2-router_4_26_l.def:::4.26.l Including S1, Sends a Query after To Include S2, receives To Include S3:1
+./mldv2-router_4_26_m.seq:mldv2-router_4_26_m.def:::4.26.m Excluding nothing, Sends a Query after Block S2, receives Allow S3:1
+./mldv2-router_4_26_n.seq:mldv2-router_4_26_n.def:::4.26.n Excluding nothing, Sends a Query after Block S2, receives Block S3:1
+./mldv2-router_4_26_o.seq:mldv2-router_4_26_o.def:::4.26.o Excluding nothing, Sends a Query after Block S2, receives To Exclude S3:1
+./mldv2-router_4_26_p.seq:mldv2-router_4_26_p.def:::4.26.p Excluding nothing, Sends a Query after Block S2, receives To Include S3:1
+./mldv2-router_4_26_q.seq:mldv2-router_4_26_q.def:::4.26.q Excluding nothing, Sends a Query after To Exclude S2, receives Allow S3:1
+./mldv2-router_4_26_r.seq:mldv2-router_4_26_r.def:::4.26.r Excluding nothing, Sends a Query after To Exclude S2, receives Block S3:1
+./mldv2-router_4_26_s.seq:mldv2-router_4_26_s.def:::4.26.s Excluding nothing, Sends a Query after To Exclude S2, receives To Exclude S3:1
+./mldv2-router_4_26_t.seq:mldv2-router_4_26_t.def:::4.26.t Excluding nothing, Sends a Query after To Exclude S2, receives To Include S3:1
+./mldv2-router_4_26_u.seq:mldv2-router_4_26_u.def:::4.26.u Excluding nothing with Requested, Sends a Query after To Include S2, receives Allow S3:1
+./mldv2-router_4_26_v.seq:mldv2-router_4_26_v.def:::4.26.v Excluding nothing with Requested, Sends a Query after To Include S2, receives Block S3:1
+./mldv2-router_4_26_w.seq:mldv2-router_4_26_w.def:::4.26.w Excluding nothing with Requested, Sends a Query after To Include S2, receives To Exclude S3:1
+./mldv2-router_4_26_x.seq:mldv2-router_4_26_x.def:::4.26.x Excluding nothing with Requested, Sends a Query after To Include S2, receives To Include S3:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 4.27: Multiple Records</B>
+#------------------------------------------------------------------------------
+./mldv2-router_4_27_a.seq:mldv2-router_4_27_a.def:::4.27.a Two Records in one message:1
+./mldv2-router_4_27_b.seq:mldv2-router_4_27_b.def:::4.27.b Current State is Include, receiving multiple records:1
+./mldv2-router_4_27_c.seq:mldv2-router_4_27_c.def:::4.27.c Current State is Exclude nothing, receiving multiple record:1
+./mldv2-router_4_27_d.seq:mldv2-router_4_27_d.def:::4.27.d Current State is Exclude Source, receiving multiple record:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 4.28: MTU</B>
+#------------------------------------------------------------------------------
+./mldv2-router_4_28_a.seq:mldv2-router_4_28_a.def:::4.28.a Include List:1
+./mldv2-router_4_28_b.seq:mldv2-router_4_28_b.def:::4.28.b Requested List:1
+
+
+
+#==============================================================================
+&print:<B> GROUP 5: Version Interoperability</B>
+#==============================================================================
+#------------------------------------------------------------------------------
+&print:<B> Group 5.1: MLDv1 Query in MLDv2 Mode</B>
+#------------------------------------------------------------------------------
+./mldv2-router_5_1_a.seq:mldv2-router_5_1_a.def:::5.1.a MLDv1 General Query:1
+./mldv2-router_5_1_b.seq:mldv2-router_5_1_b.def:::5.1.b MLDv1 Multicast Address Specific Query:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 5.2: MLDv1 Report in MLDv2 Mode</B>
+#------------------------------------------------------------------------------
+./mldv2-router_5_2_a.seq:mldv2-router_5_2_a.def:::5.2.a Including Source, MLDv1 Report:1
+./mldv2-router_5_2_b.seq:mldv2-router_5_2_b.def:::5.2.b Including Source, MLDv1 Report before Filter Timer expires:1
+./mldv2-router_5_2_c.seq:mldv2-router_5_2_c.def:::5.2.c Including Source, MLDv1 Report after Filter Timer expires:1
+./mldv2-router_5_2_d.seq:mldv2-router_5_2_d.def:::5.2.d Including Source, MLDv1 Done:1
+./mldv2-router_5_2_e.seq:mldv2-router_5_2_e.def:::5.2.e Excluding Source with Requested Another Source, MLDv1 Report:1
+./mldv2-router_5_2_f.seq:mldv2-router_5_2_f.def:::5.2.f Excluding Source with Requested Another Source, MLDv1 Report before Filter Timer expires:1
+./mldv2-router_5_2_g.seq:mldv2-router_5_2_g.def:::5.2.g Excluding Source with Requested Another Source, MLDv1 Report after Filter Timer expires:1
+./mldv2-router_5_2_h.seq:mldv2-router_5_2_h.def:::5.2.h Excluding Source with Requested Another Source, MLDv1 Done:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 5.3: MLDv1 Compatibility Mode</B>
+#------------------------------------------------------------------------------
+./mldv2-router_5_3_a.seq:mldv2-router_5_3_a.def:::5.3.a MLDv1 Report and MLDv1 Done:1
+./mldv2-router_5_3_b.seq:mldv2-router_5_3_b.def:::5.3.b Is Include Source:1
+./mldv2-router_5_3_c.seq:mldv2-router_5_3_c.def:::5.3.c Is Exclude nothing:1
+./mldv2-router_5_3_d.seq:mldv2-router_5_3_d.def:::5.3.d Is Exclude source:1
+./mldv2-router_5_3_e.seq:mldv2-router_5_3_e.def:::5.3.e Allow source:1
+./mldv2-router_5_3_f.seq:mldv2-router_5_3_f.def:::5.3.f Block Source:1
+./mldv2-router_5_3_g.seq:mldv2-router_5_3_g.def:::5.3.g To Exclude nothing:1
+./mldv2-router_5_3_h.seq:mldv2-router_5_3_h.def:::5.3.h To Exclude source:1
+./mldv2-router_5_3_i.seq:mldv2-router_5_3_i.def:::5.3.i To Include nothing:1
+./mldv2-router_5_3_j.seq:mldv2-router_5_3_j.def:::5.3.j To Include source:1
+./mldv2-router_5_3_k.seq:mldv2-router_5_3_k.def:::5.3.k Allow two sources:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 5.4: MLDv1 Compatibility Mode Scope</B>
+#------------------------------------------------------------------------------
+./mldv2-router_5_4_a.seq:mldv2-router_5_4_a.def:::5.4.a MLDv1 Compatibility Mode Per Interface:1
+./mldv2-router_5_4_b.seq:mldv2-router_5_4_b.def:::5.4.b MLDv1 Compatibility Mode Per Interface, Older Version Host Present Timeout:1
+./mldv2-router_5_4_c.seq:mldv2-router_5_4_c.def:::5.4.c MLDv1 Compatibility Mode Per Multicast Address Record:1
+./mldv2-router_5_4_d.seq:mldv2-router_5_4_d.def:::5.4.d MLDv1 Compatibility Mode Per Multicast Address Record, Older Version Host Present Timeout:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 5.5: MLDv2 fixed mode (Advanced Function)</B>
+#------------------------------------------------------------------------------
+./mldv2-router_5_5_a.seq:mldv2-router_5_5_a.def:::5.5.a MLDv1 Report:1
+./mldv2-router_5_5_b.seq:mldv2-router_5_5_b.def:::5.5.b MLDv1 Done:1
+
+
+
+#==============================================================================
+&print:<B> GROUP 6: Source Specific Multicast</B>
+#==============================================================================
+#------------------------------------------------------------------------------
+&print:<B> Group 6.1: SSM Range</B>
+#------------------------------------------------------------------------------
+./mldv2-router_6_1_a.seq:mldv2-router_6_1_a.def:::6.1.a Default SSM Range:1
+./mldv2-router_6_1_b.seq:mldv2-router_6_1_b.def:::6.1.b Configured SSM Range:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 6.2: SSM MLDv2 Report</B>
+#------------------------------------------------------------------------------
+./mldv2-router_6_2_a.seq:mldv2-router_6_2_a.def:::6.2.a Accept Is Include:1
+./mldv2-router_6_2_b.seq:mldv2-router_6_2_b.def:::6.2.b Ignores Is Exclude:1
+./mldv2-router_6_2_c.seq:mldv2-router_6_2_c.def:::6.2.c Accepts Allow:1
+./mldv2-router_6_2_d.seq:mldv2-router_6_2_d.def:::6.2.d All Sources Processed:1
+./mldv2-router_6_2_e.seq:mldv2-router_6_2_e.def:::6.2.e Accepts Blocks:1
+./mldv2-router_6_2_f.seq:mldv2-router_6_2_f.def:::6.2.f Accepts To Include:1
+./mldv2-router_6_2_g.seq:mldv2-router_6_2_g.def:::6.2.g Ignores To Exclude:1
+./mldv2-router_6_2_h.seq:mldv2-router_6_2_h.def:::6.2.h All Multicast address Records Processed:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 6.3: SSM MLDv2 Multicast Address and Source Specific Queries</B>
+#------------------------------------------------------------------------------
+./mldv2-router_6_3_a.seq:mldv2-router_6_3_a.def:::6.3.a Block caused Multicast Address and Source Specific Query:1
+./mldv2-router_6_3_b.seq:mldv2-router_6_3_b.def:::6.3.b To Include caused Multicast Address and Source Specific Query:1
+
+#------------------------------------------------------------------------------
+&print:<B> Group 6.4: SSM MLDv1 Report and Done Message</B>
+#------------------------------------------------------------------------------
+./mldv2-router_6_4_a.seq:mldv2-router_6_4_a.def:::6.4.a MLDv1 Report Ignored:1
+./mldv2-router_6_4_b.seq:mldv2-router_6_4_b.def:::6.4.b MLDv1 Done Ignored:1
+
+# EOF

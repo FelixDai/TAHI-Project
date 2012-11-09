@@ -1,0 +1,876 @@
+<HTML>
+<HEAD>
+<TITLE>IPv6 Test Specification</TITLE>
+<META NAME="GENERATOR" CONTENT="TAHI IPv6 Conformance Test Suite">
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<CENTER>
+<H1>Conformance Test for MLDv2 Router</H1>
+<HR>
+<TABLE WIDTH="100%" BORDER=1>
+<TR>
+<TH>No.</TH><TH>Title</TH>
+</TR>
+<TR><TD><BR></TD><TD><B> Group 1: Basic Functionality</B></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 1.1: General Query</B></TD></TR>
+<TR>
+<TD>1</TD><TD><A HREF="./mldv2-router_1_1.html">1.1 General Query</A></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 1.2: Robustness Variable</B></TD></TR>
+<TR>
+<TD>2</TD><TD><A HREF="./mldv2-router_1_2_a.html">1.2.a Robustness 3, Query Interval 60</A></TD></TR>
+<TR>
+<TD>3</TD><TD><A HREF="./mldv2-router_1_2_b.html">1.2.b Exceed Query Robustness Variable</A></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 1.3: Query Interval</B></TD></TR>
+<TR>
+<TD>4</TD><TD><A HREF="./mldv2-router_1_3_a.html">1.3.a Query Interval Below 128 seconds</A></TD></TR>
+<TR>
+<TD>5</TD><TD><A HREF="./mldv2-router_1_3_b.html">1.3.b Query Interval 128 Seconds</A></TD></TR>
+<TR>
+<TD>6</TD><TD><A HREF="./mldv2-router_1_3_c.html">1.3.c Query Interval 160 Seconds</A></TD></TR>
+<TR>
+<TD>7</TD><TD><A HREF="./mldv2-router_1_3_d.html">1.3.d Query Interval 164 Seconds</A></TD></TR>
+<TR>
+<TD>8</TD><TD><A HREF="./mldv2-router_1_3_e.html">1.3.e Query Interval 31744 seconds</A></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 1.4: Query Response Interval</B></TD></TR>
+<TR>
+<TD>9</TD><TD><A HREF="./mldv2-router_1_4_a.html">1.4.a Query Response Interval 32767, Query Interval 132</A></TD></TR>
+<TR>
+<TD>10</TD><TD><A HREF="./mldv2-router_1_4_b.html">1.4.b Query Response Interval 32768, Query Interval 132</A></TD></TR>
+<TR>
+<TD>11</TD><TD><A HREF="./mldv2-router_1_4_c.html">1.4.c Query Response Interval 40000, Query Interval 160</A></TD></TR>
+<TR>
+<TD>12</TD><TD><A HREF="./mldv2-router_1_4_d.html">1.4.d Query Response Interval 40007, Query Interval 161</A></TD></TR>
+<TR>
+<TD>13</TD><TD><A HREF="./mldv2-router_1_4_e.html">1.4.e Query Response Interval 128000, Query Interval 512</A></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 1.5: Multicast Address Listener Interval</B></TD></TR>
+<TR>
+<TD>14</TD><TD><A HREF="./mldv2-router_1_5_a.html">1.5.a Default MALI of RFC, Before Filter Timer Expires</A></TD></TR>
+<TR>
+<TD>15</TD><TD><A HREF="./mldv2-router_1_5_b.html">1.5.b Default MALI of RFC, After Filter Timer Expires</A></TD></TR>
+<TR>
+<TD>16</TD><TD><A HREF="./mldv2-router_1_5_c.html">1.5.c Configure MALI, Before Filter Timer Expires</A></TD></TR>
+<TR>
+<TD>17</TD><TD><A HREF="./mldv2-router_1_5_d.html">1.5.d Configure MALI, After Filter Timer Expires</A></TD></TR>
+<TR>
+<TD>18</TD><TD><A HREF="./mldv2-router_1_5_e.html">1.5.e Updating Filter Timer, Before Timer Expires</A></TD></TR>
+<TR>
+<TD>19</TD><TD><A HREF="./mldv2-router_1_5_f.html">1.5.f Updating Filter Timer, After Timer Expires</A></TD></TR>
+<TR>
+<TD>20</TD><TD><A HREF="./mldv2-router_1_5_g.html">1.5.g Default MALI, Before Source Timer Expires</A></TD></TR>
+<TR>
+<TD>21</TD><TD><A HREF="./mldv2-router_1_5_h.html">1.5.h Default MALI, After Source Timer Expires</A></TD></TR>
+<TR>
+<TD>22</TD><TD><A HREF="./mldv2-router_1_5_i.html">1.5.i Configure MALI, Before Source Timer Expires</A></TD></TR>
+<TR>
+<TD>23</TD><TD><A HREF="./mldv2-router_1_5_j.html">1.5.j Configure MALI, After Source Timer Expires</A></TD></TR>
+<TR>
+<TD>24</TD><TD><A HREF="./mldv2-router_1_5_k.html">1.5.k Update Source Timer, Before Timer Expires</A></TD></TR>
+<TR>
+<TD>25</TD><TD><A HREF="./mldv2-router_1_5_l.html">1.5.l Update Source Timer, After Timer Expires</A></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 1.6: Last Listener Query Timer</B></TD></TR>
+<TR>
+<TD>26</TD><TD><A HREF="./mldv2-router_1_6_a.html">1.6.a Default LLQT</A></TD></TR>
+<TR>
+<TD>27</TD><TD><A HREF="./mldv2-router_1_6_b.html">1.6.b Robustness Variable and LLQI</A></TD></TR>
+<TR>
+<TD>28</TD><TD><A HREF="./mldv2-router_1_6_d.html">1.6.d Source Specific Default LLQT</A></TD></TR>
+<TR>
+<TD>29</TD><TD><A HREF="./mldv2-router_1_6_e.html">1.6.e Source Specific Robustness Variable and LLQI</A></TD></TR>
+<TR>
+<TD>30</TD><TD><A HREF="./mldv2-router_1_6_f.html">1.6.f Source Specific Remaining time is below LLQT</A></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 1.7: RUT has an interface in each link</B></TD></TR>
+<TR>
+<TD>31</TD><TD><A HREF="./mldv2-router_1_7_a.html">1.7.a Include list</A></TD></TR>
+<TR>
+<TD>32</TD><TD><A HREF="./mldv2-router_1_7_b.html">1.7.b Update</A></TD></TR>
+<TR>
+<TD>33</TD><TD><A HREF="./mldv2-router_1_7_c.html">1.7.c Querier election</A></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 1.8: RUT has two interfaces in same link</B></TD></TR>
+<TR>
+<TD>34</TD><TD><A HREF="./mldv2-router_1_8dummy.html">1.8 RUT has two interfaces in same link (dummy)</A></TD></TR>
+<TR><TD><BR></TD><TD><B> GROUP 2: Message Format</B></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 2.1: Transmitting General Query</B></TD></TR>
+<TR>
+<TD>35</TD><TD><A HREF="./mldv2-router_2_1.html">2.1 Transmitting General Query</A></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 2.2: Transmitting Multicast Address Specific Query</B></TD></TR>
+<TR>
+<TD>36</TD><TD><A HREF="./mldv2-router_2_2.html">2.2 Transmitting Multicast Address Specific Query</A></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 2.3: Transmitting Multicast Address and Source Specific Query</B></TD></TR>
+<TR>
+<TD>37</TD><TD><A HREF="./mldv2-router_2_3.html">2.3 Transmitting Multicast Address and Source Specific Query</A></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 2.4: Query Hop Limit</B></TD></TR>
+<TR>
+<TD>38</TD><TD><A HREF="./mldv2-router_2_4_a.html">2.4.a Hop Limit of 0</A></TD></TR>
+<TR>
+<TD>39</TD><TD><A HREF="./mldv2-router_2_4_b.html">2.4.b Hop Limit of 2</A></TD></TR>
+<TR>
+<TD>40</TD><TD><A HREF="./mldv2-router_2_4_c.html">2.4.c Hop Limit of 0xff</A></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 2.5: Query Source Address</B></TD></TR>
+<TR>
+<TD>41</TD><TD><A HREF="./mldv2-router_2_5_a.html">2.5.a Unspecified Address</A></TD></TR>
+<TR>
+<TD>42</TD><TD><A HREF="./mldv2-router_2_5_b.html">2.5.b On-link Global Unicast Address</A></TD></TR>
+<TR>
+<TD>43</TD><TD><A HREF="./mldv2-router_2_5_c.html">2.5.c Off-link Global Unicast Address</A></TD></TR>
+<TR>
+<TD>44</TD><TD><A HREF="./mldv2-router_2_5_d.html">2.5.d All MLDv2 Routers Address</A></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 2.6: Query Destination Address</B></TD></TR>
+<TR>
+<TD>45</TD><TD><A HREF="./mldv2-router_2_6_a.html">2.6.a Link-local Address</A></TD></TR>
+<TR>
+<TD>46</TD><TD><A HREF="./mldv2-router_2_6_b.html">2.6.b Global Address</A></TD></TR>
+<TR>
+<TD>47</TD><TD><A HREF="./mldv2-router_2_6_c.html">2.6.c All MLDv2 Router Address</A></TD></TR>
+<TR>
+<TD>48</TD><TD><A HREF="./mldv2-router_2_6_d.html">2.6.d Link Local Specific Query</A></TD></TR>
+<TR>
+<TD>49</TD><TD><A HREF="./mldv2-router_2_6_e.html">2.6.e Global Specific Query</A></TD></TR>
+<TR>
+<TD>50</TD><TD><A HREF="./mldv2-router_2_6_f.html">2.6.f All Nodes Specific Query</A></TD></TR>
+<TR>
+<TD>51</TD><TD><A HREF="./mldv2-router_2_6_g.html">2.6.g Off-link global Address</A></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 2.7: Query Router Alert Option</B></TD></TR>
+<TR>
+<TD>52</TD><TD><A HREF="./mldv2-router_2_7_a.html">2.7.a No Hop-by-Hop Option</A></TD></TR>
+<TR>
+<TD>53</TD><TD><A HREF="./mldv2-router_2_7_b.html">2.7.b No Router Alert</A></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 2.8: Query Payload Length</B></TD></TR>
+<TR>
+<TD>54</TD><TD><A HREF="./mldv2-router_2_8_a.html">2.8.a Additional Data, payload doesn't match</A></TD></TR>
+<TR>
+<TD>55</TD><TD><A HREF="./mldv2-router_2_8_b.html">2.8.b Two Sources, payload length for one source</A></TD></TR>
+<TR>
+<TD>56</TD><TD><A HREF="./mldv2-router_2_8_c.html">2.8.c One Source, payload length for two sources</A></TD></TR>
+<TR>
+<TD>57</TD><TD><A HREF="./mldv2-router_2_8_d.html">2.8.d MLD Query Length 24 octets</A></TD></TR>
+<TR>
+<TD>58</TD><TD><A HREF="./mldv2-router_2_8_e.html">2.8.e MLD Query Length greater than 24 octets, and smaller than 28 octets</A></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 2.9: Report Hop Limit</B></TD></TR>
+<TR>
+<TD>59</TD><TD><A HREF="./mldv2-router_2_9_a.html">2.9.a Hop Limit of 0</A></TD></TR>
+<TR>
+<TD>60</TD><TD><A HREF="./mldv2-router_2_9_b.html">2.9.b Hop Limit of 2</A></TD></TR>
+<TR>
+<TD>61</TD><TD><A HREF="./mldv2-router_2_9_c.html">2.9.c Hop Limit of 0xff</A></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 2.10: Report Source Address</B></TD></TR>
+<TR>
+<TD>62</TD><TD><A HREF="./mldv2-router_2_10_a.html">2.10.a Unspecified</A></TD></TR>
+<TR>
+<TD>63</TD><TD><A HREF="./mldv2-router_2_10_b.html">2.10.b On-link Global</A></TD></TR>
+<TR>
+<TD>64</TD><TD><A HREF="./mldv2-router_2_10_c.html">2.10.c Off-link Global</A></TD></TR>
+<TR>
+<TD>65</TD><TD><A HREF="./mldv2-router_2_10_d.html">2.10.d All MLDv2 Router</A></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 2.11: Report Destination Address</B></TD></TR>
+<TR>
+<TD>66</TD><TD><A HREF="./mldv2-router_2_11_a.html">2.11.a Link-local</A></TD></TR>
+<TR>
+<TD>67</TD><TD><A HREF="./mldv2-router_2_11_b.html">2.11.b Global</A></TD></TR>
+<TR>
+<TD>68</TD><TD><A HREF="./mldv2-router_2_11_c.html">2.11.c Multicast</A></TD></TR>
+<TR>
+<TD>69</TD><TD><A HREF="./mldv2-router_2_11_d.html">2.11.d Global Off-link</A></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 2.12: Report Router Alert</B></TD></TR>
+<TR>
+<TD>70</TD><TD><A HREF="./mldv2-router_2_12_a.html">2.12.a No Hop-by-Hop Option</A></TD></TR>
+<TR>
+<TD>71</TD><TD><A HREF="./mldv2-router_2_12_b.html">2.12.b No Router Alert</A></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 2.13: Report Payload Length</B></TD></TR>
+<TR>
+<TD>72</TD><TD><A HREF="./mldv2-router_2_13_a.html">2.13.a Additional data not included in payload</A></TD></TR>
+<TR>
+<TD>73</TD><TD><A HREF="./mldv2-router_2_13_b.html">2.13.b One Source, payload includes two sources</A></TD></TR>
+<TR>
+<TD>74</TD><TD><A HREF="./mldv2-router_2_13_c.html">2.13.c Two Sources, payload includes one source</A></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 2.14: Query ICMPv6 Message Type</B></TD></TR>
+<TR>
+<TD>75</TD><TD><A HREF="./mldv2-router_2_14.html">2.14 Query ICMPv6 Message Type</A></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 2.15: Query ICMPv6 Code</B></TD></TR>
+<TR>
+<TD>76</TD><TD><A HREF="./mldv2-router_2_15.html">2.15 Query ICMPv6 Code</A></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 2.16: Query ICMPv6 Checksum</B></TD></TR>
+<TR>
+<TD>77</TD><TD><A HREF="./mldv2-router_2_16.html">2.16 Query ICMPv6 Checksum</A></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 2.17: Query ICMPv6 Reserved</B></TD></TR>
+<TR>
+<TD>78</TD><TD><A HREF="./mldv2-router_2_17.html">2.17 Query ICMPv6 Reserved</A></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 2.18: Query Multicast Address Field</B></TD></TR>
+<TR>
+<TD>79</TD><TD><A HREF="./mldv2-router_2_18_a.html">2.18.a All Nodes Multicast Address</A></TD></TR>
+<TR>
+<TD>80</TD><TD><A HREF="./mldv2-router_2_18_b.html">2.18.b All MLDv2 Routers</A></TD></TR>
+<TR>
+<TD>81</TD><TD><A HREF="./mldv2-router_2_18_c.html">2.18.c All MLDv2 Routers with S Flag set</A></TD></TR>
+<TR>
+<TD>82</TD><TD><A HREF="./mldv2-router_2_18_d.html">2.18.d No Previous Multicast Address</A></TD></TR>
+<TR>
+<TD>83</TD><TD><A HREF="./mldv2-router_2_18_e.html">2.18.e Unspecified Address</A></TD></TR>
+<TR>
+<TD>84</TD><TD><A HREF="./mldv2-router_2_18_f.html">2.18.f Link Local</A></TD></TR>
+<TR>
+<TD>85</TD><TD><A HREF="./mldv2-router_2_18_g.html">2.18.g RUT Global Address</A></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 2.19: Query Number of Sources</B></TD></TR>
+<TR>
+<TD>86</TD><TD><A HREF="./mldv2-router_2_19_a.html">2.19.a Zero</A></TD></TR>
+<TR>
+<TD>87</TD><TD><A HREF="./mldv2-router_2_19_b.html">2.19.b One, No sources included</A></TD></TR>
+<TR>
+<TD>88</TD><TD><A HREF="./mldv2-router_2_19_d.html">2.19.d Two, One Source included</A></TD></TR>
+<TR>
+<TD>89</TD><TD><A HREF="./mldv2-router_2_19_e.html">2.19.e One, No sources included in querier query</A></TD></TR>
+<TR>
+<TD>90</TD><TD><A HREF="./mldv2-router_2_19_f.html">2.19.f Two, One Source included in querier query</A></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 2.20: Query Multicast Source Address</B></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 2.21: Query Additional Data</B></TD></TR>
+<TR>
+<TD>91</TD><TD><A HREF="./mldv2-router_2_21.html">2.21 Query Additional Data</A></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 2.22: Report Message Type</B></TD></TR>
+<TR>
+<TD>92</TD><TD><A HREF="./mldv2-router_2_22.html">2.22 Report Message Type</A></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 2.23: Report Reserved Field</B></TD></TR>
+<TR>
+<TD>93</TD><TD><A HREF="./mldv2-router_2_23.html">2.23 Report Reserved Field</A></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 2.24: Report Checksum</B></TD></TR>
+<TR>
+<TD>94</TD><TD><A HREF="./mldv2-router_2_24.html">2.24 Report Checksum</A></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 2.25: Report Number of Multicast Address Records</B></TD></TR>
+<TR>
+<TD>95</TD><TD><A HREF="./mldv2-router_2_25_a.html">2.25.a Zero</A></TD></TR>
+<TR>
+<TD>96</TD><TD><A HREF="./mldv2-router_2_25_b.html">2.25.b No Record</A></TD></TR>
+<TR>
+<TD>97</TD><TD><A HREF="./mldv2-router_2_25_c.html">2.25.c One</A></TD></TR>
+<TR>
+<TD>98</TD><TD><A HREF="./mldv2-router_2_25_d.html">2.25.d Two</A></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 2.26: Report Record Type</B></TD></TR>
+<TR>
+<TD>99</TD><TD><A HREF="./mldv2-router_2_26_a.html">2.26.a Unrecognized (0)</A></TD></TR>
+<TR>
+<TD>100</TD><TD><A HREF="./mldv2-router_2_26_b.html">2.26.b Unrecognized (7)</A></TD></TR>
+<TR>
+<TD>101</TD><TD><A HREF="./mldv2-router_2_26_c.html">2.26.c One Recognized and One Unrecognized</A></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 2.27: Report Aux Data Len</B></TD></TR>
+<TR>
+<TD>102</TD><TD><A HREF="./mldv2-router_2_27_a.html">2.27.a Zero</A></TD></TR>
+<TR>
+<TD>103</TD><TD><A HREF="./mldv2-router_2_27_b.html">2.27.b One, Last record has no data included</A></TD></TR>
+<TR>
+<TD>104</TD><TD><A HREF="./mldv2-router_2_27_c.html">2.27.c One, no data included</A></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 2.28: Report Number of Sources</B></TD></TR>
+<TR>
+<TD>105</TD><TD><A HREF="./mldv2-router_2_28_a.html">2.28.a Zero</A></TD></TR>
+<TR>
+<TD>106</TD><TD><A HREF="./mldv2-router_2_28_b.html">2.28.b One, Last record as no data included</A></TD></TR>
+<TR>
+<TD>107</TD><TD><A HREF="./mldv2-router_2_28_c.html">2.28.c One, no data included</A></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 2.29: Report Multicast Address</B></TD></TR>
+<TR>
+<TD>108</TD><TD><A HREF="./mldv2-router_2_29_a.html">2.29.a Unspecified</A></TD></TR>
+<TR>
+<TD>109</TD><TD><A HREF="./mldv2-router_2_29_b.html">2.29.b RUT link-local</A></TD></TR>
+<TR>
+<TD>110</TD><TD><A HREF="./mldv2-router_2_29_c.html">2.29.c RUT global address</A></TD></TR>
+<TR>
+<TD>111</TD><TD><A HREF="./mldv2-router_2_29_d.html">2.29.d All Nodes multicast Address</A></TD></TR>
+<TR>
+<TD>112</TD><TD><A HREF="./mldv2-router_2_29_e.html">2.29.e All MLDv2 Capable Routers</A></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 2.30: Report Source Address</B></TD></TR>
+<TR>
+<TD>113</TD><TD><A HREF="./mldv2-router_2_30_a.html">2.30.a Unspecified</A></TD></TR>
+<TR>
+<TD>114</TD><TD><A HREF="./mldv2-router_2_30_b.html">2.30.b RUT link-local</A></TD></TR>
+<TR>
+<TD>115</TD><TD><A HREF="./mldv2-router_2_30_c.html">2.30.c RUT global address</A></TD></TR>
+<TR>
+<TD>116</TD><TD><A HREF="./mldv2-router_2_30_d.html">2.30.d All Nodes multicast Address</A></TD></TR>
+<TR>
+<TD>117</TD><TD><A HREF="./mldv2-router_2_30_e.html">2.30.e All MLDv2 Capable Routers</A></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 2.31: Report Auxiliary Data</B></TD></TR>
+<TR>
+<TD>118</TD><TD><A HREF="./mldv2-router_2_31.html">2.31 Report Auxiliary Data</A></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 2.32: Report Additional Data</B></TD></TR>
+<TR>
+<TD>119</TD><TD><A HREF="./mldv2-router_2_32.html">2.32 Report Additional Data</A></TD></TR>
+<TR><TD><BR></TD><TD><B> GROUP 3: Value Adoption and Timers</B></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 3.1: Other Querier Present Timeout</B></TD></TR>
+<TR>
+<TD>120</TD><TD><A HREF="./mldv2-router_3_1_a.html">3.1.a Max Response Code of 10000</A></TD></TR>
+<TR>
+<TD>121</TD><TD><A HREF="./mldv2-router_3_1_b.html">3.1.b Max Response Code of zero</A></TD></TR>
+<TR>
+<TD>122</TD><TD><A HREF="./mldv2-router_3_1_c.html">3.1.c Max Response Code of 5000</A></TD></TR>
+<TR>
+<TD>123</TD><TD><A HREF="./mldv2-router_3_1_d.html">3.1.d Max Response Code of 20000</A></TD></TR>
+<TR>
+<TD>124</TD><TD><A HREF="./mldv2-router_3_1_e.html">3.1.e QRV of 0</A></TD></TR>
+<TR>
+<TD>125</TD><TD><A HREF="./mldv2-router_3_1_f.html">3.1.f QQIC of 0</A></TD></TR>
+<TR>
+<TD>126</TD><TD><A HREF="./mldv2-router_3_1_g.html">3.1.g QRV of 0 and QQIC 0</A></TD></TR>
+<TR>
+<TD>127</TD><TD><A HREF="./mldv2-router_3_1_h.html">3.1.h QRV of 7 and QQIC 60</A></TD></TR>
+<TR>
+<TD>128</TD><TD><A HREF="./mldv2-router_3_1_i.html">3.1.i QQIC of 127</A></TD></TR>
+<TR>
+<TD>129</TD><TD><A HREF="./mldv2-router_3_1_j.html">3.1.j QQIC of 128</A></TD></TR>
+<TR>
+<TD>130</TD><TD><A HREF="./mldv2-router_3_1_k.html">3.1.k QQIC of 132</A></TD></TR>
+<TR>
+<TD>131</TD><TD><A HREF="./mldv2-router_3_1_l.html">3.1.l S Flag</A></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 3.2: Other Querier Specific Query</B></TD></TR>
+<TR>
+<TD>132</TD><TD><A HREF="./mldv2-router_3_2_a.html">3.2.a Other Querier MA Query</A></TD></TR>
+<TR>
+<TD>133</TD><TD><A HREF="./mldv2-router_3_2_b.html">3.2.b Other Querier MAS Query</A></TD></TR>
+<TR>
+<TD>134</TD><TD><A HREF="./mldv2-router_3_2_c.html">3.2.c Other Querier MA Query with S Flag set</A></TD></TR>
+<TR>
+<TD>135</TD><TD><A HREF="./mldv2-router_3_2_d.html">3.2.d Other Querier MAS Query with S Flag set</A></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 3.3: Other Non-Querier Specific Query</B></TD></TR>
+<TR>
+<TD>136</TD><TD><A HREF="./mldv2-router_3_3_a.html">3.3.a Non-Querier General Query</A></TD></TR>
+<TR>
+<TD>137</TD><TD><A HREF="./mldv2-router_3_3_b.html">3.3.b Non-Querier MA Query</A></TD></TR>
+<TR>
+<TD>138</TD><TD><A HREF="./mldv2-router_3_3_c.html">3.3.c Non-Querier MAS Query</A></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 3.4: Query Adoption Filter Timer</B></TD></TR>
+<TR>
+<TD>139</TD><TD><A HREF="./mldv2-router_3_4_a.html">3.4.a Default MALI before Filter Timer expires</A></TD></TR>
+<TR>
+<TD>140</TD><TD><A HREF="./mldv2-router_3_4_b.html">3.4.b Default MALI after Filter Timer expires</A></TD></TR>
+<TR>
+<TD>141</TD><TD><A HREF="./mldv2-router_3_4_c.html">3.4.c Adoption RV and QI before Filter Timer expires</A></TD></TR>
+<TR>
+<TD>142</TD><TD><A HREF="./mldv2-router_3_4_d.html">3.4.d Adoption RV and QI after Filter Timer expires</A></TD></TR>
+<TR>
+<TD>143</TD><TD><A HREF="./mldv2-router_3_4_e.html">3.4.e Small QQIC before Filter Timer expires</A></TD></TR>
+<TR>
+<TD>144</TD><TD><A HREF="./mldv2-router_3_4_f.html">3.4.f Small QQIC after Filter Timer expires</A></TD></TR>
+<TR>
+<TD>145</TD><TD><A HREF="./mldv2-router_3_4_g.html">3.4.g QRV before Filter Timer expires</A></TD></TR>
+<TR>
+<TD>146</TD><TD><A HREF="./mldv2-router_3_4_h.html">3.4.h QRV after Filter Timer expires</A></TD></TR>
+<TR>
+<TD>147</TD><TD><A HREF="./mldv2-router_3_4_i.html">3.4.i QQIC before Filter Timer expires</A></TD></TR>
+<TR>
+<TD>148</TD><TD><A HREF="./mldv2-router_3_4_j.html">3.4.j QQIC after Filter Timer expires</A></TD></TR>
+<TR>
+<TD>149</TD><TD><A HREF="./mldv2-router_3_4_k.html">3.4.k Last Listener Timer</A></TD></TR>
+<TR>
+<TD>150</TD><TD><A HREF="./mldv2-router_3_4_l.html">3.4.l Change Filter Mode before Filter Timer expires</A></TD></TR>
+<TR>
+<TD>151</TD><TD><A HREF="./mldv2-router_3_4_m.html">3.4.m Change Filter Mode after Filter Timer expires</A></TD></TR>
+<TR>
+<TD>152</TD><TD><A HREF="./mldv2-router_3_4_n.html">3.4.n S Flag</A></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 3.5: Query Adoption Source Timer</B></TD></TR>
+<TR>
+<TD>153</TD><TD><A HREF="./mldv2-router_3_5_a.html">3.5.a Default MALI before Source Timer expires</A></TD></TR>
+<TR>
+<TD>154</TD><TD><A HREF="./mldv2-router_3_5_b.html">3.5.b Default MALI after Source Timer expires</A></TD></TR>
+<TR>
+<TD>155</TD><TD><A HREF="./mldv2-router_3_5_c.html">3.5.c Adoption RV and QI before Source Timer expires</A></TD></TR>
+<TR>
+<TD>156</TD><TD><A HREF="./mldv2-router_3_5_d.html">3.5.d Adoption RV and QI after Source Timer expires</A></TD></TR>
+<TR>
+<TD>157</TD><TD><A HREF="./mldv2-router_3_5_e.html">3.5.e Small QQIC before Source Timer expires</A></TD></TR>
+<TR>
+<TD>158</TD><TD><A HREF="./mldv2-router_3_5_f.html">3.5.f Small QQIC after Source Timer expires</A></TD></TR>
+<TR>
+<TD>159</TD><TD><A HREF="./mldv2-router_3_5_g.html">3.5.g QRV before Source Timer expires</A></TD></TR>
+<TR>
+<TD>160</TD><TD><A HREF="./mldv2-router_3_5_h.html">3.5.h QRV after Source Timer expires</A></TD></TR>
+<TR>
+<TD>161</TD><TD><A HREF="./mldv2-router_3_5_i.html">3.5.i QQIC before Source Timer expires</A></TD></TR>
+<TR>
+<TD>162</TD><TD><A HREF="./mldv2-router_3_5_j.html">3.5.j QQIC after Source Timer expires</A></TD></TR>
+<TR>
+<TD>163</TD><TD><A HREF="./mldv2-router_3_5_k.html">3.5.k Last Listener Timer</A></TD></TR>
+<TR>
+<TD>164</TD><TD><A HREF="./mldv2-router_3_5_l.html">3.5.l Change Source Mode before Source Timer expires</A></TD></TR>
+<TR>
+<TD>165</TD><TD><A HREF="./mldv2-router_3_5_m.html">3.5.m Change Filter Mode after Source Timer expires</A></TD></TR>
+<TR>
+<TD>166</TD><TD><A HREF="./mldv2-router_3_5_n.html">3.5.n S Flag</A></TD></TR>
+<TR><TD><BR></TD><TD><B> GROUP 4: Report Reception</B></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 4.1: Including - Receives Is Include</B></TD></TR>
+<TR>
+<TD>167</TD><TD><A HREF="./mldv2-router_4_1_a.html">4.1.a Including Nothing, Receives Is Include nothing</A></TD></TR>
+<TR>
+<TD>168</TD><TD><A HREF="./mldv2-router_4_1_b.html">4.1.b Including Nothing, Receives Is Include nothing an Is Include Source</A></TD></TR>
+<TR>
+<TD>169</TD><TD><A HREF="./mldv2-router_4_1_c.html">4.1.c Including A, Receives Is Include nothing</A></TD></TR>
+<TR>
+<TD>170</TD><TD><A HREF="./mldv2-router_4_1_d.html">4.1.d Including A, Receives Is Include Source</A></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 4.2: Including - Receives Is Include and updates timer</B></TD></TR>
+<TR>
+<TD>171</TD><TD><A HREF="./mldv2-router_4_2_a.html">4.2.a Before first Source Timer expires</A></TD></TR>
+<TR>
+<TD>172</TD><TD><A HREF="./mldv2-router_4_2_b.html">4.2.b After first Source Timer expires</A></TD></TR>
+<TR>
+<TD>173</TD><TD><A HREF="./mldv2-router_4_2_c.html">4.2.c Before second Source Timer expires</A></TD></TR>
+<TR>
+<TD>174</TD><TD><A HREF="./mldv2-router_4_2_d.html">4.2.d After second Source Timer expires</A></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 4.3: Including - Receives Is Exclude</B></TD></TR>
+<TR>
+<TD>175</TD><TD><A HREF="./mldv2-router_4_3_a.html">4.3.a Including Nothing, Receives Is Exclude nothing, Check Request List</A></TD></TR>
+<TR>
+<TD>176</TD><TD><A HREF="./mldv2-router_4_3_b.html">4.3.b Including Nothing, Receives Is Exclude nothing, Check Exclude List</A></TD></TR>
+<TR>
+<TD>177</TD><TD><A HREF="./mldv2-router_4_3_c.html">4.3.c Including Nothing, Receives Is Exclude Source, Check Request List</A></TD></TR>
+<TR>
+<TD>178</TD><TD><A HREF="./mldv2-router_4_3_d.html">4.3.d Including Nothing, Receives Is Exclude Source, Check Exclude List</A></TD></TR>
+<TR>
+<TD>179</TD><TD><A HREF="./mldv2-router_4_3_e.html">4.3.e Including Source, Receives Is Exclude nothing, Check Request List</A></TD></TR>
+<TR>
+<TD>180</TD><TD><A HREF="./mldv2-router_4_3_f.html">4.3.f Including Source, Receives Is Exclude nothing, Check Exclude List</A></TD></TR>
+<TR>
+<TD>181</TD><TD><A HREF="./mldv2-router_4_3_g.html">4.3.g Including Source, Receives Is Exclude Source, Check Request List</A></TD></TR>
+<TR>
+<TD>182</TD><TD><A HREF="./mldv2-router_4_3_h.html">4.3.h Including Source, Receives Is Exclude Source, Check Exclude List</A></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 4.4: Including - Receives Is Exclude and Updates Timer</B></TD></TR>
+<TR>
+<TD>183</TD><TD><A HREF="./mldv2-router_4_4_a.html">4.4.a Before First source timer expires, Check Request List</A></TD></TR>
+<TR>
+<TD>184</TD><TD><A HREF="./mldv2-router_4_4_b.html">4.4.b Before first source timer expires, Check Exclude List</A></TD></TR>
+<TR>
+<TD>185</TD><TD><A HREF="./mldv2-router_4_4_c.html">4.4.c After first source timer expires, Check Request List</A></TD></TR>
+<TR>
+<TD>186</TD><TD><A HREF="./mldv2-router_4_4_d.html">4.4.d After first source timer expires, Check Exclude List</A></TD></TR>
+<TR>
+<TD>187</TD><TD><A HREF="./mldv2-router_4_4_e.html">4.4.e Before filter timer expires, Check Request List</A></TD></TR>
+<TR>
+<TD>188</TD><TD><A HREF="./mldv2-router_4_4_f.html">4.4.f Before filter timer expires, Check Exclude List</A></TD></TR>
+<TR>
+<TD>189</TD><TD><A HREF="./mldv2-router_4_4_g.html">4.4.g Before filter timer expires, Check Include List</A></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 4.5: Excluding - Receives Is Include</B></TD></TR>
+<TR>
+<TD>190</TD><TD><A HREF="./mldv2-router_4_5_a.html">4.5.a Exclude nothing, Report Is Include nothing, Check Request List</A></TD></TR>
+<TR>
+<TD>191</TD><TD><A HREF="./mldv2-router_4_5_b.html">4.5.b Exclude nothing, Report Is Include nothing, Check Exclude List</A></TD></TR>
+<TR>
+<TD>192</TD><TD><A HREF="./mldv2-router_4_5_c.html">4.5.c Excluding Nothing, Report Is Include nothing and a source, Check Request List</A></TD></TR>
+<TR>
+<TD>193</TD><TD><A HREF="./mldv2-router_4_5_d.html">4.5.d Excluding Nothing, Report Is Include nothing and a source, Check Exclude List</A></TD></TR>
+<TR>
+<TD>194</TD><TD><A HREF="./mldv2-router_4_5_e.html">4.5.e Excluding Source, Report Is Include nothing, Check Request List</A></TD></TR>
+<TR>
+<TD>195</TD><TD><A HREF="./mldv2-router_4_5_f.html">4.5.f Excluding Source, Report Is Include nothing, Check Exclude List</A></TD></TR>
+<TR>
+<TD>196</TD><TD><A HREF="./mldv2-router_4_5_g.html">4.5.g Excluding Source, Report Is Include Source, Check Request List</A></TD></TR>
+<TR>
+<TD>197</TD><TD><A HREF="./mldv2-router_4_5_h.html">4.5.h Excluding Source, Report Is Include Source, Check Request List</A></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 4.6: Excluding - Receives Is Include and Updates Timer</B></TD></TR>
+<TR>
+<TD>198</TD><TD><A HREF="./mldv2-router_4_6_a.html">4.6.a Before filter timer expires, Check Request List</A></TD></TR>
+<TR>
+<TD>199</TD><TD><A HREF="./mldv2-router_4_6_b.html">4.6.b After filter timer expires, Check Exclude List</A></TD></TR>
+<TR>
+<TD>200</TD><TD><A HREF="./mldv2-router_4_6_c.html">4.6.c After filter timer expires, Check Include List</A></TD></TR>
+<TR>
+<TD>201</TD><TD><A HREF="./mldv2-router_4_6_d.html">4.6.d Before second source timer expires, Check Include List</A></TD></TR>
+<TR>
+<TD>202</TD><TD><A HREF="./mldv2-router_4_6_e.html">4.6.e After second source timer expires, Check Include List</A></TD></TR>
+<TR>
+<TD>203</TD><TD><A HREF="./mldv2-router_4_6_f.html">4.6.f Before third source timer expires, Check Include List</A></TD></TR>
+<TR>
+<TD>204</TD><TD><A HREF="./mldv2-router_4_6_g.html">4.6.g After third source timer expires, Check Include List</A></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 4.7: Excluding - Receives Is Exclude</B></TD></TR>
+<TR>
+<TD>205</TD><TD><A HREF="./mldv2-router_4_7_a.html">4.7.a Exclude nothing, Report Is Exclude nothing, Check Request List</A></TD></TR>
+<TR>
+<TD>206</TD><TD><A HREF="./mldv2-router_4_7_b.html">4.7.b Exclude nothing, Report Is Exclude nothing, Check Exclude List</A></TD></TR>
+<TR>
+<TD>207</TD><TD><A HREF="./mldv2-router_4_7_c.html">4.7.c Excluding Nothing, Report Is Exclude nothing and a source, Check Request List</A></TD></TR>
+<TR>
+<TD>208</TD><TD><A HREF="./mldv2-router_4_7_d.html">4.7.d Excluding Nothing, Report Is Exclude nothing and a source, Check Exclude List</A></TD></TR>
+<TR>
+<TD>209</TD><TD><A HREF="./mldv2-router_4_7_e.html">4.7.e Excluding Source, Report Is Exclude nothing, Check Request List</A></TD></TR>
+<TR>
+<TD>210</TD><TD><A HREF="./mldv2-router_4_7_f.html">4.7.f Excluding Source, Report Is Exclude nothing, Check Exclude List</A></TD></TR>
+<TR>
+<TD>211</TD><TD><A HREF="./mldv2-router_4_7_g.html">4.7.g Excluding Source, Report Is Exclude Source, Check Request List</A></TD></TR>
+<TR>
+<TD>212</TD><TD><A HREF="./mldv2-router_4_7_h.html">4.7.h Excluding Source, Report Is Exclude Source, Check Request List</A></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 4.8: Excluding - Receives Is Exclude and Updates Timer</B></TD></TR>
+<TR>
+<TD>213</TD><TD><A HREF="./mldv2-router_4_8_a.html">4.8.a Before second source timer expires, Check Request List</A></TD></TR>
+<TR>
+<TD>214</TD><TD><A HREF="./mldv2-router_4_8_b.html">4.8.b Before second timer expires, Check Exclude List</A></TD></TR>
+<TR>
+<TD>215</TD><TD><A HREF="./mldv2-router_4_8_c.html">4.8.c After second source timer expires, Check Request List</A></TD></TR>
+<TR>
+<TD>216</TD><TD><A HREF="./mldv2-router_4_8_d.html">4.8.d After second source timer expires, Check Exclude List</A></TD></TR>
+<TR>
+<TD>217</TD><TD><A HREF="./mldv2-router_4_8_e.html">4.8.e Before filter timer expires, Check Exclude List</A></TD></TR>
+<TR>
+<TD>218</TD><TD><A HREF="./mldv2-router_4_8_f.html">4.8.f After filter timer expires, Check Include List</A></TD></TR>
+<TR>
+<TD>219</TD><TD><A HREF="./mldv2-router_4_8_g.html">4.8.g After third source timer expires, Check Include List</A></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 4.9: Including - Receives Allow</B></TD></TR>
+<TR>
+<TD>220</TD><TD><A HREF="./mldv2-router_4_9_a.html">4.9.a Including nothing, receives Allow</A></TD></TR>
+<TR>
+<TD>221</TD><TD><A HREF="./mldv2-router_4_9_b.html">4.9.b Including nothing, receives Allow with second source</A></TD></TR>
+<TR>
+<TD>222</TD><TD><A HREF="./mldv2-router_4_9_c.html">4.9.c Including Source, receives Allow</A></TD></TR>
+<TR>
+<TD>223</TD><TD><A HREF="./mldv2-router_4_9_d.html">4.9.d Including Source, Receives Allow with second source</A></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 4.10: Including - Receives Allow and Updates Timer</B></TD></TR>
+<TR>
+<TD>224</TD><TD><A HREF="./mldv2-router_4_10_a.html">4.10.a Before source timer expires, Check Include List</A></TD></TR>
+<TR>
+<TD>225</TD><TD><A HREF="./mldv2-router_4_10_b.html">4.10.b After source timer expires, Check Include List</A></TD></TR>
+<TR>
+<TD>226</TD><TD><A HREF="./mldv2-router_4_10_c.html">4.10.c Before second source timer expires, Check Include List</A></TD></TR>
+<TR>
+<TD>227</TD><TD><A HREF="./mldv2-router_4_10_d.html">4.10.d After second source timer expires, Check Include List</A></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 4.11: Including - Receives Block</B></TD></TR>
+<TR>
+<TD>228</TD><TD><A HREF="./mldv2-router_4_11_a.html">4.11.a Including nothing, receive BLOCK nothing</A></TD></TR>
+<TR>
+<TD>229</TD><TD><A HREF="./mldv2-router_4_11_b.html">4.11.b Include nothing, Report BLOCK nothing and ALLOW source</A></TD></TR>
+<TR>
+<TD>230</TD><TD><A HREF="./mldv2-router_4_11_c.html">4.11.c Include nothing, Report BLOCK Source</A></TD></TR>
+<TR>
+<TD>231</TD><TD><A HREF="./mldv2-router_4_11_d.html">4.11.d Include nothing, Report BLOCK Source and ALLOW different source</A></TD></TR>
+<TR>
+<TD>232</TD><TD><A HREF="./mldv2-router_4_11_e.html">4.11.e Including Source, receives BLOCK nothing</A></TD></TR>
+<TR>
+<TD>233</TD><TD><A HREF="./mldv2-router_4_11_f.html">4.11.f Including Source, Report BLOCK different source</A></TD></TR>
+<TR>
+<TD>234</TD><TD><A HREF="./mldv2-router_4_11_g.html">4.11.g Including Source, Report BLOCK different source and ALLOW third source</A></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 4.12: Including - Receives BLOCK and Updates Timer</B></TD></TR>
+<TR>
+<TD>235</TD><TD><A HREF="./mldv2-router_4_12_a.html">4.12.a Before source timer expires, Check Include List</A></TD></TR>
+<TR>
+<TD>236</TD><TD><A HREF="./mldv2-router_4_12_b.html">4.12.b After source timer expires, Check Include List</A></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 4.13:  Including - Receives To Exclude</B></TD></TR>
+<TR>
+<TD>237</TD><TD><A HREF="./mldv2-router_4_13_a.html">4.13.a Including nothing, receives To Exclude nothing, Check Requested List</A></TD></TR>
+<TR>
+<TD>238</TD><TD><A HREF="./mldv2-router_4_13_b.html">4.13.b Including nothing, receives To Exclude nothing, Check Exclude List</A></TD></TR>
+<TR>
+<TD>239</TD><TD><A HREF="./mldv2-router_4_13_c.html">4.13.c Including nothing, receives To Exclude source, Check Requested List</A></TD></TR>
+<TR>
+<TD>240</TD><TD><A HREF="./mldv2-router_4_13_d.html">4.13.d Including nothing, receives To Exclude source, Check Exclude List</A></TD></TR>
+<TR>
+<TD>241</TD><TD><A HREF="./mldv2-router_4_13_e.html">4.13.e Including source, receives To Exclude nothing, Check Requested List</A></TD></TR>
+<TR>
+<TD>242</TD><TD><A HREF="./mldv2-router_4_13_f.html">4.13.f Including source, receives To Exclude different source, Check Exclude List</A></TD></TR>
+<TR>
+<TD>243</TD><TD><A HREF="./mldv2-router_4_13_g.html">4.13.g Including source, receives To Exclude different source, Check Requested List</A></TD></TR>
+<TR>
+<TD>244</TD><TD><A HREF="./mldv2-router_4_13_h.html">4.13.h Including source, receives To Exclude different source, Check Exclude List</A></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 4.14: Including - Receives To Exclude and Updates Timer</B></TD></TR>
+<TR>
+<TD>245</TD><TD><A HREF="./mldv2-router_4_14_a.html">4.14.a Before filter timer expires, Check Requested List</A></TD></TR>
+<TR>
+<TD>246</TD><TD><A HREF="./mldv2-router_4_14_b.html">4.14.b Before filter timer expires, Check Exclude List</A></TD></TR>
+<TR>
+<TD>247</TD><TD><A HREF="./mldv2-router_4_14_c.html">4.14.c After filter timer expires, Check Include List</A></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 4.15: Including - Receives To Include</B></TD></TR>
+<TR>
+<TD>248</TD><TD><A HREF="./mldv2-router_4_15_a.html">4.15.a Including nothing, receives To Include nothing</A></TD></TR>
+<TR>
+<TD>249</TD><TD><A HREF="./mldv2-router_4_15_b.html">4.15.b Including nothing, receives To Include with second source</A></TD></TR>
+<TR>
+<TD>250</TD><TD><A HREF="./mldv2-router_4_15_c.html">4.15.c Including Source, receives To Include nothing</A></TD></TR>
+<TR>
+<TD>251</TD><TD><A HREF="./mldv2-router_4_15_d.html">4.15.d  Including Source, Receives To Include with second source</A></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 4.16: Including - Receives To Include and Updates Timer</B></TD></TR>
+<TR>
+<TD>252</TD><TD><A HREF="./mldv2-router_4_16_a.html">4.16.a Before second source timer expires, Check Include List</A></TD></TR>
+<TR>
+<TD>253</TD><TD><A HREF="./mldv2-router_4_16_b.html">4.16.b After second source timer expires, Check Include List</A></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 4.17: Excluding - Receives Allow</B></TD></TR>
+<TR>
+<TD>254</TD><TD><A HREF="./mldv2-router_4_17_a.html">4.17.a Excluding nothing, receives Allow nothing, Check Requested List</A></TD></TR>
+<TR>
+<TD>255</TD><TD><A HREF="./mldv2-router_4_17_b.html">4.17.b Excluding nothing, receives Allow nothing, Check Exclude List</A></TD></TR>
+<TR>
+<TD>256</TD><TD><A HREF="./mldv2-router_4_17_c.html">4.17.c Excluding nothing, receives Allow nothing and Allow source, Check Requested List</A></TD></TR>
+<TR>
+<TD>257</TD><TD><A HREF="./mldv2-router_4_17_d.html">4.17.d Excluding nothing, receives Allow nothing and Allow source, Check Exclude List</A></TD></TR>
+<TR>
+<TD>258</TD><TD><A HREF="./mldv2-router_4_17_e.html">4.17.e Excluding source and request different source, receives Allow nothing, Check Requested List</A></TD></TR>
+<TR>
+<TD>259</TD><TD><A HREF="./mldv2-router_4_17_f.html">4.17.f Excluding source and request different source, receives Allow nothing, Check Exclude List</A></TD></TR>
+<TR>
+<TD>260</TD><TD><A HREF="./mldv2-router_4_17_g.html">4.17.g Excluding source and request different source, receives Allow source, Check Requested List</A></TD></TR>
+<TR>
+<TD>261</TD><TD><A HREF="./mldv2-router_4_17_h.html">4.17.h Excluding source and request different source, receives Allow source, Check Exclude List</A></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 4.18: Excluding - Receives Allow and Updates Timer</B></TD></TR>
+<TR>
+<TD>262</TD><TD><A HREF="./mldv2-router_4_18_a.html">4.18.a Before filter timer expires, Check Requested List</A></TD></TR>
+<TR>
+<TD>263</TD><TD><A HREF="./mldv2-router_4_18_b.html">4.18.b After filter timer expires, Check Exclude List</A></TD></TR>
+<TR>
+<TD>264</TD><TD><A HREF="./mldv2-router_4_18_c.html">4.18.c After filter expire, Check Include List</A></TD></TR>
+<TR>
+<TD>265</TD><TD><A HREF="./mldv2-router_4_18_d.html">4.18.d Before second timer expire, Check Include List</A></TD></TR>
+<TR>
+<TD>266</TD><TD><A HREF="./mldv2-router_4_18_e.html">4.18.e After expiring second source timer, Check Include List</A></TD></TR>
+<TR>
+<TD>267</TD><TD><A HREF="./mldv2-router_4_18_f.html">4.18.f Before expiring third source timer, Check Include List</A></TD></TR>
+<TR>
+<TD>268</TD><TD><A HREF="./mldv2-router_4_18_g.html">4.18.g After expiring third source timer, Check Include List</A></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 4.19: Excluding - Receives Block</B></TD></TR>
+<TR>
+<TD>269</TD><TD><A HREF="./mldv2-router_4_19_a.html">4.19.a Excluding nothing, receives Block nothing, Check Requested List</A></TD></TR>
+<TR>
+<TD>270</TD><TD><A HREF="./mldv2-router_4_19_b.html">4.19.b Excluding nothing, receives Block nothing, Check Exclude List</A></TD></TR>
+<TR>
+<TD>271</TD><TD><A HREF="./mldv2-router_4_19_c.html">4.19.c Excluding nothing, receives Block nothing and Allow source, Check Requested List</A></TD></TR>
+<TR>
+<TD>272</TD><TD><A HREF="./mldv2-router_4_19_d.html">4.19.d Excluding nothing, receives Block nothing and Allow source, Check Exclude List</A></TD></TR>
+<TR>
+<TD>273</TD><TD><A HREF="./mldv2-router_4_19_e.html">4.19.e Excluding source and request different source, receives Block nothing, Check Requested List</A></TD></TR>
+<TR>
+<TD>274</TD><TD><A HREF="./mldv2-router_4_19_f.html">4.19.f Excluding source and request different source, receives Block nothing, Check Exclude List</A></TD></TR>
+<TR>
+<TD>275</TD><TD><A HREF="./mldv2-router_4_19_g.html">4.19.g Excluding source and request different source, receives Block source, Check Requested List</A></TD></TR>
+<TR>
+<TD>276</TD><TD><A HREF="./mldv2-router_4_19_h.html">4.19.h Excluding source and request different source, receives Block source, Check Exclude List</A></TD></TR>
+<TR>
+<TD>277</TD><TD><A HREF="./mldv2-router_4_19_i.html">4.19.i Excluding nothing, receives Block source and Allow different source, Check Requested List</A></TD></TR>
+<TR>
+<TD>278</TD><TD><A HREF="./mldv2-router_4_19_j.html">4.19.j Excluding nothing, receives Block source and Allow different source, Check Exclude List</A></TD></TR>
+<TR>
+<TD>279</TD><TD><A HREF="./mldv2-router_4_19_k.html">4.19.k Excluding source and request different source, receives Block source and Allow different source, Check Requested List</A></TD></TR>
+<TR>
+<TD>280</TD><TD><A HREF="./mldv2-router_4_19_l.html">4.19.l Excluding source and request different source, receives Block source and Allow different source, Check Requested List</A></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 4.20: Excluding - Receives Block and Updates Timer</B></TD></TR>
+<TR>
+<TD>281</TD><TD><A HREF="./mldv2-router_4_20_a.html">4.20.a Before filter timer expires, Check Requested List</A></TD></TR>
+<TR>
+<TD>282</TD><TD><A HREF="./mldv2-router_4_20_b.html">4.20.b Before filter timer expires, Check Exclude List</A></TD></TR>
+<TR>
+<TD>283</TD><TD><A HREF="./mldv2-router_4_20_c.html">4.20.c After filter timer expires, Check Include List</A></TD></TR>
+<TR>
+<TD>284</TD><TD><A HREF="./mldv2-router_4_20_d.html">4.20.d Before second timer expire, Check Include List</A></TD></TR>
+<TR>
+<TD>285</TD><TD><A HREF="./mldv2-router_4_20_e.html">4.20.e After expiring second source timer, Check Include List</A></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 4.21: Excluding - Receives To Exclude</B></TD></TR>
+<TR>
+<TD>286</TD><TD><A HREF="./mldv2-router_4_21_a.html">4.21.a Excluding nothing, receives To Exclude nothing, Check Requested List</A></TD></TR>
+<TR>
+<TD>287</TD><TD><A HREF="./mldv2-router_4_21_b.html">4.21.b Excluding nothing, receives To Exclude nothing, Check Exclude List</A></TD></TR>
+<TR>
+<TD>288</TD><TD><A HREF="./mldv2-router_4_21_c.html">4.21.c Excluding nothing, receives To Exclude source, Check Requested List</A></TD></TR>
+<TR>
+<TD>289</TD><TD><A HREF="./mldv2-router_4_21_d.html">4.21.d Excluding nothing, receives To Exclude source, Check Exclude List</A></TD></TR>
+<TR>
+<TD>290</TD><TD><A HREF="./mldv2-router_4_21_e.html">4.21.e Excluding source and request different source, receives To Exclude nothing, Check Requested List</A></TD></TR>
+<TR>
+<TD>291</TD><TD><A HREF="./mldv2-router_4_21_f.html">4.21.f Excluding source and request different source, receives To Exclude nothing, Check Exclude List</A></TD></TR>
+<TR>
+<TD>292</TD><TD><A HREF="./mldv2-router_4_21_g.html">4.21.g Excluding source and request different source, receives To Exclude source, Check Requested List</A></TD></TR>
+<TR>
+<TD>293</TD><TD><A HREF="./mldv2-router_4_21_h.html">4.21.h Excluding source and request different source, receives To Exclude source, Check Exclude List</A></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 4.22: Excluding - Receives To Exclude and Updates Timer</B></TD></TR>
+<TR>
+<TD>294</TD><TD><A HREF="./mldv2-router_4_22_a.html">4.22.a Before filter timer expires, Check Requested List</A></TD></TR>
+<TR>
+<TD>295</TD><TD><A HREF="./mldv2-router_4_22_b.html">4.22.b Before filter timer expires, Check Exclude List</A></TD></TR>
+<TR>
+<TD>296</TD><TD><A HREF="./mldv2-router_4_22_c.html">4.22.c After filter timer expires, Check Include List</A></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 4.23: Excluding - Receives To Include</B></TD></TR>
+<TR>
+<TD>297</TD><TD><A HREF="./mldv2-router_4_23_a.html">4.23.a Excluding nothing, receives To Include nothing, Check Include List</A></TD></TR>
+<TR>
+<TD>298</TD><TD><A HREF="./mldv2-router_4_23_b.html">4.23.b Excluding nothing, receives To Include source, Check Include List</A></TD></TR>
+<TR>
+<TD>299</TD><TD><A HREF="./mldv2-router_4_23_c.html">4.23.c Excluding source and request different source, receives To Include nothing, Check Requested List</A></TD></TR>
+<TR>
+<TD>300</TD><TD><A HREF="./mldv2-router_4_23_d.html">4.23.d Excluding source and request different source, receives To Exclude source, Check Requested List</A></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 4.24: Excluding - Receives To Include and Updates Timer</B></TD></TR>
+<TR>
+<TD>301</TD><TD><A HREF="./mldv2-router_4_24_a.html">4.24.a Before second source timer expires, Check Include List</A></TD></TR>
+<TR>
+<TD>302</TD><TD><A HREF="./mldv2-router_4_24_b.html">4.24.b Before filter timer expires, Check Include List</A></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 4.25: Receive Current State Record After Receiving State Change Record</B></TD></TR>
+<TR>
+<TD>303</TD><TD><A HREF="./mldv2-router_4_25_a.html">4.25.a Including S1, Sends a Query after Block S2, receives Is Include S3</A></TD></TR>
+<TR>
+<TD>304</TD><TD><A HREF="./mldv2-router_4_25_b.html">4.25.b Including S1, Sends a Query after Block S2, receives Is Exclude S3</A></TD></TR>
+<TR>
+<TD>305</TD><TD><A HREF="./mldv2-router_4_25_c.html">4.25.c Including S1, Sends a Query after To Exclude S2, receives Is Include S3</A></TD></TR>
+<TR>
+<TD>306</TD><TD><A HREF="./mldv2-router_4_25_d.html">4.25.d Including S1, Sends a Query after To Exclude S2, receives Is Exclude S3</A></TD></TR>
+<TR>
+<TD>307</TD><TD><A HREF="./mldv2-router_4_25_e.html">4.25.e Including S1, Sends a Query after To Include S2, receives Is Include S3</A></TD></TR>
+<TR>
+<TD>308</TD><TD><A HREF="./mldv2-router_4_25_f.html">4.25.f Including S1, Sends a Query after To Include S2, receives Is Exclude S3</A></TD></TR>
+<TR>
+<TD>309</TD><TD><A HREF="./mldv2-router_4_25_g.html">4.25.g Excluding nothing, Sends a Query after Block S2, receives Is Include S3</A></TD></TR>
+<TR>
+<TD>310</TD><TD><A HREF="./mldv2-router_4_25_h.html">4.25.h Excluding nothing, Sends a Query after Block S2, receives Is Exclude S3</A></TD></TR>
+<TR>
+<TD>311</TD><TD><A HREF="./mldv2-router_4_25_i.html">4.25.i Excluding nothing, Sends a Query after To Exclude S2, receives Is Include S3</A></TD></TR>
+<TR>
+<TD>312</TD><TD><A HREF="./mldv2-router_4_25_j.html">4.25.j Excluding nothing, Sends a Query after Is Exclude S2, receives Is Exclude S3</A></TD></TR>
+<TR>
+<TD>313</TD><TD><A HREF="./mldv2-router_4_25_k.html">4.25.k Excluding nothing with Requested S4, Sends a Query after To Include S2, receives Is Include S3</A></TD></TR>
+<TR>
+<TD>314</TD><TD><A HREF="./mldv2-router_4_25_l.html">4.25.l Excluding nothing with Requested S4, Sends a Query after To Include S2, receives Is Exclude S3</A></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 4.26: Receive State Change Record After Receiving State Change Record</B></TD></TR>
+<TR>
+<TD>315</TD><TD><A HREF="./mldv2-router_4_26_a.html">4.26.a Including S1, Sends a Query after Block S2, receives Allow S3</A></TD></TR>
+<TR>
+<TD>316</TD><TD><A HREF="./mldv2-router_4_26_b.html">4.26.b Including S1, Sends a Query after Block S2, receives Block S3</A></TD></TR>
+<TR>
+<TD>317</TD><TD><A HREF="./mldv2-router_4_26_c.html">4.26.c Including S1, Sends a Query after Block S2, receives To Exclude S3</A></TD></TR>
+<TR>
+<TD>318</TD><TD><A HREF="./mldv2-router_4_26_d.html">4.26.d Including S1, Sends a Query after Block S2, receives To Include S3</A></TD></TR>
+<TR>
+<TD>319</TD><TD><A HREF="./mldv2-router_4_26_e.html">4.26.e Including S1, Sends a Query after To Exclude S2, receives Allow S3</A></TD></TR>
+<TR>
+<TD>320</TD><TD><A HREF="./mldv2-router_4_26_f.html">4.26.f Including S1, Sends a Query after To Exclude S2, receives Block S3</A></TD></TR>
+<TR>
+<TD>321</TD><TD><A HREF="./mldv2-router_4_26_g.html">4.26.g Including S1, Sends a Query after To Exclude S2, receives To Exclude S3</A></TD></TR>
+<TR>
+<TD>322</TD><TD><A HREF="./mldv2-router_4_26_h.html">4.26.h Including S1, Sends a Query after To Exclude S2, receives To Include S3</A></TD></TR>
+<TR>
+<TD>323</TD><TD><A HREF="./mldv2-router_4_26_i.html">4.26.i Including S1, Sends a Query after To Include S2, receives Allow S3</A></TD></TR>
+<TR>
+<TD>324</TD><TD><A HREF="./mldv2-router_4_26_j.html">4.26.j Including S1, Sends a Query after To Include S2, receives Block S3</A></TD></TR>
+<TR>
+<TD>325</TD><TD><A HREF="./mldv2-router_4_26_k.html">4.26.k Including S1, Sends a Query after To Include S2, receives To Exclude S3</A></TD></TR>
+<TR>
+<TD>326</TD><TD><A HREF="./mldv2-router_4_26_l.html">4.26.l Including S1, Sends a Query after To Include S2, receives To Include S3</A></TD></TR>
+<TR>
+<TD>327</TD><TD><A HREF="./mldv2-router_4_26_m.html">4.26.m Excluding nothing, Sends a Query after Block S2, receives Allow S3</A></TD></TR>
+<TR>
+<TD>328</TD><TD><A HREF="./mldv2-router_4_26_n.html">4.26.n Excluding nothing, Sends a Query after Block S2, receives Block S3</A></TD></TR>
+<TR>
+<TD>329</TD><TD><A HREF="./mldv2-router_4_26_o.html">4.26.o Excluding nothing, Sends a Query after Block S2, receives To Exclude S3</A></TD></TR>
+<TR>
+<TD>330</TD><TD><A HREF="./mldv2-router_4_26_p.html">4.26.p Excluding nothing, Sends a Query after Block S2, receives To Include S3</A></TD></TR>
+<TR>
+<TD>331</TD><TD><A HREF="./mldv2-router_4_26_q.html">4.26.q Excluding nothing, Sends a Query after To Exclude S2, receives Allow S3</A></TD></TR>
+<TR>
+<TD>332</TD><TD><A HREF="./mldv2-router_4_26_r.html">4.26.r Excluding nothing, Sends a Query after To Exclude S2, receives Block S3</A></TD></TR>
+<TR>
+<TD>333</TD><TD><A HREF="./mldv2-router_4_26_s.html">4.26.s Excluding nothing, Sends a Query after To Exclude S2, receives To Exclude S3</A></TD></TR>
+<TR>
+<TD>334</TD><TD><A HREF="./mldv2-router_4_26_t.html">4.26.t Excluding nothing, Sends a Query after To Exclude S2, receives To Include S3</A></TD></TR>
+<TR>
+<TD>335</TD><TD><A HREF="./mldv2-router_4_26_u.html">4.26.u Excluding nothing with Requested, Sends a Query after To Include S2, receives Allow S3</A></TD></TR>
+<TR>
+<TD>336</TD><TD><A HREF="./mldv2-router_4_26_v.html">4.26.v Excluding nothing with Requested, Sends a Query after To Include S2, receives Block S3</A></TD></TR>
+<TR>
+<TD>337</TD><TD><A HREF="./mldv2-router_4_26_w.html">4.26.w Excluding nothing with Requested, Sends a Query after To Include S2, receives To Exclude S3</A></TD></TR>
+<TR>
+<TD>338</TD><TD><A HREF="./mldv2-router_4_26_x.html">4.26.x Excluding nothing with Requested, Sends a Query after To Include S2, receives To Include S3</A></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 4.27: Multiple Records</B></TD></TR>
+<TR>
+<TD>339</TD><TD><A HREF="./mldv2-router_4_27_a.html">4.27.a Two Records in one message</A></TD></TR>
+<TR>
+<TD>340</TD><TD><A HREF="./mldv2-router_4_27_b.html">4.27.b Current State is Include, receiving multiple records</A></TD></TR>
+<TR>
+<TD>341</TD><TD><A HREF="./mldv2-router_4_27_c.html">4.27.c Current State is Exclude nothing, receiving multiple record</A></TD></TR>
+<TR>
+<TD>342</TD><TD><A HREF="./mldv2-router_4_27_d.html">4.27.d Current State is Exclude Source, receiving multiple record</A></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 4.28: MTU</B></TD></TR>
+<TR>
+<TD>343</TD><TD><A HREF="./mldv2-router_4_28_a.html">4.28.a Include List</A></TD></TR>
+<TR>
+<TD>344</TD><TD><A HREF="./mldv2-router_4_28_b.html">4.28.b Requested List</A></TD></TR>
+<TR><TD><BR></TD><TD><B> GROUP 5: Version Interoperability</B></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 5.1: MLDv1 Query in MLDv2 Mode</B></TD></TR>
+<TR>
+<TD>345</TD><TD><A HREF="./mldv2-router_5_1_a.html">5.1.a MLDv1 General Query</A></TD></TR>
+<TR>
+<TD>346</TD><TD><A HREF="./mldv2-router_5_1_b.html">5.1.b MLDv1 Multicast Address Specific Query</A></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 5.2: MLDv1 Report in MLDv2 Mode</B></TD></TR>
+<TR>
+<TD>347</TD><TD><A HREF="./mldv2-router_5_2_a.html">5.2.a Including Source, MLDv1 Report</A></TD></TR>
+<TR>
+<TD>348</TD><TD><A HREF="./mldv2-router_5_2_b.html">5.2.b Including Source, MLDv1 Report before Filter Timer expires</A></TD></TR>
+<TR>
+<TD>349</TD><TD><A HREF="./mldv2-router_5_2_c.html">5.2.c Including Source, MLDv1 Report after Filter Timer expires</A></TD></TR>
+<TR>
+<TD>350</TD><TD><A HREF="./mldv2-router_5_2_d.html">5.2.d Including Source, MLDv1 Done</A></TD></TR>
+<TR>
+<TD>351</TD><TD><A HREF="./mldv2-router_5_2_e.html">5.2.e Excluding Source with Requested Another Source, MLDv1 Report</A></TD></TR>
+<TR>
+<TD>352</TD><TD><A HREF="./mldv2-router_5_2_f.html">5.2.f Excluding Source with Requested Another Source, MLDv1 Report before Filter Timer expires</A></TD></TR>
+<TR>
+<TD>353</TD><TD><A HREF="./mldv2-router_5_2_g.html">5.2.g Excluding Source with Requested Another Source, MLDv1 Report after Filter Timer expires</A></TD></TR>
+<TR>
+<TD>354</TD><TD><A HREF="./mldv2-router_5_2_h.html">5.2.h Excluding Source with Requested Another Source, MLDv1 Done</A></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 5.3: MLDv1 Compatibility Mode</B></TD></TR>
+<TR>
+<TD>355</TD><TD><A HREF="./mldv2-router_5_3_a.html">5.3.a MLDv1 Report and MLDv1 Done</A></TD></TR>
+<TR>
+<TD>356</TD><TD><A HREF="./mldv2-router_5_3_b.html">5.3.b Is Include Source</A></TD></TR>
+<TR>
+<TD>357</TD><TD><A HREF="./mldv2-router_5_3_c.html">5.3.c Is Exclude nothing</A></TD></TR>
+<TR>
+<TD>358</TD><TD><A HREF="./mldv2-router_5_3_d.html">5.3.d Is Exclude source</A></TD></TR>
+<TR>
+<TD>359</TD><TD><A HREF="./mldv2-router_5_3_e.html">5.3.e Allow source</A></TD></TR>
+<TR>
+<TD>360</TD><TD><A HREF="./mldv2-router_5_3_f.html">5.3.f Block Source</A></TD></TR>
+<TR>
+<TD>361</TD><TD><A HREF="./mldv2-router_5_3_g.html">5.3.g To Exclude nothing</A></TD></TR>
+<TR>
+<TD>362</TD><TD><A HREF="./mldv2-router_5_3_h.html">5.3.h To Exclude source</A></TD></TR>
+<TR>
+<TD>363</TD><TD><A HREF="./mldv2-router_5_3_i.html">5.3.i To Include nothing</A></TD></TR>
+<TR>
+<TD>364</TD><TD><A HREF="./mldv2-router_5_3_j.html">5.3.j To Include source</A></TD></TR>
+<TR>
+<TD>365</TD><TD><A HREF="./mldv2-router_5_3_k.html">5.3.k Allow two sources</A></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 5.4: MLDv1 Compatibility Mode Scope</B></TD></TR>
+<TR>
+<TD>366</TD><TD><A HREF="./mldv2-router_5_4_a.html">5.4.a MLDv1 Compatibility Mode Per Interface</A></TD></TR>
+<TR>
+<TD>367</TD><TD><A HREF="./mldv2-router_5_4_b.html">5.4.b MLDv1 Compatibility Mode Per Interface, Older Version Host Present Timeout</A></TD></TR>
+<TR>
+<TD>368</TD><TD><A HREF="./mldv2-router_5_4_c.html">5.4.c MLDv1 Compatibility Mode Per Multicast Address Record</A></TD></TR>
+<TR>
+<TD>369</TD><TD><A HREF="./mldv2-router_5_4_d.html">5.4.d MLDv1 Compatibility Mode Per Multicast Address Record, Older Version Host Present Timeout</A></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 5.5: MLDv2 fixed mode (Advanced Function)</B></TD></TR>
+<TR>
+<TD>370</TD><TD><A HREF="./mldv2-router_5_5_a.html">5.5.a MLDv1 Report</A></TD></TR>
+<TR>
+<TD>371</TD><TD><A HREF="./mldv2-router_5_5_b.html">5.5.b MLDv1 Done</A></TD></TR>
+<TR><TD><BR></TD><TD><B> GROUP 6: Source Specific Multicast</B></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 6.1: SSM Range</B></TD></TR>
+<TR>
+<TD>372</TD><TD><A HREF="./mldv2-router_6_1_a.html">6.1.a Default SSM Range</A></TD></TR>
+<TR>
+<TD>373</TD><TD><A HREF="./mldv2-router_6_1_b.html">6.1.b Configured SSM Range</A></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 6.2: SSM MLDv2 Report</B></TD></TR>
+<TR>
+<TD>374</TD><TD><A HREF="./mldv2-router_6_2_a.html">6.2.a Accept Is Include</A></TD></TR>
+<TR>
+<TD>375</TD><TD><A HREF="./mldv2-router_6_2_b.html">6.2.b Ignores Is Exclude</A></TD></TR>
+<TR>
+<TD>376</TD><TD><A HREF="./mldv2-router_6_2_c.html">6.2.c Accepts Allow</A></TD></TR>
+<TR>
+<TD>377</TD><TD><A HREF="./mldv2-router_6_2_d.html">6.2.d All Sources Processed</A></TD></TR>
+<TR>
+<TD>378</TD><TD><A HREF="./mldv2-router_6_2_e.html">6.2.e Accepts Blocks</A></TD></TR>
+<TR>
+<TD>379</TD><TD><A HREF="./mldv2-router_6_2_f.html">6.2.f Accepts To Include</A></TD></TR>
+<TR>
+<TD>380</TD><TD><A HREF="./mldv2-router_6_2_g.html">6.2.g Ignores To Exclude</A></TD></TR>
+<TR>
+<TD>381</TD><TD><A HREF="./mldv2-router_6_2_h.html">6.2.h All Multicast address Records Processed</A></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 6.3: SSM MLDv2 Multicast Address and Source Specific Queries</B></TD></TR>
+<TR>
+<TD>382</TD><TD><A HREF="./mldv2-router_6_3_a.html">6.3.a Block caused Multicast Address and Source Specific Query</A></TD></TR>
+<TR>
+<TD>383</TD><TD><A HREF="./mldv2-router_6_3_b.html">6.3.b To Include caused Multicast Address and Source Specific Query</A></TD></TR>
+<TR><TD><BR></TD><TD><B> Group 6.4: SSM MLDv1 Report and Done Message</B></TD></TR>
+<TR>
+<TD>384</TD><TD><A HREF="./mldv2-router_6_4_a.html">6.4.a MLDv1 Report Ignored</A></TD></TR>
+<TR>
+<TD>385</TD><TD><A HREF="./mldv2-router_6_4_b.html">6.4.b MLDv1 Done Ignored</A></TD></TR>
+</TABLE>
+</CENTER>
+</BODY>
+</HTML>
+<!-- 9f50c6d68053225e7d42ab43b1ca49cd -->

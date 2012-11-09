@@ -1,0 +1,365 @@
+#!/usr/bin/perl
+# 
+# Copyright (C) IPv6 Promotion Council, NTT Advanced Technology Corporation
+# (NTT-AT), Yokogwa Electoric Corporation and YASKAWA INFORMATION SYSTEMS
+# Corporation All rights reserved.
+# 
+# Redistribution and use of this software in source and binary forms, with
+# or without modification, are permitted provided that the following
+# conditions and disclaimer are agreed and accepted by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright
+# notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright
+# notice, this list of conditions and the following disclaimer in the
+# documentation and/or other materials provided with the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project which
+# is related to this software (hereinafter referred to as "project") nor
+# the names of the contributors may be used to endorse or promote products
+# derived from this software without specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written
+# notification to the copyrighters. However, using this software for the
+# purpose of testing or evaluating any products including merchantable
+# products may be permitted without any notification to the copyrighters.
+# 
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+# CONTRACT,STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+# THE POSSIBILITY OF SUCH DAMAGE.
+# 
+###############################################################################
+BEGIN {}
+END   {}
+
+#------------------------------------------------------------------------------
+# Include
+#------------------------------------------------------------------------------
+# Include Module
+use strict;
+use warnings;
+use V6evalTool;
+use MLDv2R;
+
+#------------------------------------------------------------------------------
+vLog2("Setup");
+#------------------------------------------------------------------------------
+# Variable
+my $stp = 0;
+my $rtn;
+my $wk;
+
+# Requirement configuration
+%T_REQ = ();
+
+# Specification configuration
+%T_CONF = ();
+
+# Topology
+@T_LINK = ("Link0");
+@T_NODE = ("TR1");
+
+# Setup Tester
+$rtn = Setup();
+if ($rtn != $RES_OK) {
+	goto TERM;
+}
+
+#------------------------------------------------------------------------------
+vLog2("Procedure");
+#------------------------------------------------------------------------------
+# Sequence
+%T_SEQ = (
+	$stp++ => {
+		caption => [ "Step 36. TR1 has a lower IP address then the RUT." ],
+		func    => "ConfProc",
+		status  => 0,
+	},
+	$stp++ => {
+		caption => [ "Step 37. Enable MLDv2 on the RUT." ],
+		func    => "EnableProc",
+		status  => 0,
+	},
+	$stp++ => {
+		caption => [ "Step 38. Observe the packets on all networks." ],
+		qg_int  => $CONF_DATA{SQI},
+		func    => $CONF_DATA{FUNC_ENABLE_QUERY} ? "RecvProc" : "BaseProc",
+		link    => "Link0",
+		wtime   => [ $CONF_DATA{ENABLE_TIME}, $CONF_DATA{SQI} + $CONF_DATA{MARGIN_TIME} ],
+		count   => $CONF_DATA{SQC},
+		msgs    => [ "MLDv2Q_rut0l_allnodes_m0" ],
+		status  => 0,
+		stack   => "L0SQG",
+	},
+	$stp++ => {
+		caption => [ "Step 39. TR1 transmits Query A with a length of 26 octets." ],
+		func    => "SendProc",
+		link    => "Link0",
+		msgs    => [ "MLDQ1_tr1l_allnodes_m0_26octets" ],
+		status  => 0,
+	},
+	$stp++ => {
+		caption => [ "Step 40. Wait [QI] ($CONF_DATA{QI}) seconds.",
+		             "Step 41. Observe the packets on all networks." ],
+		qg_int  => $CONF_DATA{QI},
+		func    => "RecvProc",
+		link    => "Link0",
+		wtime   => [ $CONF_DATA{QI} + $CONF_DATA{MARGIN_TIME} ],
+		count   => 1,
+		msgs    => [ "MLDv2Q_rut0l_allnodes_m0" ],
+		status  => 0,
+	},
+	$stp++ => {
+		func    => "RecvProc",
+		link    => "Link0",
+		wtime   => [ $CONF_DATA{LLQI} + $CONF_DATA{MARGIN_TIME} + $CONF_DATA{CHECK_TIME} ],
+		count   => 1,
+		msgs    => [ "MLDv2Q_any_any_except_qg" ],
+		status  => 1,
+	},
+);
+
+# local packet
+$pktdesc{MLDQ1_tr1l_allnodes_m0_26octets}    = "Send: TR1 -> All Nodes Address, MLD Query1 (G) with a length of 26 octets";
+
+# Execute
+for ($stp = 0; $T_SEQ{$stp}; $stp++) {
+	no strict 'refs';
+	$rtn = &{$T_SEQ{$stp}{func}}($stp);
+	if ($rtn != $RES_OK) {
+		last;
+	}
+}
+
+#------------------------------------------------------------------------------
+vLog2("Complement Judgement");
+#------------------------------------------------------------------------------
+$wk = JudgeCommon();
+if (($wk != $RES_OK) && ($rtn == $RES_OK)) {
+	$rtn = $wk;
+}
+
+TERM:
+#------------------------------------------------------------------------------
+vLog2("Termination");
+#------------------------------------------------------------------------------
+# 
+Term($rtn);
+
+###############################################################################
+__END__
+
+
+=head1 Test Label
+
+=begin html
+MLD.2.8: Query Payload Length<BR>
+Part E: MLD Query Length greater than 24 octets, and smaller than 28 octets
+
+=end html
+
+=head1 Purpose
+
+=begin html
+To verify that an MLDv2 router properly processes payload length in MLD query message.
+
+=end html
+
+=head1 References
+
+=begin html
+RFC3810 5.1.12.  Additional Data<BR>
+
+=cut
+<PRE>
+   If the Payload Length field in the IPv6 header of a received Query
+   indicates that there are additional octets of data present, beyond
+   the fields described here, MLDv2 implementations MUST include those
+   octets in the computation to verify the received MLD Checksum, but
+   MUST otherwise ignore those additional octets.
+</PRE>
+
+=pod
+
+=end html
+
+=begin html
+RFC3810 8.1.  Query Version Distinctions<BR>
+
+=cut
+<PRE>
+   The MLD version of a Multicast Listener Query message is determined
+   as follows:
+   
+   MLDv1 Query: length = 24 octets
+   
+   MLDv2 Query: length >= 28 octets
+   
+   Query messages that do not match any of the above conditions (e.g., a
+   Query of length 26 octets) MUST be silently ignored.
+</PRE>
+
+=pod
+
+=end html
+
+=begin html
+RFC3810 8.3.1.  In the Presence of MLDv1 Routers<BR>
+
+=cut
+<PRE>
+   o  If a router is not explicitly configured to use MLDv1 and receives
+      an MLDv1 General Query, it SHOULD log a warning.  These warnings
+      MUST be rate-limited.
+</PRE>
+
+=pod
+
+=end html
+
+=head1 Discussion
+
+=begin html
+None
+
+=end html
+
+=head1 Test Requirement
+
+=begin html
+None
+
+=end html
+
+=head1 Test Setup
+
+=begin html
+<UL><LI><FONT SIZE="+1"><B>Common Topology</B></FONT></UL>
+<PRE><FONT SIZE="+1">
+   RUT
+    |(I/F: Link0)
+    |
+   -+-------+-------+-------+---- Network 0
+            |       |       |
+           TR1     TR2     TN1
+</FONT></PRE>
+<BLOCKQUOTE><TABLE BORDER>
+<TR><TD><TT>ID</TT></TD>
+    <TD><TT>attribute</TT></TD>
+    <TD><TT>value</TT></TD>
+    <TD><TT>memo</TT></TD></TR>
+<TR><TD><TT>Network 0</TT></TD>
+    <TD><TT>prefix</TT></TD>
+    <TD><TT>3ffe:501:ffff:100::/64</TT></TD>
+    <TD><TT>I/F Link0 is connected.</TT></TD></TR>
+<TR><TD ROWSPAN="3"><TT>TR1</TT></TD>
+    <TD><TT>ether</TT></TD>
+    <TD><TT>00:00:00:00:00:01</TT></TD>
+    <TD ROWSPAN="3"><TT>Lower IP Address</TT></TD></TR>
+<TR><TD><TT>link-local</TT></TD>
+    <TD><TT>fe80::200:ff:fe00:1</TT></TD></TR>
+<TR><TD><TT>global</TT></TD>
+    <TD><TT>3ffe:501:ffff:100:200:ff:fe00:1</TT></TD></TR>
+<TR><TD ROWSPAN="3"><TT>TR2</TT></TD>
+    <TD><TT>ether</TT></TD>
+    <TD><TT>fc:fc:fc:fc:fc:fc</TT></TD>
+    <TD ROWSPAN="3"><TT>Higher IP Address</TT></TD></TR>
+<TR><TD><TT>link-local</TT></TD>
+    <TD><TT>fe80::fefc:fcff:fefc:fcfc</TT></TD></TR>
+<TR><TD><TT>global</TT></TD>
+    <TD><TT>3ffe:501:ffff:100:fefc:fcff:fefc:fcfc</TT></TD></TR>
+<TR><TD ROWSPAN="3"><TT>TN1</TT></TD>
+    <TD><TT>ether</TT></TD>
+    <TD><TT>00:00:00:11:11:11</TT></TD>
+    <TD ROWSPAN="3"><TT>&nbsp;</TT></TD></TR>
+<TR><TD><TT>link-local</TT></TD>
+    <TD><TT>fe80::200:ff:fe11:1111</TT></TD></TR>
+<TR><TD><TT>global</TT></TD>
+    <TD><TT>3ffe:501:ffff:100:200:ff:fe11:1111</TT></TD></TR>
+</TABLE></BLOCKQUOTE>
+<UL><LI><B><FONT SIZE="+1">Common Test Setup</FONT></B>
+    <OL><LI>Configure RUT to have:
+        <UL><LI>Robustness Variable of 2
+            <LI>Query Interval of 125 (seconds)
+            <LI>Query Response Interval of 10 (seconds)
+            <LI>Last Listener Query Interval of 1 (second)</UL>
+        <LI>Configure TR1, TR2, TR3 and TR4 to have:
+        <UL><LI>Robustness Variable of 2
+            <LI>Query Interval of 125 (seconds)
+            <LI>Query Response Interval of 10 (seconds)
+            <LI>Last Listener Query Interval of 1 (second)</UL></OL><BR>
+    <LI><B><FONT SIZE="+1">Common Test Cleanup</FONT></B>
+    <OL><LI>Disable MLD on all devices.
+        <LI>Return all timers and variables to their defaults values.
+        <LI>The Query Interval of RUT can be shortened to decrease time.</OL></UL>
+
+=end html
+
+=head1 Procedure
+
+=begin html
+<PRE>
+Step 36. TR1 has a lower IP address then the RUT. 
+Step 37. Enable MLDv2 on the RUT.
+Step 38. Observe the packets on all networks.
+Step 39. TR1 transmits Query A with a length of 26 octets.
+    -----
+    IPv6 Header
+        <FONT COLOR="#FF0000">IPv6 Payload Length             = 34</FONT>
+        IPv6 Hop Limit                  = 1
+        IPv6 Source Address             = TR1 link-local address
+        IPv6 Destination Address        = All Nodes Address
+    Hop-by-Hop Options Header
+        Router Alert Option
+    ICMPv6 Header (MLD Query)
+        Maximum Response Code           = 10000
+        Multicast Address               = ::
+        <FONT COLOR="#FF0000">Additional Data                 = (2 octets) (unusual)</FONT>
+    -----
+Step 40. Wait [QI] seconds.
+Step 41. Observe the packets on all networks.
+</PRE>
+
+=end html
+
+=head1 Observable Results
+
+=begin html
+<PRE>
+Step 39: The RUT must transmit 2 MLDv2 General Queries.
+Step 41: The RUT must not crash or generate invalid packets.
+         The RUT must transmit periodic General Queries.
+<BR>
+   RUT     TR1     TR2     TN1
+    |       |       |       |
+    |       |       |       | 36. TR1 has a lower IP address then the RUT.
+    |       |       |       | 37. Enable MLDv2 on the RUT.
+    |       |       |       | 38. Observe the packets on all networks.
+    |- - - - - - - - - - - >|     RUT transmits TO_EX(FF02::16,{null}), [RV] times, [URI] seconds
+    |---------------------->|     RUT transmits Q(G), [SQC] times, [SQI] seconds
+    |<------|       |       | 39. TR1 transmits Query A with a payload length for one Source Address.
+    |       |       |       | 40. Wait [QI] seconds.
+    |       |       |       | 41. Observe the packets on all networks.
+    |---------------------->|     RUT transmits Q(M1)
+    |       |       |       |
+</PRE>
+
+=end html
+
+=head1 Possible Problems
+
+=begin html
+None
+
+=end html

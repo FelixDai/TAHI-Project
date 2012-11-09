@@ -1,0 +1,212 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>./mldv2-router_4_16_b.seq</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:kris@jail-82.isc.freebsd.org" />
+</head>
+
+<body style="background-color: white">
+
+
+<!-- INDEX BEGIN -->
+<div name="index">
+<p><a name="__index__"></a></p>
+<!--
+
+<ul>
+
+	<li><a href="#test_label">Test Label</a></li>
+	<li><a href="#purpose">Purpose</a></li>
+	<li><a href="#references">References</a></li>
+	<li><a href="#discussion">Discussion</a></li>
+	<li><a href="#test_requirement">Test Requirement</a></li>
+	<li><a href="#test_setup">Test Setup</a></li>
+	<li><a href="#procedure">Procedure</a></li>
+	<li><a href="#observable_results">Observable Results</a></li>
+	<li><a href="#possible_problems">Possible Problems</a></li>
+</ul>
+
+-->
+
+
+</div>
+<!-- INDEX END -->
+
+<p>
+</p>
+<h1><a name="test_label">Test Label</a></h1>
+MLD.4.16: Including - Receives To Include and Updates Timer<BR>
+Part B: After second source timer expires, Check Include List<p>
+</p>
+<hr />
+<h1><a name="purpose">Purpose</a></h1>
+To verify that an MLDv2 router properly processes To Exclude while in Is Include and updates the timer.<p>
+</p>
+<hr />
+<h1><a name="references">References</a></h1>
+RFC3810 7.2.3.  Definition of Source Timers<BR>RFC3810 7.4.2.  Reception of Filter Mode Change and Source List Change Records<BR><p>
+</p>
+<hr />
+<h1><a name="discussion">Discussion</a></h1>
+None<p>
+</p>
+<hr />
+<h1><a name="test_requirement">Test Requirement</a></h1>
+None<p>
+</p>
+<hr />
+<h1><a name="test_setup">Test Setup</a></h1>
+<UL><LI><FONT SIZE="+1"><B>Common Topology</B></FONT></UL>
+<PRE><FONT SIZE="+1">
+   RUT
+    |(I/F: Link0)
+    |
+   -+-------+-------+-------+---- Network 0
+            |       |       |
+           TR1     TR2     TN1
+</FONT></PRE>
+<BLOCKQUOTE><TABLE BORDER>
+<TR><TD><TT>ID</TT></TD>
+    <TD><TT>attribute</TT></TD>
+    <TD><TT>value</TT></TD>
+    <TD><TT>memo</TT></TD></TR>
+<TR><TD><TT>Network 0</TT></TD>
+    <TD><TT>prefix</TT></TD>
+    <TD><TT>3ffe:501:ffff:100::/64</TT></TD>
+    <TD><TT>I/F Link0 is connected.</TT></TD></TR>
+<TR><TD ROWSPAN="3"><TT>TR1</TT></TD>
+    <TD><TT>ether</TT></TD>
+    <TD><TT>00:00:00:00:00:01</TT></TD>
+    <TD ROWSPAN="3"><TT>Lower IP Address</TT></TD></TR>
+<TR><TD><TT>link-local</TT></TD>
+    <TD><TT>fe80::200:ff:fe00:1</TT></TD></TR>
+<TR><TD><TT>global</TT></TD>
+    <TD><TT>3ffe:501:ffff:100:200:ff:fe00:1</TT></TD></TR>
+<TR><TD ROWSPAN="3"><TT>TR2</TT></TD>
+    <TD><TT>ether</TT></TD>
+    <TD><TT>fc:fc:fc:fc:fc:fc</TT></TD>
+    <TD ROWSPAN="3"><TT>Higher IP Address</TT></TD></TR>
+<TR><TD><TT>link-local</TT></TD>
+    <TD><TT>fe80::fefc:fcff:fefc:fcfc</TT></TD></TR>
+<TR><TD><TT>global</TT></TD>
+    <TD><TT>3ffe:501:ffff:100:fefc:fcff:fefc:fcfc</TT></TD></TR>
+<TR><TD ROWSPAN="3"><TT>TN1</TT></TD>
+    <TD><TT>ether</TT></TD>
+    <TD><TT>00:00:00:11:11:11</TT></TD>
+    <TD ROWSPAN="3"><TT>&nbsp;</TT></TD></TR>
+<TR><TD><TT>link-local</TT></TD>
+    <TD><TT>fe80::200:ff:fe11:1111</TT></TD></TR>
+<TR><TD><TT>global</TT></TD>
+    <TD><TT>3ffe:501:ffff:100:200:ff:fe11:1111</TT></TD></TR>
+</TABLE></BLOCKQUOTE>
+<UL><LI><B><FONT SIZE="+1">Common Test Setup</FONT></B>
+    <OL><LI>Configure RUT to have:
+        <UL><LI>Robustness Variable of 2
+            <LI>Query Interval of 125 (seconds)
+            <LI>Query Response Interval of 10 (seconds)
+            <LI>Last Listener Query Interval of 1 (second)</UL>
+        <LI>Configure TR1, TR2, TR3 and TR4 to have:
+        <UL><LI>Robustness Variable of 2
+            <LI>Query Interval of 125 (seconds)
+            <LI>Query Response Interval of 10 (seconds)
+            <LI>Last Listener Query Interval of 1 (second)</UL></OL><BR>
+    <LI><B><FONT SIZE="+1">Common Test Cleanup</FONT></B>
+    <OL><LI>Disable MLD on all devices.
+        <LI>Return all timers and variables to their defaults values.
+        <LI>The Query Interval of RUT can be shortened to decrease time.</OL></UL><p>
+</p>
+<hr />
+<h1><a name="procedure">Procedure</a></h1>
+<PRE>
+Step 9. Enable MLDv2 on the RUT.
+Step 10. Observe the packets on all networks.
+Step 11. TN1 transmits Report A.
+    -----
+    IPv6 Header
+        IPv6 Hop Limit                  = 1
+        IPv6 Source Address             = TN1 link-local address
+        IPv6 Destination Address        = All MLDv2-capable routers
+    Hop-by-Hop Options Header
+        Router Alert Option
+    ICMPv6 Header (MLDv2 Report)
+        Number of Mcast Address Records = 1
+        Multicast Address Record [1]
+            Type                            = 3 (TO_IN)
+            Num of Sources                  = 2
+            Multicast Address               = M1
+            Source Address                  = S1
+            Source Address                  = S3
+    -----
+Step 12. Observe the packets on all networks.
+Step 13. Wait [QI] seconds from Step 11. TN1 transmits Report B.
+    -----
+    IPv6 Header
+        IPv6 Hop Limit                  = 1
+        IPv6 Source Address             = TN1 link-local address
+        IPv6 Destination Address        = All MLDv2-capable routers
+    Hop-by-Hop Options Header
+        Router Alert Option
+    ICMPv6 Header (MLDv2 Report)
+        Number of Mcast Address Records = 1
+        Multicast Address Record [1]
+            Type                            = 3 (TO_IN)
+            Num of Sources                  = 2
+            Multicast Address               = M1
+            Source Address                  = S2
+            Source Address                  = S3
+    -----
+Step 14. Observe the packets on all networks.
+Step 15. Wait [MALI] seconds from Step 13. TN1 transmits Report C.
+    -----
+    IPv6 Header
+        IPv6 Hop Limit                  = 1
+        IPv6 Source Address             = TN1 link-local address
+        IPv6 Destination Address        = All MLDv2-capable routers
+    Hop-by-Hop Options Header
+        Router Alert Option
+    ICMPv6 Header (MLDv2 Report)
+        Number of Mcast Address Records = 1
+        Multicast Address Record [1]
+            Type                            = 3 (TO_IN)
+            Num of Sources                  = 0
+            Multicast Address               = M1
+    -----
+Step 16. Observe the packets on all networks.
+</PRE><p>
+</p>
+<hr />
+<h1><a name="observable_results">Observable Results</a></h1>
+<PRE>
+Step 10: The RUT must transmit 2 MLDv2 General Queries.
+Step 12: The RUT must not transmit Queries other then periodic General Queries.
+Step 14: The RUT must transmit 2 Multicast Address and Source Specific Query with a Multicast Address of M1 and a Source Address of S1.
+Step 16: The RUT must not transmit Queries other then periodic General Queries.
+<BR>
+   RUT     TR1     TR2     TN1
+    |       |       |       |
+    |       |       |       | 9. Enable MLDv2 on the RUT.
+    |       |       |       | 10. Observe the packets on all networks.
+    |- - - - - - - - - - - >|     RUT transmits TO_EX(FF02::16,{null}), [RV] times, [URI] seconds
+    |---------------------->|     RUT transmits Q(G), [SQC] times, [SQI] seconds
+    |<----------------------| 11. TN1 transmits Report A.
+    |       |       |       | 12. Observe the packets on all networks.
+    |       |       |       |     (no response)
+    |       |       |       | 13. Wait [QI] seconds from Step 11.
+    |<----------------------|     TN1 transmits Report B.
+    |       |       |       | 14. Observe the packets on all networks.
+    |---------------------->|     RUT transmits Q(M1,{S1}), [LLQC] times, [LLQI] seconds
+    |       |       |       | 15. Wait [MALI] seconds from Step 13.
+    |<----------------------|     TN1 transmits Report C.
+    |       |       |       | 16. Observe the packets on all networks.
+    |       |       |       |     (no response)
+    |       |       |       |
+</PRE><p>
+</p>
+<hr />
+<h1><a name="possible_problems">Possible Problems</a></h1>
+None
+</body>
+
+</html>
