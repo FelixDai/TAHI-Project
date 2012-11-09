@@ -1,0 +1,48 @@
+/*XORP Configuration File, v1.0*/
+
+/* you have to change device id and address */
+
+interfaces {
+    restore-original-config-on-shutdown: false
+    interface eth0 {
+        description: "Ethernet"
+        disable: false
+        discard: false
+        unreachable: false
+        management: false
+        vif eth0 {
+            disable: false
+            address fe80::20f:1fff:feb9:b17c {
+                prefix-length: 64
+                disable: false
+            }
+/*
+            address 3ffe:501:ffff:100:20f:1fff:feb9:b17c {
+                prefix-length: 64
+                disable: false
+            }
+*/
+        }
+    }
+    interface eth2 {
+        description: "Ethernet"
+        disable: false
+        discard: false
+        unreachable: false
+        management: false
+        vif eth2 {
+            disable: false
+            address fe80::207:40ff:fe53:531a {
+                prefix-length: 64
+                disable: false
+            }
+/*
+            address 3ffe:501:ffff:101:207:40ff:fe53:531a {
+                prefix-length: 64
+                disable: false
+            }
+*/
+        }
+    }
+}
+

@@ -1,0 +1,354 @@
+/*****************************************************************************/
+/* Refference Header in FreeBSD8 */
+/*****************************************************************************/
+#if 0 // FreeBSD8
+{
+
+/*****************************************************************************/
+/* FreeBSD8:/usr/src/sys/sys/socket.h */
+/*****************************************************************************/
+#define AF_UNSPEC       0               /* unspecified */
+#define AF_INET6        28              /* IPv6 */
+
+#define PF_UNSPEC       AF_UNSPEC
+#define PF_INET6        AF_INET6
+
+struct sockaddr {
+        unsigned char   sa_len;         /* total length */
+        sa_family_t     sa_family;      /* address family */
+        char            sa_data[14];    /* actually longer; address value */
+};
+
+struct sockaddr_storage {
+        unsigned char   ss_len;         /* address length */
+        sa_family_t     ss_family;      /* address family */
+        char            __ss_pad1[_SS_PAD1SIZE];
+        __int64_t       __ss_align;     /* force desired struct alignment */
+        char            __ss_pad2[_SS_PAD2SIZE];
+};
+
+/*****************************************************************************/
+/* FrrBSD8:/usr/src/sys/netinet6/in6.h */
+/*****************************************************************************/
+struct in6_addr {
+        union {
+                uint8_t         __u6_addr8[16];
+                uint16_t        __u6_addr16[8];
+                uint32_t        __u6_addr32[4];
+        } __u6_addr;                    /* 128-bit IP6 address */
+};
+
+struct sockaddr_in6 {
+        uint8_t         sin6_len;       /* length of this struct */
+        sa_family_t     sin6_family;    /* AF_INET6 */
+        in_port_t       sin6_port;      /* Transport layer port # */
+        uint32_t        sin6_flowinfo;  /* IP6 flow information */
+        struct in6_addr sin6_addr;      /* IP6 address */
+        uint32_t        sin6_scope_id;  /* scope zone index */
+};
+
+#define IPV6_JOIN_GROUP         12 /* ip6_mreq; join a group membership */
+#define IPV6_LEAVE_GROUP        13 /* ip6_mreq; leave a group membership */
+#define IPV6_MSFILTER           74 /* struct __msfilterreq;
+                                    * set/get multicast source filter list.
+                                    */
+
+/*
+ * Argument structure for IPV6_JOIN_GROUP and IPV6_LEAVE_GROUP.
+ */
+struct ipv6_mreq {
+        struct in6_addr ipv6mr_multiaddr;
+        unsigned int    ipv6mr_interface;
+};
+
+/*****************************************************************************/
+/* FreeBSD8:/usr/src/sys/netinet/in.h */
+/*****************************************************************************/
+#define IPPROTO_IPV6            41              /* IP6 header */
+
+struct group_source_req {
+        uint32_t                gsr_interface;  /* interface index */
+        struct sockaddr_storage gsr_group;      /* group address */
+        struct sockaddr_storage gsr_source;     /* source address */
+};
+
+struct __msfilterreq {
+        uint32_t                 msfr_ifindex;  /* interface index */
+        uint32_t                 msfr_fmode;    /* filter mode for group */
+        uint32_t                 msfr_nsrcs;    /* # of sources in msfr_srcs */
+        struct sockaddr_storage  msfr_group;    /* group address */
+        struct sockaddr_storage *msfr_srcs;     /* pointer to the first member
+                                                 * of a contiguous array of
+                                                 * sources to filter in full.
+                                                 */
+};
+
+int     setsourcefilter(int, uint32_t, struct sockaddr *, socklen_t,
+            uint32_t, uint32_t, struct sockaddr_storage *);
+
+#define MCAST_INCLUDE   1       /* fmode: include these source(s) */
+#define MCAST_EXCLUDE   2       /* fmode: exclude these source(s) */
+
+/*****************************************************************************/
+/* FreeBSD8:/usr/src/sys/sys/socket.h: */
+ Memo:
+  optname = IPV6_MSFILTER,            optval = __msfilterreq
+  optname = IPV6_JOIN_GROUP,          optval = ipv6_mreq
+  optname = IPV6_LEAVE_GROUP,         optval = ipv6_mreq
+  optname = MCAST_JOIN_SOURCE_GROUP,  optval = group_source_req
+  optname = MCAST_LEAVE_SOURCE_GROUP, optval = group_source_req
+*/
+/*****************************************************************************/
+#define SOCK_DGRAM      2               /* datagram socket */
+
+int     setsockopt(int, int, int, const void *, socklen_t);
+
+/*****************************************************************************/
+/* FreeBSD8:/usr/src/include/netdb.h */
+/*****************************************************************************/
+struct addrinfo {
+        int     ai_flags;       /* AI_PASSIVE, AI_CANONNAME, AI_NUMERICHOST */
+        int     ai_family;      /* PF_xxx */
+        int     ai_socktype;    /* SOCK_xxx */
+        int     ai_protocol;    /* 0 or IPPROTO_xxx for IPv4 and IPv6 */
+        socklen_t ai_addrlen;   /* length of ai_addr */
+        char    *ai_canonname;  /* canonical name for hostname */
+        struct  sockaddr *ai_addr;      /* binary address */
+        struct  addrinfo *ai_next;      /* next structure in linked list */
+};
+
+#define AI_NUMERICHOST  0x00000004 /* prevent host name resolution */
+
+int             getaddrinfo(const char *, const char *,
+                            const struct addrinfo *, struct addrinfo **);
+
+void            freeaddrinfo(struct addrinfo *);
+
+const char      *gai_strerror(int);
+
+/*****************************************************************************/
+/* Refference Header in FreeBSD8 */
+/*****************************************************************************/
+}
+#endif /* FreeBSD8 */
+
+/*****************************************************************************/
+/* Refference Header in Linux26 */
+/*****************************************************************************/
+#if 0 /* Linux26, USAGI*/
+{
+
+/*****************************************************************************/
+/* Linux26:/usr/include/linux/socket.h */
+/*****************************************************************************/
+#define _K_SS_MAXSIZE   128     /* Implementation specific max size */
+#define _K_SS_ALIGNSIZE (__alignof__ (struct sockaddr *))
+                                /* Implementation specific desired alignment */
+
+struct __kernel_sockaddr_storage {
+        unsigned short  ss_family;              /* address family */
+        /* Following field(s) are implementation specific */
+        char            __data[_K_SS_MAXSIZE - sizeof(unsigned short)];
+                                /* space to achieve desired size, */
+                                /* _SS_MAXSIZE value minus size of ss_family */
+} __attribute__ ((aligned(_K_SS_ALIGNSIZE)));   /* force desired alignment */
+
+struct sockaddr {
+        sa_family_t     sa_family;      /* address family, AF_xxx       */
+        char            sa_data[14];    /* 14 bytes of protocol address */
+};
+
+#define sockaddr_storage __kernel_sockaddr_storage
+
+/* Supported address families. */
+#define AF_UNSPEC       0
+#define AF_INET6        10      /* IP version 6                 */
+
+/* Protocol families, same as address families. */
+#define PF_UNSPEC       AF_UNSPEC
+#define PF_INET6        AF_INET6
+
+/* Setsockoptions(2) level. Thanks to BSD these must match IPPROTO_xxx */
+#define SOL_IPV6        41
+
+/*****************************************************************************/
+/* Linux26:/usr/include/linux/in6.h */
+/*****************************************************************************/
+struct in6_addr
+{
+        union
+        {
+                __u8            u6_addr8[16];
+                __be16          u6_addr16[8];
+                __be32          u6_addr32[4];
+        } in6_u;
+#define s6_addr                 in6_u.u6_addr8
+#define s6_addr16               in6_u.u6_addr16
+#define s6_addr32               in6_u.u6_addr32
+};
+
+struct sockaddr_in6 {
+        unsigned short int      sin6_family;    /* AF_INET6 */
+        __be16                  sin6_port;      /* Transport layer port # */
+        __be32                  sin6_flowinfo;  /* IPv6 flow information */
+        struct in6_addr         sin6_addr;      /* IPv6 address */
+        __u32                   sin6_scope_id;  /* scope id (new in RFC2553) */
+};
+
+struct ipv6_mreq {
+        /* IPv6 multicast address of group */
+        struct in6_addr ipv6mr_multiaddr;
+
+        /* local IPv6 address of interface */
+        int             ipv6mr_ifindex;
+};
+
+#define ipv6mr_acaddr   ipv6mr_multiaddr
+
+/*
+ * Multicast:
+ * Following socket options are shared between IPv4 and IPv6.
+ *
+ * MCAST_JOIN_GROUP             42
+ * MCAST_BLOCK_SOURCE           43
+ * MCAST_UNBLOCK_SOURCE         44
+ * MCAST_LEAVE_GROUP            45
+ * MCAST_JOIN_SOURCE_GROUP      46
+ * MCAST_LEAVE_SOURCE_GROUP     47
+ * MCAST_MSFILTER               48
+ */
+
+/*****************************************************************************/
+/* Linux26:/usr/include/linux/in.h */
+/*****************************************************************************/
+/* Standard well-defined IP protocols.  */
+enum {
+  IPPROTO_IPV6   = 41,          /* IPv6-in-IPv4 tunnelling              */
+}
+
+#define MCAST_JOIN_GROUP                42
+#define MCAST_BLOCK_SOURCE              43
+#define MCAST_UNBLOCK_SOURCE            44
+#define MCAST_LEAVE_GROUP               45
+#define MCAST_JOIN_SOURCE_GROUP         46
+#define MCAST_LEAVE_SOURCE_GROUP        47
+#define MCAST_MSFILTER                  48
+
+#define MCAST_EXCLUDE   0
+#define MCAST_INCLUDE   1
+
+struct group_req
+{
+        __u32                            gr_interface;  /* interface index */
+        struct __kernel_sockaddr_storage gr_group;      /* group address */
+};
+
+struct group_source_req
+{
+        __u32                            gsr_interface; /* interface index */
+        struct __kernel_sockaddr_storage gsr_group;     /* group address */
+        struct __kernel_sockaddr_storage gsr_source;    /* source address */
+};
+
+struct group_filter
+{
+        __u32                            gf_interface;  /* interface index */
+        struct __kernel_sockaddr_storage gf_group;      /* multicast address */
+        __u32                            gf_fmode;      /* filter mode */
+        __u32                            gf_numsrc;     /* number of sources */
+        struct __kernel_sockaddr_storage gf_slist[1];   /* interface index */
+};
+
+#define GROUP_FILTER_SIZE(numsrc) \
+        (sizeof(struct group_filter) - sizeof(struct __kernel_sockaddr_storage) \
+        + (numsrc) * sizeof(struct __kernel_sockaddr_storage))
+
+/*****************************************************************************/
+/* Linux26:/usr/include/linux/net.h */
+/*****************************************************************************/
+enum sock_type {
+        SOCK_STREAM     = 1,
+        SOCK_DGRAM      = 2,
+        SOCK_RAW        = 3,
+        SOCK_RDM        = 4,
+        SOCK_SEQPACKET  = 5,
+        SOCK_DCCP       = 6,
+        SOCK_PACKET     = 10,
+};
+
+struct proto_ops {
+        int             (*setsockopt)(struct socket *sock, int level,
+                                      int optname, char __user *optval, int optlen);
+};
+
+/*****************************************************************************/
+/* Linux26:/usr/include/arpa/inet.h */
+/*****************************************************************************/
+/* Convert from presentation format of an Internet number in buffer
+   starting at CP to the binary network format and store result for
+   interface type AF in buffer starting at BUF.  */
+extern int inet_pton (int __af, __const char *__restrict __cp,
+                      void *__restrict __buf) __THROW;
+
+/*****************************************************************************/
+/* Linux26:/usr/include/sys/socket.h */
+/*
+ Memo:
+  optname = IPV6_MSFILTER,            optval = __msfilterreq
+  optname = IPV6_JOIN_GROUP,          optval = ipv6_mreq
+  optname = IPV6_LEAVE_GROUP,         optval = ipv6_mreq
+  optname = MCAST_JOIN_SOURCE_GROUP,  optval = group_source_req
+  optname = MCAST_LEAVE_SOURCE_GROUP, optval = group_source_req
+*/
+/*****************************************************************************/
+/* Create a new socket of type TYPE in domain DOMAIN, using
+   protocol PROTOCOL.  If PROTOCOL is zero, one is chosen automatically.
+   Returns a file descriptor for the new socket, or -1 for errors.  */
+extern int socket (int __domain, int __type, int __protocol) __THROW;
+
+/* Set socket FD's option OPTNAME at protocol level LEVEL
+   to *OPTVAL (which is OPTLEN bytes long).
+   Returns 0 on success, -1 for errors.  */
+extern int setsockopt (int __fd, int __level, int __optname,
+                       __const void *__optval, socklen_t __optlen) __THROW;
+
+/*****************************************************************************/
+/* Linux26:/usr/include/netdb.h */
+/*****************************************************************************/
+/* Structure to contain information about address of a service provider.  */
+struct addrinfo
+{
+  int ai_flags;                 /* Input flags.  */
+  int ai_family;                /* Protocol family for socket.  */
+  int ai_socktype;              /* Socket type.  */
+  int ai_protocol;              /* Protocol for socket.  */
+  socklen_t ai_addrlen;         /* Length of socket address.  */
+  struct sockaddr *ai_addr;     /* Socket address for socket.  */
+  char *ai_canonname;           /* Canonical name for service location.  */
+  struct addrinfo *ai_next;     /* Pointer to next in list.  */
+};
+
+/* Possible values for `ai_flags' field in `addrinfo' structure.  */
+# define AI_NUMERICHOST 0x0004  /* Don't use name resolution.  */
+
+/* Translate name of a service location and/or a service name to set of
+   socket addresses.
+
+   This function is a possible cancellation point and therefore not
+   marked with __THROW.  */
+extern int getaddrinfo (__const char *__restrict __name,
+                        __const char *__restrict __service,
+                        __const struct addrinfo *__restrict __req,
+                        struct addrinfo **__restrict __pai);
+
+/* Free `addrinfo' structure AI including associated storage.  */
+extern void freeaddrinfo (struct addrinfo *__ai) __THROW;
+
+/* Convert error return from getaddrinfo() to a string.  */
+extern __const char *gai_strerror (int __ecode) __THROW;
+
+/*****************************************************************************/
+/* Refference Header in Linux26 */
+/*****************************************************************************/
+}
+#endif /* LINUX26 */
