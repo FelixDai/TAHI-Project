@@ -1,0 +1,15 @@
+#
+# Makefile
+#
+# $TAHI: ct/Makefile.test,v 1.36 2004/03/30 12:02:13 $
+#
+
+SUBDIR= sip-ipv6-ep 
+
+profile document document2 check check-RA check-REGISTER check-INVITE regist-test session-test maximum-test transaction-test m_dialog-test auth-test header-test routing-test request-test response-test dialog-test options-test dns-test transport-test icmp-test torture-test timer-test 100rel-test update-test privacy-test ttc-test test tahi:
+	@for subdir in ${SUBDIR}; do \
+		echo "===> $$subdir"; \
+		(cd $$subdir; ${MAKE} $@); \
+	done
+
+.include <bsd.subdir.mk>

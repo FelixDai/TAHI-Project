@@ -1,0 +1,61 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>JUDGEMENT</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:kris@jail-3.isc.freebsd.org" />
+</head>
+
+<body style="background-color: white">
+
+
+<!-- INDEX BEGIN -->
+<div name="index">
+<p><a name="__index__"></a></p>
+<!--
+
+<ul>
+
+	<li><a href="#judgement">JUDGEMENT</a></li>
+</ul>
+
+-->
+
+
+</div>
+<!-- INDEX END -->
+
+<p>
+</p>
+<h1><a name="judgement">JUDGEMENT</a></h1>
+SIP - Generic Judgment (Network Provided)<pre> [generic_Network-Provided-Privacy.txt]
+ 
+ Generic judgement items for Network-Provided Privacy
+   
+   Should use network or transport layer security when contacting a privacy service. [RFC3323-4-20]
+   Should establish a direct connection to a privacy service. [RFC3323-4-21]
+   Should use lower-layer security mechanism to contact a privacy service 
+                            when a direct connection is impossible. [RFC3323-4-22]
+ 
+ - Headers:
+ 
+   * Privacy
+       Should include a Privacy header when network-provided privacy is required. [RFC3323-4-10]
+       Should not use &quot;user&quot; level privacy for requests except REGISTER. [RFC3323-4-14]
+       Must not remove or alter a Privacy header whose priv-value is 'none'. [RFC3323-4-16]
+       A privacy header must consist of either the value 'none', 
+                  or one or more of the values 'user', 'header', 'session'. [RFC3323-4-17]
+       A privacy header must include the same priv-value at most once. [RFC3323-4-18]
+       Must remove Privacy header from the message when it contain no priv-values except 'critical'. [RFC3323-5-9]
+ 
+   * Proxy-Require
+       Should include a Proxy-Require header containing 'privacy' option-tag. [RFC3323-4-23]
+       Must remove any 'privacy' option-tag from Proxy-Require header 
+                             when the entire Privacy header was removed. [RFC3323-5-10]
+ 
+ 
+ </pre>
+</body>
+
+</html>

@@ -1,0 +1,332 @@
+#!/usr/bin/perl
+#
+# Copyright(C) IPv6 Promotion Council (2004,2005). All Rights Reserved.
+# 
+# This documentation is produced by SIP SWG members of Certification WG in 
+# IPv6 Promotion Council.
+# The SWG members currently include NIPPON TELEGRAPH AND TELEPHONE CORPORATION (NTT), 
+# Yokogawa Electric Corporation and NTT Advanced Technology Corporation (NTT-AT).
+# 
+# 
+# Redistribution and use of this software in source and binary forms, with 
+# or without modification, are permitted provided that the following 
+# conditions and disclaimer are agreed and accepted by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright 
+# notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright 
+# notice, this list of conditions and the following disclaimer in the 
+# documentation and/or other materials provided with the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project which 
+# is related to this software (hereinafter referred to as "project") nor 
+# the names of the contributors may be used to endorse or promote products 
+# derived from this software without specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written 
+# notification to the copyrighters. However, using this software for the 
+# purpose of testing or evaluating any products including merchantable 
+# products may be permitted without any notification to the copyrighters.
+# 
+# 
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND 
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING 
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS 
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE 
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+# CONTRACT,STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF 
+# THE POSSIBILITY OF SUCH DAMAGE.
+
+
+#--------------------------------------------------------------#
+# ENTRANCE
+#--------------------------------------------------------------#
+
+# Set the test version used for the display.
+BEGIN { $V6evalTool::TestVersion = '$Name:  $';}
+
+require SIP;
+
+#--------------------------------------------------------------#
+# INITIALIZATION
+#--------------------------------------------------------------#
+SIPScenarioModel('Caller','2-Proxy');
+SIPInitializeScenario([{'FQDN'=>'client1.atlanta.example.com','IPV6'=>'3ffe:501:ffff:1::11','IPV4'=>'192.0.10.111'}]);
+SIPInitialAuthUse();
+
+$MY_UA11_TOTAG=98765;
+$MY_UA11_CONTACT_URI="sip:UA11\@client1.atlanta.example.com";
+
+#--------------------------------------------------------------#
+# SCENARIO
+#--------------------------------------------------------------#
+
+# Echo from Proxy
+if(!$SIPLOGO){
+SQ_Proxy_Echo();
+}
+
+$CVA_OTHERUA_IPADDRESS='3ffe:501:ffff:1::11';
+
+WaitUntilKeyPressAndTelephone();
+
+# Receive INVITE
+$result=RV_Proxy_INVITE();
+JudgeResult("Receive INVITE","Can't receive INVITE");
+
+# Check INVITE
+SIP_Judgment('SSet.REQUEST.INVITE.PX','OK','',
+             [
+              'D.M-MEDIA-DESCRIPTION',
+             ], #addrule
+);
+
+if($CNT_CONF{'AUTH-SUPPORT'} eq 'T'){
+
+# Send 407
+LOG_OK("Send 407");
+$result=SD_Proxy_STATUS('407','INVITE');
+
+# Receive ACK to 407
+$result=RV_Proxy_ACK();
+JudgeResult("Receive ACK","Can't receive ACK");
+
+# Check ACK
+SIP_Judgment('SSet.REQUEST.407-ACK.PX');
+
+# Receive INVITE(with Proxy-Authorization)
+$result=RV_Proxy_INVITEwithAuthorization();
+JudgeResult("Receive INVITE with Authorization","Can't receive INVITE with Authorization");
+
+# Check INVITE
+SIP_Judgment('SSet.REQUEST.INVwithP-AUTH.PX','OK','',
+             [
+              'D.M-MEDIA-DESCRIPTION',
+             ], #addrule
+);
+
+}
+
+# Send 100
+LOG_OK("Send 100");
+$result=SD_Proxy_STATUS('100','INVITE');
+
+# Send 180
+LOG_OK("Send 180");
+$result=SD_Proxy_STATUS('180','INVITE');
+
+# Recv rtp start
+RtpPortOpen();
+
+# Send 200
+LOG_OK("Send 200");
+$result=SD_Proxy_STATUS('200','INVITE');
+$CNT_TUA_CONTACT_URI=FVal('HD.Contact.val.contact.ad.ad.txt');
+
+# rtp start
+$pid_rtp = RtpStart(0);
+
+###Memory for Other1
+$MY_VIA=FVal('HD.Via.txt');
+$MY_TO=FVal('HD.To.txt');
+$MY_FROM=FVal('HD.From.txt');
+$MY_CALLID=FVal('HD.Call-ID.txt');
+$MY_CSEQ=FVal('HD.CSeq.txt');
+###end Memory for Other1
+
+# Receive ACK(with Proxy-Authorization)
+$result=RV_Proxy_ACK();
+JudgeResult("Receive ACK","Can't receive ACK");
+
+# Check ACK
+SIP_Judgment('SSet.REQUEST.200-ACK.PX');
+
+### Send And Receive RTP
+#SQ_Term_RTP(5);
+
+# Wait and Print
+WaitUntilKeyPress("Press Enter Key and Tester send 200 once more for UA11.");
+
+### Memory for UA1 & CHANGE to UA11##
+$MY_UA1_TOTAG=$CVA_LOCAL_TAG;
+$CVA_LOCAL_TAG=$MY_UA11_TOTAG;
+
+$MY_UA1_CONTACT_URI=$CNT_PUA_CONTACT_URI;
+$CNT_PUA_CONTACT_URI=$MY_UA11_CONTACT_URI;
+######################################
+
+# Send 200
+LOG_OK("Proxy1 Send 200 for UA11");
+$result=SD_Proxy_MSG(<<"SIP_HED",'',['E.ALLOW_VALID','E.SUPPORTED_VALID','E.CONTENTTYPE_VALID','E.CONTENT-LENGTH_CAL','E.BODY_CVA_DESCRIPTION_OTHER1']);
+SIP/2.0 200 OK
+Via: $MY_VIA
+Record-Route: <sip:$CNT_PX2_HOSTNAME;lr>,<sip:$CNT_PX1_HOSTNAME;lr>
+From: $MY_FROM
+To: $MY_TO;tag=$CVA_LOCAL_TAG
+Call-ID: $MY_CALLID
+CSeq: $MY_CSEQ
+Contact: <$CNT_PUA_CONTACT_URI>
+SIP_HED
+
+# Receive ACK(with Proxy-Authorization)
+$result=RV_Proxy_ACK();
+JudgeResult("Receive ACK for UA11","Can't receive ACK for UA11");
+
+# Check ACK
+SIP_Judgment('SSet.REQUEST.200-ACK.PX','','',['S.TO-TAG_UA11-TAG'],['S.TO-TAG_LOCAL-TAG']);
+
+# Wait and Print
+WaitUntilKeyPress("Press Enter Key and wait to receive BYE for UA11.");
+
+# Send BYE
+LOG_OK("Send BYE for UA11");
+$result=SD_Proxy_BYE();
+
+# Receive 200
+$result=RV_Proxy_STATUS('200','BYE');
+JudgeResult("Receive 200 for UA11","Can't receive 200 for UA11");
+
+# Check 200
+SIP_Judgment('SSet.REQUEST.BYE-200.PX');
+
+### RETURN original value##########
+$CVA_LOCAL_TAG=$MY_UA1_TOTAG;
+$CNT_PUA_CONTACT_URI=$MY_UA1_CONTACT_URI;
+######################################
+
+# Wait and Print
+WaitUntilKeyPress("Press Enter Key and wait to receive BYE for UA1.");
+
+# rtp end
+RtpStop();
+ProcessEnd($pid_rtp);
+
+# Send BYE
+LOG_OK("Send BYE");
+$result=SD_Proxy_BYE();
+
+# Receive 200
+$result=RV_Proxy_STATUS('200','BYE');
+JudgeResult("Receive 200","Can't receive 200");
+
+# Check 200
+SIP_Judgment('SSet.REQUEST.BYE-200.PX');
+
+
+#--------------------------------------------------------------#
+# Finish
+#--------------------------------------------------------------#
+
+SIPFinishScenario();
+
+#######################################################################
+
+=head1 NAME
+
+=begin html
+ <A HREF="http://www.ipv6ready.org/">Please see SIP Conformance Test Profile (http://www.ipv6ready.org/)</A>
+
+=end html
+
+=head1 TARGET
+
+=begin html
+<pre>
+ SIP EP (NUT)
+</pre>
+
+=end html
+
+=head1 PARAMETER
+
+=begin html
+<blockquote>
+<table border>
+<tbody>
+
+</tbody>
+</table>
+</blockquote>
+
+=end html
+
+=head1 ADDRESS
+
+=begin html
+<blockquote>
+<table border>
+<tbody>
+
+</tbody>
+</table>
+</blockquote>
+
+=end html
+
+=head1 TOPOLOGY
+
+=begin html
+<pre>
+ 
+</pre>
+
+=end html
+
+=head1 CONFIGURATION for NUT
+
+=begin html
+<blockquote>
+<table border>
+<tbody>
+
+</tbody>
+</table>
+</blockquote>
+
+=end html
+
+=head1 INITIALIZATION
+
+=begin html
+<pre>
+ 
+</pre>
+
+=end html
+
+=head1 TEST PROCEDURE
+
+=begin html
+<pre>
+ 
+</pre>
+
+=end html
+
+=head1 JUDGEMENT
+
+=begin html
+<pre>
+ 
+</pre>
+
+=end html
+
+=head1 REFERENCE
+
+=begin html
+<pre>
+ 
+</pre>
+
+=end html
+
+=cut
+

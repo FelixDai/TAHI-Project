@@ -1,0 +1,62 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>JUDGEMENT</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:kris@jail-3.isc.freebsd.org" />
+</head>
+
+<body style="background-color: white">
+
+
+<!-- INDEX BEGIN -->
+<div name="index">
+<p><a name="__index__"></a></p>
+<!--
+
+<ul>
+
+	<li><a href="#judgement">JUDGEMENT</a></li>
+</ul>
+
+-->
+
+
+</div>
+<!-- INDEX END -->
+
+<p>
+</p>
+<h1><a name="judgement">JUDGEMENT</a></h1>
+SIP - Generic Judgment (message )<pre> [generic_message.txt]
+ 
+ Generic judgement items for SIP message 
+ 
+ - The empty line must be present even if the message-body is not. [RFC3261-7-2]
+ 
+ - Request-Line and Status-Line:
+     Must exist as a start-line.
+     Must be terminated by a carriage-return line-feed sequence (CRLF). [RFC3261-7-1]
+     The length must be less than or equal to 256bytes. [IG-3-8]
+     SIP-version: Must be &quot;SIP/2.0&quot;. [RFC3261-7-5,6]
+ 
+ - Headers:
+     The length of 1 message header line must be less than or equal to 256bytes. [IG-3-9]
+     Must be terminated by a carriage-return line-feed sequence (CRLF). [RFC3261-7-1]
+     Recommended that Via, Route, Record-Route, Proxy-Require, Max-Forwards, and Proxy-Authorization appear towards the top of the message to facilitate rapid parsing. [RFC3261-7-7]
+ 
+   * Content-Length
+       Must exist. [IG-1-4, IG-2-2]
+       Must be the size of the message-body, in decimal number of octets. [IG-1-4, IG-2-2]
+ 
+ - Bodies:
+     The length must be less than or equal to 1000bytes. [IG-3-10]
+ 
+ 
+ 
+ 
+ </pre>
+</body>
+
+</html>

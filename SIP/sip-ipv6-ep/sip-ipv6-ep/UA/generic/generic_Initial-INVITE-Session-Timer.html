@@ -1,0 +1,63 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>JUDGEMENT</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:kris@jail-3.isc.freebsd.org" />
+</head>
+
+<body style="background-color: white">
+
+
+<!-- INDEX BEGIN -->
+<div name="index">
+<p><a name="__index__"></a></p>
+<!--
+
+<ul>
+
+	<li><a href="#judgement">JUDGEMENT</a></li>
+</ul>
+
+-->
+
+
+</div>
+<!-- INDEX END -->
+
+<p>
+</p>
+<h1><a name="judgement">JUDGEMENT</a></h1>
+SIP - Generic Judgment (Initial INVITE)<pre> [generic_Initial-INVITE-Session-Timer.txt]
+ 
+ Generic judgement items for Initial INVITE with Session Timer
+ 
+ - Headers:
+ 
+   * Require
+     option-tag: Not recommended to include the 'timer' option tag. [RFC4028-7-3]
+ 
+   * Proxy-Require
+     option-tag: Not recommended to include the 'timer' option tag. [RFC4028-7-3]
+ 
+   * Supported
+     Must exist. [RFC4028-7-1]
+     Must exist, if Require or Proxy-Require header fields are present containing 'timer'. [RFC4028-7-4]
+     option-tag: Must include the &quot;timer&quot; option tag. [RFC4028-7-1]
+     option-tag: Must include the &quot;timer&quot; option tag, if Require or Proxy-Require header fields are present containing 'timer'. [RFC4028-7-4]
+ 
+   * Session-Expires
+     delta-seconds: Should not be less than 1800. [RFC4028-4-3]
+     delta-seconds: Recommended to be 1800. [RFC4028-4-1]
+     delta-seconds: Must be greater than the value in Min-SE(if Min-SE header is present). [RFC4028-7-5]
+     refresher-param: Recommended to be omitted. [RFC4028-7-6]
+ 
+   * Min-SE
+     delta-seconds: Must not be less than 90. [RFC4028-5-1]
+ 
+ 
+ </pre>
+</body>
+
+</html>

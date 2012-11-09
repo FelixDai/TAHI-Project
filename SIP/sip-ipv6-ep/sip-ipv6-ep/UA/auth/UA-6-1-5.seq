@@ -1,0 +1,265 @@
+#!/usr/bin/perl
+#
+# Copyright(C) IPv6 Promotion Council (2004,2005). All Rights Reserved.
+# 
+# This documentation is produced by SIP SWG members of Certification WG in 
+# IPv6 Promotion Council.
+# The SWG members currently include NIPPON TELEGRAPH AND TELEPHONE CORPORATION (NTT), 
+# Yokogawa Electric Corporation and NTT Advanced Technology Corporation (NTT-AT).
+# 
+# 
+# Redistribution and use of this software in source and binary forms, with 
+# or without modification, are permitted provided that the following 
+# conditions and disclaimer are agreed and accepted by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright 
+# notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright 
+# notice, this list of conditions and the following disclaimer in the 
+# documentation and/or other materials provided with the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project which 
+# is related to this software (hereinafter referred to as "project") nor 
+# the names of the contributors may be used to endorse or promote products 
+# derived from this software without specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written 
+# notification to the copyrighters. However, using this software for the 
+# purpose of testing or evaluating any products including merchantable 
+# products may be permitted without any notification to the copyrighters.
+# 
+# 
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND 
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING 
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS 
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE 
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+# CONTRACT,STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF 
+# THE POSSIBILITY OF SUCH DAMAGE.
+
+
+#--------------------------------------------------------------#
+# ENTRANCE
+#--------------------------------------------------------------#
+
+# Set the test version used for the display.
+BEGIN { $V6evalTool::TestVersion = '$Name:  $';}
+
+require SIP;
+
+#--------------------------------------------------------------#
+# INITIALIZATION
+#--------------------------------------------------------------#
+SIPScenarioModel('Caller','2-Proxy');
+SIPInitializeScenario();
+SIPInitialAuthUse('Ignore');
+$CVA_AUTH_SUPPORT_AFTER_DIALOG = 'T';
+
+#--------------------------------------------------------------#
+# SCENARIO
+#--------------------------------------------------------------#
+
+if(!$SIPLOGO){
+SQ_Proxy_Echo();
+}
+
+WaitUntilKeyPressAndTelephone();
+
+# Receive INVITE
+$result=RV_Proxy_INVITE();
+JudgeResult("Receive INVITE","Can't receive INVITE");
+
+# Check INVITE
+SIP_Judgment('SSet.REQUEST.INVITE.PX');
+
+# Send 407
+LOG_OK("Send 407");
+$result=SD_Proxy_STATUS('407','INVITE');
+
+# Receive ACK to 407
+$result=RV_Proxy_ACK();
+JudgeResult("Receive ACK","Can't receive ACK");
+
+# Check ACK
+SIP_Judgment('SSet.REQUEST.407-ACK.PX');
+
+# Receive INVITE(with Proxy-Authorization)
+$result=RV_Proxy_INVITEwithAuthorization();
+JudgeResult("Receive INVITE","Can't receive INVITE");
+
+# Check INVITE
+SIP_Judgment('SSet.REQUEST.INVwithP-AUTH.PX');
+
+# Send 100
+LOG_OK("Send 100");
+$result=SD_Proxy_STATUS('100','INVITE');
+
+# Send 180
+LOG_OK("Send 180");
+$result=SD_Proxy_STATUS('180','INVITE');
+
+# Recv rtp start
+RtpPortOpen();
+
+# Send 200
+LOG_OK("Send 200");
+$result=SD_Proxy_STATUS('200','INVITE');
+$CNT_TUA_CONTACT_URI=FVal('HD.Contact.val.contact.ad.ad.txt');
+
+# rtp start
+$pid_rtp = RtpStart(0);
+
+# Receive ACK(with Proxy-Authorization)
+$result=RV_Proxy_ACK();
+JudgeResult("Receive ACK","Can't receive ACK");
+
+# Check ACK
+SIP_Judgment('SSet.REQUEST.200-ACK.PX');
+
+### Send And Receive RTP
+#SQ_Term_RTP(5);
+
+# Wait and Print "Key press and Hang up"
+WaitUntilKeyPressAndHangup();
+
+# Receive BYE
+$result=RV_Proxy_BYEwithAuthorization();
+JudgeResult("Receive BYE with Proxy-Authorization","Can't receive BYE with Proxy-Authorization");
+
+# Check BYE
+SIP_Judgment('SSet.BYE.PX',
+             'OK',  # $mode
+             '',    # $pktinfo
+             [
+              'S.P-AUTH_EXIST.PX',
+              'SSet.DigestAuth.PX',
+              'S.P-AUTH-URI_R-URI',
+             ]  # $addrule
+             );
+
+
+# rtp start
+RtpStop();
+ProcessEnd($pid_rtp);
+
+# Send STATUS 200
+LOG_OK("Send 200");
+$result=SD_Proxy_STATUS('','','E.STATUS-200-RETURN-TWOPX.PX1');
+
+#--------------------------------------------------------------#
+# Finish
+#--------------------------------------------------------------#
+
+SIPFinishScenario();
+
+#######################################################################
+
+=head1 NAME
+
+=begin html
+ <A HREF="http://www.ipv6ready.org/">Please see SIP Conformance Test Profile (http://www.ipv6ready.org/)</A>
+
+=end html
+
+=head1 TARGET
+
+=begin html
+<pre>
+ SIP EP (NUT)
+</pre>
+
+=end html
+
+=head1 PARAMETER
+
+=begin html
+<blockquote>
+<table border>
+<tbody>
+
+</tbody>
+</table>
+</blockquote>
+
+=end html
+
+=head1 ADDRESS
+
+=begin html
+<blockquote>
+<table border>
+<tbody>
+
+</tbody>
+</table>
+</blockquote>
+
+=end html
+
+=head1 TOPOLOGY
+
+=begin html
+<pre>
+ 
+</pre>
+
+=end html
+
+=head1 CONFIGURATION for NUT
+
+=begin html
+<blockquote>
+<table border>
+<tbody>
+
+</tbody>
+</table>
+</blockquote>
+
+=end html
+
+=head1 INITIALIZATION
+
+=begin html
+<pre>
+ 
+</pre>
+
+=end html
+
+=head1 TEST PROCEDURE
+
+=begin html
+<pre>
+ 
+</pre>
+
+=end html
+
+=head1 JUDGEMENT
+
+=begin html
+<pre>
+ 
+</pre>
+
+=end html
+
+=head1 REFERENCE
+
+=begin html
+<pre>
+ 
+</pre>
+
+=end html
+
+=cut
+
