@@ -1,0 +1,217 @@
+		    README of IPv6 Interoperability Test Tool
+
+				TAHI Project
+
+			$Date: 2001/02/08 08:55:59 $
+
+
+Project Overview
+================
+
+TAHI Project is the joint effort formed with the objective of
+developing and providing the verification technology for IPv6. 
+
+The growth process of IPv4 was the history of encountering various kinds of
+obstacles and conquering such obstacles. However, once the position as
+infrastructure was established, it is not allowed to repeat the same history.
+This is a reason why the verification technology is essential for IPv6
+deployment.
+
+	We research and develop conformance tests and interoperability tests
+	for IPv6.
+
+	We closely work with the KAME project.
+	We help activities of the KAME project in the quality side by offering
+	the verification technology we develop in TAHI project and improve
+	the development efficiency. 
+
+	We open the results and fruits of the project to the public for FREE.
+	Any developer concerned with IPv6 can utilize the results and fruits
+	of TAHI project freely. A free software plays an important role in
+	progress of the	Internet. We believe that providing the verification
+	technology for FREE contributes to advances of IPv6. Besides the
+	programs, the specifications and criteria of verification will be
+	included in the Package.
+
+
+Organizations
+=============
+
+TAHI Project is a 1.5 year (hopefully longer) project 
+(October 1, 1998 - March 21, 2000). The project is formed by the following
+organizations (in alphabetical order):
+	The University of Tokyo 
+	YDC Corp. 
+	Yokogawa Electric Corp. 
+
+
+Introduction of IPv6 Interoperability Test Tool
+==========================================
+The IPv6 Interoperability Test Tool is a tool package to help your 
+Interoperability tests for IPv6.
+
+That is, with the Tool, you can
+
+	- analyze the packets captured by tcpdump.
+		program name is "pa"
+
+		For more detail about pa, see the manual MANUAL.pa.
+
+	- generate any traffic.
+		program name is "tg"
+
+		For more detail about tg, see the manual MANUAL.tg.
+
+	- use some utilities
+		- IPv6 UDP echo program
+			program name is "echo6"
+
+		- ICMP generate program
+			program name is "icmpg"
+
+		- IPv6 Multicast program
+			program name is "mcast6"
+
+		- IPv6 Routing Protocol Packet Analyze Tool
+			program name is "rpdump"
+
+TAHI project also offers you another package for IPv6 interoperability test
+programs that are developed based on the Tool. 
+
+	- flow
+		You can make packet flow with program "flow".
+		flow works with pa, it reads output file of pa and 
+		draw a packet flow, that is browsable. 
+
+	- packet.cgi
+		In case you don't want to make many files, packet.cgi is 
+		helpful.
+		It displays the packet you specified dynamically.
+		If you want use this, you should use flow without "-C" or "-i" option.
+
+	- pareport.pl
+		You can make packet report with perl script "pareport.pl".
+		pareport works with pa, it reads output file of pa and 
+		report packet information, that is browsable. 
+	
+	For more detail about flow, packet.cgi, pareport.pl,
+	see the manual in doc directory.
+
+	We are developing another tool that works with pa.
+
+
+Copyright
+=========
+
+Please refer to the COPYRIGHT file for copyright notice.
+
+
+Install and Run 
+===============
+
+The Tool is tested on FreeBSD 3.X and 4.X.
+Complete installation instructions can be found in the "INSTALL".
+
+
+Files
+=====
+
+bin/
+	internal command sets.
+
+sample/
+	sample configuration files.
+
+doc/
+	documentation files.
+
+script/
+	the scripts to analyze.
+
+
+Support Header and Option
+=========================
+
+The Tool can generate and check the following headers and options:
+
+	IPv6
+		IPv6 Header
+		Hop by Hop Header
+		Pad1 Option
+		PadN Option
+		Jumbo Payload Option Header
+		Type 0 Routing Header
+		Fragment Header
+		Destination Option Header
+		Binding Update Option
+		Binding Acknowledgement Option
+		Binding Request Option
+		Home Address Option
+		Tunnel Encapsulation Header Option
+		Authentication Header
+		Encapsulating Security Payload Header
+
+	ICMPv6
+		ND
+			Neighbor Solicitation Header
+			Neighbor Advertisement Header
+			Router Solicitation Header
+			Router Advertisement Header
+			Redirect Header
+			Source Link Layer Address Option
+			Target Link Layer Address Option
+			Prefix Information Option
+			MTU Option
+			Redirected Header Option
+
+		MLD
+			Multicast Listener Query
+			Multicast Listener Report
+			Multicast Listener Done
+
+		Error
+			Packet Too Big
+			Destination Unreachable
+			Time Exceeded Message
+			Parameter Problem Message
+
+		Info
+			Echo Request
+			Echo Reply
+
+		MIP6
+			ICMP Home Agent Address Discovery Request
+			ICMP Home Agent Address Discovery Reply
+
+	IPv4
+		IPv4 Header
+		Option
+
+	UDP
+		UDP Header
+
+	TCP
+		TCP Header
+		Option
+
+
+Contact Points
+==============
+
+For more information about TAHI project, please visit our site:
+	http://www.tahi.org/
+
+To contact us, please e-mail to:
+	contact@tahi.org
+
+
+Acknowledgments
+===============
+
+We deeply thank the following projects for their great support to us:
+	KAME Project (http://www.kame.net/)
+	WIDE Project (http://www.wide.ad.jp/)
+
+
+							[end of README]
+

@@ -1,0 +1,483 @@
+						update: 00/02/07
+NAME
+
+	pareport - packet reporting tool
+
+SYNOPSIS:
+
+	pareport <pa output file>
+
+
+1. DESCRIPTION
+
+	Pareport reads the 'pa' format files <pa output file>, and displays
+	the packet reporting information. You can see the count of
+	various kinds of packets.
+
+2. Output
+
+	Pareport displays the packet report information to STDOUT in HTML format.
+	There are ITEM, count and mark.
+	You can pick the each count then display packet information.
+
+3. Support packet item category
+
+(1) Total Packets
+
+	The total packets.
+
+	IPv6:
+		These packets are IPv6 packets.
+
+	IPv4:
+		These packets are IPv4 packets.
+
+	Other:
+		These packets are other than IPv6 and IPv4.
+
+(2) Tunnel
+
+	The tunnel packets.
+
+	IPv6 over IPv6:
+		These packets are IPv6 over IPv6 tunnel packets.
+
+	IPv4 over IPv6:
+		These packets are IPv4 over IPv6 tunnel packets.
+
+	IPv6 over IPv4:
+		These packets are IPv6 over IPv tunnel packets.
+
+	IPv4 over IPv4:
+		These packets are IPv4 over IPv4 tunnel packets.
+
+	IPv4 Compatible (WARN):
+		These packets are IPv4 Compatible tunnel packets.
+
+	IPv4 Mapped (WARN):
+		These packets are IPv4 Mapped tunnel packets.
+
+(3) IPv6 Extension Headers
+
+	These packets with IPv6 Extension Headers.
+
+	Hop-by-Hop Options Header:
+		These packets had Hop-by-Hop options header.
+
+	Routing Header:
+		These packets had Routing header.
+
+	Fragment Header:
+		These packets had Fragment header.
+
+	Destination Options Header:
+		These packets had Destination options header.
+
+	AH Header:
+		These packets had AH header.
+
+	ESP Header:
+		These packets had ESP header.
+
+	HOP-by-HOP not First Extension (WARN):
+		HOP-by-HOP options header was not a first extension header.
+
+	HOP-by-HOP Extension Appear > 1 times (WARN):
+		Two or more HOP-by-HOP extension headers appeared.
+
+	Routing Header Check (WARN):
+		These packets had Routing header.
+
+		Multicast address exist (WARN):
+			These packets had Multicast address.
+
+		Fragment + Jumbo Payload option (WARN):
+			These packets had Fragment header and Jumbo payload option.
+
+		Fragment Packet Alignment Violation (WARN):
+			Fragment packet alignment was violation.
+
+		Destination Extension Appear > 1 times (WARN):
+			Two or more Destination extension headers appeared.
+
+	Jumbo Payload option:
+		These packets had Jumbo payload option.
+
+		Jumbo payload length <= 65,535 (WARN):
+			Jumbo payload length was 65,535 or less.
+
+		IPv6 Payload Length != Zero (WARN):
+			IPv6 Payload Length was not zero.
+
+		Length field of UDP Header != Zero (WARN):
+			Length field of UDP header was not zero.
+
+		IPv6 Header Length Zero without Jumbo Payload option (WARN):
+			IPv6 Header Length was zero without Jumbo payload option.
+
+		UDP Length Zero without Jumbo Payload option (WARN):
+			UDP Length was zero without Jumbo payload option.
+
+(4) Source Address
+
+	Unexpected SourceAddress Check (WARN):
+		These packets had unexpected source address.
+
+		Loopback (WARN):
+			Source address of these packets are loopback address.
+
+		Multicast (WARN):
+			Source address of these packets are multicast address.
+
+		Source/Destination Address Mismatch (WARN):
+			Between source address and destination address was mismatch.
+
+(5) Destination Address
+
+	IPv6 Unicast:
+		Destination address of these packets are IPv6 unicast address.
+
+		Loop-Back (WARN):
+			Destination address of these packets are IPv6 loop-back address.
+
+		Link-local:
+			Destination address of these packets are IPv6 link-local address.
+
+		Site-local:
+			Destination address of these packets are IPv6 site-local address.
+
+		Global:
+			Destination address of these packets are IPv6 global address.
+
+	IPv6 Multicast:
+		Destination address of these packets are IPv6 multicast address.
+
+		Reserved(Not Used) (WARN):
+		Destination address of these packets are reserved address.
+
+		Well-known:
+			Destination address of these packets are well-known address.
+
+			All nodes:
+				Destination address of these packets are all nodes address.
+
+				node scope (WARN):
+					Destination address of these packets are all nodes address
+					within node scope.
+
+				link scope:
+					Destination address of these packets are all nodes address
+					within link scope.
+
+			All Routers:
+				Destination address of these packets are all routers address.
+
+				node scope (WARN):
+					Destination address of these packets are all routers address
+					within node scope.
+
+				link scope:
+					Destination address of these packets are all routers address
+					within link scope.
+
+				site scope:
+					Destination address of these packets are all routers address
+					within site scope.
+
+			All PIM Routers:
+				Destination address of these packets are all PIM routers address.
+
+				node scope (WARN):
+					Destination address of these packets are all PIM routers address
+					within node scope.
+
+				link scope:
+					Destination address of these packets are all PIM routers address
+					within link scope.
+
+				site scope (WARN):
+					Destination address of these packets are all PIM routers address
+					within site scope.
+
+			Solicited-node:
+				Destination address of these packets are solicited-node address.
+
+			others:
+				Destination address of these packets are others.
+
+		Transient:
+			Destination address of these packets are transient address.
+
+	RIPng:
+		These packets are RIPng packets.
+
+(6) ICMP
+
+	These packets had ICMPv6.
+
+	Neighbor Solicitation:
+		These packets had ICMPv6 Neighbor Solicitation.
+
+		To Solicited Address:
+			Destination address was solicited address.
+
+			From Unicast:
+				Source address was unicast address.
+
+			From Unspecified<DAD> (NOTE):
+				Source address was unspecified address.
+
+		To Unicast Address:
+			Destination address was unicast address.
+
+	NS Hop Limit != 255 (WARN):
+		Hop Limit of these packets are not 255.
+
+	Neighbor Advertisement:
+		These packets had ICMPv6 Neighbor Advertisement.
+
+		To Unicast:
+			Destination address was unicast address.
+
+		To All-nodes<DAD>:
+			Destination address was all-nodes address.
+
+	NA Hop Limit != 255 (WARN):
+		Hop Limit of these packets are not 255.
+
+	Router Solicitation:
+		These packets had ICMPv6 Router Solicitation.
+
+	RS Hop Limit != 255 (WARN):
+		Hop Limit of these packets are not 255.
+
+	Router Advertisement:
+		These packets had ICMPv6 Router Advertisement.
+
+	RA Hop Limit != 255 (WARN):
+		Hop Limit of these packets are not 255.
+
+	Redirect Packets (NOTE):
+		These packets had ICMPv6 Redirect.
+
+		Target IP = Destination IP (NOTE):
+			Redirect target address and destination address were equal.
+
+		Target IP = Link-local IP (NOTE):
+			Redirect target address and link-local address were equal.
+
+	Redirect HOP Limit != 255 (WARN):
+		Hop Limit of these packets are not 255.
+
+		Redirect Target != Destination && Redirect Target != Link-local (WARN):
+			Redirect target address and destination address were not equal
+			and redirect target address and link-local address were not equal.
+	MLD:
+		These packets had ICMPv6 MLD.
+
+		MLD Query:
+			These packets had ICMPv6 MLD Query.
+
+		MLD Report:
+			These packets had ICMPv6 MLD Report.
+
+		MLD Done:
+			These packets had ICMPv6 MLD Done.
+
+(7) ICMP ERROR
+
+	Destination Unreachable (NOTE):
+		These packets had ICMPv6 destination unreachable.
+
+		No Route to Destination (NOTE):
+			ICMPv6 destination unreachable code was 0.
+
+		Administratively Prohibited (NOTE):
+			ICMPv6 destination unreachable code was 1.
+
+		Address Unreachable (NOTE):
+			ICMPv6 destination unreachable code was 3.
+
+		Port Unreachable (NOTE):
+			ICMPv6 destination unreachable code was 4.
+
+	Packet Too Big (NOTE):
+		These packets had ICMPv6 packet too big.
+
+	Time Exceed (NOTE):
+		These packets had ICMPv6 time exceed.
+
+		HOP Limit (NOTE):
+			These packets had ICMPv6 time exceed code was 0.
+
+		Fragment Reassembly (NOTE):
+			These packets had ICMPv6 time exceed code was 1.
+
+	Parameter Problem (NOTE):
+		These packets had ICMPv6 parameter problem.
+
+		Errornous Header (NOTE):
+			These packets had ICMPv6 parameter problem code was 0.
+
+		Unrecognized NextHeader (NOTE):
+			These packets had ICMPv6 parameter problem code was 1.
+
+		Unrecognized IPv6 Option (NOTE):
+			These packets had ICMPv6 parameter problem code was 2.
+
+	Unrecognized ICMP (NOTE):
+		These packets had unrecognized ICMP.
+
+	Packet Too Big and MTU < 1280 octets (WARN):
+		These packets had ICMPv6 packet too big and MTU less than 1280.
+
+(8) Incorrect Packet (WARN)
+
+	Unknown Frame (WARN):
+		These packets had unknown frame.
+
+	Header Value Error (WARN):
+		These packets had header value error.
+
+	TCP Checksum Error (WARN):
+		These packets had TCP checksum error.
+
+	UDP Checksum Error (WARN):
+		These packets had UDP checksum error.
+
+	ICMP Checksum Error (WARN):
+		These packets had ICMP checksum error.
+
+
+4. Output example
+
+4.1 html source
+
+<HTML>
+<HEAD>
+<TITLE>
+Interoprability Test Result Statistics
+</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<H2>Interoprability Test Result Statistics</H2>
+<TABLE BORDER=1>
+<TR>
+  <TD WIDTH=20>
+  <TD WIDTH=15>
+  <TD WIDTH=10>
+  <TD WIDTH=5>
+  <TD WIDTH=5>
+  <TD WIDTH=5>
+  <TD WIDTH=5>
+</TR>
+<TR>
+<TD ALIGN=center COLSPAN=5><B>ITEM</B>
+<TD ALIGN=left><B>count</B></A>
+<TD ALIGN=left><B>mark</B></A>
+</TR>
+<TR>
+  <TD COLSPAN=5><FONT COLOR="#000000"> <B>Total Packets</B> </FONT>
+  <TD ALIGN=right>2904</A>
+  <TD ALIGN=left><BR>
+</TR>
+<TR>
+  <TD>
+  <TD COLSPAN=4><FONT COLOR="#000000"> IPv6 </FONT>
+  <TD ALIGN=right><A HREF=./out/Hdr_IPv6.htm> 2904</A>
+  <TD ALIGN=left><BR>
+</TR>
+<TR>
+  <TD>
+  <TD COLSPAN=4><FONT COLOR="#000000"> IPv4 </FONT>
+  <TD ALIGN=right><A HREF=./out/Hdr_IPv4.htm> 0</A>
+  <TD ALIGN=left><BR>
+</TR>
+<TR>
+  <TD>
+  <TD COLSPAN=4><FONT COLOR="#000000"> Other </FONT>
+  <TD ALIGN=right><A HREF=./out/Cou_Other.htm> 0</A>
+  <TD ALIGN=left><BR>
+</TR>
+<TR>
+
+<snip>
+
+<TR>
+  <TD COLSPAN=5><FONT COLOR="#FF0000"> <FONT COLOR="#FF0000"><B>Incorrect Packet</B></FONT> </FONT>
+  <TD ALIGN=right>0</A>
+  <TD ALIGN=left><FONT COLOR="#FF0000">WARN</FONT>
+</TR>
+<TR>
+  <TD>
+  <TD COLSPAN=4><FONT COLOR="#FF0000"> Unknown Frame </FONT>
+  <TD ALIGN=right><A HREF=./out/Err_Ether.htm> 0</A>
+  <TD ALIGN=left><FONT COLOR="#FF0000">WARN</FONT>
+</TR>
+<TR>
+  <TD>
+  <TD COLSPAN=4><FONT COLOR="#FF0000"> Header Value Error </FONT>
+  <TD ALIGN=right><A HREF=./out/Err_NextHeader.htm> 0</A>
+  <TD ALIGN=left><FONT COLOR="#FF0000">WARN</FONT>
+</TR>
+<TR>
+  <TD>
+  <TD COLSPAN=4><FONT COLOR="#FF0000"> TCP Checksum Error </FONT>
+  <TD ALIGN=right><A HREF=./out/Err_TCP_checksum.htm> 0</A>
+  <TD ALIGN=left><FONT COLOR="#FF0000">WARN</FONT>
+</TR>
+<TR>
+  <TD>
+  <TD COLSPAN=4><FONT COLOR="#FF0000"> UDP Checksum Error </FONT>
+  <TD ALIGN=right><A HREF=./out/Err_UDP_checksum.htm> 0</A>
+  <TD ALIGN=left><FONT COLOR="#FF0000">WARN</FONT>
+</TR>
+<TR>
+  <TD>
+  <TD COLSPAN=4><FONT COLOR="#FF0000"> ICMP Checksum Error </FONT>
+  <TD ALIGN=right><A HREF=./out/Err_ICMP_checksum.htm> 0</A>
+  <TD ALIGN=left><FONT COLOR="#FF0000">WARN</FONT>
+</TR>
+</TABLE>
+<H5 ALIGN=left>
+input file : nety.txt<BR>
+Tool Serial : 2000.02.07 v1.00
+</H5>
+</PRE></BODY>
+</HTML>
+
+4.2 browsing image
+
+Interoprability Test Result Statistics
+
++-----------------------------------------------------+-----+----+
+|                  ITEM                               |count|mark|
++-----------------------------------------------------+-----+----+
+|Total Packets                                        |   37|    |
++---+-------------------------------------------------+-----+----+
+    |IPv6                                             |   34|    |
+    +-------------------------------------------------+-----+----+
+    |IPv4                                             |    3|    |
+    +-------------------------------------------------+-----+----+
+    |Other                                            |    0|    |
++---+-------------------------------------------------+-----+----+
+|   |                                                 |     |    |
+                        <snip>
+         |                                            |     |    |
++--------+--------------------------------------------+-----+----+
+|Incorrect Packet                                     |    3|WARN|
++---+-------------------------------------------------+-----+----+
+    |Unknown Frame                                    |    0|WARN|
+    +-------------------------------------------------+-----+----+
+    |Header Value Error                               |    0|WARN|
+    +-------------------------------------------------+-----+----+
+    |TCP Checksum Error                               |    1|WARN|
+    +-------------------------------------------------+-----+----+
+    |UDP Checksum Error                               |    1|WARN|
+    +-------------------------------------------------+-----+----+
+    |ICMP Checksum Error                              |    1|WARN|
++-----------------------------------------------------+-----+----+
+
+input file : nety3.txt
+Tool Serial : 2000.02.07 v1.00
+

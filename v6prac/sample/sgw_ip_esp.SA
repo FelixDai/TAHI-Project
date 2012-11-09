@@ -1,0 +1,209 @@
+// SGW ESP Tunnel mode ------------
+// [ip][esp][ip] ------------------
+// configuraiton list 1 ---------
+ESPAlgorithm spi_1011 {
+        host=v6("3ffe:501:481d:f003::3");
+        spi=1011;
+        auth=hmacmd5("hmac-md5-1234567");
+	crypt=null_crypt();
+}
+
+ESPAlgorithm spi_5011 {
+        host=v6("3ffe:501:481d:f002::1");
+        spi=5011;
+        auth=hmacmd5("hmac-md5-1234567");
+	crypt=null_crypt();
+}
+
+// configuraiton list 2 ---------
+
+ESPAlgorithm spi_1021 {
+        host=v6("3ffe:501:481d:f003::3");
+        spi=1021;
+        auth=hmacsha1("hmac-sha1-123456789A");
+	crypt=null_crypt();
+}
+
+ESPAlgorithm espi_5021 {
+        host=v6("3ffe:501:481d:f002::1");
+        spi=5021;
+        auth=hmacsha1("hmac-sha1-123456789A");
+	crypt=null_crypt();
+}
+
+// configuration list 3 ---------
+
+ESPAlgorithm spi_1031 {
+        host=v6("3ffe:501:481d:f003::3");
+        spi=1031;
+        auth=null_auth();
+	crypt=descbc("des-cbc-");
+}
+
+ESPAlgorithm espi_5031 {
+        host=v6("3ffe:501:481d:f002::1");
+        spi=5031;
+        auth=null_auth();
+	crypt=descbc("des-cbc-");
+}
+
+// configuration list 4 ---------
+
+ESPAlgorithm spi_1041 {
+        host=v6("3ffe:501:481d:f003::3");
+        spi=1041;
+        auth=hmacmd5("hmac-md5-1234567");
+	crypt=descbc("des-cbc-");
+}
+
+ESPAlgorithm espi_5041 {
+        host=v6("3ffe:501:481d:f002::1");
+        spi=5041;
+        auth=hmacmd5("hmac-md5-1234567");
+	crypt=descbc("des-cbc-");
+}
+
+// configuration list 5 ---------
+
+ESPAlgorithm spi_1051 {
+        host=v6("3ffe:501:481d:f003::3");
+        spi=1051;
+        auth=hmacsha1("hmac-sha1-123456789A");
+	crypt=descbc("des-cbc-");
+}
+
+ESPAlgorithm espi_5051 {
+        host=v6("3ffe:501:481d:f002::1");
+        spi=5051;
+        auth=hmacsha1("hmac-sha1-123456789A");
+	crypt=descbc("des-cbc-");
+}
+
+// configuration list 6 ---------
+
+ESPAlgorithm spi_1061 {
+        host=v6("3ffe:501:481d:f003::3");
+        spi=1061;
+        auth=hmacmd5("hmac-md5-1234567");
+	crypt=null_crypt();
+}
+
+ESPAlgorithm espi_5061 {
+        host=v6("3ffe:501:481d:f002::1");
+        spi=5061;
+        auth=hmacmd5("hmac-md5-1234567");
+	crypt=null_crypt();
+}
+
+// configuration list 7 ---------
+
+ESPAlgorithm spi_1071 {
+        host=v6("3ffe:501:481d:f003::3");
+        spi=1071;
+        auth=hmacmd5("hmac-md5-1234567");
+	crypt=null_crypt();
+}
+
+ESPAlgorithm espi_5071 {
+        host=v6("3ffe:501:481d:f002::1");
+        spi=5071;
+        auth=hmacmd5("hmac-md5-1234567");
+	crypt=null_crypt();
+}
+
+// configuration list 8 ---------
+
+ESPAlgorithm spi_1081 {
+        host=v6("3ffe:501:481d:f003::3");
+        spi=1081;
+        auth=hmacmd5("hmac-md5-1234567");
+	crypt=null_crypt();
+}
+
+ESPAlgorithm espi_5081 {
+        host=v6("3ffe:501:481d:f002::1");
+        spi=5081;
+        auth=hmacmd5("hmac-md5-1234567");
+	crypt=null_crypt();
+}
+
+// configuration list 9 ---------
+
+ESPAlgorithm spi_1091 {
+        host=v6("3ffe:501:481d:f003::3");
+        spi=1091;
+        auth=hmacmd5("hmac-md5-1234567");
+	crypt=null_crypt();
+}
+
+ESPAlgorithm espi_5091 {
+        host=v6("3ffe:501:481d:f002::1");
+        spi=5091;
+        auth=hmacmd5("hmac-md5-1234567");
+	crypt=null_crypt();
+}
+
+// configuration list 10 ---------
+
+ESPAlgorithm spi_1101 {
+        host=v6("3ffe:501:481d:f003::3");
+        spi=1101;
+        auth=hmacmd5("hmac-md5-1234567");
+	crypt=null_crypt();
+}
+
+ESPAlgorithm espi_5101 {
+        host=v6("3ffe:501:481d:f002::1");
+        spi=5101;
+        auth=hmacmd5("hmac-md5-1234567");
+	crypt=null_crypt();
+}
+
+// configuration list 11 ---------
+
+ESPAlgorithm spi_1111 {
+        host=v6("3ffe:501:481d:f003::3");
+        spi=1111;
+        auth=hmacmd5("hmac-md5-1234567");
+	crypt=null_crypt();
+}
+
+ESPAlgorithm espi_5111 {
+        host=v6("3ffe:501:481d:f002::1");
+        spi=5111;
+        auth=hmacmd5("hmac-md5-1234567");
+	crypt=null_crypt();
+}
+
+// configuration list 12 ---------
+
+ESPAlgorithm spi_1121 {
+        host=v6("3ffe:501:481d:f003::3");
+        spi=1121;
+        auth=hmacmd5("hmac-md5-1234567");
+	crypt=null_crypt();
+}
+
+ESPAlgorithm espi_5121 {
+        host=v6("3ffe:501:481d:f002::1");
+        spi=5121;
+        auth=hmacmd5("hmac-md5-1234567");
+	crypt=null_crypt();
+}
+
+// configuration list 13 ---------
+
+ESPAlgorithm spi_1131 {
+        host=v6("3ffe:501:481d:f003::3");
+        spi=1131;
+        auth=hmacmd5("hmac-md5-1234567");
+	crypt=null_crypt();
+}
+
+ESPAlgorithm espi_5131 {
+        host=v6("3ffe:501:481d:f002::1");
+        spi=5131;
+        auth=hmacmd5("hmac-md5-1234567");
+	crypt=null_crypt();
+}
+

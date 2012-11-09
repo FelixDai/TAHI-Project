@@ -1,0 +1,17 @@
+RELEASE NOTE for PA 			lastupdate 7 Feb, 2000
+
+
+---------------------------------------------------------------------------
+0.6
+	flow	:Y2K compliant.
+		 Update to display IPsec header.
+	sample	:Add sample script that make packet flow and packet dump.
+		 (doall.sh)
+	Makefile:Enable post-install
+		           (copy sample file to /usr/local/v6eval/[bin,etc])
+		 Enable pam4 (make pam4)
+		 Enable install-pam4 (install pam4 to /usr/loval/v6eval/bin)
+---------------------------------------------------------------------------
+0.5
+	pa	:*INITIAL* release, including flow,padivide and IPsec support.
+---------------------------------------------------------------------------

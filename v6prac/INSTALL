@@ -1,0 +1,71 @@
+Prerequisites
+=============
+
+Prerequisites:
+        - The package does NOT support FreeBSD 2.2.8.
+        - The package supports FreeBSD 3.X and 4.X with kame.
+	- The package requires OpenSSL Library. 
+
+
+Simple Install procedure
+========================
+
+% cd v6prac
+% make
+# make install
+
+By default these files will be installed.
+
+/usr/local/v6eval/bin:
+	doall.sh	- same as sample
+	echo6c
+	echo6s
+	flow
+	icmpg
+	mcast6c
+	mcast6s
+	pa
+	pa.sh		- same as sample
+	packet.cgi
+	pam4
+	pareport.pl
+	rpdump
+	ted
+	tg
+	tga
+	tgd
+
+/usr/local/v6eval/etc:
+	alias.h		- same as sample
+	macro.h		- same as sample
+	sgw_ip_ah.SA	- same as sample
+	sgw_ip_esp.SA	- same as sample
+
+/usr/local/v6eval/doc:
+	00README
+	COPYRIGHT
+	INSTALL
+	MANUAL.echo6
+	MANUAL.flow
+	MANUAL.icmpg
+	MANUAL.jp.pa
+	MANUAL.mcast6
+	MANUAL.pa
+	MANUAL.pareport
+	MANUAL.rpdump
+	MANUAL.tg
+	README.rpdump
+	RELEASE.pa
+	USAGE.pa
+
+/usr/local/v6eval/sample:
+	alias.h
+	doall.sh
+	macro.h
+	pa.sh
+	sgw_ip_ah.SA
+	sgw_ip_esp.SA
+
+enjoy,
+
+							[end of INSTALL]

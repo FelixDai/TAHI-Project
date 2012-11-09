@@ -1,0 +1,73 @@
+NAME
+====
+    echo6c, echo6s - UDP communication test tool
+
+SYNOPSIS
+========
+    echo6c [-nq] [-I interface] [-S sourceaddr] [-b sockbufsiz] [-c count]
+           [-h hoplimit] [-i wait] [-s packetsize] [-w file] [hops...] host port
+
+    echo6s [-b sockbufsiz] [-w file] port
+
+DESCRIPTION
+===========
+    -I interface
+        Source packets with the given interface address. This flag applies if
+        the echo6c destination is a link-local/site-local unicast address.
+
+    -S sourceaddr
+        Specifies the source address of request packets.  The source address
+        must be one of the unicast addresses of the sending node.
+        If the outgoing interface is specified by the -I option as well,
+        sourceaddr needs to be an address assigned to the specified interface.
+
+    -b bufsiz
+        Set socket buffer size.
+
+    -c count
+        Stop after sending (and receiving) count packets. The default is 1
+        packet.
+
+    -h hoplimit
+        Set the IPv6 hoplimit. The default is 64.
+
+    -i wait
+        Wait wait seconds between sending each packet. The default is to wait
+        for 1 second between each packet.
+
+    -n
+        Numeric output only.  No attempt will be made to lookup symbolic
+        names for host addresses.
+
+    -q
+        Quiet output.  Nothing is displayed except the summary lines at startup
+        time and when finished.
+
+    -s packetsize
+        Specifies the number of data bytes to be sent. The default is 16, which
+        translates into 24 UDP data bytes when combined with the 8 bytes of UDP
+        header data.
+
+    -w file
+        Write the log to file rather than printing them out. The default is
+        stdout.
+
+    echo6s receives and returns UDP packets toward the specified address and
+    port.
+    echo6c sends UDP packets toward the specified unicast or multicast address
+    and port.
+
+    If you test source routing by using UDP echo, enumeration addresses or
+    hostnames on command line.
+
+        $ echo6c host-1 host-2 host-3 host-4 port
+
+    Consequently, destination is host-4:port, and IPv6 routing header contains
+    host-1, host-2 and host-3.
+
+    When using UDP echo, make sure that echo6s runs first.
+    Secondarily, run echo6c.
+
+RETURN VALUES
+=============
+    The program exits with zero on success, non-zero on failures.

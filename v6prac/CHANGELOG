@@ -1,0 +1,51 @@
+		CHANGELOG for IPv6 Interoperability Test Tool
+
+		     $Date: 2001/02/08 06:27:32 $
+
+
+
+2001/02/09	Release 1.0
+	Does not support FreeBSD2.2.8 any more.
+	Ported : FreeBSD 4.X
+
+	- pa (Packet Analyze Tools)
+		support MIP6 <draft-ietf-mobileip-ipv6-13.txt>
+
+		  Destination Options Header:
+		    Binding Update Option
+		    Binding Acknowledgement Option
+		    Binding Request Option
+		    Home Address Option
+		      Pad1 Sub-Option
+		      PadN Sub-Option
+		      Unique Identifier Sub-Option
+		      Alternate Care-of Address Sub-Option
+		  ICMPv6:
+		    Modified Router Advertisement
+		      Modified Prefix Information Option
+		      Advertisement Interval Option
+		      Home Agent Information Option
+		    ICMP Home Agent Address Discovery Request
+			(use 143 as ICMP Type)
+		    ICMP Home Agent Address Discovery Reply
+		        (use 144 as ICMP Type)
+
+	- echo6 (IPv6 UDP echo program)
+		rewrite all code based on ping6
+
+	- rpdump (IPv6 Routing Protocol Packet Analyze Tool)
+		rewirte all code by C.
+		use shared library libpcap.
+		support RIPv1/v2, Cluster list attribute of BGP UPDATE <RFC 1998>
+		and IPv4 BGP-4 packets.
+		show attribue flags of BGP UPDATE.
+		convert port numbers to names.
+		many bugs fix.
+
+
+
+2000/04/21	Release 0.8
+	first public release
+
+
+							[end of CHANGELOG]

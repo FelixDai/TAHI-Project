@@ -1,0 +1,35 @@
+diff -c m4/Makefile pam4/Makefile
+*** m4/Makefile	Tue May 30 15:31:30 1995
+--- pam4/Makefile	Tue Nov  9 16:33:06 1999
+***************
+*** 3,9 ****
+  # -DEXTENDED
+  # 	if you want the paste & spaste macros.
+  
+! PROG=	m4
+  CFLAGS+=-DEXTENDED
+  SRCS=	eval.c expr.c look.c main.c misc.c
+  
+--- 3,10 ----
+  # -DEXTENDED
+  # 	if you want the paste & spaste macros.
+  
+! PROG=	pam4
+! NOMAN=
+  CFLAGS+=-DEXTENDED
+  SRCS=	eval.c expr.c look.c main.c misc.c
+  
+Common subdirectories: m4/TEST and pam4/TEST
+diff -c m4/main.c pam4/main.c
+*** m4/main.c	Mon Aug 30 00:30:09 1999
+--- pam4/main.c	Tue Nov  9 15:30:15 1999
+***************
+*** 158,163 ****
+--- 158,164 ----
+  
+  	if (signal(SIGINT, SIG_IGN) != SIG_IGN)
+  		signal(SIGINT, onintr);
++ 	setvbuf(stdout,NULL,_IOLBF,0);
+  
+  	initkwds();
+  

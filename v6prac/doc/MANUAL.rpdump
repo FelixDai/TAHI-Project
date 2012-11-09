@@ -1,0 +1,107 @@
+$Id: MANUAL.rpdump,v 1.1.6.3 2001/02/08 10:14:29 endo Exp $
+                           MANUAL of rpdump
+
+NAME
+====
+    rpdump - routing packet analyser
+
+SYNOPSIS
+========
+    rpdump (-i interface | -r dump_file) [-64bklnRv]
+
+DESCRIPTION
+===========
+    -4
+	Show only IPv4 packets. If you use this option with option "-6" then
+	all packets are shown.
+
+    -6
+	Show only IPv6 packets. If you use this option with option "-4" then
+	all packets are shown.
+
+    -b
+	Show only BGP4+ packets. If you use this option "-R" then any packets
+	aren't shown.
+
+    -h
+	Show help
+
+    -i interface
+	Specify to listen on interface.
+
+    -k
+	Don't show BGP KEEPALIVE.
+
+    -n
+	Don't convert port numbers to names.
+
+    -r dump_file
+	Read packets from dump_file which was created by tcpdump with -w
+	option.
+
+    -R
+	Show only RIPng packets. If you use this option with option "-b" then
+	any packets aren't shown.
+
+    -v
+	verbose mode
+
+    -V
+	Show version
+
+SIMPLE USAGE
+============
+  *********************** ATTENTION ************************
+  * To run rpdump, you must have read access to /dev/bpf*. *
+  **********************************************************
+
+    Most simple usage of rpdump is following.
+
+    If you want to see packets on real time.
+
+	# rpdump -i interface
+
+    If you want to see packets from dump_file.
+
+	# rpdump -r dump_file
+
+    You will be able to see informations of BGP4+ ,RIPng and RIPv1/v2 easy.
+
+EXAMPLE
+=======
+    The rpdump prints following.
+
+	20:27:44.916012 =========================
+	from 3ffe:501:481d:f002::1.179  to 3ffe:501:481d:f002::2.1036
+	BGP UPDATE 
+	ORIGIN EGP, AS_SEQUENCE : 3000  3000  3000  
+	Next BGP ID : 10.21.1.204, local pref : 100
+	Next hop address : 3ffe:501:481d:f002::1
+	NLRI : 3ffe:501:481d:f006::/64
+
+
+	20:27:44.982047 =========================
+	from 3ffe:501:481d:f002::2.1036  to 3ffe:501:481d:f002::1.179
+	BGP KEEPALIVE
+
+
+	20:27:58.215076 =========================
+	from fe80::260:97ff:feb6:80cd  to ff02::9
+	RIPng RESPONSE
+	Routing Table Entry
+	3ffe:501:481d:f004::/64  metric = 1
+
+	BGP 268 packets   RIPng 259 packets
+
+    FORMAT NOTES
+    ------------
+
+    If BGP packet, show TCP port after address such like "3ffe:501:481d::1.179".
+    If you set "-b" option, rpdump doesn't show a string "BGP" before a string
+    of message type of BGP such like "OPEN", "UPDATE", "NOTIFICATION" and
+    "KEEPALIVE".
+    If you set "-R" option, rpdump doesn't show a string "RIPng" before a string
+    of message command of RIPng such like "REQUEST" and "RESPONSE".
+    Only if you set "-r" option, rpdump shows counts of total packets both of
+    BGP and RIPng. And if you set "-r" option with "-b" or "-R" option, rpdump
+    shows counts of total packets of BGP or RIPng/RIP.

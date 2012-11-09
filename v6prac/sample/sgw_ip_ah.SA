@@ -1,0 +1,141 @@
+// SGW AH tunnel mode -----------------------
+// [ip][ah][ip]       -----------------------
+// Configuration list 1 -----------------
+
+AHAlgorithm spi_1011 {
+        host=v6("3ffe:501:481d:f003::3");
+        spi=1011;
+        auth=hmacmd5("hmac-md5-1234567");
+}
+
+AHAlgorithm spi_5011 {
+        host=v6("3ffe:501:481d:f002::1");
+        spi=5011;
+        auth=hmacmd5("hmac-md5-1234567");
+}
+
+// Configuration list 2 -----------------
+
+AHAlgorithm spi_1021 {
+        host=v6("3ffe:501:481d:f003::3");
+        spi=1021;
+        auth=hmacsha1("hmac-sha1-123456789A");
+}
+
+AHAlgorithm spi_5021 {
+        host=v6("3ffe:501:481d:f002::1");
+        spi=5021;
+        auth=hmacsha1("hmac-sha1-123456789A");
+}
+
+// Configuration list 3 -----------------
+
+AHAlgorithm spi_1031 {
+        host=v6("3ffe:501:481d:f003::3");
+        spi=1031;
+        auth=hmacmd5("hmac-md5-1234567");
+}
+
+AHAlgorithm spi_5031 {
+        host=v6("3ffe:501:481d:f002::1");
+        spi=5031;
+        auth=hmacmd5("hmac-md5-1234567");
+}
+
+// Configuration list 4 -----------------
+
+AHAlgorithm spi_1041 {
+        host=v6("3ffe:501:481d:f003::3");
+        spi=1041;
+        auth=hmacmd5("hmac-md5-1234567");
+}
+
+AHAlgorithm spi_5041 {
+        host=v6("3ffe:501:481d:f002::1");
+        spi=5041;
+        auth=hmacmd5("hmac-md5-1234567");
+}
+
+// Configuration list 5 -----------------
+
+AHAlgorithm spi_1051 {
+        host=v6("3ffe:501:481d:f003::3");
+        spi=1051;
+        auth=hmacmd5("hmac-md5-1234567");
+}
+
+AHAlgorithm spi_5051 {
+        host=v6("3ffe:501:481d:f002::1");
+        spi=5051;
+        auth=hmacmd5("hmac-md5-1234567");
+}
+
+// Configuration list 6 -----------------
+
+AHAlgorithm spi_1061 {
+        host=v6("3ffe:501:481d:f003::3");
+        spi=1061;
+        auth=hmacmd5("hmac-md5-1234567");
+}
+
+AHAlgorithm spi_5061 {
+        host=v6("3ffe:501:481d:f002::1");
+        spi=5061;
+        auth=hmacmd5("hmac-md5-1234567");
+}
+
+// Configuration list 7 -----------------
+
+AHAlgorithm spi_1071 {
+        host=v6("3ffe:501:481d:f003::3");
+        spi=1071;
+        auth=hmacmd5("hmac-md5-1234567");
+}
+
+AHAlgorithm spi_5071 {
+        host=v6("3ffe:501:481d:f002::1");
+        spi=5071;
+        auth=hmacmd5("hmac-md5-1234567");
+}
+
+// Configuration list 8 -----------------
+
+AHAlgorithm spi_1081 {
+        host=v6("3ffe:501:481d:f003::3");
+        spi=1081;
+        auth=hmacmd5("hmac-md5-1234567");
+}
+
+AHAlgorithm spi_5081 {
+        host=v6("3ffe:501:481d:f002::1");
+        spi=5081;
+        auth=hmacmd5("hmac-md5-1234567");
+}
+
+// Configuration list 9 -----------------
+
+AHAlgorithm spi_1091 {
+        host=v6("3ffe:501:481d:f003::3");
+        spi=1091;
+        auth=hmacmd5("hmac-md5-1234567");
+}
+
+AHAlgorithm spi_5091 {
+        host=v6("3ffe:501:481d:f002::1");
+        spi=5091;
+        auth=hmacmd5("hmac-md5-1234567");
+}
+
+// Configuration list 10 -----------------
+
+AHAlgorithm spi_1101 {
+        host=v6("3ffe:501:481d:f003::3");
+        spi=1101;
+        auth=hmacmd5("hmac-md5-1234567");
+}
+
+AHAlgorithm spi_5101 {
+        host=v6("3ffe:501:481d:f002::1");
+        spi=5101;
+        auth=hmacmd5("hmac-md5-1234567");
+}

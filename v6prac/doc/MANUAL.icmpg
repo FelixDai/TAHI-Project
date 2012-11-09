@@ -1,0 +1,35 @@
+
+NAME
+====
+    icmpg - ICMP generation tool
+
+
+SYNOPSIS
+========
+    icmpg -T type -C code dst
+
+
+DESCRIPTION
+===========
+    "icmpg" can generate any type and any code ICMP packet.
+
+
+EXAMPLE
+=======
+    # icmpg -T 200 -C 200 ::1
+
+    This command generate type 200 code 200 ICMPv6 packet.
+
+    # icmpg -T 200 -C 200 127.0.0.1
+
+    This command generate type 200 code 200 ICMPv4 packet.
+
+
+RETURN VALUES
+=============
+    The program exits with zero on success, non-zero on failures.
+
+
+PLATFORM
+========
+    FreeBSD + KAME

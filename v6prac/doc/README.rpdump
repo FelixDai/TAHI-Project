@@ -1,0 +1,53 @@
+$Id: README.rpdump,v 1.1.6.1 2001/02/07 12:53:28 endo Exp $
+                               README of rpdump
+
+Abstract
+========
+
+Rpdump is a routing protocol analyser. Rpdump is written by C. 
+Rpdump uses libpcap.
+At the moment, it support BGP4+, RIPng and RIPv1/v2 only.
+
+    BGP4+:
+	Rpdump analyse IPv6 TCP packets, which has port number 179 of
+	either source or destination, which has PUSH flag. So it doesn't
+	show like TCP 3 handshakes.
+	It doesn't show Maker field in BGP4 header.
+	It doesn't support Optional Parameters in OPEN message.
+	Supported type code of UPDATE message is following.
+
+		ORIGIN			1
+		AS_PATH			2
+		NEXT_HOP		3
+		MULTI_EXIT_DISC		4
+		LOCAL_PREF		5
+		ATMIC_AGGREGATE		6
+		AGGREGATOR		7
+		ORIGINATOR_ID		9	/* RFC1998 */
+		CLUSTER LIST		10	/* RFC1988 */
+		MP_REACH_NLRI		14	/* RFC2283 */
+		MP_UNREACH_NLRI		15	/* RFC2283 */
+
+    RIPng:
+	The rpdump analyse IPv6 UDP packets, which has port number 521 of 
+	destination.
+
+    RIPv1/v2:
+	The rpdump analyse IP UDP packets, which has port number 520 of 
+	destination.
+
+Notes
+=====
+
+Rpdump was tested only on Ethernet.
+
+Software Requirements
+=====================
+
+-OS *BSD* supported IPv6
+-libpcap
+
+Bug Report
+==========
+
+If you have any bug reports, please send them to <contact@tahi.org>.

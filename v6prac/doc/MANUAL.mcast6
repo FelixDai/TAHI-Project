@@ -1,0 +1,48 @@
+
+NAME
+====
+    mcast6c, mcast6s - multicast communication test tool
+
+SYNOPSIS
+========
+    mcast6c [-I interface] [-c count] [-w file] address port
+
+    mcast6s [-I interface] [-c count] [-h hoplimit] [-i wait] [-s size]
+            [-w file] address port
+
+DESCRIPTION
+===========
+    -I interface
+        Source packets with the given interface address. This flag applies if
+        the mcast6s destination is a multicast address.
+
+    -c count
+        Stop after sending (and receiving) count packets. The default is 1
+        packet.
+
+    -h hoplimit
+        Set the IPv6 hoplimit. The default is 1.
+
+    -i wait
+        Wait wait seconds between sending each packet. The default is to wait
+        for zero second between each packet.
+
+    -s size
+        Specifies the number of data bytes to be sent. The default is 16, which
+        translates into 24 UDP data bytes when combined with the 8 bytes of UDP
+        header data.
+
+    -w file
+        Write the log to file rather than printing them out. The default is
+        stdout.
+
+    mcast6s sends UDP packets toward the specified multicast address and port.
+    mcast6c catches UDP packets toward the specified multicast address and port.
+
+RETURN VALUES
+=============
+    The program exits with zero on success, non-zero on failures.
+
+PLATFORM
+========
+    FreeBSD + KAME

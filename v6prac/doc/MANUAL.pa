@@ -1,0 +1,1073 @@
+						update: 99/11/5
+NAME
+
+	pa - packet analyzing tool
+
+SYNOPSIS:
+
+	pa <pcap file> [-a <alias file>] [-s <sa file>]
+
+
+1. DESCRIPTION
+
+	Pa reads the PCAP format files <pcap file>, and displays the packets
+	in presentable format. You can select the packet by specifing 
+	your requirements.
+
+	Pa translates the PCAP format files to its proprietary format,
+	while it checks the each header length, header boundary and 
+	checksum field.
+	When a header that is not supported by pa is appears, pa treats it
+	as the payload.
+
+2. EXPRESSION
+
+2.1 Primitive expression
+
+	keyword relop value
+
+	(1) keyword
+
+	Keyword to be described in expression is specified with 
+	"HeaderName.FieldName", but you can also use alias name
+	specified in <alias file>.
+	A list of "HeaderName" and "FieldName" is described later in
+	this document.
+
+	(2) Relative operator (relop)
+
+	Pa supports following 6 relop.
+
+	=	EQUAL TO
+	!=	NOT EQUAL TO
+	<	LESS THAN
+	>	GREATER THAN
+	<=	LESS THAN OR EQUAL TO
+	>=	GREATER THAN OR EQUAL TO
+
+	(3) value
+
+	decimal data
+	hexagonal data
+	function
+		You can specify some kind of functions.
+		Function is described in section 7.
+	any
+		"any" is available when relop is "=".
+		The word "any" is wild card.
+
+2.2 Relationship between primitive expressions
+
+	Primitive expression can be logically combined by supporting
+	logical "AND" operator and logical "OR" operator.
+
+	AND		Concatenation
+	OR		Alternation
+
+2.3 Grouping the expressions
+
+	Expressions can be grouped by parenthesizing logical expression
+	of expressions.
+
+2.4 Examples
+
+	Selecting the packets, it's source address or destination address is
+	"3ffe:501:481d:f001::1".
+
+	Hdr_IPv6.SourceAddress=v6("ff02::1:ffa7:766f") OR
+		Hdr_IPv6.DestinationAddress=v6("ff02::1:ffa7:766f")
+
+3. Output
+
+	Pa displays the selected packets to STDOUT in proprietary format.
+
+4. Describing alias file
+
+	(1) Comment
+
+	At each line the character '#' and subsequent characters are
+	treated as comments.
+
+	(2) Alias
+
+	HeaderName.FieldName and alias must be separated with blank.
+
+	HeaderName.FieldName 	AliasName
+
+	(3) Examples
+
+	Hdr_IPv6.SourceAddress           ipsrc
+	Hdr_IPv6.DestinationAddress      ipdst
+
+	Describe the expression of 2.4 using the above.
+
+	ipsrc=v6("ff02::1:ffa7:766f") OR ipdst=v6("ff02::1:ffa7:766f")
+
+5. Option switches to change output format
+
+	Pa has following options for output.
+
+	resolv [on|off]
+
+		Switch to perform resolving of hostname and servicename.
+		on        perform resolving
+		off        don't perform resolving	
+	
+		In case neither "on" nor "off" is selected, perform
+		resolving with toggle. 
+
+	dump [on|off]
+
+		Switch to display hexagonal dump data.
+		on	display hexagonal dump data.
+		off	don't display hexagonal dump data.
+	
+		In case neither "on" nor "off" is selected, display
+		hexagonal dump with toggle. 
+
+
+	detail [on|off]
+
+		Switch to display detail information of packet.
+		on	display detail information
+		off	don't display detail information
+	
+		In case neither "on" nor "off" is selected, display
+		detail information with toggle. 
+
+	describe [on|off]
+
+		Switch to display summary information of packet.
+		on	display summary information
+		off	don't display summary information
+	
+		In case neither "on" nor "off" is selected, display
+		summary information with toggle. 
+
+
+	relative [on|off]
+
+		Switch of timestamp format of packet.
+		on	relative timestamp format
+		off	absolute timestamp format
+
+		In case neither "on" nor "off" is selected, display
+		timestamp with toggle. 
+
+
+6. Filtering with Timestamp
+
+
+	(1) Using relative time
+
+	For matching conditions when time is displayed with relative time,
+	pa specifies relative time from leading frame in second.
+	
+
+	(2) Using absolute time
+
+	For matching conditions when time is displayed with absolute time,
+	pa specifies UNIX TIME value.
+	For how to specify UNIX TIME, pa provides a method using numeric
+	values and a method using to_date function.
+	
+7. Functions
+
+	Pa supports following functions.
+
+	(1) Address function
+
+		ether("xx:xx:xx:xx:xx:xx"[,prefix length])
+			specify MAC address
+
+		v6("rfc 2373 presentation"[,prefix length])
+			specify IPv6 address
+
+		v4("xxx.xxx.xxx.xxx"[,prefix length])
+			specify IPv6 address
+
+		Each function recognizes [prefix length] for matching.
+
+	(2) Timestamp translation function
+		
+		to_date("String"[,"format"])
+		
+		Pa specifies time format with a format set up with strptime
+		which is a standard function of UNIX.
+		In case time format is omitted, pa performs timestamp 
+		translation regarding that address function
+		"%Y/%m/%d%T"is specified.
+
+8. Specifing security association(SA)
+
+	SA is specified with SPI, IP destination address and 
+	Security protocol.
+	
+	In case pa detects the ESP or AH header while analyzing packets,
+	it will search the algorithm from <sa file> using security protocol,		IP destination address and a security protocol(AH or ESP) identifier.
+
+	(1)ESP analysis
+
+		In case ESP header exists in a packet that is analyzed, 
+		pa uses this security association to display the packet by
+		decrypting it with specified algorithm. 
+		Also, pa verifies if ICV value is correct by using an
+		specified algorithm.
+
+		Decrypt algorithm is specified in <as file> as crypt.
+		Authenticate algorithm is specified in <as file> as auth.
+
+	(2)AH analysis
+
+		In case AH header exists in a packet that is analyzed,
+		pa uses this security association and specified algorithm to
+		verify if ICV values is correct.
+
+	(3)SA display
+
+		Also, with sa command, pa displays information registered
+		in security association.
+
+	(4)Describing <sa file>
+		
+		key:    {<num>[,<num>[,num]...]}
+		|       "String;
+		ivec:   {<num>[,<num>[,num]...]}
+		|       "String";
+		
+		AHAlgorithm foo_ah {
+			SPI=<number>;
+			host=[	v4("xxx.xxxx.xxxx.xxx") |
+				v6("RFC2373 presentation")];
+			auth=[null_auth()|hmacmd5(key)|hmacsha1(key)];
+		}
+		
+		ESPAlgorithm foo_esp {
+			SPI=<number>;
+			host=[	v4("xxx.xxxx.xxxx.xxx") |
+				v6("RFC2373 presentation")];
+			crypt=[
+				null_crypt()    |
+				descbc(key)     |
+				blowfish(key)   |
+				rc5(key)        |
+				cast128(keyc)   |
+				des3cbc(key) ];
+			auth=[null_auth()|hmacmd5(key)|hmacsha1(key)];
+		}
+		
+
+	(5)Example sa description
+
+		ESPAlgorithm esp1 {
+		        spi=1;
+		        host=v6("::1");
+		        auth=hmacmd5({1,2,3,4,5,6,7,8});
+		        crypt=des3cbc({1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4});
+		}
+		
+		ESPAlgorithm esp2 {
+		        spi=1000;
+		        host=v6("fe80::200:2ff:fe00:2632");
+		        auth=null_auth();
+		        crypt=des3cbc("012345678901234567890123");
+		}
+		
+		ESPAlgorithm esp3 {
+		        spi=1000;
+		        host=v6("fe80::200:ff:fe00:100");
+		        auth=null_auth();
+		        crypt=des3cbc("012345678901234567890123");
+		}
+		
+		AHAlgorithm ah1 {
+		        spi=1000;
+		        host=v6("fec0::1:ff00:2632");
+		        auth=hmacmd5("hogehogehogehoge");
+		}
+
+9. Header name and Field name
+	
+	[Header name] means not supported yet.
+
+	// DateLink Layer Protocol ////////////////////////////////////////////
+	
+	// Null Loopback ------------------------------------------------------
+	Frame_Null(Frame_Loop)
+		header		= //Hdr_Null
+		packet		= //Packet_{IPv6,IPv4},Payload
+	
+	Hdr_Null(Hdr_Loop)
+		Type		=
+		Length		=
+		Family		=
+	
+	
+	// Ether --------------------------------------------------------------
+	Frame_Ether
+		header		= //Hdr_Ether
+		packet		= //Packet_{IPv6,IPv4,ARP,RARP},Payload
+	
+	Hdr_Ether
+		DestinationAddress	=
+		SourceAddress	=
+		Type		=
+	
+	
+	// Network Layer Protocol /////////////////////////////////////////////
+	
+	// IPv6 ---------------------------------------------------------------
+	Packet_IPv6
+		header		= //Hdr_IPv6
+		exthdr		= //Hdr_{HopByHop,Destination,Routing,Fragment,AH,ESP}
+		upper		= //TCP,UDP,ICMPv6_*,Payload
+	
+	Hdr_IPv6
+		Version		=
+		TrafficClass	=
+		FlowLabel	=
+		PayloadLength	=
+		NextHeader	=
+		HopLimit	=
+		SourceAddress	=
+		DestinationAddress	=
+		
+	// IPv6 Extention -----------------------------------------------------
+	Hdr_HopByHop
+		NextHeader	=
+		HeaderExtLength	=
+		option		= //Opt_{ANY,Pad1,PadN,JumboPayload,RouterAlert}
+	
+	Hdr_Destination
+		NextHeader	=
+		HeaderExtLength	=
+		option		= //Opt_{ANY,Pad1,PadN,JumboPayload,RouterAlert}
+	
+	Hdr_Routing
+		NextHeader	=
+		HeaderExtLength	=
+		RoutingType	=
+		SegmentsLeft	=
+		Reserved	=
+		Address		= //multi
+	
+	Hdr_Fragment
+		NextHeader	=
+		Reserved1	=
+		FragmentOffset	=
+		Reserved2	=
+		MFlag		=
+		Identification	=
+	
+	// IPv6 Extention Option ----------------------------------------------
+	Opt_ANY
+		OptionType	=
+		OptDataLength	=
+		data		=
+	
+	Opt_Pad1
+		OptionType	= 0
+	
+	Opt_PadN
+		OptionType	= 1
+		OptDataLength	=
+		pad		= //same data=
+	
+	Opt_JumboPayload
+		OptionType	= 0xc2
+		OptDataLength	=
+		JumboPayloadLength	=
+		
+	Opt_RouterAlert
+		OptionType	= 0x05
+		OptDataLength	=
+		Value		=
+	
+	Opt_TunnelEncapslation
+		OptionType	= 0x04
+		OptDataength	=
+		Limit		=
+	
+	
+	// IPsec --------------------------------------------------------------
+	Hdr_AH
+		NextHeader	=
+		PayloadLength	=
+		Reserved	=
+		SPI		=
+		SequenceNumber	=
+		algorithm	= //AHAlgorithm
+		Padding		= //same data=
+				  //for AH alignment requiremnet(8or4)
+		
+		(unde member can not describe packet define file)
+		ICV
+	
+	Hdr_ESP
+		SPI		=
+		SequenceNumber	=
+		algorithm	= //ESPAlgorithm
+		PadLength	=
+		NextHeader	=
+	
+		(unde member can not describe packet define file)
+		Crypted
+		 IVEC
+		 Decrypted
+		  ESPPayload
+		  Padding
+		ICV
+	
+	// IPv4 ---------------------------------------------------------------
+	Packet_IPv4
+		header		= //Hdr_IPv4
+		exthdr		= //Hdr_{AH,ESP}
+		upper		= //TCP,UDP,ICMPv4_*,Payload
+	
+	Hdr_IPv4
+		Version		=
+		IHL		=
+		TypeOfService 	=
+		TotalLength 	=
+		Identifier	=
+		Flags		=
+		FragmentOffset	=
+	   	TTL		=
+		Protocol 	=
+		HeaderChecksum	=
+		SourceAddress	=
+		DestinationAddress	=
+		option		= //Opt_IPv4_*
+		Padding		= //same data=
+	
+	// IPv4 Option --------------------------------------------------------
+	Opt_IPv4_ANY
+		Type		=
+		Length		=
+		data		=
+	
+	Opt_IPv4_EndOfOptionList
+		Type		= 0
+	
+	Opt_IPv4_NoOperation
+		Type		= 1
+	
+	Opt_IPv4_LooseSourceRoute
+		Type		= 131
+		Length		=
+		Pointer		=
+		RouteData	= //multi
+	
+	Opt_IPv4_StrictSourceRoute
+		Type		= 137
+		Length		=
+		Pointer		=
+		RouteData	= //multi
+	
+	Opt_IPv4_RecordRoute
+		Type		= 7
+		Length		=
+		Pointer		=
+		RouteData	= //multi
+	
+	Opt_IPv4_Timestamp
+		Type		= 68
+		Length		=
+		Pointer		=
+		Overflow	=
+		Flag		=
+		Timestamp	= //multi
+				  //sorry, V4Address is mapped so Timestamp(uint32_t)
+	
+	// ARP ----------------------------------------------------------------
+	Packet_ARP
+		header		= //Hdr_ARP
+	
+	Hdr_ARP
+		HardwareType	=
+		ProtocolType	=
+		HwAddrLen	=
+	        ProtoAddrLen	=
+	        OpCode		=
+	        SenderHwAddr	=
+	        SenderIPAddr	=
+	        TargetHwAddr	=
+	        TargetIPAddr 	=
+	
+	
+	// RARP ---------------------------------------------------------------
+	Packet_RARP
+		header		= //Hdr_RARP
+	
+	Hdr_RARP
+		HardwareType	=
+		ProtocolType	=
+		HwAddrLen	=
+	        ProtoAddrLen	=
+	        OpCode		=
+	        SenderHwAddr	=
+	        SenderIPAddr	=
+	        TargetHwAddr	=
+	        TargetIPAddr 	=
+	
+	
+	// Upper Layer Protocol ///////////////////////////////////////////////
+	
+	// NoNext -------------------------------------------------------------
+	Upp_NoNext
+		//no member
+	
+	
+	// ICMPv6 -------------------------------------------------------------
+	ICMPv6_ANY
+		Type		=
+		Code		=
+		Checksum	=
+		data		=
+	
+	ICMPv6_RS
+		Type		= 133
+		Code		=
+		Checksum	=
+		Reserved	=
+		option		= //Opt_ICMPv6_*
+	
+	ICMPv6_RA
+		Type		= 134
+		Code		=
+		Checksum	=
+		CurHopLimit	=
+		MFlag		=
+		OFlag		=
+		Reserved	=
+		LifeTime	=
+		ReachableTime	=
+		RetransTimer	=
+		option		= //Opt_ICMPv6_*
+	
+	ICMPv6_NS
+		Type		= 135
+		Code		=
+		Checksum	=
+		Reserved	=
+		TargetAddress	=
+		option		= //Opt_ICMPv6_*
+	
+	ICMPv6_NA
+		Type		= 136
+		Code		=
+		Checksum	=
+		RFlag		=
+		SFlag		=
+		OFlag		=
+		Reserved	=
+		TargetAddress	=
+		option		= //Opt_ICMPv6_*
+	
+	ICMPv6_Redirect
+		Type		= 137
+		Code		=
+		Checksum	=
+		Reserved	=
+		TargetAddress	=
+		DestinationAddress	=
+		option		= //Opt_ICMPv6_*
+	
+	ICMPv6_MLD{Query,Report,Done}
+		Type		= {130,131,132}
+		Code		=
+		Checksum	=
+		MaxResponseDelay=
+		Reserved	=
+		MulticastAddress=
+	
+	ICMPv6_EchoRequest
+		Type		= 128
+		Code		=
+		Checksum	=
+		Identifier	=
+		SequenceNumber	=
+		payload		= //Payload
+	
+	ICMPv6_EchoReply
+		Type		= 129
+		Code		=
+		Checksum	=
+		Identifier	=
+		SequenceNumber	=
+		payload		= //Payload
+	
+	ICMPv6_PacketTooBig
+		Type		= 2
+		Code		=
+		Checksum	=
+		MTU		=
+		payload		= //Payload
+	
+	ICMPv6_DestinationUnreachable
+		Type		= 1
+		Code		=
+		Checksum	=
+		Unused		=
+		payload		= //Payload
+	
+	ICMPv6_TimeExceeded
+		Type		= 3
+		Code		=
+		Checksum	=
+		Unused		=
+		payload		= //Payload
+	
+	ICMPv6_ParameterProblem
+		Type		= 4
+		Code		=
+		Checksum	=
+		Pointer		=
+		payload		= //Payload
+	
+	ICMPv6_RouterRenumbering
+		Type		= 138
+		Code		=
+		Checksum	=
+		SequenceNumber	=
+		SegmentNumber	=
+		TFlag		=
+		RFlag		=
+		AFlag		=
+		SFlag		=
+		PFlag		=
+		Reserved1	=
+		MaxDelay	=
+		Reserved2	=
+		payload		= //Payload
+	
+	
+	// ICMPv6 Option ------------------------------------------------------
+	Opt_ICMPv6_ANY
+		Type		=
+		Length		=
+		data		=
+	
+	Opt_ICMPv6_SLL
+		Type		= 1
+		Length		=
+		LinkLayerAddress=
+		
+	Opt_ICMPv6_TLL
+		Type		= 2
+		Length		=
+		LinkLayerAddress=
+	
+	Opt_ICMPv6_Prefix
+		Type		= 3
+		Length		=
+		PrefixLength	=
+		LFlag		=
+		AFlag		=
+		Reserved1	=
+		ValidLifetime	=
+		PreferredLifetime	=
+		Reserved2	=
+		Prefix		=
+	
+	Opt_ICMPv6_Redirected
+		Type		= 4
+		Length		=
+		Reserved1	= //16bit uint
+		Reserved2	= //32bit uint
+		payload		= //Payload
+	
+	Opt_ICMPv6_MTU
+		Type		= 5
+		Length		=
+		Reserved	=
+		MTU		=
+	
+	
+	// ICMPv4 -------------------------------------------------------------
+	ICMPv4_ANY
+		Type		=
+		Code		=
+		Checksum	=
+		data		=
+	
+	ICMPv4_DestinationUnreachable
+		Type		= 3
+		Code		=
+		Checksum	=
+		Unused		=
+		payload		=
+	
+	ICMPv4_TimeExceeded
+		Type		= 11
+		Code		=
+		Checksum	=
+		Unused		=
+		payload		=
+	
+	ICMPv4_ParameterProbelem
+		Type		= 12
+		Code		=
+		Checksum	=
+		Pointer		=
+		Unused		=
+		payload		=
+	
+	ICMPv4_Redirect
+		Type		= 5
+		Code		=
+		Checksum	=
+		GatewayInternetAddress =
+		payload		=
+	
+	ICMPv4_EchoRequest
+		Type		= 8
+		Code		=
+		Checksum	=
+		Identifier	=
+		SequenceNumber	=
+		payload		=
+	
+	ICMPv4_EchoReply
+		Type		= 0
+		Code		=
+		Checksum	=
+		Identifier	=
+		SequenceNumber	=
+		payload		=
+	
+	
+	// UDP ----------------------------------------------------------------
+	Upp_UDP
+		header		= //Hdr_UDP
+		payload		= //Payload
+	
+	Hdr_UDP
+		SourcePort	=
+		DestinationPort	=
+		Length		=
+		Checksum	=
+	
+	
+	// TCP ----------------------------------------------------------------
+	Upp_TCP
+		header		= //Hdr_TCP
+		payload		= //Payload
+	
+	Hdr_TCP
+		SourcePort	=
+		DestinationPort	=
+		SequenceNumber	=
+		AcknowledgmentNumber	=
+		DataOffset	=
+		Reserved	=
+		URGFlag		=
+		ACKFlag		=
+		PSHFlag		=
+		RSTFlag		=
+		SYNFlag		=
+		FINFlag		=
+		Window		=
+		Checksum	=
+		UrgentPointer	=
+		option		= //Opt_TCP_*
+		Padding		= //same data=
+	
+	
+	// TCP Option ---------------------------------------------------------
+	
+	Opt_TCP_ANY
+		Kind		=
+		Length		=
+		data		=
+	
+	Opt_TCP_EndOfOptionList
+		Kind		= 0
+	
+	Opt_TCP_NoOperation
+		Kind		= 1
+	
+	
+	Opt_TCP_MaximumSegmentSize
+		Kind		= 2
+		Length		=
+		MaxSegSize	=
+	
+	
+	// Payload ////////////////////////////////////////////////////////////
+	
+	Payload
+		data		=
+
+	///////////////////////////////////////////////////////////////////////
+	
+9.1 Abbreviated header name for describe output
+	
+	The original header name is too long to display in describe output.
+	In displaying describe output pa uses listed abbreviated header name.
+	
+	[Header name] means not supported yet.
+
+	Header name                                     Alias 
+	--------------------------------------------------------------
+	TCP                                             TCP
+	UDP                                             UDP
+	
+	ICMPv6_RS                                       RS
+	ICMPv6_RA                                       RA
+	ICMPv6_NS                                       NS
+	ICMPv6_NA                                       NA
+	ICMPv6_Redirect                                 RED
+	ICMPv6_MLD{Query}                               MLDQ
+	ICMPv6_MLD{Report}                              MLDR
+	ICMPv6_MLD{Done}                                MLDD
+	ICMPv6_EchoRequest                              EREQ
+	ICMPv6_EchoReply                                EREP
+	ICMPv6_PacketTooBig                             BIG
+	ICMPv6_DestinationUnreachable                   DUR
+	ICMPv6_ParameterProblem                         PP
+	ICMPv6_RouterRenumbering                        RR
+	        RR Command                              RRCMD
+	        RR Result                               RRRSLT
+	        RR Reset                                RRRSET
+	ICMPv6_NameLookups                              NL
+	ICMPv6_ANY                                      ICMPv6_ANY
+	[ICMPv4_*]
+	
+	// DataLink Layer TopHeader
+	///////////////////////////////////////////////////////////////////////
+	
+	Hdr_Ether                                       ETH
+	
+	// Network Layer TopHeader
+	///////////////////////////////////////////////////////////////////////
+	
+	Hdr_IPv6                                        IPv6
+	Hdr_IPv4                                        IPv4
+	
+	[Hdr_ARP]                                       ARP
+	
+	[Hdr_RARP]                                      RARP
+	
+	// ExtHdr
+	///////////////////////////////////////////////////////////////////////
+	
+	Hdr_HopByHop                                    HBH
+	Hdr_Destination                                 DST
+	Hdr_Routing                                     RTG
+	Hdr_Fragment                                    FRG
+	Hdr_AH                                          AH
+	Hdr_ESP                                         ESP
+	Hdr_NoNext                                      NO
+	
+	// Extension Header Option
+	///////////////////////////////////////////////////////////////////////
+	
+	Opt_ANY                                         ANY
+	Opt_Pad1                                        PD1
+	Opt_PadN                                        PDN
+	Opt_JumboPayload                                JMB
+	Opt_RouterAlert                                 ALT
+	[Opt_Tunnel_Encapsulation]                      TUN
+	
+	// ICMPv6 Option
+	///////////////////////////////////////////////////////////////////////
+	
+	Opt_ICMPv6_ANY                                  Opt_ICMPv6_ANY
+	Opt_ICMPv6_ANY                                  Opt_ICMPv6_ANY
+	Opt_ICMPv6_SLL                                  SLL
+	Opt_ICMPv6_TLL                                  TLL
+	Opt_ICMPv6_Prefix                               PFX
+	Opt_ICMPv6_Redirected                           RD
+	Opt_ICMPv6_MTU                                  MTU
+	
+	// IPv4 Option
+	///////////////////////////////////////////////////////////////////////
+	
+	[Opt_IPv4_*]
+	
+	
+	// TCP Option
+	///////////////////////////////////////////////////////////////////////
+	
+	[Opt_TCP_*]
+	
+	
+10. Output example
+
+Case-1
+==========================================================================
+dump off
+detail on
+describe off
+--------------------------------------------------------------------------
+
+1999/10/21 12:58:54.915309
+Frame_Ether                     (length:142)
+| Hdr_Ether                       (length:14)
+| | DestinationAddress               = 33:33:0:0:0:1
+| | SourceAddress                    = 0:0:e8:94:e8:56
+| | Type                             = 34525
+| Packet_IPv6                     (length:128)
+| | Hdr_IPv6                        (length:40)
+| | | Version                          = 6
+| | | TrafficClass                     = 0
+| | | FlowLabel                        = 0
+| | | PayloadLength                    = 88
+| | | NextHeader                       = 58
+| | | HopLimit                         = 255
+| | | SourceAddress                    = fe80::200:e8ff:fe94:e856
+| | | DestinationAddress               = ff02::1
+| | ICMPv6_RA                       (length:88)
+| | | Type                             = 134
+| | | Code                             = 0
+| | | Checksum                         = 41618 calc(41618)
+| | | CurHopLimit                      = 64
+| | | MFlag                            = 0
+| | | OFlag                            = 0
+| | | Reserved                         = 0
+| | | LifeTime                         = 7200
+| | | ReachableTime                    = 30000
+| | | RetransTimer                     = 0
+| | | Opt_ICMPv6_SLL                  (length:8)
+| | | | Type                             = 1
+| | | | Length                           = 1
+| | | | LinkLayerAddress                 = 0:0:e8:94:e8:56
+| | | Opt_ICMPv6_Prefix               (length:32)
+| | | | Type                             = 3
+| | | | Length                           = 4
+| | | | PrefixLength                     = 64
+| | | | LFlag                            = 1
+| | | | AFlag                            = 1
+| | | | Reserved1                        = 32
+| | | | ValidLifetime                    = 7200
+| | | | PreferredLifetime                = 7200
+| | | | Reserved2                        = 0
+| | | | Prefix                           = fec0:0:0:f002::
+| | | Opt_ICMPv6_Prefix               (length:32)
+| | | | Type                             = 3
+| | | | Length                           = 4
+| | | | PrefixLength                     = 64
+| | | | LFlag                            = 1
+| | | | AFlag                            = 1
+| | | | Reserved1                        = 32
+| | | | ValidLifetime                    = 7200
+| | | | PreferredLifetime                = 7200
+| | | | Reserved2                        = 0
+| | | | Prefix                           = 3ffe:501:481d:f002::
+
+
+Case-2
+==========================================================================
+dump off
+detail off
+describe on
+--------------------------------------------------------------------------
+
+desc:1999/10/21 12:57:28.839441 IPv6 src=:: dst=ff02::1:ff86:a394 NS
+desc:1999/10/21 12:57:30.449295 IPv6 src=fe80::290:27ff:fe86:a394 dst=ff02::2 RS
+desc:1999/10/21 12:57:33.088972 IPv6 src=fe80::290:27ff:fe86:a394 dst=ff02::1:ff86:a394 HBH MLDR
+desc:1999/10/21 12:57:34.468840 IPv6 src=fe80::290:27ff:fe86:a394 dst=ff02::2 RS
+desc:1999/10/21 12:57:38.488425 IPv6 src=fe80::290:27ff:fe86:a394 dst=ff02::2 RS
+desc:1999/10/21 12:58:43.618413 IPv6 src=:: dst=ff02::1:ff94:e856 NS
+desc:1999/10/21 12:58:44.278019 IPv6 src=fe80::200:e8ff:fe94:e856 dst=ff02::2 RS
+desc:1999/10/21 12:58:54.915309 IPv6 src=fe80::200:e8ff:fe94:e856 dst=ff02::1 RA
+desc:1999/10/21 12:58:54.915733 IPv6 src=:: dst=ff02::1:ff94:e856 NS
+desc:1999/10/21 12:58:54.916806 IPv6 src=:: dst=ff02::1:ff86:a394 NS
+desc:1999/10/21 12:58:55.279071 IPv6 src=:: dst=ff02::1:ff94:e856 NS
+desc:1999/10/21 12:59:06.360497 IPv6 src=fe80::200:e8ff:fe94:e856 dst=ff02::9 UDP src=521 dst=521
+desc:1999/10/21 12:59:07.679433 IPv6 src=fe80::200:e8ff:fe94:e856 dst=ff02::9 MLDR
+desc:1999/10/21 12:59:12.770030 IPv6 src=fe80::200:e8ff:fe94:e856 dst=ff02::1 RA
+desc:1999/10/21 12:59:28.965829 IPv6 src=fe80::200:e8ff:fe94:e856 dst=ff02::1 RA
+desc:1999/10/21 12:59:35.787228 IPv6 src=fe80::200:e8ff:fe94:e856 dst=ff02::9 UDP src=521 dst=521
+
+
+Case-3
+==========================================================================
+dump on
+detail on
+describe on
+--------------------------------------------------------------------------
+
+dump:1999/10/14 16:06:16.532457
+dump:  0090273c 50bc0090  2751c988 86dd6000  00000028 2b40fec0  00000000 f001029
+0
+dump:  27fffe51 c988fec0  00000000 f0010290  27fffe3c 50bc3a02  00010000 0000fec
+0
+dump:  00000000 f0040290  27fffe86 a3948000  5e3d2f01 0000b980  05388c20 0b00
+desc:1999/10/14 16:06:16.532457 IPv6 src=fec0::f001:290:27ff:fe51:c988 dst=fec0:
+:f001:290:27ff:fe3c:50bc RT EREQ
+log:1999/10/14 16:06:16.532457
+log:Frame_Ether                     (length:94)
+log:| Hdr_Ether                       (length:14)
+log:| | DestinationAddress               = 0:90:27:3c:50:bc
+log:| | SourceAddress                    = 0:90:27:51:c9:88
+log:| | Type                             = 34525
+log:| Packet_IPv6                     (length:80)
+log:| | Hdr_IPv6                        (length:40)
+log:| | | Version                          = 6
+log:| | | TrafficClass                     = 0
+log:| | | FlowLabel                        = 0
+log:| | | PayloadLength                    = 40
+log:| | | NextHeader                       = 43
+log:| | | HopLimit                         = 64
+log:| | | SourceAddress                    = fec0::f001:290:27ff:fe51:c988
+log:| | | DestinationAddress               = fec0::f001:290:27ff:fe3c:50bc
+log:| | Hdr_Routing                     (length:24)
+log:| | | NextHeader                       = 58
+log:| | | HeaderExtLength                  = 2
+log:| | | RoutingType                      = 0
+log:| | | SegmentsLeft                     = 1
+log:| | | Reserved                         = 0
+log:| | | Address                          = fec0::f004:290:27ff:fe86:a394
+log:| | ICMPv6_EchoRequest              (length:16)
+log:| | | Type                             = 128
+log:| | | Code                             = 0
+log:| | | Checksum                         = 24125 calc(24125)
+log:| | | Identifier                       = 12033
+log:| | | SequenceNumber                   = 0
+log:| | | Payload                         (length:8)
+log:| | | | data                             = b9800538 8c200b00
+dump:1999/10/14 16:09:08.845037
+dump:  0090273c 50bc0090  2751c988 86dd6000  00000038 2b40fec0  00000000 f001029
+0
+dump:  27fffe51 c988fec0  00000000 f0010290  27fffe3c 50bc3a04  00020000 0000fec
+0
+dump:  00000000 f0020290  27fffe51 847cfec0  00000000 f0040290  27fffe86 a394800
+0
+dump:  f3f03701 00006681  0538446c 0800      
+desc:1999/10/14 16:09:08.845037 IPv6 src=fec0::f001:290:27ff:fe51:c988 dst=fec0:
+:f001:290:27ff:fe3c:50bc RT EREQ
+log:1999/10/14 16:09:08.845037
+log:Frame_Ether                     (length:110)
+log:| Hdr_Ether                       (length:14)
+log:| | DestinationAddress               = 0:90:27:3c:50:bc
+log:| | SourceAddress                    = 0:90:27:51:c9:88
+log:| | Type                             = 34525
+log:| Packet_IPv6                     (length:96)
+log:| | Hdr_IPv6                        (length:40)
+log:| | | Version                          = 6
+log:| | | TrafficClass                     = 0
+log:| | | FlowLabel                        = 0
+log:| | | PayloadLength                    = 56 
+log:| | | NextHeader                       = 43  
+log:| | | HopLimit                         = 64
+log:| | | SourceAddress                    = fec0::f001:290:27ff:fe51:c988
+log:| | | DestinationAddress               = fec0::f001:290:27ff:fe3c:50bc
+log:| | Hdr_Routing                     (length:40)
+log:| | | NextHeader                       = 58
+log:| | | HeaderExtLength                  = 4 
+log:| | | RoutingType                      = 0 
+log:| | | SegmentsLeft                     = 2
+log:| | | Reserved                         = 0
+log:| | | Address                          = fec0::f002:290:27ff:fe51:847c
+log:| | | Address                          = fec0::f004:290:27ff:fe86:a394
+log:| | ICMPv6_EchoRequest              (length:16)
+log:| | | Type                             = 128
+log:| | | Code                             = 0
+log:| | | Checksum                         = 62448 calc(62448)
+log:| | | Identifier                       = 14081
+log:| | | SequenceNumber                   = 0
+log:| | | Payload                         (length:8)
+log:| | | | data                             = 66810538 446c0800
+

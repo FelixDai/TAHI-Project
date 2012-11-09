@@ -1,0 +1,217 @@
+
+NAME
+====
+    flow, packet.cgi - packet flow create tool
+
+
+SYNOPSIS
+========
+    flow [-Inw] [-h [-C|i]] [-N|a|m] [-c|d <file_name>] [file_name]
+
+    packet.cgi time [file]
+
+
+DESCRIPTION
+===========
+    HTML option
+        -C, HTML output with CGI
+                input must be specific file with absolute path
+        -h, HTML output
+        -i, HTML output with CGI, interactive mode
+
+    flow option
+        -N, don't show any flow
+        -a, show ip flow with mac flow
+        -m, show only mac address flow
+
+    define option
+        -c, create define file
+        -d, define sort order, alias, color
+
+    other option
+        -I, show identifier packets
+        -n, numeric output only
+        -w, show TCP window
+
+    This program "flow" inputs output of packet analyzer "pa". And creates
+    packet flow chart.
+    Default input is stdin.
+
+    CGI program "packet.cgi" are used only when
+    you run flow with h option.
+
+
+RETURN VALUES
+=============
+    The program exits with zero on success, non-zero on failures.
+
+
+PLATFORM
+========
+    FreeBSD + KAME
+
+
+INNER FUNCTION
+==============
+    The program contains three automatic function as inner function.
+
+(1) Automatic sort
+    "flow" makes appeared addresses sort mathematically and automatically.
+    For exception, Unspecified Address.
+
+(2) Automatic alias
+    "flow" makes appeared multicast addresses aliases automatically.
+    "flow" supports all addresses which are described in RFC 2375.
+
+    REFERENCE
+
+        RFC 2375 - IPv6 Multicast Address Assignments
+
+(3) Automatic coloring
+    "flow" colors special packets automatically.
+
+        red - Router Solicitation
+            - Router Advertisement
+            - Neighbor Solicitation
+            - Neighbor Advertisement
+
+        green - Destination Unreachable
+              - Packet Too Big
+              - Time Exceeded
+              - Parameter Problem
+              - Redirect
+
+        blue - TCP which URG flag is set
+             - TCP which RST flag is set
+             - TCP which SYN flag is set
+             - TCP which FIN flag is set
+
+        orange - Neighbor Advertisement which Solicited flag is not set
+
+
+SUPPORT PROTOCOL
+================
+    This program "flow" supports only "IPv6" and "IPv4".
+    Other protocol aren't supported.
+
+
+SIMPLE USAGE
+============
+    Most simple use is following.
+
+        # tcpdump -i interface -s 4096 -w tcpdump_file
+        $ pa -b tcpdump_file | flow
+
+    If you want to filter by using "pa", use is following.
+
+        $ pa tcpdump_file | tee pa.txt
+        $ flow pa.txt
+
+
+HTML OUTPUT
+===========
+    HTML files of packet flow chart are 3 HTML files (body.html, flow.html, and
+    footer.html). And "flow" makes this 3 HTML files.
+
+        body.html - packet flow itself
+        footer.html - sub information
+
+        flow.html - frame outline
+                    This frame contains "body.html" and "footer.html".
+
+    Then, you can see packet flow chart, when you open "flow.html" by your www
+    browser.
+
+
+CGI
+===
+
+packet.cgi
+    This CGI extract a output of "pa" for one packet which contains inputted
+    time.
+
+    It is usually placed $(document root)/cgi-bin/ directory.
+
+    And, This CGI is called from "body.html".
+
+    EXAMPLE
+        $ packet.cgi 18:47:08.084534 pa.txt
+                     ~~~~~~~~~~~~~~~
+        Content-type: text/plain
+
+        1999/08/31 18:47:08.084534
+                   ~~~~~~~~~~~~~~~
+        Frame_Ether                     (length:70)
+        | Hdr_Ether                       (length:14)
+        | | DestinationAddress               = 33:33:0:0:0:1
+        | | SourceAddress                    = 0:0:f4:35:78:a2
+        | | Type                             = 34525
+        | Packet_IPv6                     (length:56)
+        | | Hdr_IPv6                        (length:40)
+        | | | Version                          = 6
+        | | | TrafficClass                     = 0
+        | | | FlowLabel                        = 0
+
+
+CREATE HTML OUTPUT
+==================
+    First, you must prepare "packet.cgi".
+
+    If cgi-bin directory, which "packet.cgi" is installed, is
+    $(document root)/cgi-bin/, simply, add option "h", and option "p", if you
+    need.
+
+        $ flow -h -c $(SOMEWHERE)pa.txt
+                     ~~~~~~~~~~~~~~~~~~
+
+    In "body.html", link to CGI is below.
+
+        ...<A HREF="/cgi-bin/packet.cgi?18:32:16.352142+$(SOMEWHERE)pa.txt"...
+                                                        ~~~~~~~~~~~~~~~~~~
+    If cgi-bin directory is other directory, add option "i".
+    For example, path of "packet.cgi" is ~/public_html/cgi-bin/packet.cgi, and
+    path of output of "pa" is ~/public_html/data/pa.txt.
+
+        $ flow -h -i pa.txt
+
+    Then, "flow" asks you path to "packet.cgi" and path to output of "pa".
+
+        ENTER CGI PATH  > ../cgi-bin/packet.cgi
+                          ~~~~~~~~~~~~~~~~~~~~~
+        ENTER FILE PATH > ../data/pa.txt
+                          ~~~~~~~~~~~~~~
+
+    In body.html, link to CGI is below.
+
+        ...<A HREF="../cgi-bin/packet.cgi?18:32:16.352142+../data/pa.txt"...
+                    ~~~~~~~~~~~~~~~~~~~~~                 ~~~~~~~~~~~~~~
+
+    If you don't want to use CGI, type below.
+
+        $ flow -h pa.txt
+
+
+DEFINE FILE
+===========
+    If you want to modify output, use define file.
+
+    First, run "flow" with option "-c". This option makes a template define
+    file.
+
+        $ flow -c define.txt pa.txt
+
+    Then, you edit this "define.txt" by text editor.
+
+        syntax)
+            ip [IP address] [alias name] [HTML color]
+            mac [MAC address] [HTML color]
+
+        example)
+            ip  [fe80::200:f4ff:fe5c:e287] [link-local address] [FFD700]
+            ip  [10.21.0.195]              [ ]                  [FFD700]
+
+            mac [00:00:f4:5c:e2:87] [FFD700]
+
+    And apply this define file to flow.
+
+        $ flow -d define.txt pa.txt

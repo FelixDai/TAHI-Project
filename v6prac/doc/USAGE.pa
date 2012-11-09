@@ -1,0 +1,26 @@
+HOW to use pa package
+=====================
+
+The most simple way to use pa package is following.
+
+1. Install v6prac package as descrived in INSTALL.
+	% cd v6prac
+	# make
+	# make install
+
+After installing v6prac package, you can make packet flow.
+
+2. Make working directory
+	% mkdir $SOMEWHERE/patest
+	% cd $SOMEWHERE/patest
+
+3. Capture the packets
+	# tcpdump -i ep0 -s 4096 -w test.pcap
+
+4. Make packet flow 
+	% doall test.pcap
+
+Now packet flow is created, you can browse $SOMEWHERE/flow.html.
+
+
+enjoy,
