@@ -1,0 +1,1642 @@
+//
+// Copyright (C) 2003
+// Copyright(C) IPv6 Promotion Council (2004,2005). All Rights Reserved.
+// 
+// This documentation is produced by SIP SWG members of Certification WG in 
+// IPv6 Promotion Council.
+// The SWG members currently include NIPPON TELEGRAPH AND TELEPHONE CORPORATION (NTT), 
+// Yokogawa Electric Corporation and NTT Advanced Technology Corporation (NTT-AT).
+// 
+// 
+// Redistribution and use of this software in source and binary forms, with 
+// or without modification, are permitted provided that the following 
+// conditions and disclaimer are agreed and accepted by the user:
+// 
+// 1. Redistributions of source code must retain the above copyright 
+// notice, this list of conditions and the following disclaimer.
+// 
+// 2. Redistributions in binary form must reproduce the above copyright 
+// notice, this list of conditions and the following disclaimer in the 
+// documentation and/or other materials provided with the distribution.
+// 
+// 3. Neither the names of the copyrighters, the name of the project which 
+// is related to this software (hereinafter referred to as "project") nor 
+// the names of the contributors may be used to endorse or promote products 
+// derived from this software without specific prior written permission.
+// 
+// 4. No merchantable use may be permitted without prior written 
+// notification to the copyrighters. However, using this software for the 
+// purpose of testing or evaluating any products including merchantable 
+// products may be permitted without any notification to the copyrighters.
+// 
+// 
+// 
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND 
+// CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING 
+// BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS 
+// FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE 
+// COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+// INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
+// SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
+// HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+// CONTRACT,STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF 
+// THE POSSIBILITY OF SUCH DAMAGE.
+
+// 
+
+// -----------------------------------------------------------
+//
+//  Basic Address Label Define
+//
+// -----------------------------------------------------------
+#ifndef ROUTER_PREFIX
+#define ROUTER_PREFIX			"2001::"
+#endif
+
+#ifndef V6ROUTER_PREFIX
+#define V6ROUTER_PREFIX			v6(ROUTER_PREFIX)
+#endif
+
+#ifndef NUT_MAC_ADDR
+#define NUT_MAC_ADDR			nutether()
+#endif
+
+#ifndef TN_MAC_ADDR
+#define TN_MAC_ADDR			tnether()
+#endif
+
+#ifndef NUT_GLOBAL_ADDR
+#define NUT_GLOBAL_ADDR			nut2v6(ROUTER_PREFIX, 64)
+#endif
+
+#ifndef NUT_LOCAL_ADDR
+#define NUT_LOCAL_ADDR			nutv6()
+#endif
+
+#ifndef NUT_ANY_LOCAL_ADDR
+#define NUT_ANY_LOCAL_ADDR		oneof(v6(_UNSPEC_ADDR), NUT_LOCAL_ADDR)
+#endif
+
+#ifndef TN_GLOBAL_ADDR
+#define TN_GLOBAL_ADDR			tn2v6(ROUTER_PREFIX, 64)
+#endif
+
+#ifndef TN_LOCAL_ADDR
+#define TN_LOCAL_ADDR			tnv6()
+#endif
+
+// -----------------------------------------------------------
+//
+//  Logical Address Label Define
+//
+// -----------------------------------------------------------
+// TN side
+#ifndef PSEUDO_ROUTER_GLOBAL
+#define PSEUDO_ROUTER_GLOBAL		TN_GLOBAL_ADDR
+#endif
+
+#ifndef PSEUDO_ROUTER_LOCAL
+#define PSEUDO_ROUTER_LOCAL		TN_LOCAL_ADDR
+#endif
+
+#ifndef PSEUDO_ROUTER_MAC
+#define PSEUDO_ROUTER_MAC		TN_MAC_ADDR
+#endif
+
+#ifndef PSEUDO_DNS
+#define PSEUDO_DNS			v6("3001::1")
+#endif
+
+#ifndef PSEUDO_PX1
+#define PSEUDO_PX1			v6("4001::1")
+#endif
+
+#ifndef PSEUDO_PX2
+#define PSEUDO_PX2			v6("4001::1")
+#endif
+
+#ifndef PSEUDO_REG
+#define PSEUDO_REG			v6("5001::1")
+#endif
+
+#ifndef PSEUDO_UA11
+#define PSEUDO_UA11			v6("6001::1")
+#endif
+
+#ifndef PSEUDO_UA12
+#define PSEUDO_UA12			v6("6001::1")
+#endif
+
+#ifndef PSEUDO_UA13
+#define PSEUDO_UA13			v6("6001::1")
+#endif
+
+#ifndef PSEUDO_UA14
+#define PSEUDO_UA14			v6("6001::1")
+#endif
+
+#ifndef PSEUDO_UA21
+#define PSEUDO_UA21			v6("6001::1")
+#endif
+
+#ifndef DNS_TARGETNAME
+#define DNS_TARGETNAME			""
+#endif
+
+
+// NUT side
+#ifndef NUT_ADDR
+#define NUT_ADDR			NUT_GLOBAL_ADDR
+#endif
+
+// -----------------------------------------------------------
+//
+//  RA Parameter Label Define
+//
+//       V6Router(TN)  ->RA->  SIPterminal(NUT)
+//
+// -----------------------------------------------------------
+#ifndef RA_SRC_RT
+#define RA_SRC_RT			PSEUDO_ROUTER_LOCAL
+#endif
+
+#ifndef RA_SRC_CN
+#define RA_SRC_CN			NUT_LOCAL_ADDR
+#endif
+
+#ifndef RA_DST
+#define RA_DST				v6(_ALLNODES_MCAST_ADDR)
+#endif
+
+#ifndef RA_CURHOPLIMIT
+#define RA_CURHOPLIMIT			64
+#endif
+
+#ifndef RA_MFLAG
+#define RA_MFLAG			0
+#endif
+
+#ifndef RA_OFLAG
+#define RA_OFLAG			0
+#endif
+
+#ifndef RA_LIFETIME
+#define RA_LIFETIME			1800
+#endif
+
+#ifndef RA_REACHABLETIME
+#define RA_REACHABLETIME		0
+#endif
+
+#ifndef RA_RETRANSTIMER
+#define RA_RETRANSTIMER			0
+#endif
+
+#ifndef RA_CURHOPLIMIT
+#define RA_CURHOPLIMIT			64
+#endif
+
+#ifndef RA_CURHOPLIMIT
+#define RA_CURHOPLIMIT			64
+#endif
+
+
+// -----------------------------------------------------------
+//
+//  NA Parameter Label Define
+//
+//       V6Router(TN)  ->NA->  SIPterminal(NUT)
+//       V6Router(TN)  <-NS<-  SIPterminal(NUT)
+//
+// -----------------------------------------------------------
+#ifndef NS_SRC_RTG
+#define NS_SRC_RTG			PSEUDO_ROUTER_GLOBAL
+#endif
+
+#ifndef NS_SRC_RTLO
+#define NS_SRC_RTLO			PSEUDO_ROUTER_LOCAL
+#endif
+
+#ifndef NS_SRC_CNG
+#define NS_SRC_CNG			NUT_ADDR
+#endif
+
+#ifndef NS_SRC_CNLO
+#define NS_SRC_CNLO			NUT_LOCAL_ADDR
+#endif
+
+#ifndef NS_DST_CNG
+#define NS_DST_CNG			NUT_ADDR
+#endif
+
+#ifndef NS_DST_RTG
+#define NS_DST_RTG			PSEUDO_ROUTER_GLOBAL
+#endif
+
+#ifndef NS_DST_RTLO
+#define NS_DST_RTLO			PSEUDO_ROUTER_LOCAL
+#endif
+
+#ifndef NA_SRC_RTG
+#define NA_SRC_RTG			PSEUDO_ROUTER_GLOBAL
+#endif
+
+#ifndef NA_SRC_CNG
+#define NA_SRC_CNG			NUT_ADDR
+#endif
+
+#ifndef NA_SRC_CNLO
+#define NA_SRC_CNLO			NUT_LOCAL_ADDR
+#endif
+
+#ifndef NA_SRC_RTLO
+#define NA_SRC_RTLO			PSEUDO_ROUTER_LOCAL
+#endif
+
+#ifndef NA_DST_CNG
+#define NA_DST_CNG			NUT_ADDR
+#endif
+
+#ifndef NA_DST_RTG
+#define NA_DST_RTG			PSEUDO_ROUTER_GLOBAL
+#endif
+
+#ifndef NA_DST_RTLO
+#define NA_DST_RTLO			PSEUDO_ROUTER_LOCAL
+#endif
+
+#ifndef NA_DST_CNLO
+#define NA_DST_CNLO			NUT_LOCAL_ADDR
+#endif
+
+
+// -----------------------------------------------------------
+//
+//  ICMP Echo
+//
+//       SIPServer(TN)  ->EchoRequest->  SIPterminal(NUT)
+//       SIPServer(TN)  <-EchoReply<-    SIPterminal(NUT)
+//
+// -----------------------------------------------------------
+#ifndef ECHO_SEND_TERM_DST_ADDR
+#define ECHO_SEND_TERM_DST_ADDR		NUT_ADDR
+#endif
+
+#ifndef ECHO_RECV_TERM_SRC_ADDR
+#define ECHO_RECV_TERM_SRC_ADDR		NUT_ADDR
+#endif
+
+#ifndef ECHO_SEND_PSRV_SRC_ADDR
+#define ECHO_SEND_PSRV_SRC_ADDR		PSEUDO_UA11
+#endif
+
+#ifndef ECHO_RECV_PSRV_DST_ADDR
+#define ECHO_RECV_PSRV_DST_ADDR		PSEUDO_UA11
+#endif
+
+#ifndef ECHO_TYPE
+#define ECHO_TYPE			auto
+#endif
+
+#ifndef ECHO_CODE
+#define ECHO_CODE			any
+#endif
+
+#ifndef ECHO_ID
+#define ECHO_ID				any
+#endif
+
+#ifndef ECHO_SEQNO
+#define ECHO_SEQNO			any
+#endif
+
+#ifndef ECHO_CHECKSUM
+#define ECHO_CHECKSUM			auto
+#endif
+
+// -----------------------------------------------------------
+//
+//  ICMP Error
+//
+// -----------------------------------------------------------
+#ifndef ICMP_ERROR_TYPE
+#define ICMP_ERROR_TYPE			1
+#endif
+
+#ifndef ICMP_ERROR_CODE
+#define ICMP_ERROR_CODE			3
+#endif
+
+
+// -----------------------------------------------------------
+//
+//  SIP Common Header Parameter Label Define
+//
+// -----------------------------------------------------------
+#ifndef SIP_UDP_SRC_PORT
+#define SIP_UDP_SRC_PORT		auto
+#endif
+
+#ifndef SIP_UDP_DST_PORT
+#define SIP_UDP_DST_PORT		auto
+#endif
+
+#ifndef DNS_UDP_SRC_PORT
+#define DNS_UDP_SRC_PORT		auto
+#endif
+
+#ifndef DNS_UDP_DST_PORT
+#define DNS_UDP_DST_PORT		auto
+#endif
+
+#ifndef SIP_MSG
+#define SIP_MSG				siptxt("SIP-message")
+#endif
+
+// -----------------------------------------------------------
+//
+//  SIP TN side Parameter Label Define
+//
+//       Registra(TN)  ->SIP->  SIPterminal(NUT)
+//       Registra(TN)  <-SIP<-  SIPterminal(NUT)
+//
+// -----------------------------------------------------------
+#ifndef DNS_TRANSACTION_ID
+#define DNS_TRANSACTION_ID		auto
+#endif
+
+#ifndef DNS_RESULT_CODE
+#define DNS_RESULT_CODE			auto
+#endif
+
+#ifndef DND_TTL
+#define DND_TTL				3600
+#endif
+
+#ifndef AAAA_FQDN1
+#define AAAA_FQDN1			""
+#endif
+
+#ifndef AAAA_IP6ADDR1
+#define AAAA_IP6ADDR1			"::1"
+#endif
+
+#ifndef AAAA_TYPE1
+#define AAAA_TYPE1			28
+#endif
+
+#ifndef AAAA_CLASS1
+#define AAAA_CLASS1			1
+#endif
+
+#ifndef AAAA_FQDN2
+#define AAAA_FQDN2			""
+#endif
+
+#ifndef AAAA_IP6ADDR2
+#define AAAA_IP6ADDR2			"::1"
+#endif
+
+#ifndef AAAA_FQDN3
+#define AAAA_FQDN3			any
+#endif
+
+#ifndef AAAA_IP6ADDR3
+#define AAAA_IP6ADDR3			any
+#endif
+
+#ifndef SRV_FQDN1
+#define SRV_FQDN1			""
+#endif
+
+#ifndef SRV_TYPE1
+#define SRV_TYPE1			33
+#endif
+
+#ifndef SRV_CLASS1
+#define SRV_CLASS1			1
+#endif
+
+#ifndef SRV_PORT
+#define SRV_PORT			5060
+#endif
+
+
+#ifndef SIP_PAYLOAD_DATA
+#define SIP_PAYLOAD_DATA		"30313233"
+#endif
+
+#ifndef SIP_PAYLOAD_LENGTH
+#define SIP_PAYLOAD_LENGTH		576
+#endif
+
+// -----------------------------------------------------------
+//
+//  Received SIP  for Rebuild
+//
+// -----------------------------------------------------------
+#ifndef SIP_RECVED_TRAFFICCLASS
+#define SIP_RECVED_TRAFFICCLASS			auto
+#endif
+#ifndef SIP_RECVED_FLOWLABEL
+#define SIP_RECVED_FLOWLABEL			auto
+#endif
+#ifndef SIP_RECVED_PAYLOADLENGTH
+#define SIP_RECVED_PAYLOADLENGTH		auto
+#endif
+#ifndef SIP_RECVED_NEXTHEADER
+#define SIP_RECVED_NEXTHEADER			auto
+#endif
+#ifndef SIP_RECVED_HOPLIMIT
+#define SIP_RECVED_HOPLIMIT			auto
+#endif
+#ifndef SIP_RECVED_SRC_ADDR
+#define SIP_RECVED_SRC_ADDR			auto
+#endif
+#ifndef SIP_RECVED_DST_ADDR
+#define SIP_RECVED_DST_ADDR			auto
+#endif
+#ifndef SIP_RECVED_SRC_PORT
+#define SIP_RECVED_SRC_PORT			auto
+#endif
+#ifndef SIP_RECVED_DST_PORT
+#define SIP_RECVED_DST_PORT			auto
+#endif
+
+
+// -----------------------------------------------------------
+//
+//  IPV6 Parameter Label Define
+//
+// -----------------------------------------------------------
+#ifndef V6HD_VERSION
+#define V6HD_VERSION		auto
+#endif
+
+#ifndef V6HD_TRAFFICCLASS
+#define V6HD_TRAFFICCLASS	auto
+#endif
+
+#ifndef V6HD_FLOWLABEL
+#define V6HD_FLOWLABEL		auto
+#endif
+
+#ifndef V6HD_PAYLOADLENGTH
+#define V6HD_PAYLOADLENGTH	auto
+#endif
+
+#ifndef V6HD_NEXTHEADER
+#define V6HD_NEXTHEADER		auto
+#endif
+
+#ifndef V6HD_HOPLIMIT
+#define V6HD_HOPLIMIT		255
+#endif
+
+
+
+// -----------------------------------------------------------
+//
+//  Ether Address Define
+//
+// -----------------------------------------------------------
+_HETHER_define(EH_TNtoNUT,		TN_MAC_ADDR,	NUT_MAC_ADDR)
+_HETHER_define(EH_NUTtoTN,		NUT_MAC_ADDR,	TN_MAC_ADDR)
+
+_HETHER_define(EH_NUTtoTNsol_lmcast,	NUT_MAC_ADDR,	_ETHER_SOLNODE_MCAST(TN_LOCAL_ADDR))
+_HETHER_define(EH_NUTtoTNsol_gmcast,	NUT_MAC_ADDR,	_ETHER_SOLNODE_MCAST(TN_GLOBAL_ADDR))
+_HETHER_define(EH_TNtoMcast,		TN_MAC_ADDR,	v62ethermulti(v6(_ALLNODES_MCAST_ADDR)))
+
+/*   old                                new                         pattern
+Ns_TERMtoRouterGlobal              Ns_TermLtoRouterG                L-G-L
+Na_RouterGlobalToTERM              Na_RouterGToTermL                G-L-L
+
+Ns_TERMtoRouterLocal               Ns_TermLtoRouterL                L-L-L
+Na_RouterLocalToTERM               Na_RouterLToTermL                L-L-L
+
+Ns_TERMtoRouterMultiGlobal         Ns_TermGtoRouterMultiL           G-M-G
+Na_RouterGlobalToTERMTll           Na_RouterLToTermG                L-G-G
+
+Ns_TERMtoRouterMultiLocal          Ns_TermLtoRouterMultiM           L-M-L
+Na_RouterLocalToTERMTll            Na_RouterLToTermL                L-L-L
+
+
+Na_TERMtoRouterGlobalOpt           Na_TermAtoRouterGOpt             any-L-G
+Na_TERMtoRouterGlobal              Na_TermAtoRouterG                any-L-G
+*/
+
+// -----------------------------------------------------------
+//
+// RA 
+//
+//       V6Router(TN)  ->RA->  SIPterminal(NUT)
+//
+// -----------------------------------------------------------
+
+FEM_icmp6_ra(
+	Ra_RouterToAllNode,
+	EH_TNtoMcast,
+	{
+		Version			= V6HD_VERSION;
+		TrafficClass		= V6HD_TRAFFICCLASS;
+		FlowLabel		= V6HD_FLOWLABEL;
+		PayloadLength		= V6HD_PAYLOADLENGTH;
+		NextHeader		= V6HD_NEXTHEADER;
+		HopLimit		= V6HD_HOPLIMIT;
+		SourceAddress		= RA_SRC_RT;
+		DestinationAddress	= RA_DST;
+	},
+	{
+		CurHopLimit		= RA_CURHOPLIMIT;
+		MFlag			= RA_MFLAG;
+		OFlag			= RA_OFLAG;
+      		LifeTime		= RA_LIFETIME;
+		ReachableTime		= RA_REACHABLETIME;
+		RetransTimer		= RA_RETRANSTIMER;
+		option			= opt_sll;
+		option			= opt_mtu;
+		option			= opt_prefixinformation;
+	}
+)
+
+
+// -----------------------------------------------------------
+//
+//  Neighbor Solicitation
+//
+//       V6Router(TN)  <-NS<-  SIPterminal(NUT)
+//
+// -----------------------------------------------------------
+
+// -----------------------------------------------------------
+//  V6Router(TN)  ->NS->  SIPterminal(NUT)
+// -----------------------------------------------------------
+FEM_icmp6_ns(
+	Ns_RouterToAllNode,
+	EH_TNtoMcast,
+	{
+		Version			= V6HD_VERSION;
+		TrafficClass		= V6HD_TRAFFICCLASS;
+		FlowLabel		= V6HD_FLOWLABEL;
+		PayloadLength		= V6HD_PAYLOADLENGTH;
+		NextHeader		= V6HD_NEXTHEADER;
+		HopLimit		= V6HD_HOPLIMIT;
+		SourceAddress		= NS_SRC_RTLO;
+		DestinationAddress	= NS_DST_CNG;
+		_DST(_IPV6_SOLNODE_MCAST(nutv6()));
+	},
+	{
+		TargetAddress		= NUT_ADDR;
+		option			= opt_sll;
+	}
+)
+
+
+// -----------------------------------------------------------
+//  V6Router(TN)  <-NS<-  SIPterminal(NUT)
+// -----------------------------------------------------------
+FEM_icmp6_ns(
+//	Ns_TERMtoRouterGlobal,
+	Ns_TermLtoRouterG,
+	EH_NUTtoTN,
+	{
+		SourceAddress		= NS_SRC_CNLO;
+		DestinationAddress	= NS_DST_RTG;
+	},
+	{
+//		TargetAddress		= any;
+		TargetAddress		= PSEUDO_ROUTER_LOCAL;
+		option			= opt_sll_recv;
+	}
+)
+
+FEM_icmp6_ns(
+//	Ns_TERMtoRouterLocal,
+	Ns_TermLtoRouterL,
+	EH_NUTtoTN,
+	{
+		SourceAddress		= NS_SRC_CNLO;
+		DestinationAddress	= NS_DST_RTLO;
+	},
+	{
+		TargetAddress		= PSEUDO_ROUTER_LOCAL;
+		option			= any;
+//		option			= opt_sll_recv;
+	}
+)
+
+FEM_icmp6_ns(
+	Ns_TermGtoRouterMultiL,
+	EH_NUTtoTNsol_gmcast,
+	{
+		HopLimit	= 255;
+		_SRC(NS_SRC_CNG);
+		_DST(_IPV6_SOLNODE_MCAST(NS_DST_RTG));
+	},
+	{
+		TargetAddress	= PSEUDO_ROUTER_GLOBAL;
+		option		= _SLLOPT_nut;
+	}
+)
+
+FEM_icmp6_ns(
+	Ns_TermGtoRouterMultiL_TL,
+	EH_NUTtoTNsol_gmcast,
+	{
+		HopLimit	= 255;
+		_SRC(NS_SRC_CNG);
+		_DST(_IPV6_SOLNODE_MCAST(NS_DST_RTG));
+	},
+	{
+		TargetAddress	= PSEUDO_ROUTER_LOCAL;
+		option		= _SLLOPT_nut;
+	}
+)
+
+FEM_icmp6_ns(
+	Ns_TermLtoRouterMultiM,
+	EH_NUTtoTNsol_lmcast,
+	{
+		HopLimit	= 255;
+		_SRC(NS_SRC_CNLO);
+		_DST(_IPV6_SOLNODE_MCAST(NS_DST_RTLO));
+	},
+	{
+		TargetAddress	= PSEUDO_ROUTER_LOCAL;
+		option		= _SLLOPT_nut;
+	}
+)
+
+
+// -----------------------------------------------------------
+//
+//  Neighbor Advertisement
+//
+//       V6Router(TN)  ->NA->  SIPterminal(NUT)
+//
+// -----------------------------------------------------------
+
+// -----------------------------------------------------------
+//  V6Router(TN)  <-NA<-  SIPterminal(NUT)
+// -----------------------------------------------------------
+FEM_icmp6_na(
+//	Na_TERMtoRouterGlobal,
+	Na_TermAtoRouterG,
+	EH_NUTtoTN,
+	{
+//		SourceAddress		= NA_SRC_CNLO;
+		SourceAddress		= any;
+		DestinationAddress	= NA_DST_RTLO;
+	},
+	{
+		RFlag			= any;
+		SFlag			= 1;
+		OFlag			= any;
+		TargetAddress		= NUT_ADDR;
+	}
+)
+FEM_icmp6_na(
+//	Na_TERMtoRouterGlobalOpt,
+	Na_TermAtoRouterGOpt,
+	EH_NUTtoTN,
+	{
+//		SourceAddress		= NA_SRC_CNLO;
+		SourceAddress		= any;
+		DestinationAddress	= NA_DST_RTLO;
+	},
+	{
+		RFlag			= any;
+		SFlag			= 1;
+		OFlag			= any;
+		TargetAddress		= NUT_ADDR;
+		option			= any;
+	}
+)
+
+// -----------------------------------------------------------
+//  V6Router(TN)  ->NA->  SIPterminal(NUT)
+// -----------------------------------------------------------
+FEM_icmp6_na(
+//	Na_RouterGlobalToTERM,
+	Na_RouterGToTermL,
+	EH_TNtoNUT,
+	{
+		Version			= V6HD_VERSION;
+		TrafficClass		= V6HD_TRAFFICCLASS;
+		FlowLabel		= V6HD_FLOWLABEL;
+		PayloadLength		= V6HD_PAYLOADLENGTH;
+		NextHeader		= V6HD_NEXTHEADER;
+		HopLimit		= V6HD_HOPLIMIT;
+		SourceAddress		= NA_SRC_RTG;
+		DestinationAddress	= NA_DST_CNLO;
+	},
+	{
+//		TargetAddress		= NS_SRC_RTG;
+		TargetAddress		= PSEUDO_ROUTER_LOCAL;
+		RFlag			= 1;
+		SFlag			= 1;
+		OFlag			= auto;
+	}
+)
+
+FEM_icmp6_na(
+	Na_RouterLToTermG,
+	EH_TNtoNUT,
+	{
+		Version			= V6HD_VERSION;
+		TrafficClass		= V6HD_TRAFFICCLASS;
+		FlowLabel		= V6HD_FLOWLABEL;
+		PayloadLength		= V6HD_PAYLOADLENGTH;
+		NextHeader		= V6HD_NEXTHEADER;
+		HopLimit		= V6HD_HOPLIMIT;
+		SourceAddress		= NA_SRC_RTLO;
+		DestinationAddress	= NA_DST_CNG;
+	},
+	{
+		TargetAddress		= PSEUDO_ROUTER_GLOBAL;
+		RFlag			= 1;
+		SFlag			= 1;
+		OFlag			= auto;
+		option			= opt_tll;
+	}
+)
+
+FEM_icmp6_na(
+	Na_RouterLToTermG_TL,
+	EH_TNtoNUT,
+	{
+		Version			= V6HD_VERSION;
+		TrafficClass		= V6HD_TRAFFICCLASS;
+		FlowLabel		= V6HD_FLOWLABEL;
+		PayloadLength		= V6HD_PAYLOADLENGTH;
+		NextHeader		= V6HD_NEXTHEADER;
+		HopLimit		= V6HD_HOPLIMIT;
+		SourceAddress		= NA_SRC_RTLO;
+		DestinationAddress	= NA_DST_CNG;
+	},
+	{
+		TargetAddress		= PSEUDO_ROUTER_LOCAL;
+		RFlag			= 1;
+		SFlag			= 1;
+		OFlag			= auto;
+		option			= opt_tll;
+	}
+)
+
+FEM_icmp6_na(
+//	Na_RouterLocalToTERM,
+	Na_RouterLToTermL,
+	EH_TNtoNUT,
+	{
+		Version			= V6HD_VERSION;
+		TrafficClass		= V6HD_TRAFFICCLASS;
+		FlowLabel		= V6HD_FLOWLABEL;
+		PayloadLength		= V6HD_PAYLOADLENGTH;
+		NextHeader		= V6HD_NEXTHEADER;
+		HopLimit		= V6HD_HOPLIMIT;
+		SourceAddress		= NA_SRC_RTLO;
+		DestinationAddress	= NA_DST_CNLO;
+	},
+	{
+		TargetAddress		= PSEUDO_ROUTER_LOCAL;
+		RFlag			= 1;
+		SFlag			= 1;
+		OFlag			= auto;
+		option			= opt_tll;
+	}
+)
+/*
+FEM_icmp6_na(
+//	Na_RouterLocalToTERMTll,
+        Na_RouterLToTermL,
+	EH_TNtoNUT,
+	{
+		Version			= V6HD_VERSION;
+		TrafficClass		= V6HD_TRAFFICCLASS;
+		FlowLabel		= V6HD_FLOWLABEL;
+		PayloadLength		= V6HD_PAYLOADLENGTH;
+		NextHeader		= V6HD_NEXTHEADER;
+		HopLimit		= V6HD_HOPLIMIT;
+		SourceAddress		= NA_SRC_RTLO;
+		DestinationAddress	= NA_DST_CNLO;
+	},
+	{
+		TargetAddress		= PSEUDO_ROUTER_LOCAL;
+		RFlag			= 1;
+		SFlag			= 1;
+		OFlag			= auto;
+		option			= opt_tll;
+	}
+)
+*/
+
+// -----------------------------------------------------------
+//  ICMP Option Define
+// -----------------------------------------------------------
+Opt_ICMPv6_SLL opt_sll {
+	LinkLayerAddress	= TN_MAC_ADDR;
+}
+
+Opt_ICMPv6_MTU opt_mtu {
+	MTU			= 1500;
+}
+
+Opt_ICMPv6_Prefix opt_prefixinformation {
+	LFlag			= 1;
+	AFlag			= 1;
+	ValidLifetime		= 2592000;
+	PreferredLifetime	= 604800;
+	Prefix			= V6ROUTER_PREFIX;
+}
+
+Opt_ICMPv6_SLL opt_sll_recv {
+	LinkLayerAddress	= any;
+}
+
+Opt_ICMPv6_TLL opt_tll {
+	LinkLayerAddress	= TN_MAC_ADDR;
+}
+
+Opt_ICMPv6_TLL opt_tll_recv {
+	LinkLayerAddress	= NUT_MAC_ADDR;
+}
+
+// -----------------------------------------------------------
+//  Echo Payload 
+// -----------------------------------------------------------
+Payload echo_payload {
+	data	= 0x61; data	= 0x62; data	= 0x63; data	= 0x64;
+	data	= 0x65; data	= 0x66; data	= 0x67; data	= 0x68;
+	data	= 0x69; data	= 0x6a; data	= 0x6b; data	= 0x6c;
+	data	= 0x6d; data	= 0x6e; data	= 0x6f; data	= 0x70;
+	data	= 0x71; data	= 0x72; data	= 0x73; data	= 0x74;
+	data	= 0x75; data	= 0x76; data	= 0x77; data	= 0x61;
+	data	= 0x62; data	= 0x63; data	= 0x64; data	= 0x65;
+	data	= 0x66; data	= 0x67; data	= 0x68; data	= 0x69;
+}
+
+
+// -----------------------------------------------------------
+//
+//  Echo Request
+//
+//       SIPServer(TN)  ->EchoRequest->  SIPterminal(NUT)
+//
+// -----------------------------------------------------------
+
+FEM_icmp6_echo_request(
+	EchoRequestFromServ,
+	EH_TNtoNUT,
+	{
+		SourceAddress		= ECHO_SEND_PSRV_SRC_ADDR;
+		DestinationAddress	= ECHO_SEND_TERM_DST_ADDR;
+	},
+	{
+		SequenceNumber	= auto;
+		payload	= echo_payload;
+	}
+)
+
+// -----------------------------------------------------------
+//
+//  Echo Reply
+//
+//       SIPServer(TN)  <-EchoReply<-    SIPterminal(NUT)
+//
+// -----------------------------------------------------------
+
+FEM_icmp6_echo_reply_exth(
+	EchoReplyToServ,
+	EH_NUTtoTN,
+	{
+		SourceAddress		= ECHO_RECV_TERM_SRC_ADDR;
+		DestinationAddress	= ECHO_RECV_PSRV_DST_ADDR;
+	},
+	{
+		header	= _HDR_IPV6_NAME(EchoReplyToServ);
+		upper	= _ICMPV6_NAME(EchoReplyToServ);
+	},
+	{
+		SequenceNumber	= any;
+		payload	= echo_payload;
+	}
+)
+
+//----------------------------------------------------------------------
+//
+// ICMP Destination Unreachable
+//
+//       SIPServer(TN)  ->Destination Unreachable->  SIPterminal(NUT)
+//
+//----------------------------------------------------------------------
+FEM_icmp6_destination_unreachable_exth(
+	ICMPErrorFromUA11,
+	EH_TNtoNUT,
+	{
+		SourceAddress		= PSEUDO_UA11;
+		DestinationAddress	= NUT_ADDR;
+	},
+	{
+		header = _HDR_IPV6_NAME(ICMPErrorFromUA11);
+		upper = _ICMPV6_NAME(ICMPErrorFromUA11);
+	},
+	{
+		Type = ICMP_ERROR_TYPE;
+		Code = ICMP_ERROR_CODE;
+		payload = Received_SIP_Packet;
+	}
+)
+
+FEM_icmp6_destination_unreachable_exth(
+	ICMPErrorFromUA12,
+	EH_TNtoNUT,
+	{
+		SourceAddress		= PSEUDO_UA12;
+		DestinationAddress	= NUT_ADDR;
+	},
+	{
+		header = _HDR_IPV6_NAME(ICMPErrorFromUA12);
+		upper = _ICMPV6_NAME(ICMPErrorFromUA12);
+	},
+	{
+		Type = ICMP_ERROR_TYPE;
+		Code = ICMP_ERROR_CODE;
+		payload = Received_SIP_Packet;
+	}
+)
+
+Payload Received_SIP_Packet {
+	data = right(_PACKET_IPV6_NAME(ReceivedSIP), 0);
+//	data = substr(_PACKET_IPV6_NAME(ReceivedSIP), 0, 64);
+//	data = hexstr(SIP_PAYLOAD_DATA,SIP_PAYLOAD_LENGTH);
+//	data = ascii(SIP_PAYLOAD_DATA,SIP_PAYLOAD_LENGTH);
+}
+// Received SIP message Remake
+FEM_udp6_sip(
+	ReceivedSIP,
+	EH_NUTtoTN,
+	{
+		Version			= V6HD_VERSION;
+		TrafficClass		= SIP_RECVED_TRAFFICCLASS;
+		FlowLabel		= SIP_RECVED_FLOWLABEL;
+		PayloadLength		= SIP_RECVED_PAYLOADLENGTH;
+		NextHeader		= SIP_RECVED_NEXTHEADER;
+		HopLimit		= SIP_RECVED_HOPLIMIT;
+		SourceAddress		= SIP_RECVED_SRC_ADDR;
+		DestinationAddress	= SIP_RECVED_DST_ADDR;
+	},
+	{
+		SourcePort		= SIP_RECVED_SRC_PORT;
+		DestinationPort		= SIP_RECVED_DST_PORT;
+	},
+	{
+		message			= SIP_MSG;
+	}
+)
+
+
+//----------------------------------------------------------------------
+//
+// SIP  (for send packet)
+//
+//----------------------------------------------------------------------
+FEM_udp6_sip(
+	SIPfromPX1,
+	EH_TNtoNUT,
+	{
+		Version			= V6HD_VERSION;
+		TrafficClass		= V6HD_TRAFFICCLASS;
+		FlowLabel		= V6HD_FLOWLABEL;
+		PayloadLength		= V6HD_PAYLOADLENGTH;
+		NextHeader		= V6HD_NEXTHEADER;
+		HopLimit		= V6HD_HOPLIMIT;
+		SourceAddress		= PSEUDO_PX1;
+		DestinationAddress	= NUT_ADDR;
+	},
+	{
+		SourcePort		= SIP_UDP_SRC_PORT;
+		DestinationPort		= SIP_UDP_DST_PORT;
+	},
+	{
+		message			= SIP_MSG;
+	}
+)
+FEM_udp6_sip(
+	SIPfromPX2,
+	EH_TNtoNUT,
+	{
+		Version			= V6HD_VERSION;
+		TrafficClass		= V6HD_TRAFFICCLASS;
+		FlowLabel		= V6HD_FLOWLABEL;
+		PayloadLength		= V6HD_PAYLOADLENGTH;
+		NextHeader		= V6HD_NEXTHEADER;
+		HopLimit		= V6HD_HOPLIMIT;
+		SourceAddress		= PSEUDO_PX2;
+		DestinationAddress	= NUT_ADDR;
+	},
+	{
+		SourcePort		= SIP_UDP_SRC_PORT;
+		DestinationPort		= SIP_UDP_DST_PORT;
+	},
+	{
+		message			= SIP_MSG;
+	}
+)
+FEM_udp6_sip(
+	SIPfromREG,
+	EH_TNtoNUT,
+	{
+		Version			= V6HD_VERSION;
+		TrafficClass		= V6HD_TRAFFICCLASS;
+		FlowLabel		= V6HD_FLOWLABEL;
+		PayloadLength		= V6HD_PAYLOADLENGTH;
+		NextHeader		= V6HD_NEXTHEADER;
+		HopLimit		= V6HD_HOPLIMIT;
+		SourceAddress		= PSEUDO_REG;
+		DestinationAddress	= NUT_ADDR;
+	},
+	{
+		SourcePort		= SIP_UDP_SRC_PORT;
+		DestinationPort		= SIP_UDP_DST_PORT;
+	},
+	{
+		message			= SIP_MSG;
+	}
+)
+FEM_udp6_sip(
+	SIPfromUA11,
+	EH_TNtoNUT,
+	{
+		Version			= V6HD_VERSION;
+		TrafficClass		= V6HD_TRAFFICCLASS;
+		FlowLabel		= V6HD_FLOWLABEL;
+		PayloadLength		= V6HD_PAYLOADLENGTH;
+		NextHeader		= V6HD_NEXTHEADER;
+		HopLimit		= V6HD_HOPLIMIT;
+		SourceAddress		= PSEUDO_UA11;
+		DestinationAddress	= NUT_ADDR;
+	},
+	{
+		SourcePort		= SIP_UDP_SRC_PORT;
+		DestinationPort		= SIP_UDP_DST_PORT;
+	},
+	{
+		message			= SIP_MSG;
+	}
+)
+FEM_udp6_sip(
+	SIPfromUA12,
+	EH_TNtoNUT,
+	{
+		Version			= V6HD_VERSION;
+		TrafficClass		= V6HD_TRAFFICCLASS;
+		FlowLabel		= V6HD_FLOWLABEL;
+		PayloadLength		= V6HD_PAYLOADLENGTH;
+		NextHeader		= V6HD_NEXTHEADER;
+		HopLimit		= V6HD_HOPLIMIT;
+		SourceAddress		= PSEUDO_UA12;
+		DestinationAddress	= NUT_ADDR;
+	},
+	{
+		SourcePort		= SIP_UDP_SRC_PORT;
+		DestinationPort		= SIP_UDP_DST_PORT;
+	},
+	{
+		message			= SIP_MSG;
+	}
+)
+FEM_udp6_sip(
+	SIPfromUA13,
+	EH_TNtoNUT,
+	{
+		Version			= V6HD_VERSION;
+		TrafficClass		= V6HD_TRAFFICCLASS;
+		FlowLabel		= V6HD_FLOWLABEL;
+		PayloadLength		= V6HD_PAYLOADLENGTH;
+		NextHeader		= V6HD_NEXTHEADER;
+		HopLimit		= V6HD_HOPLIMIT;
+		SourceAddress		= PSEUDO_UA13;
+		DestinationAddress	= NUT_ADDR;
+	},
+	{
+		SourcePort		= SIP_UDP_SRC_PORT;
+		DestinationPort		= SIP_UDP_DST_PORT;
+	},
+	{
+		message			= SIP_MSG;
+	}
+)
+FEM_udp6_sip(
+	SIPfromUA14,
+	EH_TNtoNUT,
+	{
+		Version			= V6HD_VERSION;
+		TrafficClass		= V6HD_TRAFFICCLASS;
+		FlowLabel		= V6HD_FLOWLABEL;
+		PayloadLength		= V6HD_PAYLOADLENGTH;
+		NextHeader		= V6HD_NEXTHEADER;
+		HopLimit		= V6HD_HOPLIMIT;
+		SourceAddress		= PSEUDO_UA14;
+		DestinationAddress	= NUT_ADDR;
+	},
+	{
+		SourcePort		= SIP_UDP_SRC_PORT;
+		DestinationPort		= SIP_UDP_DST_PORT;
+	},
+	{
+		message			= SIP_MSG;
+	}
+)
+FEM_udp6_sip(
+	SIPfromUA21,
+	EH_TNtoNUT,
+	{
+		Version			= V6HD_VERSION;
+		TrafficClass		= V6HD_TRAFFICCLASS;
+		FlowLabel		= V6HD_FLOWLABEL;
+		PayloadLength		= V6HD_PAYLOADLENGTH;
+		NextHeader		= V6HD_NEXTHEADER;
+		HopLimit		= V6HD_HOPLIMIT;
+		SourceAddress		= PSEUDO_UA21;
+		DestinationAddress	= NUT_ADDR;
+	},
+	{
+		SourcePort		= SIP_UDP_SRC_PORT;
+		DestinationPort		= SIP_UDP_DST_PORT;
+	},
+	{
+		message			= SIP_MSG;
+	}
+)
+
+//----------------------------------------------------------------------
+//
+// SIP  (for receive packet)
+//
+//----------------------------------------------------------------------
+FEM_udp6_sip(
+	SIPtoPX1,
+	EH_NUTtoTN,
+	{
+		Version			= V6HD_VERSION;
+		TrafficClass		= V6HD_TRAFFICCLASS;
+		FlowLabel		= V6HD_FLOWLABEL;
+		PayloadLength		= V6HD_PAYLOADLENGTH;
+		NextHeader		= V6HD_NEXTHEADER;
+		HopLimit		= any;
+		SourceAddress		= NUT_ADDR;
+		DestinationAddress	= PSEUDO_PX1;
+	},
+	{
+		SourcePort		= any;
+		DestinationPort		= SIP_UDP_SRC_PORT;
+	},
+	{
+		message			= any;
+	}
+)
+FEM_udp6_sip(
+	SIPtoPX2,
+	EH_NUTtoTN,
+	{
+		Version			= V6HD_VERSION;
+		TrafficClass		= V6HD_TRAFFICCLASS;
+		FlowLabel		= V6HD_FLOWLABEL;
+		PayloadLength		= V6HD_PAYLOADLENGTH;
+		NextHeader		= V6HD_NEXTHEADER;
+		HopLimit		= any;
+		SourceAddress		= NUT_ADDR;
+		DestinationAddress	= PSEUDO_PX2;
+	},
+	{
+		SourcePort		= any;
+		DestinationPort		= SIP_UDP_SRC_PORT;
+	},
+	{
+		message			= any;
+	}
+)
+FEM_udp6_sip(
+	SIPtoREG,
+	EH_NUTtoTN,
+	{
+		Version			= V6HD_VERSION;
+		TrafficClass		= V6HD_TRAFFICCLASS;
+		FlowLabel		= V6HD_FLOWLABEL;
+		PayloadLength		= V6HD_PAYLOADLENGTH;
+		NextHeader		= V6HD_NEXTHEADER;
+		HopLimit		= any;
+		SourceAddress		= NUT_ADDR;
+		DestinationAddress	= PSEUDO_REG;
+	},
+	{
+		SourcePort		= any;
+		DestinationPort		= SIP_UDP_SRC_PORT;
+	},
+	{
+		message			= any;
+	}
+)
+FEM_udp6_sip(
+	SIPtoUA11,
+	EH_NUTtoTN,
+	{
+		Version			= V6HD_VERSION;
+		TrafficClass		= V6HD_TRAFFICCLASS;
+		FlowLabel		= V6HD_FLOWLABEL;
+		PayloadLength		= V6HD_PAYLOADLENGTH;
+		NextHeader		= V6HD_NEXTHEADER;
+		HopLimit		= any;
+		SourceAddress		= NUT_ADDR;
+		DestinationAddress	= PSEUDO_UA11;
+	},
+	{
+		SourcePort		= any;
+		DestinationPort		= SIP_UDP_SRC_PORT;
+	},
+	{
+		message			= any;
+	}
+)
+FEM_udp6_sip(
+	SIPtoUA12,
+	EH_NUTtoTN,
+	{
+		Version			= V6HD_VERSION;
+		TrafficClass		= V6HD_TRAFFICCLASS;
+		FlowLabel		= V6HD_FLOWLABEL;
+		PayloadLength		= V6HD_PAYLOADLENGTH;
+		NextHeader		= V6HD_NEXTHEADER;
+		HopLimit		= any;
+		SourceAddress		= NUT_ADDR;
+		DestinationAddress	= PSEUDO_UA12;
+	},
+	{
+		SourcePort		= any;
+		DestinationPort		= SIP_UDP_SRC_PORT;
+	},
+	{
+		message			= any;
+	}
+)
+FEM_udp6_sip(
+	SIPtoUA13,
+	EH_NUTtoTN,
+	{
+		Version			= V6HD_VERSION;
+		TrafficClass		= V6HD_TRAFFICCLASS;
+		FlowLabel		= V6HD_FLOWLABEL;
+		PayloadLength		= V6HD_PAYLOADLENGTH;
+		NextHeader		= V6HD_NEXTHEADER;
+		HopLimit		= any;
+		SourceAddress		= NUT_ADDR;
+		DestinationAddress	= PSEUDO_UA13;
+	},
+	{
+		SourcePort		= any;
+		DestinationPort		= SIP_UDP_SRC_PORT;
+	},
+	{
+		message			= any;
+	}
+)
+FEM_udp6_sip(
+	SIPtoUA14,
+	EH_NUTtoTN,
+	{
+		Version			= V6HD_VERSION;
+		TrafficClass		= V6HD_TRAFFICCLASS;
+		FlowLabel		= V6HD_FLOWLABEL;
+		PayloadLength		= V6HD_PAYLOADLENGTH;
+		NextHeader		= V6HD_NEXTHEADER;
+		HopLimit		= any;
+		SourceAddress		= NUT_ADDR;
+		DestinationAddress	= PSEUDO_UA14;
+	},
+	{
+		SourcePort		= any;
+		DestinationPort		= SIP_UDP_SRC_PORT;
+	},
+	{
+		message			= any;
+	}
+)
+FEM_udp6_sip(
+	SIPtoUA21,
+	EH_NUTtoTN,
+	{
+		Version			= V6HD_VERSION;
+		TrafficClass		= V6HD_TRAFFICCLASS;
+		FlowLabel		= V6HD_FLOWLABEL;
+		PayloadLength		= V6HD_PAYLOADLENGTH;
+		NextHeader		= V6HD_NEXTHEADER;
+		HopLimit		= any;
+		SourceAddress		= NUT_ADDR;
+		DestinationAddress	= PSEUDO_UA21;
+	},
+	{
+		SourcePort		= any;
+		DestinationPort		= SIP_UDP_SRC_PORT;
+	},
+	{
+		message			= any;
+	}
+)
+FEM_udp6_sip(
+	SIPany,
+	EH_NUTtoTN,
+	{
+		Version			= V6HD_VERSION;
+		TrafficClass		= V6HD_TRAFFICCLASS;
+		FlowLabel		= V6HD_FLOWLABEL;
+		PayloadLength		= V6HD_PAYLOADLENGTH;
+		NextHeader		= V6HD_NEXTHEADER;
+		HopLimit		= any;
+		SourceAddress		= any;
+		DestinationAddress	= any;
+	},
+	{
+		SourcePort		= any;
+		DestinationPort		= SIP_UDP_SRC_PORT;
+	},
+	{
+		message			= any;
+	}
+)
+_HETHER_define(EH_Any,		any,	any)
+FEM_udp6_sip(
+	SIPtoAny,
+	EH_Any,
+	{
+		Version		= V6HD_VERSION;
+		TrafficClass		= V6HD_TRAFFICCLASS;
+		FlowLabel		= V6HD_FLOWLABEL;
+		PayloadLength		= V6HD_PAYLOADLENGTH;
+		NextHeader		= V6HD_NEXTHEADER;
+		HopLimit		= any;
+		SourceAddress		= any;
+		DestinationAddress	= any;
+	},
+	{
+		SourcePort		= any;
+		DestinationPort	= any;
+	},
+	{
+		message		= any;
+	}
+)
+
+// -----------------------------------------------------------
+//  DNS for UA request
+// -----------------------------------------------------------
+//
+// DNS query (question)
+//
+FEM_udp6_dns(
+	SIPtoDNS,
+	EH_NUTtoTN,
+	{
+		Version			= V6HD_VERSION;
+		TrafficClass		= V6HD_TRAFFICCLASS;
+		FlowLabel		= V6HD_FLOWLABEL;
+		PayloadLength		= V6HD_PAYLOADLENGTH;
+		NextHeader		= V6HD_NEXTHEADER;
+		HopLimit		= any;
+		SourceAddress		= NUT_ADDR;
+		DestinationAddress	= PSEUDO_DNS;
+	},
+	{
+		SourcePort		= any;
+		DestinationPort		= DNS_UDP_SRC_PORT;
+	},
+	{
+		Identifier 		= any;
+		QR 			= 0;
+		RD 			= any;
+		question 		= any;
+	}
+)
+
+// DNS query (SRV)
+FEM_udp6_dns(
+	SIPtoDNS_SRV,
+	EH_TNtoNUT,
+	{
+		Version			= V6HD_VERSION;
+		TrafficClass		= V6HD_TRAFFICCLASS;
+		FlowLabel		= V6HD_FLOWLABEL;
+		PayloadLength		= V6HD_PAYLOADLENGTH;
+		NextHeader		= V6HD_NEXTHEADER;
+		HopLimit		= V6HD_HOPLIMIT;
+		SourceAddress		= PSEUDO_DNS;
+		DestinationAddress	= NUT_ADDR;
+	},
+	{
+		SourcePort		= DNS_UDP_SRC_PORT;
+		DestinationPort		= DNS_UDP_DST_PORT;
+	},
+	{
+		Identifier 		= DNS_TRANSACTION_ID;
+		QR                      = 0;
+		RD                      = 1;
+		RA                      = 0;
+		question                = DNS_QUESTION_SRV;
+	}
+)
+DNS_Question DNS_QUESTION_SRV {
+	entry = QUESTION_ENTRY_SRV;
+}
+DNS_QuestionEntry QUESTION_ENTRY_SRV{
+		Name 			= dnsname(SRV_FQDN1);
+		Type 			= SRV_TYPE1;
+		Class 			= SRV_CLASS1;
+}
+
+//
+// DNS query (answer x1)
+//
+FEM_udp6_dns(
+	SIPfromDNS_AAAA1,
+	EH_TNtoNUT,
+	{
+		Version			= V6HD_VERSION;
+		TrafficClass		= V6HD_TRAFFICCLASS;
+		FlowLabel		= V6HD_FLOWLABEL;
+		PayloadLength		= V6HD_PAYLOADLENGTH;
+		NextHeader		= V6HD_NEXTHEADER;
+		HopLimit		= V6HD_HOPLIMIT;
+		SourceAddress		= PSEUDO_DNS;
+		DestinationAddress	= NUT_ADDR;
+	},
+	{
+		SourcePort		= DNS_UDP_SRC_PORT;
+		DestinationPort		= DNS_UDP_DST_PORT;
+	},
+	{
+		Identifier              = DNS_TRANSACTION_ID;
+		QR                      = 1;
+		RD                      = 1;
+		RA                      = 1;
+		question                = DNS_QUESTION_AAAA;
+		answer                  = DNS_ANSWER_AAAA1;
+	}
+)
+//
+// DNS query (answer x2)
+//
+FEM_udp6_dns(
+	SIPfromDNS_AAAA2,
+	EH_TNtoNUT,
+	{
+		Version			= V6HD_VERSION;
+		TrafficClass		= V6HD_TRAFFICCLASS;
+		FlowLabel		= V6HD_FLOWLABEL;
+		PayloadLength		= V6HD_PAYLOADLENGTH;
+		NextHeader		= V6HD_NEXTHEADER;
+		HopLimit		= V6HD_HOPLIMIT;
+		SourceAddress		= PSEUDO_DNS;
+		DestinationAddress	= NUT_ADDR;
+	},
+	{
+		SourcePort		= DNS_UDP_SRC_PORT;
+		DestinationPort		= DNS_UDP_DST_PORT;
+	},
+	{
+		Identifier              = DNS_TRANSACTION_ID;
+		QR                      = 1;
+		RD                      = 1;
+		RA                      = 1;
+		question                = DNS_QUESTION_AAAA;
+		answer                  = DNS_ANSWER_AAAA2;
+	}
+)
+FEM_udp6_dns(
+	SIPfromDNS_NONE,
+	EH_TNtoNUT,
+	{
+		Version			= V6HD_VERSION;
+		TrafficClass		= V6HD_TRAFFICCLASS;
+		FlowLabel		= V6HD_FLOWLABEL;
+		PayloadLength		= V6HD_PAYLOADLENGTH;
+		NextHeader		= V6HD_NEXTHEADER;
+		HopLimit		= V6HD_HOPLIMIT;
+		SourceAddress		= PSEUDO_DNS;
+		DestinationAddress	= NUT_ADDR;
+	},
+	{
+		SourcePort		= DNS_UDP_SRC_PORT;
+		DestinationPort		= DNS_UDP_DST_PORT;
+	},
+	{
+		Identifier              = DNS_TRANSACTION_ID;
+		QR                      = 1;
+//		AA                      = 1;
+		RD                      = 1;
+		RA                      = 1;
+		RCode			= 3;
+		question                = DNS_QUESTION_AAAA;
+	}
+)
+FEM_udp6_dns(
+	SIPfromDNS_TEST,
+	EH_TNtoNUT,
+	{
+		Version			= V6HD_VERSION;
+		TrafficClass		= V6HD_TRAFFICCLASS;
+		FlowLabel		= V6HD_FLOWLABEL;
+		PayloadLength		= V6HD_PAYLOADLENGTH;
+		NextHeader		= V6HD_NEXTHEADER;
+		HopLimit		= V6HD_HOPLIMIT;
+		SourceAddress		= PSEUDO_DNS;
+		DestinationAddress	= NUT_ADDR;
+	},
+	{
+		SourcePort		= DNS_UDP_SRC_PORT;
+		DestinationPort		= DNS_UDP_DST_PORT;
+	},
+	{
+		Identifier              = DNS_TRANSACTION_ID;
+		QR                      = 0;
+		RD                      = 1;
+		RA                      = 0;
+		RCode			= 0;
+		question                = DNS_QUESTION_AAAA;
+	}
+)
+
+DNS_Question DNS_QUESTION_AAAA {
+	entry = QUESTION_ENTRY_AAAA;
+}
+DNS_QuestionEntry QUESTION_ENTRY_AAAA{
+		Name 			= dnsname(AAAA_FQDN1);
+		Type 			= AAAA_TYPE1;
+		Class 			= AAAA_CLASS1;
+}
+DNS_Answer DNS_ANSWER_AAAA1 {
+		rr 			= RR_AAAA1;
+}
+DNS_Answer DNS_ANSWER_AAAA2 {
+		rr 			= RR_AAAA1;
+		rr 			= RR_AAAA2;
+}
+DNS_RR_AAAA RR_AAAA1 {
+		Name 			= dnsname(AAAA_FQDN1);
+		TTL 			= DND_TTL;
+		Address 		= v6(AAAA_IP6ADDR1);
+}
+DNS_RR_AAAA RR_AAAA2 {
+		Name 			= dnsname(AAAA_FQDN1);
+		TTL 			= DND_TTL;
+		Address 		= v6(AAAA_IP6ADDR2);
+}
+
+// -----------------------------------------------------------
+//  DNS for SRV request
+// -----------------------------------------------------------
+FEM_udp6_dns(
+	SIPfromDNS_SRV,
+	EH_TNtoNUT,
+	{
+		Version			= V6HD_VERSION;
+		TrafficClass		= V6HD_TRAFFICCLASS;
+		FlowLabel		= V6HD_FLOWLABEL;
+		PayloadLength		= V6HD_PAYLOADLENGTH;
+		NextHeader		= V6HD_NEXTHEADER;
+		HopLimit		= V6HD_HOPLIMIT;
+		SourceAddress		= PSEUDO_DNS;
+		DestinationAddress	= NUT_ADDR;
+	},
+	{
+		SourcePort		= DNS_UDP_SRC_PORT;
+		DestinationPort		= DNS_UDP_DST_PORT;
+	},
+	{
+		Identifier              = DNS_TRANSACTION_ID;
+		QR                      = 1;
+		RD                      = 1;
+		RA                      = 1;
+		question                = DNS_QUESTION_AAAA;
+		answer                  = DNS_ANSWER_SRV;
+	}
+)
+
+DNS_Answer DNS_ANSWER_SRV {
+		rr 			= RR_SRV;
+//		rr 			= RR_NS;
+//		rr 			= RR_AAAA;
+}
+DNS_RR_SRV RR_SRV {
+		Name 			= dnsname(AAAA_FQDN1);
+		TTL 			= DND_TTL;
+	        Priority                = 0;
+	        Weight                  = 1;
+	        Port                    = SRV_PORT;
+	        Target                  = dnsname(DNS_TARGETNAME);
+}
+DNS_RR_NS RR_NS {
+		Name 			= dnsname(DNS_TARGETNAME);
+		TTL 			= DND_TTL;
+	        NSDName                 = dnsname(DNS_TARGETNAME);
+}

@@ -1,0 +1,170 @@
+# Copyright(C) IPv6 Promotion Council (2004,2005). All Rights Reserved.
+# 
+# This documentation is produced by SIP SWG members of Certification WG in 
+# IPv6 Promotion Council.
+# The SWG members currently include NIPPON TELEGRAPH AND TELEPHONE CORPORATION (NTT), 
+# Yokogawa Electric Corporation and NTT Advanced Technology Corporation (NTT-AT).
+# 
+# 
+# Redistribution and use of this software in source and binary forms, with 
+# or without modification, are permitted provided that the following 
+# conditions and disclaimer are agreed and accepted by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright 
+# notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright 
+# notice, this list of conditions and the following disclaimer in the 
+# documentation and/or other materials provided with the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project which 
+# is related to this software (hereinafter referred to as "project") nor 
+# the names of the contributors may be used to endorse or promote products 
+# derived from this software without specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written 
+# notification to the copyrighters. However, using this software for the 
+# purpose of testing or evaluating any products including merchantable 
+# products may be permitted without any notification to the copyrighters.
+# 
+# 
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND 
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING 
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS 
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE 
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+# CONTRACT,STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF 
+# THE POSSIBILITY OF SUCH DAMAGE.
+
+# '$Name:  $'
+#
+#seq:def:opt:htmldoc:dsc:links
+#
+
+#&print:<b>Basic : Session Establishment on One Proxy</b>
+./PX/sess_one/PX-1-1-1.seq:./SIP.def:::[PX-1-1-1] SIP Proxy- Session Establishment Through One Proxy in the same domain
+./PX/sess_one/PX-1-1-2.seq:./SIP.def:::[PX-1-1-2] SIP Proxy- Unsuccessful No Answer [CANCEL]
+./PX/sess_one/PX-1-1-3.seq:./SIP.def:::[PX-1-1-3] SIP Proxy- Session establishment and holding with re-INVITEo
+./PX/sess_one/PX-1-2-1.seq:./SIP.def:::[PX-1-2-1] SIP Proxy- Unsuccessful Busy
+./PX/sess_one/PX-1-2-2.seq:./SIP.def:::[PX-1-2-2] SIP Proxy- Unsuccessful No Response from User Agent
+./PX/sess_one/PX-1-2-3.seq:./SIP.def:::[PX-1-2-3] SIP Proxy- Unsuccessful Temporarily Unavailable
+
+#&print:<b>Basic : Routing</b>
+./PX/forward/FW-1-1-1.seq:./SIP.def:::[FW-1-1-1] SIP Proxy- Request-URI with escaped characters
+./PX/forward/FW-1-1-2.seq:./SIP.def:::[FW-1-1-2] SIP Proxy- Non-allowed parameters in Request-URI
+./PX/forward/FW-1-2-1.seq:./SIP.def:::[FW-1-2-1] SIP Proxy- Request-URI with an unknown scheme
+# No.10
+./PX/forward/FW-1-2-2.seq:./SIP.def:::[FW-1-2-2] SIP Proxy- Request with an inexistent entity at the proxy
+./PX/forward/FW-1-2-3.seq:./SIP.def:::[FW-1-2-3] SIP Proxy- An unsupported option-tag in a Proxy-Require
+./PX/forward/FW-1-2-4.seq:./SIP.def:::[FW-1-2-4] SIP Proxy- Max-Forwards header field with a value of zero(0)
+./PX/forward/FW-1-2-5.seq:./SIP.def:::[FW-1-2-5] SIP Proxy- Request without Max-Forwards header field
+./PX/forward/FW-1-2-6.seq:./SIP.def:::[FW-1-2-6] SIP Proxy- Timestamp header field in a 100 response
+./PX/forward/FW-2-1-1.seq:./SIP.def:::[FW-2-1-1] SIP Proxy- "sent-by" in Via with a domain name and a port
+./PX/forward/FW-2-1-2.seq:./SIP.def:::[FW-2-1-2] SIP Proxy- "sent-by" in Via with a domain name and without a port 
+./PX/forward/FW-2-2-1.seq:./SIP.def:::[FW-2-2-1] SIP Proxy- Receipt of 503 (Service Unavailable) response
+./PX/forward/FW-2-2-2.seq:./SIP.def:::[FW-2-2-2] SIP Proxy- Receipt of 503 (Service Unavailable) response without Retry-After header field
+./PX/forward/FW-4-1-1.seq:./SIP.def:::[FW-4-1-1] SIP Proxy- Unsuccessful No Answer with Proxy-Require header field [CANCEL]
+# No.20
+./PX/forward/FW-4-1-2.seq:./SIP.def:::[FW-4-1-2] SIP Proxy- Processing of CANCEL upon no provisional response
+
+#&print:<b>Basic : Forwarding Request</b>
+./PX/request/RQ-2-1-1.seq:./SIP.def:::[RQ-2-1-1] SIP Proxy- Future extension about new header field
+./PX/request/RQ-2-1-2.seq:./SIP.def:::[RQ-2-1-2] SIP Proxy- Request without a tag in From header field
+./PX/request/RQ-2-1-3.seq:./SIP.def:::[RQ-2-1-3] SIP Proxy- Response without a tag in the To header field
+./PX/request/RQ-2-1-4.seq:./SIP.def:::[RQ-2-1-4] SIP Proxy- Unrecognized type of body
+./PX/request/RQ-2-1-5.seq:./SIP.def:::[RQ-2-1-5] SIP Proxy- Unrecognized encoding of body
+./PX/request/RQ-2-1-6.seq:./SIP.def:::[RQ-2-1-6] SIP Proxy- Unrecognized language of body
+./PX/request/RQ-3-1-1.seq:./SIP.def:::[RQ-3-1-1] SIP Proxy- Receipt of BYE request with an unacceptable header field
+./PX/request/RQ-3-1-2.seq:./SIP.def:::[RQ-3-1-2] SIP Proxy- BYE request not matching an existing dialog
+./PX/response/RS-1-1-1.seq:./SIP.def:::[RS-1-1-1] SIP Proxy- Unrecognized response code (2xx)
+# No.30
+./PX/response/RS-1-1-2.seq:./SIP.def:::[RS-1-1-2] SIP Proxy- Unrecognized response code (4xx)
+./PX/response/RS-1-1-3.seq:./SIP.def:::[RS-1-1-3] SIP Proxy- Unrecognized response code (5xx)
+./PX/response/RS-1-1-4.seq:./SIP.def:::[RS-1-1-4] SIP Proxy- Unrecognized response code (6xx)
+./PX/response/RS-1-1-5.seq:./SIP.def:::[RS-1-1-5] SIP Proxy- Provisional response other than 100 response
+./PX/response/RS-1-1-6.seq:./SIP.def:::[RS-1-1-6] SIP Proxy- Receipt of 200 with an unacceptable header field
+
+#&print:<b>Basic : Transaction</b>
+./PX/transaction/TS-1-1-1.seq:./SIP.def:::[TS-1-1-1] SIP Proxy- INVITE Client Transaction (Stop of retransmission of INVITE request upon Timer B fired)
+./PX/transaction/TS-1-1-2.seq:./SIP.def:::[TS-1-1-2] SIP Proxy- INVITE Client Transaction (Stop of retransmission upon receipt of 180 response)
+./PX/transaction/TS-1-1-3.seq:./SIP.def:::[TS-1-1-3] SIP Proxy- INVITE Client Transaction (Stop of ACK request upon Timer D fired)
+./PX/transaction/TS-2-1-1.seq:./SIP.def:::[TS-2-1-1] SIP Proxy- Non-INVITE Client Transaction (Stop of retransmission of CANCEL request upon Timer F fired)
+./PX/transaction/TS-2-1-2.seq:./SIP.def:::[TS-2-1-2] SIP Proxy- Non-INVITE Client Transaction (Stop of retransmission of BYE request and reset of Timer E with T2)
+# No.40
+./PX/transaction/TS-2-1-3.seq:./SIP.def:::[TS-2-1-3] SIP Proxy- Non-INVITE Client Transaction (Receipt of 100 response to CANCEL request and reset of Timer E with T2)
+./PX/transaction/TS-2-1-4.seq:./SIP.def:::[TS-2-1-4] SIP Proxy- Non-INVITE Client Transaction (Receipt of 100 response to BYE request and reset of Timer E with T2)
+./PX/transaction/TS-3-1-1.seq:./SIP.def:::[TS-3-1-1] SIP Proxy- INVITE Server Transaction (Response after Timer H fired)
+./PX/transaction/TS-3-1-2.seq:./SIP.def:::[TS-3-1-2] SIP Proxy- INVITE Server Transaction (Stop of retransmission after Timer H fired)
+./PX/transaction/TS-3-1-4.seq:./SIP.def:::[TS-3-1-4] SIP Proxy- INVITE Server Transaction (Stop of retransmission of 4xx-6xx response upon receipt of ACK request)
+./PX/transaction/TS-3-1-5.seq:./SIP.def:::[TS-3-1-5] SIP Proxy- 487 to CANCEL for INVITE request after 64*T1 fired
+./PX/transaction/TS-4-1-1.seq:./SIP.def:::[TS-4-1-1] SIP Proxy- Non-INVITE Server Transaction (Response for CANCEL after Timer J fired)
+./PX/transaction/TS-4-1-2.seq:./SIP.def:::[TS-4-1-2] SIP Proxy- Non-INVITE Server Transaction (Forwarding of BYE upon Timer J fired)
+./PX/transaction/TS-5-1-1.seq:./SIP.def:::[TS-5-1-1] SIP Proxy- Session Establishment Through One Proxy without Provisional Response in the same domain
+./PX/transaction/TS-5-1-2.seq:./SIP.def:::[TS-5-1-2] SIP Proxy- Session Establishment Through One Proxy with Multiple Provisional Response in the same domain
+# No.50
+./PX/transaction/TS-5-1-3.seq:./SIP.def:::[TS-5-1-3] SIP Proxy- Retransmission of INVITE request before Session Establishment Through One Proxy
+
+#&print:<b>Basic : Session Progress</b>
+./PX/progress/PG-1-1-1.seq:./SIP.def:::[PG-1-1-1] SIP Proxy- Session Progress response
+./PX/progress/PG-1-1-2.seq:./SIP.def:::[PG-1-1-2] SIP Proxy- INVITE Client Transaction (Extension of Timer C)
+./PX/progress/PG-1-2-1.seq:./SIP.def:::[PG-1-2-1] SIP Proxy- INVITE Client Transaction (Reset of Timer C)
+./PX/progress/PG-1-2-2.seq:./SIP.def:::[PG-1-2-2] SIP Proxy- INVITE Client Transaction (No provisional response after Timer C fired)
+
+#&print:<b>Basic : Transport</b>
+./PX/transport/TP-1-1-1.seq:./SIP.def:::[TP-1-1-1] SIP Proxy- Receiving INVITE with additional bytes in a transport packet
+./PX/transport/TP-1-2-1.seq:./SIP.def:::[TP-1-2-1] SIP Proxy- Transport packet of response ending before the end of the message body
+./PX/transport/TP-1-2-2.seq:./SIP.def:::[TP-1-2-2] SIP Proxy- Transport packet of request ending before the end of the message body
+./PX/transport/TP-2-1-1.seq:./SIP.def:::[TP-2-1-1] SIP Proxy- Receipt of "ICMP time exceeded" for a sent request
+./PX/transport/TP-2-1-2.seq:./SIP.def:::[TP-2-1-2] SIP Proxy- Receipt of "ICMP time exceeded" for a sent response
+# No.60
+./PX/transport/TP-2-2-1.seq:./SIP.def:::[TP-2-2-1] SIP Proxy- Receipt of "ICMP destination unreachable" message for a sent request
+
+#&print:<b>Advance : Authentication</b>
+./PX/auth/AU-1-1-1.seq:./SIP.def:::[AU-1-1-1] SIP Proxy- BYE request with user authentication
+./PX/auth/AU-1-1-2.seq:./SIP.def:::[AU-1-1-2] SIP Proxy- re-INVITE request with user authentication
+
+#&print:<b>Advance : Forking</b>
+./PX/fork/FK-1-1-1.seq:./SIP.def:::[FK-1-1-1] SIP Proxy- Forked request with different Via branch parameters
+./PX/fork/FK-1-1-2.seq:./SIP.def:::[FK-1-1-2] SIP Proxy- Choice of response to forked request (6xx response)
+./PX/fork/FK-1-1-3.seq:./SIP.def:::[FK-1-1-3] SIP Proxy- Choice of response to forked request (The lowest response class)
+./PX/fork/FK-1-1-4.seq:./SIP.def:::[FK-1-1-4] SIP Proxy- Statefull proxy receiving a CANCEL request
+./PX/fork/FK-1-1-5.seq:./SIP.def:::[FK-1-1-5] SIP Proxy- Forked request 
+
+#&print:<b>Advance : Routing</b>
+./PX/forward/FW-2-2-3.seq:./SIP.def:::[FW-2-2-3] SIP Proxy- Forwarding of INVITE request to an alternate server upon receipt of 503 response
+
+#&print:<b>Advance : Forwarding Request</b>
+./PX/request/RQ-1-1-1.seq:./SIP.def:::[RQ-1-1-1] SIP Proxy- Receipt of OPTIONS request from User Agent Client
+# No.70
+./PX/request/RQ-1-1-2.seq:./SIP.def:::[RQ-1-1-2] SIP Proxy- Receipt of OPTIONS request when a User Agent Server is ready to accept a call
+
+#&print:<b>Advance : Registration</b>
+./PX/request/RQ-4-1-2.seq:./SIP.def:::[RQ-4-1-2] SIP Registrar- Forwarding REGISTER request
+
+#&print:<b>Advance : Session Establishment on Two Proxies</b>
+./PX/sess_two/PX-2-1-1.seq:./SIP.def:::[PX-2-1-1] SIP Proxy- Session Establishment Through Two Proxies - Callee hanging up [another domain](Caller)
+./PX/sess_two/PX-2-1-2.seq:./SIP.def:::[PX-2-1-2] SIP Proxy- Session Establishment Through Two Proxies - Callee hanging up [another domain](Callee)
+./PX/sess_two/PX-2-1-3.seq:./SIP.def:::[PX-2-1-3] SIP Proxy- Unsuccessful No Answer [CANCEL] (Caller)
+./PX/sess_two/PX-2-1-4.seq:./SIP.def:::[PX-2-1-4] SIP Proxy- Unsuccessful No Answer [CANCEL] (Callee)
+./PX/sess_two/PX-2-1-5.seq:./SIP.def:::[PX-2-1-5] SIP Proxy- Session establishment and call hold by re-INVITE (Caller)
+./PX/sess_two/PX-2-1-6.seq:./SIP.def:::[PX-2-1-6] SIP Proxy- Session establishment and call hold by re-INVITE (Callee)
+./PX/sess_two/PX-2-2-1.seq:./SIP.def:::[PX-2-2-1] SIP Proxy- Unsuccessful Busy (Caller)
+./PX/sess_two/PX-2-2-2.seq:./SIP.def:::[PX-2-2-2] SIP Proxy- Unsuccessful Busy (Callee)
+# No.80
+./PX/sess_two/PX-2-2-3.seq:./SIP.def:::[PX-2-2-3] SIP Proxy- Unsuccessful No Response from the User Agent through the other proxy
+./PX/sess_two/PX-2-2-4.seq:./SIP.def:::[PX-2-2-4] SIP Proxy- Unsuccessful No Response from User Agent (Callee)
+./PX/sess_two/PX-2-2-5.seq:./SIP.def:::[PX-2-2-5] SIP Proxy- Unsuccessful Temporarily Unavailable (Callee)
+
+#&print:<b>Advance : Routing</b>
+./PX/forward/FW-2-2-4.seq:./SIP.def:::[FW-2-2-4] SIP Proxy- Forwarding INVITE request to an alternate server upon receipt of 503 response
+./PX/forward/FW-3-1-1.seq:./SIP.def:::[FW-3-1-1] SIP Proxy- Session Establishment Through Two Proxies with a strict router in separate domains (Callee)
+./PX/forward/FW-3-1-2.seq:./SIP.def:::[FW-3-1-2] SIP Proxy- Session Establishment Through Two Proxies with a strict router in separate domains (Caller)
+./PX/forward/FW-1-1-3.seq:./SIP.def:::[FW-1-1-3] SIP Proxy- Update of a Requrest-URI scheme
+./PX/forward/FW-2-1-3.seq:./SIP.def:::[FW-2-1-3] SIP Proxy- Multiple 2xx response
+

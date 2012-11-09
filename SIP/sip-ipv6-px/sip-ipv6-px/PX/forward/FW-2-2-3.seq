@@ -1,0 +1,355 @@
+#!/usr/bin/perl
+#
+# Copyright(C) IPv6 Promotion Council (2004,2005). All Rights Reserved.
+# 
+# This documentation is produced by SIP SWG members of Certification WG in 
+# IPv6 Promotion Council.
+# The SWG members currently include NIPPON TELEGRAPH AND TELEPHONE CORPORATION (NTT), 
+# Yokogawa Electric Corporation and NTT Advanced Technology Corporation (NTT-AT).
+# 
+# 
+# Redistribution and use of this software in source and binary forms, with 
+# or without modification, are permitted provided that the following 
+# conditions and disclaimer are agreed and accepted by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright 
+# notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright 
+# notice, this list of conditions and the following disclaimer in the 
+# documentation and/or other materials provided with the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project which 
+# is related to this software (hereinafter referred to as "project") nor 
+# the names of the contributors may be used to endorse or promote products 
+# derived from this software without specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written 
+# notification to the copyrighters. However, using this software for the 
+# purpose of testing or evaluating any products including merchantable 
+# products may be permitted without any notification to the copyrighters.
+# 
+# 
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND 
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING 
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS 
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE 
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+# CONTRACT,STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF 
+# THE POSSIBILITY OF SUCH DAMAGE.
+
+
+#--------------------------------------------------------------#
+# ENTRANCE
+#--------------------------------------------------------------#
+
+# Set the test version used for the display.
+BEGIN { $V6evalTool::TestVersion = '$Name:  $';}
+
+require SIP;
+
+#--------------------------------------------------------------#
+# INITIALIZATION
+#--------------------------------------------------------------#
+SIPScenarioModel('Server','UA-UA');
+SIPInitializeScenario('','SKIP');
+#PV(\@SIP_AAAA_RECORD);
+#PV($SIP_DNS_ANSWER_MODE);
+if(!$SIPLOGO){
+$SIP_DNS_ANSWER_MODE=AAAA2;
+}
+
+# AddAddress("$CNT_CONF{'PUA2-ADDRESS'}","$CNT_PUA2_HOSTNAME",'/etc/namedb/com.zone');
+AddAddress($CNT_CONF{'UA-ADDRESS3'},$CNT_CONF{'UA-CONTACT-HOSTNAME2'},'/etc/namedb/com.zone');
+print "OT1_addr = $CNT_CONF{'UA-ADDRESS3'}\n";
+print "OT1_name = $CNT_CONF{'UA-CONTACT-HOSTNAME2'}\n";
+
+system("rndc reload");
+
+
+#--------------------------------------------------------------#
+# SCENARIO Definition
+#--------------------------------------------------------------#
+
+# 
+sub SEQ_Proxy {
+    my($node,$func);
+    
+    $node=NDDefStart('UA12');
+
+	SIP_SetUp_Reg_Info('UA12', 'UA11');
+
+    # NUT
+    $func=sub {
+	my($result,$frame)=@_;
+
+	JudgeResult($result,"Receive INVITE","Can't receive INVITE");
+
+	# INVITE 
+	SIP_Judgment('SS.REQUEST.INVITE_FORWARDED.ONEPX.TM','','',['S.HEADER-ORDER.CHECK']);
+
+	# 503 
+	SD_Proxy_STATUS('','','ES.STATUS-503-RETURN.TM');
+
+	# 
+	return 'END';
+
+    };
+    NDReqAction($node,$func,"INVITE",'D.DIALOG-SETUP.CALLEE');
+
+    NDDefEnd($node);
+}
+
+sub SEQ_Proxy2 {
+    my($node,$func);
+
+    $node=NDDefStart('UA13','UA13','UA12');
+    $SIPNodeTbl{'UA13'}->{'CALL'} = $SIPNodeTbl{'UA12'}->{'CALL'};
+
+    # NUT
+    $func=sub {
+	my($result,$frame)=@_;
+
+	JudgeResult($result,"Receive INVITE","Can't receive INVITE");
+
+	# INVITE 
+	SIP_Judgment('SS.REQUEST.INVITE_FORWARDED.ONEPX.TM','','',['S.HEADER-ORDER.CHECK']);
+
+	# 503 
+	SD_Proxy_STATUS('','','ES.STATUS-486-RETURN.TM');
+
+	# 
+	return 'NEXT';
+
+    };
+    NDReqAction($node,$func,"INVITE",'D.DIALOG-SETUP.CALLEE');
+
+    $func=sub {
+	my($result,$frame)=@_;
+	
+	JudgeResult($result,"Receive ACK","Can't receive ACK");
+	
+	# ACK 
+	SIP_Judgment('SS.REQUEST.ACK-NO2XX.TM');
+	
+	return 'END';
+    };
+    NDReqAction($node,$func,"ACK");
+
+
+    NDDefEnd($node);
+
+}
+
+
+# 
+sub SEQ_UserAgent {
+    my($node,$func);
+    
+    # 
+    $node=NDDefStart("UA11");
+
+    SIP_SetUp_Reg_Info('UA11', 'UA12');
+ 
+    # UA
+    $func=sub {
+	my($result,$frame)=@_;
+
+	# UA
+	SD_Term_INVITE();
+
+	if(NDCFG('use_authorization') ne 'yes') {SEQ_Start('UA12');}
+
+	# 
+	return 'NEXT';
+    };
+    NDReqAction($node,$func,"START");
+
+    # 407 
+    $func=sub {
+	my($result,$frame)=@_;
+	
+	JudgeResult($result,"Receive 407","Can't receive 407");
+	
+	# 407 
+	SIP_Judgment('SS.STATUS.INVITE-407.TM');
+	
+	# ACK 
+	SD_Term_ACK_NO200();
+	
+	# AUTH
+	SD_Term_INVITEwithAuth();
+	
+	# 
+	SEQ_Start('UA12');
+	SEQ_Start('UA13');
+	
+	return 'NEXT';
+    };
+    # 
+    if(NDCFG('use_authorization') eq 'yes') {
+	NDStatusAction($node,$func,"407",['D.Proxy-Authenticate.NONCE','D.TO-TAG','D.Proxy-Authenticate.OPAQUE']);
+    }
+    
+    # Received 486
+    $func=sub {
+	my($result,$frame)=@_;
+	my($status);
+
+	JudgeResult($result,"Receive 486","Can't receive 486");
+
+	# 
+	$status=FV('RQ.Status-Line.code', '', $frame);
+
+	# 503
+	if($status =~ /^4/){
+	    # 486
+	    SIP_Judgment('SS.STATUS.INVITE-4XX.TM');
+	    SD_Term_ACK_NO200();
+
+	    # 
+	    return 'END';
+	}
+
+    };
+    NDStatusAction($node,$func,"^[4]",'D.DIALOG-SETUP.CALLER');
+
+    NDDefEnd($node);
+}
+
+SEQ_Proxy();
+SEQ_Proxy2();
+SEQ_UserAgent();
+SEQ_Start('UA11');
+
+#--------------------------------------------------------------#
+# SCENARIO Start
+#--------------------------------------------------------------#
+
+# Echo from Proxy
+#SQ_Proxy_Echo();
+
+SEQ_Run();
+
+#--------------------------------------------------------------#
+# Finish
+#--------------------------------------------------------------#
+
+SIPFinishScenario();
+
+END{
+#        DeleteAddress("$SIP_OTHER_AAAA","$CNT_PX1_HOSTNAME",'/etc/namedb/com.zone');
+	DeleteAddress($CNT_CONF{'UA-ADDRESS3'},$CNT_CONF{'UA-CONTACT-HOSTNAME2'},'/etc/namedb/com.zone');
+        system("rndc reload");
+}
+
+#######################################################################
+
+=head1 NAME
+
+=begin html
+ <A HREF="http://www.ipv6ready.org/">Please see SIP Conformance Test Profile (http://www.ipv6ready.org/)</A>
+
+=end html
+
+=head1 TARGET
+
+=begin html
+<pre>
+ SIP PX (NUT)
+</pre>
+
+=end html
+
+=head1 PARAMETER
+
+=begin html
+<blockquote>
+<table border>
+<tbody>
+
+</tbody>
+</table>
+</blockquote>
+
+=end html
+
+=head1 ADDRESS
+
+=begin html
+<blockquote>
+<table border>
+<tbody>
+
+</tbody>
+</table>
+</blockquote>
+
+=end html
+
+=head1 TOPOLOGY
+
+=begin html
+<pre>
+ 
+</pre>
+
+=end html
+
+=head1 CONFIGURATION for NUT
+
+=begin html
+<blockquote>
+<table border>
+<tbody>
+
+</tbody>
+</table>
+</blockquote>
+
+=end html
+
+=head1 INITIALIZATION
+
+=begin html
+<pre>
+ 
+</pre>
+
+=end html
+
+=head1 TEST PROCEDURE
+
+=begin html
+<pre>
+ 
+</pre>
+
+=end html
+
+=head1 JUDGEMENT
+
+=begin html
+<pre>
+ 
+</pre>
+
+=end html
+
+=head1 REFERENCE
+
+=begin html
+<pre>
+ 
+</pre>
+
+=end html
+
+=cut
+

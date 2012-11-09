@@ -1,0 +1,441 @@
+#!/usr/bin/perl
+#
+# Copyright(C) IPv6 Promotion Council (2004,2005). All Rights Reserved.
+# 
+# This documentation is produced by SIP SWG members of Certification WG in 
+# IPv6 Promotion Council.
+# The SWG members currently include NIPPON TELEGRAPH AND TELEPHONE CORPORATION (NTT), 
+# Yokogawa Electric Corporation and NTT Advanced Technology Corporation (NTT-AT).
+# 
+# 
+# Redistribution and use of this software in source and binary forms, with 
+# or without modification, are permitted provided that the following 
+# conditions and disclaimer are agreed and accepted by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright 
+# notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright 
+# notice, this list of conditions and the following disclaimer in the 
+# documentation and/or other materials provided with the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project which 
+# is related to this software (hereinafter referred to as "project") nor 
+# the names of the contributors may be used to endorse or promote products 
+# derived from this software without specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written 
+# notification to the copyrighters. However, using this software for the 
+# purpose of testing or evaluating any products including merchantable 
+# products may be permitted without any notification to the copyrighters.
+# 
+# 
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND 
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING 
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS 
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE 
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+# CONTRACT,STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF 
+# THE POSSIBILITY OF SUCH DAMAGE.
+
+
+#--------------------------------------------------------------#
+# ENTRANCE
+#--------------------------------------------------------------#
+
+# Set the test version used for the display.
+BEGIN { $V6evalTool::TestVersion = '$Name:  $';}
+
+require SIP;
+
+#--------------------------------------------------------------#
+# INITIALIZATION
+#--------------------------------------------------------------#
+SIPScenarioModel('Server','UA-UA');
+SIPInitializeScenario('','SKIP');
+
+#--------------------------------------------------------------#
+# SCENARIO Definition
+#--------------------------------------------------------------#
+
+# 
+sub SEQ_UserAgentCallee {
+    my($node,$func);
+    
+    $node=NDDefStart('UA12');
+
+    SIP_SetUp_Reg_Info('UA12', 'UA11');
+
+    # NUT
+    $func=sub {
+	my($result,$frame)=@_;
+	
+	JudgeResult($result,"Receive INVITE","Can't receive INVITE");
+	
+	# INVITE 
+	SIP_Judgment('SS.REQUEST.INVITE_FORWARDED.ONEPX.TM','','',['S.HEADER-ORDER.CHECK']);
+
+	# 180 
+	SD_Term_STATUS('180','INVITE','ES.STATUS.180.ONEPX.TM');
+
+	$msgSIP=$frame;
+	
+	# 
+	return 'NEXT';
+	
+    };
+    NDReqAction($node,$func,"INVITE",'D.DIALOG-SETUP.CALLEE');
+
+    $func=sub {
+	my($result,$frame)=@_;
+
+	if($result eq "timeout"){
+	    $result = "OK";
+	    JudgeResult($result,"Not Receive INVITE","No re-transport INVITE");
+	}
+	else{
+	    JudgeResult(!$result,"Not Receive INVITE","No re-transport INVITE");
+	}
+	# 200 
+	SD_Term_STATUS('200','INVITE','ES.STATUS.200-SDP-ANS.ONEPX.TM',$msgSIP);
+	
+	# 
+	return 'NEXT';
+	
+    };
+    NDReqAction($node,$func,"INVITE",'','',"1.5");
+
+    
+    # ACK 
+    $func=sub {
+	my($result,$frame)=@_;
+	
+	JudgeResult($result,"Receive ACK","Can't receive ACK");
+	
+	# ACK 
+	SIP_Judgment('SS.REQUEST.200-ACK_FORWARDED.ONEPX.TM','','',
+		     ['S.HEADER-ORDER.CHECK','S.CSEQ-SEQNO_ORIGINAL-SEQNO.local'],
+		     ['S.CSEQ-SEQNO_REQ-SEQNO']);
+	
+	# BYE 
+	SD_Term_BYE();
+	
+	# 
+	SEQ_Start('UA11');
+	
+	# 
+	return 'NEXT';
+    };
+    NDReqAction($node,$func,"ACK");
+    
+    
+    $func=sub {
+	my($result,$frame)=@_;
+	
+	JudgeResult($result,"Receive 200","Can't receive 200");
+	
+	# 200 
+	SIP_Judgment('SS.STATUS.BYE-200_FORWARDED.TM','','',['S.HEADER-ORDER.CHECK']);
+	
+	# 
+	return 'END';
+    };
+    NDStatusAction($node,$func,"200");
+    
+    NDDefEnd($node);
+}
+
+
+# 
+sub SEQ_UserAgentCaller {
+    my($node,$func);
+    my $count180=0;
+    
+    # 
+    $node=NDDefStart('UA11');
+
+    SIP_SetUp_Reg_Info('UA11', 'UA12');
+
+    RegistRuleSet([{ 'TY:' => 'SYNTAX', 'ID:' => 'S.CSEQ-SEQNO_ORIGINAL-SEQNO.local', 'CA:' => 'CSeq',
+		    'OK:'=>\\'The CSeq header field(%s) of the response MUST equal the CSeq field(%s) of the request.', 
+		    'NG:'=>\\'The CSeq header field(%s) of the response MUST equal the CSeq field(%s) of the request.', 
+		    'EX:' => \q{FFop('eq',FV('HD.CSeq.val.csno', @_ ) , FV('HD.CSeq.val.csno','', $msgSIP) , @_ )}},
+		  { 'TY:' => 'SYNTAX', 'ID:' => 'S.VIA_NOPX_SEND_EQUAL.local', 'CA:' => 'Via',
+		    'OK:' => \\'The Via header(%s) MUST equal that(%s) in the request(except received parameter of 1st Via).', 
+		    'NG:' => \\'The Via header(%s) MUST equal that(%s) in the request(except received parameter of 1st Via).', 
+		    'EX:' => \q{OpViaMachLines(\@CNT_NOPX_SEND_VIAS_local,1,@_)} }, 
+		  { 'TY:' => 'SYNTAX', 'ID:' => 'S.VIA-BRANCH_CURRENT-PUA-BRANCH-NOPX.local', 'CA:' => 'Via',
+		    'OK:' => \\'The Via branch value(%s) MUST equal the Via branch(%s) which Tester has sent last time.',
+		    'NG:' => \\'The Via branch value(%s) MUST equal the Via branch(%s) which Tester has sent last time.', 
+		    'EX:' =>\q{FFop('EQ',FVs('HD.Via.val.via.param.branch=',@_),[$CVA_PUA_BRANCH_HISTORY_local],@_)}}]);
+
+    # UA
+    $func=sub {
+	my($result,$frame)=@_;
+	
+	# INVITE 
+	SD_Term_INVITE();
+
+	if(NDCFG('use_authorization') ne 'yes') {SEQ_Start('UA12');}
+
+	# 
+	return 'NEXT';
+    };
+    NDReqAction($node,$func,"START");
+
+    # 407 
+    $func=sub {
+	my($result,$frame)=@_;
+	
+	JudgeResult($result,"Receive 407","Can't receive 407");
+	
+	# 407 
+	SIP_Judgment('SS.STATUS.INVITE-407.TM');
+	
+	# ACK 
+	SD_Term_ACK_NO200();
+	if(!CheckNo100('ACK')){
+	    LOG_Err("No send 100 Trying");
+	}
+	
+	# INVITE 
+	SD_Term_INVITEwithAuth();
+	$CVA_PUA_BRANCH_HISTORY_local = $CVA_PUA_BRANCH_HISTORY;
+	@CNT_NOPX_SEND_VIAS_local = @CNT_NOPX_SEND_VIAS;
+	
+	# 
+	SEQ_Start('UA12');
+	
+	return 'NEXT';
+    };
+    # 
+    if(NDCFG('use_authorization') eq 'yes') {
+	NDStatusAction($node,$func,"407",['D.Proxy-Authenticate.NONCE','D.TO-TAG','D.Proxy-Authenticate.OPAQUE']);
+    }
+
+    # 
+    $func=sub {
+	my($result,$frame)=@_;
+	my($status);
+
+	JudgeResult($result,"Receive 100 or 180","Can't receive 100 or 180");
+
+	# 
+	$status=FV('RQ.Status-Line.code', '', $frame);
+
+	# 100
+	if($status eq 100){
+	    # 100 
+	    SIP_Judgment('SS.STATUS.INVITE-100.TM');
+
+	    # 
+	    return 'CONTINUE';
+	}
+
+	# 180
+	if($status eq 180){
+	    # 180 
+	    SIP_Judgment('SS.STATUS.INVITE-180.TM','','',
+			 ['S.HEADER-ORDER.CHECK','S.CSEQ-SEQNO_SEND-SEQNO'],
+			 ['S.CSEQ-SEQNO_ORIGINAL-SEQNO']);
+
+	    if($count180 eq 0){
+		SD_Term_INVITEwithAuth();
+		$count180++;
+		# 
+		return 'CONTINUE';
+	    }
+	    else{
+		return 'NEXT';
+	    }
+
+	}
+	return 'CONTINUE';
+    };
+    NDStatusAction($node,$func,"^[1]",'D.DIALOG-SETUP.CALLER');
+
+    $func=sub {
+	my($result,$frame)=@_;
+	my($status);
+
+	JudgeResult($result,"Receive 200","Can't receive 200");
+
+	# 
+	$status=FV('RQ.Status-Line.code', '', $frame);
+
+	# 200
+	if($status eq 200){
+	    # 200 
+	    SIP_Judgment('SS.STATUS.INVITE-200.TM','','',
+			 ['S.HEADER-ORDER.CHECK','S.CSEQ-SEQNO_ORIGINAL-SEQNO.local',
+			  'S.VIA_NOPX_SEND_EQUAL.local',
+			  'S.VIA-BRANCH_CURRENT-PUA-BRANCH-NOPX.local'],
+			 ['S.CSEQ-SEQNO_SEND-SEQNO','S.VIA_NOPX_SEND_EQUAL','S.VIA-BRANCH_CURRENT-PUA-BRANCH-NOPX']);
+
+	    # ACK 
+	    SD_Term_ACK();
+	    $msgSIP=$SIPPktInfo[$#SIPPktInfo];
+
+	    # 
+	    return 'NEXT';
+	}
+	return 'CONTINUE';
+    };
+    NDStatusAction($node,$func,"^[2]",'D.DIALOG-SETUP.CALLER');
+
+
+
+    # BYE 
+    $func=sub {
+	my($result,$frame)=@_;
+
+	JudgeResult($result,"Receive BYE","Can't receive BYE");
+
+	# BYE 
+	SIP_Judgment('SS.REQUEST.BYE_FORWARDED.ONEPX.TM','','',['S.HEADER-ORDER.CHECK']);
+
+	if(!CheckNo100('BYE')){
+	    LOG_Err("No send 100 Trying");
+	}
+
+	# 200 
+	SD_Term_STATUS('200','BYE','ES.STATUS.200.ONEPX.TM');
+
+	# 
+	return 'END';
+    };
+    NDReqAction($node,$func,"BYE");
+
+    NDDefEnd($node);
+}
+
+SEQ_UserAgentCallee();
+SEQ_UserAgentCaller();
+SEQ_Start('UA11');
+
+#--------------------------------------------------------------#
+# SCENARIO Start
+#--------------------------------------------------------------#
+
+# Echo from Proxy
+#SQ_Proxy_Echo();
+
+SEQ_Run();
+
+#--------------------------------------------------------------#
+# Finish
+#--------------------------------------------------------------#
+
+SIPFinishScenario();
+
+
+#######################################################################
+
+=head1 NAME
+
+=begin html
+ <A HREF="http://www.ipv6ready.org/">Please see SIP Conformance Test Profile (http://www.ipv6ready.org/)</A>
+
+=end html
+
+=head1 TARGET
+
+=begin html
+<pre>
+ SIP PX (NUT)
+</pre>
+
+=end html
+
+=head1 PARAMETER
+
+=begin html
+<blockquote>
+<table border>
+<tbody>
+
+</tbody>
+</table>
+</blockquote>
+
+=end html
+
+=head1 ADDRESS
+
+=begin html
+<blockquote>
+<table border>
+<tbody>
+
+</tbody>
+</table>
+</blockquote>
+
+=end html
+
+=head1 TOPOLOGY
+
+=begin html
+<pre>
+ 
+</pre>
+
+=end html
+
+=head1 CONFIGURATION for NUT
+
+=begin html
+<blockquote>
+<table border>
+<tbody>
+
+</tbody>
+</table>
+</blockquote>
+
+=end html
+
+=head1 INITIALIZATION
+
+=begin html
+<pre>
+ 
+</pre>
+
+=end html
+
+=head1 TEST PROCEDURE
+
+=begin html
+<pre>
+ 
+</pre>
+
+=end html
+
+=head1 JUDGEMENT
+
+=begin html
+<pre>
+ 
+</pre>
+
+=end html
+
+=head1 REFERENCE
+
+=begin html
+<pre>
+ 
+</pre>
+
+=end html
+
+=cut
+

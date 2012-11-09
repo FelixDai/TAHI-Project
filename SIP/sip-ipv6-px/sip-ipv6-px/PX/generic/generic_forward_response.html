@@ -1,0 +1,47 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>JUDGEMENT</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:root@jail-7.freebsd.org" />
+</head>
+
+<body style="background-color: white">
+
+<p><a name="__index__"></a></p>
+<!-- INDEX BEGIN -->
+<!--
+
+<ul>
+
+	<li><a href="#judgement">JUDGEMENT</a></li>
+</ul>
+-->
+<!-- INDEX END -->
+
+<p>
+</p>
+<h1><a name="judgement">JUDGEMENT</a></h1>
+SIP - Generic Judgment (forward response)<pre> [generic_forward_response.txt]
+ 
+ Generic judgement items for SIP response that was forwarded
+ 
+ - Headers:
+ 
+    * Via
+        Must exist.
+        The first Via header line must not exist in original message. # 16.6 Item 3 the present tense.
+ 
+        For the Via header that was in original message, 
+            via-branch: Must equal as that in the message.
+            sent-by: Must equal as that in the message.
+            transport: Must equal as that in the message.
+ 
+   * Record-Route
+       Must include the Record-Route header value in original message.
+ 
+ </pre>
+</body>
+
+</html>
