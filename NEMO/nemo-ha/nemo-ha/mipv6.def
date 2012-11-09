@@ -1,0 +1,432 @@
+//
+// Copyright (C) IPv6 Promotion Council,
+// NIPPON TELEGRAPH AND TELEPHONE CORPORATION (NTT),
+// Yokogwa Electoric Corporation, YASKAWA INFORMATION SYSTEMS Corporation
+// and NTT Advanced Technology Corporation(NTT-AT) All rights reserved.
+// 
+// Technology Corporation.
+// 
+// Redistribution and use of this software in source and binary forms, with 
+// or without modification, are permitted provided that the following 
+// conditions and disclaimer are agreed and accepted by the user:
+// 
+// 1. Redistributions of source code must retain the above copyright 
+// notice, this list of conditions and the following disclaimer.
+// 
+// 2. Redistributions in binary form must reproduce the above copyright 
+// notice, this list of conditions and the following disclaimer in the 
+// documentation and/or other materials provided with the distribution.
+// 
+// 3. Neither the names of the copyrighters, the name of the project which 
+// is related to this software (hereinafter referred to as "project") nor 
+// the names of the contributors may be used to endorse or promote products 
+// derived from this software without specific prior written permission.
+// 
+// 4. No merchantable use may be permitted without prior written 
+// notification to the copyrighters. However, using this software for the 
+// purpose of testing or evaluating any products including merchantable 
+// products may be permitted without any notification to the copyrighters.
+// 
+// 
+// 
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND 
+// CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING 
+// BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS 
+// FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE 
+// COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+// INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
+// SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
+// HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+// CONTRACT,STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF 
+// THE POSSIBILITY OF SUCH DAMAGE.
+//
+////////////////////////////////////////////////////////////////////////
+
+#ifndef HAVE_MIPV6_DEF
+#define HAVE_MIPV6_DEF
+
+
+#ifndef EQ
+#define EQ  =
+#endif
+
+#ifndef LE
+#define LE  <=
+#endif
+
+#ifndef BA_ACCEPT_STATUS
+#define BA_ACCEPT_STATUS    0
+#endif
+
+#ifndef BA_ACCEPT_ONEOF
+#define BA_ACCEPT_ONEOF     BA_ACCEPT_STATUS
+#endif
+
+
+#ifndef LINK0_LINK
+#define LINK0_LINK  "Link0"
+#endif
+
+#ifndef LINK1_LINK
+#define LINK1_LINK  "Link1"
+#endif
+
+
+#ifndef LINK0_PREFIX
+#define LINK0_PREFIX        _GLOBAL0_UCAST_PRFX
+#endif
+
+#ifndef LINK0_PREFIXLEN
+#define LINK0_PREFIXLEN     _GLOBAL0_UCAST_PRFXLEN
+#endif
+
+#ifndef LINK0X_PREFIX
+#define LINK0X_PREFIX       "3ffe:501:ffff:1100::"
+#endif
+
+#ifndef LINK0X_PREFIXLEN
+#define LINK0X_PREFIXLEN    64
+#endif
+
+#ifndef LINK0Y_PREFIX
+#define LINK0Y_PREFIX       "3ffe:501:ffff:2100::"
+#endif
+
+#ifndef LINK0Y_PREFIXLEN
+#define LINK0Y_PREFIXLEN    64
+#endif
+
+#ifndef LINK0Z_PREFIX
+#define LINK0Z_PREFIX       "3ffe:501:ffff:3100::"
+#endif
+
+#ifndef LINK0Z_PREFIXLEN
+#define LINK0Z_PREFIXLEN    64
+#endif
+
+#ifndef LINK1_PREFIX
+#define LINK1_PREFIX        _GLOBAL1_UCAST_PRFX
+#endif
+
+#ifndef LINK1_PREFIXLEN
+#define LINK1_PREFIXLEN     _GLOBAL1_UCAST_PRFXLEN
+#endif
+
+#ifndef LINK1X_PREFIX
+#define LINK1X_PREFIX       "3ffe:501:ffff:1101::"
+#endif
+
+#ifndef LINK1X_PREFIXLEN
+#define LINK1X_PREFIXLEN    64
+#endif
+
+#ifndef LINK1Y_PREFIX
+#define LINK1Y_PREFIX       "3ffe:501:ffff:2101::"
+#endif
+
+#ifndef LINK1Y_PREFIXLEN
+#define LINK1Y_PREFIXLEN    64
+#endif
+
+#ifndef LINK1Z_PREFIX
+#define LINK1Z_PREFIX       "3ffe:501:ffff:3101::"
+#endif
+
+#ifndef LINK1Z_PREFIXLEN
+#define LINK1Z_PREFIXLEN    64
+#endif
+
+#ifndef HOME_PREFIX
+#define HOME_PREFIX         LINK0_PREFIX
+#endif
+
+#ifndef HOME_PREFIXLEN
+#define HOME_PREFIXLEN      LINK0_PREFIXLEN
+#endif
+
+#ifndef LINKZ_PREFIX
+#define LINKZ_PREFIX        LINK0Z_PREFIX
+#endif
+
+#ifndef LINKZ_PREFIXLEN
+#define LINKZ_PREFIXLEN     LINK0Z_PREFIXLEN
+#endif
+
+#ifndef HA_HOME_LINK
+#define HA_HOME_LINK        LINK0_LINK
+#endif
+
+
+#if BU_MODE == 0
+
+#if MN_ID == 11
+
+#define MN_MAC              "00:00:00:00:00:11"
+#define NEMO_PREFIX         "3ffe:501:ffff:111::"
+#define NEMO_PREFIXLEN      64
+
+#elif MN_ID == 12
+
+#define MN_MAC              "00:00:00:00:00:12"
+#define NEMO_PREFIX         "3ffe:501:ffff:112::"
+#define NEMO_PREFIXLEN      64
+
+#else
+
+#define MN_MAC              "00:00:00:00:00:ff"
+#define NEMO_PREFIX         "3ffe:501:ffff:fff::"
+#define NEMO_PREFIXLEN      64
+
+#endif
+
+#if MN_ID == 12
+
+#define MNB_MAC             "00:00:00:00:00:12"
+#define NEMO_02_PREFIX      "3ffe:501:ffff:113::"
+#define NEMO_02_PREFIXLEN   64
+
+#elif MNB_ID == 13
+
+#define MNB_MAC             "00:00:00:00:00:13"
+#define NEMO_02_PREFIX      "3ffe:501:ffff:111::"
+#define NEMO_02_PREFIXLEN   64
+
+#elif MNB_ID == 14
+
+#define MNB_MAC             "00:00:00:00:00:14"
+#define NEMO_02_PREFIX      "3ffe:501:ffff:114::"
+#define NEMO_02_PREFIXLEN   64
+
+#else
+
+#define MNB_MAC             "00:00:00:00:00:fe"
+#define NEMO_02_PREFIX      "3ffe:501:ffff:ffe::"
+#define NEMO_02_PREFIXLEN   64
+
+#endif
+
+#else
+
+#if MN_ID == 21
+
+#define MN_MAC              "00:00:00:00:00:21"
+#define NEMO_PREFIX         "3ffe:501:ffff:121::"
+#define NEMO_PREFIXLEN      64
+
+#elif MN_ID == 22
+
+#define MN_MAC              "00:00:00:00:00:22"
+#define NEMO_PREFIX         "3ffe:501:ffff:122::"
+#define NEMO_PREFIXLEN      64
+
+#elif MN_ID == 299 // for NEMO-HA_2_9_9
+
+#define MN_MAC              "00:00:00:00:00:11"
+#define NEMO_PREFIX         "3ffe:501:ffff:1ff::"
+#define NEMO_PREFIXLEN      64
+
+#elif MN_ID == 2919 // for NEMO-HA_2_9_19
+
+#define MN_MAC              "00:00:00:00:00:21"
+#define NEMO_PREFIX         "3ffe:501:ffff:1ff::"
+#define NEMO_PREFIXLEN      64
+
+#else
+
+#define MN_MAC              "00:00:00:00:00:ff"
+#define NEMO_PREFIX         "3ffe:501:ffff:fff::"
+#define NEMO_PREFIXLEN      64
+
+#endif
+
+#if MN_ID == 22
+
+#define MNB_MAC             "00:00:00:00:00:22"
+#define NEMO_02_PREFIX      "3ffe:501:ffff:123::"
+#define NEMO_02_PREFIXLEN   64
+
+#elif MNB_ID == 23
+
+#define MNB_MAC             "00:00:00:00:00:23"
+#define NEMO_02_PREFIX      "3ffe:501:ffff:121::"
+#define NEMO_02_PREFIXLEN   64
+
+#elif MNB_ID == 24
+
+#define MNB_MAC             "00:00:00:00:00:24"
+#define NEMO_02_PREFIX      "3ffe:501:ffff:124::"
+#define NEMO_02_PREFIXLEN   64
+
+#else
+
+#define MNB_MAC             "00:00:00:00:00:fe"
+#define NEMO_02_PREFIX      "3ffe:501:ffff:ffe::"
+#define NEMO_02_PREFIXLEN   64
+
+#endif
+
+#endif
+
+
+#ifndef R0_GLOBAL
+#define R0_GLOBAL       _GLOBAL0A0N_UCAST_ADDR
+#endif
+
+#ifndef R0_LINK_LOCAL
+#define R0_LINK_LOCAL   _LLOCAL0A0N_UCAST_ADDR
+#endif
+
+#ifndef R0_MAC
+#define R0_MAC          A0N_MAC_ADDR
+#endif
+
+#ifndef R1_GLOBAL
+#define R1_GLOBAL       _GLOBAL1A1N_UCAST_ADDR
+#endif
+
+#ifndef R1_LINK_LOCAL
+#define R1_LINK_LOCAL   _LLOCAL0A1N_UCAST_ADDR
+#endif
+
+#ifndef R1_MAC
+#define R1_MAC          A1N_MAC_ADDR
+#endif
+
+#ifndef HA0_GLOBAL
+#define HA0_GLOBAL      _GLOBAL0A2N_UCAST_ADDR
+#endif
+
+#ifndef HA0_LINK_LOCAL
+#define HA0_LINK_LOCAL  _LLOCAL0A2N_UCAST_ADDR
+#endif
+
+#ifndef HA0_MAC
+#define HA0_MAC         A2N_MAC_ADDR
+#endif
+
+#ifndef HA1_GLOBAL
+#define HA1_GLOBAL      _GLOBAL0A3N_UCAST_ADDR
+#endif
+
+#ifndef HA1_LINK_LOCAL
+#define HA1_LINK_LOCAL  _LLOCAL0A3N_UCAST_ADDR
+#endif
+
+#ifndef HA1_MAC
+#define HA1_MAC         A3N_MAC_ADDR
+#endif
+
+#ifndef MN_MAC
+#define MN_MAC          "00:00:00:00:00:01"
+#endif
+
+#ifndef MNB_MAC
+#define MNB_MAC         "00:00:00:00:00:02"
+#endif
+
+#ifndef LFNA_MAC
+#define LFNA_MAC        "00:00:00:00:01:00"
+#endif
+
+#ifndef LFNB_MAC
+#define LFNB_MAC        "00:00:00:00:02:00"
+#endif
+
+#ifndef LFN_MAC
+#define LFN_MAC         LFNA_MAC
+#endif
+
+#ifndef VMN_MAC
+#define VMN_MAC         "00:00:00:00:21:0e"
+#endif
+
+#ifndef VMR_MAC
+#define VMR_MAC         "00:00:00:00:21:0f"
+#endif
+
+#ifndef DHA_MAC
+#define DHA_MAC         "00:00:00:00:21:a0"
+#endif
+
+
+_HETHER_define(
+	_HETHER_mn2nut,
+	ether(MN_MAC),
+	nutether()
+)
+
+_HETHER_define(
+	_HETHER_mn2mnsolnode,
+	ether(MN_MAC),
+	_ETHER_SOLNODE_MCAST(v6ether(MN_MAC))
+)
+
+_HETHER_define(
+	_HETHER_mn2nutsolnode,
+	ether(MN_MAC),
+	_ETHER_SOLNODE_MCAST(nutv6())
+)
+
+_HETHER_define(
+	_HETHER_mn2allnodes,
+	ether(MN_MAC),
+	v62ethermulti(v6(_ALLNODES_MCAST_ADDR))
+)
+
+_HETHER_define(
+	_HETHER_nut2mn,
+	nutether(),
+	ether(MN_MAC)
+)
+
+_HETHER_define(
+	_HETHER_nut2mnsolnode,
+	nutether(),
+	_ETHER_SOLNODE_MCAST(v6ether(MN_MAC))
+)
+
+_HETHER_define(
+	_HETHER_ha02allnodes,
+	ether(HA0_MAC),
+	v62ethermulti(v6(_ALLNODES_MCAST_ADDR))
+)
+
+_HETHER_define(
+	_HETHER_ha12allnodes,
+	ether(HA1_MAC),
+	v62ethermulti(v6(_ALLNODES_MCAST_ADDR))
+)
+
+Opt_ICMPv6_TLL opt_tll_mn {
+	LinkLayerAddress    = ether(MN_MAC);
+}
+
+
+#ifdef USE_SEQUENCE_DEF
+#include "./sequence.def"
+#endif
+
+#include "./movement.def"
+#include "./ipsec.def"
+#include "./dummy.def"
+#include "./echo.def"
+#include "./nd_foreign.def"
+#include "./nd_home.def"
+#include "./rd_home.def"
+#include "./registration.def"
+#include "./dad.def"
+#include "./de_registration.def"
+#include "./rr.def"
+#include "./tunnel.def"
+#include "./binding_confirmation.def"
+#include "./proxy_nd.def"
+#include "./proxy_nd_invalid.def"
+#include "./dhaad.def"
+#include "./mpd.def"
+#include "./reachability.def"
+#include <ike.def>
+
+
+#endif

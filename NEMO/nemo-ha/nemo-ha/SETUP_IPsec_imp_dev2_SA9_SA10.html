@@ -1,0 +1,80 @@
+<HTML>
+<HEAD>
+<TITLE>IPsec Configuration MR2 - HA (SA9/SA10)</TITLE>
+</HEAD>
+<BODY>
+<H1>IPsec Configuration MR2 - HA (SA9/SA10)</H1>
+<TT>
+<B>SA9 and SA10 are NOT described in RFC3963 and RFC3776 for payload packet.</B><BR>
+<B>Bold texts indicate configurable parameters.</B>
+</TT>
+<UL>
+<LI>SA9 (Tunnel mode, X on Mobile Network Prefix)
+<BLOCKQUOTE>
+<PRE>
+SPI <B>0x129 (297)</B>
+    src:            MR   3ffe:501:ffff:100::<B>&lt;implicit mr_device2 Interface ID&gt;</B>
+    dst:            HA   3ffe:501:ffff:100::<B>&lt;Interface ID&gt;</B>
+    mode:           ESP  tunnel
+    tunneled src:   MNP1 <B>&lt;implicit mr_device2 mobile network prefix 1&gt;</B>::/64
+    tunneled dst:   any  ::/0
+    upper layer:    <B>X (any)</B>
+    enc algorithm:  <B>3des-cbc</B>,  enc key:  <B>V6LC-129--12345678901234</B> (default)
+                    <B>des-cbc</B>              <B>V6LC-129</B>
+    auth algorithm: <B>hmac-sha1</B>, auth key: <B>V6LC-129--1234567890</B>     (default)
+                    <B>hmac-md5</B>             <B>V6LC-129--123456</B>
+</PRE>
+</BLOCKQUOTE>
+<LI>SA10 (Tunnel mode, X on Mobile Network Prefix)
+<BLOCKQUOTE>
+<PRE>
+SPI <B>0x12a (298)</B>
+    src:            HA   3ffe:501:ffff:100::<B>&lt;Interface ID&gt;</B>
+    dst:            MR   3ffe:501:ffff:100::<B>&lt;implicit mr_device2 Interface ID&gt;</B>
+    mode:           ESP  tunnel
+    tunneled src:   any  ::/0
+    tunneled dst:   MNP1 <B>&lt;implicit mr_device2 mobile network prefix 1&gt;</B>::/64
+    upper layer:    <B>X (any)</B>
+    enc algorithm:  <B>3des-cbc</B>,  enc key:  <B>V6LC-12A--12345678901234</B> (default)
+                    <B>des-cbc</B>              <B>V6LC-12A</B>
+    auth algorithm: <B>hmac-sha1</B>, auth key: <B>V6LC-12A--1234567890</B>     (default)
+                    <B>hmac-md5</B>             <B>V6LC-12A--123456</B>
+</PRE>
+</BLOCKQUOTE>
+</UL>
+<UL>
+<LI>SA9 (Tunnel mode, X on Mobile Network Prefix)
+<BLOCKQUOTE>
+<PRE>
+SPI <B>0x12b (299)</B>
+    src:            MR   3ffe:501:ffff:100::<B>&lt;implicit mr_device2 Interface ID&gt;</B>
+    dst:            HA   3ffe:501:ffff:100::<B>&lt;Interface ID&gt;</B>
+    mode:           ESP  tunnel
+    tunneled src:   MNP2 <B>&lt;implicit mr_device2 mobile network prefix 2&gt;</B>::/64
+    tunneled dst:   any  ::/0
+    upper layer:    <B>X (any)</B>
+    enc algorithm:  <B>3des-cbc</B>,  enc key:  <B>V6LC-12B--12345678901234</B> (default)
+                    <B>des-cbc</B>              <B>V6LC-12B</B>
+    auth algorithm: <B>hmac-sha1</B>, auth key: <B>V6LC-12B--1234567890</B>     (default)
+                    <B>hmac-md5</B>             <B>V6LC-12B--123456</B>
+</PRE>
+</BLOCKQUOTE>
+<LI>SA10 (Tunnel mode, X on Mobile Network Prefix)
+<BLOCKQUOTE>
+<PRE>
+SPI <B>0x12c (300)</B>
+    src:            HA   3ffe:501:ffff:100::<B>&lt;Interface ID&gt;</B>
+    dst:            MR   3ffe:501:ffff:100::<B>&lt;implicit mr_device2 Interface ID&gt;</B>
+    mode:           ESP  tunnel
+    tunneled src:   any  ::/0
+    tunneled dst:   MNP2 <B>&lt;implicit mr_device2 mobile network prefix 2&gt;</B>::/64
+    upper layer:    <B>X (any)</B>
+    enc algorithm:  <B>3des-cbc</B>,  enc key:  <B>V6LC-12C--12345678901234</B> (default)
+                    <B>des-cbc</B>              <B>V6LC-12C</B>
+    auth algorithm: <B>hmac-sha1</B>, auth key: <B>V6LC-12C--1234567890</B>     (default)
+                    <B>hmac-md5</B>             <B>V6LC-12C--123456</B>
+</PRE>
+</BLOCKQUOTE>
+</UL>
+</BODY>
+</HTML>

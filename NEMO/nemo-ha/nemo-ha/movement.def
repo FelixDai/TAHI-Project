@@ -1,0 +1,375 @@
+//
+// Copyright (C) IPv6 Promotion Council,
+// NIPPON TELEGRAPH AND TELEPHONE CORPORATION (NTT),
+// Yokogwa Electoric Corporation, YASKAWA INFORMATION SYSTEMS Corporation
+// and NTT Advanced Technology Corporation(NTT-AT) All rights reserved.
+// 
+// Technology Corporation.
+// 
+// Redistribution and use of this software in source and binary forms, with 
+// or without modification, are permitted provided that the following 
+// conditions and disclaimer are agreed and accepted by the user:
+// 
+// 1. Redistributions of source code must retain the above copyright 
+// notice, this list of conditions and the following disclaimer.
+// 
+// 2. Redistributions in binary form must reproduce the above copyright 
+// notice, this list of conditions and the following disclaimer in the 
+// documentation and/or other materials provided with the distribution.
+// 
+// 3. Neither the names of the copyrighters, the name of the project which 
+// is related to this software (hereinafter referred to as "project") nor 
+// the names of the contributors may be used to endorse or promote products 
+// derived from this software without specific prior written permission.
+// 
+// 4. No merchantable use may be permitted without prior written 
+// notification to the copyrighters. However, using this software for the 
+// purpose of testing or evaluating any products including merchantable 
+// products may be permitted without any notification to the copyrighters.
+// 
+// 
+// 
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND 
+// CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING 
+// BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS 
+// FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE 
+// COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+// INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
+// SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
+// HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+// CONTRACT,STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF 
+// THE POSSIBILITY OF SUCH DAMAGE.
+//
+////////////////////////////////////////////////////////////////////////
+
+#ifndef HAVE_MOVEMENT_DEF
+#define HAVE_MOVEMENT_DEF
+
+
+//--------------------------------------------//
+// Initialize all macros related to movement  //
+//--------------------------------------------//
+#ifdef LINKX_PREFIX
+#undef LINKX_PREFIX
+#endif
+
+#ifdef LINKX_PREFIXLEN
+#undef LINKX_PREFIXLEN
+#endif
+
+#ifdef LINKX_LINK
+#undef LINKX_LINK
+#endif
+
+#ifdef LINKZ_PREFIX
+#undef LINKZ_PREFIX
+#endif
+
+#ifdef LINKZ_PREFIXLEN
+#undef LINKZ_PREFIXLEN
+#endif
+
+#ifdef CARE_OF_PREFIX
+#undef CARE_OF_PREFIX
+#endif
+
+#ifdef CARE_OF_PREFIXLEN
+#undef CARE_OF_PREFIXLEN
+#endif
+
+#ifdef RX_LINK_LOCAL
+#undef RX_LINK_LOCAL
+#endif
+
+#ifdef RX_MAC
+#undef RX_MAC
+#endif
+
+#ifdef CN0_PREFIX
+#undef CN0_PREFIX
+#endif
+
+#ifdef CN0_PREFIXLEN
+#undef CN0_PREFIXLEN
+#endif
+
+#ifdef ICMP_ERROR_R_LINK_PREFIX
+#undef ICMP_ERROR_R_LINK_PREFIX
+#endif
+
+#ifdef ICMP_ERROR_R_LINK_PREFIXLEN
+#undef ICMP_ERROR_R_LINK_PREFIXLEN
+#endif
+
+
+//----------------------------//
+// MN0X                       //
+//----------------------------//
+#ifdef USE_LINK0X
+	#ifdef USE_LINK0Y
+		#undef USE_LINK0Y
+	#endif
+	#ifdef USE_LINK0A
+		#undef USE_LINK0A
+	#endif
+	#ifdef USE_LINK1X
+		#undef USE_LINK1X
+	#endif
+	#ifdef USE_LINK1Y
+		#undef USE_LINK1Y
+	#endif
+	#ifdef USE_LINK1A
+		#undef USE_LINK1A
+	#endif
+	#define CARE_OF_PREFIX      LINK0X_PREFIX
+	#define CARE_OF_PREFIXLEN   LINK0X_PREFIXLEN
+#endif
+
+
+//----------------------------//
+// MN0Y                       //
+//----------------------------//
+#ifdef USE_LINK0Y
+	#ifdef USE_LINK0X
+		#undef USE_LINK0X
+	#endif
+	#ifdef USE_LINK0A
+		#undef USE_LINK0A
+	#endif
+	#ifdef USE_LINK1X
+		#undef USE_LINK1X
+	#endif
+	#ifdef USE_LINK1Y
+		#undef USE_LINK1Y
+	#endif
+	#ifdef USE_LINK1A
+		#undef USE_LINK1A
+	#endif
+	#define CARE_OF_PREFIX      LINK0Y_PREFIX
+	#define CARE_OF_PREFIXLEN   LINK0Y_PREFIXLEN
+#endif
+
+
+//----------------------------//
+// VMN0A                      //
+//----------------------------//
+#ifdef USE_LINK0A
+	#ifdef USE_LINK0X
+		#undef USE_LINK0X
+	#endif
+	#ifdef USE_LINK0Y
+		#undef USE_LINK0Y
+	#endif
+	#ifdef USE_LINK1X
+		#undef USE_LINK1X
+	#endif
+	#ifdef USE_LINK1Y
+		#undef USE_LINK1Y
+	#endif
+	#ifdef USE_LINK1A
+		#undef USE_LINK1A
+	#endif
+	#define CARE_OF_PREFIX      LINK0X_PREFIX
+	#define CARE_OF_PREFIXLEN   LINK0X_PREFIXLEN
+#endif
+
+
+//----------------------------//
+// MN1X                       //
+//----------------------------//
+#ifdef USE_LINK1X
+	#ifdef USE_LINK0X
+		#undef USE_LINK0X
+	#endif
+	#ifdef USE_LINK0Y
+		#undef USE_LINK0Y
+	#endif
+	#ifdef USE_LINK0A
+		#undef USE_LINK0A
+	#endif
+	#ifdef USE_LINK1Y
+		#undef USE_LINK1Y
+	#endif
+	#ifdef USE_LINK1A
+		#undef USE_LINK1A
+	#endif
+	#define LINKX_PREFIX                LINK1_PREFIX
+	#define LINKX_PREFIXLEN             LINK1_PREFIXLEN
+	#define LINKX_LINK                  LINK1_LINK
+	#define LINKZ_PREFIX                LINK1Z_PREFIX
+	#define LINKZ_PREFIXLEN             LINK1Z_PREFIXLEN
+	#define CARE_OF_PREFIX              LINK1X_PREFIX
+	#define CARE_OF_PREFIXLEN           LINK1X_PREFIXLEN
+	#define RX_LINK_LOCAL               R1_LINK_LOCAL
+	#define RX_MAC                      R1_MAC
+	#define ICMP_ERROR_R_LINK_PREFIX    LINK1X_PREFIX
+	#define ICMP_ERROR_R_LINK_PREFIXLEN LINK1X_PREFIXLEN
+#endif
+
+
+//----------------------------//
+// MN1Y                       //
+//----------------------------//
+#ifdef USE_LINK1Y
+	#ifdef USE_LINK0X
+		#undef USE_LINK0X
+	#endif
+	#ifdef USE_LINK0Y
+		#undef USE_LINK0Y
+	#endif
+	#ifdef USE_LINK0A
+		#undef USE_LINK0A
+	#endif
+	#ifdef USE_LINK1X
+		#undef USE_LINK1X
+	#endif
+	#ifdef USE_LINK1A
+		#undef USE_LINK1A
+	#endif
+	#define LINKX_PREFIX                LINK1_PREFIX
+	#define LINKX_PREFIXLEN             LINK1_PREFIXLEN
+	#define LINKX_LINK                  LINK1_LINK
+	#define LINKZ_PREFIX                LINK1Z_PREFIX
+	#define LINKZ_PREFIXLEN             LINK1Z_PREFIXLEN
+	#define CARE_OF_PREFIX              LINK1Y_PREFIX
+	#define CARE_OF_PREFIXLEN           LINK1Y_PREFIXLEN
+	#define RX_LINK_LOCAL               R1_LINK_LOCAL
+	#define RX_MAC                      R1_MAC
+	#define ICMP_ERROR_R_LINK_PREFIX    LINK1X_PREFIX
+	#define ICMP_ERROR_R_LINK_PREFIXLEN LINK1X_PREFIXLEN
+#endif
+
+
+//----------------------------//
+// VMN1A                      //
+//----------------------------//
+#ifdef USE_LINK1A
+	#ifdef USE_LINK0X
+		#undef USE_LINK0X
+	#endif
+	#ifdef USE_LINK0Y
+		#undef USE_LINK0Y
+	#endif
+	#ifdef USE_LINK0A
+		#undef USE_LINK0A
+	#endif
+	#ifdef USE_LINK1X
+		#undef USE_LINK1X
+	#endif
+	#ifdef USE_LINK1Y
+		#undef USE_LINK1Y
+	#endif
+	#define LINKX_PREFIX                LINK1_PREFIX
+	#define LINKX_PREFIXLEN             LINK1_PREFIXLEN
+	#define LINKX_LINK                  LINK1_LINK
+	#define LINKZ_PREFIX                LINK1Z_PREFIX
+	#define LINKZ_PREFIXLEN             LINK1Z_PREFIXLEN
+	#define CARE_OF_PREFIX              LINK1X_PREFIX
+	#define CARE_OF_PREFIXLEN           LINK1X_PREFIXLEN
+	#define RX_LINK_LOCAL               R1_LINK_LOCAL
+	#define RX_MAC                      R1_MAC
+	#define ICMP_ERROR_R_LINK_PREFIX    LINK1X_PREFIX
+	#define ICMP_ERROR_R_LINK_PREFIXLEN LINK1X_PREFIXLEN
+#endif
+
+
+//----------------------------//
+// CN0                        //
+//----------------------------//
+#ifdef USE_CN0_LINKLOCAL
+	#ifndef CN0_PREFIX
+		#undef CN0_PREFIX
+	#endif
+	#ifndef CN0_PREFIXLEN
+		#undef CN0_PREFIXLEN
+	#endif
+	#define CN0_PREFIX      _LLOCAL_UCAST_PRFX
+	#define CN0_PREFIXLEN   _LLOCAL_UCAST_PRFXLEN
+#endif
+
+
+//----------------------------//
+// set default value          //
+//----------------------------//
+#ifndef LINKX_PREFIX
+#define LINKX_PREFIX        LINK0_PREFIX
+#endif
+
+#ifndef LINKX_PREFIXLEN
+#define LINKX_PREFIXLEN     LINK0_PREFIXLEN
+#endif
+
+#ifndef LINKX_LINK
+#define LINKX_LINK          LINK0_LINK
+#endif
+
+#ifndef LINKZ_PREFIX
+#define LINKZ_PREFIX        LINK0Z_PREFIX
+#endif
+
+#ifndef LINKZ_PREFIXLEN
+#define LINKZ_PREFIXLEN     LINK0Z_PREFIXLEN
+#endif
+
+#ifndef CARE_OF_PREFIX
+#define CARE_OF_PREFIX      LINK0X_PREFIX
+#endif
+
+#ifndef CARE_OF_PREFIXLEN
+#define CARE_OF_PREFIXLEN   LINK0X_PREFIXLEN
+#endif
+
+#ifndef RX_LINK_LOCAL
+#define RX_LINK_LOCAL       R0_LINK_LOCAL
+#endif
+
+#ifndef RX_MAC
+#define RX_MAC              R0_MAC
+#endif
+
+#ifndef CN0_PREFIX
+#define CN0_PREFIX          HOME_PREFIX
+#endif
+
+#ifndef CN0_PREFIXLEN
+#define CN0_PREFIXLEN       HOME_PREFIXLEN
+#endif
+
+#ifndef ICMP_ERROR_R_LINK_PREFIX
+#define ICMP_ERROR_R_LINK_PREFIX    LINK0X_PREFIX
+#endif
+
+#ifndef ICMP_ERROR_R_LINK_PREFIXLEN
+#define ICMP_ERROR_R_LINK_PREFIXLEN LINK0X_PREFIXLEN
+#endif
+
+
+_HETHER_define(
+	_HETHER_rx2nut,
+	ether(RX_MAC),
+	nutether()
+)
+
+
+_HETHER_define(
+	_HETHER_nut2rx,
+	nutether(),
+	ether(RX_MAC)
+)
+
+
+_HETHER_define(
+	_HETHER_nut2rxsolnode,
+	nutether(),
+	_ETHER_SOLNODE_MCAST(v6(RX_LINK_LOCAL))
+)
+
+
+Opt_ICMPv6_TLL opt_tll_rx {
+	LinkLayerAddress    = ether(RX_MAC);
+}
+
+
+#endif

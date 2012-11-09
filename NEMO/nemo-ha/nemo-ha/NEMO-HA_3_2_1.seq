@@ -1,0 +1,1032 @@
+#!/usr/bin/perl
+#
+# Copyright (C) IPv6 Promotion Council,
+# NIPPON TELEGRAPH AND TELEPHONE CORPORATION (NTT),
+# Yokogwa Electoric Corporation, YASKAWA INFORMATION SYSTEMS Corporation
+# and NTT Advanced Technology Corporation(NTT-AT) All rights reserved.
+# 
+# Technology Corporation.
+# 
+# Redistribution and use of this software in source and binary forms, with 
+# or without modification, are permitted provided that the following 
+# conditions and disclaimer are agreed and accepted by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright 
+# notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright 
+# notice, this list of conditions and the following disclaimer in the 
+# documentation and/or other materials provided with the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project which 
+# is related to this software (hereinafter referred to as "project") nor 
+# the names of the contributors may be used to endorse or promote products 
+# derived from this software without specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written 
+# notification to the copyrighters. However, using this software for the 
+# purpose of testing or evaluating any products including merchantable 
+# products may be permitted without any notification to the copyrighters.
+# 
+# 
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND 
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING 
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS 
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE 
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+# CONTRACT,STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF 
+# THE POSSIBILITY OF SUCH DAMAGE.
+#
+########################################################################
+
+BEGIN {}
+END   {}
+
+use mipv6;
+
+@mrs = (1);
+
+my $movement	= 'USE_LINK0X';
+
+my $bu_sequence	= 15;
+my $bu_a_bit	= 1;
+my $bu_h_bit	= 1;
+my $bu_l_bit	= 0;
+my $bu_k_bit	= 0;
+my $bu_r_bit	= 1;
+my $bu_lifetime	= 0;
+
+my $ba_status	= 133;
+my $ba_k_bit	= 0;
+my $ba_r_bit	= -1;
+my $ba_sequence	= $bu_sequence;
+my $ba_lifetime	= -1;
+
+my $bool	= $false;
+
+
+
+unless(mipv6init($movement)) {
+	exitInitFail();
+}
+
+
+
+vLogHTML('<FONT COLOR="#FF0000" SIZE="5"><U><B>TEST PROCEDURE'.
+	'</B></U></FONT><BR>');
+
+#---------------------------------------------------------#
+# RFC3963:6.7. Mobile Network Prefix De-Registration      #
+# RFC3775:10.3.2. Primary Care-of Address De-Registration #
+#---------------------------------------------------------#
+
+unless(
+#	mipv6registration(
+	mipv6registration_using_local_packet_definition(
+		$movement,
+		$bu_sequence,
+		$bu_a_bit,
+		$bu_h_bit,
+		$bu_l_bit,
+		$bu_k_bit,
+		$bu_r_bit,
+		$bu_lifetime,
+		$ba_status,
+		$ba_k_bit,
+		$ba_r_bit,
+		$ba_sequence,
+		$ba_lifetime,
+		'local_bu',
+		'ba_common'
+	)
+) {
+	exitFail();
+}
+
+unless(binding_confirmation($movement, $bool)) {
+	exitFail();
+}
+
+exitPass();
+
+
+
+#
+# perldoc
+#
+########################################################################
+__END__
+
+=head1 NAME
+
+=begin html
+<BLOCKQUOTE><TT>
+NEMO-HA_3_2_1 - Invalid De-Registration (Not home agent for this mobile router), CoA!=HoA (A=1 & R=1 & Lifetime=0) w/ HaO w/o MNP
+
+=end html
+
+=begin html
+</TT></BLOCKQUOTE>
+
+=end html
+
+=head1 TARGET
+
+=begin html
+<BLOCKQUOTE>
+<PRE>
+Router
+</PRE>
+</BLOCKQUOTE>
+
+=end html
+
+=head1 REQUIREMENT of TEST
+
+=begin html
+<BLOCKQUOTE>
+<UL>
+    <LI>Real Home Link
+</UL>
+</BLOCKQUOTE>
+
+=end html
+
+=head1 TOPOLOGY
+
+=begin html
+<BLOCKQUOTE>
+o <U><B><FONT SIZE="+1">TOPOLOGY-1 Real Home Link</FONT></B></U> (If RUT supports <I><B>Real Home Link</B></I>.)
+<BLOCKQUOTE>
+<BLOCKQUOTE>
+<PRE>
+       RUT
+        |
+--------+-------+---------------+--------------- Link0
+                |               |
+                R0             MR0
+                |               |
+                |              -+-------+------- Link0A
+                |                       |
+                |                     LFN0A
+                |
+        --------+-------+-------+--------------- Link0X
+                        |       |
+                       R0X     MR0X
+                        |       |
+                        |      -+-------+------- Link0A
+                        |               |
+                        |             LFN0A
+                        |
+                --------+-------+--------------- Link0Y
+                                |
+                               MR0Y
+                                |
+                               -+-------+------- Link0A
+                                        |
+                                      LFN0A
+</PRE>
+</BLOCKQUOTE>
+<P>
+<TABLE BORDER>
+    <TR>
+        <TD><TT>Link0</TT></TD>
+        <TD><TT>global</TT></TD>
+        <TD><TT>3ffe:501:ffff:100::/64</TT></TD>
+        <TD><TT>home link</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>Link0X</TT></TD>
+        <TD><TT>global</TT></TD>
+        <TD><TT>3ffe:501:ffff:1100::/64</TT></TD>
+        <TD><TT>foreign link</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>Link0Y</TT></TD>
+        <TD><TT>global</TT></TD>
+        <TD><TT>3ffe:501:ffff:2100::/64</TT></TD>
+        <TD><TT>foreign link</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>Link0A</TT></TD>
+        <TD><TT>global</TT></TD>
+        <TD><TT>&lt;mr_device1.prefix&gt;::/64</TT></TD>
+        <TD><TT>NEMO link</TT></TD>
+    </TR>
+    <TR>
+        <TD ROWSPAN="4"><TT>RUT (Link0)</TT></TD>
+        <TD><TT>global</TT></TD>
+        <TD><TT>3ffe:501:ffff:100:&lt;NutDef.Link0_addr&gt;</TT></TD>
+        <TD><TT>&nbsp;</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>global</TT></TD>
+        <TD><TT>3ffe:501:ffff:100:fdff:ffff:ffff:fffe</TT></TD>
+        <TD><TT>anycast</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>link-local</TT></TD>
+        <TD><TT>fe80::&lt;NutDef.Link0_addr&gt;</TT></TD>
+        <TD ROWSPAN="2"><TT>&nbsp;</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>ether</TT></TD>
+        <TD><TT>&lt;NutDef.Link0_addr&gt;</TT></TD>
+    </TR>
+    <TR>
+        <TD ROWSPAN="3"><TT>R0 (Link0)</TT></TD>
+        <TD><TT>global</TT></TD>
+        <TD><TT>3ffe:501:ffff:100:200:ff:fe00:a0a0</TT></TD>
+        <TD ROWSPAN="3"><TT>&nbsp;</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>link-local</TT></TD>
+        <TD><TT>fe80::200:ff:fe00:a0a0</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>ether</TT></TD>
+        <TD><TT>00:00:00:00:a0:a0</TT></TD>
+    </TR>
+    <TR>
+        <TD ROWSPAN="3"><TT>MR0 (Link0)</TT></TD>
+        <TD><TT>global</TT></TD>
+        <TD><TT>3ffe:501:ffff:100:&lt;mr_device1.egress&gt;</TT></TD>
+        <TD ROWSPAN="3"><TT>egress address</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>link-local</TT></TD>
+        <TD><TT>fe80::&lt;mr_device1.egress&gt;</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>ether</TT></TD>
+        <TD><TT>&lt;mr_device1.egress&gt;</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>MR0X (Link0X)</TT></TD>
+        <TD><TT>global</TT></TD>
+        <TD><TT>3ffe:501:ffff:1100:&lt;mr_device1.egress&gt;</TT></TD>
+        <TD><TT>care-of address</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>MR0Y (Link0Y)</TT></TD>
+        <TD><TT>global</TT></TD>
+        <TD><TT>3ffe:501:ffff:2100:&lt;mr_device1.egress&gt;</TT></TD>
+        <TD><TT>care-of address</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>MR0 (Link0A)</TT></TD>
+        <TD><TT>global</TT></TD>
+        <TD><TT>&lt;mr_device1.prefix&gt;:&lt;mr_device1.ingress&gt;</TT></TD>
+        <TD><TT>ingress address</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>LFN0A</TT></TD>
+        <TD><TT>global</TT></TD>
+        <TD><TT>&lt;mr_device1.prefix&gt;:200:ff:fe00:100</TT></TD>
+        <TD><TT>local fixed node</TT></TD>
+    </TR>
+</TABLE>
+</BLOCKQUOTE>
+<P>
+o <U><B><FONT SIZE="+1">TOPOLOGY-1 Virtual Home Link</FONT></B></U> (If RUT supports <I><B>Virtual Home Link</B></I>.)
+<BLOCKQUOTE>
+<BLOCKQUOTE>
+<PRE>
+                                      LFN1A
+                                        |
+                               -+-------+------- Link1A
+                                |
+                               MR1Y
+                                |
+                --------+-------+--------------- Link1Y
+                        |
+                        |             LFN1A
+                        |               |
+                        |      -+-------+------- Link1A
+                        |       |
+                       R1X     MR1X
+                        |       |
+        --------+-------+-------+--------------- Link1X
+                |
+                R1
+                |
+--------+-------+------------------------------- Link1
+        |
+       RUT
+        |
+- - - - + - - - - - - - - - - - + - - - - - - -  Link0
+                                |
+                               MR0
+</PRE>
+</BLOCKQUOTE>
+<P>
+<TABLE BORDER>
+    <TR>
+        <TD><TT>Link0</TT></TD>
+        <TD><TT>global</TT></TD>
+        <TD><TT>3ffe:501:ffff:100::/64</TT></TD>
+        <TD><TT>home link</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>Link1</TT></TD>
+        <TD><TT>global</TT></TD>
+        <TD><TT>3ffe:501:ffff:101::/64</TT></TD>
+        <TD><TT>foreign link</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>Link1X</TT></TD>
+        <TD><TT>global</TT></TD>
+        <TD><TT>3ffe:501:ffff:1101::/64</TT></TD>
+        <TD><TT>foreign link</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>Link1Y</TT></TD>
+        <TD><TT>global</TT></TD>
+        <TD><TT>3ffe:501:ffff:2101::/64</TT></TD>
+        <TD><TT>foreign link</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>Link1A</TT></TD>
+        <TD><TT>global</TT></TD>
+        <TD><TT>&lt;mr_device1.prefix&gt;::/64</TT></TD>
+        <TD><TT>NEMO link</TT></TD>
+    </TR>
+    <TR>
+        <TD ROWSPAN="4"><TT>RUT (Link0)</TT></TD>
+        <TD><TT>global</TT></TD>
+        <TD><TT>3ffe:501:ffff:100:&lt;NutDef.Link0_addr&gt;</TT></TD>
+        <TD><TT>&nbsp;</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>global</TT></TD>
+        <TD><TT>3ffe:501:ffff:100:fdff:ffff:ffff:fffe</TT></TD>
+        <TD><TT>anycast</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>link-local</TT></TD>
+        <TD><TT>fe80::&lt;NutDef.Link0_addr&gt;</TT></TD>
+        <TD ROWSPAN="2"><TT>&nbsp;</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>ether</TT></TD>
+        <TD><TT>&lt;NutDef.Link0_addr&gt;</TT></TD>
+    </TR>
+    <TR>
+        <TD ROWSPAN="3"><TT>RUT (Link1)</TT></TD>
+        <TD><TT>global</TT></TD>
+        <TD><TT>3ffe:501:ffff:101:&lt;NutDef.Link1_addr&gt;</TT></TD>
+        <TD ROWSPAN="3"><TT>&nbsp;</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>link-local</TT></TD>
+        <TD><TT>fe80::&lt;NutDef.Link1_addr&gt;</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>ether</TT></TD>
+        <TD><TT>&lt;NutDef.Link1_addr&gt;</TT></TD>
+    </TR>
+    <TR>
+        <TD ROWSPAN="3"><TT>R1 (Link1)</TT></TD>
+        <TD><TT>global</TT></TD>
+        <TD><TT>3ffe:501:ffff:101:200:ff:fe00:a1a1</TT></TD>
+        <TD ROWSPAN="3"><TT>&nbsp;</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>link-local</TT></TD>
+        <TD><TT>fe80::200:ff:fe00:a1a1</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>ether</TT></TD>
+        <TD><TT>00:00:00:00:a1:a1</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>MR0 (Link0)</TT></TD>
+        <TD><TT>global</TT></TD>
+        <TD><TT>3ffe:501:ffff:100:&lt;mr_device1.egress&gt;</TT></TD>
+        <TD><TT>egress address</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>MR1X (Link1X)</TT></TD>
+        <TD><TT>global</TT></TD>
+        <TD><TT>3ffe:501:ffff:1101:&lt;mr_device1.egress&gt;</TT></TD>
+        <TD><TT>care-of address</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>MR1Y (Link1Y)</TT></TD>
+        <TD><TT>global</TT></TD>
+        <TD><TT>3ffe:501:ffff:2101:&lt;mr_device1.egress&gt;</TT></TD>
+        <TD><TT>care-of address</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>MR0 (Link1A)</TT></TD>
+        <TD><TT>global</TT></TD>
+        <TD><TT>&lt;mr_device1.prefix&gt;:&lt;mr_device1.ingress&gt;</TT></TD>
+        <TD><TT>ingress address</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>LFN1A</TT></TD>
+        <TD><TT>global</TT></TD>
+        <TD><TT>&lt;mr_device1.prefix&gt;:200:ff:fe00:100</TT></TD>
+        <TD><TT>local fixed node</TT></TD>
+    </TR>
+</TABLE>
+</BLOCKQUOTE>
+</BLOCKQUOTE>
+
+=end html
+
+=head1 SETUP
+
+=begin html
+<BLOCKQUOTE>
+o <U><B><FONT SIZE="+1">Common Setup-1</FONT></B></U>
+<UL>
+    <LI>Reboot RUT
+    <LI>Assign the global addresses
+    <BLOCKQUOTE>
+        <TABLE BORDER>
+            <TR><TH>interface</TH><TH>address</TH><TH>type</TH><TH>note</TH></TR>
+            <TR><TD ROWSPAN="2">&lt;NutDef.Link0_device&gt;</TD><TD>3ffe:501:ffff:100:&lt;NutDef.Link0_addr&gt;</TD><TD>unicast</TD><TD>&nbsp;</TD></TR>
+            <TR><TD>3ffe:501:ffff:100:fdff:ffff:ffff:fffe</TD><TD>anycast</TD><TD>Mobile IPv6 Home-Agents anycast address</TD></TR>
+            <TR><TD>&lt;NutDef.Link1_device&gt;</TD><TD>3ffe:501:ffff:101:&lt;NutDef.Link1_addr&gt;</TD><TD>unicast</TD><TD>&nbsp;</TD></TR>
+        </TABLE>
+    </BLOCKQUOTE>
+    <LI>Assign the mobile network prefix
+    <UL>
+        <LI>Home Address derived from the Home Network Prefix and Implicit mode
+    </UL>
+    <BLOCKQUOTE>
+        <TABLE BORDER>
+            <TR><TH>mr device ID</TH><TH>egress address (home address)</TH><TH>mobile network prefix</TH><TH>ingress address</TH><TH>note</TH></TR>
+            <TR><TD>&lt;mr_device1&gt;</TD>
+                    <TD>3ffe:501:ffff:100:200:ff:fe00:11</TD>
+                    <TD>3ffe:501:ffff:111::/64</TD>
+                    <TD>3ffe:501:ffff:111:200:ff:fe00:11</TD>
+                    <TD>&nbsp;</TD></TR>
+                <TR><TD ROWSPAN="2">&lt;mr_device2&gt;</TD>
+                    <TD ROWSPAN="2">3ffe:501:ffff:100:200:ff:fe00:12</TD>
+                        <TD>3ffe:501:ffff:112::/64</TD>
+                        <TD>3ffe:501:ffff:112:200:ff:fe00:12</TD>
+                        <TD ROWSPAN="2">multi</TD></TR>
+                    <TR><TD>3ffe:501:ffff:113::/64</TD>
+                        <TD>3ffe:501:ffff:113:200:ff:fe00:13</TD></TR>
+                <TR><TD>&lt;mr_device4&gt;</TD>
+                    <TD>3ffe:501:ffff:100:200:ff:fe00:14</TD>
+                    <TD>3ffe:501:ffff:114::/64</TD>
+                    <TD>3ffe:501:ffff:114:200:ff:fe00:14</TD>
+                    <TD>&nbsp;</TD></TR>
+        </TABLE>
+    </BLOCKQUOTE>
+    <UL>
+        <LI>Home Address derived from the Home Network Prefix and Explicit mode
+    </UL>
+    <BLOCKQUOTE>
+        <TABLE BORDER>
+            <TR><TH>mr device ID</TH><TH>egress address (home address)</TH><TH>mobile network prefix</TH><TH>ingress address</TH><TH>note</TH></TR>
+            <TR><TD>&lt;mr_device1&gt;</TD>
+                    <TD>3ffe:501:ffff:100:200:ff:fe00:21</TD>
+                    <TD>3ffe:501:ffff:121::/64</TD>
+                    <TD>3ffe:501:ffff:121:200:ff:fe00:21</TD>
+                    <TD>&nbsp;</TD></TR>
+                <TR><TD ROWSPAN="2">&lt;mr_device2&gt;</TD>
+                    <TD ROWSPAN="2">3ffe:501:ffff:100:200:ff:fe00:22</TD>
+                        <TD>3ffe:501:ffff:122::/64</TD>
+                        <TD>3ffe:501:ffff:122:200:ff:fe00:22</TD>
+                        <TD ROWSPAN="2">multi</TD></TR>
+                    <TR><TD>3ffe:501:ffff:123::/64</TD>
+                        <TD>3ffe:501:ffff:123:200:ff:fe00:23</TD></TR>
+                <TR><TD>&lt;mr_device4&gt;</TD>
+                    <TD>3ffe:501:ffff:100:200:ff:fe00:24</TD>
+                    <TD>3ffe:501:ffff:124::/64</TD>
+                    <TD>3ffe:501:ffff:124:200:ff:fe00:24</TD>
+                    <TD>&nbsp;</TD></TR>
+        </TABLE>
+    </BLOCKQUOTE>
+    <UL>
+        <LI>Home Address derived from the Mobile Network Prefix and Implicit mode
+    </UL>
+    <BLOCKQUOTE>
+        <TABLE BORDER>
+            <TR><TH>mr device ID</TH><TH>egress address</TH><TH>mobile network prefix</TH><TH>ingress address (home address)</TH><TH>note</TH></TR>
+            <TR><TD>&lt;mr_device1&gt;</TD>
+                    <TD>3ffe:501:ffff:100:200:ff:fe00:11</TD>
+                    <TD>3ffe:501:ffff:111::/64</TD>
+                    <TD>3ffe:501:ffff:111:200:ff:fe00:11</TD>
+                    <TD>&nbsp;</TD></TR>
+                <TR><TD ROWSPAN="2">&lt;mr_device2&gt;</TD>
+                    <TD ROWSPAN="2">3ffe:501:ffff:100:200:ff:fe00:12</TD>
+                        <TD>3ffe:501:ffff:112::/64</TD>
+                        <TD>3ffe:501:ffff:112:200:ff:fe00:12</TD>
+                        <TD ROWSPAN="2">multi</TD></TR>
+                    <TR><TD>3ffe:501:ffff:113::/64</TD>
+                        <TD>3ffe:501:ffff:113:200:ff:fe00:13</TD></TR>
+                <TR><TD>&lt;mr_device4&gt;</TD>
+                    <TD>3ffe:501:ffff:100:200:ff:fe00:14</TD>
+                    <TD>3ffe:501:ffff:114::/64</TD>
+                    <TD>3ffe:501:ffff:114:200:ff:fe00:14</TD>
+                    <TD>&nbsp;</TD></TR>
+        </TABLE>
+    </BLOCKQUOTE>
+    <UL>
+        <LI>Home Address derived from the Mobile Network Prefix and Explicit mode
+    </UL>
+    <BLOCKQUOTE>
+        <TABLE BORDER>
+            <TR><TH>mr device ID</TH><TH>egress address</TH><TH>mobile network prefix</TH><TH>ingress address (home address)</TH><TH>note</TH></TR>
+            <TR><TD>&lt;mr_device1&gt;</TD>
+                    <TD>3ffe:501:ffff:100:200:ff:fe00:21</TD>
+                    <TD>3ffe:501:ffff:121::/64</TD>
+                    <TD>3ffe:501:ffff:121:200:ff:fe00:21</TD>
+                    <TD>&nbsp;</TD></TR>
+                <TR><TD ROWSPAN="2">&lt;mr_device2&gt;</TD>
+                    <TD ROWSPAN="2">3ffe:501:ffff:100:200:ff:fe00:22</TD>
+                        <TD>3ffe:501:ffff:122::/64</TD>
+                        <TD>3ffe:501:ffff:122:200:ff:fe00:22</TD>
+                        <TD ROWSPAN="2">multi</TD></TR>
+                    <TR><TD>3ffe:501:ffff:123::/64</TD>
+                        <TD>3ffe:501:ffff:123:200:ff:fe00:23</TD></TR>
+                <TR><TD>&lt;mr_device4&gt;</TD>
+                    <TD>3ffe:501:ffff:100:200:ff:fe00:24</TD>
+                    <TD>3ffe:501:ffff:124::/64</TD>
+                    <TD>3ffe:501:ffff:124:200:ff:fe00:24</TD>
+                    <TD>&nbsp;</TD></TR>
+        </TABLE>
+    </BLOCKQUOTE>
+    <LI>Enable HA function
+    <UL>
+        <LI>Turn on HA functions
+    </UL>
+    <LI>Configure routing table of RUT
+    <UL>
+        <LI>HA has only physical home link
+    </UL>
+    <BLOCKQUOTE>
+        <TABLE BORDER>
+            <TR><TH>destination</TH><TH>gateway</TH><TH>interface</TH><TH>preference</TH></TR>
+            <TR><TD>::/0(default)</TD><TD>fe80::200:ff:fe00:a0a0</TD><TD>&lt;NutDef.Link0_device&gt;</TD><TD>medium</TD></TR>
+            <TR><TD>3ffe:501:ffff:111::/64</TD><TD>fe80::200:ff:fe00:11</TD><TD>&lt;NutDef.Link0_device&gt;</TD><TD>high</TD></TR>
+            <TR><TD>3ffe:501:ffff:112::/64</TD><TD>fe80::200:ff:fe00:12</TD><TD>&lt;NutDef.Link0_device&gt;</TD><TD>high</TD></TR>
+            <TR><TD>3ffe:501:ffff:113::/64</TD><TD>fe80::200:ff:fe00:12</TD><TD>&lt;NutDef.Link0_device&gt;</TD><TD>high</TD></TR>
+            <TR><TD>3ffe:501:ffff:114::/64</TD><TD>fe80::200:ff:fe00:14</TD><TD>&lt;NutDef.Link0_device&gt;</TD><TD>high</TD></TR>
+            <TR><TD>3ffe:501:ffff:121::/64</TD><TD>fe80::200:ff:fe00:21</TD><TD>&lt;NutDef.Link0_device&gt;</TD><TD>high</TD></TR>
+            <TR><TD>3ffe:501:ffff:122::/64</TD><TD>fe80::200:ff:fe00:22</TD><TD>&lt;NutDef.Link0_device&gt;</TD><TD>high</TD></TR>
+            <TR><TD>3ffe:501:ffff:123::/64</TD><TD>fe80::200:ff:fe00:22</TD><TD>&lt;NutDef.Link0_device&gt;</TD><TD>high</TD></TR>
+            <TR><TD>3ffe:501:ffff:124::/64</TD><TD>fe80::200:ff:fe00:24</TD><TD>&lt;NutDef.Link0_device&gt;</TD><TD>high</TD></TR>
+        </TABLE>
+    </BLOCKQUOTE>
+    <UL>
+        <LI>HA has physical home link and physical foreign link
+    </UL>
+    <BLOCKQUOTE>
+        <TABLE BORDER>
+            <TR><TH>destination</TH><TH>gateway</TH><TH>interface</TH><TH>preference</TH></TR>
+            <TR><TD>::/0(default)</TD><TD>fe80::200:ff:fe00:a0a0</TD><TD>&lt;NutDef.Link0_device&gt;</TD><TD>medium</TD></TR>
+            <TR><TD>3ffe:501:ffff:111::/64</TD><TD>fe80::200:ff:fe00:11</TD><TD>&lt;NutDef.Link0_device&gt;</TD><TD>high</TD></TR>
+            <TR><TD>3ffe:501:ffff:112::/64</TD><TD>fe80::200:ff:fe00:12</TD><TD>&lt;NutDef.Link0_device&gt;</TD><TD>high</TD></TR>
+            <TR><TD>3ffe:501:ffff:113::/64</TD><TD>fe80::200:ff:fe00:12</TD><TD>&lt;NutDef.Link0_device&gt;</TD><TD>high</TD></TR>
+            <TR><TD>3ffe:501:ffff:114::/64</TD><TD>fe80::200:ff:fe00:14</TD><TD>&lt;NutDef.Link0_device&gt;</TD><TD>high</TD></TR>
+            <TR><TD>3ffe:501:ffff:121::/64</TD><TD>fe80::200:ff:fe00:21</TD><TD>&lt;NutDef.Link0_device&gt;</TD><TD>high</TD></TR>
+            <TR><TD>3ffe:501:ffff:122::/64</TD><TD>fe80::200:ff:fe00:22</TD><TD>&lt;NutDef.Link0_device&gt;</TD><TD>high</TD></TR>
+            <TR><TD>3ffe:501:ffff:123::/64</TD><TD>fe80::200:ff:fe00:22</TD><TD>&lt;NutDef.Link0_device&gt;</TD><TD>high</TD></TR>
+            <TR><TD>3ffe:501:ffff:124::/64</TD><TD>fe80::200:ff:fe00:24</TD><TD>&lt;NutDef.Link0_device&gt;</TD><TD>high</TD></TR>
+            <TR><TD>3ffe:501:ffff:1101::/64</TD><TD>fe80::200:ff:fe00:a1a1</TD><TD>&lt;NutDef.Link1_device&gt;</TD><TD>medium</TD></TR>
+            <TR><TD>3ffe:501:ffff:2101::/64</TD><TD>fe80::200:ff:fe00:a1a1</TD><TD>&lt;NutDef.Link1_device&gt;</TD><TD>medium</TD></TR>
+            <TR><TD>3ffe:501:ffff:3101::/64</TD><TD>fe80::200:ff:fe00:a1a1</TD><TD>&lt;NutDef.Link1_device&gt;</TD><TD>medium</TD></TR>
+        </TABLE>
+    </BLOCKQUOTE>
+    <UL>
+        <LI>HA has virtual home link and physical foreign link
+    </UL>
+    <BLOCKQUOTE>
+        <TABLE BORDER>
+            <TR><TH>destination</TH><TH>gateway</TH><TH>interface</TH><TH>preference</TH></TR>
+            <TR><TD>default</TD><TD>fe80::200:ff:fe00:a1a1</TD><TD>&lt;NutDef.Link1_device&gt;</TD><TD>medium</TD></TR>
+        </TABLE>
+    </BLOCKQUOTE>
+    <LI>IPsec configuration
+    <UL>
+        <LI>implicit mr_device1
+        <UL>
+            <LI><A HREF="./SETUP_IPsec_imp_dev1_SA1_SA2.html">ESP transport mode (BU/BA)</A>
+            <LI><A HREF="./SETUP_IPsec_imp_dev1_SA3_SA4.html">ESP tunnel mode (HoTI/HoT)</A>
+            <LI><A HREF="./SETUP_IPsec_imp_dev1_SA5_SA6.html">ESP transport mode (MPS/MPA)</A>
+            <LI><A HREF="./SETUP_IPsec_imp_dev1_SA7_SA8.html">ESP tunnel mode (Payload Packets)</A>
+            <LI><A HREF="./SETUP_IPsec_imp_dev1_SA9_SA10.html">ESP tunnel mode (Payload Packets that belong to Mobile Network Prefix)</A>
+        </UL>
+        <LI>implicit mr_device2
+        <UL>
+            <LI><A HREF="./SETUP_IPsec_imp_dev2_SA1_SA2.html">ESP transport mode (BU/BA)</A>
+            <LI><A HREF="./SETUP_IPsec_imp_dev2_SA3_SA4.html">ESP tunnel mode (HoTI/HoT)</A>
+            <LI><A HREF="./SETUP_IPsec_imp_dev2_SA5_SA6.html">ESP transport mode (MPS/MPA)</A>
+            <LI><A HREF="./SETUP_IPsec_imp_dev2_SA7_SA8.html">ESP tunnel mode (Payload Packets)</A>
+            <LI><A HREF="./SETUP_IPsec_imp_dev2_SA9_SA10.html">ESP tunnel mode (Payload Packets that belong to Mobile Network Prefix)</A>
+        </UL>                                 
+        <LI>implicit mr_device4
+        <UL>
+            <LI><A HREF="./SETUP_IPsec_imp_dev4_SA1_SA2.html">ESP transport mode (BU/BA)</A>
+            <LI><A HREF="./SETUP_IPsec_imp_dev4_SA3_SA4.html">ESP tunnel mode (HoTI/HoT)</A>
+            <LI><A HREF="./SETUP_IPsec_imp_dev4_SA5_SA6.html">ESP transport mode (MPS/MPA)</A>
+            <LI><A HREF="./SETUP_IPsec_imp_dev4_SA7_SA8.html">ESP tunnel mode (Payload Packets)</A>
+            <LI><A HREF="./SETUP_IPsec_imp_dev4_SA9_SA10.html">ESP tunnel mode (Payload Packets that belong to Mobile Network Prefix)</A>
+        </UL>
+        <LI>explicit mr_device1
+        <UL>
+            <LI><A HREF="./SETUP_IPsec_exp_dev1_SA1_SA2.html">ESP transport mode (BU/BA)</A>
+            <LI><A HREF="./SETUP_IPsec_exp_dev1_SA3_SA4.html">ESP tunnel mode (HoTI/HoT)</A>
+            <LI><A HREF="./SETUP_IPsec_exp_dev1_SA5_SA6.html">ESP transport mode (MPS/MPA)</A>
+            <LI><A HREF="./SETUP_IPsec_exp_dev1_SA7_SA8.html">ESP tunnel mode (Payload Packets)</A>
+            <LI><A HREF="./SETUP_IPsec_exp_dev1_SA9_SA10.html">ESP tunnel mode (Payload Packets that belong to Mobile Network Prefix)</A>
+        </UL>
+        <LI>explicit mr_device2
+        <UL>
+            <LI><A HREF="./SETUP_IPsec_exp_dev2_SA1_SA2.html">ESP transport mode (BU/BA)</A>
+            <LI><A HREF="./SETUP_IPsec_exp_dev2_SA3_SA4.html">ESP tunnel mode (HoTI/HoT)</A>
+            <LI><A HREF="./SETUP_IPsec_exp_dev2_SA5_SA6.html">ESP transport mode (MPS/MPA)</A>
+            <LI><A HREF="./SETUP_IPsec_exp_dev2_SA7_SA8.html">ESP tunnel mode (Payload Packets)</A>
+            <LI><A HREF="./SETUP_IPsec_exp_dev2_SA9_SA10.html">ESP tunnel mode (Payload Packets that belong to Mobile Network Prefix)</A>
+        </UL>
+        <LI>explicit mr_device4
+        <UL>
+            <LI><A HREF="./SETUP_IPsec_exp_dev4_SA1_SA2.html">ESP transport mode (BU/BA)</A>
+            <LI><A HREF="./SETUP_IPsec_exp_dev4_SA3_SA4.html">ESP tunnel mode (HoTI/HoT)</A>
+            <LI><A HREF="./SETUP_IPsec_exp_dev4_SA5_SA6.html">ESP transport mode (MPS/MPA)</A>
+            <LI><A HREF="./SETUP_IPsec_exp_dev4_SA7_SA8.html">ESP tunnel mode (Payload Packets)</A>
+            <LI><A HREF="./SETUP_IPsec_exp_dev4_SA9_SA10.html">ESP tunnel mode (Payload Packets that belong to Mobile Network Prefix)</A>
+        </UL>
+    </UL>
+</UL>
+o <U><B><FONT SIZE="+1">Real Home Link</FONT></B></U> (If RUT supports <I><B>Real Home Link</B></I>.)
+<UL>
+    <LI>Configure RA parameter
+    <UL>
+        <UL>
+            <LI>Set Home Agent Flag to ON
+        </UL>
+        <LI>Attach Home Agent Information Option
+        <UL>
+            <LI>Set Mobile Router Support Flag to ON
+            <LI>Set Home Agent Preference to 10
+        </UL>
+        <LI>Attach Prefix Information Option
+        <UL>
+            <LI>Set Router Address Flag to ON
+            <LI>Set Prefix field to Home Agent Address
+        </UL>
+    </UL>
+</UL>
+</BLOCKQUOTE>
+
+=end html
+
+=head1 INITIALIZATION
+
+=begin html
+<BLOCKQUOTE>
+o <U><B><FONT SIZE="+1">Real Home Link</FONT></B></U>
+<BLOCKQUOTE>
+Check Link0 routing table
+<BLOCKQUOTE>
+<PRE>
+  RUT     MR0
+   |       |
+   |      MR0X
+   |       |
+   | <---- | Echo Request
+   | ----> | Echo Reply
+   |       |
+   |      MR0Y
+   |       |
+   | <---- | Echo Request
+   | ----> | Echo Reply
+   |       |
+   V       V
+</PRE>
+</BLOCKQUOTE>
+<P>
+<PRE>
+1. MR0X sends Echo Request
+</PRE>
+<PRE>
+        IPv6 header
+            source              = MR0X (Link0X, global)
+            destination         = RUT  (Link0,  global)
+        Echo Request
+</PRE>
+<PRE>
+2. MR0X receives Echo Reply
+</PRE>
+<PRE>
+        IPv6 header
+            source              = RUT  (Link0,  global)
+            destination         = MR0X (Link0X, global)
+        Echo Reply
+</PRE>
+<PRE>
+3. MR0Y sends Echo Request
+</PRE>
+<PRE>
+        IPv6 header
+            source              = MR0Y (Link0Y, global)
+            destination         = RUT  (Link0,  global)
+        Echo Request
+</PRE>
+<PRE>
+4. MR0Y receives Echo Reply
+</PRE>
+<PRE>
+        IPv6 header
+            source              = RUT  (Link0,  global)
+            destination         = MR0Y (Link0Y, global)
+        Echo Reply
+</PRE>
+</BLOCKQUOTE>
+<P>
+o <U><B><FONT SIZE="+1">Virtual Home Link</FONT></B></U>
+<BLOCKQUOTE>
+Check Link1 routing table
+<BLOCKQUOTE>
+<PRE>
+  RUT     MR0
+   |       |
+   |      MR1X
+   |       |
+   | <---- | Echo Request
+   | ----> | Echo Reply
+   |       |
+   |      MR1Y
+   |       |
+   | <---- | Echo Request
+   | ----> | Echo Reply
+   |       |
+   V       V
+</PRE>
+</BLOCKQUOTE>
+<P>
+<PRE>
+1. MR1X sends Echo Request
+</PRE>
+<PRE>
+        IPv6 header
+            source              = MR1X (Link1X, global)
+            destination         = RUT  (Link0,  global)
+        Echo Request
+</PRE>
+<PRE>
+2. MR1X receives Echo Reply
+</PRE>
+<PRE>
+        IPv6 header
+            source              = RUT  (Link0,  global)
+            destination         = MR1X (Link1X, global)
+        Echo Reply
+</PRE>
+<PRE>
+3. MR1Y sends Echo Request
+</PRE>
+<PRE>
+        IPv6 header
+            source              = MR1Y (Link1Y, global)
+            destination         = RUT  (Link0,  global)
+        Echo Request
+</PRE>
+<PRE>
+4. MR1Y receives Echo Reply
+</PRE>
+<PRE>
+        IPv6 header
+            source              = RUT  (Link0,  global)
+            destination         = MR1Y (Link1Y, global)
+        Echo Reply
+</PRE>
+</BLOCKQUOTE>
+</BLOCKQUOTE>
+
+=end html
+
+=head1 TEST PROCEDURE
+
+=begin html
+<BLOCKQUOTE>
+<BLOCKQUOTE>
+<PRE>
+  RUT     MR0
+   |       |
+   |      MR0X
+   |       |
+   | <---- | BU (A=1&H=1&R=1, ltime=0) w/ HaO w/o MNP
+   | ----> | BA (status=133) w/ RH                    (*1)
+   |       |
+   | <---- | Echo Request w/ HaO
+   | ----> | BE (status=1)                            (*2)
+   |       |
+   V       V
+</PRE>
+</BLOCKQUOTE>
+<P>
+<PRE>
+1. MR0X sends BU w/ HaO w/o MNP
+</PRE>
+<PRE>
+        IPv6 header
+            source              = MR0X (Link0X, global)
+            destination         = RUT  (Link0,  global)
+        DH
+          HaO
+            address             = MR0  (Link0/Link0A, global)
+        ESP
+            SPI                 = SA1_SPI (SA1 protects BU message)
+        BU
+            sequence            = 15
+            A                   = 1
+            H                   = 1
+            L                   = 0
+            K                   = 0
+            R                   = 1
+            lifetime            = 0
+          PadN option
+            length              = 0
+          Alternate CoA option
+            address             = MR0X (Link0X, global)
+</PRE>
+<PRE>
+2. MR0X receives BA w/ RH (*1)
+</PRE>
+<PRE>
+        IPv6 header
+            source              = RUT  (Link0,  global)
+            destination         = MR0X (Link0X, global)
+        RH
+            length              = 2
+            type                = 2
+            segments left       = 1
+            address             = MR0  (Link0/Link0A, global)
+        ESP
+            SPI                 = SA2_SPI (SA2 protects BA message)
+        BA
+            status              = 133 (Not home agent for this mobile node)
+            K                   = 0
+            R                   = any
+            sequence            = 15
+            lifetime            = any
+          PadN option
+            length              = 2
+</PRE>
+<PRE>
+3. MR0X sends Echo Request w/ HaO
+</PRE>
+<PRE>
+    o <U>Echo Request message format #1</U>
+</PRE>
+<PRE>
+        IPv6 header
+            source              = MR0X (Link0X, global)
+            destination         = RUT  (Link0,  global)
+        DH
+          HaO
+            address             = MR0  (Link0/Link0A, global)
+        ESP
+            SPI                 = SA5_SPI (SA5 protects ICMPv6 header) or
+                                = SA1_SPI (SA1 protects any header)
+        Echo Request
+</PRE>
+<PRE>
+    o <U>Echo Request message format #2</U>
+</PRE>
+<PRE>
+        IPv6 header
+            source              = MR0X (Link0X, global)
+            destination         = RUT  (Link0,  global)
+        DH
+          HaO
+            address             = MR0  (Link0/Link0A, global)
+        Echo Request
+</PRE>
+<PRE>
+4. MR0X receives BE (*2)
+</PRE>
+<PRE>
+        IPv6 header
+            source              = RUT  (Link0,  global)
+            destination         = MR0X (Link0X, global)
+        BE
+            status              = 1 (Unknown binding for Home Address destination option)
+            address             = MR0  (Link0/Link0A, global)
+</PRE>
+</BLOCKQUOTE>
+
+=end html
+
+=head1 JUDGEMENT
+
+=begin html
+<BLOCKQUOTE>
+<PRE>
+(*1) PASS: MR0X receives BA w/ RH
+(*2) PASS: MR0X receives BE
+</PRE>
+</BLOCKQUOTE>
+
+=end html
+
+=cut
+
+# =head1 REFERENCE
+# 
+# =begin html
+# <BLOCKQUOTE>
+# <PRE>
+# 10.3.2.  Primary Care-of Address De-Registration
+# </PRE>
+# <PRE>
+#    A binding may need to be de-registered when the mobile node returns
+#    home or when the mobile node knows that it will not have any care-of
+#    addresses in the visited network.
+# </PRE>
+# <PRE>
+#    A Binding Update is validated and authorized in the manner described
+#    in the previous section; note that when the mobile node de-registers
+#    when it is at home, it may not include the Home Address destination
+#    option, in which case the mobile node's home address is the source IP
+#    address of the de-registration Binding Update.  This section
+#    describes the processing of a valid Binding Update that requests the
+#    receiving node to no longer serve as its home agent, de-registering
+#    its primary care-of address.
+# </PRE>
+# <PRE>
+#    To begin processing the Binding Update, the home agent <FONT COLOR="#FF0000">MUST</FONT> perform
+#    the following test:
+# </PRE>
+# <PRE>
+#    o  <U><B>If the receiving node has no entry marked as a home registration</B></U>
+#       <U><B>in its Binding Cache for this mobile node, then this node <FONT COLOR="#FF0000">MUST</FONT></B></U>
+#       <U><B>reject the Binding Update and <FONT COLOR="#FF0000">SHOULD</FONT> return a Binding</B></U>
+#       <U><B>Acknowledgement to the mobile node, in which the Status field is</B></U>
+#       <U><B>set to 133 (not home agent for this mobile node).</B></U>
+# </PRE>
+# <PRE>
+#    If the home agent does not reject the Binding Update as described
+#    above, then it <FONT COLOR="#FF0000">MUST</FONT> delete any existing entry in its Binding Cache
+#    for this mobile node.  Then, the home agent <FONT COLOR="#FF0000">MUST</FONT> return a Binding
+#    Acknowledgement to the mobile node, constructed as follows:
+# </PRE>
+# <PRE>
+#    o  The Status field <FONT COLOR="#FF0000">MUST</FONT> be set to a value 0, indicating success.
+# </PRE>
+# <PRE>
+#    o  The Key Management Mobility Capability (K) bit is set or cleared
+#       and actions based on its value are performed as described in the
+#       previous section.  The mobile node's home address is used as its
+#       new care-of address for the purposes of moving the key management
+#       connection to a new endpoint.
+# </PRE>
+# <PRE>
+#    o  The Sequence Number field <FONT COLOR="#FF0000">MUST</FONT> be copied from the Sequence Number
+#       given in the Binding Update.
+# </PRE>
+# <PRE>
+#    o  The Lifetime field <FONT COLOR="#FF0000">MUST</FONT> be set to zero.
+# </PRE>
+# <PRE>
+#    o  The Binding Refresh Advice mobility option <FONT COLOR="#FF0000">MUST</FONT> be omitted.
+# </PRE>
+# <PRE>
+#    In addition, the home agent <FONT COLOR="#FF0000">MUST</FONT> stop intercepting packets on the
+#    mobile node's home link that are addressed to the mobile node
+#    (Section 10.4.1).
+# </PRE>
+# <PRE>
+#    The rules for selecting the Destination IP address (and, if required,
+#    routing header construction) for the Binding Acknowledgement to the
+#    mobile node are the same as in the previous section.  When the Status
+#    field in the Binding Acknowledgement is greater than or equal to 128
+#    and the Source Address of the Binding Update is on the home link, the
+#    home agent <FONT COLOR="#FF0000">MUST</FONT> send it to the mobile node's link layer address
+#    (retrieved either from the Binding Update or through Neighbor
+#    Solicitation).
+# </PRE>
+# </BLOCKQUOTE>
+# 
+# =end html
+# 
+
+=pod
+
+=head1 REFERENCE
+
+=begin html
+<BLOCKQUOTE>
+<PRE>
+RFC 3775 - Mobility Support in IPv6
+See Section 10.3.2.
+</PRE>
+</BLOCKQUOTE>
+
+=end html
+
+=cut

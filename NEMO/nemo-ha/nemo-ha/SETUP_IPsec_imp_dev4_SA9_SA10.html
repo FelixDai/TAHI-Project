@@ -1,0 +1,46 @@
+<HTML>
+<HEAD>
+<TITLE>IPsec Configuration MR4 - HA (SA9/SA10)</TITLE>
+</HEAD>
+<BODY>
+<H1>IPsec Configuration MR4 - HA (SA9/SA10)</H1>
+<TT>
+<B>SA9 and SA10 are NOT described in RFC3963 and RFC3776 for payload packet.</B><BR>
+<B>Bold texts indicate configurable parameters.</B>
+</TT>
+<UL>
+<LI>SA9 (Tunnel mode, X on Mobile Network Prefix)
+<BLOCKQUOTE>
+<PRE>
+SPI <B>0x149 (329)</B>
+    src:            MR  3ffe:501:ffff:100::<B>&lt;implicit mr_device4 Interface ID&gt;</B>
+    dst:            HA  3ffe:501:ffff:100::<B>&lt;Interface ID&gt;</B>
+    mode:           ESP tunnel
+    tunneled src:   MNP <B>&lt;implicit mr_device4 mobile network prefix&gt;</B>::/64
+    tunneled dst:   any ::/0
+    upper layer:    <B>X (any)</B>
+    enc algorithm:  <B>3des-cbc</B>,  enc key:  <B>V6LC-149--12345678901234</B> (default)
+                    <B>des-cbc</B>              <B>V6LC-149</B>
+    auth algorithm: <B>hmac-sha1</B>, auth key: <B>V6LC-149--1234567890</B>     (default)
+                    <B>hmac-md5</B>             <B>V6LC-149--123456</B>
+</PRE>
+</BLOCKQUOTE>
+<LI>SA10 (Tunnel mode, X on Mobile Network Prefix)
+<BLOCKQUOTE>
+<PRE>
+SPI <B>0x14a (330)</B>
+    src:            HA  3ffe:501:ffff:100::<B>&lt;Interface ID&gt;</B>
+    dst:            MR  3ffe:501:ffff:100::<B>&lt;implicit mr_device4 Interface ID&gt;</B>
+    mode:           ESP tunnel
+    tunneled src:   any ::/0
+    tunneled dst:   MNP <B>&lt;implicit mr_device4 mobile network prefix&gt;</B>::/64
+    upper layer:    <B>X (any)</B>
+    enc algorithm:  <B>3des-cbc</B>,  enc key:  <B>V6LC-14A--12345678901234</B> (default)
+                    <B>des-cbc</B>              <B>V6LC-14A</B>
+    auth algorithm: <B>hmac-sha1</B>, auth key: <B>V6LC-14A--1234567890</B>     (default)
+                    <B>hmac-md5</B>             <B>V6LC-14A--123456</B>
+</PRE>
+</BLOCKQUOTE>
+</UL>
+</BODY>
+</HTML>

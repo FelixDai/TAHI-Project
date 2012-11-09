@@ -1,0 +1,43 @@
+<HTML>
+<HEAD>
+<TITLE>IPsec Configuration MR2 - HA (SA7/SA8)</TITLE>
+</HEAD>
+<BODY>
+<H1>IPsec Configuration MR2 - HA (SA7/SA8)</H1>
+<TT><B>Bold texts indicate configurable parameters.</B></TT>
+<UL>
+<LI>SA7 (Tunnel mode, X)
+<BLOCKQUOTE>
+<PRE>
+SPI <B>0x227 (551)</B>
+    src:            MR  3ffe:501:ffff:100::<B>&lt;explicit mr_device2 Interface ID&gt;</B>
+    dst:            HA  3ffe:501:ffff:100::<B>&lt;Interface ID&gt;</B>
+    mode:           ESP tunnel
+    tunneled src:   MR  3ffe:501:ffff:100::<B>&lt;explicit mr_device2 Interface ID&gt;</B>
+    tunneled dst:   any ::/0
+    upper layer:    <B>X (any)</B>
+    enc algorithm:  <B>3des-cbc</B>,  enc key:  <B>V6LC-227--12345678901234</B> (default)
+                    <B>des-cbc</B>              <B>V6LC-227</B>
+    auth algorithm: <B>hmac-sha1</B>, auth key: <B>V6LC-227--1234567890</B>     (default)
+                    <B>hmac-md5</B>             <B>V6LC-227--123456</B>
+</PRE>
+</BLOCKQUOTE>
+<LI>SA8 (Tunnel mode, X)
+<BLOCKQUOTE>
+<PRE>
+SPI <B>0x228 (552)</B>
+    src:            HA  3ffe:501:ffff:100::<B>&lt;Interface ID&gt;</B>
+    dst:            MR  3ffe:501:ffff:100::<B>&lt;explicit mr_device2 Interface ID&gt;</B>
+    mode:           ESP tunnel
+    tunneled src:   any ::/0
+    tunneled dst:   MR  3ffe:501:ffff:100::<B>&lt;explicit mr_device2 Interface ID&gt;</B>
+    upper layer:    <B>X (any)</B>
+    enc algorithm:  <B>3des-cbc</B>,  enc key:  <B>V6LC-228--12345678901234</B> (default)
+                    <B>des-cbc</B>              <B>V6LC-228</B>
+    auth algorithm: <B>hmac-sha1</B>, auth key: <B>V6LC-228--1234567890</B>     (default)
+                    <B>hmac-md5</B>             <B>V6LC-228--123456</B>
+</PRE>
+</BLOCKQUOTE>
+</UL>
+</BODY>
+</HTML>

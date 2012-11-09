@@ -1,0 +1,43 @@
+<HTML>
+<HEAD>
+<TITLE>IPsec Configuration MR4 - HA (SA1/SA2)</TITLE>
+</HEAD>
+<BODY>
+<H1>IPsec Configuration MR4 - HA (SA1/SA2)</H1>
+<TT><B>Bold texts indicate configurable parameters.</B></TT>
+<UL>
+<LI>SA1 (Transport mode, Binding Update)
+<BLOCKQUOTE>
+<PRE>
+SPI <B>0x241 (577)</B>
+    src:            MR  3ffe:501:ffff:100::<B>&lt;explicit mr_device4 Interface ID&gt;</B>
+    dst:            HA  3ffe:501:ffff:100::<B>&lt;Interface ID&gt;</B>
+    mode:           ESP transport
+    upper layer:    header type <B>Mobility Header</B> (default)
+                    message type <B>Mobility Header, Binding Update Message</B>
+                    <B>any</B> (SA1 include SA5)
+    enc algorithm:  <B>3des-cbc</B>,  enc key:  <B>V6LC-241--12345678901234</B> (default)
+                    <B>des-cbc</B>              <B>V6LC-241</B>
+    auth algorithm: <B>hmac-sha1</B>, auth key: <B>V6LC-241--1234567890</B>     (default)
+                    <B>hmac-md5</B>             <B>V6LC-241--123456</B>
+</PRE>
+</BLOCKQUOTE>
+<LI>SA2 (Transport mode, Binding Acknowledgement)
+<BLOCKQUOTE>
+<PRE>
+SPI <B>0x242 (578)</B>
+    src:            HA  3ffe:501:ffff:100::<B>&lt;Interface ID&gt;</B>
+    dst:            MR  3ffe:501:ffff:100::<B>&lt;explicit mr_device4 Interface ID&gt;</B>
+    mode:           ESP transport
+    upper layer:    header type <B>Mobility Header</B> (default)
+                    message type <B>Mobility Header, Binding Acknowledgement Message</B>
+                    <B>any</B> (SA2 include SA6)
+    enc algorithm:  <B>3des-cbc</B>,  enc key:  <B>V6LC-242--12345678901234</B> (default)
+                    <B>des-cbc</B>              <B>V6LC-242</B>
+    auth algorithm: <B>hmac-sha1</B>, auth key: <B>V6LC-242--1234567890</B>     (default)
+                    <B>hmac-md5</B>             <B>V6LC-242--123456</B>
+</PRE>
+</BLOCKQUOTE>
+</UL>
+</BODY>
+</HTML>

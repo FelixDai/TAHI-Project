@@ -1,0 +1,127 @@
+//
+// Copyright (C) IPv6 Promotion Council,
+// NIPPON TELEGRAPH AND TELEPHONE CORPORATION (NTT),
+// Yokogwa Electoric Corporation, YASKAWA INFORMATION SYSTEMS Corporation
+// and NTT Advanced Technology Corporation(NTT-AT) All rights reserved.
+// 
+// Technology Corporation.
+// 
+// Redistribution and use of this software in source and binary forms, with 
+// or without modification, are permitted provided that the following 
+// conditions and disclaimer are agreed and accepted by the user:
+// 
+// 1. Redistributions of source code must retain the above copyright 
+// notice, this list of conditions and the following disclaimer.
+// 
+// 2. Redistributions in binary form must reproduce the above copyright 
+// notice, this list of conditions and the following disclaimer in the 
+// documentation and/or other materials provided with the distribution.
+// 
+// 3. Neither the names of the copyrighters, the name of the project which 
+// is related to this software (hereinafter referred to as "project") nor 
+// the names of the contributors may be used to endorse or promote products 
+// derived from this software without specific prior written permission.
+// 
+// 4. No merchantable use may be permitted without prior written 
+// notification to the copyrighters. However, using this software for the 
+// purpose of testing or evaluating any products including merchantable 
+// products may be permitted without any notification to the copyrighters.
+// 
+// 
+// 
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND 
+// CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING 
+// BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS 
+// FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE 
+// COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+// INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
+// SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
+// HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+// CONTRACT,STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF 
+// THE POSSIBILITY OF SUCH DAMAGE.
+//
+////////////////////////////////////////////////////////////////////////
+
+#include "./config.def"
+
+//#if ROTATE_HOA
+//#define MN_MAC  "00:00:00:00:00:aa"
+//#endif
+
+#if BU_MODE == 0
+#define MN_ID   11
+#else
+#define MN_ID   21
+#endif
+
+#include "./mipv6.def"
+
+
+FEM_hdr_ipv6_exth(
+	local_tunnel_ereq,
+	_HETHER_nut2rx,
+	{
+		_SRC(nut2v6(HOME_PREFIX, HOME_PREFIXLEN, HA_HOME_LINK));
+		_DST(v6merge(CARE_OF_PREFIX, CARE_OF_PREFIXLEN, v6ether(MN_MAC)));
+	},
+	{
+		header  = _HDR_IPV6_NAME(local_tunnel_ereq);
+#if HAVE_IPSEC && USE_SA9_SA10
+		exthdr  = ext_esp_cn2mnp;
+#endif
+		upper   = _PACKET_IPV6_NAME(local_ereq);
+	}
+)
+
+
+FEM_icmp6_echo_request(
+	local_ereq,
+	_HETHER_rx2nut,
+	{
+		_SRC(tn2v6(CARE_OF_PREFIX, CARE_OF_PREFIXLEN, LINKX_LINK));
+		_DST(v6merge(NEMO_PREFIX, NEMO_PREFIXLEN, v6ether(LFN_MAC)));
+	},
+	{
+		payload = payload8;
+	}
+)
+
+
+FEM_icmp6_time_exceeded(
+	local_timeexceeded,
+	_HETHER_rx2nut,
+	{
+		_SRC(v6merge(ICMP_ERROR_R_LINK_PREFIX, ICMP_ERROR_R_LINK_PREFIXLEN, v6(RX_LINK_LOCAL)));
+		_DST(nut2v6(HOME_PREFIX, HOME_PREFIXLEN, HA_HOME_LINK));
+	},
+	{
+		payload = data_local_tunnel_ereq;
+	}
+)
+
+
+Payload data_local_tunnel_ereq {
+	data    = left(_PACKET_IPV6_NAME(local_tunnel_ereq), 96);
+}
+
+
+FEM_icmp6_destination_unreachable(
+	local_dst_unreach,
+	_HETHER_nut2rx,
+	{
+		_SRC(oneof(nut2v6(HOME_PREFIX, HOME_PREFIXLEN, HA_HOME_LINK),
+		           nut2v6(LINK1_PREFIX, LINK1_PREFIXLEN, LINK1_LINK)));
+		_DST(tn2v6(CARE_OF_PREFIX, CARE_OF_PREFIXLEN, LINKX_LINK));
+	},
+	{
+		Code    = 3;
+		payload = data_local_ereq;
+	}
+)
+
+
+Payload data_local_ereq {
+	data    = left(_PACKET_IPV6_NAME(local_ereq), 56);
+}

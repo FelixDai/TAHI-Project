@@ -1,0 +1,425 @@
+#
+# Copyright (C) IPv6 Promotion Council,
+# NIPPON TELEGRAPH AND TELEPHONE CORPORATION (NTT),
+# Yokogwa Electoric Corporation, YASKAWA INFORMATION SYSTEMS Corporation
+# and NTT Advanced Technology Corporation(NTT-AT) All rights reserved.
+# 
+# Technology Corporation.
+# 
+# Redistribution and use of this software in source and binary forms, with 
+# or without modification, are permitted provided that the following 
+# conditions and disclaimer are agreed and accepted by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright 
+# notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright 
+# notice, this list of conditions and the following disclaimer in the 
+# documentation and/or other materials provided with the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project which 
+# is related to this software (hereinafter referred to as "project") nor 
+# the names of the contributors may be used to endorse or promote products 
+# derived from this software without specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written 
+# notification to the copyrighters. However, using this software for the 
+# purpose of testing or evaluating any products including merchantable 
+# products may be permitted without any notification to the copyrighters.
+# 
+# 
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND 
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING 
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS 
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE 
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+# CONTRACT,STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF 
+# THE POSSIBILITY OF SUCH DAMAGE.
+#
+########################################################################
+
+	Installing IPv6 Conformance Test Package
+
+
+Terminology
+===========
+
+Tester Node (TN)
+	A tester node for the conformance tests.
+
+Node Under Test (NUT)
+	A testee node for the conformance tests.
+
+Network Under Test
+	The network where the conformance tests are executed.
+
+Tester Interface
+	The network interface of TN
+	hooked up to the Network Under Test.
+
+Interface Under Test
+	The network interface of NUT
+	hooked up to the Network Under Test.
+
+
+Prerequisites
+=============
+
+Prerequisites for TN:
+	- The package supports
+		FreeBSD 5.X-RELEASE
+		FreeBSD 6.X-RELEASE
+	- Software Requirements (FreeBSD Ports) 
+		lang/p5-Expect
+		security/p5-Digest-MD5
+	- The package can also coexist with FreeBSD version of KAME.
+	- It is mandatory to install IPv6 Conformance Test Platform
+	  "v6eval" that is also written by TAHI project. For more
+	  information, please refer to 00README.v6eval in "v6eval".
+
+
+Installing the package onto TN
+==============================
+
+0. Before Starting
+
+   Make sure that you completed installing "v6eval" package.
+   Please refer to 00README.v6eval in "v6eval" for more information.
+
+1. Extracting ct package
+
+	% tar zxvf ct-nemo-ha-X.X.X.tar.gz
+
+2. Installing ct package
+
+	% cd ct-nemo-ha-X.X.X
+	% su
+	# make install
+
+   With the above steps, you can install ct package into
+   /usr/local/v6eval/ct-nemo-ha directory.
+   Be sure not to run the tests within this directory.
+
+3. Copying ct package
+   Copy ct directory to any directory you like.
+	% cp -pR /usr/local/v6eval/ct-nemo-ha $SOMEWHERE/ct-nemo-ha
+	% chmod -R +w $SOMEWHERE/ct-nemo-ha
+
+Note)
+   The ike module is always necessary, even if you don't use IKE.
+
+
+Configuration
+============
+
+1. Physical Configurations
+
+1.1. Network Under Test
+
+Hook up the Tester Interface of TN to the Network Under Test.
+Tester Interface of TN can be configured for IPv4 and for IPv6 as well.
+
+Hook up the Interface Under Test of NUT to the Network Under Test.
+Interface Under Test of NUT must be configured for IPv6, while it can
+be configured for IPv4 too.
+
+Make sure that any other nodes are not hooked up to the network
+because their packets would disturb the conformance tests.
+
+		TN			NUT
+		 |the Tester I/f: ed1	 |the I/f Under Test: fxp0
+		 |			 |
+		 |			 |
+		-+-----------------------+- Link0 (the Home Link)
+		  the Network Under Test
+
+		 |the Tester I/f: ed2	 |the I/f Under Test: fxp1
+		 |			 |
+		 |			 |
+		-+-----------------------+- Link1 (other link)
+		  the Network Under Test
+
+1.2. Serial line
+
+Connect both COM ports of TN and NUT with
+a Null-modem cable (or a RS232C cross cable).
+
+	Example:
+
+	   COM1            COM1
+	TN --------------------	NUT
+	        serial line
+	       (Null-modem cable)
+
+The following Null-modem cable is required to connect TN and NUT
+if a cable is DSUB-9 pins.
+
+	1 DCD ********** open ********* 1 DCD
+
+	2 RXD ------------------------- 3 TXD
+	3 TXD ------------------------- 2 RSD
+
+	4 DTR ------------------------- 6 DSR
+	6 DSR ------------------------- 4 DTR
+
+	5 GND ------------------------- 5 GND
+
+	7 RTS ------------------------- 8 CTS
+	8 CTS ------------------------- 7 RTS
+
+	9 CE  ********** open ********* 9 CE
+
+For details, please read "Serial Communications" of the handbook of FreeBSD:
+	http://www.freebsd.org/handbook/
+
+
+
+2. Configuration of NUT (example)
+
+2.1. FreeBSD 4.8-RELEASE w/ KAME
+
+2.1.1. /etc/resolv.conf
+
+Remove /etc/resolv.conf to prevent NUT from issuing unnecessary packets
+that would disturb the tests.
+
+
+2.1.2. Default route
+
+It is recommended to remove IPv4 default route, though it is not mandatory.
+
+
+2.1.3. Account of the super user
+
+It is set as a prerequisite for NUT that TN has the following account:
+
+	- user-name: root
+	- password: v6eval
+	- login shell: /bin/csh
+	- prompt: #
+
+
+2.1.4. /etc/rc.conf
+
+If NUT is a host, at least, you must need the following line to rc.conf.
+
+		ipv6_enable="YES"
+
+	Example: /etc/rc.conf
+	==========================================================
+	ipv6_enable="YES"
+	ipv6_network_interfaces="fxp0"
+	ipv6_default_interface="fxp0"
+	==========================================================
+
+If NUT is a router, you need more modification to rc.conf.
+
+Important points:
+	- Do not run any kind of routing daemon
+	  which packets would disturb the tests.
+
+	- Assign a prefix "3ffe:501:ffff:100/64" and "3ffe:501:ffff:101/64" 
+	  on Interface Under Test.
+
+	Example: /etc/rc.conf
+	==========================================================
+	ipv6_enable="YES"
+	ipv6_default_interface="fxp0"
+	ipv6_gateway_enable="YES"
+	ipv6_network_interfaces="fxp0 fxp1"
+	ipv6_prefix_fxp0="3ffe:501:ffff:100"
+	ipv6_prefix_fxp1="3ffe:501:ffff:101"
+	rtadvd_enable="NO"
+	==========================================================
+
+2.1.5. /etc/ttys
+
+TN requires you to log into NUT as a super user.
+To log into NUT, modify /etc/ttys.
+
+	Example: /etc/ttys
+	==========================================================
+	--- ttys.orig   Fri Oct 12 13:32:01 2001
+	+++ ttys        Fri Oct 12 13:32:54 2001
+	@@ -42,6 +42,7 @@
+	 ttyv8  "/usr/X11R6/bin/xdm -nodaemon"  xterm   off secure
+	 # Serial terminals
+	 # The 'dialup' keyword identifies dialin lines to login, fingerd etc.
+	+cuaa0  "/usr/libexec/getty std.9600"   unknown on  secure
+	 ttyd0  "/usr/libexec/getty std.9600"   dialup  off secure
+	 ttyd1  "/usr/libexec/getty std.9600"   dialup  off secure
+	 ttyd2  "/usr/libexec/getty std.9600"   dialup  off secure
+	==========================================================
+
+NOTE:	The cuaa* drivers are safer than the ttyd* drivers
+	because the cuaa* drivers can work with a Null-modem cable
+	that drops CD signals.
+
+	For more information, please read "Serial Communications"
+	of the handbook of FreeBSD:
+		http://www.freebsd.org/handbook/
+
+
+2.1.6. kernel configuration
+
+If you want to execute IPsec test,
+you need to re-compile the kernel.
+
+	/usr/src/sys/i386/conf/GENERIC.KAME
+	================================================================
+	--- GENERIC.KAME.orig   Thu Apr 24 17:12:10 2003
+	+++ GENERIC.KAME        Mon Jun 16 10:46:07 2003
+	@@ -351,12 +351,12 @@
+	 #pseudo-device stf
+	 
+	 # Mobile IPv6
+	-#options       MIP6                    # required for all node types
+	-#options       MIP6_HOME_AGENT         # required for a home agent
+	-#options       MIP6_MOBILE_NODE        # required for a mobile node
+	-#pseudo-device hif     1               # required for a mobile node
+	+options        MIP6                    # required for all node types
+	+options        MIP6_HOME_AGENT         # required for a home agent
+	+options        MIP6_MOBILE_NODE        # required for a mobile node
+	+pseudo-device  hif     1               # required for a mobile node
+	 #options       MIP6_NOHAIPSEC          # disable ha-ipsec draft support
+	-#options       MIP6_DEBUG
+	+options        MIP6_DEBUG
+	 
+	 pseudo-device  pf
+	 pseudo-device  pflog
+	================================================================
+
+	# cd /usr/src/sys/i386/conf/
+	# /usr/sbin/config GENERIC.KAME
+	# cd ../../compile/GENERIC.KAME/
+	# make depend
+	# make
+	# make install
+
+
+3. Configuration of TN
+
+3.1. /etc/resolv.conf
+
+It is recommended to remove /etc/resolv.conf, though it is not mandatory.
+
+3.2. Default route
+
+It is recommended to remove IPv4 default route, though it is not mandatory.
+
+3.3. /usr/local/v6eval/etc/tn.def
+
+You can copy any entry except "Link0" from the sample file.
+
+/usr/local/v6eval/etc/tn.def.sample.
+
+	"Link0" entry MUST have:
+		- the EXACT name of Tester Interface.
+		- a BOGUS MAC address.
+		  It is important that the Tool can impersonate other nodes.
+
+	Example: /usr/local/v6eval/etc/tn.def
+	==========================================================
+	RemoteDevice    cuaa0 # USB-serial may use ucom0
+	RemoteDebug     0
+	RemoteIntDebug  0
+	RemoteLog       0
+	RemoteSpeed	0
+	RemoteLogout	0
+	RemoteMethod	serial
+	Link0   ed1     00:00:00:00:01:00
+	Link1   ed2     00:00:00:00:01:00
+	==========================================================
+
+3.4. /usr/local/v6eval/etc/nut.def
+
+You can copy both "System" and "TargetName" from the sample file
+/usr/local/v6eval/etc/nut.def.sample.
+
+	"HostName" entry SHOULD be a host name of NUT.
+
+	"Type" entry MUST be:
+		- "host" if NUT is configured as a host.
+		- "router" if NUT is configured as a router.
+
+	"User" entry MUST be a name of a super user account of NUT.
+
+	"Password" entry MUST be a password of a super user account of
+	NUT.
+
+	"Link0" entry MUST have:
+		- the EXACT name of the Interface Under Test.
+		- the EXACT MAC address of the Interface Under Test.
+
+	Example: /usr/local/v6eval/etc/nut.def
+	==========================================================
+	System          kame-freebsd
+	TargetName      FreeBSD 4.8-RELEASE + kame-20030616-freebsd48-snap
+	HostName        target.v6pc.jp
+	Type            host
+	User            root
+	Password        v6eval
+	Link0           fxp0    00:90:27:14:ce:da
+	Link1           fxp1    00:90:27:14:ce:db
+	==========================================================
+
+3.5. cu command
+
+To run cu command, set up the following.
+
+	# touch /var/log/aculog
+	# chmod a+rw /var/log/aculog
+
+HINT: /etc/fbtab is another way to adjust file permission.
+
+The package uses "/dev/cuaa0" as the default line name 
+(see /usr/local/v6eval/etc/tn.def).
+If TN requires a different line name, modify the following files,
+depending on the setups of your machine:
+
+	- /etc/remote or else
+	- "RemoteDevice" entry in /usr/local/v6eval/etc/tn.def
+
+DIAG:	If "cu" related customization is not properly performed,
+	the following command can not be executed successfully:
+
+		%cu -l /dev/cuaa0
+		user: root
+		password: v6eval
+		root@NUT#
+
+ 	If /usr/local/v6eval/etc/{nut,tn}.def is not correct,
+	the following command can not be executed successfully.
+
+		%/usr/local/v6eval/bin/kame-freebsd/loginout.rmt -o1
+
+
+Run the Tests
+=============
+
+	% cd $SOMEWHERE/ct-nemo-ha/nemo-ha
+	% vi config.txt
+	% make clean
+	% make test
+
+It will take a few hours to run the tests. When all tests are completed,
+you can see the test results at $SOMEWHERE/ct-nemo-ha/index.html.
+
+Note that running the tests clears the previous test results.
+If you do not want to lose them, you should make a new copy of ct package
+in a different directory.
+
+HINT:	To see the test results with Netscape, follow the next steps:
+	1. Register application in Netscape:
+		MIME Type: application/x-tcpdump
+		Extension: dump
+		Action/Application: ethereal -r %s
+
+
+							[End of INSTALL]

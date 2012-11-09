@@ -1,0 +1,269 @@
+//
+// Copyright (C) IPv6 Promotion Council,
+// NIPPON TELEGRAPH AND TELEPHONE CORPORATION (NTT),
+// Yokogwa Electoric Corporation, YASKAWA INFORMATION SYSTEMS Corporation
+// and NTT Advanced Technology Corporation(NTT-AT) All rights reserved.
+// 
+// Technology Corporation.
+// 
+// Redistribution and use of this software in source and binary forms, with 
+// or without modification, are permitted provided that the following 
+// conditions and disclaimer are agreed and accepted by the user:
+// 
+// 1. Redistributions of source code must retain the above copyright 
+// notice, this list of conditions and the following disclaimer.
+// 
+// 2. Redistributions in binary form must reproduce the above copyright 
+// notice, this list of conditions and the following disclaimer in the 
+// documentation and/or other materials provided with the distribution.
+// 
+// 3. Neither the names of the copyrighters, the name of the project which 
+// is related to this software (hereinafter referred to as "project") nor 
+// the names of the contributors may be used to endorse or promote products 
+// derived from this software without specific prior written permission.
+// 
+// 4. No merchantable use may be permitted without prior written 
+// notification to the copyrighters. However, using this software for the 
+// purpose of testing or evaluating any products including merchantable 
+// products may be permitted without any notification to the copyrighters.
+// 
+// 
+// 
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND 
+// CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING 
+// BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS 
+// FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE 
+// COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+// INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
+// SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
+// HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+// CONTRACT,STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF 
+// THE POSSIBILITY OF SUCH DAMAGE.
+//
+////////////////////////////////////////////////////////////////////////
+
+#include "./config.def"
+
+//#if ROTATE_HOA
+//#define MN_MAC  "00:00:00:00:00:aa"
+//#endif
+
+#if BU_MODE == 0
+#define MN_ID   11
+#define MNB_ID  14
+#else
+#define MN_ID   21
+#define MNB_ID  24
+#endif
+
+#include "./mipv6.def"
+
+
+FEM_hdr_ipv6_exth(
+	local_tunnel_bu,
+	_HETHER_rx2nut,
+	{
+		_SRC(v6merge(CARE_OF_PREFIX, CARE_OF_PREFIXLEN, v6ether(MN_MAC)));
+		_DST(nut2v6(HOME_PREFIX, HOME_PREFIXLEN, HA_HOME_LINK));
+	},
+	{
+		header  = _HDR_IPV6_NAME(local_tunnel_bu);
+#if HAVE_IPSEC && USE_SA9_SA10
+		exthdr  = ext_esp_mnp2cn;
+#endif
+		upper   = _PACKET_IPV6_NAME(local_bu);
+	}
+)
+
+
+FEM_hdr_ipv6_exth(
+	local_tunnel_ba,
+	_HETHER_nut2rx,
+	{
+		_SRC(nut2v6(HOME_PREFIX, HOME_PREFIXLEN, HA_HOME_LINK));
+		_DST(v6merge(CARE_OF_PREFIX, CARE_OF_PREFIXLEN, v6ether(MN_MAC)));
+	},
+	{
+		header  = _HDR_IPV6_NAME(local_tunnel_ba);
+#if HAVE_IPSEC && USE_SA9_SA10
+		exthdr  = ext_esp_cn2mnp;
+#endif
+		upper   = _PACKET_IPV6_NAME(local_ba);
+	}
+)
+
+
+FEM_upp_no_next_header_exth(
+	local_bu,
+	_HETHER_rx2nut,
+	{
+		_SRC(v6merge(NEMO_PREFIX, NEMO_PREFIXLEN, v6ether(MNB_MAC)));
+		_DST(nut2v6(HOME_PREFIX, HOME_PREFIXLEN, HA_HOME_LINK));
+	},
+	{
+		header  = _HDR_IPV6_NAME(local_bu);
+		exthdr  = ext_local_homeaddress;
+#if HAVE_IPSEC && USE_SA1_SA2
+		exthdr  = ext_esp_d4_bu;
+#endif
+		exthdr  = ext_local_bu;
+		upper   = _UPP_NONEXT_NAME(local_bu);
+	},
+	{}
+)
+
+
+FEM_upp_no_next_header_exth(
+	local_ba,
+	_HETHER_nut2rx,
+	{
+		_SRC(nut2v6(HOME_PREFIX, HOME_PREFIXLEN, HA_HOME_LINK));
+		_DST(v6merge(NEMO_PREFIX, NEMO_PREFIXLEN, v6ether(MNB_MAC)));
+	},
+	{
+		header  = _HDR_IPV6_NAME(local_ba);
+		exthdr  = ext_local_routing;
+#if HAVE_IPSEC && USE_SA1_SA2
+		exthdr  = ext_esp_d4_ba;
+#endif
+		exthdr  = ext_ba;
+		upper   = _UPP_NONEXT_NAME(local_ba);
+	},
+	{}
+)
+
+
+Hdr_Destination ext_local_homeaddress {
+	option  = opt_pad4;
+	option  = opt_local_hao;
+}
+
+
+Opt_HomeAddress opt_local_hao {
+#if HOA_ADDRESS == 0
+	HomeAddress = v6merge(HOME_PREFIX, HOME_PREFIXLEN, v6ether(MNB_MAC));
+#else
+	HomeAddress = v6merge(NEMO_02_PREFIX, NEMO_02_PREFIXLEN, v6ether(MNB_MAC));
+#endif
+}
+
+
+Hdr_MH_BU ext_local_bu {
+	SequenceNumber  = BU_SN;
+	AFlag           = BU_A;
+	HFlag           = BU_H;
+	LFlag           = BU_L;
+	KFlag           = BU_K;
+	RFlag           = BU_R;
+	Lifetime        = BU_LT;
+	option          = opt_mh_pad2;
+	option          = opt_local_mh_altcoa;
+#if BU_MODE == 1
+	option          = opt_mh_pad4;
+	option          = opt_local_mh_mnp;
+#endif
+}
+
+
+Opt_MH_AlternateCoA opt_local_mh_altcoa {
+	Address = v6merge(NEMO_PREFIX, NEMO_PREFIXLEN, v6ether(MNB_MAC));
+}
+
+
+Opt_MH_MobNetworkPrefix opt_local_mh_mnp {
+	PrefixLength    = NEMO_02_PREFIXLEN;
+	Prefix          = v6(NEMO_02_PREFIX);
+}
+
+
+Hdr_Routing ext_local_routing {
+	RoutingType     = 2;
+	SegmentsLeft    = 1;
+#if HOA_ADDRESS == 0
+	Address         = v6merge(HOME_PREFIX, HOME_PREFIXLEN, v6ether(MNB_MAC));
+#else
+	Address         = v6merge(NEMO_02_PREFIX, NEMO_02_PREFIXLEN, v6ether(MNB_MAC));
+#endif
+}
+
+
+FEM_hdr_ipv6_exth(
+	local_tunnel_ereq_hao,
+	_HETHER_rx2nut,
+	{
+		_SRC(v6merge(CARE_OF_PREFIX, CARE_OF_PREFIXLEN, v6ether(MN_MAC)));
+		_DST(nut2v6(HOME_PREFIX, HOME_PREFIXLEN, HA_HOME_LINK));
+	},
+	{
+		header  = _HDR_IPV6_NAME(local_tunnel_ereq_hao);
+#if HAVE_IPSEC && USE_SA9_SA10
+		exthdr  = ext_esp_mnp2cn;
+#endif
+		upper   = _PACKET_IPV6_NAME(local_ereq_hao);
+	}
+)
+
+
+FEM_hdr_ipv6_exth(
+	local_tunnel_erep_routing,
+	_HETHER_nut2rx,
+	{
+		_SRC(nut2v6(HOME_PREFIX, HOME_PREFIXLEN, HA_HOME_LINK));
+		_DST(v6merge(CARE_OF_PREFIX, CARE_OF_PREFIXLEN, v6ether(MN_MAC)));
+	},
+	{
+		header  = _HDR_IPV6_NAME(local_tunnel_erep_routing);
+#if HAVE_IPSEC && USE_SA9_SA10
+		exthdr  = ext_esp_cn2mnp;
+#endif
+		upper   = _PACKET_IPV6_NAME(local_erep_routing);
+	}
+)
+
+
+FEM_icmp6_echo_request_exth(
+	local_ereq_hao,
+	_HETHER_rx2nut,
+	{
+		_SRC(v6merge(NEMO_PREFIX, NEMO_PREFIXLEN, v6ether(MNB_MAC)));
+		_DST(nut2v6(HOME_PREFIX, HOME_PREFIXLEN, HA_HOME_LINK));
+	},
+	{
+		header  = _HDR_IPV6_NAME(local_ereq_hao);
+		exthdr  = ext_local_homeaddress;
+#if HAVE_IPSEC && UNIQ_TRANS_SA && USE_SA5_SA6 && (!GRAN_TRANS_SA_TYPE)
+		exthdr  = ext_esp_d4_mps;
+#elif HAVE_IPSEC && (!UNIQ_TRANS_SA) && USE_SA1_SA2 && (!GRAN_TRANS_SA_TYPE)
+		exthdr  = ext_esp_d4_bu;
+#endif
+		upper   = _ICMPV6_NAME(local_ereq_hao);
+	},
+	{
+		payload = payload8;
+	}
+)
+
+
+FEM_icmp6_echo_reply_exth(
+	local_erep_routing,
+	_HETHER_nut2rx,
+	{
+		_SRC(nut2v6(HOME_PREFIX, HOME_PREFIXLEN, HA_HOME_LINK));
+		_DST(v6merge(NEMO_PREFIX, NEMO_PREFIXLEN, v6ether(MNB_MAC)));
+	},
+	{
+		header  = _HDR_IPV6_NAME(local_erep_routing);
+		exthdr  = ext_local_routing;
+#if HAVE_IPSEC && UNIQ_TRANS_SA && USE_SA5_SA6 && (!GRAN_TRANS_SA_TYPE)
+		exthdr  = ext_esp_d4_mpa;
+#elif HAVE_IPSEC && (!UNIQ_TRANS_SA) && USE_SA1_SA2 && (!GRAN_TRANS_SA_TYPE)
+		exthdr  = ext_esp_d4_ba;
+#endif
+		upper   = _ICMPV6_NAME(local_erep_routing);
+	},
+	{
+		payload = payload8;
+	}
+)
