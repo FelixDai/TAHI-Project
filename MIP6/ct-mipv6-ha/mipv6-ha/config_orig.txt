@@ -1,0 +1,550 @@
+#
+# Copyright (C) IPv6 Promotion Council,
+# NIPPON TELEGRAPH AND TELEPHONE CORPORATION (NTT),
+# Yokogwa Electoric Corporation, YASKAWA INFORMATION SYSTEMS Corporation
+# and NTT Advanced Technology Corporation(NTT-AT) All rights reserved.
+# 
+# Technology Corporation.
+# 
+# Redistribution and use of this software in source and binary forms, with 
+# or without modification, are permitted provided that the following 
+# conditions and disclaimer are agreed and accepted by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright 
+# notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright 
+# notice, this list of conditions and the following disclaimer in the 
+# documentation and/or other materials provided with the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project which 
+# is related to this software (hereinafter referred to as "project") nor 
+# the names of the contributors may be used to endorse or promote products 
+# derived from this software without specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written 
+# notification to the copyrighters. However, using this software for the 
+# purpose of testing or evaluating any products including merchantable 
+# products may be permitted without any notification to the copyrighters.
+# 
+# 
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND 
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING 
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS 
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE 
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+# CONTRACT,STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF 
+# THE POSSIBILITY OF SUCH DAMAGE.
+#
+########################################################################
+
+
+
+#--------------------------------------------------------------#
+#                                                              #
+# Initialization                                               #
+#                                                              #
+#     | NEED_REBOOT                                            #
+#     | REBOOT_TIMEOUT                                         #
+#     | ROTATE_HOA                                             #
+#     | NEED_ANYCAST                                           #
+#     | NEED_ENABLE                                            #
+#     | NEED_ROUTE                                             #
+#     | NEED_IPSEC                                             #
+#     | NEED_RA                                                #
+#                                                              #
+#--------------------------------------------------------------#
+
+#
+# initialization method
+#
+#     zero     - not reboot the target
+#     non-zero - reboot the target before every test
+#
+  NEED_REBOOT		0
+
+
+
+#
+# timeout for reboot in seconds
+#
+  REBOOT_TIMEOUT	300
+
+
+
+#
+# use multiple home registration
+#
+#     zero     - use same HoA in each test
+#     non-zero - change HoA in each test
+#
+  ROTATE_HOA		0
+
+
+
+#
+#     zero     - not set the anycast address
+#     non-zero - set the anycast address after reboot
+#
+  NEED_ANYCAST		0
+
+
+
+#
+#     zero     - not enable the home agent
+#     non-zero - enable the home agent after reboot
+#
+  NEED_ENABLE		0
+
+
+
+#
+#     zero     - not set the routing table
+#     non-zero - set the routing table after reboot
+#
+  NEED_ROUTE		0
+
+
+
+#
+#     zero     - not set the ipsec
+#     non-zero - set the ipsec after reboot, or
+#                set the ipsec at the same time as "ROTATE_HOA 1" in each test
+#
+  NEED_IPSEC		0
+
+
+
+#
+#     zero     - not set the ra setting
+#     non-zero - set the ra setting after reboot
+#
+  NEED_RA		0
+
+
+
+#--------------------------------------------------------------#
+#                                                              #
+# Physical Topology                                            #
+#                                                              #
+#     | HAVE_HOME_LINK                                         #
+#     | HAVE_FOREIGN_LINK                                      #
+#                                                              #
+#--------------------------------------------------------------#
+
+#
+# Have a real home link on existent network I/F
+#
+#     zero     - HA doesn't have physical home link
+#     non-zero - HA has physical home link
+#
+  HAVE_HOME_LINK	1
+
+
+
+#
+# Have a foreign link on existent network I/F
+#
+#     zero     - HA doesn't have physical foreign link
+#     non-zero - HA has physical foreign link
+#
+  HAVE_FOREIGN_LINK	0
+
+
+
+#--------------------------------------------------------------#
+#                                                              #
+# available functions                                          #
+#                                                              #
+#     | HAVE_REAL_HOME                                         #
+#     | HAVE_DHAAD                                             #
+#     | HAVE_MPD                                               #
+#     | HAVE_RR                                                #
+#                                                              #
+#--------------------------------------------------------------#
+
+# support of Real Home Link
+#
+#     zero     - not support
+#     non-zero - support
+#
+  HAVE_REAL_HOME	1
+
+
+
+# support of Dynamic Home Agent Address Discovery
+#
+#     zero     - not support
+#     non-zero - support
+#
+  HAVE_DHAAD		1
+
+
+
+# support of Mobile Prefix Discovery
+#
+#     zero     - not support
+#     non-zero - support
+#
+  HAVE_MPD		1
+
+
+
+# support of Return Routability
+#
+#     zero     - not support
+#     non-zero - support
+#
+  HAVE_RR		1
+
+
+
+#--------------------------------------------------------------#
+#                                                              #
+# IPsec                                                        #
+#                                                              #
+#     | HAVE_IPSEC                                             #
+#     | | HAVE_IKE                                             #
+#     | | | IKE_EVERY_SEQ                                      #
+#     | | | USE_IKE_DELETE_PAYLOAD                             #
+#     | | | USE_IKE_BA_K_BIT                                   #
+#     | | | ISAKMP_ID_TYPE_MN                                  #
+#     | | | ISAKMP_ID_MN                                       #
+#     | | | ISAKMP_ID_TYPE_HA                                  #
+#     | | | ISAKMP_ID_HA                                       #
+#     | | | DH_GROUP                                           #
+#     | | | USE_ISAKMP_DES                                     #
+#     | | | USE_ISAKMP_MD5                                     #
+#     | | | IPSEC_PSK                                          #
+#     | |                                                      #
+#     | | UNIQ_TRANS_SA                                        #
+#     | | | GRAN_TRANS_SA_TYPE                                 #
+#     | | |                                                    #
+#     | | | USE_SA1_SA2                                        #
+#     | | | | USE_SA1_DES_CBC                                  #
+#     | | | | USE_SA1_HMAC_MD5                                 #
+#     | | | | SA1_SPI                                          #
+#     | | | | SA1_ENC_KEY                                      #
+#     | | | | SA1_HASH_KEY                                     #
+#     | | | |                                                  #
+#     | | | | USE_SA2_DES_CBC                                  #
+#     | | | | USE_SA2_HMAC_MD5                                 #
+#     | | | | SA2_SPI                                          #
+#     | | | | SA2_ENC_KEY                                      #
+#     | | | | SA2_HASH_KEY                                     #
+#     | | |                                                    #
+#     | | | USE_SA5_SA6                                        #
+#     | | | | USE_SA5_DES_CBC                                  #
+#     | | | | USE_SA5_HMAC_MD5                                 #
+#     | | | | SA5_SPI                                          #
+#     | | | | SA5_ENC_KEY                                      #
+#     | | | | SA5_HASH_KEY                                     #
+#     | | | |                                                  #
+#     | | | | USE_SA6_DES_CBC                                  #
+#     | | | | USE_SA6_HMAC_MD5                                 #
+#     | | | | SA6_SPI                                          #
+#     | | | | SA6_ENC_KEY                                      #
+#     | | | | SA6_HASH_KEY                                     #
+#     | |                                                      #
+#     | | UNIQ_TUNNEL_SA                                       #
+#     | | | GRAN_TUNNEL_SA_TYPE                                #
+#     | | |                                                    #
+#     | | | USE_SA3_SA4                                        #
+#     | | | | USE_SA3_DES_CBC                                  #
+#     | | | | USE_SA3_HMAC_MD5                                 #
+#     | | | | SA3_SPI                                          #
+#     | | | | SA3_ENC_KEY                                      #
+#     | | | | SA3_HASH_KEY                                     #
+#     | | | |                                                  #
+#     | | | | USE_SA4_DES_CBC                                  #
+#     | | | | USE_SA4_HMAC_MD5                                 #
+#     | | | | SA4_SPI                                          #
+#     | | | | SA4_ENC_KEY                                      #
+#     | | | | SA4_HASH_KEY                                     #
+#     | | |                                                    #
+#     | | | USE_SA7_SA8                                        #
+#     | | | | USE_SA7_DES_CBC                                  #
+#     | | | | USE_SA7_HMAC_MD5                                 #
+#     | | | | SA7_SPI                                          #
+#     | | | | SA7_ENC_KEY                                      #
+#     | | | | SA7_HASH_KEY                                     #
+#     | | | |                                                  #
+#     | | | | USE_SA8_DES_CBC                                  #
+#     | | | | USE_SA8_HMAC_MD5                                 #
+#     | | | | SA8_SPI                                          #
+#     | | | | SA8_ENC_KEY                                      #
+#     | | | | SA8_HASH_KEY                                     #
+#                                                              #
+#--------------------------------------------------------------#
+
+#
+# support of RFC 3776 - Home Agent IPsec
+#
+#     zero     - not support
+#     non-zero - support
+#
+  HAVE_IPSEC		1
+
+
+
+#
+# support Internet Key Exchange
+#
+#     zero     - not support, exchange key manually
+#     non-zero - support
+#
+  HAVE_IKE		0
+
+
+
+#
+# use multiple SA w/ IKEv1
+#
+#     zero     - not execute IKEv1 in each test
+#                (use same SA in each test)
+#     non-zero - execute IKEv1 in each test
+#                (change SA in each test)
+#
+#         When NEED_REBOOT is zero, IKE_EVERY_SEQ must be non-zero.
+#
+  IKE_EVERY_SEQ		0
+
+
+
+#
+# use ike delete payload in IKEv1
+#
+#     zero     - not execute ike delete payload in each test
+#     non-zero - execute ike delete payload in each test
+#
+#         When IKE_EVERY_SEQ is non-zero, USE_IKE_DELETE_PAYLOAD should be non-zero.
+#
+  USE_IKE_DELETE_PAYLOAD	0
+
+
+
+#
+# (K) bit of Binding Acknowledgement
+#
+#     zero     - (K) bit is off
+#     non-zero - (K) bit is on
+#
+  USE_IKE_BA_K_BIT              0
+
+
+
+#
+# configure ID type for IKEv1 Phase-1
+#
+#     1 - FQDN
+#     2 - USER_FQDN
+#
+  ISAKMP_ID_TYPE_MN	2
+  ISAKMP_ID_MN		'user@aaa.com'
+  ISAKMP_ID_TYPE_HA	2
+  ISAKMP_ID_HA		'user@bbb.com'
+
+
+
+#
+# configure Diffie-Hellman Group number
+#     1 - use Diffie-Hellman Group 1
+#     2 - use Diffie-Hellman Group 2
+#
+  DH_GROUP	2
+
+  USE_ISAKMP_DES	0
+  USE_ISAKMP_MD5	0
+  IPSEC_PSK		"IPsecPSK"
+
+
+
+#
+# use different upper-layer protocol between SA1/SA2 and SA5/SA6
+#
+#     ** available with HAVE_IPSEC **
+#
+#     zero     - use ANY as upper-layer protocol
+#     non-zero - use MH for SA1/SA2, ICMPv6 for SA5/SA6 as upper-layer protocol
+#
+  UNIQ_TRANS_SA		1
+
+
+
+#
+# use fine grain selectors between SA1/SA2 and SA5/SA6
+#
+#     ** available with HAVE_IPSEC and UNIQ_TRANS_SA **
+#
+#     zero     - use selectors at a protocol level.
+#     non-zero - use fine grain selectors at a message level.
+#                SA1(IN): BU, SA2(OUT): BA, SA5(IN): MPS, SA6(OUT): MPA
+#
+  GRAN_TRANS_SA_TYPE	0
+
+
+
+#
+# use different upper-layer protocol between SA3/SA4 and SA7/SA8
+#
+#     ** available with HAVE_IPSEC **
+#
+#     zero     - use ANY as upper-layer protocol
+#     non-zero - use MH for SA3/SA4, use ICMPv6 for SA7/SA8
+#
+  UNIQ_TUNNEL_SA	1
+
+
+
+#
+# use fine grain selectors between SA3/SA4
+#
+#     ** available with HAVE_IPSEC and UNIQ_TUNNEL_SA **
+#
+#     zero     - use selectors at a protocol level.
+#     non-zero - use fine grain selectors at a message level.
+#                SA3(IN): HoTI, SA4(OUT): HoT
+#
+  GRAN_TUNNEL_SA_TYPE	0
+
+
+
+#
+# Protection of Binding Updates and Acknowledgements
+#
+#     ** available with HAVE_IPSEC **
+#
+#     zero     - not support
+#     non-zero - support
+#
+  USE_SA1_SA2		1
+
+
+
+#
+# SA1: MN->HA ESP transport mode (BU)
+#
+  USE_SA1_DES_CBC	0		# zero: 3des-cbc,  non-zero: des-cbc
+  USE_SA1_HMAC_MD5	0		# zero: hmac-sha1, non-zero: hmac-md5
+  SA1_SPI		0x111
+  SA1_ENC_KEY		"V6LC-111--12345678901234"
+  SA1_HASH_KEY		"V6LC-111--1234567890"
+
+
+
+#
+# SA2: HA->MN ESP transport mode (BA)
+#
+  USE_SA2_DES_CBC	0		# zero: 3des-cbc,  non-zero: des-cbc
+  USE_SA2_HMAC_MD5	0		# zero: hmac-sha1, non-zero: hmac-md5
+  SA2_SPI		0x112
+  SA2_ENC_KEY		"V6LC-112--12345678901234"
+  SA2_HASH_KEY		"V6LC-112--1234567890"
+
+
+
+#
+# Protection of Return Routability Signaling
+#
+#     ** available with HAVE_IPSEC **
+#
+#     zero     - not support
+#     non-zero - support
+#
+  USE_SA3_SA4		1
+
+
+
+#
+# SA3: MN->HA ESP tunnel mode (HoTI)
+#
+  USE_SA3_DES_CBC	0		# zero: 3des-cbc,  non-zero: des-cbc
+  USE_SA3_HMAC_MD5	0		# zero: hmac-sha1, non-zero: hmac-md5
+  SA3_SPI		0x113
+  SA3_ENC_KEY		"V6LC-113--12345678901234"
+  SA3_HASH_KEY		"V6LC-113--1234567890"
+
+
+
+#
+# SA4: HA->MN ESP tunnel mode (HoT)
+#
+  USE_SA4_DES_CBC	0		# zero: 3des-cbc,  non-zero: des-cbc
+  USE_SA4_HMAC_MD5	0		# zero: hmac-sha1, non-zero: hmac-md5
+  SA4_SPI		0x114
+  SA4_ENC_KEY		"V6LC-114--12345678901234"
+  SA4_HASH_KEY		"V6LC-114--1234567890"
+
+
+
+#
+# Protection of Prefix Discovery
+#
+#     ** available with UNIQ_TRANS_SA **
+#
+#     zero     - not support
+#     non-zero - support
+#
+  USE_SA5_SA6		1
+
+
+
+#
+# SA5: MN->HA ESP transport mode (MPS)
+#
+  USE_SA5_DES_CBC	0		# zero: 3des-cbc,  non-zero: des-cbc
+  USE_SA5_HMAC_MD5	0		# zero: hmac-sha1, non-zero: hmac-md5
+  SA5_SPI		0x115
+  SA5_ENC_KEY		"V6LC-115--12345678901234"
+  SA5_HASH_KEY		"V6LC-115--1234567890"
+
+
+
+#
+# SA6: HA->MN ESP transport mode (MPA)
+#
+  USE_SA6_DES_CBC	0		# zero: 3des-cbc,  non-zero: des-cbc
+  USE_SA6_HMAC_MD5	0		# zero: hmac-sha1, non-zero: hmac-md5
+  SA6_SPI		0x116
+  SA6_ENC_KEY		"V6LC-116--12345678901234"
+  SA6_HASH_KEY		"V6LC-116--1234567890"
+
+
+
+#
+# Protection of Payload Packets
+#
+#     ** available with UNIQ_TUNNEL_SA **
+#
+#     zero     - not support
+#     non-zero - support
+#
+  USE_SA7_SA8		0
+
+
+
+#
+# SA7: MN->HA ESP tunnel mode (X)
+#
+  USE_SA7_DES_CBC	0		# zero: 3des-cbc,  non-zero: des-cbc
+  USE_SA7_HMAC_MD5	0		# zero: hmac-sha1, non-zero: hmac-md5
+  SA7_SPI		0x117
+  SA7_ENC_KEY		"V6LC-117--12345678901234"
+  SA7_HASH_KEY		"V6LC-117--1234567890"
+
+
+
+#
+# SA8: HA->MN ESP tunnel mode (X)
+#
+  USE_SA8_DES_CBC	0		# zero: 3des-cbc,  non-zero: des-cbc
+  USE_SA8_HMAC_MD5	0		# zero: hmac-sha1, non-zero: hmac-md5
+  SA8_SPI		0x118
+  SA8_ENC_KEY		"V6LC-118--12345678901234"
+  SA8_HASH_KEY		"V6LC-118--1234567890"

@@ -1,0 +1,43 @@
+<HTML>
+<HEAD>
+<TITLE>IPsec Configuration (BU/BA)</TITLE>
+</HEAD>
+<BODY>
+<H1>IPsec Configuration (BU/BA)</H1>
+<TT><B>Bold texts indicate configurable parameters.</B></TT>
+<UL>
+<LI>SA1 (inbound ESP transport mode)
+<BLOCKQUOTE>
+<PRE>
+SPI <B>0x111 (273)</B>
+    src:            MN  3ffe:501:ffff:100:200:ff:fe00:1
+    dst:            HA  3ffe:501:ffff:100::<B>&lt;Interface ID&gt;</B>
+    mode:           ESP transport
+    upper layer:    header type <B>Mobility Header</B> (default)
+                    message type <B>Mobility Header, Binding Update Message</B>
+                    <B>any</B>
+    enc algorithm:  <B>3des-cbc</B>,  enc key:  <B>V6LC-111--12345678901234</B> (default)
+                    <B>des-cbc</B>              <B>V6LC-111</B>
+    auth algorithm: <B>hmac-sha1</B>, auth key: <B>V6LC-111--1234567890</B>     (default)
+                    <B>hmac-md5</B>             <B>V6LC-111--123456</B>
+</PRE>
+</BLOCKQUOTE>
+<LI>SA2 (outbound ESP transport mode)
+<BLOCKQUOTE>
+<PRE>
+SPI <B>0x112 (274)</B>
+    src:            HA  3ffe:501:ffff:100::<B>&lt;Interface ID&gt;</B>
+    dst:            MN  3ffe:501:ffff:100:200:ff:fe00:1
+    mode:           ESP transport
+    upper layer:    header type <B>Mobility Header</B> (default)
+                    message type <B>Mobility Header, Binding Acknowledgement Message</B>
+                    <B>any</B>
+    enc algorithm:  <B>3des-cbc</B>,  enc key:  <B>V6LC-112--12345678901234</B> (default)
+                    <B>des-cbc</B>              <B>V6LC-112</B>
+    auth algorithm: <B>hmac-sha1</B>, auth key: <B>V6LC-112--1234567890</B>     (default)
+                    <B>hmac-md5</B>             <B>V6LC-112--123456</B>
+</PRE>
+</BLOCKQUOTE>
+</UL>
+</BODY>
+</HTML>

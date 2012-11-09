@@ -1,0 +1,952 @@
+#!/usr/bin/perl
+#
+# Copyright (C) IPv6 Promotion Council,
+# NIPPON TELEGRAPH AND TELEPHONE CORPORATION (NTT),
+# Yokogwa Electoric Corporation, YASKAWA INFORMATION SYSTEMS Corporation
+# and NTT Advanced Technology Corporation(NTT-AT) All rights reserved.
+# 
+# Technology Corporation.
+# 
+# Redistribution and use of this software in source and binary forms, with 
+# or without modification, are permitted provided that the following 
+# conditions and disclaimer are agreed and accepted by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright 
+# notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright 
+# notice, this list of conditions and the following disclaimer in the 
+# documentation and/or other materials provided with the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project which 
+# is related to this software (hereinafter referred to as "project") nor 
+# the names of the contributors may be used to endorse or promote products 
+# derived from this software without specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written 
+# notification to the copyrighters. However, using this software for the 
+# purpose of testing or evaluating any products including merchantable 
+# products may be permitted without any notification to the copyrighters.
+# 
+# 
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND 
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING 
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS 
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE 
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+# CONTRACT,STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF 
+# THE POSSIBILITY OF SUCH DAMAGE.
+#
+#
+########################################################################
+
+BEGIN {}
+END   {}
+
+use mipv6;
+
+my $movement	= 'USE_LINK0X';
+my $cn0_scope	= 'USE_CN0_LINKLOCAL';
+
+my $bu_sequence	= 15;
+my $bu_a_bit	= 1;
+my $bu_h_bit	= 1;
+my $bu_l_bit	= 1;
+my $bu_k_bit	= 0;
+my $bu_lifetime	= 0x0069;
+
+my $ba_status	= 0;
+my $ba_k_bit	= 0;
+my $ba_sequence	= $bu_sequence;
+my $ba_lifetime	= $bu_lifetime;
+
+my $bool	= $true;
+
+
+
+unless(mipv6init($movement)) {
+	exitInitFail();
+}
+
+
+
+vLogHTML('<FONT COLOR="#FF0000" SIZE="5"><U><B>TEST PROCEDURE'.
+	'</B></U></FONT><BR>');
+
+unless(
+	mipv6registration(
+		$movement,
+		$bu_sequence,
+		$bu_a_bit,
+		$bu_h_bit,
+		$bu_l_bit,
+		$bu_k_bit,
+		$bu_lifetime,
+		$ba_status,
+		$ba_k_bit,
+		$ba_sequence,
+		$ba_lifetime
+	)
+) {
+	exitFail();
+}
+
+unless(binding_confirmation($movement, $bool)) {
+	exitFail();
+}
+
+unless(proxy_nd($true, $movement, $cn0_scope, 'proxy_mcast_ns_linklocal_sll',
+	'proxy_na_linklocal_tll_from_linklocal',
+	'proxy_na_linklocal_tll_from_global')) {
+
+	exitFail();
+}
+
+exitPass();
+
+
+
+#
+# perldoc
+#
+########################################################################
+__END__
+
+=head1 NAME
+
+=begin html
+<BLOCKQUOTE><TT>
+HA_4_2_7 - Proxy ND (Receiving multicast NS w/ SLL (target=link-local), L=1)
+
+=end html
+
+=begin html
+</TT></BLOCKQUOTE>
+
+=end html
+
+=head1 TARGET
+
+=begin html
+<BLOCKQUOTE>
+<PRE>
+Router
+</PRE>
+</BLOCKQUOTE>
+
+=end html
+
+=head1 REQUIREMENT of TEST
+
+=begin html
+<BLOCKQUOTE>
+<UL>
+    <LI>Real Home Link
+</UL>
+</BLOCKQUOTE>
+
+=end html
+
+=head1 TOPOLOGY
+
+=begin html
+<BLOCKQUOTE>
+o <U><B><FONT SIZE="+1">TOPOLOGY-2 Real Home Link</FONT></B></U> (If RUT supports <I><B>Real Home Link</B></I>.)
+<BLOCKQUOTE>
+<BLOCKQUOTE>
+<PRE>
+       RUT
+        |
+--------+-------+---------------+-------+------- Link0
+                |               |       |
+                R0             MN0     CN0
+                |
+        --------+-------+-------+--------------- Link0X
+                        |       |
+                       R0X     MN0X
+                        |
+                --------+-------+--------------- Link0Y
+                                |
+                               MN0Y
+</PRE>
+</BLOCKQUOTE>
+<P>
+<TABLE BORDER>
+    <TR>
+        <TD><TT>Link0</TT></TD>
+        <TD><TT>global</TT></TD>
+        <TD><TT>3ffe:501:ffff:100::/64</TT></TD>
+        <TD><TT>home link</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>Link0X</TT></TD>
+        <TD><TT>global</TT></TD>
+        <TD><TT>3ffe:501:ffff:1100::/64</TT></TD>
+        <TD><TT>foreign link</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>Link0Y</TT></TD>
+        <TD><TT>global</TT></TD>
+        <TD><TT>3ffe:501:ffff:2100::/64</TT></TD>
+        <TD><TT>foreign link</TT></TD>
+    </TR>
+    <TR>
+        <TD ROWSPAN="4"><TT>RUT (Link0)</TT></TD>
+        <TD><TT>global</TT></TD>
+        <TD><TT>3ffe:501:ffff:100:&lt;NutDef.Link0_addr&gt;</TT></TD>
+        <TD><TT>&nbsp;</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>global</TT></TD>
+        <TD><TT>3ffe:501:ffff:100:fdff:ffff:ffff:fffe</TT></TD>
+        <TD><TT>anycast</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>link-local</TT></TD>
+        <TD><TT>fe80::&lt;NutDef.Link0_addr&gt;</TT></TD>
+        <TD ROWSPAN="2"><TT>&nbsp;</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>ether</TT></TD>
+        <TD><TT>&lt;NutDef.Link0_addr&gt;</TT></TD>
+    </TR>
+    <TR>
+        <TD ROWSPAN="3"><TT>R0 (Link0)</TT></TD>
+        <TD><TT>global</TT></TD>
+        <TD><TT>3ffe:501:ffff:100:200:ff:fe00:a0a0</TT></TD>
+        <TD ROWSPAN="3"><TT>&nbsp;</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>link-local</TT></TD>
+        <TD><TT>fe80::200:ff:fe00:a0a0</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>ether</TT></TD>
+        <TD><TT>00:00:00:00:a0:a0</TT></TD>
+    </TR>
+    <TR>
+        <TD ROWSPAN="3"><TT>CN0</TT></TD>
+        <TD><TT>global</TT></TD>
+        <TD><TT>3ffe:501:ffff:100:&lt;TnDef.Link0_addr&gt;</TT></TD>
+        <TD ROWSPAN="3"><TT>correspondent node</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>link-local</TT></TD>
+        <TD><TT>fe80::&lt;TnDef.Link0_addr&gt;</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>ether</TT></TD>
+        <TD><TT>&lt;TnDef.Link0_addr&gt;</TT></TD>
+    </TR>
+    <TR>
+        <TD ROWSPAN="3"><TT>MN0</TT></TD>
+        <TD><TT>global</TT></TD>
+        <TD><TT>3ffe:501:ffff:100:200:ff:fe00:1</TT></TD>
+        <TD ROWSPAN="3"><TT>home address</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>link-local</TT></TD>
+        <TD><TT>fe80::200:ff:fe00:1</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>ether</TT></TD>
+        <TD><TT>00:00:00:00:00:01</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>MN0X</TT></TD>
+        <TD><TT>global</TT></TD>
+        <TD><TT>3ffe:501:ffff:1100:200:ff:fe00:1</TT></TD>
+        <TD><TT>care-of address</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>MN0Y</TT></TD>
+        <TD><TT>global</TT></TD>
+        <TD><TT>3ffe:501:ffff:2100:200:ff:fe00:1</TT></TD>
+        <TD><TT>care-of address</TT></TD>
+    </TR>
+</TABLE>
+</BLOCKQUOTE>
+<P>
+o <U><B><FONT SIZE="+1">TOPOLOGY-2 Virtual Home Link</FONT></B></U> (If RUT supports <I><B>Virtual Home Link</B></I>.)
+<BLOCKQUOTE>
+<BLOCKQUOTE>
+<PRE>
+                               MN1Y
+                                |
+                --------+-------+------- Link1Y
+                        |
+                       R1X     MN1X
+                        |       |
+        --------+-------+-------+------- Link1X
+                |
+                R1
+                |
+--------+-------+----------------------- Link1
+        |
+       RUT
+        |
+- - - - + - - - - - - - - - - - + - - -  Link0
+                                |
+                               MN0
+</PRE>
+</BLOCKQUOTE>
+<P>
+<TABLE BORDER>
+    <TR>
+        <TD><TT>Link0</TT></TD>
+        <TD><TT>global</TT></TD>
+        <TD><TT>3ffe:501:ffff:100::/64</TT></TD>
+        <TD><TT>home link</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>Link1</TT></TD>
+        <TD><TT>global</TT></TD>
+        <TD><TT>3ffe:501:ffff:101::/64</TT></TD>
+        <TD><TT>foreign link</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>Link1X</TT></TD>
+        <TD><TT>global</TT></TD>
+        <TD><TT>3ffe:501:ffff:1101::/64</TT></TD>
+        <TD><TT>foreign link</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>Link1Y</TT></TD>
+        <TD><TT>global</TT></TD>
+        <TD><TT>3ffe:501:ffff:2101::/64</TT></TD>
+        <TD><TT>foreign link</TT></TD>
+    </TR>
+    <TR>
+        <TD ROWSPAN="4"><TT>RUT (Link0)</TT></TD>
+        <TD><TT>global</TT></TD>
+        <TD><TT>3ffe:501:ffff:100:&lt;NutDef.Link0_addr&gt;</TT></TD>
+        <TD><TT>&nbsp;</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>global</TT></TD>
+        <TD><TT>3ffe:501:ffff:100:fdff:ffff:ffff:fffe</TT></TD>
+        <TD><TT>anycast</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>link-local</TT></TD>
+        <TD><TT>fe80::&lt;NutDef.Link0_addr&gt;</TT></TD>
+        <TD ROWSPAN="2"><TT>&nbsp;</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>ether</TT></TD>
+        <TD><TT>&lt;NutDef.Link0_addr&gt;</TT></TD>
+    </TR>
+    <TR>
+        <TD ROWSPAN="3"><TT>RUT (Link1)</TT></TD>
+        <TD><TT>global</TT></TD>
+        <TD><TT>3ffe:501:ffff:101:&lt;NutDef.Link1_addr&gt;</TT></TD>
+        <TD ROWSPAN="3"><TT>&nbsp;</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>link-local</TT></TD>
+        <TD><TT>fe80::&lt;NutDef.Link1_addr&gt;</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>ether</TT></TD>
+        <TD><TT>&lt;NutDef.Link1_addr&gt;</TT></TD>
+    </TR>
+    <TR>
+        <TD ROWSPAN="3"><TT>R1 (Link1)</TT></TD>
+        <TD><TT>global</TT></TD>
+        <TD><TT>3ffe:501:ffff:101:200:ff:fe00:a1a1</TT></TD>
+        <TD ROWSPAN="3"><TT>&nbsp;</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>link-local</TT></TD>
+        <TD><TT>fe80::200:ff:fe00:a1a1</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>ether</TT></TD>
+        <TD><TT>00:00:00:00:a1:a1</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>MN0</TT></TD>
+        <TD><TT>global</TT></TD>
+        <TD><TT>3ffe:501:ffff:100:200:ff:fe00:1</TT></TD>
+        <TD><TT>home address</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>MN1X</TT></TD>
+        <TD><TT>global</TT></TD>
+        <TD><TT>3ffe:501:ffff:1101:200:ff:fe00:1</TT></TD>
+        <TD><TT>care-of address</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>MN1Y</TT></TD>
+        <TD><TT>global</TT></TD>
+        <TD><TT>3ffe:501:ffff:2101:200:ff:fe00:1</TT></TD>
+        <TD><TT>care-of address</TT></TD>
+    </TR>
+</TABLE>
+</BLOCKQUOTE>
+</BLOCKQUOTE>
+
+=end html
+
+=head1 SETUP
+
+=begin html
+<BLOCKQUOTE>
+o <U><B><FONT SIZE="+1">Common Setup-1</FONT></B></U>
+<UL>
+    <LI>Reboot RUT
+    <LI>Assign the global addresses
+    <BLOCKQUOTE>
+        <TABLE BORDER>
+            <TR><TH>interface</TH><TH>address</TH><TH>type</TH><TH>note</TH></TR>
+            <TR><TD ROWSPAN="2">&lt;NutDef.Link0_device&gt;</TD><TD>3ffe:501:ffff:100:&lt;NutDef.Link0_addr&gt;</TD><TD>unicast</TD><TD>&nbsp;</TD></TR>
+            <TR><TD>3ffe:501:ffff:100:fdff:ffff:ffff:fffe</TD><TD>anycast</TD><TD>Mobile IPv6 Home-Agents anycast address</TD></TR>
+            <TR><TD>&lt;NutDef.Link1_device&gt;</TD><TD>3ffe:501:ffff:101:&lt;NutDef.Link1_addr&gt;</TD><TD>unicast</TD><TD>&nbsp;</TD></TR>
+        </TABLE>
+    </BLOCKQUOTE>
+    <LI>Enable HA function
+    <UL>
+        <LI>Turn on HA functions
+    </UL>
+    <LI>Configure routing table of RUT
+    <UL>
+        <LI>HA has only physical home link
+    </UL>
+    <BLOCKQUOTE>
+        <TABLE BORDER>
+            <TR><TH>destination</TH><TH>gateway</TH><TH>interface</TH><TH>preference</TH></TR>
+            <TR><TD>::/0(default)</TD><TD>fe80::200:ff:fe00:a0a0</TD><TD>&lt;NutDef.Link0_device&gt;</TD><TD>medium</TD></TR>
+        </TABLE>
+    </BLOCKQUOTE>
+    <UL>
+        <LI>HA has physical home link and physical foreign link
+    </UL>
+    <BLOCKQUOTE>
+        <TABLE BORDER>
+            <TR><TH>destination</TH><TH>gateway</TH><TH>interface</TH><TH>preference</TH></TR>
+            <TR><TD>::/0(default)</TD><TD>fe80::200:ff:fe00:a0a0</TD><TD>&lt;NutDef.Link0_device&gt;</TD><TD>medium</TD></TR>
+            <TR><TD>3ffe:501:ffff:1101::/64</TD><TD>fe80::200:ff:fe00:a1a1</TD><TD>&lt;NutDef.Link1_device&gt;</TD><TD>medium</TD></TR>
+            <TR><TD>3ffe:501:ffff:2101::/64</TD><TD>fe80::200:ff:fe00:a1a1</TD><TD>&lt;NutDef.Link1_device&gt;</TD><TD>medium</TD></TR>
+            <TR><TD>3ffe:501:ffff:3101::/64</TD><TD>fe80::200:ff:fe00:a1a1</TD><TD>&lt;NutDef.Link1_device&gt;</TD><TD>medium</TD></TR>
+        </TABLE>
+    </BLOCKQUOTE>
+    <UL>
+        <LI>HA has virtual home link and physical foreign link
+    </UL>
+    <BLOCKQUOTE>
+        <TABLE BORDER>
+            <TR><TH>destination</TH><TH>gateway</TH><TH>interface</TH><TH>preference</TH></TR>
+            <TR><TD>default</TD><TD>fe80::200:ff:fe00:a1a1</TD><TD>&lt;NutDef.Link1_device&gt;</TD><TD>medium</TD></TR>
+        </TABLE>
+    </BLOCKQUOTE>
+    <LI>IPsec configuration
+    <UL>
+        <LI><A HREF="./SETUP_IPsec_MN0_SA1_SA2.html">ESP transport mode (BU/BA)</A>
+        <LI><A HREF="./SETUP_IPsec_MN0_SA3_SA4.html">ESP tunnel mode (HoTI/HoT)</A>
+        <LI><A HREF="./SETUP_IPsec_MN0_SA5_SA6.html">ESP transport mode (MPS/MPA)</A>
+        <LI><A HREF="./SETUP_IPsec_MN0_SA7_SA8.html">ESP tunnel mode (Payload Packets)</A>
+    </UL>
+</UL>
+o <U><B><FONT SIZE="+1">Real Home Link</FONT></B></U> (If RUT supports <I><B>Real Home Link</B></I>.)
+<UL>
+    <LI>Configure RA parameter
+    <UL>
+        <UL>
+            <LI>Set Home Agent Flag to ON
+        </UL>
+        <LI>Attach Home Agent Information Option
+        <UL>
+            <LI>Set Home Agent Preference to 10
+        </UL>
+        <LI>Attach Prefix Information Option
+        <UL>
+            <LI>Set Router Address Flag to ON
+            <LI>Set Prefix field to Home Agent Address
+        </UL>
+    </UL>
+</UL>
+</BLOCKQUOTE>
+
+=end html
+
+=head1 INITIALIZATION
+
+=begin html
+<BLOCKQUOTE>
+o <U><B><FONT SIZE="+1">Real Home Link</FONT></B></U>
+<BLOCKQUOTE>
+Check Link0 routing table
+<BLOCKQUOTE>
+<PRE>
+  RUT     MN0
+   |       |
+   |      MN0X
+   |       |
+   | <---- | Echo Request
+   | ----> | Echo Reply
+   |       |
+   |      MN0Y
+   |       |
+   | <---- | Echo Request
+   | ----> | Echo Reply
+   |       |
+   V       V
+</PRE>
+</BLOCKQUOTE>
+<P>
+<PRE>
+1. MN0X sends Echo Request
+</PRE>
+<PRE>
+        IPv6 header
+            source              = MN0X (Link0X, global)
+            destination         = RUT  (Link0,  global)
+        Echo Request
+</PRE>
+<PRE>
+2. MN0X receives Echo Reply
+</PRE>
+<PRE>
+        IPv6 header
+            source              = RUT  (Link0,  global)
+            destination         = MN0X (Link0X, global)
+        Echo Reply
+</PRE>
+<PRE>
+3. MN0Y sends Echo Request
+</PRE>
+<PRE>
+        IPv6 header
+            source              = MN0Y (Link0Y, global)
+            destination         = RUT  (Link0,  global)
+        Echo Request
+</PRE>
+<PRE>
+4. MN0Y receives Echo Reply
+</PRE>
+<PRE>
+        IPv6 header
+            source              = RUT  (Link0,  global)
+            destination         = MN0Y (Link0Y, global)
+        Echo Reply
+</PRE>
+</BLOCKQUOTE>
+<P>
+o <U><B><FONT SIZE="+1">Virtual Home Link</FONT></B></U>
+<BLOCKQUOTE>
+Check Link1 routing table
+<BLOCKQUOTE>
+<PRE>
+  RUT     MN0
+   |       |
+   |      MN1X
+   |       |
+   | <---- | Echo Request
+   | ----> | Echo Reply
+   |       |
+   |      MN1Y
+   |       |
+   | <---- | Echo Request
+   | ----> | Echo Reply
+   |       |
+   V       V
+</PRE>
+</BLOCKQUOTE>
+<P>
+<PRE>
+1. MN1X sends Echo Request
+</PRE>
+<PRE>
+        IPv6 header
+            source              = MN1X (Link1X, global)
+            destination         = RUT  (Link0,  global)
+        Echo Request
+</PRE>
+<PRE>
+2. MN1X receives Echo Reply
+</PRE>
+<PRE>
+        IPv6 header
+            source              = RUT  (Link0,  global)
+            destination         = MN1X (Link1X, global)
+        Echo Reply
+</PRE>
+<PRE>
+3. MN1Y sends Echo Request
+</PRE>
+<PRE>
+        IPv6 header
+            source              = MN1Y (Link1Y, global)
+            destination         = RUT  (Link0,  global)
+        Echo Request
+</PRE>
+<PRE>
+4. MN1Y receives Echo Reply
+</PRE>
+<PRE>
+        IPv6 header
+            source              = RUT  (Link0,  global)
+            destination         = MN1Y (Link1Y, global)
+        Echo Reply
+</PRE>
+</BLOCKQUOTE>
+</BLOCKQUOTE>
+
+=end html
+
+=head1 TEST PROCEDURE
+
+=begin html
+<BLOCKQUOTE>
+<BLOCKQUOTE>
+<PRE>
+  CN0     RUT     MN0
+   |       |       |
+   |       |      MN0X
+   |       |       |
+   |       | <---- | BU (A=1&H=1&L=1) w/ HaO
+   |       | ----> | BA (status=0) w/ RH                                           (*1)
+   |       |       |
+   |       | <---- | Echo Request w/ HaO
+   |       | ----> | Echo Reply w/ RH                                              (*2)
+   |       |       |
+   | -->   |       | NS (dst=sol-node multicast, target=link-local address) w/ SLL
+   | <---- |       | NA (target=link-local address) w/ TLL                         (*3)
+   |       |       |
+   V       V       V
+</PRE>
+</BLOCKQUOTE>
+<P>
+<PRE>
+1. MN0X sends BU w/ HaO
+</PRE>
+<PRE>
+        IPv6 header
+            source              = MN0X (Link0X, global)
+            destination         = RUT  (Link0,  global)
+        DH
+          HaO
+            address             = MN0  (Link0,  global)
+        ESP
+            SPI                 = SA1_SPI (SA1 protects BU message)
+        BU
+            sequence            = 15
+            A                   = 1
+            H                   = 1
+            L                   = 1
+            K                   = 0
+            lifetime            = 105
+          PadN option
+            length              = 0
+          Alternate CoA option
+            address             = MN0X (Link0X, global)
+</PRE>
+<PRE>
+2. MN0X receives BA w/ RH (*1)
+</PRE>
+<PRE>
+    o <U>BA message format #1</U>
+</PRE>
+<PRE>
+        IPv6 header
+            source              = RUT  (Link0,  global)
+            destination         = MN0X (Link0X, global)
+        RH
+            length              = 2
+            type                = 2
+            segments left       = 1
+            address             = MN0  (Link0,  global)
+        ESP
+            SPI                 = SA2_SPI (SA2 protects BA message)
+        BA
+            status              = 0 or 1
+            K                   = 0
+            sequence            = 15
+            lifetime            =< 105
+          Binding Refresh Advice option
+            interval            =< 105
+</PRE>
+<PRE>
+    o <U>BA message format #2</U>
+</PRE>
+<PRE>
+        IPv6 header
+            source              = RUT  (Link0,  global)
+            destination         = MN0X (Link0X, global)
+        RH
+            length              = 2
+            type                = 2
+            segments left       = 1
+            address             = MN0  (Link0,  global)
+        ESP
+            SPI                 = SA2_SPI (SA2 protects BA message)
+        BA
+            status              = 0 or 1
+            K                   = 0
+            sequence            = 15
+            lifetime            =< 105
+          PadN option
+            length              = 2
+</PRE>
+<PRE>
+3. MN0X sends Echo Request w/ HaO
+</PRE>
+<PRE>
+    o <U>Echo Request message format #1</U>
+</PRE>
+<PRE>
+        IPv6 header
+            source              = MN0X (Link0X, global)
+            destination         = RUT  (Link0,  global)
+        DH
+          HaO
+            address             = MN0  (Link0,  global)
+        ESP
+            SPI                 = SA5_SPI (SA5 protects ICMPv6 header) or
+                                = SA1_SPI (SA1 protects any header)
+        Echo Request
+</PRE>
+<PRE>
+    o <U>Echo Request message format #2</U>
+</PRE>
+<PRE>
+        IPv6 header
+            source              = MN0X (Link0X, global)
+            destination         = RUT  (Link0,  global)
+        DH
+          HaO
+            address             = MN0  (Link0,  global)
+        Echo Request
+</PRE>
+<PRE>
+4. MN0X receives Echo Reply w/ RH (*2)
+</PRE>
+<PRE>
+    o <U>Echo Reply message format #1</U>
+</PRE>
+<PRE>
+        IPv6 header
+            source              = RUT  (Link0,  global)
+            destination         = MN0X (Link0X, global)
+        RH
+            length              = 2
+            type                = 2
+            segments left       = 1
+            address             = MN0  (Link0,  global)
+        ESP
+            SPI                 = SA6_SPI (SA6 protects ICMPv6 header) or
+                                = SA2_SPI (SA2 protects any header)
+        Echo Reply
+</PRE>
+<PRE>
+    o <U>Echo Reply message format #2</U>
+</PRE>
+<PRE>
+        IPv6 header
+            source              = RUT  (Link0,  global)
+            destination         = MN0X (Link0X, global)
+        RH
+            length              = 2
+            type                = 2
+            segments left       = 1
+            address             = MN0  (Link0,  global)
+        Echo Reply
+</PRE>
+<PRE>
+5. CN0 sends NS
+</PRE>
+<PRE>
+        IPv6 header
+            source              = CN0  (Link0,  link-local)
+            destination         = MN0  (Link0,  solicited-node multicast address)
+        NS
+            target              = MN0  (Link0,  link-local)
+          SLL option
+            address             = CN0  (ether)
+</PRE>
+<PRE>
+6. CN0 receives NA (*3)
+</PRE>
+<PRE>
+    o <U>NA message format #1</U>
+</PRE>
+<PRE>
+        IPv6 header
+            source              = RUT  (Link0,  link-local)
+            destination         = CN0  (Link0,  link-local)
+        NA
+            R                   = 0
+            S                   = 1
+            O                   = 0
+            target              = MN0  (Link0,  link-local)
+          TLL option
+            address             = RUT  (ether)
+</PRE>
+<PRE>
+    o <U>NA message format #2</U>
+</PRE>
+<PRE>
+        IPv6 header
+            source              = RUT  (Link0,  global)
+            destination         = CN0  (Link0,  link-local)
+        NA
+            R                   = 0
+            S                   = 1
+            O                   = 0
+            target              = MN0  (Link0,  link-local)
+          TLL option
+            address             = RUT  (ether)
+</PRE>
+</BLOCKQUOTE>
+
+=end html
+
+=head1 JUDGEMENT
+
+=begin html
+<BLOCKQUOTE>
+<PRE>
+(*1) PASS: MN0X receives BA w/ RH
+(*2) PASS: MN0X receives Echo Reply w/ RH
+(*3) PASS: CN0 receives NA
+</PRE>
+</BLOCKQUOTE>
+
+=end html
+
+=cut
+
+# =head1 REFERENCE
+# 
+# =begin html
+# <BLOCKQUOTE>
+# <PRE>
+# RFC 3775 - Mobility Support in IPv6
+# </PRE>
+# <BLOCKQUOTE>
+# <PRE>
+# 10.4.1. Intercepting Packets for a Mobile Node
+# </PRE>
+# <PRE>
+# ...
+# </PRE>
+# <PRE>
+#    While a node is serving as a home agent for some mobile node, the
+#    home agent uses IPv6 Neighbor Discovery [12] to intercept unicast
+#    packets on the home link addressed to the mobile node.  In order to
+#    intercept packets in this way, the home agent <FONT COLOR="#FF0000">MUST</FONT> act as a proxy for
+#    this mobile node and reply to any received Neighbor Solicitations for
+#    it.  When a home agent receives a Neighbor Solicitation, it <FONT COLOR="#FF0000">MUST</FONT>
+#    check if the Target Address specified in the message matches the
+#    address of any mobile node for which it has a Binding Cache entry
+#    marked as a home registration.
+# </PRE>
+# <PRE>
+#    <U><B>If such an entry exists in the home agent's Binding Cache, the home</B></U>
+#    <U><B>agent <FONT COLOR="#FF0000">MUST</FONT> reply to the Neighbor Solicitation with a Neighbor</B></U>
+#    <U><B>Advertisement giving the home agent's own link-layer address as the</B></U>
+#    <U><B>link-layer address for the specified Target Address.</B></U>  <U><B>In addition,</B></U>
+#    <U><B>the Router (R) bit in the Advertisement <FONT COLOR="#FF0000">MUST</FONT> be set to zero.</B></U>  Acting
+#    as a proxy in this way allows other nodes on the mobile node's home
+#    link to resolve the mobile node's address and for the home agent to
+#    defend these addresses on the home link for Duplicate Address
+#    Detection [12].
+# </PRE>
+# </BLOCKQUOTE>
+# <PRE>
+# RFC 2461 - Neighbor Discovery for IPv6
+# </PRE>
+# <BLOCKQUOTE>
+# <PRE>
+# 7.2.4. Sending Solicited Neighbor Advertisements
+# </PRE>
+# <PRE>
+#    A node sends a Neighbor Advertisement in response to a valid Neighbor
+#    Solicitation targeting one of the node's assigned addresses.  <U><B>The</B></U>
+#    <U><B>Target Address of the advertisement is copied from the Target Address</B></U>
+#    <U><B>of the solicitation.</B></U>  If the solicitation's IP Destination Address is
+#    not a multicast address, the Target Link-Layer Address option <FONT COLOR="#FF0000">MAY</FONT> be
+#    omitted; the neighboring node's cached value must already be current
+#    in order for the solicitation to have been received.  <U><B>If the</B></U>
+#    <U><B>solicitation's IP Destination Address is a multicast address, the</B></U>
+#    <U><B>Target Link-Layer option <FONT COLOR="#FF0000">MUST</FONT> be included in the advertisement.</B></U>
+#    Furthermore, if the node is a router, it <FONT COLOR="#FF0000">MUST</FONT> set the Router flag to
+#    one; otherwise it <FONT COLOR="#FF0000">MUST</FONT> set the flag to zero.
+# </PRE>
+# <PRE>
+#    <U><B>If the Target Address is either an anycast address or a unicast</B></U>
+#    <U><B>address for which the node is providing proxy service, or the Target</B></U>
+#    <U><B>Link-Layer Address option is not included, the Override flag <FONT COLOR="#FF0000">SHOULD</FONT></B></U>
+#    <U><B>be set to zero.</B></U>  Otherwise, the Override flag <FONT COLOR="#FF0000">SHOULD</FONT> be set to one.
+#    Proper setting of the Override flag ensures that nodes give
+#    preference to non-proxy advertisements, even when received after
+#    proxy advertisements, and also ensures that the first advertisement
+#    for an anycast address "wins".
+# </PRE>
+# <PRE>
+#    If the source of the solicitation is the unspecified address, the
+#    node <FONT COLOR="#FF0000">MUST</FONT> set the Solicited flag to zero and multicast the
+#    advertisement to the all-nodes address.  <U><B>Otherwise, the node <FONT COLOR="#FF0000">MUST</FONT> set</B></U>
+#    <U><B>the Solicited flag to one and unicast the advertisement to the Source</B></U>
+#    <U><B>Address of the solicitation.</B></U>
+# </PRE>
+# <PRE>
+# 7.2.8.  Proxy Neighbor Advertisements
+# </PRE>
+# <PRE>
+#    Under limited circumstances, a router <FONT COLOR="#FF0000">MAY</FONT> proxy for one or more other
+#    nodes, that is, through Neighbor Advertisements indicate that it is
+#    willing to accept packets not explicitly addressed to itself.  For
+#    example, a router might accept packets on behalf of a mobile node
+#    that has moved off-link.  The mechanisms used by proxy are identical
+#    to the mechanisms used with anycast addresses.
+# </PRE>
+# <PRE>
+#    A proxy <FONT COLOR="#FF0000">MUST</FONT> join the solicited-node multicast address(es) that
+#    correspond to the IP address(es) assigned to the node for which it is
+#    proxying.
+# </PRE>
+# <PRE>
+#    <U><B>All solicited proxy Neighbor Advertisement messages <FONT COLOR="#FF0000">MUST</FONT> have the</B></U>
+#    <U><B>Override flag set to zero.</B></U>  This ensures that if the node itself is
+#    present on the link its Neighbor Advertisement (with the Override
+#    flag set to one) will take precedence of any advertisement received
+#    from a proxy.  A proxy <FONT COLOR="#FF0000">MAY</FONT> send unsolicited advertisements with the
+#    Override flag set to one as specified in Section 7.2.6, but doing so
+#    may cause the proxy advertisement to override a valid entry created
+#    by the node itself.
+# </PRE>
+# <PRE>
+#    Finally, when sending a proxy advertisement in response to a Neighbor
+#    Solicitation, the sender should delay its response by a random time
+#    between 0 and MAX_ANYCAST_DELAY_TIME seconds.
+# </PRE>
+# </BLOCKQUOTE>
+# </BLOCKQUOTE>
+# 
+# =end html
+# 
+
+=pod
+
+=head1 REFERENCE
+
+=begin html
+<BLOCKQUOTE>
+<PRE>
+RFC 3775 - Mobility Support in IPv6
+See Section 10.4.1.
+RFC 2461 - Neighbor Discovery for IPv6
+See Section 7.2.4 and 7.2.8.
+</PRE>
+</BLOCKQUOTE>
+
+=end html
+
+=cut

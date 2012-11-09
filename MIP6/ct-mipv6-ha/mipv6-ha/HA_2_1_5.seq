@@ -1,0 +1,968 @@
+#!/usr/bin/perl
+#
+# Copyright (C) IPv6 Promotion Council,
+# NIPPON TELEGRAPH AND TELEPHONE CORPORATION (NTT),
+# Yokogwa Electoric Corporation, YASKAWA INFORMATION SYSTEMS Corporation
+# and NTT Advanced Technology Corporation(NTT-AT) All rights reserved.
+# 
+# Technology Corporation.
+# 
+# Redistribution and use of this software in source and binary forms, with 
+# or without modification, are permitted provided that the following 
+# conditions and disclaimer are agreed and accepted by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright 
+# notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright 
+# notice, this list of conditions and the following disclaimer in the 
+# documentation and/or other materials provided with the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project which 
+# is related to this software (hereinafter referred to as "project") nor 
+# the names of the contributors may be used to endorse or promote products 
+# derived from this software without specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written 
+# notification to the copyrighters. However, using this software for the 
+# purpose of testing or evaluating any products including merchantable 
+# products may be permitted without any notification to the copyrighters.
+# 
+# 
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND 
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING 
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS 
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE 
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+# CONTRACT,STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF 
+# THE POSSIBILITY OF SUCH DAMAGE.
+#
+#
+########################################################################
+
+BEGIN {}
+END   {}
+
+use mipv6;
+
+my $movement	= 'USE_LINK1X';
+
+my $bu_sequence	= 15;
+my $bu_a_bit	= 1;
+my $bu_h_bit	= 1;
+my $bu_l_bit	= 0;
+my $bu_k_bit	= 0;
+my $bu_lifetime	= 0x0069;
+
+my $ba_status	= 0;
+my $ba_k_bit	= 0;
+my $ba_sequence	= $bu_sequence;
+my $ba_lifetime	= $bu_lifetime;
+
+my $bool	= $true;
+
+
+
+unless(mipv6init($movement)) {
+	exitInitFail();
+}
+
+
+
+vLogHTML('<FONT COLOR="#FF0000" SIZE="5"><U><B>TEST PROCEDURE'.
+	'</B></U></FONT><BR>');
+
+unless(
+	mipv6registration(
+		$movement,
+		$bu_sequence,
+		$bu_a_bit,
+		$bu_h_bit,
+		$bu_l_bit,
+		$bu_k_bit,
+		$bu_lifetime,
+		$ba_status,
+		$ba_k_bit,
+		$ba_sequence,
+		$ba_lifetime
+	)
+) {
+	exitFail();
+}
+
+unless(binding_confirmation($movement, $bool)) {
+	exitFail();
+}
+
+exitPass();
+
+
+
+#
+# perldoc
+#
+########################################################################
+__END__
+
+=head1 NAME
+
+=begin html
+<BLOCKQUOTE><TT>
+HA_2_1_5 - Valid Registration (Receiving valid BU A=1)
+
+=end html
+
+=begin html
+</TT></BLOCKQUOTE>
+
+=end html
+
+=head1 TARGET
+
+=begin html
+<BLOCKQUOTE>
+<PRE>
+Router
+</PRE>
+</BLOCKQUOTE>
+
+=end html
+
+=head1 REQUIREMENT of TEST
+
+=begin html
+<BLOCKQUOTE>
+<UL>
+    <LI>Virtual Home Link
+</UL>
+</BLOCKQUOTE>
+
+=end html
+
+=head1 TOPOLOGY
+
+=begin html
+<BLOCKQUOTE>
+o <U><B><FONT SIZE="+1">TOPOLOGY-1 Real Home Link</FONT></B></U> (If RUT supports <I><B>Real Home Link</B></I>.)
+<BLOCKQUOTE>
+<BLOCKQUOTE>
+<PRE>
+       RUT
+        |
+--------+-------+---------------+------- Link0
+                |               |
+                R0             MN0
+                |
+        --------+-------+-------+------- Link0X
+                        |       |
+                       R0X     MN0X
+                        |
+                --------+-------+------- Link0Y
+                                |
+                               MN0Y
+</PRE>
+</BLOCKQUOTE>
+<P>
+<TABLE BORDER>
+    <TR>
+        <TD><TT>Link0</TT></TD>
+        <TD><TT>global</TT></TD>
+        <TD><TT>3ffe:501:ffff:100::/64</TT></TD>
+        <TD><TT>home link</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>Link0X</TT></TD>
+        <TD><TT>global</TT></TD>
+        <TD><TT>3ffe:501:ffff:1100::/64</TT></TD>
+        <TD><TT>foreign link</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>Link0Y</TT></TD>
+        <TD><TT>global</TT></TD>
+        <TD><TT>3ffe:501:ffff:2100::/64</TT></TD>
+        <TD><TT>foreign link</TT></TD>
+    </TR>
+    <TR>
+        <TD ROWSPAN="4"><TT>RUT (Link0)</TT></TD>
+        <TD><TT>global</TT></TD>
+        <TD><TT>3ffe:501:ffff:100:&lt;NutDef.Link0_addr&gt;</TT></TD>
+        <TD><TT>&nbsp;</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>global</TT></TD>
+        <TD><TT>3ffe:501:ffff:100:fdff:ffff:ffff:fffe</TT></TD>
+        <TD><TT>anycast</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>link-local</TT></TD>
+        <TD><TT>fe80::&lt;NutDef.Link0_addr&gt;</TT></TD>
+        <TD ROWSPAN="2"><TT>&nbsp;</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>ether</TT></TD>
+        <TD><TT>&lt;NutDef.Link0_addr&gt;</TT></TD>
+    </TR>
+    <TR>
+        <TD ROWSPAN="3"><TT>R0 (Link0)</TT></TD>
+        <TD><TT>global</TT></TD>
+        <TD><TT>3ffe:501:ffff:100:200:ff:fe00:a0a0</TT></TD>
+        <TD ROWSPAN="3"><TT>&nbsp;</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>link-local</TT></TD>
+        <TD><TT>fe80::200:ff:fe00:a0a0</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>ether</TT></TD>
+        <TD><TT>00:00:00:00:a0:a0</TT></TD>
+    </TR>
+    <TR>
+        <TD ROWSPAN="3"><TT>MN0</TT></TD>
+        <TD><TT>global</TT></TD>
+        <TD><TT>3ffe:501:ffff:100:200:ff:fe00:1</TT></TD>
+        <TD ROWSPAN="3"><TT>home address</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>link-local</TT></TD>
+        <TD><TT>fe80::200:ff:fe00:1</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>ether</TT></TD>
+        <TD><TT>00:00:00:00:00:01</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>MN0X</TT></TD>
+        <TD><TT>global</TT></TD>
+        <TD><TT>3ffe:501:ffff:1100:200:ff:fe00:1</TT></TD>
+        <TD><TT>care-of address</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>MN0Y</TT></TD>
+        <TD><TT>global</TT></TD>
+        <TD><TT>3ffe:501:ffff:2100:200:ff:fe00:1</TT></TD>
+        <TD><TT>care-of address</TT></TD>
+    </TR>
+</TABLE>
+</BLOCKQUOTE>
+<P>
+o <U><B><FONT SIZE="+1">TOPOLOGY-1 Virtual Home Link</FONT></B></U> (If RUT supports <I><B>Virtual Home Link</B></I>.)
+<BLOCKQUOTE>
+<BLOCKQUOTE>
+<PRE>
+                               MN1Y
+                                |
+                --------+-------+------- Link1Y
+                        |
+                       R1X     MN1X
+                        |       |
+        --------+-------+-------+------- Link1X
+                |
+                R1
+                |
+--------+-------+----------------------- Link1
+        |
+       RUT
+        |
+- - - - + - - - - - - - - - - - + - - -  Link0
+                                |
+                               MN0
+</PRE>
+</BLOCKQUOTE>
+<P>
+<TABLE BORDER>
+    <TR>
+        <TD><TT>Link0</TT></TD>
+        <TD><TT>global</TT></TD>
+        <TD><TT>3ffe:501:ffff:100::/64</TT></TD>
+        <TD><TT>home link</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>Link1</TT></TD>
+        <TD><TT>global</TT></TD>
+        <TD><TT>3ffe:501:ffff:101::/64</TT></TD>
+        <TD><TT>foreign link</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>Link1X</TT></TD>
+        <TD><TT>global</TT></TD>
+        <TD><TT>3ffe:501:ffff:1101::/64</TT></TD>
+        <TD><TT>foreign link</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>Link1Y</TT></TD>
+        <TD><TT>global</TT></TD>
+        <TD><TT>3ffe:501:ffff:2101::/64</TT></TD>
+        <TD><TT>foreign link</TT></TD>
+    </TR>
+    <TR>
+        <TD ROWSPAN="4"><TT>RUT (Link0)</TT></TD>
+        <TD><TT>global</TT></TD>
+        <TD><TT>3ffe:501:ffff:100:&lt;NutDef.Link0_addr&gt;</TT></TD>
+        <TD><TT>&nbsp;</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>global</TT></TD>
+        <TD><TT>3ffe:501:ffff:100:fdff:ffff:ffff:fffe</TT></TD>
+        <TD><TT>anycast</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>link-local</TT></TD>
+        <TD><TT>fe80::&lt;NutDef.Link0_addr&gt;</TT></TD>
+        <TD ROWSPAN="2"><TT>&nbsp;</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>ether</TT></TD>
+        <TD><TT>&lt;NutDef.Link0_addr&gt;</TT></TD>
+    </TR>
+    <TR>
+        <TD ROWSPAN="3"><TT>RUT (Link1)</TT></TD>
+        <TD><TT>global</TT></TD>
+        <TD><TT>3ffe:501:ffff:101:&lt;NutDef.Link1_addr&gt;</TT></TD>
+        <TD ROWSPAN="3"><TT>&nbsp;</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>link-local</TT></TD>
+        <TD><TT>fe80::&lt;NutDef.Link1_addr&gt;</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>ether</TT></TD>
+        <TD><TT>&lt;NutDef.Link1_addr&gt;</TT></TD>
+    </TR>
+    <TR>
+        <TD ROWSPAN="3"><TT>R1 (Link1)</TT></TD>
+        <TD><TT>global</TT></TD>
+        <TD><TT>3ffe:501:ffff:101:200:ff:fe00:a1a1</TT></TD>
+        <TD ROWSPAN="3"><TT>&nbsp;</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>link-local</TT></TD>
+        <TD><TT>fe80::200:ff:fe00:a1a1</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>ether</TT></TD>
+        <TD><TT>00:00:00:00:a1:a1</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>MN0</TT></TD>
+        <TD><TT>global</TT></TD>
+        <TD><TT>3ffe:501:ffff:100:200:ff:fe00:1</TT></TD>
+        <TD><TT>home address</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>MN1X</TT></TD>
+        <TD><TT>global</TT></TD>
+        <TD><TT>3ffe:501:ffff:1101:200:ff:fe00:1</TT></TD>
+        <TD><TT>care-of address</TT></TD>
+    </TR>
+    <TR>
+        <TD><TT>MN1Y</TT></TD>
+        <TD><TT>global</TT></TD>
+        <TD><TT>3ffe:501:ffff:2101:200:ff:fe00:1</TT></TD>
+        <TD><TT>care-of address</TT></TD>
+    </TR>
+</TABLE>
+</BLOCKQUOTE>
+</BLOCKQUOTE>
+
+=end html
+
+=head1 SETUP
+
+=begin html
+<BLOCKQUOTE>
+o <U><B><FONT SIZE="+1">Common Setup-1</FONT></B></U>
+<UL>
+    <LI>Reboot RUT
+    <LI>Assign the global addresses
+    <BLOCKQUOTE>
+        <TABLE BORDER>
+            <TR><TH>interface</TH><TH>address</TH><TH>type</TH><TH>note</TH></TR>
+            <TR><TD ROWSPAN="2">&lt;NutDef.Link0_device&gt;</TD><TD>3ffe:501:ffff:100:&lt;NutDef.Link0_addr&gt;</TD><TD>unicast</TD><TD>&nbsp;</TD></TR>
+            <TR><TD>3ffe:501:ffff:100:fdff:ffff:ffff:fffe</TD><TD>anycast</TD><TD>Mobile IPv6 Home-Agents anycast address</TD></TR>
+            <TR><TD>&lt;NutDef.Link1_device&gt;</TD><TD>3ffe:501:ffff:101:&lt;NutDef.Link1_addr&gt;</TD><TD>unicast</TD><TD>&nbsp;</TD></TR>
+        </TABLE>
+    </BLOCKQUOTE>
+    <LI>Enable HA function
+    <UL>
+        <LI>Turn on HA functions
+    </UL>
+    <LI>Configure routing table of RUT
+    <UL>
+        <LI>HA has only physical home link
+    </UL>
+    <BLOCKQUOTE>
+        <TABLE BORDER>
+            <TR><TH>destination</TH><TH>gateway</TH><TH>interface</TH><TH>preference</TH></TR>
+            <TR><TD>::/0(default)</TD><TD>fe80::200:ff:fe00:a0a0</TD><TD>&lt;NutDef.Link0_device&gt;</TD><TD>medium</TD></TR>
+        </TABLE>
+    </BLOCKQUOTE>
+    <UL>
+        <LI>HA has physical home link and physical foreign link
+    </UL>
+    <BLOCKQUOTE>
+        <TABLE BORDER>
+            <TR><TH>destination</TH><TH>gateway</TH><TH>interface</TH><TH>preference</TH></TR>
+            <TR><TD>::/0(default)</TD><TD>fe80::200:ff:fe00:a0a0</TD><TD>&lt;NutDef.Link0_device&gt;</TD><TD>medium</TD></TR>
+            <TR><TD>3ffe:501:ffff:1101::/64</TD><TD>fe80::200:ff:fe00:a1a1</TD><TD>&lt;NutDef.Link1_device&gt;</TD><TD>medium</TD></TR>
+            <TR><TD>3ffe:501:ffff:2101::/64</TD><TD>fe80::200:ff:fe00:a1a1</TD><TD>&lt;NutDef.Link1_device&gt;</TD><TD>medium</TD></TR>
+            <TR><TD>3ffe:501:ffff:3101::/64</TD><TD>fe80::200:ff:fe00:a1a1</TD><TD>&lt;NutDef.Link1_device&gt;</TD><TD>medium</TD></TR>
+        </TABLE>
+    </BLOCKQUOTE>
+    <UL>
+        <LI>HA has virtual home link and physical foreign link
+    </UL>
+    <BLOCKQUOTE>
+        <TABLE BORDER>
+            <TR><TH>destination</TH><TH>gateway</TH><TH>interface</TH><TH>preference</TH></TR>
+            <TR><TD>default</TD><TD>fe80::200:ff:fe00:a1a1</TD><TD>&lt;NutDef.Link1_device&gt;</TD><TD>medium</TD></TR>
+        </TABLE>
+    </BLOCKQUOTE>
+    <LI>IPsec configuration
+    <UL>
+        <LI><A HREF="./SETUP_IPsec_MN0_SA1_SA2.html">ESP transport mode (BU/BA)</A>
+        <LI><A HREF="./SETUP_IPsec_MN0_SA3_SA4.html">ESP tunnel mode (HoTI/HoT)</A>
+        <LI><A HREF="./SETUP_IPsec_MN0_SA5_SA6.html">ESP transport mode (MPS/MPA)</A>
+        <LI><A HREF="./SETUP_IPsec_MN0_SA7_SA8.html">ESP tunnel mode (Payload Packets)</A>
+    </UL>
+</UL>
+o <U><B><FONT SIZE="+1">Real Home Link</FONT></B></U> (If RUT supports <I><B>Real Home Link</B></I>.)
+<UL>
+    <LI>Configure RA parameter
+    <UL>
+        <UL>
+            <LI>Set Home Agent Flag to ON
+        </UL>
+        <LI>Attach Home Agent Information Option
+        <UL>
+            <LI>Set Home Agent Preference to 10
+        </UL>
+        <LI>Attach Prefix Information Option
+        <UL>
+            <LI>Set Router Address Flag to ON
+            <LI>Set Prefix field to Home Agent Address
+        </UL>
+    </UL>
+</UL>
+</BLOCKQUOTE>
+
+=end html
+
+=head1 INITIALIZATION
+
+=begin html
+<BLOCKQUOTE>
+o <U><B><FONT SIZE="+1">Real Home Link</FONT></B></U>
+<BLOCKQUOTE>
+Check Link0 routing table
+<BLOCKQUOTE>
+<PRE>
+  RUT     MN0
+   |       |
+   |      MN0X
+   |       |
+   | <---- | Echo Request
+   | ----> | Echo Reply
+   |       |
+   |      MN0Y
+   |       |
+   | <---- | Echo Request
+   | ----> | Echo Reply
+   |       |
+   V       V
+</PRE>
+</BLOCKQUOTE>
+<P>
+<PRE>
+1. MN0X sends Echo Request
+</PRE>
+<PRE>
+        IPv6 header
+            source              = MN0X (Link0X, global)
+            destination         = RUT  (Link0,  global)
+        Echo Request
+</PRE>
+<PRE>
+2. MN0X receives Echo Reply
+</PRE>
+<PRE>
+        IPv6 header
+            source              = RUT  (Link0,  global)
+            destination         = MN0X (Link0X, global)
+        Echo Reply
+</PRE>
+<PRE>
+3. MN0Y sends Echo Request
+</PRE>
+<PRE>
+        IPv6 header
+            source              = MN0Y (Link0Y, global)
+            destination         = RUT  (Link0,  global)
+        Echo Request
+</PRE>
+<PRE>
+4. MN0Y receives Echo Reply
+</PRE>
+<PRE>
+        IPv6 header
+            source              = RUT  (Link0,  global)
+            destination         = MN0Y (Link0Y, global)
+        Echo Reply
+</PRE>
+</BLOCKQUOTE>
+<P>
+o <U><B><FONT SIZE="+1">Virtual Home Link</FONT></B></U>
+<BLOCKQUOTE>
+Check Link1 routing table
+<BLOCKQUOTE>
+<PRE>
+  RUT     MN0
+   |       |
+   |      MN1X
+   |       |
+   | <---- | Echo Request
+   | ----> | Echo Reply
+   |       |
+   |      MN1Y
+   |       |
+   | <---- | Echo Request
+   | ----> | Echo Reply
+   |       |
+   V       V
+</PRE>
+</BLOCKQUOTE>
+<P>
+<PRE>
+1. MN1X sends Echo Request
+</PRE>
+<PRE>
+        IPv6 header
+            source              = MN1X (Link1X, global)
+            destination         = RUT  (Link0,  global)
+        Echo Request
+</PRE>
+<PRE>
+2. MN1X receives Echo Reply
+</PRE>
+<PRE>
+        IPv6 header
+            source              = RUT  (Link0,  global)
+            destination         = MN1X (Link1X, global)
+        Echo Reply
+</PRE>
+<PRE>
+3. MN1Y sends Echo Request
+</PRE>
+<PRE>
+        IPv6 header
+            source              = MN1Y (Link1Y, global)
+            destination         = RUT  (Link0,  global)
+        Echo Request
+</PRE>
+<PRE>
+4. MN1Y receives Echo Reply
+</PRE>
+<PRE>
+        IPv6 header
+            source              = RUT  (Link0,  global)
+            destination         = MN1Y (Link1Y, global)
+        Echo Reply
+</PRE>
+</BLOCKQUOTE>
+</BLOCKQUOTE>
+
+=end html
+
+=head1 TEST PROCEDURE
+
+=begin html
+<BLOCKQUOTE>
+<BLOCKQUOTE>
+<PRE>
+  RUT     MN0
+   |       |
+   |      MN1X
+   |       |
+   | <---- | BU (A=1&H=1) w/ HaO
+   | ----> | BA (status=0) w/ RH (*1)
+   |       |
+   | <---- | Echo Request w/ HaO
+   | ----> | Echo Reply w/ RH    (*2)
+   |       |
+   V       V
+</PRE>
+</BLOCKQUOTE>
+<P>
+<PRE>
+1. MN1X sends BU w/ HaO
+</PRE>
+<PRE>
+        IPv6 header
+            source              = MN1X (Link1X, global)
+            destination         = RUT  (Link0,  global)
+        DH
+          HaO
+            address             = MN0  (Link0,  global)
+        ESP
+            SPI                 = SA1_SPI (SA1 protects BU message)
+        BU
+            sequence            = 15
+            A                   = 1
+            H                   = 1
+            L                   = 0
+            K                   = 0
+            lifetime            = 105
+          PadN option
+            length              = 0
+          Alternate CoA option
+            address             = MN1X (Link1X, global)
+</PRE>
+<PRE>
+2. MN1X receives BA w/ RH (*1)
+</PRE>
+<PRE>
+    o <U>BA message format #1</U>
+</PRE>
+<PRE>
+        IPv6 header
+            source              = RUT  (Link0,  global)
+            destination         = MN1X (Link1X, global)
+        RH
+            length              = 2
+            type                = 2
+            segments left       = 1
+            address             = MN0  (Link0,  global)
+        ESP
+            SPI                 = SA2_SPI (SA2 protects BA message)
+        BA
+            status              = 0 or 1
+            K                   = 0
+            sequence            = 15
+            lifetime            =< 105
+          Binding Refresh Advice option
+            interval            =< 105
+</PRE>
+<PRE>
+    o <U>BA message format #2</U>
+</PRE>
+<PRE>
+        IPv6 header
+            source              = RUT  (Link0,  global)
+            destination         = MN1X (Link1X, global)
+        RH
+            length              = 2
+            type                = 2
+            segments left       = 1
+            address             = MN0  (Link0,  global)
+        ESP
+            SPI                 = SA2_SPI (SA2 protects BA message)
+        BA
+            status              = 0 or 1
+            K                   = 0
+            sequence            = 15
+            lifetime            =< 105
+          PadN option
+            length              = 2
+</PRE>
+<PRE>
+3. MN1X sends Echo Request w/ HaO
+</PRE>
+<PRE>
+    o <U>Echo Request message format #1</U>
+</PRE>
+<PRE>
+        IPv6 header
+            source              = MN1X (Link1X, global)
+            destination         = RUT  (Link0,  global)
+        DH
+          HaO
+            address             = MN0  (Link0,  global)
+        ESP
+            SPI                 = SA5_SPI (SA5 protects ICMPv6 header) or
+                                = SA1_SPI (SA1 protects any header)
+        Echo Request
+</PRE>
+<PRE>
+    o <U>Echo Request message format #2</U>
+</PRE>
+<PRE>
+        IPv6 header
+            source              = MN1X (Link1X, global)
+            destination         = RUT  (Link0,  global)
+        DH
+          HaO
+            address             = MN0  (Link0,  global)
+        Echo Request
+</PRE>
+<PRE>
+4. MN1X receives Echo Reply w/ RH (*2)
+</PRE>
+<PRE>
+    o <U>Echo Reply message format #1</U>
+</PRE>
+<PRE>
+        IPv6 header
+            source              = RUT  (Link0,  global)
+            destination         = MN1X (Link1X, global)
+        RH
+            length              = 2
+            type                = 2
+            segments left       = 1
+            address             = MN0  (Link0,  global)
+        ESP
+            SPI                 = SA6_SPI (SA6 protects ICMPv6 header) or
+                                = SA2_SPI (SA2 protects any header)
+        Echo Reply
+</PRE>
+<PRE>
+    o <U>Echo Reply message format #2</U>
+</PRE>
+<PRE>
+        IPv6 header
+            source              = RUT  (Link0,  global)
+            destination         = MN1X (Link1X, global)
+        RH
+            length              = 2
+            type                = 2
+            segments left       = 1
+            address             = MN0  (Link0,  global)
+        Echo Reply
+</PRE>
+</BLOCKQUOTE>
+
+=end html
+
+=head1 JUDGEMENT
+
+=begin html
+<BLOCKQUOTE>
+<PRE>
+(*1) PASS: MN1X receives BA w/ RH
+(*2) PASS: MN1X receives Echo Reply w/ RH
+</PRE>
+</BLOCKQUOTE>
+
+=end html
+
+=cut
+
+# =head1 REFERENCE
+# 
+# =begin html
+# <BLOCKQUOTE>
+# <PRE>
+# 10.3.1.  Primary Care-of Address Registration
+# </PRE>
+# <PRE>
+# ...
+# </PRE>
+# <PRE>
+#    <U><B>If home agent accepts the Binding Update, it <FONT COLOR="#FF0000">MUST</FONT> then create a new</B></U>
+#    <U><B>entry in its Binding Cache for this mobile node or update its</B></U>
+#    <U><B>existing Binding Cache entry, if such an entry already exists.</B></U>  <U><B>The</B></U>
+#    <U><B>Home Address field as received in the Home Address option provides</B></U>
+#    <U><B>the home address of the mobile node.</B></U>
+# </PRE>
+# <PRE>
+#    The home agent <FONT COLOR="#FF0000">MUST</FONT> mark this Binding Cache entry as a home
+#    registration to indicate that the node is serving as a home agent for
+#    this binding.  Binding Cache entries marked as a home registration
+#    <FONT COLOR="#FF0000">MUST</FONT> be excluded from the normal cache replacement policy used for
+#    the Binding Cache (Section 9.6) and <FONT COLOR="#FF0000">MUST NOT</FONT> be removed from the
+#    Binding Cache until the expiration of the Lifetime period.
+# </PRE>
+# <PRE>
+#    Unless this home agent already has a binding for the given home
+#    address, the home agent <FONT COLOR="#FF0000">MUST</FONT> perform Duplicate Address Detection [13]
+#    on the mobile node's home link before returning the Binding
+#    Acknowledgement.  This ensures that no other node on the home link
+#    was using the mobile node's home address when the Binding Update
+#    arrived.  If this Duplicate Address Detection fails for the given
+#    home address or an associated link local address, then the home agent
+#    <FONT COLOR="#FF0000">MUST</FONT> reject the complete Binding Update and <FONT COLOR="#FF0000">MUST</FONT> return a Binding
+#    Acknowledgement to the mobile node, in which the Status field is set
+#    to 134 (Duplicate Address Detection failed).  When the home agent
+#    sends a successful Binding Acknowledgement to the mobile node, the
+#    home agent assures to the mobile node that its address(es) will be
+#    kept unique by the home agent for as long as the lifetime was granted
+#    for the binding.
+# </PRE>
+# <PRE>
+#    The specific addresses, which are to be tested before accepting the
+#    Binding Update and later to be defended by performing Duplicate
+#    Address Detection, depend on the setting of the Link-Local Address
+#    Compatibility (L) bit, as follows:
+# </PRE>
+# <PRE>
+#    o  L=0: Defend only the given address.  Do not derive a link-local
+#       address.
+# </PRE>
+# <PRE>
+#    o  L=1: Defend both the given non link-local unicast (home) address
+#       and the derived link-local.  The link-local address is derived by
+#       replacing the subnet prefix in the mobile node's home address with
+#       the link-local prefix.
+# </PRE>
+# <PRE>
+#    <U><B>The lifetime of the Binding Cache entry depends on a number of</B></U>
+#    <U><B>factors:</B></U>
+# </PRE>
+# <PRE>
+#    o  <U><B>The lifetime for the Binding Cache entry <FONT COLOR="#FF0000">MUST NOT</FONT> be greater than</B></U>
+#       <U><B>the Lifetime value specified in the Binding Update.</B></U>
+# </PRE>
+# <PRE>
+#    o  The lifetime for the Binding Cache entry <FONT COLOR="#FF0000">MUST NOT</FONT> be greater than
+#       the remaining valid lifetime for the subnet prefix in the mobile
+#       node's home address specified with the Binding Update.  The
+#       remaining valid lifetime for this prefix is determined by the home
+#       agent based on its own Prefix List entry [12].
+# </PRE>
+# <PRE>
+#       The remaining preferred lifetime <FONT COLOR="#FF0000">SHOULD NOT</FONT> have any impact on the
+#       lifetime for the binding cache entry.
+# </PRE>
+# <PRE>
+#       The home agent <FONT COLOR="#FF0000">MUST</FONT> remove a binding when the valid lifetime of
+#       the prefix associated with it expires.
+# </PRE>
+# <PRE>
+#    o  The home agent <FONT COLOR="#FF0000">MAY</FONT> further decrease the specified lifetime for the
+#       binding, for example based on a local policy.  The resulting
+#       lifetime is stored by the home agent in the Binding Cache entry,
+#       and this Binding Cache entry <FONT COLOR="#FF0000">MUST</FONT> be deleted by the home agent
+#       after the expiration of this lifetime.
+# </PRE>
+# <PRE>
+#    <U><B>Regardless of the setting of the Acknowledge (A) bit in the Binding</B></U>
+#    <U><B>Update, the home agent <FONT COLOR="#FF0000">MUST</FONT> return a Binding Acknowledgement to the</B></U>
+#    <U><B>mobile node constructed as follows:</B></U>
+# </PRE>
+# <PRE>
+#    o  <U><B>The Status field <FONT COLOR="#FF0000">MUST</FONT> be set to a value indicating success.</B></U>  The
+#       value 1 (accepted but prefix discovery necessary) <FONT COLOR="#FF0000">MUST</FONT> be used if
+#       the subnet prefix of the specified home address is deprecated, or
+#       becomes deprecated during the lifetime of the binding, or becomes
+#       invalid at the end of the lifetime.  <U><B>The value 0 <FONT COLOR="#FF0000">MUST</FONT> be used</B></U>
+#       <U><B>otherwise.</B></U>  For the purposes of comparing the binding and prefix
+#       lifetimes, the prefix lifetimes are first converted into units of
+#       four seconds by ignoring the two least significant bits.
+# </PRE>
+# <PRE>
+#    o  <U><B>The Key Management Mobility Capability (K) bit is set if the</B></U>
+#       <U><B>following conditions are all fulfilled, and cleared otherwise:</B></U>
+# </PRE>
+# <PRE>
+#       *  The Key Management Mobility Capability (K) bit was set in the
+#          Binding Update.
+# </PRE>
+# <PRE>
+#       *  The IPsec security associations between the mobile node and the
+#          home agent have been established dynamically.
+# </PRE>
+# <PRE>
+#       *  The home agent has the capability to update its endpoint in the
+#          used key management protocol to the new care-of address every
+#          time it moves.
+# </PRE>
+# <PRE>
+#       Depending on the final value of the bit in the Binding
+#       Acknowledgement, the home agent <FONT COLOR="#FF0000">SHOULD</FONT> perform the following
+#       actions:
+# </PRE>
+# <PRE>
+#       K = 0
+# </PRE>
+# <PRE>
+#          Discard key management connections, if any, to the old care-of
+#          address.  If the mobile node did not have a binding before
+#          sending this Binding Update, discard the connections to the
+#          home address.
+# </PRE>
+# <PRE>
+#       K = 1
+# </PRE>
+# <PRE>
+#          Move the peer endpoint of the key management protocol
+#          connection, if any, to the new care-of address.  For an IKE
+#          phase 1 connection, this means that any IKE packets sent to the
+#          peer are sent to this address, and packets from this address
+#          with the original ISAKMP cookies are accepted.
+# </PRE>
+# <PRE>
+#          Note that RFC 2408 [8] Section 2.5.3 gives specific rules that
+#          ISAKMP cookies must satisfy: they must depend on specific
+#          parties and can only be generated by the entity itself.  Then
+#          it recommends a particular way to do this, namely a hash of IP
+#          addresses.  With the K bit set to 1, the recommended
+#          implementation technique does not work directly.  To satisfy
+#          the two rules, the specific parties must be treated as the
+#          original IP addresses, not the ones in use at the specific
+#          moment.
+# </PRE>
+# <PRE>
+#    o  <U><B>The Sequence Number field <FONT COLOR="#FF0000">MUST</FONT> be copied from the Sequence Number</B></U>
+#       <U><B>given in the Binding Update.</B></U>
+# </PRE>
+# <PRE>
+#    o  <U><B>The Lifetime field <FONT COLOR="#FF0000">MUST</FONT> be set to the remaining lifetime for the</B></U>
+#       <U><B>binding as set by the home agent in its home registration Binding</B></U>
+#       <U><B>Cache entry for the mobile node, as described above.</B></U>
+# </PRE>
+# <PRE>
+#    o  If the home agent stores the Binding Cache entry in nonvolatile
+#       storage, then the Binding Refresh Advice mobility option <FONT COLOR="#FF0000">MUST</FONT> be
+#       omitted.  Otherwise, the home agent <FONT COLOR="#FF0000">MAY</FONT> include this option to
+#       suggest that the mobile node refreshes its binding before the
+#       actual lifetime of the binding ends.
+# </PRE>
+# <PRE>
+#       If the Binding Refresh Advice mobility option is present, the
+#       Refresh Interval field in the option <FONT COLOR="#FF0000">MUST</FONT> be set to a value less
+#       than the Lifetime value being returned in the Binding
+#       Acknowledgement.  This indicates that the mobile node <FONT COLOR="#FF0000">SHOULD</FONT>
+#       attempt to refresh its home registration at the indicated shorter
+#       interval.  The home agent <FONT COLOR="#FF0000">MUST</FONT> still retain the registration for
+#       the Lifetime period, even if the mobile node does not refresh its
+#       registration within the Refresh period.
+# </PRE>
+# <PRE>
+#    <U><B>The rules for selecting the Destination IP address (and possibly</B></U>
+#    <U><B>routing header construction) for the Binding Acknowledgement to the</B></U>
+#    <U><B>mobile node are the same as in Section 9.5.4.</B></U>
+# </PRE>
+# <PRE>
+#    In addition, the home agent <FONT COLOR="#FF0000">MUST</FONT> follow the procedure defined in
+#    Section 10.4.1 to intercept packets on the mobile node's home link
+#    addressed to the mobile node, while the home agent is serving as the
+#    home agent for this mobile node.  The home agent <FONT COLOR="#FF0000">MUST</FONT> also be
+#    prepared to accept reverse tunneled packets from the new care-of
+#    address of the mobile node, as described in Section 10.4.5.  Finally,
+#    the home agent <FONT COLOR="#FF0000">MUST</FONT> also propagate new home network prefixes, as
+#    described in Section 10.6.
+# </PRE>
+# </BLOCKQUOTE>
+# 
+# =end html
+# 
+
+=pod
+
+=head1 REFERENCE
+
+=begin html
+<BLOCKQUOTE>
+<PRE>
+RFC 3775 - Mobility Support in IPv6
+See Section 10.3.1.
+</PRE>
+</BLOCKQUOTE>
+
+=end html
+
+=cut

@@ -1,0 +1,257 @@
+//
+// Copyright (C) IPv6 Promotion Council,
+// NIPPON TELEGRAPH AND TELEPHONE CORPORATION (NTT),
+// Yokogwa Electoric Corporation, YASKAWA INFORMATION SYSTEMS Corporation
+// and NTT Advanced Technology Corporation(NTT-AT) All rights reserved.
+// 
+// Technology Corporation.
+// 
+// Redistribution and use of this software in source and binary forms, with 
+// or without modification, are permitted provided that the following 
+// conditions and disclaimer are agreed and accepted by the user:
+// 
+// 1. Redistributions of source code must retain the above copyright 
+// notice, this list of conditions and the following disclaimer.
+// 
+// 2. Redistributions in binary form must reproduce the above copyright 
+// notice, this list of conditions and the following disclaimer in the 
+// documentation and/or other materials provided with the distribution.
+// 
+// 3. Neither the names of the copyrighters, the name of the project which 
+// is related to this software (hereinafter referred to as "project") nor 
+// the names of the contributors may be used to endorse or promote products 
+// derived from this software without specific prior written permission.
+// 
+// 4. No merchantable use may be permitted without prior written 
+// notification to the copyrighters. However, using this software for the 
+// purpose of testing or evaluating any products including merchantable 
+// products may be permitted without any notification to the copyrighters.
+// 
+// 
+// 
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND 
+// CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING 
+// BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS 
+// FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE 
+// COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+// INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
+// SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
+// HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+// CONTRACT,STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF 
+// THE POSSIBILITY OF SUCH DAMAGE.
+//
+////////////////////////////////////////////////////////////////////////
+
+#ifndef HAVE_REGISTRATION_DEF
+#define HAVE_REGISTRATION_DEF
+
+
+#ifndef BU_SN
+#define BU_SN	0
+#endif	// BU_SN
+
+#ifndef BU_A
+#define BU_A	0
+#endif	// BU_A
+
+#ifndef BU_H
+#define BU_H	0
+#endif	// BU_H
+
+#ifndef BU_L
+#define BU_L	0
+#endif	// BU_L
+
+#ifndef BU_K
+#define BU_K	0
+#endif	// BU_K
+
+#ifndef BU_LT
+#define BU_LT	0
+#endif	// BU_LT
+
+#ifndef BA_STAT
+#define BA_STAT	0
+#endif	// BA_STAT
+
+#ifndef BA_K
+#define BA_K	0
+#endif	// BA_K
+
+#ifndef BA_SN
+#define BA_SN	0
+#endif	// BA_SN
+
+#ifndef BA_LT_OPERAND
+#define BA_LT_OPERAND	EQ
+#endif	// BA_LT_OPERAND
+
+#ifndef BA_LT
+#define BA_LT	0
+#endif	// BA_LT
+
+
+FEM_upp_no_next_header_exth(
+	bu_common,
+	_HETHER_rx2nut,
+	{
+		_SRC(v6merge(CARE_OF_PREFIX, CARE_OF_PREFIXLEN, v6ether(MN_MAC)));
+		_DST(nut2v6(HOME_PREFIX, HOME_PREFIXLEN, HA_HOME_LINK));
+	},
+	{
+		header	= _HDR_IPV6_NAME(bu_common);
+		exthdr	= ext_homeaddress;
+#if HAVE_IPSEC && USE_SA1_SA2
+		exthdr	= ext_esp_bu;
+#endif	// HAVE_IPSEC && USE_SA1_SA2
+		exthdr	= ext_bu;
+		upper	= _UPP_NONEXT_NAME(bu_common);
+	},
+	{}
+)
+
+
+FEM_upp_no_next_header_exth(
+	ba_common,
+	_HETHER_nut2rx,
+	{
+		_SRC(nut2v6(HOME_PREFIX, HOME_PREFIXLEN, HA_HOME_LINK));
+		_DST(v6merge(CARE_OF_PREFIX, CARE_OF_PREFIXLEN, v6ether(MN_MAC)));
+	},
+	{
+		header	= _HDR_IPV6_NAME(ba_common);
+		exthdr	= ext_routing;
+#if HAVE_IPSEC && USE_SA1_SA2
+		exthdr	= ext_esp_ba;
+#endif	// HAVE_IPSEC && USE_SA1_SA2
+		exthdr	= ext_ba;
+		upper	= _UPP_NONEXT_NAME(ba_common);
+	},
+	{}
+)
+
+
+FEM_upp_no_next_header_exth(
+	bu_not_home_subnet,
+	_HETHER_rx2nut,
+	{
+		_SRC(v6merge(CARE_OF_PREFIX, CARE_OF_PREFIXLEN, v6ether(MN_MAC)));
+		_DST(nut2v6(HOME_PREFIX, HOME_PREFIXLEN, HA_HOME_LINK));
+	},
+	{
+		header	= _HDR_IPV6_NAME(bu_not_home_subnet);
+		exthdr	= ext_homeaddress_not_home_subnet;
+		exthdr	= ext_bu;
+		upper	= _UPP_NONEXT_NAME(bu_not_home_subnet);
+	},
+	{}
+)
+
+
+FEM_upp_no_next_header_exth(
+	ba_not_home_subnet,
+	_HETHER_nut2rx,
+	{
+		_SRC(nut2v6(HOME_PREFIX, HOME_PREFIXLEN, HA_HOME_LINK));
+		_DST(v6merge(CARE_OF_PREFIX, CARE_OF_PREFIXLEN, v6ether(MN_MAC)));
+	},
+	{
+		header	= _HDR_IPV6_NAME(ba_not_home_subnet);
+		exthdr	= ext_routing_not_home_subnet;
+		exthdr	= ext_ba;
+		upper	= _UPP_NONEXT_NAME(ba_not_home_subnet);
+	},
+	{}
+)
+
+
+Hdr_Destination ext_homeaddress {
+	option	= opt_pad4;
+	option	= opt_hao;
+}
+
+
+Hdr_Destination ext_homeaddress_not_home_subnet {
+	option	= opt_pad4;
+	option	= opt_hao_not_home_subnet;
+}
+
+
+Opt_PadN opt_pad4 {
+	pad	= repeat(0x00, 2);
+}
+
+
+Opt_HomeAddress opt_hao {
+	HomeAddress	= v6merge(HOME_PREFIX, HOME_PREFIXLEN, v6ether(MN_MAC));
+}
+
+
+Opt_HomeAddress opt_hao_not_home_subnet {
+	HomeAddress	= v6merge(LINKZ_PREFIX, LINKZ_PREFIXLEN, v6ether(MN_MAC));
+}
+
+
+Hdr_Routing ext_routing {
+	RoutingType	= 2;
+	SegmentsLeft	= 1;
+	Address		= v6merge(HOME_PREFIX, HOME_PREFIXLEN, v6ether(MN_MAC));
+}
+
+
+Hdr_Routing ext_routing_not_home_subnet {
+	RoutingType	= 2;
+	SegmentsLeft	= 1;
+	Address		= v6merge(LINKZ_PREFIX, LINKZ_PREFIXLEN, v6ether(MN_MAC));
+}
+
+
+Hdr_MH_BU ext_bu {
+	SequenceNumber	= BU_SN;
+	AFlag		= BU_A;
+	HFlag		= BU_H;
+	LFlag		= BU_L;
+	KFlag		= BU_K;
+	Lifetime	= BU_LT;
+	option		= opt_mh_pad2;
+	option		= opt_mh_altcoa;
+}
+
+
+Hdr_MH_BA ext_ba {
+	Status		= BA_STAT;
+	KFlag		= BA_K;
+	SequenceNumber	= BA_SN;
+	Lifetime	BA_LT_OPERAND	BA_LT;
+#ifdef NOT_TO_USE_BINDING_REFRESH_ADVICE
+	option		= opt_mh_pad4;
+#else	// NOT_TO_USE_BINDING_REFRESH_ADVICE
+	option		= oneof(opt_mh_pad4, opt_mh_reflesh);
+#endif	// NOT_TO_USE_BINDING_REFRESH_ADVICE
+}
+
+
+Opt_MH_PadN opt_mh_pad2 {}
+
+
+Opt_MH_PadN opt_mh_pad4 {
+	pad	= repeat(0x00, 2);
+}
+
+
+Opt_MH_BindingRefreshAdvice opt_mh_reflesh {
+	Interval	BA_LT_OPERAND	BA_LT;
+}
+
+
+Opt_MH_AlternateCoA opt_mh_altcoa {
+	Address	= v6merge(CARE_OF_PREFIX, CARE_OF_PREFIXLEN, v6ether(MN_MAC));
+}
+
+
+Opt_MH_NonceIndices opt_mh_nonce {}
+
+
+#endif	// HAVE_REGISTRATION_DEF

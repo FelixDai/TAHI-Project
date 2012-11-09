@@ -1,0 +1,43 @@
+<HTML>
+<HEAD>
+<TITLE>IPsec Configuration (Payload Packets)</TITLE>
+</HEAD>
+<BODY>
+<H1>IPsec Configuration (Payload Packets)</H1>
+<TT><B>Bold texts indicate configurable parameters.</B></TT>
+<UL>
+<LI>SA7 (inbound ESP tunnel mode)
+<BLOCKQUOTE>
+<PRE>
+SPI <B>0x117 (279)</B>
+    src:            MN  3ffe:501:ffff:100:200:ff:fe00:1
+    dst:            HA  3ffe:501:ffff:100::<B>&lt;Interface ID&gt;</B>
+    mode:           ESP tunnel
+    tunneld src:    MN  3ffe:501:ffff:100:200:ff:fe00:1
+    tunneld dst:    any ::/0
+    upper layer:    <B>X (any)</B>
+    enc algorithm:  <B>3des-cbc</B>,  enc key:  <B>V6LC-117--12345678901234</B> (default)
+                    <B>des-cbc</B>              <B>V6LC-117</B>
+    auth algorithm: <B>hmac-sha1</B>, auth key: <B>V6LC-117--1234567890</B>     (default)
+                    <B>hmac-md5</B>             <B>V6LC-117--123456</B>
+</PRE>
+</BLOCKQUOTE>
+<LI>SA8 (outbound ESP tunnel mode)
+<BLOCKQUOTE>
+<PRE>
+SPI <B>0x118 (280)</B>
+    src:            HA  3ffe:501:ffff:100::<B>&lt;Interface ID&gt;</B>
+    dst:            MN  3ffe:501:ffff:100:200:ff:fe00:1
+    mode:           ESP tunnel
+    tunneled src:   any ::/0
+    tunneled dst:   MN  3ffe:501:ffff:100:200:ff:fe00:1
+    upper layer:    <B>X (any)</B>
+    enc algorithm:  <B>3des-cbc</B>,  enc key:  <B>V6LC-118--12345678901234</B> (default)
+                    <B>des-cbc</B>              <B>V6LC-118</B>
+    auth algorithm: <B>hmac-sha1</B>, auth key: <B>V6LC-118--1234567890</B>     (default)
+                    <B>hmac-md5</B>             <B>V6LC-118--123456</B>
+</PRE>
+</BLOCKQUOTE>
+</UL>
+</BODY>
+</HTML>

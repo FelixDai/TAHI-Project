@@ -1,0 +1,389 @@
+//
+// Copyright (C) IPv6 Promotion Council,
+// NIPPON TELEGRAPH AND TELEPHONE CORPORATION (NTT),
+// Yokogwa Electoric Corporation, YASKAWA INFORMATION SYSTEMS Corporation
+// and NTT Advanced Technology Corporation(NTT-AT) All rights reserved.
+// 
+// Technology Corporation.
+// 
+// Redistribution and use of this software in source and binary forms, with 
+// or without modification, are permitted provided that the following 
+// conditions and disclaimer are agreed and accepted by the user:
+// 
+// 1. Redistributions of source code must retain the above copyright 
+// notice, this list of conditions and the following disclaimer.
+// 
+// 2. Redistributions in binary form must reproduce the above copyright 
+// notice, this list of conditions and the following disclaimer in the 
+// documentation and/or other materials provided with the distribution.
+// 
+// 3. Neither the names of the copyrighters, the name of the project which 
+// is related to this software (hereinafter referred to as "project") nor 
+// the names of the contributors may be used to endorse or promote products 
+// derived from this software without specific prior written permission.
+// 
+// 4. No merchantable use may be permitted without prior written 
+// notification to the copyrighters. However, using this software for the 
+// purpose of testing or evaluating any products including merchantable 
+// products may be permitted without any notification to the copyrighters.
+// 
+// 
+// 
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND 
+// CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING 
+// BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS 
+// FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE 
+// COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+// INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
+// SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
+// HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+// CONTRACT,STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF 
+// THE POSSIBILITY OF SUCH DAMAGE.
+//
+////////////////////////////////////////////////////////////////////////
+
+#ifndef HAVE_IPSEC_DEF
+#define HAVE_IPSEC_DEF
+
+
+#ifndef SA1_SEQ
+#define SA1_SEQ	0
+#endif	// SA1_SEQ
+
+#ifndef SA3_SEQ
+#define SA3_SEQ	0
+#endif	// SA3_SEQ
+
+#ifndef SA5_SEQ
+#define SA5_SEQ	0
+#endif	// SA5_SEQ
+
+#ifndef SA7_SEQ
+#define SA7_SEQ	0
+#endif	// SA7_SEQ
+
+
+//-------------------
+// HA <-> MN device
+//-------------------
+
+#ifndef ext_esp_bu
+#define ext_esp_bu	ext_esp_sa1
+#endif	// ext_esp_bu
+
+#ifndef ext_esp_ba
+#define ext_esp_ba	ext_esp_sa2
+#endif	// ext_esp_ba
+
+#ifndef ext_esp_hoti
+#define ext_esp_hoti	ext_esp_sa3
+#endif	// ext_esp_hoti
+
+#ifndef ext_esp_hot
+#define ext_esp_hot	ext_esp_sa4
+#endif	// ext_esp_hot
+
+#ifndef ext_esp_mps
+#define ext_esp_mps	ext_esp_sa5
+#endif	// ext_esp_mps
+
+#ifndef ext_esp_mpa
+#define ext_esp_mpa	ext_esp_sa6
+#endif	// ext_esp_mpa
+
+#ifndef ext_esp_mn2cn
+#define ext_esp_mn2cn	ext_esp_sa7
+#endif	// ext_esp_mn2cn
+
+#ifndef ext_esp_cn2mn
+#define ext_esp_cn2mn	ext_esp_sa8
+#endif	// ext_esp_cn2mn
+
+
+//-------------------
+// HA <-> MN device
+//-------------------
+
+Hdr_ESP ext_esp_sa1 {
+	SPI		= SA1_SPI;
+	SequenceNumber	= SA1_SEQ;
+	algorithm	= algorithm_SA1;
+}
+
+
+Hdr_ESP ext_esp_sa2 {
+	SPI		= SA2_SPI;
+	SequenceNumber	= any;
+	algorithm	= algorithm_SA2;
+}
+
+
+Hdr_ESP ext_esp_sa3 {
+	SPI		= SA3_SPI;
+	SequenceNumber	= SA3_SEQ;
+	algorithm	= algorithm_SA3;
+}
+
+
+Hdr_ESP ext_esp_sa4 {
+	SPI		= SA4_SPI;
+	SequenceNumber	= any;
+	algorithm	= algorithm_SA4;
+}
+
+
+Hdr_ESP ext_esp_sa5 {
+	SPI		= SA5_SPI;
+	SequenceNumber	= SA5_SEQ;
+	algorithm	= algorithm_SA5;
+}
+
+
+Hdr_ESP ext_esp_sa6 {
+	SPI		= SA6_SPI;
+	SequenceNumber	= any;
+	algorithm	= algorithm_SA6;
+}
+
+
+Hdr_ESP ext_esp_sa7 {
+	SPI		= SA7_SPI;
+	SequenceNumber	= SA7_SEQ;
+	algorithm	= algorithm_SA7;
+}
+
+
+Hdr_ESP ext_esp_sa8 {
+	SPI		= SA8_SPI;
+	SequenceNumber	= any;
+	algorithm	= algorithm_SA8;
+}
+
+
+//
+// algorithms
+//
+
+//-------------------
+// HA <-> MN device
+//-------------------
+
+ESPAlgorithm algorithm_SA1 {
+#if HAVE_IKE
+#if USE_SA1_DES_CBC
+	crypt	= descbc_2(hexstr(SA1_ENC_KEY, 8));
+#else	// USE_SA1_DES_CBC
+	crypt	= des3cbc_2(hexstr(SA1_ENC_KEY, 24));
+#endif	// USE_SA1_DES_CBC
+#if USE_SA1_HMAC_MD5
+	auth	= hmacmd5_2(hexstr(SA1_HASH_KEY, 16));
+#else	// USE_SA1_HMAC_MD5
+	auth	= hmacsha1_2(hexstr(SA1_HASH_KEY, 20));
+#endif	// USE_SA1_HMAC_MD5
+#else	// HAVE_IKE
+#if USE_SA1_DES_CBC
+	crypt	= descbc(SA1_ENC_KEY);
+#else	// USE_SA1_DES_CBC
+	crypt	= des3cbc(SA1_ENC_KEY);
+#endif	// USE_SA1_DES_CBC
+#if USE_SA1_HMAC_MD5
+	auth	= hmacmd5(SA1_HASH_KEY);
+#else	// USE_SA1_HMAC_MD5
+	auth	= hmacsha1(SA1_HASH_KEY);
+#endif	// USE_SA1_HMAC_MD5
+#endif	// HAVE_IKE
+} // algorithm_SA1
+
+
+ESPAlgorithm algorithm_SA2 {
+#if HAVE_IKE
+#if USE_SA2_DES_CBC
+	crypt	= descbc_2(hexstr(SA2_ENC_KEY, 8));
+#else	// USE_SA2_DES_CBC
+	crypt	= des3cbc_2(hexstr(SA2_ENC_KEY, 24));
+#endif	// USE_SA2_DES_CBC
+#if USE_SA2_HMAC_MD5
+	auth	= hmacmd5_2(hexstr(SA2_HASH_KEY, 16));
+#else	// USE_SA2_HMAC_MD5
+	auth	= hmacsha1_2(hexstr(SA2_HASH_KEY, 20));
+#endif	// USE_SA2_HMAC_MD5
+#else	// HAVE_IKE
+#if USE_SA2_DES_CBC
+	crypt	= descbc(SA2_ENC_KEY);
+#else	// USE_SA2_DES_CBC
+	crypt	= des3cbc(SA2_ENC_KEY);
+#endif	// USE_SA2_DES_CBC
+#if USE_SA2_HMAC_MD5
+	auth	= hmacmd5(SA2_HASH_KEY);
+#else	// USE_SA2_HMAC_MD5
+	auth	= hmacsha1(SA2_HASH_KEY);
+#endif	// USE_SA2_HMAC_MD5
+#endif	// HAVE_IKE
+} // algorithm_SA2
+
+
+ESPAlgorithm algorithm_SA3 {
+#if HAVE_IKE
+#if USE_SA3_DES_CBC
+	crypt	= descbc_2(hexstr(SA3_ENC_KEY, 8));
+#else	// USE_SA3_DES_CBC
+	crypt	= des3cbc_2(hexstr(SA3_ENC_KEY, 24));
+#endif	// USE_SA3_DES_CBC
+#if USE_SA3_HMAC_MD5
+	auth	= hmacmd5_2(hexstr(SA3_HASH_KEY, 16));
+#else	// USE_SA3_HMAC_MD5
+	auth	= hmacsha1_2(hexstr(SA3_HASH_KEY, 20));
+#endif	// USE_SA3_HMAC_MD5
+#else	// HAVE_IKE
+#if USE_SA3_DES_CBC
+	crypt	= descbc(SA3_ENC_KEY);
+#else	// USE_SA3_DES_CBC
+	crypt	= des3cbc(SA3_ENC_KEY);
+#endif	// USE_SA3_DES_CBC
+#if USE_SA3_HMAC_MD5
+	auth	= hmacmd5(SA3_HASH_KEY);
+#else	// USE_SA3_HMAC_MD5
+	auth	= hmacsha1(SA3_HASH_KEY);
+#endif	// USE_SA3_HMAC_MD5
+#endif	// HAVE_IKE
+} // algorithm_SA3
+
+
+ESPAlgorithm algorithm_SA4 {
+#if HAVE_IKE
+#if USE_SA4_DES_CBC
+	crypt	= descbc_2(hexstr(SA4_ENC_KEY, 8));
+#else	// USE_SA4_DES_CBC
+	crypt	= des3cbc_2(hexstr(SA4_ENC_KEY, 24));
+#endif	// USE_SA4_DES_CBC
+#if USE_SA4_HMAC_MD5
+	auth	= hmacmd5_2(hexstr(SA4_HASH_KEY, 16));
+#else	// USE_SA4_HMAC_MD5
+	auth	= hmacsha1_2(hexstr(SA4_HASH_KEY, 20));
+#endif	// USE_SA4_HMAC_MD5
+#else	// HAVE_IKE
+#if USE_SA4_DES_CBC
+	crypt	= descbc(SA4_ENC_KEY);
+#else	// USE_SA4_DES_CBC
+	crypt	= des3cbc(SA4_ENC_KEY);
+#endif	// USE_SA4_DES_CBC
+#if USE_SA4_HMAC_MD5
+	auth	= hmacmd5(SA4_HASH_KEY);
+#else	// USE_SA4_HMAC_MD5
+	auth	= hmacsha1(SA4_HASH_KEY);
+#endif	// USE_SA4_HMAC_MD5
+#endif	// HAVE_IKE
+} // algorithm_SA4
+
+
+ESPAlgorithm algorithm_SA5 {
+#if HAVE_IKE
+#if USE_SA5_DES_CBC
+	crypt	= descbc_2(hexstr(SA5_ENC_KEY, 8));
+#else	// USE_SA5_DES_CBC
+	crypt	= des3cbc_2(hexstr(SA5_ENC_KEY, 24));
+#endif	// USE_SA5_DES_CBC
+#if USE_SA5_HMAC_MD5
+	auth	= hmacmd5_2(hexstr(SA5_HASH_KEY, 16));
+#else	// USE_SA5_HMAC_MD5
+	auth	= hmacsha1_2(hexstr(SA5_HASH_KEY, 20));
+#endif	// USE_SA5_HMAC_MD5
+#else	// HAVE_IKE
+#if USE_SA5_DES_CBC
+	crypt	= descbc(SA5_ENC_KEY);
+#else	// USE_SA5_DES_CBC
+	crypt	= des3cbc(SA5_ENC_KEY);
+#endif	// USE_SA5_DES_CBC
+#if USE_SA5_HMAC_MD5
+	auth	= hmacmd5(SA5_HASH_KEY);
+#else	// USE_SA5_HMAC_MD5
+	auth	= hmacsha1(SA5_HASH_KEY);
+#endif	// USE_SA5_HMAC_MD5
+#endif	// HAVE_IKE
+} // algorithm_SA5
+
+
+ESPAlgorithm algorithm_SA6 {
+#if HAVE_IKE
+#if USE_SA6_DES_CBC
+	crypt	= descbc_2(hexstr(SA6_ENC_KEY, 8));
+#else	// USE_SA6_DES_CBC
+	crypt	= des3cbc_2(hexstr(SA6_ENC_KEY, 24));
+#endif	// USE_SA6_DES_CBC
+#if USE_SA6_HMAC_MD5
+	auth	= hmacmd5_2(hexstr(SA6_HASH_KEY, 16));
+#else	// USE_SA6_HMAC_MD5
+	auth	= hmacsha1_2(hexstr(SA6_HASH_KEY, 20));
+#endif	// USE_SA6_HMAC_MD5
+#else	// HAVE_IKE
+#if USE_SA6_DES_CBC
+	crypt	= descbc(SA6_ENC_KEY);
+#else	// USE_SA6_DES_CBC
+	crypt	= des3cbc(SA6_ENC_KEY);
+#endif	// USE_SA6_DES_CBC
+#if USE_SA6_HMAC_MD5
+	auth	= hmacmd5(SA6_HASH_KEY);
+#else	// USE_SA6_HMAC_MD5
+	auth	= hmacsha1(SA6_HASH_KEY);
+#endif	// USE_SA6_HMAC_MD5
+#endif	// HAVE_IKE
+} // algorithm_SA6
+
+
+ESPAlgorithm algorithm_SA7 {
+#if HAVE_IKE
+#if USE_SA7_DES_CBC
+	crypt	= descbc_2(hexstr(SA7_ENC_KEY, 8));
+#else	// USE_SA7_DES_CBC
+	crypt	= des3cbc_2(hexstr(SA7_ENC_KEY, 24));
+#endif	// USE_SA7_DES_CBC
+#if USE_SA7_HMAC_MD5
+	auth	= hmacmd5_2(hexstr(SA7_HASH_KEY, 16));
+#else	// USE_SA7_HMAC_MD5
+	auth	= hmacsha1_2(hexstr(SA7_HASH_KEY, 20));
+#endif	// USE_SA7_HMAC_MD5
+#else	// HAVE_IKE
+#if USE_SA7_DES_CBC
+	crypt	= descbc(SA7_ENC_KEY);
+#else	// USE_SA7_DES_CBC
+	crypt	= des3cbc(SA7_ENC_KEY);
+#endif	// USE_SA7_DES_CBC
+#if USE_SA7_HMAC_MD5
+	auth	= hmacmd5(SA7_HASH_KEY);
+#else	// USE_SA7_HMAC_MD5
+	auth	= hmacsha1(SA7_HASH_KEY);
+#endif	// USE_SA7_HMAC_MD5
+#endif	// HAVE_IKE
+} // algorithm_SA7
+
+
+ESPAlgorithm algorithm_SA8 {
+#if HAVE_IKE
+#if USE_SA8_DES_CBC
+	crypt	= descbc_2(hexstr(SA8_ENC_KEY, 8));
+#else	// USE_SA8_DES_CBC
+	crypt	= des3cbc_2(hexstr(SA8_ENC_KEY, 24));
+#endif	// USE_SA8_DES_CBC
+#if USE_SA8_HMAC_MD5
+	auth	= hmacmd5_2(hexstr(SA8_HASH_KEY, 16));
+#else	// USE_SA8_HMAC_MD5
+	auth	= hmacsha1_2(hexstr(SA8_HASH_KEY, 20));
+#endif	// USE_SA8_HMAC_MD5
+#else	// HAVE_IKE
+#if USE_SA8_DES_CBC
+	crypt	= descbc(SA8_ENC_KEY);
+#else	// USE_SA8_DES_CBC
+	crypt	= des3cbc(SA8_ENC_KEY);
+#endif	// USE_SA8_DES_CBC
+#if USE_SA8_HMAC_MD5
+	auth	= hmacmd5(SA8_HASH_KEY);
+#else	// USE_SA8_HMAC_MD5
+	auth	= hmacsha1(SA8_HASH_KEY);
+#endif	// USE_SA8_HMAC_MD5
+#endif	// HAVE_IKE
+} // algorithm_SA8
+
+
+#endif	// HAVE_IPSEC_DEF
