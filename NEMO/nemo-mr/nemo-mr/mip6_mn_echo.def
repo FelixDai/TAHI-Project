@@ -1,0 +1,2220 @@
+//
+// Copyright (C) IPv6 Promotion Council,
+// NIPPON TELEGRAPH AND TELEPHONE CORPORATION (NTT),
+// Yokogwa Electoric Corporation, YASKAWA INFORMATION SYSTEMS Corporation
+// and NTT Advanced Technology Corporation(NTT-AT) All rights reserved.
+// 
+// Technology Corporation.
+// 
+// Redistribution and use of this software in source and binary forms, with 
+// or without modification, are permitted provided that the following 
+// conditions and disclaimer are agreed and accepted by the user:
+// 
+// 1. Redistributions of source code must retain the above copyright 
+// notice, this list of conditions and the following disclaimer.
+// 
+// 2. Redistributions in binary form must reproduce the above copyright 
+// notice, this list of conditions and the following disclaimer in the 
+// documentation and/or other materials provided with the distribution.
+// 
+// 3. Neither the names of the copyrighters, the name of the project which 
+// is related to this software (hereinafter referred to as "project") nor 
+// the names of the contributors may be used to endorse or promote products 
+// derived from this software without specific prior written permission.
+// 
+// 4. No merchantable use may be permitted without prior written 
+// notification to the copyrighters. However, using this software for the 
+// purpose of testing or evaluating any products including merchantable 
+// products may be permitted without any notification to the copyrighters.
+// 
+// 
+// 
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND 
+// CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING 
+// BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS 
+// FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE 
+// COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+// INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
+// SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
+// HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+// CONTRACT,STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF 
+// THE POSSIBILITY OF SUCH DAMAGE.
+//
+
+/*----------------------------------------------------------------------------*
+ * Default Field Value
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Echo Request/Peply
+#ifndef ECHO_IDENTIFIER
+#define ECHO_IDENTIFIER     any
+#endif
+
+#ifndef ECHO_SEQUENCE
+#define ECHO_SEQUENCE       any
+#endif
+
+#ifndef ECHO_PAYLOAD
+#define ECHO_PAYLOAD        repeat(0xFF,8)
+#endif
+
+#ifndef ECHO_PAYLOAD_HEX
+#define ECHO_PAYLOAD_HEX    "ffffffffffffffff"
+#endif
+
+//=============================================================================
+// Payload
+Payload data8 {
+	data = ECHO_PAYLOAD;
+}
+
+Payload data8_any {
+	data = hexstr(ECHO_PAYLOAD_HEX, 16);
+}
+
+#ifndef ECHO_PAYLOAD_ANY
+#define ECHO_PAYLOAD_ANY    any
+#else
+#define ECHO_PAYLOAD_ANY    data8_any
+#endif
+
+/*----------------------------------------------------------------------------*
+ * Packet
+ *----------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------*
+ * Echo Request (HA0 -> NUT0)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Echo Request: HA0 -> NUT0
+FEM_icmp6_echo_request_exth (
+	echorequest_ha0ga_nut0ga,
+	_HETHER_ha0_to_nut0,
+	{
+		_SRC(v6(HA0_GLOBAL_UCAST));
+		_DST(v6(NUT0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(echorequest_ha0ga_nut0ga);
+#if defined(IPSEC_MANUAL_SA6_HA0_MN_PROTO_ICMP) && defined(NUT0H_GLOBAL_UCAST)
+		exthdr = ext_sa6_ha0_mn;
+#endif
+		upper  = _ICMPV6_NAME(echorequest_ha0ga_nut0ga);
+	},
+	{
+		Identifier     = ECHO_IDENTIFIER;
+		SequenceNumber = ECHO_SEQUENCE;
+		payload        = data8;
+	}
+)
+
+//=============================================================================
+// Echo Request: HA0 -> NUT0
+FEM_icmp6_echo_request_exth (
+	echorequest_ha0ga_nuthga,
+	_HETHER_ha0_to_nut0,
+	{
+		_SRC(v6(HA0_GLOBAL_UCAST));
+		_DST(v6(NUTH_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(echorequest_ha0ga_nuthga);
+#if defined(IPSEC_MANUAL_SA6_HA0_MN_PROTO_ICMP)
+		exthdr = ext_sa6_ha0_mn;
+#endif
+		upper  = _ICMPV6_NAME(echorequest_ha0ga_nuthga);
+	},
+	{
+		Identifier     = ECHO_IDENTIFIER;
+		SequenceNumber = ECHO_SEQUENCE;
+		payload        = data8;
+	}
+)
+
+//=============================================================================
+// Echo Request: HA0 -> NUT0 (HA0 => NUTX)
+FEM_hdr_ipv6_exth (
+	echorequest_ha0ga_nuthga_tnl_ha0_nutx,
+	_HETHER_r1_to_nutx,
+	{
+		_SRC(v6(HA0_GLOBAL_UCAST));
+		_DST(v6(NUTX_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(echorequest_ha0ga_nuthga_tnl_ha0_nutx);
+#if defined(IPSEC_MANUAL_SA8_HA0_MN_PROTO_X)
+		exthdr = ext_sa8_ha0_mn;
+#endif
+		upper  = _PACKET_IPV6_NAME(echorequest_ha0ga_nuthga);
+	}
+)
+
+//=============================================================================
+// Echo Request: HA0 -> NUT0 (HA0 => NUTX without IPsec)
+FEM_hdr_ipv6_exth (
+	echorequest_ha0ga_nuthga_tnl_ha0_nutx_wo_ipsec,
+	_HETHER_r1_to_nutx,
+	{
+		_SRC(v6(HA0_GLOBAL_UCAST));
+		_DST(v6(NUTX_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(echorequest_ha0ga_nuthga_tnl_ha0_nutx_wo_ipsec);
+		upper  = _PACKET_IPV6_NAME(echorequest_ha0ga_nuthga);
+	}
+)
+
+//=============================================================================
+// Echo Request: HA0 -> NUT0 without IPsec
+FEM_icmp6_echo_request (
+	echorequest_ha0ga_nuthga_wo_ipsec,
+	_HETHER_ha0_to_nut0,
+	{
+		_SRC(v6(HA0_GLOBAL_UCAST));
+		_DST(v6(NUTH_GLOBAL_UCAST));
+	},
+	{
+		Identifier     = ECHO_IDENTIFIER;
+		SequenceNumber = ECHO_SEQUENCE;
+		payload        = data8;
+	}
+)
+
+//=============================================================================
+// Echo Request: HA0 -> NUT0 without IPsec (HA0 => NUTX)
+FEM_hdr_ipv6_exth (
+	echorequest_ha0ga_nuthga_wo_ipsec_tnl_ha0_nutx,
+	_HETHER_r1_to_nutx,
+	{
+		_SRC(v6(HA0_GLOBAL_UCAST));
+		_DST(v6(NUTX_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(echorequest_ha0ga_nuthga_wo_ipsec_tnl_ha0_nutx);
+#if defined(IPSEC_MANUAL_SA8_HA0_MN_PROTO_X)
+		exthdr = ext_sa8_ha0_mn;
+#endif
+		upper  = _PACKET_IPV6_NAME(echorequest_ha0ga_nuthga_wo_ipsec);
+	}
+)
+
+//=============================================================================
+// Echo Request: HA0 -> NUTX rh-type2 NUT0
+FEM_icmp6_echo_request_exth (
+	echorequest_ha0ga_nutxga_rh2_nuthga,
+	_HETHER_r1_to_nutx,
+	{
+		_SRC(v6(HA0_GLOBAL_UCAST));
+		_DST(v6(NUTX_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(echorequest_ha0ga_nutxga_rh2_nuthga);
+		exthdr = ext_routing_type2_nuth;
+#if defined(IPSEC_MANUAL_SA6_HA0_MN_PROTO_ICMP)
+		exthdr = ext_sa6_ha0_mn;
+#endif
+		upper  = _ICMPV6_NAME(echorequest_ha0ga_nutxga_rh2_nuthga);
+	},
+	{
+		Identifier     = ECHO_IDENTIFIER;
+		SequenceNumber = ECHO_SEQUENCE;
+		payload        = data8;
+	}
+)
+
+//=============================================================================
+// Echo Request: HA0 -> NUTY rh-type2 NUT0
+FEM_icmp6_echo_request_exth (
+	echorequest_ha0ga_nutyga_rh2_nuthga,
+	_HETHER_r2_to_nuty,
+	{
+		_SRC(v6(HA0_GLOBAL_UCAST));
+		_DST(v6(NUTY_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(echorequest_ha0ga_nutyga_rh2_nuthga);
+		exthdr = ext_routing_type2_nuth;
+#if defined(IPSEC_MANUAL_SA6_HA0_MN_PROTO_ICMP)
+		exthdr = ext_sa6_ha0_mn;
+#endif
+		upper  = _ICMPV6_NAME(echorequest_ha0ga_nutyga_rh2_nuthga);
+	},
+	{
+		Identifier     = ECHO_IDENTIFIER;
+		SequenceNumber = ECHO_SEQUENCE;
+		payload        = data8;
+	}
+)
+
+/*----------------------------------------------------------------------------*
+ * Echo Request (HA1 -> NUTX)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Echo Request:HA1 -> NUTX rh-type2 NUTH
+FEM_icmp6_echo_request_exth (
+	echorequest_ha1ga_nutxga_rh2_nuthga,
+	_HETHER_r1_to_nutx,
+	{
+		_SRC(v6(HA1_GLOBAL_UCAST));
+		_DST(v6(NUTX_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(echorequest_ha1ga_nutxga_rh2_nuthga);
+		exthdr = ext_routing_type2_nuth;
+#if defined(IPSEC_MANUAL_SA6_HA1_MN_PROTO_ICMP)
+		exthdr = ext_sa6_ha1_mn;
+#endif
+		upper  = _ICMPV6_NAME(echorequest_ha1ga_nutxga_rh2_nuthga);
+	},
+	{
+		Identifier     = ECHO_IDENTIFIER;
+		SequenceNumber = ECHO_SEQUENCE;
+		payload        = data8;
+	}
+)
+
+/*----------------------------------------------------------------------------*
+ * Echo Request (R1 -> NUT0)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Echo Request: R1(LLA) -> NUTX(LLA)
+FEM_icmp6_echo_request (
+	echorequest_r1lla_nutxlla,
+	_HETHER_r1_to_nutx,
+	{
+		_SRC(v6(R1_LLOCAL_UCAST));
+		_DST(v6(NUTX_LLOCAL_UCAST));
+	},
+	{
+		Identifier     = ECHO_IDENTIFIER;
+		SequenceNumber = ECHO_SEQUENCE;
+		payload        = data8;
+	}
+) 
+
+//=============================================================================
+// Echo Request: R1 -> NUT0
+FEM_icmp6_echo_request (
+	echorequest_r1ga_nuthga,
+	_HETHER_ha0_to_nut0,
+	{
+		_SRC(v6(R1_GLOBAL_UCAST));
+		_DST(v6(NUTH_GLOBAL_UCAST));
+	},
+	{
+		Identifier     = ECHO_IDENTIFIER;
+		SequenceNumber = ECHO_SEQUENCE;
+		payload        = data8;
+	}
+)
+
+//=============================================================================
+// Echo Request: R1 -> NUT0 (HA0 => NUTX)
+FEM_hdr_ipv6_exth (
+	echorequest_r1ga_nuthga_tnl_ha0_nutx,
+	_HETHER_r1_to_nutx,
+	{
+		_SRC(v6(HA0_GLOBAL_UCAST));
+		_DST(v6(NUTX_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(echorequest_r1ga_nuthga_tnl_ha0_nutx);
+#if defined(IPSEC_MANUAL_SA8_HA0_MN_PROTO_X)
+		exthdr = ext_sa8_ha0_mn;
+#endif
+		upper  = _PACKET_IPV6_NAME(echorequest_r1ga_nuthga);
+	}
+)
+
+/*----------------------------------------------------------------------------*
+ * Echo Request (R2 -> NUT0)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Echo Request: R2 -> NUT0
+FEM_icmp6_echo_request (
+	echorequest_r2ga_nuthga,
+	_HETHER_ha0_to_nut0,
+	{
+		_SRC(v6(R2_GLOBAL_UCAST));
+		_DST(v6(NUTH_GLOBAL_UCAST));
+	},
+	{
+		Identifier     = ECHO_IDENTIFIER;
+		SequenceNumber = ECHO_SEQUENCE;
+		payload        = data8;
+	}
+)
+
+//=============================================================================
+// Echo Request: R2 -> NUT0 (HA0 => NUTX)
+FEM_hdr_ipv6_exth (
+	echorequest_r2ga_nuthga_tnl_ha0_nutx,
+	_HETHER_r1_to_nutx,
+	{
+		_SRC(v6(HA0_GLOBAL_UCAST));
+		_DST(v6(NUTX_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(echorequest_r2ga_nuthga_tnl_ha0_nutx);
+#if defined(IPSEC_MANUAL_SA8_HA0_MN_PROTO_X)
+		exthdr = ext_sa8_ha0_mn;
+#endif
+		upper  = _PACKET_IPV6_NAME(echorequest_r2ga_nuthga);
+	}
+)
+
+/*----------------------------------------------------------------------------*
+ * Echo Request (CN0 -> NODE0)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Echo Request: CN0 -> NODE0
+FEM_icmp6_echo_request (
+	echorequest_cn0ga_node0ga,
+	_HETHER_ha0_to_nut0,
+	{
+		_SRC(v6(CN0_GLOBAL_UCAST));
+		_DST(v6(NODE0_GLOBAL_UCAST));
+	},
+	{
+		Identifier     = ECHO_IDENTIFIER;
+		SequenceNumber = ECHO_SEQUENCE;
+		payload        = data8;
+	}
+)
+
+//=============================================================================
+// Echo Request: CN0 -> NODE0 (HA0 => NUTX)
+FEM_hdr_ipv6_exth (
+	echorequest_cn0ga_node0ga_tnl_ha0_nutx,
+	_HETHER_r1_to_nutx,
+	{
+		_SRC(v6(HA0_GLOBAL_UCAST));
+		_DST(v6(NUTX_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(echorequest_cn0ga_node0ga_tnl_ha0_nutx);
+#if defined(IPSEC_MANUAL_SA8_HA0_MN_PROTO_X)
+		exthdr = ext_sa8_ha0_mn;
+#endif
+		upper  = _PACKET_IPV6_NAME(echorequest_cn0ga_node0ga);
+	}
+)
+
+/*----------------------------------------------------------------------------*
+ * Echo Request (CN0 -> NUT0)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Echo Request: CN0 -> NUT0
+FEM_icmp6_echo_request_exth (
+	echorequest_cn0ga_nut0ga,
+	_HETHER_ha0_to_nut0,
+	{
+		_SRC(v6(CN0_GLOBAL_UCAST));
+		_DST(v6(NUT0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(echorequest_cn0ga_nut0ga);
+#if defined(IPSEC_MANUAL_SA6_CN0_MN_PROTO_ICMP) && defined(NUT0H_GLOBAL_UCAST)
+		exthdr = ext_sa6_cn0_mn;
+#endif
+		upper  = _ICMPV6_NAME(echorequest_cn0ga_nut0ga);
+	},
+	{
+		Identifier     = ECHO_IDENTIFIER;
+		SequenceNumber = ECHO_SEQUENCE;
+		payload        = data8;
+	}
+)
+
+//=============================================================================
+// Echo Request: CN0 -> NUT0
+FEM_icmp6_echo_request_exth (
+	echorequest_cn0ga_nuthga,
+	_HETHER_ha0_to_nut0,
+	{
+		_SRC(v6(CN0_GLOBAL_UCAST));
+		_DST(v6(NUTH_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(echorequest_cn0ga_nuthga);
+#if defined(IPSEC_MANUAL_SA6_CN0_MN_PROTO_ICMP)
+		exthdr = ext_sa6_cn0_mn;
+#endif
+		upper  = _ICMPV6_NAME(echorequest_cn0ga_nuthga);
+	},
+	{
+		Identifier     = ECHO_IDENTIFIER;
+		SequenceNumber = ECHO_SEQUENCE;
+		payload        = data8;
+	}
+)
+
+//=============================================================================
+// Echo Request: CN0 -> NUT0 (HA0 => NUTX)
+FEM_hdr_ipv6_exth (
+	echorequest_cn0ga_nuthga_tnl_ha0_nutx,
+	_HETHER_r1_to_nutx,
+	{
+		_SRC(v6(HA0_GLOBAL_UCAST));
+		_DST(v6(NUTX_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(echorequest_cn0ga_nuthga_tnl_ha0_nutx);
+#if defined(IPSEC_MANUAL_SA8_HA0_MN_PROTO_X)
+		exthdr = ext_sa8_ha0_mn;
+#endif
+		upper  = _PACKET_IPV6_NAME(echorequest_cn0ga_nuthga);
+	}
+)
+
+//=============================================================================
+// Echo Request: CN0 -> NUT0 (HA0 => NUTY)
+FEM_hdr_ipv6_exth (
+	echorequest_cn0ga_nuthga_tnl_ha0_nuty,
+	_HETHER_r2_to_nuty,
+	{
+		_SRC(v6(HA0_GLOBAL_UCAST));
+		_DST(v6(NUTY_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(echorequest_cn0ga_nuthga_tnl_ha0_nuty);
+#if defined(IPSEC_MANUAL_SA8_HA0_MN_PROTO_X)
+		exthdr = ext_sa8_ha0_mn;
+#endif
+		upper  = _PACKET_IPV6_NAME(echorequest_cn0ga_nuthga);
+	}
+)
+
+//=============================================================================
+// Echo Request: CN0 -> NUTX
+FEM_icmp6_echo_request (
+	echorequest_cn0ga_nutxga,
+	_HETHER_r1_to_nutx,
+	{
+		_SRC(v6(CN0_GLOBAL_UCAST));
+		_DST(v6(NUTX_GLOBAL_UCAST));
+	},
+	{
+		Identifier     = ECHO_IDENTIFIER;
+		SequenceNumber = ECHO_SEQUENCE;
+		payload        = data8;
+	}
+)
+
+//=============================================================================
+// Echo Request: CN0 -> NUTX rh-type2 NUT0
+FEM_icmp6_echo_request_exth (
+	echorequest_cn0ga_nutxga_rh2_nuthga,
+	_HETHER_r1_to_nutx,
+	{
+		_SRC(v6(CN0_GLOBAL_UCAST));
+		_DST(v6(NUTX_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(echorequest_cn0ga_nutxga_rh2_nuthga);
+		exthdr = ext_routing_type2_nuth;
+#if defined(IPSEC_MANUAL_SA6_CN0_MN_PROTO_ICMP)
+		exthdr = ext_sa6_cn0_mn;
+#endif
+		upper  = _ICMPV6_NAME(echorequest_cn0ga_nutxga_rh2_nuthga);
+	},
+	{
+		Identifier     = ECHO_IDENTIFIER;
+		SequenceNumber = ECHO_SEQUENCE;
+		payload        = data8;
+	}
+)
+
+//=============================================================================
+// Echo Request: CN0 -> NUTX rh-type2 NUT0 (il-HeaderExtLength)
+FEM_icmp6_echo_request_exth (
+	echorequest_cn0ga_nutxga_rh2_nuthga_il_len4,
+	_HETHER_r1_to_nutx,
+	{
+		_SRC(v6(CN0_GLOBAL_UCAST));
+		_DST(v6(NUTX_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(echorequest_cn0ga_nutxga_rh2_nuthga_il_len4);
+		exthdr = ext_routing_type2_nuth_ill_len4;
+#if defined(IPSEC_MANUAL_SA6_CN0_MN_PROTO_ICMP)
+		exthdr = ext_sa6_cn0_mn;
+#endif
+		upper  = _ICMPV6_NAME(echorequest_cn0ga_nutxga_rh2_nuthga_il_len4);
+	},
+	{
+		Identifier     = ECHO_IDENTIFIER;
+		SequenceNumber = ECHO_SEQUENCE;
+		payload        = data8;
+	}
+)
+
+//=============================================================================
+// Echo Request: CN0 -> NUTX rh-type2 NUT0 (il-SegmentsLeft)
+FEM_icmp6_echo_request_exth (
+	echorequest_cn0ga_nutxga_rh2_nuthga_il_seg0,
+	_HETHER_r1_to_nutx,
+	{
+		_SRC(v6(CN0_GLOBAL_UCAST));
+		_DST(v6(NUTX_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(echorequest_cn0ga_nutxga_rh2_nuthga_il_seg0);
+		exthdr = ext_routing_type2_nuth_ill_seg0;
+#if defined(IPSEC_MANUAL_SA6_CN0_MN_PROTO_ICMP)
+		exthdr = ext_sa6_cn0_mn;
+#endif
+		upper  = _ICMPV6_NAME(echorequest_cn0ga_nutxga_rh2_nuthga_il_seg0);
+	},
+	{
+		Identifier     = ECHO_IDENTIFIER;
+		SequenceNumber = ECHO_SEQUENCE;
+		payload        = data8;
+	}
+)
+
+//=============================================================================
+// Echo Request: CN0 -> NUTX rh-type2 (il-Address)
+FEM_icmp6_echo_request_exth (
+	echorequest_cn0ga_nutxga_rh2_node0ga,
+	_HETHER_r1_to_nutx,
+	{
+		_SRC(v6(CN0_GLOBAL_UCAST));
+		_DST(v6(NUTX_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(echorequest_cn0ga_nutxga_rh2_node0ga);
+		exthdr = ext_routing_type2_node0ga;
+		upper  = _ICMPV6_NAME(echorequest_cn0ga_nutxga_rh2_node0ga);
+	},
+	{
+		Identifier     = ECHO_IDENTIFIER;
+		SequenceNumber = ECHO_SEQUENCE;
+		payload        = data8;
+	}
+)
+
+//=============================================================================
+// Echo Request: CN0 -> NUTY rh-type2 NUT0
+FEM_icmp6_echo_request_exth (
+	echorequest_cn0ga_nutyga_rh2_nuthga,
+	_HETHER_r2_to_nuty,
+	{
+		_SRC(v6(CN0_GLOBAL_UCAST));
+		_DST(v6(NUTY_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(echorequest_cn0ga_nutyga_rh2_nuthga);
+		exthdr = ext_routing_type2_nuth;
+#if defined(IPSEC_MANUAL_SA6_CN0_MN_PROTO_ICMP)
+		exthdr = ext_sa6_cn0_mn;
+#endif
+		upper  = _ICMPV6_NAME(echorequest_cn0ga_nutyga_rh2_nuthga);
+	},
+	{
+		Identifier     = ECHO_IDENTIFIER;
+		SequenceNumber = ECHO_SEQUENCE;
+		payload        = data8;
+	}
+)
+
+//=============================================================================
+// Echo Request: CN0Y -> NUT0
+FEM_icmp6_echo_request (
+	echorequest_cn0yga_nuthga,
+	_HETHER_ha0_to_nut0,
+	{
+		_SRC(v6(CN0Y_GLOBAL_UCAST));
+		_DST(v6(NUTH_GLOBAL_UCAST));
+	},
+	{
+		Identifier     = ECHO_IDENTIFIER;
+		SequenceNumber = ECHO_SEQUENCE;
+		payload        = data8;
+	}
+)
+
+//=============================================================================
+// Echo Request: CN0Y -> NUT0 dst-hoa CN0
+FEM_icmp6_echo_request_exth (
+	echorequest_cn0yga_nuthga_hoa_cn0ga,
+	_HETHER_ha0_to_nut0,
+	{
+		_SRC(v6(CN0Y_GLOBAL_UCAST));
+		_DST(v6(NUTH_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(echorequest_cn0yga_nuthga_hoa_cn0ga);
+		exthdr = ext_homeaddress_cn0;
+#if defined(IPSEC_MANUAL_SA6_CN0_MN_PROTO_ICMP)
+		exthdr = ext_sa6_cn0_mn;
+#endif
+		upper  = _ICMPV6_NAME(echorequest_cn0yga_nuthga_hoa_cn0ga);
+	},
+	{
+		Identifier     = ECHO_IDENTIFIER;
+		SequenceNumber = ECHO_SEQUENCE;
+		payload        = data8;
+	}
+)
+
+//=============================================================================
+// Echo Request: CN0Y -> NUT0 dst-hoa CN0 (HA0 => NUTX)
+FEM_hdr_ipv6_exth (
+	echorequest_cn0yga_nuthga_hoa_cn0ga_tnl_ha0_nutx,
+	_HETHER_r1_to_nutx,
+	{
+		_SRC(v6(HA0_GLOBAL_UCAST));
+		_DST(v6(NUTX_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(echorequest_cn0yga_nuthga_hoa_cn0ga_tnl_ha0_nutx);
+#if defined(IPSEC_MANUAL_SA8_HA0_MN_PROTO_X)
+		exthdr = ext_sa8_ha0_mn;
+#endif
+		upper  = _PACKET_IPV6_NAME(echorequest_cn0yga_nuthga_hoa_cn0ga);
+	}
+)
+
+//=============================================================================
+// Echo Request: CN0Y -> NUT0 dst-hoa CN0 (HA0 => NUTY)
+FEM_hdr_ipv6_exth (
+	echorequest_cn0yga_nuthga_hoa_cn0ga_tnl_ha0_nuty,
+	_HETHER_r2_to_nuty,
+	{
+		_SRC(v6(HA0_GLOBAL_UCAST));
+		_DST(v6(NUTY_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(echorequest_cn0yga_nuthga_hoa_cn0ga_tnl_ha0_nuty);
+#if defined(IPSEC_MANUAL_SA8_HA0_MN_PROTO_X)
+		exthdr = ext_sa8_ha0_mn;
+#endif
+		upper  = _PACKET_IPV6_NAME(echorequest_cn0yga_nuthga_hoa_cn0ga);
+	}
+)
+
+//=============================================================================
+// Echo Request: CN0Y -> NUTX rh-type2 NUT0 dst-hoa CN0
+FEM_icmp6_echo_request_exth (
+	echorequest_cn0yga_nutxga_rh2_nuthga_hoa_cn0ga,
+	_HETHER_r1_to_nutx,
+	{
+		_SRC(v6(CN0Y_GLOBAL_UCAST));
+		_DST(v6(NUTX_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(echorequest_cn0yga_nutxga_rh2_nuthga_hoa_cn0ga);
+		exthdr = ext_routing_type2_nuth;
+		exthdr = ext_homeaddress_cn0;
+#if defined(IPSEC_MANUAL_SA6_CN0_MN_PROTO_ICMP)
+		exthdr = ext_sa6_cn0_mn;
+#endif
+		upper  = _ICMPV6_NAME(echorequest_cn0yga_nutxga_rh2_nuthga_hoa_cn0ga);
+	},
+	{
+		Identifier     = ECHO_IDENTIFIER;
+		SequenceNumber = ECHO_SEQUENCE;
+		payload        = data8;
+	}
+)
+
+//=============================================================================
+// Echo Request: CN0Y -> NUTY rh-type NUT0 dst-hoa CN0
+FEM_icmp6_echo_request_exth (
+	echorequest_cn0yga_nutyga_rh2_nuthga_hoa_cn0ga,
+	_HETHER_cn0y_to_nuty,
+	{
+		_SRC(v6(CN0Y_GLOBAL_UCAST));
+		_DST(v6(NUTY_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(echorequest_cn0yga_nutyga_rh2_nuthga_hoa_cn0ga);
+		exthdr = ext_routing_type2_nuth;
+		exthdr = ext_homeaddress_cn0;
+#if defined(IPSEC_MANUAL_SA6_CN0_MN_PROTO_ICMP)
+		exthdr = ext_sa6_cn0_mn;
+#endif
+		upper  = _ICMPV6_NAME(echorequest_cn0yga_nutyga_rh2_nuthga_hoa_cn0ga);
+	},
+	{
+		Identifier     = ECHO_IDENTIFIER;
+		SequenceNumber = ECHO_SEQUENCE;
+		payload        = data8;
+	}
+)
+
+/*----------------------------------------------------------------------------*
+ * Echo Request (CN1 -> NUT0)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Echo Request: CN1 -> NUT0
+FEM_icmp6_echo_request (
+	echorequest_cn1ga_nuthga,
+	_HETHER_ha0_to_nut0,
+	{
+		_SRC(v6(CN1_GLOBAL_UCAST));
+		_DST(v6(NUTH_GLOBAL_UCAST));
+	},
+	{
+		Identifier     = ECHO_IDENTIFIER;
+		SequenceNumber = ECHO_SEQUENCE;
+		payload        = data8;
+	}
+)
+
+//=============================================================================
+// Echo Request: CN1 -> NUT0 (HA0 => NUTX)
+FEM_hdr_ipv6_exth (
+	echorequest_cn1ga_nuthga_tnl_ha0_nutx,
+	_HETHER_r1_to_nutx,
+	{
+		_SRC(v6(HA0_GLOBAL_UCAST));
+		_DST(v6(NUTX_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(echorequest_cn1ga_nuthga_tnl_ha0_nutx);
+#if defined(IPSEC_MANUAL_SA8_HA0_MN_PROTO_X)
+		exthdr = ext_sa8_ha0_mn;
+#endif
+		upper  = _PACKET_IPV6_NAME(echorequest_cn1ga_nuthga);
+	}
+)
+
+/*----------------------------------------------------------------------------*
+ * Echo Request (NUT0 -> CN0)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Echo Request: NUT0 -> CN0
+FEM_icmp6_echo_request_exth (
+	echorequest_nuthga_cn0ga,
+	_HETHER_nut0_to_ha0,
+	{
+		_SRC(v6(NUTH_GLOBAL_UCAST));
+		_DST(v6(CN0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(echorequest_nuthga_cn0ga);
+#if defined(IPSEC_MANUAL_SA5_MN_CN0_PROTO_ICMP)
+		exthdr = ext_sa5_mn_cn0;
+#endif
+		upper  = _ICMPV6_NAME(echorequest_nuthga_cn0ga);
+	},
+	{
+		payload = data8;
+	}
+)
+
+/*----------------------------------------------------------------------------*
+ * Echo Request (CN0 -> LFN0)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Echo Request: CN0 -> LFN0 (HA0 -> NUT0)
+FEM_icmp6_echo_request (
+	echorequest_cn0ga_lfn0ga_l2_eg,
+	_HETHER_ha0_to_nut0,
+	{
+		_SRC(v6(CN0_GLOBAL_UCAST));
+		_DST(v6(LFN0_GLOBAL_UCAST));
+	},
+	{
+		Identifier     = ECHO_IDENTIFIER;
+		SequenceNumber = ECHO_SEQUENCE;
+		payload        = data8;
+	}
+)
+
+//=============================================================================
+// Echo Request: CN0 -> LFN0 (HA0 => NUTX)
+// sa910
+FEM_hdr_ipv6_exth (
+	echorequest_cn0ga_lfn0ga_tnl_ha0_nutx,
+	_HETHER_r1_to_nutx,
+	{
+		_SRC(v6(HA0_GLOBAL_UCAST));
+		_DST(v6(NUTX_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(echorequest_cn0ga_lfn0ga_tnl_ha0_nutx);
+#if defined(IPSEC_MANUAL_SA10_HA0_MN_PROTO_X)
+		exthdr = ext_sa10_ha0_mn;
+#endif
+		upper  = _PACKET_IPV6_NAME(echorequest_cn0ga_lfn0ga_l2_eg);
+	}
+)
+
+//=============================================================================
+// Echo Request: CN0 -> LFN0 (HA0 => NUTY)
+// sa910
+FEM_hdr_ipv6_exth (
+	echorequest_cn0ga_lfn0ga_tnl_ha0_nuty,
+	_HETHER_r2_to_nuty,
+	{
+		_SRC(v6(HA0_GLOBAL_UCAST));
+		_DST(v6(NUTY_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(echorequest_cn0ga_lfn0ga_tnl_ha0_nuty);
+#if defined(IPSEC_MANUAL_SA10_HA0_MN_PROTO_X)
+		exthdr = ext_sa10_ha0_mn;
+#endif
+		upper  = _PACKET_IPV6_NAME(echorequest_cn0ga_lfn0ga_l2_eg);
+	}
+)
+
+//=============================================================================
+// Echo Request: CN0 -> LFN0 (HA1 => NUTX)
+// sa910
+FEM_hdr_ipv6_exth (
+	echorequest_cn0ga_lfn0ga_tnl_ha1_nutx,
+	_HETHER_r1_to_nutx,
+	{
+		_SRC(v6(HA1_GLOBAL_UCAST));
+		_DST(v6(NUTX_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(echorequest_cn0ga_lfn0ga_tnl_ha1_nutx);
+#if defined(IPSEC_MANUAL_SA10_HA1_MN_PROTO_X)
+		exthdr = ext_sa10_ha1_mn;
+#endif
+		upper  = _PACKET_IPV6_NAME(echorequest_cn0ga_lfn0ga_l2_eg);
+	}
+)
+
+//=============================================================================
+// Echo Request: CN0 -> LFN0 (NUT1 -> LFN0)
+FEM_icmp6_echo_request (
+	echorequest_cn0ga_lfn0ga_l2_ing,
+	_HETHER_nut1_to_lfn0,
+	{
+		_SRC(v6(CN0_GLOBAL_UCAST));
+		_DST(v6(LFN0_GLOBAL_UCAST));
+	},
+	{
+		Identifier     = ECHO_IDENTIFIER;
+		SequenceNumber = ECHO_SEQUENCE;
+		payload        = data8;
+	}
+)
+
+/*----------------------------------------------------------------------------*
+ * Echo Request (LFN0 -> CN0)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Echo Request: LFN0 -> CN0 (LFN0 -> NUT1)
+FEM_icmp6_echo_request (
+	echorequest_lfn0ga_cn0ga_l2_ing,
+	_HETHER_lfn0_to_nut1,
+	{
+		_SRC(v6(LFN0_GLOBAL_UCAST));
+		_DST(v6(CN0_GLOBAL_UCAST));
+	},
+	{
+		Identifier     = ECHO_IDENTIFIER;
+		SequenceNumber = ECHO_SEQUENCE;
+		payload        = data8;
+	}
+)
+
+//=============================================================================
+// Echo Request: LFN0 -> CN0 (LFN1(il-prefix) => NUT1)
+FEM_hdr_ipv6_exth (
+	echorequest_lfn0ga_cn0ga_tnl_lfn1_nut1,
+	_HETHER_lfn1_to_nut1,
+	{
+		_SRC(v6(LFN1_GLOBAL_UCAST));
+		_DST(v6(NUT1_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(echorequest_lfn0ga_cn0ga_tnl_lfn1_nut1);
+		upper  = _PACKET_IPV6_NAME(echorequest_lfn0ga_cn0ga_l2_ing);
+	}
+)
+
+//=============================================================================2'
+// Echo Request: LFN0 -> CN0 (NUT0 -> HA0)
+FEM_icmp6_echo_request (
+	echorequest_lfn0ga_cn0ga_l2_eg,
+	_HETHER_nut0_to_ha0,
+	{
+		_SRC(v6(LFN0_GLOBAL_UCAST));
+		_DST(v6(CN0_GLOBAL_UCAST));
+	},
+	{
+		Identifier     = ECHO_IDENTIFIER;
+		SequenceNumber = ECHO_SEQUENCE;
+		payload        = data8;
+	}
+)
+
+//=============================================================================5'
+// Echo Request: LFN0 -> CN0 (NUTX => HA0)
+// sa910
+FEM_hdr_ipv6_exth (
+	echorequest_lfn0ga_cn0ga_tnl_nutx_ha0,
+	_HETHER_nutx_to_r1,
+	{
+		_SRC(v6(NUTX_GLOBAL_UCAST));
+		_DST(v6(HA0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(echorequest_lfn0ga_cn0ga_tnl_nutx_ha0);
+#if defined(IPSEC_MANUAL_SA9_MN_HA0_PROTO_X)
+		exthdr = ext_sa9_mn_ha0;
+#endif
+		upper  = _PACKET_IPV6_NAME(echorequest_lfn0ga_cn0ga_l2_eg);
+	}
+)
+
+//=============================================================================
+// Echo Request: LFN0 -> CN0 (NUTY => HA0)
+// sa910
+FEM_hdr_ipv6_exth (
+	echorequest_lfn0ga_cn0ga_tnl_nuty_ha0,
+	_HETHER_nuty_to_r2,
+	{
+		_SRC(v6(NUTY_GLOBAL_UCAST));
+		_DST(v6(HA0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(echorequest_lfn0ga_cn0ga_tnl_nuty_ha0);
+#if defined(IPSEC_MANUAL_SA9_MN_HA0_PROTO_X)
+		exthdr = ext_sa9_mn_ha0;
+#endif
+		upper  = _PACKET_IPV6_NAME(echorequest_lfn0ga_cn0ga_l2_eg);
+	}
+)
+
+//=============================================================================
+// Echo Request: LFN0 -> CN0 (il-NUT1 => NUT1)
+FEM_hdr_ipv6_exth (
+	echorequest_lfn0ga_cn0ga_tnl_nut1_nut1,
+	_HETHER_lfn0_to_nut1,
+	{
+		_SRC(v6(NUT1_GLOBAL_UCAST));
+		_DST(v6(NUT1_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(echorequest_lfn0ga_cn0ga_tnl_nut1_nut1);
+		upper  = _PACKET_IPV6_NAME(echorequest_lfn0ga_cn0ga_l2_ing);
+	}
+)
+
+//=============================================================================
+// Echo Request: LFN1(il-prefix) -> CN0 (LFN1(il-prefix) -> NUT1)
+FEM_icmp6_echo_request (
+	echorequest_lfn1ga_cn0ga_l2_ing,
+	_HETHER_lfn1_to_nut1,
+	{
+		_SRC(v6(LFN1_GLOBAL_UCAST));
+		_DST(v6(CN0_GLOBAL_UCAST));
+	},
+	{
+		Identifier     = ECHO_IDENTIFIER;
+		SequenceNumber = ECHO_SEQUENCE;
+		payload        = data8;
+	}
+)
+
+//=============================================================================
+// Echo Request: LFN1(il-prefix) -> CN0 (LFN0 => NUT1)
+FEM_hdr_ipv6_exth (
+	echorequest_lfn1ga_cn0ga_tnl_lfn0_nut1,
+	_HETHER_lfn1_to_nut1,
+	{
+		_SRC(v6(LFN0_GLOBAL_UCAST));
+		_DST(v6(NUT1_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(echorequest_lfn1ga_cn0ga_tnl_lfn0_nut1);
+		upper  = _PACKET_IPV6_NAME(echorequest_lfn1ga_cn0ga_l2_ing);
+	}
+)
+
+//=============================================================================
+// Echo Request: LFN1(il-prefix) -> CN0 (NUT0 -> HA0)
+FEM_icmp6_echo_request (
+	echorequest_lfn1ga_cn0ga_l2_eg,
+	_HETHER_nutx_to_r1,
+	{
+		_SRC(v6(LFN1_GLOBAL_UCAST));
+		_DST(v6(CN0_GLOBAL_UCAST));
+	},
+	{
+		Identifier     = ECHO_IDENTIFIER;
+		SequenceNumber = ECHO_SEQUENCE;
+		payload        = data8;
+	}
+)
+
+//=============================================================================
+// Echo Request: LFN1(il-prefix) -> CN0 (NUTX => HA0)
+// sa910
+FEM_hdr_ipv6_exth (
+	echorequest_lfn1ga_cn0ga_tnl_nutx_ha0,
+	_HETHER_nutx_to_r1,
+	{
+		_SRC(v6(NUTX_GLOBAL_UCAST));
+		_DST(v6(HA0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(echorequest_lfn1ga_cn0ga_tnl_nutx_ha0);
+#if defined(IPSEC_MANUAL_SA9_MN_HA0_PROTO_X)
+		exthdr = ext_sa9_mn_ha0;
+#endif
+		upper  = _PACKET_IPV6_NAME(echorequest_lfn1ga_cn0ga_l2_ing);
+	}
+)
+
+/*----------------------------------------------------------------------------*
+ * Echo Request (NUT1 -> CN0)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Echo Request:il-NUT1 -> CN0 (il-NUT1 -> NUT1)
+FEM_icmp6_echo_request (
+	echorequest_nut1ga_cn0ga_l2_ing,
+	_HETHER_lfn1_to_nut1,
+	{
+		_SRC(v6(NUT1_GLOBAL_UCAST));
+		_DST(v6(CN0_GLOBAL_UCAST));
+	},
+	{
+		Identifier     = ECHO_IDENTIFIER;
+		SequenceNumber = ECHO_SEQUENCE;
+		payload        = data8;
+	}
+)
+
+//=============================================================================
+// Echo Request:il-NUT1 -> CN0 (LFN0 => NUT1)
+FEM_hdr_ipv6_exth (
+	echorequest_nut1ga_cn0ga_tnl_lfn0_nut1,
+	_HETHER_lfn1_to_nut1,
+	{
+		_SRC(v6(LFN0_GLOBAL_UCAST));
+		_DST(v6(NUT1_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(echorequest_nut1ga_cn0ga_tnl_lfn0_nut1);
+		upper  = _PACKET_IPV6_NAME(echorequest_nut1ga_cn0ga_l2_ing);
+	}
+)
+
+//=============================================================================
+// Echo Request:il-NUT1 -> CN0 (NUTX => HA0)
+FEM_hdr_ipv6_exth (
+	echorequest_nut1ga_cn0ga_tnl_nutx_ha0,
+	_HETHER_lfn1_to_nut1,
+	{
+		_SRC(v6(NUT1_GLOBAL_UCAST));
+		_DST(v6(CN0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(echorequest_nut1ga_cn0ga_tnl_nutx_ha0);
+		upper  = _PACKET_IPV6_NAME(echorequest_lfn0ga_cn0ga_l2_ing);
+	}
+)
+
+/*----------------------------------------------------------------------------*
+ * Echo Request (ANY -> ANY)
+ *----------------------------------------------------------------------------*/
+FEM_icmp6_echo_request (
+	echorequest_any_any,
+	_HETHER_any,
+	{
+		_SRC(any);
+		_DST(any);
+	},
+	{
+		Identifier     = ECHO_IDENTIFIER;
+		SequenceNumber = ECHO_SEQUENCE;
+		payload        = any;
+	}
+)
+
+//=============================================================================
+// Echo Request: ANY -> ANY (ANY => ANY)
+FEM_hdr_ipv6_exth (
+	echorequest_any_any_tnl_any_any,
+	_HETHER_any,
+	{
+		_SRC(any);
+		_DST(any);
+	},
+	{
+		header = _HDR_IPV6_NAME(echorequest_any_any_tnl_any_any);
+#if defined(IPSEC_MANUAL_SA7_MN_HA0_PROTO_X)
+		exthdr = ext_sa7_mn_ha0;
+#endif
+		upper  = _PACKET_IPV6_NAME(echorequest_any_any);
+	}
+)
+
+//=============================================================================
+// Echo Request: ANY -> ANY (ANY => ANY) (ANY => ANY)
+FEM_hdr_ipv6_exth (
+	echorequest_any_any_tnl_any_any_tnl_any_any,
+	_HETHER_any,
+	{
+		_SRC(any);
+		_DST(any);
+	},
+	{
+		header = _HDR_IPV6_NAME(echorequest_any_any_tnl_any_any_tnl_any_any);
+#if defined(IPSEC_MANUAL_SA9_MN_HA0_PROTO_X)
+		exthdr = ext_sa9_mn_ha0;
+#endif
+		upper  = _PACKET_IPV6_NAME(echorequest_any_any_tnl_any_any);
+	}
+)
+
+/*----------------------------------------------------------------------------*
+ * Echo Reply (ANY -> ANY)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Echo Reply: ANY -> ANY
+FEM_icmp6_echo_reply_exth (
+	echoreply_any_any,
+	_HETHER_any,
+	{
+		_SRC(any);
+		_DST(any);
+	},
+	{
+		header = _HDR_IPV6_NAME(echoreply_any_any);
+		upper  = _ICMPV6_NAME(echoreply_any_any);
+	},
+	{
+		Identifier     = ECHO_IDENTIFIER;
+		SequenceNumber = ECHO_SEQUENCE;
+		payload        = any;
+	}
+)
+
+//=============================================================================
+// Echo Reply: ANY -> ANY (ANY => ANY)
+FEM_hdr_ipv6_exth (
+	echoreply_any_any_tnl_any_any,
+	_HETHER_any,
+	{
+		_SRC(any);
+		_DST(any);
+	},
+	{
+		header = _HDR_IPV6_NAME(echoreply_any_any_tnl_any_any);
+#if defined(IPSEC_MANUAL_SA7_MN_HA0_PROTO_X)
+		exthdr = ext_sa7_mn_ha0;
+#endif
+		upper  = _PACKET_IPV6_NAME(echoreply_any_any);
+	}
+)
+
+//=============================================================================
+// Echo Reply: ANY -> ANY (ANY => ANY) (ANY => ANY)
+FEM_hdr_ipv6_exth (
+	echoreply_any_any_tnl_any_any_tnl_any_any,
+	_HETHER_any,
+	{
+		_SRC(any);
+		_DST(any);
+	},
+	{
+		header = _HDR_IPV6_NAME(echoreply_any_any_tnl_any_any_tnl_any_any);
+#if defined(IPSEC_MANUAL_SA9_MN_HA0_PROTO_X)
+		exthdr = ext_sa9_mn_ha0;
+#endif
+		upper  = _PACKET_IPV6_NAME(echoreply_any_any_tnl_any_any);
+	}
+)
+
+//=============================================================================
+// Echo Reply: ANY -> ANY rh-type2 ANY
+FEM_icmp6_echo_reply_exth (
+	echoreply_any_any_rh2_any,
+	_HETHER_any,
+	{
+		_SRC(any);
+		_DST(any);
+	},
+	{
+		header = _HDR_IPV6_NAME(echoreply_any_any_rh2_any);
+		exthdr = ext_routing_type2_any;
+		upper  = _ICMPV6_NAME(echoreply_any_any_rh2_any);
+	},
+	{
+		Identifier     = ECHO_IDENTIFIER;
+		SequenceNumber = ECHO_SEQUENCE;
+		payload        = any;
+	}
+)
+
+//=============================================================================
+// Echo Reply: ANY -> CN0 (receive any il-packet)
+FEM_icmp6_echo_reply (
+	echoreply_any_cn0ga,
+	_HETHER_any,
+	{
+		_SRC(any);
+		_DST(v6(CN0_GLOBAL_UCAST));
+	},
+	{
+		Identifier     = ECHO_IDENTIFIER;
+		SequenceNumber = ECHO_SEQUENCE;
+		payload        = any;
+	}
+)
+
+/*----------------------------------------------------------------------------*
+ * Echo Reply (NUT0 -> HA0)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Echo Reply: NUT0 -> HA0
+FEM_icmp6_echo_reply_exth (
+	echoreply_nut0ga_ha0ga,
+	_HETHER_nut0_to_ha0,
+	{
+		_SRC(v6(NUT0_GLOBAL_UCAST));
+		_DST(v6(HA0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(echoreply_nut0ga_ha0ga);
+#if defined(IPSEC_MANUAL_SA5_MN_HA0_PROTO_ICMP) && defined(NUT0H_GLOBAL_UCAST)
+		exthdr = ext_sa5_mn_ha0;
+#endif
+		upper  = _ICMPV6_NAME(echoreply_nut0ga_ha0ga);
+	},
+	{
+		Identifier     = ECHO_IDENTIFIER;
+		SequenceNumber = ECHO_SEQUENCE;
+		payload        = any;
+	}
+)
+
+//=============================================================================
+// Echo Reply: NUT0 -> HA0
+FEM_icmp6_echo_reply_exth (
+	echoreply_nuthga_ha0ga,
+	_HETHER_nut0_to_ha0,
+	{
+		_SRC(v6(NUTH_GLOBAL_UCAST));
+		_DST(v6(HA0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(echoreply_nuthga_ha0ga);
+#if defined(IPSEC_MANUAL_SA5_MN_HA0_PROTO_ICMP)
+		exthdr = ext_sa5_mn_ha0;
+#endif
+		upper  = _ICMPV6_NAME(echoreply_nuthga_ha0ga);
+	},
+	{
+		Identifier     = ECHO_IDENTIFIER;
+		SequenceNumber = ECHO_SEQUENCE;
+		payload        = any;
+	}
+)
+
+//=============================================================================
+// Echo Reply: NUT0 -> HA0 L2 any
+FEM_icmp6_echo_reply_exth (
+	echoreply_nuthga_ha0ga_l2_any,
+	_HETHER_any,
+	{
+		_SRC(v6(NUTH_GLOBAL_UCAST));
+		_DST(v6(HA0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(echoreply_nuthga_ha0ga_l2_any);
+#if defined(IPSEC_MANUAL_SA5_MN_HA0_PROTO_ICMP)
+		exthdr = ext_sa5_mn_ha0;
+#endif
+		upper  = _ICMPV6_NAME(echoreply_nuthga_ha0ga_l2_any);
+	},
+	{
+		Identifier     = ECHO_IDENTIFIER;
+		SequenceNumber = ECHO_SEQUENCE;
+		payload        = any;
+	}
+)
+
+//=============================================================================
+// Echo Reply: NUT0 -> HA0 (NUTX => HA0)
+FEM_hdr_ipv6_exth (
+	echoreply_nuthga_ha0ga_tnl_nutx_ha0,
+	_HETHER_nutx_to_r1,
+	{
+		_SRC(v6(NUTX_GLOBAL_UCAST));
+		_DST(v6(HA0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(echoreply_nuthga_ha0ga_tnl_nutx_ha0);
+#if defined(IPSEC_MANUAL_SA7_MN_HA0_PROTO_X)
+		exthdr = ext_sa7_mn_ha0;
+#endif
+		upper  = _PACKET_IPV6_NAME(echoreply_nuthga_ha0ga);
+	}
+)
+
+//=============================================================================
+// Echo Reply: NUT0 -> HA0 (NUTY => HA0)
+FEM_hdr_ipv6_exth (
+	echoreply_nuthga_ha0ga_tnl_nuty_ha0,
+	_HETHER_nuty_to_r2,
+	{
+		_SRC(v6(NUTY_GLOBAL_UCAST));
+		_DST(v6(HA0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(echoreply_nuthga_ha0ga_tnl_nuty_ha0);
+#if defined(IPSEC_MANUAL_SA7_MN_HA0_PROTO_X)
+		exthdr = ext_sa7_mn_ha0;
+#endif
+		upper  = _PACKET_IPV6_NAME(echoreply_nuthga_ha0ga);
+	}
+)
+
+//=============================================================================
+// Echo Reply: NUTX -> HA0 dst-hoa NUT0
+FEM_icmp6_echo_reply_exth (
+	echoreply_nutxga_ha0ga_hoa_nuthga,
+	_HETHER_nutx_to_r1,
+	{
+		_SRC(v6(NUTX_GLOBAL_UCAST));
+		_DST(v6(HA0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(echoreply_nutxga_ha0ga_hoa_nuthga);
+		exthdr = ext_homeaddress_nuth;
+#if defined(IPSEC_MANUAL_SA5_MN_HA0_PROTO_ICMP)
+		exthdr = ext_sa5_mn_ha0;
+#endif
+		upper  = _ICMPV6_NAME(echoreply_nutxga_ha0ga_hoa_nuthga);
+	},
+	{
+		Identifier     = ECHO_IDENTIFIER;
+		SequenceNumber = ECHO_SEQUENCE;
+		payload        = any;
+	}
+)
+
+//=============================================================================
+// Echo Reply: NUTX -> HA0 dst-hoa NUT0 (NUTX => HA0)
+FEM_hdr_ipv6_exth (
+	echoreply_nutxga_ha0ga_hoa_nuthga_tnl_nutx_ha0,
+	_HETHER_nutx_to_r1,
+	{
+		_SRC(v6(NUTX_GLOBAL_UCAST));
+		_DST(v6(HA0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(echoreply_nutxga_ha0ga_hoa_nuthga_tnl_nutx_ha0);
+#if defined(IPSEC_MANUAL_SA7_MN_HA0_PROTO_X)
+		exthdr = ext_sa7_mn_ha0;
+#endif
+		upper  = _PACKET_IPV6_NAME(echoreply_nutxga_ha0ga_hoa_nuthga);
+	}
+)
+
+//=============================================================================
+// Echo Reply: NUTY -> HA0
+//FEM_icmp6_echo_reply_exth (
+//	echoreply_nutyga_ha0ga,
+//	_HETHER_nuty_to_ha0,
+//	{
+//		_SRC(v6(NUTY_GLOBAL_UCAST));
+//		_DST(v6(HA0_GLOBAL_UCAST));
+//	},
+//	{
+//		header = _HDR_IPV6_NAME(echoreply_nutyga_ha0ga);
+//#if defined(IPSEC_MANUAL_SA5_MN_HA0_PROTO_ICMP)
+//		exthdr = ext_sa5_mn_ha0;
+//#endif
+//		upper  = _ICMPV6_NAME(echoreply_nutyga_ha0ga);
+//	},
+//	{
+//		Identifier     = ECHO_IDENTIFIER;
+//		SequenceNumber = ECHO_SEQUENCE;
+//		payload        = any;
+//	}
+//)
+
+//=============================================================================
+// Echo Reply: NUTY -> HA0 dst-hoa NUT0
+FEM_icmp6_echo_reply_exth (
+	echoreply_nutyga_ha0ga_hoa_nuthga,
+	_HETHER_nuty_to_r2,
+	{
+		_SRC(v6(NUTY_GLOBAL_UCAST));
+		_DST(v6(HA0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(echoreply_nutyga_ha0ga_hoa_nuthga);
+		exthdr = ext_homeaddress_nuth;
+#if defined(IPSEC_MANUAL_SA5_MN_HA0_PROTO_ICMP)
+		exthdr = ext_sa5_mn_ha0;
+#endif
+		upper  = _ICMPV6_NAME(echoreply_nutyga_ha0ga_hoa_nuthga);
+	},
+	{
+		Identifier     = ECHO_IDENTIFIER;
+		SequenceNumber = ECHO_SEQUENCE;
+		payload        = any;
+	}
+)
+
+//=============================================================================
+// Echo Reply: NUTY -> HA0 (NUTY => HA0)
+FEM_hdr_ipv6_exth (
+	echoreply_nutyga_ha0ga_tnl_nuty_ha0,
+	_HETHER_nuty_to_r2,
+	{
+		_SRC(v6(NUTY_GLOBAL_UCAST));
+		_DST(v6(HA0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(echoreply_nutyga_ha0ga_tnl_nuty_ha0);
+#if defined(IPSEC_MANUAL_SA7_MN_HA0_PROTO_X)
+		exthdr = ext_sa7_mn_ha0;
+#endif
+		upper  = _PACKET_IPV6_NAME(echoreply_nutyga_ha0ga);
+	}
+)
+
+//=============================================================================
+// Echo Reply: NUTY -> HA0 dst-hoa NUT0 (NUTY => HA0)
+FEM_hdr_ipv6_exth (
+	echoreply_nutyga_ha0ga_hoa_nuthga_tnl_nuty_ha0,
+	_HETHER_nuty_to_r2,
+	{
+		_SRC(v6(NUTY_GLOBAL_UCAST));
+		_DST(v6(HA0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(echoreply_nutyga_ha0ga_hoa_nuthga_tnl_nuty_ha0);
+#if defined(IPSEC_MANUAL_SA7_MN_HA0_PROTO_X)
+		exthdr = ext_sa7_mn_ha0;
+#endif
+		upper  = _PACKET_IPV6_NAME(echoreply_nutyga_ha0ga_hoa_nuthga);
+	}
+)
+
+/*----------------------------------------------------------------------------*
+ * Echo Reply (NUT0 -> HA1)
+ *----------------------------------------------------------------------------*/
+// Echo Reply: NUT0 -> HA1
+FEM_icmp6_echo_reply_exth (
+	echoreply_nut0ga_ha1ga,
+	_HETHER_nut0_to_ha1,
+	{
+		_SRC(v6(NUT0_GLOBAL_UCAST));
+		_DST(v6(HA1_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(echoreply_nut0ga_ha1ga);
+#if defined(IPSEC_MANUAL_SA5_MN_HA1_PROTO_ICMP) && defined(NUT0H_GLOBAL_UCAST)
+		exthdr = ext_sa5_mn_ha1;
+#endif
+		upper  = _ICMPV6_NAME(echoreply_nut0ga_ha1ga);
+	},
+	{
+		Identifier     = ECHO_IDENTIFIER;
+		SequenceNumber = ECHO_SEQUENCE;
+		payload        = any;
+	}
+)
+
+//=============================================================================
+// Echo Reply: NUT0 -> HA1
+FEM_icmp6_echo_reply_exth (
+	echoreply_nuthga_ha1ga,
+	_HETHER_nut0_to_ha1,
+	{
+		_SRC(v6(NUTH_GLOBAL_UCAST));
+		_DST(v6(HA1_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(echoreply_nuthga_ha1ga);
+#if defined(IPSEC_MANUAL_SA5_MN_HA1_PROTO_ICMP)
+		exthdr = ext_sa5_mn_ha1;
+#endif
+		upper  = _ICMPV6_NAME(echoreply_nuthga_ha1ga);
+	},
+	{
+		Identifier     = ECHO_IDENTIFIER;
+		SequenceNumber = ECHO_SEQUENCE;
+		payload        = any;
+	}
+)
+
+//=============================================================================
+// Echo Reply: NUT0 -> HA0 L2 any
+FEM_icmp6_echo_reply_exth (
+	echoreply_nuthga_ha1ga_l2_any,
+	_HETHER_any,
+	{
+		_SRC(v6(NUTH_GLOBAL_UCAST));
+		_DST(v6(HA1_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(echoreply_nuthga_ha1ga_l2_any);
+#if defined(IPSEC_MANUAL_SA5_MN_HA0_PROTO_ICMP)
+		exthdr = ext_sa5_mn_ha0;
+#endif
+		upper  = _ICMPV6_NAME(echoreply_nuthga_ha1ga_l2_any);
+	},
+	{
+		Identifier     = ECHO_IDENTIFIER;
+		SequenceNumber = ECHO_SEQUENCE;
+		payload        = any;
+	}
+)
+
+//=============================================================================
+// Echo Reply: NUT0 -> HA1 (NUTX => HA1)
+FEM_hdr_ipv6_exth (
+	echoreply_nuthga_ha1ga_tnl_nutx_ha1,
+	_HETHER_nutx_to_r1,
+	{
+		_SRC(v6(NUTX_GLOBAL_UCAST));
+		_DST(v6(HA1_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(echoreply_nuthga_ha1ga_tnl_nutx_ha1);
+#if defined(IPSEC_MANUAL_SA7_MN_HA1_PROTO_X)
+		exthdr = ext_sa7_mn_ha1;
+#endif
+		upper  = _PACKET_IPV6_NAME(echoreply_nuthga_ha1ga);
+	}
+)
+
+//=============================================================================
+// Echo Reply: NUTX -> HA1 dst-hoa NUT0
+FEM_icmp6_echo_reply_exth (
+	echoreply_nutxga_ha1ga_hoa_nuthga,
+	_HETHER_nutx_to_r1,
+	{
+		_SRC(v6(NUTX_GLOBAL_UCAST));
+		_DST(v6(HA1_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(echoreply_nutxga_ha1ga_hoa_nuthga);
+		exthdr = ext_homeaddress_nuth;
+#if defined(IPSEC_MANUAL_SA5_MN_HA1_PROTO_ICMP)
+		exthdr = ext_sa5_mn_ha1;
+#endif
+		upper  = _ICMPV6_NAME(echoreply_nutxga_ha1ga_hoa_nuthga);
+	},
+	{
+		Identifier     = ECHO_IDENTIFIER;
+		SequenceNumber = ECHO_SEQUENCE;
+		payload        = any;
+	}
+)
+
+//=============================================================================
+// Echo Reply: NUTX -> HA1 dst-hoa NUT0 (NUTX => HA1)
+FEM_hdr_ipv6_exth (
+	echoreply_nutxga_ha1ga_hoa_nuthga_tnl_nutx_ha1,
+	_HETHER_nutx_to_r1,
+	{
+		_SRC(v6(NUTX_GLOBAL_UCAST));
+		_DST(v6(HA1_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(echoreply_nutxga_ha1ga_hoa_nuthga_tnl_nutx_ha1);
+#if defined(IPSEC_MANUAL_SA7_MN_HA1_PROTO_X)
+		exthdr = ext_sa7_mn_ha1;
+#endif
+		upper  = _PACKET_IPV6_NAME(echoreply_nutxga_ha1ga_hoa_nuthga);
+	}
+)
+
+/*----------------------------------------------------------------------------*
+ * Echo Reply (NUT0 -> R1)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Echo Reply: NUT0 -> R1
+FEM_icmp6_echo_reply (
+	echoreply_nuthga_r1ga,
+	_HETHER_nut0_to_ha0,
+	{
+		_SRC(v6(NUTH_GLOBAL_UCAST));
+		_DST(v6(R1_GLOBAL_UCAST));
+	},
+	{
+		Identifier     = ECHO_IDENTIFIER;
+		SequenceNumber = ECHO_SEQUENCE;
+		payload        = any;
+	}
+)
+
+//=============================================================================
+// Echo Reply: NUT0 -> R1 (NUTX => HA0)
+FEM_hdr_ipv6_exth (
+	echoreply_nuthga_r1ga_tnl_nutx_ha0,
+	_HETHER_nutx_to_r1,
+	{
+		_SRC(v6(NUTX_GLOBAL_UCAST));
+		_DST(v6(HA0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(echoreply_nuthga_r1ga_tnl_nutx_ha0);
+#if defined(IPSEC_MANUAL_SA7_MN_HA0_PROTO_X)
+		exthdr = ext_sa7_mn_ha0;
+#endif
+		upper  = _PACKET_IPV6_NAME(echoreply_nuthga_r1ga);
+	}
+)
+
+//=============================================================================
+// Echo Reply: NUTX -> R1 dst-hoa NUT0
+FEM_icmp6_echo_reply_exth (
+	echoreply_nutxga_r1ga_hoa_nuthga,
+	_HETHER_nutx_to_r1,
+	{
+		_SRC(v6(NUTX_GLOBAL_UCAST));
+		_DST(v6(R1_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(echoreply_nutxga_r1ga_hoa_nuthga);
+		exthdr = ext_homeaddress_nuth;
+		upper  = _ICMPV6_NAME(echoreply_nutxga_r1ga_hoa_nuthga);
+	},
+	{
+		Identifier     = ECHO_IDENTIFIER;
+		SequenceNumber = ECHO_SEQUENCE;
+		payload        = ECHO_PAYLOAD_ANY;
+	}
+)
+
+//=============================================================================
+// Echo Reply: NUTX(LLA) -> R1(LLA)
+FEM_icmp6_echo_reply (
+	echoreply_nutxlla_r1lla,
+	_HETHER_nutx_to_r1,
+	{
+		_SRC(v6(NUTX_LLOCAL_UCAST));
+		_DST(v6(R1_LLOCAL_UCAST));
+	},
+	{
+		Identifier     = ECHO_IDENTIFIER;
+		SequenceNumber = ECHO_SEQUENCE;
+		payload        = any;
+	}
+)
+
+/*----------------------------------------------------------------------------*
+ * Echo Reply (NUT0 -> R2)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Echo Reply: NUT0 -> R2
+FEM_icmp6_echo_reply (
+	echoreply_nuthga_r2ga,
+	_HETHER_nut0_to_ha0,
+	{
+		_SRC(v6(NUTH_GLOBAL_UCAST));
+		_DST(v6(R2_GLOBAL_UCAST));
+	},
+	{
+		Identifier     = ECHO_IDENTIFIER;
+		SequenceNumber = ECHO_SEQUENCE;
+		payload        = any;
+	}
+)
+
+//=============================================================================
+// Echo Reply: NUT0 -> R2 (NUTX => HA0)
+FEM_hdr_ipv6_exth (
+	echoreply_nuthga_r2ga_tnl_nutx_ha0,
+	_HETHER_nutx_to_r1,
+	{
+		_SRC(v6(NUTX_GLOBAL_UCAST));
+		_DST(v6(HA0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(echoreply_nuthga_r2ga_tnl_nutx_ha0);
+#if defined(IPSEC_MANUAL_SA7_MN_HA0_PROTO_X)
+		exthdr = ext_sa7_mn_ha0;
+#endif
+		upper  = _PACKET_IPV6_NAME(echoreply_nuthga_r2ga);
+	}
+)
+
+/*----------------------------------------------------------------------------*
+ * Echo Reply (NUT0 -> CN0)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Echo Reply: NUT0 -> CN0
+FEM_icmp6_echo_reply_exth (
+	echoreply_nut0ga_cn0ga,
+	_HETHER_nut0_to_ha0,
+	{
+		_SRC(v6(NUT0_GLOBAL_UCAST));
+		_DST(v6(CN0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(echoreply_nut0ga_cn0ga);
+#if defined(IPSEC_MANUAL_SA5_MN_CN0_PROTO_ICMP) && defined(NUT0H_GLOBAL_UCAST)
+		exthdr = ext_sa5_mn_cn0;
+#endif
+		upper  = _ICMPV6_NAME(echoreply_nut0ga_cn0ga);
+	},
+	{
+		Identifier     = ECHO_IDENTIFIER;
+		SequenceNumber = ECHO_SEQUENCE;
+		payload        = any;
+	}
+)
+
+//=============================================================================
+// Echo Reply: NUT0 -> CN0
+FEM_icmp6_echo_reply_exth (
+	echoreply_nuthga_cn0ga,
+	_HETHER_nut0_to_ha0,
+	{
+		_SRC(v6(NUTH_GLOBAL_UCAST));
+		_DST(v6(CN0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(echoreply_nuthga_cn0ga);
+#if defined(IPSEC_MANUAL_SA5_MN_CN0_PROTO_ICMP)
+		exthdr = ext_sa5_mn_cn0;
+#endif
+		upper  = _ICMPV6_NAME(echoreply_nuthga_cn0ga);
+	},
+	{
+		Identifier     = ECHO_IDENTIFIER;
+		SequenceNumber = ECHO_SEQUENCE;
+		payload        = any;
+	}
+)
+
+//=============================================================================
+// Echo Reply: NUT0 -> CN0 (NUTX => HA0)
+FEM_hdr_ipv6_exth (
+	echoreply_nuthga_cn0ga_tnl_nutx_ha0,
+	_HETHER_nutx_to_r1,
+	{
+		_SRC(v6(NUTX_GLOBAL_UCAST));
+		_DST(v6(HA0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(echoreply_nuthga_cn0ga_tnl_nutx_ha0);
+#if defined(IPSEC_MANUAL_SA7_MN_HA0_PROTO_X)
+		exthdr = ext_sa7_mn_ha0;
+#endif
+		upper  = _PACKET_IPV6_NAME(echoreply_nuthga_cn0ga);
+	}
+)
+
+//=============================================================================
+// Echo Reply: NUT0 -> CN0 (NUTY => HA0)
+FEM_hdr_ipv6_exth (
+	echoreply_nuthga_cn0ga_tnl_nuty_ha0,
+	_HETHER_nuty_to_r2,
+	{
+		_SRC(v6(NUTY_GLOBAL_UCAST));
+		_DST(v6(HA0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(echoreply_nuthga_cn0ga_tnl_nuty_ha0);
+#if defined(IPSEC_MANUAL_SA7_MN_HA0_PROTO_X)
+		exthdr = ext_sa7_mn_ha0;
+#endif
+		upper  = _PACKET_IPV6_NAME(echoreply_nuthga_cn0ga);
+	}
+)
+
+//=============================================================================
+// Echo Reply: NUTX -> CN0
+FEM_icmp6_echo_reply (
+	echoreply_nutxga_cn0ga,
+	_HETHER_nutx_to_r1,
+	{
+		_SRC(v6(NUTX_GLOBAL_UCAST));
+		_DST(v6(CN0_GLOBAL_UCAST));
+	},
+	{
+		Identifier     = ECHO_IDENTIFIER;
+		SequenceNumber = ECHO_SEQUENCE;
+		payload        = any;
+	}
+)
+
+//=============================================================================
+// Echo Reply: NUTX -> CN0 dst-hoa NUT0
+FEM_icmp6_echo_reply_exth (
+	echoreply_nutxga_cn0ga_hoa_nuthga,
+	_HETHER_nutx_to_r1,
+	{
+		_SRC(v6(NUTX_GLOBAL_UCAST));
+		_DST(v6(CN0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(echoreply_nutxga_cn0ga_hoa_nuthga);
+		exthdr = ext_homeaddress_nuth;
+#if defined(IPSEC_MANUAL_SA5_MN_CN0_PROTO_ICMP)
+		exthdr = ext_sa5_mn_cn0;
+#endif
+		upper  = _ICMPV6_NAME(echoreply_nutxga_cn0ga_hoa_nuthga);
+	},
+	{
+		Identifier     = ECHO_IDENTIFIER;
+		SequenceNumber = ECHO_SEQUENCE;
+		payload        = ECHO_PAYLOAD_ANY;
+	}
+)
+
+//=============================================================================
+// Echo Reply: NUTY -> CN0
+FEM_icmp6_echo_reply (
+	echoreply_nutyga_cn0ga,
+	_HETHER_nuty_to_r2,
+	{
+		_SRC(v6(NUTY_GLOBAL_UCAST));
+		_DST(v6(CN0_GLOBAL_UCAST));
+	},
+	{
+		Identifier     = ECHO_IDENTIFIER;
+		SequenceNumber = ECHO_SEQUENCE;
+		payload        = any;
+	}
+)
+
+//=============================================================================
+// Echo Reply: NUTY -> CN0 dst-hoa NUT0
+FEM_icmp6_echo_reply_exth (
+	echoreply_nutyga_cn0ga_hoa_nuthga,
+	_HETHER_nuty_to_r2,
+	{
+		_SRC(v6(NUTY_GLOBAL_UCAST));
+		_DST(v6(CN0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(echoreply_nutyga_cn0ga_hoa_nuthga);
+		exthdr = ext_homeaddress_nuth;
+#if defined(IPSEC_MANUAL_SA5_MN_CN0_PROTO_ICMP)
+		exthdr = ext_sa5_mn_cn0;
+#endif
+		upper  = _ICMPV6_NAME(echoreply_nutyga_cn0ga_hoa_nuthga);
+	},
+	{
+		Identifier     = ECHO_IDENTIFIER;
+		SequenceNumber = ECHO_SEQUENCE;
+		payload        = any;
+	}
+)
+
+//=============================================================================
+// Echo Reply: NUT0 -> CN0Y
+FEM_icmp6_echo_reply (
+	echoreply_nuthga_cn0yga,
+	_HETHER_nut0_to_ha0,
+	{
+		_SRC(v6(NUTH_GLOBAL_UCAST));
+		_DST(v6(CN0Y_GLOBAL_UCAST));
+	},
+	{
+		Identifier     = ECHO_IDENTIFIER;
+		SequenceNumber = ECHO_SEQUENCE;
+		payload        = any;
+	}
+)
+
+//=============================================================================
+// Echo Reply: NUT0 -> CN0Y rh-type2 CN0
+FEM_icmp6_echo_reply_exth (
+	echoreply_nuthga_cn0yga_rh2_cn0ga,
+	_HETHER_nut0_to_ha0,
+	{
+		_SRC(v6(NUTH_GLOBAL_UCAST));
+		_DST(v6(CN0Y_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(echoreply_nuthga_cn0yga_rh2_cn0ga);
+		exthdr = ext_routing_type2_cn0;
+#if defined(IPSEC_MANUAL_SA5_MN_CN0_PROTO_ICMP)
+		exthdr = ext_sa5_mn_cn0;
+#endif
+		upper  = _ICMPV6_NAME(echoreply_nuthga_cn0yga_rh2_cn0ga);
+	},
+	{
+		Identifier     = ECHO_IDENTIFIER;
+		SequenceNumber = ECHO_SEQUENCE;
+		payload        = any;
+	}
+)
+
+//=============================================================================
+// Echo Reply: NUT0 -> CN0Y rh-type2 CN0 (NUTX => HA0)
+FEM_hdr_ipv6_exth (
+	echoreply_nuthga_cn0yga_rh2_cn0ga_tnl_nutany_ha0,
+	_HETHER_any,
+	{
+		_SRC(oneof(v6(NUTX_GLOBAL_UCAST),
+		           v6(NUTY_GLOBAL_UCAST),
+		           v6(NUTZ_GLOBAL_UCAST)));
+		_DST(v6(HA0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(echoreply_nuthga_cn0yga_rh2_cn0ga_tnl_nutany_ha0);
+#if defined(IPSEC_MANUAL_SA7_MN_HA0_PROTO_X)
+		exthdr = ext_sa7_mn_ha0;
+#endif
+		upper  = _PACKET_IPV6_NAME(echoreply_nuthga_cn0yga_rh2_cn0ga);
+	}
+)
+
+//=============================================================================
+// Echo Reply: NUTX -> CN0Y rh-type2 CN0 dst-hoa CN0
+FEM_icmp6_echo_reply_exth (
+	echoreply_nutxga_cn0yga_rh2_cn0ga_hoa_nuthga,
+	_HETHER_nutx_to_r1,
+	{
+		_SRC(v6(NUTX_GLOBAL_UCAST));
+		_DST(v6(CN0Y_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(echoreply_nutxga_cn0yga_rh2_cn0ga_hoa_nuthga);
+		exthdr = ext_routing_type2_cn0;
+		exthdr = ext_homeaddress_nuth;
+#if defined(IPSEC_MANUAL_SA5_MN_CN0_PROTO_ICMP)
+		exthdr = ext_sa5_mn_cn0;
+#endif
+		upper  = _ICMPV6_NAME(echoreply_nutxga_cn0yga_rh2_cn0ga_hoa_nuthga);
+	},
+	{
+		Identifier     = ECHO_IDENTIFIER;
+		SequenceNumber = ECHO_SEQUENCE;
+		payload        = any;
+	}
+)
+
+//=============================================================================
+// Echo Reply: NUTY -> CN0Y rh-type2 CN0 dst-hoa NUT0
+FEM_icmp6_echo_reply_exth (
+	echoreply_nutyga_cn0yga_rh2_cn0ga_hoa_nuthga,
+	_HETHER_nuty_to_cn0y,
+	{
+		_SRC(v6(NUTY_GLOBAL_UCAST));
+		_DST(v6(CN0Y_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(echoreply_nutyga_cn0yga_rh2_cn0ga_hoa_nuthga);
+		exthdr = ext_routing_type2_cn0;
+		exthdr = ext_homeaddress_nuth;
+#if defined(IPSEC_MANUAL_SA5_MN_CN0_PROTO_ICMP)
+		exthdr = ext_sa5_mn_cn0;
+#endif
+		upper  = _ICMPV6_NAME(echoreply_nutyga_cn0yga_rh2_cn0ga_hoa_nuthga);
+	},
+	{
+		Identifier     = ECHO_IDENTIFIER;
+		SequenceNumber = ECHO_SEQUENCE;
+		payload        = any;
+	}
+)
+
+/*----------------------------------------------------------------------------*
+ * Echo Reply (NUT0 -> CN1)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Echo Reply: NUT0 -> CN1
+FEM_icmp6_echo_reply (
+	echoreply_nuthga_cn1ga,
+	_HETHER_nut0_to_ha0,
+	{
+		_SRC(v6(NUTH_GLOBAL_UCAST));
+		_DST(v6(CN1_GLOBAL_UCAST));
+	},
+	{
+		Identifier     = ECHO_IDENTIFIER;
+		SequenceNumber = ECHO_SEQUENCE;
+		payload        = any;
+	}
+)
+
+//=============================================================================
+// Echo Reply: NUT0 -> CN1 (NUTX => HA0)
+FEM_hdr_ipv6_exth (
+	echoreply_nuthga_cn1ga_tnl_nutx_ha0,
+	_HETHER_nutx_to_r1,
+	{
+		_SRC(v6(NUTX_GLOBAL_UCAST));
+		_DST(v6(HA0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(echoreply_nuthga_cn1ga_tnl_nutx_ha0);
+#if defined(IPSEC_MANUAL_SA7_MN_HA0_PROTO_X)
+		exthdr = ext_sa7_mn_ha0;
+#endif
+		upper  = _PACKET_IPV6_NAME(echoreply_nuthga_cn1ga);
+	}
+)
+
+/*----------------------------------------------------------------------------*
+ * Echo Reply (CN0 -> LFN0)
+ *----------------------------------------------------------------------------*/
+//=============================================================================3'
+// Echo Reply: CN0 -> LFN0 (HA0 -> NUT0)
+FEM_icmp6_echo_reply (
+	echoreply_cn0ga_lfn0ga_l2_eg,
+	_HETHER_ha0_to_nut0,
+	{
+		_SRC(v6(CN0_GLOBAL_UCAST));
+		_DST(v6(LFN0_GLOBAL_UCAST));
+	},
+	{
+		Identifier     = ECHO_IDENTIFIER;
+		SequenceNumber = ECHO_SEQUENCE;
+		payload        = data8;
+	}
+)
+
+//=============================================================================6'
+// Echo Reply: CN0 -> LFN0 (HA0 => NUTX)
+// sa910
+FEM_hdr_ipv6_exth (
+	echoreply_cn0ga_lfn0ga_tnl_ha0_nutx,
+	_HETHER_r1_to_nutx,
+	{
+		_SRC(v6(HA0_GLOBAL_UCAST));
+		_DST(v6(NUTX_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(echoreply_cn0ga_lfn0ga_tnl_ha0_nutx);
+#if defined(IPSEC_MANUAL_SA10_HA0_MN_PROTO_X)
+		exthdr = ext_sa10_ha0_mn;
+#endif
+		upper  = _PACKET_IPV6_NAME(echoreply_cn0ga_lfn0ga_l2_eg);
+	}
+)
+
+//=============================================================================8'
+// Echo Reply: CN0 -> LFN0 (HA0 => NUTY)
+// sa910
+FEM_hdr_ipv6_exth (
+	echoreply_cn0ga_lfn0ga_tnl_ha0_nuty,
+	_HETHER_r2_to_nuty,
+	{
+		_SRC(v6(HA0_GLOBAL_UCAST));
+		_DST(v6(NUTY_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(echoreply_cn0ga_lfn0ga_tnl_ha0_nuty);
+#if defined(IPSEC_MANUAL_SA9_MN_HA0_PROTO_X)
+		exthdr = ext_sa10_ha0_mn;
+#endif
+		upper  = _PACKET_IPV6_NAME(echoreply_cn0ga_lfn0ga_l2_eg);
+	}
+)
+
+//=============================================================================4'
+// Echo Reply: CN0 -> LFN0 (NUT1 -> LFN0)
+FEM_icmp6_echo_reply (
+	echoreply_cn0ga_lfn0ga_l2_ing,
+	_HETHER_nut1_to_lfn0,
+	{
+		_SRC(v6(CN0_GLOBAL_UCAST));
+		_DST(v6(LFN0_GLOBAL_UCAST));
+	},
+	{
+		Identifier     = ECHO_IDENTIFIER;
+		SequenceNumber = ECHO_SEQUENCE;
+		payload        = data8;
+	}
+)
+
+/*----------------------------------------------------------------------------*
+ * Echo Reply (LFN0 -> CN0)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Echo Reply: LFN0 -> CN0 (LFN0 -> NUT1)
+FEM_icmp6_echo_reply (
+	echoreply_lfn0ga_cn0ga_l2_ing,
+	_HETHER_lfn0_to_nut1,
+	{
+		_SRC(v6(LFN0_GLOBAL_UCAST));
+		_DST(v6(CN0_GLOBAL_UCAST));
+	},
+	{
+		Identifier     = ECHO_IDENTIFIER;
+		SequenceNumber = ECHO_SEQUENCE;
+		payload        = data8;
+	}
+)
+
+//=============================================================================
+// Echo Reply: LFN0 -> CN0 (NUT0 -> HA0)
+FEM_icmp6_echo_reply (
+	echoreply_lfn0ga_cn0ga_l2_eg,
+	_HETHER_nut0_to_ha0,
+	{
+		_SRC(v6(LFN0_GLOBAL_UCAST));
+		_DST(v6(CN0_GLOBAL_UCAST));
+	},
+	{
+		Identifier     = ECHO_IDENTIFIER;
+		SequenceNumber = ECHO_SEQUENCE;
+		payload        = data8;
+	}
+)
+
+//=============================================================================
+// Echo Reply: LFN0 -> CN0 (NUTX => HA0)
+// sa910
+FEM_hdr_ipv6_exth (
+	echoreply_lfn0ga_cn0ga_tnl_nutx_ha0,
+	_HETHER_nutx_to_r1,
+	{
+		_SRC(v6(NUTX_GLOBAL_UCAST));
+		_DST(v6(HA0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(echoreply_lfn0ga_cn0ga_tnl_nutx_ha0);
+#if defined(IPSEC_MANUAL_SA9_MN_HA0_PROTO_X)
+		exthdr = ext_sa9_mn_ha0;
+#endif
+		upper  = _PACKET_IPV6_NAME(echoreply_lfn0ga_cn0ga_l2_eg);
+	}
+)
+
+//=============================================================================
+// Echo Reply: LFN0 -> CN0 (NUTY => HA0)
+// sa910
+FEM_hdr_ipv6_exth (
+	echoreply_lfn0ga_cn0ga_tnl_nuty_ha0,
+	_HETHER_nuty_to_r2,
+	{
+		_SRC(v6(NUTY_GLOBAL_UCAST));
+		_DST(v6(HA0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(echoreply_lfn0ga_cn0ga_tnl_nuty_ha0);
+#if defined(IPSEC_MANUAL_SA9_MN_HA0_PROTO_X)
+		exthdr = ext_sa9_mn_ha0;
+#endif
+		upper  = _PACKET_IPV6_NAME(echoreply_lfn0ga_cn0ga_l2_eg);
+	}
+)
+
+//=============================================================================
+// Receive Echo Reply: LFN0 -> CN0 (NUTX => HA1)
+// sa910
+FEM_hdr_ipv6_exth (
+	echoreply_lfn0ga_cn0ga_tnl_nutx_ha1,
+	_HETHER_nutx_to_r1,
+	{
+		_SRC(v6(NUTX_GLOBAL_UCAST));
+		_DST(v6(HA1_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(echoreply_lfn0ga_cn0ga_tnl_nutx_ha1);
+#if defined(IPSEC_MANUAL_SA9_MN_HA1_PROTO_X)
+		exthdr = ext_sa9_mn_ha1;
+#endif
+		upper  = _PACKET_IPV6_NAME(echoreply_lfn0ga_cn0ga_l2_eg);
+	}
+)
+
+// End of File

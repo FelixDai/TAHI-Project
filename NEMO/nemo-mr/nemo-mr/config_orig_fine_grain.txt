@@ -1,0 +1,968 @@
+#
+# Copyright (C) IPv6 Promotion Council,
+# NIPPON TELEGRAPH AND TELEPHONE CORPORATION (NTT),
+# Yokogwa Electoric Corporation, YASKAWA INFORMATION SYSTEMS Corporation
+# and NTT Advanced Technology Corporation(NTT-AT) All rights reserved.
+# 
+# Technology Corporation.
+# 
+# Redistribution and use of this software in source and binary forms, with 
+# or without modification, are permitted provided that the following 
+# conditions and disclaimer are agreed and accepted by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright 
+# notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright 
+# notice, this list of conditions and the following disclaimer in the 
+# documentation and/or other materials provided with the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project which 
+# is related to this software (hereinafter referred to as "project") nor 
+# the names of the contributors may be used to endorse or promote products 
+# derived from this software without specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written 
+# notification to the copyrighters. However, using this software for the 
+# purpose of testing or evaluating any products including merchantable 
+# products may be permitted without any notification to the copyrighters.
+# 
+# 
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND 
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING 
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS 
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE 
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+# CONTRACT,STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF 
+# THE POSSIBILITY OF SUCH DAMAGE.
+#
+########################################################################
+
+
+
+#-----------------------------------------------------------
+# Test Item
+#-----------------------------------------------------------
+TEST_STATE_NORMAL           YES     # executes test of normal case
+                                    #   YES: executes test
+                                    #   NO : skips test
+
+TEST_STATE_ABNORMAL         YES     # executes test of abnormal case
+                                    #   YES: executes test
+                                    #   NO : skips test
+
+#-------------------------------------------------
+# Optional
+#-------------------------------------------------
+TEST_FUNC_BASIC             YES     # function of basic function
+                                    #   YES: have function
+                                    #   NO : not have function
+
+TEST_FUNC_REAL_HOME_LINK    YES     # function of Real Home Link
+                                    #   YES: have function
+                                    #   NO : not have function
+
+TEST_FUNC_DHAAD             YES     # function of Dynamic Home Agent Address Discovery
+                                    #   YES: have function
+                                    #   NO : not have function
+
+TEST_FUNC_MPD               YES     # function of Mobile Prefix Discovery
+                                    #   YES: have function
+                                    #   NO : not have function
+
+TEST_FUNC_IPSEC             YES     # function of ipsec
+                                    #   YES: must used
+                                    #   NO : not used (To a developmental stage sake)
+
+# not yet.
+#TEST_FUNC_IKE               NO      # function of ike version 1
+                                    #   YES: have function
+                                    #   NO : not have function
+
+#-------------------------------------------------
+# Implementation of NUT
+#-------------------------------------------------
+FUNC_DETAIL_HOME_ADDRESS        HOME_PREFIX_STATIC
+FUNC_DETAIL_HOME_STATIC_ID      ::3775
+                                        # how to configure global IPv6 home address
+                                        #   HOME_PREFIX_STATIC: creates home address with static home prefix and mac address
+                                        #   RFC2462           : creates home address with home prefix and mac address at home link
+                                        #   STATIC            : creates home address with static home prefix and static-id
+                                        #                       in this case, please sets up FUNC_DETAIL_HOME_STATIC_ID
+
+FUNC_DETAIL_COA_ADDRESS         RFC2462
+FUNC_DETAIL_COA_STATIC_ID       ::3775
+                                        # how to configure global IPv6 care-of address
+                                        #   RFC2462: creates care-of address with foreign prefix and mac address
+                                        #   STATIC : creates care-of address with foreign prefix and static-id
+                                        #            in this case, please sets up FUNC_DETAIL_COA_STATIC_ID
+
+FUNC_DETAIL_NEMO_ADDRESS        RFC2462
+FUNC_DETAIL_NEMO_STATIC_ID      ::3963
+                                        # how to configure global IPv6 NEMO address
+                                        #   RFC2462: creates NEMO link address with NEMO prefix and mac address
+                                        #   STATIC : creates NEMO link address with NEMO prefix and static-id
+                                        #            in this case, please sets up FUNC_DETAIL_NEMO_STATIC_ID
+
+FUNC_DETAIL_HOA_ADDRESS         HOME
+FUNC_DETAIL_HOA_STATIC_ID       ::3375
+                                        # how to configure global IPv6 HoA address
+                                        #   HOME  : same home global address
+                                        #   NEMO  : same nemo global address
+                                        #   STATIC: creates HoA address with static home prefix and static-id
+                                        #           in this case, please sets up FUNC_DETAIL_HOA_STATIC_ID
+
+FUNC_DETAIL_MN_BU_TO_HA_K       NO      # sets (K) bit in BU which is transmitted to HA with IKE
+                                        #   YES: set (K) bit
+                                        #   NO : not set (K) bit
+
+# not yet.
+FUNC_DETAIL_IKE_TIME            30      # wait to establish SA3-8 after home registration
+                                        #   default 30 seconds
+
+FUNC_DETAIL_DHAAD_ON_HOMELINK   NO      # transmits HAAD Request on Home Link
+                                        #   YES: transmits on Home Link
+                                        #   NO : not transmits on Home Link
+
+InitialBindackTimeoutFirstReg   1.5     # default 1.5 second
+
+FUNC_DETAIL_MR_REGISTRATION_MODE IMPLICIT
+#FUNC_DETAIL_MR_REGISTRATION_MODE EXPLICIT
+                                        # contains Mobile Network Prefix Option in BU to HA
+                                        # IMPLICIT: It is not contained
+                                        # EXPLICIT: It is contained
+
+FUNC_DETAIL_BU_TO_HA_ALTCOA     YES     # contains Alternate CoA option in BU to HA
+                                        #   YES: It is contained
+                                        #   NO : It is not contained (To a developmental stage sake)
+
+TEST_FUNC_RA_SEND_HOME_LINK     NO      # 
+                                        #   YES: send RA on Home Link
+                                        #   NO : not send RA on Home Link
+
+TEST_DETAIL_TUNNEL_INGRESS      YES     # 
+                                        #   YES: used IP-in-IP tunnel between LFN to MR
+                                        #        please set the following
+                                        #          optimizes    : LFN 3ffe:501:ffff:104:200:ff:fe00:a8a8 ?????
+                                        #   NO : not used IP-in-IP tunnel between LFN to MR
+
+RA_INTERVAL                     10      # interval RAs (NUT)
+                                        #   default second
+
+#-------------------------------------------------
+# Retransmission
+#-------------------------------------------------
+FUNC_DETAIL_BU_TO_HA_RETRANSMISSION         YES     # re-transmits BU to HA for valuable BA
+                                                    #   YES: re-transmits
+                                                    #   NO : not re-transmits
+
+FUNC_DETAIL_BU_TO_HA_RETRANSMISSION_TIME    120     # time until beginning to look for new HA,
+                                                    # since old HA don't accept BU(s). (seconds)
+
+FUNC_DETAIL_BU_TO_HA_128    NO      # re-transmits BU to HA for BA(status 128 Reason unspecified)
+                                    #   YES: re-transmits
+                                    #   NO : not re-transmits
+
+FUNC_DETAIL_BU_TO_HA_129    NO      # re-transmits BU to HA for BA(status 129 Administratively prohibited)
+                                    #   YES: re-transmits
+                                    #   NO : not re-transmits
+
+FUNC_DETAIL_BU_TO_HA_130    NO      # re-transmits BU to HA for BA(status 130 Insufficient resources)
+                                    #   YES: re-transmits
+                                    #   NO : not re-transmits
+
+FUNC_DETAIL_BU_TO_HA_131    NO      # re-transmits BU to HA for BA(status 131 Home registration not supported)
+                                    #   YES: re-transmits
+                                    #   NO : not re-transmits
+
+FUNC_DETAIL_BU_TO_HA_132    NO      # re-transmits BU to HA for BA(status 132 Not home subnet)
+                                    #   YES: re-transmits
+                                    #   NO : not re-transmits
+
+FUNC_DETAIL_BU_TO_HA_133    NO      # re-transmits BU to HA for BA(status 133 Not home agent for this mobile node)
+                                    #   YES: re-transmits
+                                    #   NO : not re-transmits
+
+FUNC_DETAIL_BU_TO_HA_134    NO      # re-transmits BU to HA for BA(status 134 Duplicate Address Detection failed)
+                                    #   YES: re-transmits
+                                    #   NO : not re-transmits
+
+FUNC_DETAIL_BU_TO_HA_135    YES     # re-transmits BU to HA for BA(status 135 Sequence number out of window)
+                                    #   YES: re-transmits
+                                    #   NO : not re-transmits
+
+FUNC_DETAIL_BU_TO_HA_140    NO      # re-transmits BU to HA for BA(status 140 Mobile Router Operation not permitted)
+                                    #   YES: re-transmits
+                                    #   NO : not re-transmits
+
+FUNC_DETAIL_BU_TO_HA_141    NO      # re-transmits BU to HA for BA(status 141 Invalid Prefix)
+                                    #   YES: re-transmits
+                                    #   NO : not re-transmits
+
+FUNC_DETAIL_BU_TO_HA_142    NO      # re-transmits BU to HA for BA(status 142 Not Authorized for Prefix)
+                                    #   YES: re-transmits
+                                    #   NO : not re-transmits
+
+FUNC_DETAIL_BU_TO_HA_143    NO      # re-transmits BU to HA for BA(status 143 Forwarding Setup failed (prefixes missing))
+                                    #   YES: re-transmits
+                                    #   NO : not re-transmits
+
+FUNC_DETAIL_BU_TO_HA_255    NO      # re-transmits BU to HA for BA(status 255 unknown)
+                                    #   YES: re-transmits
+                                    #   NO : not re-transmits
+
+FUNC_DETAIL_HOTI_RETRANSMISSION     YES     # re-transmits HoTI to CN for valuable HoT
+                                            #   YES: re-transmits
+                                            #   NO : not re-transmits
+
+FUNC_DETAIL_COTI_RETRANSMISSION     YES     # re-transmits CoTI to CN for valuable CoT
+                                            #   YES: re-transmits
+                                            #   NO : not re-transmits
+
+FUNC_DETAIL_MN_BU_TO_CN_RETRANSMISSION      NO      # re-transmits BU to CN for valuable BA
+                                                    #   YES: re-transmits
+                                                    #   NO : not re-transmits
+
+FUNC_DETAIL_MN_BU_TO_CN_128     NO      # re-transmits BU to CN for BA(status 128 Reason unspecified)
+                                        #   YES: re-transmits
+                                        #   NO : not re-transmits
+
+FUNC_DETAIL_MN_BU_TO_CN_135     YES     # re-transmits BU to CN for BA(status 135 Sequence number out of window)
+                                        #   YES: re-transmits
+                                        #   NO : not re-transmits
+
+FUNC_DETAIL_MN_BU_TO_CN_136     YES     # re-transmits BU to CN for BA(status 136 Expired home nonce index)
+                                        #   YES: re-transmits
+                                        #   NO : not re-transmits
+
+FUNC_DETAIL_MN_BU_TO_CN_137     YES     # re-transmits BU to CN for BA(status 137 Expired care-of nonce index)
+                                        #   YES: re-transmits
+                                        #   NO : not re-transmits
+
+FUNC_DETAIL_MN_BU_TO_CN_138     YES     # re-transmits BU to CN for BA(status 138 Expired nonces)
+                                        #   YES: re-transmits
+                                        #   NO : not re-transmits
+
+FUNC_DETAIL_DHAAD_RETRANSMISSION    YES     # re-transmits HAAD Request to for valuable HAAD Reply
+                                            #   YES: re-transmits
+                                            #   NO : not re-transmits
+
+FUNC_DETAIL_MPD_RETRANSMISSION      YES     # re-transmits MPS for valuable MPA
+                                            #   YES: re-transmits
+                                            #   NO : not re-transmits
+
+#-------------------------------------------------
+# Static IPsec, MN -> HA0, Transport mode, SA1
+#-------------------------------------------------
+#IPSEC_MANUAL_SA1_MN_HA0_PROTO   MH
+IPSEC_MANUAL_SA1_MN_HA0_PROTO   BU
+                                            # sets IPsecSA based on RFC3776 (SA1 MN -> HA0)
+                                            #   ALL : all transport
+                                            #         Priority is given over SA5 when setting up "ALL"
+                                            #   MH  : mobility header
+                                            #   BU  : binding update
+                                            #   NONE: no use
+
+IPSEC_MANUAL_SA1_MN_HA0_SPI     0x111       # SPI
+
+IPSEC_MANUAL_SA1_MN_HA0_ESP     DES3CBC     # encapsulation algorithm
+                                            #   DES3CBC: 3DES-CBC
+                                            #   DESCBC : DES-CBC
+
+IPSEC_MANUAL_SA1_MN_HA0_ESP_KEY V6LC-111--12345678901234
+                                            # encapsulation key
+
+IPSEC_MANUAL_SA1_MN_HA0_AH      HMACSHA1    # authentication algorithm
+                                            #   HMACSHA1: HMAC-SHA1
+                                            #   HMACMD5 : HMAC-MD5
+
+IPSEC_MANUAL_SA1_MN_HA0_AH_KEY  V6LC-111--1234567890
+                                            # authentication key
+
+#-------------------------------------------------
+# Static IPsec, HA0 -> MN, Transport mode, SA2
+#-------------------------------------------------
+#IPSEC_MANUAL_SA2_HA0_MN_PROTO   MH
+IPSEC_MANUAL_SA2_HA0_MN_PROTO   BA
+                                            # sets IPsecSA based on RFC3776 (SA2 MN <- HA0)
+                                            #   ALL : all transport
+                                            #         Priority is given over SA6 when setting up "ALL"
+                                            #   MH  : mobility header
+                                            #   BA  : binding acknowledgement
+                                            #   NONE: no use
+
+IPSEC_MANUAL_SA2_HA0_MN_SPI     0x112       # SPI
+
+IPSEC_MANUAL_SA2_HA0_MN_ESP     DES3CBC     # encapsulation algorithm
+                                            #   DES3CBC: 3DES-CBC
+                                            #   DESCBC : DES-CBC
+
+IPSEC_MANUAL_SA2_HA0_MN_ESP_KEY V6LC-112--12345678901234
+                                            # encapsulation key
+
+IPSEC_MANUAL_SA2_HA0_MN_AH      HMACSHA1    # authentication algorithm
+                                            #   HMACSHA1: HMAC-SHA1
+                                            #   HMACMD5 : HMAC-MD5
+
+IPSEC_MANUAL_SA2_HA0_MN_AH_KEY  V6LC-112--1234567890
+                                            # authentication key
+
+#-------------------------------------------------
+# Static IPsec, MN -> HA1, Transport mode, SA1
+#-------------------------------------------------
+#IPSEC_MANUAL_SA1_MN_HA1_PROTO   MH
+IPSEC_MANUAL_SA1_MN_HA1_PROTO   BU
+                                            # sets IPsecSA based on RFC3776 (SA1 MN -> HA1)
+                                            #   ALL : all transport
+                                            #         Priority is given over SA5 when setting up "ALL"
+                                            #   MH  : mobility header
+                                            #   BU  : binding update
+                                            #   NONE: no use
+
+IPSEC_MANUAL_SA1_MN_HA1_SPI     0x211       # SPI
+
+IPSEC_MANUAL_SA1_MN_HA1_ESP     DES3CBC     # encapsulation algorithm
+                                            #   DES3CBC: 3DES-CBC
+                                            #   DESCBC : DES-CBC
+
+IPSEC_MANUAL_SA1_MN_HA1_ESP_KEY V6LC-211--12345678901234
+                                            # encapsulation key
+
+IPSEC_MANUAL_SA1_MN_HA1_AH      HMACSHA1    # authentication algorithm
+                                            #   HMACSHA1: HMAC-SHA1
+                                            #   HMACMD5 : HMAC-MD5
+
+IPSEC_MANUAL_SA1_MN_HA1_AH_KEY  V6LC-211--1234567890
+                                            # authentication key
+
+#-------------------------------------------------
+# Static IPsec, HA1 -> MN, Transport mode, SA2
+#-------------------------------------------------
+#IPSEC_MANUAL_SA2_HA1_MN_PROTO   MH
+IPSEC_MANUAL_SA2_HA1_MN_PROTO   BA
+                                            # sets IPsecSA based on RFC3776 (SA2 MN <- HA1)
+                                            #   ALL : all transport
+                                            #         Priority is given over SA6 when setting up "ALL"
+                                            #   MH  : mobility header
+                                            #   BA  : binding acknowledgement
+                                            #   NONE: no use
+
+IPSEC_MANUAL_SA2_HA1_MN_SPI     0x212       # SPI
+
+IPSEC_MANUAL_SA2_HA1_MN_ESP     DES3CBC     # encapsulation algorithm
+                                            #   DES3CBC: 3DES-CBC
+                                            #   DESCBC : DES-CBC
+
+IPSEC_MANUAL_SA2_HA1_MN_ESP_KEY V6LC-212--12345678901234
+                                            # encapsulation key
+
+IPSEC_MANUAL_SA2_HA1_MN_AH      HMACSHA1    # authentication algorithm
+                                            #   HMACSHA1: HMAC-SHA1
+                                            #   HMACMD5 : HMAC-MD5
+
+IPSEC_MANUAL_SA2_HA1_MN_AH_KEY  V6LC-212--1234567890
+                                            # authentication key
+
+#-------------------------------------------------
+# Static IPsec, MN -> HA0, Transport mode, SA5
+#-------------------------------------------------
+#IPSEC_MANUAL_SA5_MN_HA0_PROTO   ICMP
+IPSEC_MANUAL_SA5_MN_HA0_PROTO   MPS
+                                            # sets IPsecSA based on RFC3776 (SA5 MN -> HA0)
+                                            #   ICMP: icmp header
+                                            #   MPS : mobile prefix solicitation
+                                            #   NONE: no use
+
+IPSEC_MANUAL_SA5_MN_HA0_SPI     0x115       # SPI
+
+IPSEC_MANUAL_SA5_MN_HA0_ESP     DES3CBC     # encapsulation algorithm
+                                            #   DES3CBC: 3DES-CBC
+                                            #   DESCBC : DES-CBC
+
+IPSEC_MANUAL_SA5_MN_HA0_ESP_KEY V6LC-115--12345678901234
+                                            # encapsulation key
+
+IPSEC_MANUAL_SA5_MN_HA0_AH      HMACSHA1    # authentication algorithm
+                                            #   HMACSHA1: HMAC-SHA1
+                                            #   HMACMD5 : HMAC-MD5
+
+IPSEC_MANUAL_SA5_MN_HA0_AH_KEY  V6LC-115--1234567890
+                                            # authentication key
+
+#-------------------------------------------------
+# Static IPsec, HA0 -> MN, Transport mode, SA6
+#-------------------------------------------------
+#IPSEC_MANUAL_SA6_HA0_MN_PROTO   ICMP
+IPSEC_MANUAL_SA6_HA0_MN_PROTO   MPA
+                                            # sets IPsecSA based on RFC3776 (SA6 MN <- HA0)
+                                            #   ICMP: icmp header
+                                            #   MPA : mobile prefix advertisement
+                                            #   NONE: no use
+
+IPSEC_MANUAL_SA6_HA0_MN_SPI     0x116       # SPI
+
+IPSEC_MANUAL_SA6_HA0_MN_ESP     DES3CBC     # encapsulation algorithm
+                                            #   DES3CBC: 3DES-CBC
+                                            #   DESCBC : DES-CBC
+
+IPSEC_MANUAL_SA6_HA0_MN_ESP_KEY V6LC-116--12345678901234
+                                            # encapsulation key
+
+IPSEC_MANUAL_SA6_HA0_MN_AH      HMACSHA1    # authentication algorithm
+                                            #   HMACSHA1: HMAC-SHA1
+                                            #   HMACMD5 : HMAC-MD5
+
+IPSEC_MANUAL_SA6_HA0_MN_AH_KEY  V6LC-116--1234567890
+                                            # authentication key
+
+#-------------------------------------------------
+# Static IPsec, MN -> HA1, Transport mode, SA5
+#-------------------------------------------------
+#IPSEC_MANUAL_SA5_MN_HA1_PROTO   ICMP
+IPSEC_MANUAL_SA5_MN_HA1_PROTO   MPS
+                                            # sets IPsecSA based on RFC3776 (SA5 MN -> HA1)
+                                            #   ICMP: icmp header
+                                            #   MPS : mobile prefix solicitation
+                                            #   NONE: no use
+
+IPSEC_MANUAL_SA5_MN_HA1_SPI     0x215       # SPI
+
+IPSEC_MANUAL_SA5_MN_HA1_ESP     DES3CBC     # encapsulation algorithm
+                                            #   DES3CBC: 3DES-CBC
+                                            #   DESCBC : DES-CBC
+
+IPSEC_MANUAL_SA5_MN_HA1_ESP_KEY V6LC-215--12345678901234
+                                            # encapsulation key
+
+IPSEC_MANUAL_SA5_MN_HA1_AH      HMACSHA1    # authentication algorithm
+                                            #   HMACSHA1: HMAC-SHA1
+                                            #   HMACMD5 : HMAC-MD5
+
+IPSEC_MANUAL_SA5_MN_HA1_AH_KEY  V6LC-215--1234567890
+                                            # authentication key
+
+#-------------------------------------------------
+# Static IPsec, HA1 -> MN, Transport mode, SA6
+#-------------------------------------------------
+#IPSEC_MANUAL_SA6_HA1_MN_PROTO   ICMP
+IPSEC_MANUAL_SA6_HA1_MN_PROTO   MPA
+                                            # sets IPsecSA based on RFC3776 (SA6 MN <- HA1)
+                                            #   ICMP: icmp header
+                                            #   MPA : mobile prefix advertisement
+                                            #   NONE: no use
+
+IPSEC_MANUAL_SA6_HA1_MN_SPI     0x216       # SPI
+
+IPSEC_MANUAL_SA6_HA1_MN_ESP     DES3CBC     # encapsulation algorithm
+                                            #   DES3CBC: 3DES-CBC
+                                            #   DESCBC : DES-CBC
+
+IPSEC_MANUAL_SA6_HA1_MN_ESP_KEY V6LC-216--12345678901234
+                                            # encapsulation key
+
+IPSEC_MANUAL_SA6_HA1_MN_AH      HMACSHA1    # authentication algorithm
+                                            #   HMACSHA1: HMAC-SHA1
+                                            #   HMACMD5 : HMAC-MD5
+
+IPSEC_MANUAL_SA6_HA1_MN_AH_KEY  V6LC-216--1234567890
+                                            # authentication key
+
+#-------------------------------------------------
+# Static IPsec, MN -> HA0, Tunnel mode, SA3
+#-------------------------------------------------
+IPSEC_MANUAL_SA3_MN_HA0_PROTO   NONE
+                                            # sets IPsecSA based on RFC3776 (SA3 MN => HA0)
+                                            #   ALL : all tunnel
+                                            #         Priority is given over SA7 when setting up "ALL"
+                                            #   MH  : mobility header
+                                            #   HOTI: home test init
+                                            #   NONE: no use
+
+IPSEC_MANUAL_SA3_MN_HA0_SPI     0x113       # SPI
+
+IPSEC_MANUAL_SA3_MN_HA0_ESP     DES3CBC     # encapsulation algorithm
+                                            #   DES3CBC: 3DES-CBC
+                                            #   DESCBC : DES-CBC
+
+IPSEC_MANUAL_SA3_MN_HA0_ESP_KEY V6LC-113--12345678901234
+                                            # encapsulation key
+
+IPSEC_MANUAL_SA3_MN_HA0_AH      HMACSHA1    # authentication algorithm
+                                            #   HMACSHA1: HMAC-SHA1
+                                            #   HMACMD5 : HMAC-MD5
+
+IPSEC_MANUAL_SA3_MN_HA0_AH_KEY  V6LC-113--1234567890
+                                            # authentication key
+
+#-------------------------------------------------
+# Static IPsec, HA0 -> MN, Tunnel mode, SA4
+#-------------------------------------------------
+IPSEC_MANUAL_SA4_HA0_MN_PROTO   NONE
+                                            # sets IPsecSA based on RFC3776 (SA4 MN <= HA0)
+                                            #   ALL : all tunnel
+                                            #         Priority is given over SA8 when setting up "ALL"
+                                            #   MH  : mobility header
+                                            #   HOT : home test
+                                            #   NONE: no use
+
+IPSEC_MANUAL_SA4_HA0_MN_SPI     0x114       # SPI
+
+IPSEC_MANUAL_SA4_HA0_MN_ESP     DES3CBC     # encapsulation algorithm
+                                            #   DES3CBC: 3DES-CBC
+                                            #   DESCBC : DES-CBC
+
+IPSEC_MANUAL_SA4_HA0_MN_ESP_KEY V6LC-114--12345678901234
+                                            # encapsulation key
+
+IPSEC_MANUAL_SA4_HA0_MN_AH      HMACSHA1    # authentication algorithm
+                                            #   HMACSHA1: HMAC-SHA1
+                                            #   HMACMD5 : HMAC-MD5
+
+IPSEC_MANUAL_SA4_HA0_MN_AH_KEY  V6LC-114--1234567890
+                                            # authentication key
+
+#-------------------------------------------------
+# Static IPsec, MN -> HA1, Tunnel mode, SA3
+#-------------------------------------------------
+IPSEC_MANUAL_SA3_MN_HA1_PROTO   NONE
+                                            # sets IPsecSA based on RFC3776 (SA3 MN => HA1)
+                                            #   ALL : all tunnel
+                                            #         Priority is given over SA7 when setting up "ALL"
+                                            #   MH  : mobility header
+                                            #   HOTI: home test init
+                                            #   NONE: no use
+
+IPSEC_MANUAL_SA3_MN_HA1_SPI     0x213       # SPI
+
+IPSEC_MANUAL_SA3_MN_HA1_ESP     DES3CBC     # encapsulation algorithm
+                                            #   DES3CBC: 3DES-CBC
+                                            #   DESCBC : DES-CBC
+
+IPSEC_MANUAL_SA3_MN_HA1_ESP_KEY V6LC-213--12345678901234
+                                            # encapsulation key
+
+IPSEC_MANUAL_SA3_MN_HA1_AH      HMACSHA1    # authentication algorithm
+                                            #   HMACSHA1: HMAC-SHA1
+                                            #   HMACMD5 : HMAC-MD5
+
+IPSEC_MANUAL_SA3_MN_HA1_AH_KEY  V6LC-213--1234567890
+                                            # authentication key
+
+#-------------------------------------------------
+# Static IPsec, HA1 -> MN, Tunnel mode, SA4
+#-------------------------------------------------
+IPSEC_MANUAL_SA4_HA1_MN_PROTO   NONE
+                                            # sets IPsecSA based on RFC3776 (SA4 MN <= HA1)
+                                            #   ALL : all tunnel
+                                            #         Priority is given over SA8 when setting up "ALL"
+                                            #   MH  : mobility header
+                                            #   HOT : home test
+                                            #   NONE: no use
+
+IPSEC_MANUAL_SA4_HA1_MN_SPI     0x214       # SPI
+
+IPSEC_MANUAL_SA4_HA1_MN_ESP     DES3CBC     # encapsulation algorithm
+                                            #   DES3CBC: 3DES-CBC
+                                            #   DESCBC : DES-CBC
+
+IPSEC_MANUAL_SA4_HA1_MN_ESP_KEY V6LC-214--12345678901234
+                                            # encapsulation key
+
+IPSEC_MANUAL_SA4_HA1_MN_AH      HMACSHA1    # authentication algorithm
+                                            #   HMACSHA1: HMAC-SHA1
+                                            #   HMACMD5 : HMAC-MD5
+
+IPSEC_MANUAL_SA4_HA1_MN_AH_KEY  V6LC-214--1234567890
+                                            # authentication key
+
+#-------------------------------------------------
+# Static IPsec, MN -> HA0, Tunnel mode, SA7
+#-------------------------------------------------
+IPSEC_MANUAL_SA7_MN_HA0_PROTO   NONE        # sets IPsecSA based on RFC3776 (SA7 MN => HA0)
+                                            #   X   : all tunnel without Mobility header. (eg. icmp)
+                                            #   NONE: no use
+
+IPSEC_MANUAL_SA7_MN_HA0_SPI     0x117       # SPI
+
+IPSEC_MANUAL_SA7_MN_HA0_ESP     DES3CBC     # encapsulation algorithm
+                                            #   DES3CBC: 3DES-CBC
+                                            #   DESCBC : DES-CBC
+
+IPSEC_MANUAL_SA7_MN_HA0_ESP_KEY V6LC-117--12345678901234
+                                            # encapsulation key
+
+IPSEC_MANUAL_SA7_MN_HA0_AH      HMACSHA1    # authentication algorithm
+                                            #   HMACSHA1: HMAC-SHA1
+                                            #   HMACMD5 : HMAC-MD5
+
+IPSEC_MANUAL_SA7_MN_HA0_AH_KEY  V6LC-117--1234567890
+                                            # authentication key
+
+#-------------------------------------------------
+# Static IPsec, HA0 -> MN, Tunnel mode, SA8
+#-------------------------------------------------
+IPSEC_MANUAL_SA8_HA0_MN_PROTO   NONE        # sets IPsecSA based on RFC3776 (SA8 MN <= HA0)
+                                            #   X   : all tunnel without Mobility header. (eg. icmp)
+                                            #   NONE: no use
+
+IPSEC_MANUAL_SA8_HA0_MN_SPI     0x118       # SPI
+
+IPSEC_MANUAL_SA8_HA0_MN_ESP     DES3CBC     # encapsulation algorithm
+                                            #   DES3CBC: 3DES-CBC
+                                            #   DESCBC : DES-CBC
+
+IPSEC_MANUAL_SA8_HA0_MN_ESP_KEY V6LC-118--12345678901234
+                                            # encapsulation key
+
+IPSEC_MANUAL_SA8_HA0_MN_AH      HMACSHA1    # authentication algorithm
+                                            #   HMACSHA1: HMAC-SHA1
+                                            #   HMACMD5 : HMAC-MD5
+
+IPSEC_MANUAL_SA8_HA0_MN_AH_KEY  V6LC-118--1234567890
+                                            # authentication key
+
+#-------------------------------------------------
+# Static IPsec, MN -> HA1, Tunnel mode, SA7
+#-------------------------------------------------
+IPSEC_MANUAL_SA7_MN_HA1_PROTO   NONE        # sets IPsecSA based on RFC3776 (SA7 MN => HA1)
+                                            #   X   : all tunnel without Mobility header. (eg. icmp)
+                                            #   NONE: no use
+
+IPSEC_MANUAL_SA7_MN_HA1_SPI     0x217       # SPI
+
+IPSEC_MANUAL_SA7_MN_HA1_ESP     DES3CBC     # encapsulation algorithm
+                                            #   DES3CBC: 3DES-CBC
+                                            #   DESCBC : DES-CBC
+
+IPSEC_MANUAL_SA7_MN_HA1_ESP_KEY V6LC-217--12345678901234
+                                            # encapsulation key
+
+IPSEC_MANUAL_SA7_MN_HA1_AH      HMACSHA1    # authentication algorithm
+                                            #   HMACSHA1: HMAC-SHA1
+                                            #   HMACMD5 : HMAC-MD5
+
+IPSEC_MANUAL_SA7_MN_HA1_AH_KEY  V6LC-217--1234567890
+                                            # authentication key
+
+#-------------------------------------------------
+# Static IPsec, HA1 -> MN, Tunnel mode, SA8
+#-------------------------------------------------
+IPSEC_MANUAL_SA8_HA1_MN_PROTO   NONE        # sets IPsecSA based on RFC3776 (SA8 MN <= HA0)
+                                            #   X   : all tunnel without Mobility header. (eg. icmp)
+                                            #   NONE: no use
+
+IPSEC_MANUAL_SA8_HA1_MN_SPI     0x218       # SPI
+
+IPSEC_MANUAL_SA8_HA1_MN_ESP     DES3CBC     # encapsulation algorithm
+                                            #   DES3CBC: 3DES-CBC
+                                            #   DESCBC : DES-CBC
+
+IPSEC_MANUAL_SA8_HA1_MN_ESP_KEY V6LC-218--12345678901234
+                                            # encapsulation key
+
+IPSEC_MANUAL_SA8_HA1_MN_AH      HMACSHA1    # authentication algorithm
+                                            #   HMACSHA1: HMAC-SHA1
+                                            #   HMACMD5 : HMAC-MD5
+
+IPSEC_MANUAL_SA8_HA1_MN_AH_KEY  V6LC-218--1234567890
+                                            # authentication key
+
+#-------------------------------------------------
+# Static IPsec, MN -> HA0, Tunnel mode, SA9
+# (SA9 payload: MNN -> Node outside the mobile network)
+#-------------------------------------------------
+IPSEC_MANUAL_SA9_MN_HA0_PROTO   NONE
+                                            # sets IPsecSA based on RFC3776 (SA9 MN => HA0)
+                                            #   X   : all tunnel without Mobility header. (eg. icmp)
+                                            #   NONE: no use
+
+IPSEC_MANUAL_SA9_MN_HA0_SPI     0x119       # SPI
+
+IPSEC_MANUAL_SA9_MN_HA0_ESP     DES3CBC     # encapsulation algorithm
+                                            #   DES3CBC: 3DES-CBC
+                                            #   DESCBC : DES-CBC
+
+IPSEC_MANUAL_SA9_MN_HA0_ESP_KEY V6LC-119--12345678901234
+                                            # encapsulation key
+
+IPSEC_MANUAL_SA9_MN_HA0_AH      HMACSHA1    # authentication algorithm
+                                            #   HMACSHA1: HMAC-SHA1
+                                            #   HMACMD5 : HMAC-MD5
+
+IPSEC_MANUAL_SA9_MN_HA0_AH_KEY  V6LC-119--1234567890
+                                            # authentication key
+
+#-------------------------------------------------
+# Static IPsec, HA0 -> MN, Tunnel mode, SA10
+# (SA10 payload: Node outside the mobile network -> MNN)
+#-------------------------------------------------
+IPSEC_MANUAL_SA10_HA0_MN_PROTO   NONE
+                                            # sets IPsecSA based on RFC3776 (SA10 MN <= HA0)
+                                            #   X   : all tunnel without Mobility header. (eg. icmp)
+                                            #   NONE: no use
+
+IPSEC_MANUAL_SA10_HA0_MN_SPI     0x11a      # SPI
+
+IPSEC_MANUAL_SA10_HA0_MN_ESP     DES3CBC    # encapsulation algorithm
+                                            #   DES3CBC: 3DES-CBC
+                                            #   DESCBC : DES-CBC
+
+IPSEC_MANUAL_SA10_HA0_MN_ESP_KEY V6LC-11A--12345678901234
+                                            # encapsulation key
+
+IPSEC_MANUAL_SA10_HA0_MN_AH      HMACSHA1   # authentication algorithm
+                                            #   HMACSHA1: HMAC-SHA1
+                                            #   HMACMD5 : HMAC-MD5
+
+IPSEC_MANUAL_SA10_HA0_MN_AH_KEY  V6LC-11A--1234567890
+                                            # authentication key
+
+#-------------------------------------------------
+# Static IPsec, MN -> HA1, Tunnel mode, SA9
+# (SA9 payload: MNN -> Node outside the mobile network)
+#-------------------------------------------------
+IPSEC_MANUAL_SA9_MN_HA1_PROTO   NONE
+                                            # sets IPsecSA based on RFC3776 (SA9 MN => HA1)
+                                            #   X   : all tunnel without Mobility header. (eg. icmp)
+                                            #   NONE: no use
+
+IPSEC_MANUAL_SA9_MN_HA1_SPI     0x219       # SPI
+
+IPSEC_MANUAL_SA9_MN_HA1_ESP     DES3CBC     # encapsulation algorithm
+                                            #   DES3CBC: 3DES-CBC
+                                            #   DESCBC : DES-CBC
+
+IPSEC_MANUAL_SA9_MN_HA1_ESP_KEY V6LC-219--12345678901234
+                                            # encapsulation key
+
+IPSEC_MANUAL_SA9_MN_HA1_AH      HMACSHA1    # authentication algorithm
+                                            #   HMACSHA1: HMAC-SHA1
+                                            #   HMACMD5 : HMAC-MD5
+
+IPSEC_MANUAL_SA9_MN_HA1_AH_KEY  V6LC-219--1234567890
+                                            # authentication key
+
+#-------------------------------------------------
+# Static IPsec, HA1 -> MN, Tunnel mode, SA10
+# (SA10 payload: Node outside the mobile network -> MNN)
+#-------------------------------------------------
+IPSEC_MANUAL_SA10_HA1_MN_PROTO   NONE
+                                            # sets IPsecSA based on RFC3776 (SA10 MN <= HA0)
+                                            #   X   : all tunnel without Mobility header. (eg. icmp)
+                                            #   NONE: no use
+
+IPSEC_MANUAL_SA10_HA1_MN_SPI     0x21a      # SPI
+
+IPSEC_MANUAL_SA10_HA1_MN_ESP     DES3CBC    # encapsulation algorithm
+                                            #   DES3CBC: 3DES-CBC
+                                            #   DESCBC : DES-CBC
+
+IPSEC_MANUAL_SA10_HA1_MN_ESP_KEY V6LC-21A--12345678901234
+                                            # encapsulation key
+
+IPSEC_MANUAL_SA10_HA1_MN_AH      HMACSHA1   # authentication algorithm
+                                            #   HMACSHA1: HMAC-SHA1
+                                            #   HMACMD5 : HMAC-MD5
+
+IPSEC_MANUAL_SAA_HA1_MN_AH_KEY  V6LC-21A--1234567890
+                                            # authentication key
+
+
+##################################################
+# The following IKE settings are not yet.
+##################################################
+
+#-------------------------------------------------
+# IKEv1, ISAKMP SA(NUT0<->HA0)
+#-------------------------------------------------
+ISAKMP_MN_HA0_ENC_ALG           DES3CBC     # encapsulation algorithm
+                                            #   DES3CBC: 3DES-CBC
+                                            #   DESCBC : DES-CBC
+
+ISAKMP_MN_HA0_HASH_ALG          HMACSHA1    # authentication algorithm
+                                            #   HMACSHA1: HMAC-SHA1
+                                            #   HMACMD5 : HMAC-MD5
+
+ISAKMP_MN_HA0_GRP_DESC          GROUP1      # Oakley group
+                                            #   GROUP1: MODP768
+                                            #   GROUP2: MODP1024
+
+#ISAKMP_MN_HA0_LD                0           # lifetime of isakmp
+                                            #   0  : accept proposal
+                                            #   !=0: 
+
+ISAKMP_MN_HA0_TN_ID_TYPE        FQDN        # identification of ID payload 
+                                            #   FQDN    : 
+                                            #   USERFQDN: 
+                                            #   V6ADDR  : (not standard)
+
+ISAKMP_MN_HA0_TN_ID             V6LC
+                                            # identification of ID payload
+
+ISAKMP_MN_HA0_NUT_ID_TYPE       FQDN        # identification of ID payload 
+                                            #   FQDN    : 
+                                            #   USERFQDN: 
+                                            #   V6ADDR  : (not standard)
+
+ISAKMP_MN_HA0_NUT_ID            V6LC
+                                            # identification of ID payload
+
+ISAKMP_MN_HA0_PSK               V6LC-110--12345678901234
+                                            # Pre-shared Key
+
+#-------------------------------------------------
+# IKEv1, IPsec SA1/SA2(NUT0<->HA0)
+#-------------------------------------------------
+IPSEC_IKE_SA12_MN_HA0_ID_PROTO  MH          # set IPsecSA based on RFC3776 (SA12 MN -> HA0)
+                                            #   ALL : all transport
+                                            #         Priority is given over SA6 when setting up "ALL"
+                                            #   MH  : mobility header
+                                            #   NONE: no use
+
+IPSEC_IKE_SA12_MN_HA0_ESP_ALG   DES3CBC     # encapsulation algorithm
+                                            #   DES3CBC: 3DES-CBC
+                                            #   DESCBC : DES-CBC
+
+IPSEC_IKE_SA12_MN_HA0_AUTH      HMACSHA1    # authentication algorith
+                                            #   HMACSHA1: HMAC-SHA1
+                                            #   HMACMD5 : HMAC-MD5
+
+#IPSEC_IKE_SA12_MN_HA0_LD        0           # lifetime of IPsecSA
+                                            #   0  : accept proposal
+                                            #   !=0: 
+
+#-------------------------------------------------
+# IKEv1, IPsec SA3/SA4(NUT0<->HA0)
+#-------------------------------------------------
+IPSEC_IKE_SA34_MN_HA0_ID_PROTO  MH          # set IPsecSA based on RFC3776 (SA34 MN -> HA0)
+                                            #   ALL : all transport
+                                            #         Priority is given over SA6 when setting up "ALL"
+                                            #   MH  : mobility header
+                                            #   NONE: no use
+
+IPSEC_IKE_SA34_MN_HA0_ESP_ALG   DES3CBC     # encapsulation algorithm
+
+IPSEC_IKE_SA34_MN_HA0_AUTH      HMACSHA1    # authentication algorith
+
+#IPSEC_IKE_SA34_MN_HA0_LD        0           # lifetime of IPsecSA
+
+#-------------------------------------------------
+# IKEv1, IPsec SA5/SA6(NUT0<->HA0)
+#-------------------------------------------------
+IPSEC_IKE_SA56_MN_HA0_ID_PROTO  ICMP        # set IPsecSA based on RFC3776 (SA56 MN -> HA0)
+                                            #   ICMP: icmp header
+                                            #   NONE: no use
+
+IPSEC_IKE_SA56_MN_HA0_ESP_ALG   DES3CBC     # encapsulation algorithm
+
+IPSEC_IKE_SA56_MN_HA0_AUTH      HMACSHA1    # authentication algorith
+
+#IPSEC_IKE_SA56_MN_HA0_LD        0           # lifetime of IPsecSA
+
+#-------------------------------------------------
+# IKEv1, IPsec SA7/SA8(NUT0<->HA0)
+#-------------------------------------------------
+IPSEC_IKE_SA78_MN_HA0_ID_PROTO  NONE        # set IPsecSA based on RFC3776 (SA78 MN -> HA0)
+                                            #   X   : all tunnel
+                                            #   NONE: no use
+
+IPSEC_IKE_SA78_MN_HA0_ESP_ALG   DES3CBC     # encapsulation algorithm
+
+IPSEC_IKE_SA78_MN_HA0_AUTH      HMACSHA1    # authentication algorith
+
+#IPSEC_IKE_SA78_MN_HA0_LD        0           # lifetime of IPsecSA
+
+#-------------------------------------------------
+# IKEv1, ISAKMP SA(NUT0<->HA1)
+#-------------------------------------------------
+ISAKMP_MN_HA1_ENC_ALG           DES3CBC     # encapsulation algorithm
+
+ISAKMP_MN_HA1_HASH_ALG          HMACSHA1    # authentication algorithm
+
+ISAKMP_MN_HA1_GRP_DESC          GROUP1      # Oakley group
+
+#ISAKMP_MN_HA1_LD                0           # lifetime of isakmp
+
+ISAKMP_MN_HA1_TN_ID_TYPE        FQDN        # identification of ID payload 
+
+ISAKMP_MN_HA1_TN_ID             V6LC
+                                            # identification of ID payload 
+
+ISAKMP_MN_HA1_NUT_ID_TYPE       FQDN        # identification of ID payload 
+
+ISAKMP_MN_HA1_NUT_ID            V6LC
+                                            # identification of ID payload 
+
+ISAKMP_MN_HA1_PSK               V6LC-210--12345678901234
+                                            # Pre-shared Key
+
+#-------------------------------------------------
+# IKEv1, IPsec SA1/SA2(NUT0<->HA1)
+#-------------------------------------------------
+IPSEC_IKE_SA12_MN_HA1_ID_PROTO    MH        # set IPsecSA based on RFC3776 (SA12 MN -> HA1)
+
+IPSEC_IKE_SA12_MN_HA1_ESP_ALG     DES3CBC   # encapsulation algorithm
+
+IPSEC_IKE_SA12_MN_HA1_AUTH        HMACSHA1  # authentication algorith
+
+#IPSEC_IKE_SA12_MN_HA1_LD          0         # lifetime of IPsecSA
+
+#-------------------------------------------------
+# IKEv1, IPsec SA3/SA4(NUT0<->HA1)
+#-------------------------------------------------
+IPSEC_IKE_SA34_MN_HA1_ID_PROTO    MH        # set IPsecSA based on RFC3776 (SA34 MN -> HA1)
+
+IPSEC_IKE_SA34_MN_HA1_ESP_ALG     DES3CBC   # encapsulation algorithm
+
+IPSEC_IKE_SA34_MN_HA1_AUTH        HMACSHA1  # authentication algorith
+
+#IPSEC_IKE_SA34_MN_HA1_LD          0         # lifetime of IPsecSA
+
+#-------------------------------------------------
+# IKEv1, IPsec SA5/SA6(NUT0<->HA1)
+#-------------------------------------------------
+IPSEC_IKE_SA56_MN_HA1_ID_PROTO    ICMP      # set IPsecSA based on RFC3776 (SA56 MN -> HA1)
+
+IPSEC_IKE_SA56_MN_HA1_ESP_ALG     DES3CBC   # encapsulation algorithm
+
+IPSEC_IKE_SA56_MN_HA1_AUTH        HMACSHA1  # authentication algorithm
+
+#IPSEC_IKE_SA56_MN_HA1_LD          0         # lifetime of IPsecSA
+
+#-------------------------------------------------
+# IKEv1, IPsec SA7/SA8(NUT0<->HA1)
+#-------------------------------------------------
+IPSEC_IKE_SA78_MN_HA1_ID_PROTO    NONE      # set IPsecSA based on RFC3776 (SA78 MN -> HA1)
+
+IPSEC_IKE_SA78_MN_HA1_ESP_ALG     DES3CBC   # encapsulation algorithm
+
+IPSEC_IKE_SA78_MN_HA1_AUTH        HMACSHA1  # authentication algorith
+
+#IPSEC_IKE_SA78_MN_HA1_LD          0         # lifetime of IPsecSA
+
+#-------------------------------------------------
+# Others
+#-------------------------------------------------
+ENV_INITIALIZE      BOOT        # how to initialize NUT by each test
+                                #   BOOT  : reboot the NUT
+                                #   RETURN: execute returning home sequence
+                                #   NONE  : do not anything
+
+ENV_ENABLE_MOBILE   NO          # enable mobile function by each test.
+                                #   YES : enable mobile function
+                                #   NO  : do not anything
+
+ENV_IPSEC_SET       NO          # set IPsec by each test.
+                                #   YES: set IPsec
+                                #   NO : do not anything
+
+ENV_FIRST_RA_NUM    2           # the period which stays at the home link at the time of a test start
+                                #   about ((ENV_FIRST_RA_NUM + 1) * 3) seconds
+
+# End of File

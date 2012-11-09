@@ -1,0 +1,356 @@
+#
+# Copyright (C) IPv6 Promotion Council,
+# NIPPON TELEGRAPH AND TELEPHONE CORPORATION (NTT),
+# Yokogwa Electoric Corporation, YASKAWA INFORMATION SYSTEMS Corporation
+# and NTT Advanced Technology Corporation(NTT-AT) All rights reserved.
+# 
+# Technology Corporation.
+# 
+# Redistribution and use of this software in source and binary forms, with 
+# or without modification, are permitted provided that the following 
+# conditions and disclaimer are agreed and accepted by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright 
+# notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright 
+# notice, this list of conditions and the following disclaimer in the 
+# documentation and/or other materials provided with the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project which 
+# is related to this software (hereinafter referred to as "project") nor 
+# the names of the contributors may be used to endorse or promote products 
+# derived from this software without specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written 
+# notification to the copyrighters. However, using this software for the 
+# purpose of testing or evaluating any products including merchantable 
+# products may be permitted without any notification to the copyrighters.
+# 
+# 
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND 
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING 
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS 
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE 
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+# CONTRACT,STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF 
+# THE POSSIBILITY OF SUCH DAMAGE.
+#
+########################################################################
+#
+# $Name: NEMO_1_0_2 $
+#
+
+#--------------------------------------------------------------#
+&print:<B> 0. Basic Sequence</B>
+#--------------------------------------------------------------#
+#./NEMO-MR-0-0-0-1-001.seq:./mip6_mn_common.def:::NEMO-MR-0-0-0-1-001 - Mobile Router Operation-1:2
+#./NEMO-MR-0-0-0-2-001.seq:./mip6_mn_common.def:::NEMO-MR-0-0-0-2-001 - Mobile Router Operation-2:2
+
+#--------------------------------------------------------------#
+&print:<B> 1. Generate HoA</B>
+#--------------------------------------------------------------#
+
+#--------------------------------------------------------------#
+&print:<B> 2. Generate CoA</B>
+#--------------------------------------------------------------#
+#./NEMO-MR-3-2-1-1-001.seq:./mip6_mn_common.def:::NEMO-MR-3-2-1-1-001 - Generate CoA using RFC2462 at foreign-link:2
+
+#--------------------------------------------------------------#
+&print:<B> 3. Movement Detection</B>
+#--------------------------------------------------------------#
+#./NEMO-MR-3-3-1-1-003.seq:./mip6_mn_common.def:::NEMO-MR-3-3-1-1-003 - Use Neighbor Unreachability Detection (Target Address=global):2
+#./NEMO-MR-3-3-1-1-005.seq:./mip6_mn_common.def:::NEMO-MR-3-3-1-1-005 - Routers use the Router Address (R) bit (The link-local addresses of Routers are not globally unique):2
+#./NEMO-MR-3-3-1-1-002.seq:./mip6_mn_common.def:::NEMO-MR-3-3-1-1-002 - Use the old router when the old router is reachable:2
+#./NEMO-MR-3-3-1-1-004.seq:./mip6_mn_common.def:::NEMO-MR-3-3-1-1-004 - Invalidate CoA on the unreachable link:2
+
+#--------------------------------------------------------------#
+&print:<B> 4. Mobile Prefix Registration</B>
+#--------------------------------------------------------------#
+&print:<B> (1) Sending BU</B>
+#--------------------------------------------------------------#
+./NEMO-MR-2-1-1-1-001.seq:./mip6_mn_common.def:::NEMO-MR-2-1-1-1-001 - Sending BU (after moving from home):2
+#./NEMO-MR-2-1-1-1-002.seq:./mip6_mn_common.def:::NEMO-MR-2-1-1-1-002 - Valid BU (L = ON) when HoA (from HNP):2
+#./NEMO-MR-2-1-1-1-003.seq:./mip6_mn_common.def:::NEMO-MR-2-1-1-1-003 - Valid BU (L = OFF) when HoA (from MNP):2
+#./NEMO-MR-2-1-1-1-004.seq:./mip6_mn_common.def:::NEMO-MR-2-1-1-1-004 - Valid BU (K = OFF by manual key management):2
+#./NEMO-MR-2-1-1-1-006.seq:./mip6_mn_common.def:::NEMO-MR-2-1-1-1-006 - Valid Lifetime (Lifetime of HoA > Lifetime of CoA):2
+#./NEMO-MR-2-1-1-1-007.seq:./mip6_mn_common.def:::NEMO-MR-2-1-1-1-007 - Valid Lifetime (Lifetime of HoA < Lifetime of CoA):2
+#./NEMO-MR-2-1-1-1-008.seq:./mip6_mn_common.def:::NEMO-MR-2-1-1-1-008 - Sending BU (after the expiration of Mobile Network Prefix registration):2
+#./NEMO-MR-2-1-1-1-013.seq:./mip6_mn_common.def:::NEMO-MR-2-1-1-1-013 - Retransmissions & Back off (Use InitialBindackTimeoutFirstReg as the initial retransmission timer):2
+#./NEMO-MR-2-1-1-1-021.seq:./mip6_mn_common.def:::NEMO-MR-2-1-1-1-021 - Sending BU to another HA after home de-registration (by Receiving BA(status=0 & R = OFF)):2
+
+#--------------------------------------------------------------#
+&print:<B> (2) Receiving BA</B>
+#--------------------------------------------------------------#
+./NEMO-MR-2-2-1-1-001.seq:./mip6_mn_common.def:::NEMO-MR-2-2-1-1-001 - BU accepted (Status = 0 & R = ON):2
+#./NEMO-MR-2-2-1-1-039.seq:./mip6_mn_common.def:::NEMO-MR-2-2-1-1-039 - BU accepted (Invalid Mobility Header Reserved):2
+#./NEMO-MR-2-2-1-1-014.seq:./mip6_mn_common.def:::NEMO-MR-2-2-1-1-014 - BU accepted (K = OFF by manual key management):2
+#./NEMO-MR-2-2-1-1-020.seq:./mip6_mn_common.def:::NEMO-MR-2-2-1-1-020 - Valid Lifetime (Lifetime of BA < Lifetime of BU):2
+#./NEMO-MR-2-2-1-1-026.seq:./mip6_mn_common.def:::NEMO-MR-2-2-1-1-026 - Valid Lifetime (Refresh Interval of BA < Lifetime of BU):2
+#./NEMO-MR-2-2-1-1-040.seq:./mip6_mn_common.def:::NEMO-MR-2-2-1-1-040 - BU accepted (Status = 0 & R = OFF):2
+#./NEMO-MR-2-2-1-1-041.seq:./mip6_mn_common.def:::NEMO-MR-2-2-1-1-041 - BU accepted (Status = 1 & R = OFF):2
+#./NEMO-MR-2-2-1-1-042.seq:./mip6_mn_common.def:::NEMO-MR-2-2-1-1-042 - BU accepted (Status = 127 & R = OFF):2
+#./NEMO-MR-2-2-1-1-060.seq:./mip6_mn_common.def:::NEMO-MR-2-2-1-1-060 - BU accepted (Status = 0 & R = OFF)by HA0(turn off MR support):2
+#./NEMO-MR-2-2-1-1-061.seq:./mip6_mn_common.def:::NEMO-MR-2-2-1-1-061 - BU accepted (Status = 1 & R = OFF)by HA0(turn off MR support):2
+#./NEMO-MR-2-2-1-1-062.seq:./mip6_mn_common.def:::NEMO-MR-2-2-1-1-062 - BU accepted (Status = 2-127 & R = OFF)by HA0(turn off MR support):2
+#./NEMO-MR-2-2-1-1-003.seq:./mip6_mn_common.def:::NEMO-MR-2-2-1-1-003 - BU rejected (Status = 128):2
+#./NEMO-MR-2-2-1-1-004.seq:./mip6_mn_common.def:::NEMO-MR-2-2-1-1-004 - BU rejected (Status = 129):2
+#./NEMO-MR-2-2-1-1-005.seq:./mip6_mn_common.def:::NEMO-MR-2-2-1-1-005 - BU rejected (Status = 130):2
+#./NEMO-MR-2-2-1-1-006.seq:./mip6_mn_common.def:::NEMO-MR-2-2-1-1-006 - BU rejected (Status = 131):2
+#./NEMO-MR-2-2-1-1-007.seq:./mip6_mn_common.def:::NEMO-MR-2-2-1-1-007 - BU rejected (Status = 132):2
+#./NEMO-MR-2-2-1-1-009.seq:./mip6_mn_common.def:::NEMO-MR-2-2-1-1-009 - BU rejected (Status = 134):2
+#./NEMO-MR-2-2-1-1-010.seq:./mip6_mn_common.def:::NEMO-MR-2-2-1-1-010 - BU rejected (Status = 135):2
+#./NEMO-MR-2-2-1-1-043.seq:./mip6_mn_common.def:::NEMO-MR-2-2-1-1-043 - BU rejected (Status = 140) when single HA in home-link:2
+#./NEMO-MR-2-2-1-1-044.seq:./mip6_mn_common.def:::NEMO-MR-2-2-1-1-044 - BU rejected (Status = 140) when multiple HA in home-link:2
+#./NEMO-MR-2-2-1-1-045.seq:./mip6_mn_common.def:::NEMO-MR-2-2-1-1-045 - Implicit mode BU rejected (Status = 141). Therefore, Don't send Implicit mode BU to same HA(when single HA in home-link):2
+#./NEMO-MR-2-2-1-1-046.seq:./mip6_mn_common.def:::NEMO-MR-2-2-1-1-046 - Implicit mode BU rejected (Status = 141). Therefore, Send Implicit mode BU to other HA(when multiple HA in home-link):2
+#./NEMO-MR-2-2-1-1-047.seq:./mip6_mn_common.def:::NEMO-MR-2-2-1-1-047 - Explicit mode BU rejected (Status = 141) when single HA in home-link:2
+#./NEMO-MR-2-2-1-1-048.seq:./mip6_mn_common.def:::NEMO-MR-2-2-1-1-048 - Explicit mode BU rejected (Status = 141) when multiple HA in home-link:2
+#./NEMO-MR-2-2-1-1-049.seq:./mip6_mn_common.def:::NEMO-MR-2-2-1-1-049 - Explicit mode BU rejected (Status = 141). Therefore, Send Implicit mode BU to same HA(when single HA in home-link and mode changed enable):2
+#./NEMO-MR-2-2-1-1-050.seq:./mip6_mn_common.def:::NEMO-MR-2-2-1-1-050 - Implicit mode BU rejected (Status = 142) when single HA in home-link:2
+#./NEMO-MR-2-2-1-1-051.seq:./mip6_mn_common.def:::NEMO-MR-2-2-1-1-051 - Implicit mode BU rejected (Status = 142) when multiple HA in home-link:2
+#./NEMO-MR-2-2-1-1-052.seq:./mip6_mn_common.def:::NEMO-MR-2-2-1-1-052 - Explicit mode BU rejected (Status = 142) when single HA in home-link:2
+#./NEMO-MR-2-2-1-1-053.seq:./mip6_mn_common.def:::NEMO-MR-2-2-1-1-053 - Explicit mode BU rejected (Status = 142) when multiple HA in home-link:2
+#./NEMO-MR-2-2-1-1-054.seq:./mip6_mn_common.def:::NEMO-MR-2-2-1-1-054 - Explicit mode BU rejected (Status = 142). Therefore, Send Implicit mode BU to same HA(when single HA in home-link and mode changed enable):2
+#./NEMO-MR-2-2-1-1-055.seq:./mip6_mn_common.def:::NEMO-MR-2-2-1-1-055 - Implicit mode BU rejected (Status = 143) when single HA in home-link:2
+#./NEMO-MR-2-2-1-1-056.seq:./mip6_mn_common.def:::NEMO-MR-2-2-1-1-056 - Implicit mode BU rejected (Status = 143) when multiple HA in home-link:2
+#./NEMO-MR-2-2-1-1-057.seq:./mip6_mn_common.def:::NEMO-MR-2-2-1-1-057 - Implicit mode BU rejected (Status = 143). Therefore, Send Explicit mode BU to same HA(when single HA in home-link and mode changed enable):2
+#./NEMO-MR-2-2-1-1-058.seq:./mip6_mn_common.def:::NEMO-MR-2-2-1-1-058 - Explicit mode BU rejected (Status = 143) when single HA in home-link:2
+#./NEMO-MR-2-2-1-1-059.seq:./mip6_mn_common.def:::NEMO-MR-2-2-1-1-059 - Explicit mode BU rejected (Status = 143) when multiple HA in home-link:2
+#./NEMO-MR-2-2-1-1-035.seq:./mip6_mn_common.def:::NEMO-MR-2-2-1-1-035 - BU rejected (Status = 255):2
+#./NEMO-MR-2-2-1-1-016.seq:./mip6_mn_common.def:::NEMO-MR-2-2-1-1-016 - Valid Sequence Number (Status = 135 & Sequence Number=65535):2
+#./NEMO-MR-2-2-1-1-017.seq:./mip6_mn_common.def:::NEMO-MR-2-2-1-1-017 - Invalid Sequence Number (BA != BU):2
+./NEMO-MR-2-2-1-1-038.seq:./mip6_mn_common.def:::NEMO-MR-2-2-1-1-038 - BA which is not protected by IPsec:2
+
+#--------------------------------------------------------------#
+&print:<B> 5. Mobile Network Prefix Re-Registration</B>
+#--------------------------------------------------------------#
+&print:<B> (1) Sending BU</B>
+#--------------------------------------------------------------#
+./NEMO-MR-2-1-2-1-001.seq:./mip6_mn_common.def:::NEMO-MR-2-1-2-1-001 - Sending BU (after moving from foreign to foreign):2
+#./NEMO-MR-2-1-2-1-004.seq:./mip6_mn_common.def:::NEMO-MR-2-1-2-1-004 - Sending BU (before the expiration of Mobile Network Prefix registration):2
+#./NEMO-MR-2-1-2-1-005.seq:./mip6_mn_common.def:::NEMO-MR-2-1-2-1-005 - Sending BU (when the lifetime for a changed prefix decreases):2
+#./NEMO-MR-2-1-2-1-006.seq:./mip6_mn_common.def:::NEMO-MR-2-1-2-1-006 - Retransmissions & Back off (Use INITIAL_BINDACK_TIMEOUT as the initial retransmission timer):2
+
+#--------------------------------------------------------------#
+#&print:<B> (2) Receiving BA</B>
+#--------------------------------------------------------------#
+
+#--------------------------------------------------------------#
+&print:<B> 6. Returning Home</B>
+#--------------------------------------------------------------#
+&print:<B> (1) Sending BU</B>
+#--------------------------------------------------------------#
+#./NEMO-MR-2-1-3-1-007.seq:./mip6_mn_common.def:::NEMO-MR-2-1-3-1-007 - Sending Neighbor Solicitation for the home agent's address(HoA(from HNP)):2
+#./NEMO-MR-2-1-3-1-008.seq:./mip6_mn_common.def:::NEMO-MR-2-1-3-1-008 - Sending Neighbor Solicitation for the home agent's address(HoA(from MNP)):2
+./NEMO-MR-2-1-3-1-001.seq:./mip6_mn_common.def:::NEMO-MR-2-1-3-1-001 - Sending BU of de-registration:2
+#./NEMO-MR-2-1-3-1-009.seq:./mip6_mn_common.def:::NEMO-MR-2-1-3-1-009 - Sending BU of Home de-registration by Receiving BA(status=0 & R = OFF):2
+
+#--------------------------------------------------------------#
+&print:<B> (2) Receiving BA</B>
+#--------------------------------------------------------------#
+#./NEMO-MR-2-2-2-1-027.seq:./mip6_mn_common.def:::NEMO-MR-2-2-2-1-027 - Receiving Neighbor Solicitations for home address:2
+./NEMO-MR-2-2-2-1-001.seq:./mip6_mn_common.def:::NEMO-MR-2-2-2-1-001 - BU of de-registration accepted (Status = 0):2
+#./NEMO-MR-2-2-2-1-008.seq:./mip6_mn_common.def:::NEMO-MR-2-2-2-1-008 - BU of de-registration rejected (Status = 133):2
+
+#--------------------------------------------------------------#
+&print:<B> (3) Neighbor Discovery</B>
+#--------------------------------------------------------------#
+#./NEMO-MR-3-4-1-1-001.seq:./mip6_mn_common.def:::NEMO-MR-3-4-1-1-001 - Sending NA (Target Address = link-layer address):2
+#./NEMO-MR-3-4-1-1-002.seq:./mip6_mn_common.def:::NEMO-MR-3-4-1-1-002 - Returning home (after the expiration of Mobile Network Prefix registration):2
+
+#--------------------------------------------------------------#
+&print:<B> 7. Neighbor Discovery</B>
+#--------------------------------------------------------------#
+&print:<B> (1) Sending RA by Ingress interface</B>
+#--------------------------------------------------------------#
+#./NEMO-MR-1-2-1-4-007.seq:./mip6_mn_common.def:::NEMO-MR-1-2-1-4-007 - Sending RA(when receiving RS(dst address = all-router multicast address)) on the ingress interface in home-link:2
+#./NEMO-MR-1-2-1-4-008.seq:./mip6_mn_common.def:::NEMO-MR-1-2-1-4-008 - Sending RA(when receiving RS(dst address = global address)) on the ingress interface in home-link:2
+#./NEMO-MR-1-2-1-4-009.seq:./mip6_mn_common.def:::NEMO-MR-1-2-1-4-009 - Sending RA(when receiving RS(dst address = link-local address)) on the ingress interface in home-link:2
+#./NEMO-MR-1-2-1-4-010.seq:./mip6_mn_common.def:::NEMO-MR-1-2-1-4-010 - Sending RA(when receiving RS(dst address = all-router multicast address)) on the ingress interface in  foreign-link:2
+#./NEMO-MR-1-2-1-4-011.seq:./mip6_mn_common.def:::NEMO-MR-1-2-1-4-011 - Sending RA(when receiving RS(dst address = global address)) on the ingress interface in foreign-link:2
+#./NEMO-MR-1-2-1-4-012.seq:./mip6_mn_common.def:::NEMO-MR-1-2-1-4-012 - Sending RA(when receiving RS(dst address = link-local address)) on the ingress interface in foreign-link:2
+
+#--------------------------------------------------------------#
+&print:<B> (2) Sending RA by Egress interface</B>
+#--------------------------------------------------------------#
+#./NEMO-MR-1-2-1-4-001.seq:./mip6_mn_common.def:::NEMO-MR-1-2-1-4-001 - Sending RA(when receiving RS(dst address = all-router multicast address)) on the egress interface in home-link:2
+#./NEMO-MR-1-2-1-4-002.seq:./mip6_mn_common.def:::NEMO-MR-1-2-1-4-002 - Sending RA(when receiving RS(dst address = global address)) on the egress interface in home-link:2
+#./NEMO-MR-1-2-1-4-003.seq:./mip6_mn_common.def:::NEMO-MR-1-2-1-4-003 - Sending RA(when receiving RS(dst address = link-local address)) on the egress interface in home-link:2
+#./NEMO-MR-1-2-1-4-004.seq:./mip6_mn_common.def:::NEMO-MR-1-2-1-4-004 - Sending RA(after progress of advertising interval) on the egress interface in home-link:2
+#./NEMO-MR-1-2-1-4-006.seq:./mip6_mn_common.def:::NEMO-MR-1-2-1-4-006 - Don't send RA(after progress of advertising interval) on the egress interface in foreign-link:2
+#./NEMO-MR-1-2-1-4-013.seq:./mip6_mn_common.def:::NEMO-MR-1-2-1-4-013 - Sending RA(when receiving RS(dst address = all-router multicast address)) on the egress interface in returning home-link:2
+#./NEMO-MR-1-2-1-4-014.seq:./mip6_mn_common.def:::NEMO-MR-1-2-1-4-014 - Sending RA(when receiving RS(dst address = global address)) on the egress interface in returning home-link:2
+#./NEMO-MR-1-2-1-4-015.seq:./mip6_mn_common.def:::NEMO-MR-1-2-1-4-015 - Sending RA(when receiving RS(dst address = link-local address)) on the egress interface in returning home-link:2
+#./NEMO-MR-1-2-1-4-016.seq:./mip6_mn_common.def:::NEMO-MR-1-2-1-4-016 - Sending RA(after progress of advertising interval) on the egress interface in returning home-link:2
+
+#--------------------------------------------------------------#
+&print:<B> (3) Receiving RS by Egress interface</B>
+#--------------------------------------------------------------#
+#./NEMO-MR-1-1-1-4-002.seq:./mip6_mn_common.def:::NEMO-MR-1-1-1-4-002 - Discard receiving RS(dst address = all-router multicast address) on the egress interface in home-link:2
+#./NEMO-MR-1-1-1-4-010.seq:./mip6_mn_common.def:::NEMO-MR-1-1-1-4-010 - Discard receiving RS(dst address = global address) on the egress interface in home-link:2
+#./NEMO-MR-1-1-1-4-011.seq:./mip6_mn_common.def:::NEMO-MR-1-1-1-4-011 - Discard receiving RS(dst address = link-local address) on the egress interface in home-link:2
+#./NEMO-MR-1-1-1-4-003.seq:./mip6_mn_common.def:::NEMO-MR-1-1-1-4-003 - Discard receiving RS(dst address = all-router multicast address) on the egress interface in foreign-link:2
+#./NEMO-MR-1-1-1-4-007.seq:./mip6_mn_common.def:::NEMO-MR-1-1-1-4-007 - Discard receiving RS(dst address = global address) at foreign-link:2
+#./NEMO-MR-1-1-1-4-009.seq:./mip6_mn_common.def:::NEMO-MR-1-1-1-4-009 - Discard receiving RS(dst address = link-local address) at foreign-link:2
+
+#--------------------------------------------------------------#
+&print:<B> (4) Sending NA by Egress interface</B>
+#--------------------------------------------------------------#
+#./NEMO-MR-1-4-1-4-001.seq:./mip6_mn_common.def:::NEMO-MR-1-4-1-4-001 - Sending NA(when receiving DAD-NS(Target address = global address of nut0)) on the egress interface in home-link:2
+#./NEMO-MR-1-4-1-4-002.seq:./mip6_mn_common.def:::NEMO-MR-1-4-1-4-002 - Sending NA(when receiving DAD-NS(Target address = link-local(egress of nut0))) on the egress interface in home-link:2
+#./NEMO-MR-1-4-1-4-003.seq:./mip6_mn_common.def:::NEMO-MR-1-4-1-4-003 - Sending NA(when receiving AR-NS(Target address = global(egress of nut0))) on the egress interface in home-link:2
+#./NEMO-MR-1-4-1-4-004.seq:./mip6_mn_common.def:::NEMO-MR-1-4-1-4-004 - Sending NA(when receiving AR-NS(Target address = link-local(egress of nut0))) on the egress interface in home-link:2
+#./NEMO-MR-1-4-1-4-006.seq:./mip6_mn_common.def:::NEMO-MR-1-4-1-4-006 - Sending NA(when receiving DAD-NS(Target address = global(CoA))) on the egress interface in foreign-link:2
+#./NEMO-MR-1-4-1-4-007.seq:./mip6_mn_common.def:::NEMO-MR-1-4-1-4-007 - Sending NA(when receiving DAD-NS(Target address = link-local(egress of nutx))) on the egress interface in foreign-link:2
+#./NEMO-MR-1-4-1-4-009.seq:./mip6_mn_common.def:::NEMO-MR-1-4-1-4-009 - Sending NA(when receiving AR-NS(Target address = global(CoA))) on the egress interface in foreign-link:2
+#./NEMO-MR-1-4-1-4-010.seq:./mip6_mn_common.def:::NEMO-MR-1-4-1-4-010 - Sending NA(when receiving AR-NS(Target address = link-local(egress of nutx))) on the egress interface in foreign-link:2
+
+#--------------------------------------------------------------#
+&print:<B> (5) Receiving NS by Egress interface</B>
+#--------------------------------------------------------------#
+#./NEMO-MR-1-3-2-4-010.seq:./mip6_mn_common.def:::NEMO-MR-1-3-2-4-010 - Discard receiving AR-NS(Target address = global(HoA)) on the egress interface in foreign-link:2
+#./NEMO-MR-1-3-2-4-007.seq:./mip6_mn_common.def:::NEMO-MR-1-3-2-4-007 - Discard receiving DAD(Target address = global(HoA)) on the egress interface in foreign-link:2
+
+#--------------------------------------------------------------#
+&print:<B> 8. Dynamic Home Agent Address Discovery</B>
+#--------------------------------------------------------------#
+&print:<B> (1) Sending HAAD-Request</B>
+#--------------------------------------------------------------#
+#./NEMO-MR-5-1-1-1-001.seq:./mip6_mn_common.def:::NEMO-MR-5-1-1-1-001 - Sending HAAD-Request at home-link:2
+#./NEMO-MR-5-1-1-1-005.seq:./mip6_mn_common.def:::NEMO-MR-5-1-1-1-005 - Sending HAAD-Request at foreign-link:2
+#./NEMO-MR-5-1-1-1-006.seq:./mip6_mn_common.def:::NEMO-MR-5-1-1-1-006 - Retransmissions & Back off (Use INITIAL_DHAAD_TIMEOUT as the initial retransmission timer):2
+
+#--------------------------------------------------------------#
+&print:<B> (2) Receiving HAAD-Reply</B>
+#--------------------------------------------------------------#
+#./NEMO-MR-5-1-2-1-002.seq:./mip6_mn_common.def:::NEMO-MR-5-1-2-1-002 - Receiving HAAD-Reply at home-link:2
+./NEMO-MR-5-1-2-1-016.seq:./mip6_mn_common.def:::NEMO-MR-5-1-2-1-016 - Receiving HAAD-Reply at foreign-link:2
+#./NEMO-MR-5-1-2-1-021.seq:./mip6_mn_common.def:::NEMO-MR-5-1-2-1-021 - Receiving HAAD-Reply (Invalid ICMP Header Reserved):2
+#./NEMO-MR-5-1-2-1-026.seq:./mip6_mn_common.def:::NEMO-MR-5-1-2-1-026 - Receiving HAAD-Reply from the 1st HA of HAAD-Reply(1st=HA0 & 2nd = HA1):2
+#./NEMO-MR-5-1-2-1-032.seq:./mip6_mn_common.def:::NEMO-MR-5-1-2-1-032 - Receiving HAAD-Reply(R = ON & HA(MR supported))from HA(MR not supported):2
+./NEMO-MR-5-1-2-1-027.seq:./mip6_mn_common.def:::NEMO-MR-5-1-2-1-027 - Receiving HAAD-Reply from the 2nd HA of HAAD-Reply(1st=HA1 & 2nd = HA0):2
+#./NEMO-MR-5-1-2-1-028.seq:./mip6_mn_common.def:::NEMO-MR-5-1-2-1-028 - Trying instead the next home agent returned during dynamic home agent address discovery:2
+#./NEMO-MR-5-1-2-1-029.seq:./mip6_mn_common.def:::NEMO-MR-5-1-2-1-029 - Sending BU to the 2nd HA of HAAD-Reply(1st=HA0(failed in binding) & 2nd = HA1):2
+#./NEMO-MR-5-1-2-1-030.seq:./mip6_mn_common.def:::NEMO-MR-5-1-2-1-030 - Receiving HAAD-Reply(R = OFF by NEMO not supported):2
+#./NEMO-MR-5-1-2-1-031.seq:./mip6_mn_common.def:::NEMO-MR-5-1-2-1-031 - Receiving HAAD-Reply(R = OFF by NEMO not supported & 1st = HA0 & 2nd = HA1):2
+
+#--------------------------------------------------------------#
+&print:<B> 9. Mobile Prefix Discovery</B>
+#--------------------------------------------------------------#
+&print:<B> (1) Sending MPS</B>
+#--------------------------------------------------------------#
+#./NEMO-MR-4-1-1-1-001.seq:./mip6_mn_common.def:::NEMO-MR-4-1-1-1-001 - Sending MPS (before the HoA becomes invalid):2
+./NEMO-MR-4-1-1-1-002.seq:./mip6_mn_common.def:::NEMO-MR-4-1-1-1-002 - Sending MPS (after receiving unsolicited MPA):2
+#./NEMO-MR-4-1-1-1-004.seq:./mip6_mn_common.def:::NEMO-MR-4-1-1-1-004 - Retransmissions & Back off (Use INITIAL_SOLICIT_TIMER as the initial retransmission timer):2
+
+#--------------------------------------------------------------#
+&print:<B> (2) Receiving MPA</B>
+#--------------------------------------------------------------#
+./NEMO-MR-4-2-1-1-001.seq:./mip6_mn_common.def:::NEMO-MR-4-2-1-1-001 - Receiving solicited MPA:2
+#./NEMO-MR-4-2-1-1-015.seq:./mip6_mn_common.def:::NEMO-MR-4-2-1-1-015 - Receiving solicited MPA (Invalid ICMP Header Reserved):2
+#./NEMO-MR-4-2-1-1-004.seq:./mip6_mn_common.def:::NEMO-MR-4-2-1-1-004 - Valid solicited MPA (the change of Valid and Preferred Lifetime):2
+#./NEMO-MR-4-2-1-1-012.seq:./mip6_mn_common.def:::NEMO-MR-4-2-1-1-012 - Receiving solicited MPA from unknown HA:2
+#./NEMO-MR-4-2-1-1-013.seq:./mip6_mn_common.def:::NEMO-MR-4-2-1-1-013 - Invalid solicited MPA (no Type2 Routing Header):2
+#./NEMO-MR-4-2-1-1-014.seq:./mip6_mn_common.def:::NEMO-MR-4-2-1-1-014 - Invalid Identifier (MPS != MPA):2
+#./NEMO-MR-4-2-1-1-019.seq:./mip6_mn_common.def:::NEMO-MR-4-2-1-1-019 - Unrecognized option (the option other than Prefix Information option):2
+
+#--------------------------------------------------------------#
+&print:<B>10. Binding Error</B>
+#--------------------------------------------------------------#
+&print:<B> (1) Sending BE</B>
+#--------------------------------------------------------------#
+./NEMO-MR-6-2-1-1-003.seq:./mip6_mn_common.def:::NEMO-MR-6-2-1-1-003 - Receiving invalid BA (invalid MH Type) from HA:2
+
+#--------------------------------------------------------------#
+&print:<B> (2) Receiving BE</B>
+#--------------------------------------------------------------#
+
+#--------------------------------------------------------------#
+&print:<B>11. ICMP Error</B>
+#--------------------------------------------------------------#
+&print:<B> (1) Sending ICMP ERROR</B>
+#--------------------------------------------------------------#
+#./NEMO-MR-6-2-1-1-001.seq:./mip6_mn_common.def:::NEMO-MR-6-2-1-1-001 - Receiving invalid BA (Payload Proto != IPPROTO_NONE) from HA:2
+#./NEMO-MR-6-2-1-1-002.seq:./mip6_mn_common.def:::NEMO-MR-6-2-1-1-002 - Receiving invalid BA (Header Len != 1) from HA:2
+#./NEMO-MR-6-2-1-1-004.seq:./mip6_mn_common.def:::NEMO-MR-6-2-1-1-004 - Receiving invalid BA (invalid checksum) from HA:2
+
+#--------------------------------------------------------------#
+&print:<B> (2) Receiving ICMP ERROR</B>
+#--------------------------------------------------------------#
+#./NEMO-MR-6-2-2-1-001.seq:./mip6_mn_common.def:::NEMO-MR-6-2-2-1-001 - Receiving ICMP error (Code = 1) after sending BU to HA:2
+
+#--------------------------------------------------------------#
+&print:<B>12. Payload Packet</B>
+#--------------------------------------------------------------#
+&print:<B> (1) Sending Payload Packet</B>
+#--------------------------------------------------------------#
+#./NEMO-MR-4-1-1-2-001.seq:./mip6_mn_common.def:::NEMO-MR-4-1-1-2-001 - Sending the packets via HA:2
+#./NEMO-MR-4-1-1-2-004.seq:./mip6_mn_common.def:::NEMO-MR-4-1-1-2-004 - Sending the packets while it is at home-link:2
+#./NEMO-MR-4-1-1-2-006.seq:./mip6_mn_common.def:::NEMO-MR-4-1-1-2-006 - Sending Neighbor Discovery message (does not use home address destination option):2
+
+#--------------------------------------------------------------#
+&print:<B>    (2) Receiving Payload Packet</B>
+#--------------------------------------------------------------#
+#./NEMO-MR-4-1-2-2-001.seq:./mip6_mn_common.def:::NEMO-MR-4-1-2-2-001 - Receiving the packets via HA from anyware node in foreign-link:2
+#./NEMO-MR-4-1-2-2-007.seq:./mip6_mn_common.def:::NEMO-MR-4-1-2-2-007 - Receiving the packets in home-link:2
+#./NEMO-MR-4-1-2-2-006.seq:./mip6_mn_common.def:::NEMO-MR-4-1-2-2-006 - Receiving the packets (link-local address) in foreign-link:2
+
+#--------------------------------------------------------------#
+&print:<B>    (3) Forwarding Payload Packet(Visited Network to Mobile Network)</B>
+#--------------------------------------------------------------#
+./NEMO-MR-2-1-1-4-002.seq:./mip6_mn_common.def:::NEMO-MR-2-1-1-4-002 - Forwarding BA(IPsec-trancsport packet) HA-VMN to VMN:2
+./NEMO-MR-2-1-1-4-005.seq:./mip6_mn_common.def:::NEMO-MR-2-1-1-4-005 - Forwarding HoT(IPsec-tunnel packet) HA-VMN to VMN:2
+./NEMO-MR-2-1-1-4-012.seq:./mip6_mn_common.def:::NEMO-MR-2-1-1-4-012 - Sending ICMP ECHO Request CN to HoA of MR:2
+#./NEMO-MR-2-1-1-4-013.seq:./mip6_mn_common.def:::NEMO-MR-2-1-1-4-013 - Don't forwarding ICMP ECHO Request HA-MR to LFN(when Mobile Network Prefix registration failer):2
+
+#--------------------------------------------------------------#
+&print:<B>    (4) Forwarding Payload Packet(Mobile Network to Visited Network)</B>
+#--------------------------------------------------------------#
+./NEMO-MR-2-2-1-4-006.seq:./mip6_mn_common.def:::NEMO-MR-2-2-1-4-006 - Forwarding HoTI(IPsec-tunnel) VMN to HA-VMN by reversed tunnel:2
+#./NEMO-MR-2-2-1-4-013.seq:./mip6_mn_common.def:::NEMO-MR-2-2-1-4-013 - Don't forwarding ICMP ECHO Request LFN to CN(when src address != Mobile Network Prefix):2
+#./NEMO-MR-2-2-1-4-014.seq:./mip6_mn_common.def:::NEMO-MR-2-2-1-4-014 - Don't forwarding ICMP ECHO Request LFN to CN(when src address = Ingress interface address of MR):2
+#./NEMO-MR-2-2-1-4-015.seq:./mip6_mn_common.def:::NEMO-MR-2-2-1-4-015 - Don't forwarding ICMP ECHO Request LFN to CN(when IP-in-IP tunnel packet outer-src address != Mobile Network Prefix):2
+#./NEMO-MR-2-2-1-4-016.seq:./mip6_mn_common.def:::NEMO-MR-2-2-1-4-016 - Don't forwarding ICMP ECHO Request LFN to CN(when IP-in-IP tunnel packet outer-src address = Ingress interface address of MR):2
+#./NEMO-MR-2-2-1-4-017.seq:./mip6_mn_common.def:::NEMO-MR-2-2-1-4-017 - Don't forwarding ICMP ECHO Request LFN to CN(when IP-in-IP tunnel packet inner-src address != Mobile Network Prefix):2
+#./NEMO-MR-2-2-1-4-018.seq:./mip6_mn_common.def:::NEMO-MR-2-2-1-4-018 - Don't forwarding ICMP ECHO Request LFN to CN(when IP-in-IP tunnel packet inner-src address = Ingress interface address of MR):2
+
+#--------------------------------------------------------------#
+&print:<B>13. IPsec SA</B>
+#--------------------------------------------------------------#
+&print:<B>13.1 manual configuration</B>
+#--------------------------------------------------------------#
+./NEMO-MR-1-1-2-1-001.seq:./mip6_mn_common.def:::NEMO-MR-1-1-2-1-001 - Use the manual configuration of security association between MN and HA:2
+
+#--------------------------------------------------------------#
+&print:<B>13.2 auto configuration</B>
+#--------------------------------------------------------------#
+&print:<B> (1) Binding Updates and Acknowledgements</B>
+#--------------------------------------------------------------#
+#./NEMO-MR-1-2-1-1-001.seq:./mip6_mn_common.def:::NEMO-MR-1-2-1-1-001 - Sending BU (Establishing New SA1/SA2):2
+#./NEMO-MR-1-2-1-1-002.seq:./mip6_mn_common.def:::NEMO-MR-1-2-1-1-002 - Sending BU (Foreign -> Stay, ISAKMP SA expired, IPsec SA1/SA2 expired):2
+#./NEMO-MR-1-2-1-1-004.seq:./mip6_mn_common.def:::NEMO-MR-1-2-1-1-004 - Sending BU (Foreign -> Stay, ISAKMP SA exist, IPsec SA1/SA2 expired):2
+#./NEMO-MR-1-2-1-1-012.seq:./mip6_mn_common.def:::NEMO-MR-1-2-1-1-012 - Sending BU (Foreign -> Foreign -> Stay, ISAKMP SA discard, IPsec SA1/SA2 expired):2
+#./NEMO-MR-1-2-1-1-014.seq:./mip6_mn_common.def:::NEMO-MR-1-2-1-1-014 - Sending BU (Foreign -> Foreign -> Stay, ISAKMP SA update, IPsec SA1/SA2 expired):2
+#./NEMO-MR-1-2-1-1-022.seq:./mip6_mn_common.def:::NEMO-MR-1-2-1-1-022 - Sending BU (Foreign -> Home -> Foreign, ISAKMP SA expired, IPsec SA1/SA2 expired):2
+#./NEMO-MR-1-2-1-1-024.seq:./mip6_mn_common.def:::NEMO-MR-1-2-1-1-024 - Sending BU (Foreign -> Home -> Foreign, ISAKMP SA exist, IPsec SA1/SA2 expired):2
+#./NEMO-MR-1-2-1-1-025.seq:./mip6_mn_common.def:::NEMO-MR-1-2-1-1-025 - Sending BU (Foreign -> Home -> Foreign, IPsec SA1/SA2 exist):2
+
+#--------------------------------------------------------------#
+&print:<B> (2) Prefix Discovery</B>
+#--------------------------------------------------------------#
+#./NEMO-MR-1-2-3-1-018.seq:./mip6_mn_common.def:::NEMO-MR-1-2-3-1-018 - Sending MPS (Establishing New SA5/SA6):2
+#./NEMO-MR-1-2-3-1-022.seq:./mip6_mn_common.def:::NEMO-MR-1-2-3-1-022 - Sending MPS (Foreign -> Stay, ISAKMP SA expired, IPsec SA5/SA6 expired):2
+#./NEMO-MR-1-2-3-1-023.seq:./mip6_mn_common.def:::NEMO-MR-1-2-3-1-023 - Sending MPS (Foreign -> Foreign -> Stay, ISAKMP SA discard, IPsec SA5/SA6 expired):2
+#./NEMO-MR-1-2-3-1-024.seq:./mip6_mn_common.def:::NEMO-MR-1-2-3-1-024 - Sending MPS (Foreign -> Foreign -> Stay, ISAKMP SA update, IPsec SA5/SA6 expired):2
+#./NEMO-MR-1-2-3-1-019.seq:./mip6_mn_common.def:::NEMO-MR-1-2-3-1-019 - Sending MPS (Foreign -> Home -> Foreign, ISAKMP SA expired, IPsec SA5/SA6 expired):2
+#./NEMO-MR-1-2-3-1-020.seq:./mip6_mn_common.def:::NEMO-MR-1-2-3-1-020 - Sending MPS (Foreign -> Home -> Foreign, ISAKMP SA exist, IPsec SA5/SA6 expired):2
+#./NEMO-MR-1-2-3-1-021.seq:./mip6_mn_common.def:::NEMO-MR-1-2-3-1-021 - Sending MPS (Foreign -> Home -> Foreign, IPsec SA5/SA6 exist):2
+
+# End of File

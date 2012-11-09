@@ -1,0 +1,755 @@
+#!/usr/bin/perl
+#
+# Copyright (C) IPv6 Promotion Council,
+# NIPPON TELEGRAPH AND TELEPHONE CORPORATION (NTT),
+# Yokogwa Electoric Corporation, YASKAWA INFORMATION SYSTEMS Corporation
+# and NTT Advanced Technology Corporation(NTT-AT) All rights reserved.
+# 
+# Technology Corporation.
+# 
+# Redistribution and use of this software in source and binary forms, with 
+# or without modification, are permitted provided that the following 
+# conditions and disclaimer are agreed and accepted by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright 
+# notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright 
+# notice, this list of conditions and the following disclaimer in the 
+# documentation and/or other materials provided with the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project which 
+# is related to this software (hereinafter referred to as "project") nor 
+# the names of the contributors may be used to endorse or promote products 
+# derived from this software without specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written 
+# notification to the copyrighters. However, using this software for the 
+# purpose of testing or evaluating any products including merchantable 
+# products may be permitted without any notification to the copyrighters.
+# 
+# 
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND 
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING 
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS 
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE 
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+# CONTRACT,STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF 
+# THE POSSIBILITY OF SUCH DAMAGE.
+#
+
+#--------------------------------------------------------------#
+# ENTRANCE
+#--------------------------------------------------------------#
+# Set the test version used for the display.
+BEGIN { $V6evalTool::TestVersion = '$Name: NEMO_1_0_2 $'; }
+
+# Import the package.
+use V6evalTool;
+use mip6_mn_config;
+use mip6_mn_common;
+use mip6_mn_get;
+use mip6_mn_send;
+use mip6_mn_neighbor;
+use mip6_mn_recv;
+use mip6_mn_msg;
+
+#--------------------------------------------------------------#
+# INITIALIZATION
+#--------------------------------------------------------------#
+# Do the test satisfied the condition.
+my @options = (
+	'TEST_STATE_NORMAL',        'YES',                0,
+	'TEST_FUNC_REAL_HOME_LINK', 'YES',                0,
+	'FUNC_DETAIL_HOA_ADDRESS', 'HOME',                0,
+
+);
+
+# Initialize the state of TARGET.
+Init_MN(@options);
+
+#--------------------------------------------------------------#
+# PREPARATION
+#--------------------------------------------------------------#
+# Prepare other variables.
+my @value;
+my $sec;
+
+#--------------------------------------------------------------#
+# TEST PROCEDURE
+#--------------------------------------------------------------#
+#--------------------------------------------------------------#
+# NUT moves from Link0 to LinkX.
+#--------------------------------------------------------------#
+# Receive Binding Update. (NUTX -> HA0)
+# Send Binding Acknowledgement. (HA0 -> NUTX)
+
+@HA_BA_VALUE = ('BA_Status', 0, 'BA_Rflag', 1);
+%packet = vRecv_to_move_from_Link0_to_LinkX_w_all_SA($IF0);
+if ($packet{status} != 0) {
+	$initcount ++;
+	goto TERM;
+}
+
+# interval
+vRecv_at_LinkX($IF0, $MinDelayBetweenRAs);
+%packet_bu = %RECV_PACKET_BU;
+
+#--------------------------------------------------------------#
+# NUT moves from LinkX to Link0.
+#--------------------------------------------------------------#
+# Receive Binding Update. (NUT0 -> HA0)
+%packet = vRecv_to_detect_movement_at_Link0($IF0, $BU_TIME);
+if ($packet{status} != 0) {
+	$initcount ++;
+	goto TERM;
+}
+
+# Send Binding Acknowledgement. (HA0 -> NUT0)
+vSend_ba($IF0, 'ba_ha0ga_nuthga', \%RECV_PACKET_BU);
+%packet_de_bu = %RECV_PACKET_BU;
+@HA_BA_VALUE = ('BA_Status', '133');
+
+# Receive Neighbor Advertisement. (NUT0(Unspecified) -> HA0_allnode_multi)
+$na_lla_flag = 0;
+$na_ga_flag = 0;
+$now_time = time;
+$end_time = $now_time + $BU_TIME;
+while ($now_time < $end_time) {
+
+	$sec = $end_time - $now_time;
+	%packet = vRecv_at_Link0_return($IF0, $sec,
+		'bu_nuthga_ha0ga',
+		'bu_nuthga_ha0ga_hoa_nuthga',
+		'na_any_any',
+		'na_any_any_opt_any');
+	$now_time = time;
+
+	if (($packet{recvFrame} eq 'bu_nuthga_ha0ga') ||
+	    ($packet{recvFrame} eq 'bu_nuthga_ha0ga_hoa_nuthga')) {
+		#--------------------------------------------------------------#
+		vLogHTML_Info("<B>HA0 sends Binding Acknowledgement, Status 133.</B>");
+		#--------------------------------------------------------------#
+		vSend_ba($IF0, 'ba_ha0ga_nuthga', \%packet);
+	}
+	elsif (($packet{recvFrame} eq 'na_any_any') ||
+	       ($packet{recvFrame} eq 'na_any_any_opt_any')) {
+		vReply_na($IF0, 0, \%packet, 0);
+
+		# check na
+		%value_na_addr = get_value_of_ipv6(0, \%packet);
+		%value_na = get_value_of_na(0, \%packet);
+		while (1) {
+			if ($value_na_addr{DestinationAddress} ne $node_hash{all_node_multi}) {
+				last;
+			}
+			if ($value_na{SFlag} == 1) {
+				last;
+			}
+			if ($value_na{OFlag} == 0) {
+				last;
+			}
+			if ($value_na{TargetAddress} eq $node_hash{nuth_ga}) {
+				%packet_na_ga = %packet;
+				$na_ga_flag = 1;
+			}
+			elsif ($value_na{TargetAddress} eq $node_hash{nuth_lla}) {
+				%packet_na_lla = %packet;
+				$na_lla_flag = 1;
+			}
+			last;
+		}
+		if ($na_ga_flag == 1 && $na_lla_flag == 1) {
+			last;
+		}
+	}
+}
+
+#--------------------------------------------------------------#
+# JUDGEMENT
+#--------------------------------------------------------------#
+# check na ga
+if ($na_ga_flag == 1) {
+	vLogHTML_Pass("(*1) PASS: HA0 receives Neighbor Advertisement(NUT0 Global Address).");
+}
+else {
+	vLogHTML_Fail("(*1) FAIL: HA0 does not receive Neighbor Advertisement(NUT0 Global Address).");
+	$failcount ++;
+	goto TERM;
+}
+
+# na ga
+@field = ('Opt_ICMPv6_TLL.LinkLayerAddress');
+%value_na_ga = get_value_of_na(0, \%packet_na_ga, @field);
+
+# de-bu
+%value_de_bu_addr = get_value_of_ipv6(0, \%packet_de_bu);
+$de_bu_src = $value_de_bu_addr{SourceAddress};
+
+# check target
+if ($value_na_ga{TargetAddress} eq $de_bu_src) {
+	vLogHTML_Pass("The target address is set to the Home Address.");
+}
+else {
+	vLogHTML_Fail("FAIL: The target address is not set to the Home Address.");
+	$failcount ++;
+}
+
+# check na (R) flag
+if ($value_na_ga{RFlag} == 1) {
+	vLogHTML_Pass("The Router (R) flag is set to ON.");
+}
+else {
+	vLogHTML_Fail("FAIL: The Router (R) flag is not set to ON.");
+	$failcount ++;
+}
+
+# check (S) flag
+if ($value_na_ga{SFlag} == 0) {
+	vLogHTML_Pass("The Solicited flag is cleared.");
+}
+else {
+	vLogHTML_Fail("FAIL: The Solicited flag is not cleared.");
+	$failcount ++;
+}
+
+# check (O) flag
+if ($value_na_ga{OFlag} != 0) {
+	vLogHTML_Pass("The Override flag is set to ON.");
+}
+else {
+	vLogHTML_Fail("FAIL: The Override flag is not set to ON.");
+	$failcount ++;
+}
+
+# check link layer address
+if (defined($value_na_ga{'Opt_ICMPv6_TLL.LinkLayerAddress'})) {
+	if ($value_na_ga{'Opt_ICMPv6_TLL.LinkLayerAddress'} eq $nuth_ga{mac}) {
+		vLogHTML_Pass("The Target link-layer address option is set to self link-layer address.");
+	}
+	else {
+		vLogHTML_Fail("FAIL: The Target link-layer address option is not set to self link-layer address.");
+		$failcount ++;
+	}
+}
+
+# bu
+%value_bu = get_value_of_bu(0, \%packet_bu);
+
+# check na lla
+if ($value_bu{LFlag} == 1) {
+	if ($na_lla_flag == 1) {
+		vLogHTML_Pass("(*1) PASS: HA0 receives Neighbor Advertisement(NUT0 Link-Local Address).");
+	}
+	else {
+		vLogHTML_Fail("(*1) FAIL: HA0 does not receive Neighbor Advertisement(NUT0 Link-Local Address).");
+		$failcount ++;
+		goto TERM;
+	}
+}
+else {
+	if ($na_lla_flag == 1) {
+		vLogHTML_Fail("(*1) FAIL: HA0 receives Neighbor Advertisement(NUT0 Link-Local Address) though (L)bit of BU is off.");
+		$failcount ++;
+	}
+	goto TERM;
+}
+
+# na lla
+@field = ('Opt_ICMPv6_TLL.LinkLayerAddress');
+%value_na_lla = get_value_of_na(0, \%packet_na_lla, @field);
+
+# check target
+if ($value_na_lla{TargetAddress} eq $node_hash{nuth_lla}) {
+	vLogHTML_Pass("The target address is set to the link-local address.");
+}
+else {
+	vLogHTML_Fail("FAIL: The target address is not set to the link-local address.");
+	$failcount ++;
+}
+
+# check na (R) flag
+if ($value_na_lla{RFlag} == 1) {
+	vLogHTML_Pass("The Router (R) flag is set to ON.");
+}
+else {
+	vLogHTML_Fail("FAIL: The Router (R) flag is not set to ON.");
+	$failcount ++;
+}
+
+# check (S) flag
+if ($value_na_lla{SFlag} == 0) {
+	vLogHTML_Pass("The Solicited flag is cleared.");
+}
+else {
+	vLogHTML_Fail("FAIL: The Solicited flag is not cleared.");
+	$failcount ++;
+}
+
+# check (O) flag
+if ($value_na_lla{OFlag} != 0) {
+	vLogHTML_Pass("The Override flag is set to ON.");
+}
+else {
+	vLogHTML_Fail("FAIL: The Override flag is not set to ON.");
+	$failcount ++;
+}
+
+# check link layer address
+if (defined($value_na_lla{'Opt_ICMPv6_TLL.LinkLayerAddress'})) {
+	if ($value_na_lla{'Opt_ICMPv6_TLL.LinkLayerAddress'} eq $nuth_lla{mac}) {
+		vLogHTML_Pass("The Target Link-layer Address option is set to self link-layer address.");
+	}
+	else {
+		vLogHTML_Fail("FAIL: The Target Link-layer Address option is not set to self link-layer address.");
+		$failcount ++;
+	}
+}
+
+TERM:
+#--------------------------------------------------------------#
+# TERMINATION
+#--------------------------------------------------------------#
+# Terminate the state of TARGET.
+Term_MN($IF0, 1);
+
+################################################################
+__END__
+
+
+=head1 NAME
+
+=begin html
+  NEMO-MR-3-4-1-1-001 - Sending NA &#40;Target Address = link-layer address&#41;
+
+=end html
+
+=head1 TARGET
+
+=begin html
+<PRE>
+Router
+</PRE>
+
+=end html
+
+
+=head1 REQUIREMENT of TEST
+
+=begin html
+<PRE>
+    - Function of Real Home Link: YES
+                    
+    - Home Address derived from the Home Network Prefix
+                    
+</PRE>
+
+=end html
+
+=head1 TOPOLOGY
+
+=begin html
+<PRE>
+<UL>
+<LI><B><FONT SIZE="+1">TOPOLOGY-1 Real Home Link</FONT></B>
+</UL>
+                          |
+                         HA3                  CN0           VMN1
+                          |                    |             |
+                ---+------+--------------------+-------------+------ LinkZ
+                   |
+                                              LFN0   LFN1  VMN11
+                   :                           |      |      |
+                                     ---+------+------+------+------ Link1
+                   |                    |
+                   R2                  NUTY
+                   |                    |
+                ---+------+-------------+--------------------------- LinkY
+                          |
+                                              LFN0   LFN1  VMN11
+                          :                    |      |      |
+                                     ---+------+------+------+------ Link1
+                          |             |
+                          R1   NODE1   NUTX
+                          |      |      |
+  -----------------+------+------+------+--------------------------- LinkX
+                   |
+                                              LFN0   LFN1  VMN11
+                   :                           |      |      |
+                                     ---+------+------+------+------ Link1
+                   |                    |
+                  HA0          NODE0   NUT0
+                   |             |      |
+  -----------------+-------------+------+--------------------------- Link0
+</PRE>
+<BLOCKQUOTE>
+<TABLE BORDER>
+<TR>
+<TD><TT>Link0</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:100::/64</TT></TD>
+<TD><TT>home link</TT></TD>
+</TR>
+<TR>
+<TD><TT>LinkX</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:200::/64</TT></TD>
+<TD><TT>foreign link</TT></TD>
+</TR>
+<TR>
+<TD><TT>LinkY</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:300::/64</TT></TD>
+<TD><TT>foreign link</TT></TD>
+</TR>
+<TR>
+<TD><TT>LinkZ</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:400::/64</TT></TD>
+<TD><TT>foreign link</TT></TD>
+</TR>
+<TR>
+<TD><TT>Link1</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:104::/64</TT></TD>
+<TD><TT>NEMO link</TT></TD>
+</TR>
+<TR>
+<TD ROWSPAN="3"><TT>HA0 (Link0)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:100:200:ff:fe00:a0a0</TT></TD>
+<TD ROWSPAN="3"><TT>home agent</TT></TD>
+</TR>
+<TR>
+<TD><TT>link-local</TT></TD>
+<TD><TT>fe80::200:ff:fe00:a0a0</TT></TD>
+</TR>
+<TR>
+<TD><TT>ether</TT></TD>
+<TD><TT>00:00:00:00:a0:a0</TT></TD>
+</TR>
+<TR>
+<TD ROWSPAN="3"><TT>NODE0</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:100:200:ff:fe00:a3a3</TT></TD>
+<TD ROWSPAN="3"><TT>&nbsp;</TT></TD>
+</TR>
+<TR>
+<TD><TT>link-local</TT></TD>
+<TD><TT>fe80::200:ff:fe00:a3a3</TT></TD>
+</TR>
+<TR>
+<TD><TT>ether</TT></TD>
+<TD><TT>00:00:00:00:a3:a3</TT></TD>
+</TR>
+<TR>
+<TD ROWSPAN="3"><TT>R1 (LinkX)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:200:200:ff:fe00:a4a4</TT></TD>
+<TD ROWSPAN="3"><TT>&nbsp;</TT></TD>
+</TR>
+<TR>
+<TD><TT>link-local</TT></TD>
+<TD><TT>fe80::200:ff:fe00:a4a4</TT></TD>
+</TR>
+<TR>
+<TD><TT>ether</TT></TD>
+<TD><TT>00:00:00:00:a4:a4</TT></TD>
+</TR>
+<TR>
+<TD ROWSPAN="3"><TT>NODE1</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:200:200:ff:fe00:a5a5</TT></TD>
+<TD ROWSPAN="3"><TT>&nbsp;</TT></TD>
+</TR>
+<TR>
+<TD><TT>link-local</TT></TD>
+<TD><TT>fe80::200:ff:fe00:a5a5</TT></TD>
+</TR>
+<TR>
+<TD><TT>ether</TT></TD>
+<TD><TT>00:00:00:00:a5:a5</TT></TD>
+</TR>
+<TR>
+<TD ROWSPAN="3"><TT>R2 (LinkY)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:300:200:ff:fe00:a6a6</TT></TD>
+<TD ROWSPAN="3"><TT>&nbsp;</TT></TD>
+</TR>
+<TR>
+<TD><TT>link-local</TT></TD>
+<TD><TT>fe80::200:ff:fe00:a6a6</TT></TD>
+</TR>
+<TR>
+<TD><TT>ether</TT></TD>
+<TD><TT>00:00:00:00:a6:a6</TT></TD>
+</TR>
+<TR>
+<TD ROWSPAN="3"><TT>HA3 (LinkZ)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:400:200:ff:fe00:a8a8</TT></TD>
+<TD ROWSPAN="3"><TT> home agent of VMN1</TT></TD>
+</TR>
+<TR>
+<TD><TT>link-local</TT></TD>
+<TD><TT>fe80::200:ff:fe00:a8a8</TT></TD>
+</TR>
+<TR>
+<TD><TT>ether</TT></TD>
+<TD><TT>00:00:00:00:a8:a8</TT></TD>
+</TR>
+<TR>
+<TD ROWSPAN="3"><TT>CN0</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:400:200:ff:fe00:aaaa</TT></TD>
+<TD ROWSPAN="3"><TT>correspondent node</TT></TD>
+</TR>
+<TR>
+<TD><TT>link-local</TT></TD>
+<TD><TT>fe80::200:ff:fe00:aaaa</TT></TD>
+</TR>
+<TR>
+<TD><TT>ether</TT></TD>
+<TD><TT>00:00:00:00:aa:aa</TT></TD>
+</TR>
+<TR>
+<TD ROWSPAN="3"><TT>VMN1</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:400:200:ff:fe00:abab</TT></TD>
+<TD ROWSPAN="3"><TT>visited mobile node</TT></TD>
+</TR>
+<TR>
+<TD><TT>link-local</TT></TD>
+<TD><TT>fe80::200:ff:fe00:abab</TT></TD>
+</TR>
+<TR>
+<TD><TT>ether</TT></TD>
+<TD><TT>00:00:00:00:ab:ab</TT></TD>
+</TR>
+<TR>
+<TD><TT>VMN11 (Link1)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:104:200:ff:fe00:abab</TT></TD>
+<TD><TT> care-of address of VMN1</TT></TD>
+</TR>
+<TR>
+<TD ROWSPAN="3"><TT>LFN0</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:104:200:ff:fe00:b0b0</TT></TD>
+<TD ROWSPAN="3"><TT>local fixed node</TT></TD>
+</TR>
+<TR>
+<TD><TT>link-local</TT></TD>
+<TD><TT>fe80::200:ff:fe00:b0b0</TT></TD>
+</TR>
+<TR>
+<TD><TT>ether</TT></TD>
+<TD><TT>00:00:00:00:b0:b0</TT></TD>
+</TR>
+<TR>
+<TD ROWSPAN="3"><TT>LFN1</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:104:200:ff:fe00:b1b1</TT></TD>
+<TD ROWSPAN="3"><TT>local fixed node</TT></TD>
+</TR>
+<TR>
+<TD><TT>link-local</TT></TD>
+<TD><TT>fe80::200:ff:fe00:b1b1</TT></TD>
+</TR>
+<TR>
+<TD><TT>ether</TT></TD>
+<TD><TT>00:00:00:00:b1:b1</TT></TD>
+</TR>
+<TR>
+<TD ROWSPAN="3"><TT>NUT0 (Link0)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:100::&lt;NutDef.Link0_addr&gt;</TT></TD>
+<TD ROWSPAN="3"><TT>egress interface</TT></TD>
+</TR>
+<TR>
+<TD><TT>link-local</TT></TD>
+<TD><TT>fe80::&lt;NutDef.Link0_addr&gt;</TT></TD>
+</TR>
+<TR>
+<TD><TT>ether</TT></TD>
+<TD><TT>&lt;NutDef.Link0_addr&gt;</TT></TD>
+</TR>
+<TR>
+<TD><TT>NUTX (LinkX)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:200::&lt;NutDef.Link0_addr&gt;</TT></TD>
+<TD><TT>care-of address</TT></TD>
+</TR>
+<TR>
+<TD><TT>NUTY (LinkY)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:300::&lt;NutDef.Link0_addr&gt;</TT></TD>
+<TD><TT>care-of address</TT></TD>
+</TR>
+<TR>
+<TD ROWSPAN="3"><TT>NUT0 (Link1)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:104::&lt;NutDef.Link1_addr&gt;</TT></TD>
+<TD ROWSPAN="3"><TT>ingress interface</TT></TD>
+</TR>
+<TR>
+<TD><TT>link-local</TT></TD>
+<TD><TT>fe80::&lt;NutDef.Link1_addr&gt;</TT></TD>
+</TR>
+<TR>
+<TD><TT>ether</TT></TD>
+<TD><TT>&lt;NutDef.Link1_addr&gt;</TT></TD>
+</TR>
+</TABLE>
+</BLOCKQUOTE>
+
+=end html
+
+=head1 SETUP
+
+=begin html
+<PRE>
+<LI><B><FONT SIZE="+1">Common Setup-1</FONT></B>
+<UL>
+<LI>Reboot NUT
+<LI>Enable MR function
+<UL>
+<LI>Turn on MR functions
+</UL>
+<LI>Initialize IPsec configuration
+<LI>Set IPsec configuration
+<UL>
+<LI>This test requires following configurations.
+<UL>
+<LI><A HREF="SETUP_IPsec_HA0_SA1_SA2.html">MR-HA0 SA1/SA2, Transport mode, Binding Update/Binding Acknowledgement</A>
+</UL>
+<LI>This test requires following configurations, If a related message is used.
+<UL>
+<LI><A HREF="SETUP_IPsec_HA0_SA3_SA4.html">MR-HA0 SA3/SA4, Tunnel mode, Return Routability Signaling</A>
+<LI><A HREF="SETUP_IPsec_HA0_SA5_SA6.html">MR-HA0 SA5/SA6, Transport mode, Prefix Discovery</A>
+</UL>
+<LI>This test also allow to use following configurations.
+<UL>
+<LI><A HREF="SETUP_IPsec_HA0_SA7_SA8.html">MR-HA0 SA7/SA8, Tunnel mode, Payload Packets</A>
+<LI><A HREF="SETUP_IPsec_HA0_SA9_SA10.html">MR-HA0 SA9/SA10, Tunnel mode, Payload Packets that belong to mobile network prefix</A>
+<LI><A HREF="SETUP_IPsec_CN0_SA.html">MR-CN0, Transport mode, ICMP</A>
+</UL>
+</UL>
+</UL>
+</PRE>
+
+=end html
+
+=head1 INITIALIZATION
+
+=begin html
+<PRE>
+                    
+      LFN0    NUT0     HA0      R1      R2     CN0
+        |       |       |       |       |       |
+        |       | <---- |       |       |       | 1.Router Advertisement
+        |       |       |       |       |       |
+        |     NUTX      |       |       |       |
+        |       |       |       |       |       |
+        |       | <------------ |       |       | 2.Router Advertisement
+        |       |       |       |       |       |
+        |       | ----> |       |       |       | 3.Neighbor Solicitation (NUD)
+        |       |       |       |       |       | 4.(no reply)
+        |       |       |       |       |       |
+        |       | ----> |       |       |       | 5.Binding Update
+        |       | <---- |       |       |       | 6.Binding Acknowledgement
+        |       |       |       |       |       |
+                    
+        1. Send Router Advertisement. (HA0 -> HA0_allnode_multi)
+        2. Send Router Advertisement. (R1 -> R1_allnode_multi)
+        3. Receive Neighbor Solicitation (NUD). (NUT0 -> HA0)
+        4. (no reply)
+        5. Receive Binding Update to HA0. (NUTX -> HA0)
+        6. Send Binding Acknowledgement. (HA0 -> NUTX)
+                    
+</PRE>
+
+=end html
+
+=head1 TEST PROCEDURE
+
+=begin html
+<PRE>
+                    
+      LFN0    NUTX     HA0      R1      R2     CN0
+        |     NUT0      |       |       |       |
+        |       |       |       |       |       |
+        |       | <---- |       |       |       | 1.Router Advertisement
+        |       |       |       |       |       |
+        |       | ------------> |       |       | 2.Neighbor Solicitation (NUD)
+        |       |       |       |       |       | 3.(no reply)
+        |       |       |       |       |       |
+        |       | ----> |       |       |       | 4.Binding Update
+        |       | <---- |       |       |       | 5.Binding Acknowledgement
+        |       |       |       |       |       |
+        |       | ----> |       |       |       | 6.Neighbor Advertisement (*1)
+        |       |       |       |       |       |
+                    
+        1. Send Router Advertisement. (HA0 -> HA0_allnode_multi)
+        2. Receive Neighbor Solicitation (NUD). (NUTX -> R1)
+        3. (no reply)
+            # Wait during a maximum of 3 seconds(RFC2461).
+        4. Receive Binding Update. (NUT0 -> HA0)
+            # The Mobile Router Flag (R) is set to 1.
+            # The Lifetime field is set to 0.
+        5. Send Binding Acknowledgement. (HA0 -> NUT0)
+            # The Mobile Router Flag (R) is set to 1.
+        6. Receive Neighbor Advertisement. (NUT0 -> unsolicited-node multicast)
+                    
+    Focus Packet Format:
+        6. Neighbor Advertisement Data is:
+            IPv6 header
+                source          = egress global address of nut0
+                destination     = unsolicited-node multicast
+            ICMPv6 header
+              Neighbor Advertisement
+                code            = 0
+                R               = 1
+                S               = 0
+                O               = 1
+                target address  = egress global address of nut0
+              Target link-layer address option
+                link-layer address = nut0
+</PRE>
+
+=end html
+
+=head1 JUDGEMENT
+
+=begin html
+<PRE>
+ (*1) PASS: HA0 receives Neighbor Advertisement.
+            Then, check whether this packet fills all of the following.
+             - The target address is set to the Home Address.
+             - The Router (R) flag is set to ON.
+             - The Solicited flag is cleared.
+             - The Override flag is set to ON.
+             - The Target Link-layer Address option is set to self link-layer address.
+</PRE>
+
+=end html
+
+=head1 REFERENCE
+
+=begin html
+<PRE>
+RFC3963 NEMO Basic Support Protocol
+    See Section 5.8
+                    
+RFC3775 Mobility Support in IPv6
+    See Section 11.5.4
+</PRE>
+
+=end html
+

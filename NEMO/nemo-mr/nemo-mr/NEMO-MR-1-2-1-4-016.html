@@ -1,0 +1,433 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>NEMO-MR-1-2-1-4-016 - Sending RA on the egress interface in returning home-link</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:root@jail-99255.freebsd.org" />
+</head>
+
+<body style="background-color: white">
+
+<p><a name="__index__"></a></p>
+<!-- INDEX BEGIN -->
+<!--
+
+<ul>
+
+	<li><a href="#name">NAME</a></li>
+	<li><a href="#target">TARGET</a></li>
+	<li><a href="#requirement_of_test">REQUIREMENT of TEST</a></li>
+	<li><a href="#topology">TOPOLOGY</a></li>
+	<li><a href="#setup">SETUP</a></li>
+	<li><a href="#initialization">INITIALIZATION</a></li>
+	<li><a href="#test_procedure">TEST PROCEDURE</a></li>
+	<li><a href="#judgement">JUDGEMENT</a></li>
+	<li><a href="#reference">REFERENCE</a></li>
+</ul>
+-->
+<!-- INDEX END -->
+
+<p>
+</p>
+<h1><a name="name">NAME</a></h1>
+NEMO-MR-1-2-1-4-016 - Sending RA(after progress of advertising interval) on the egress interface in returning home-link<p>
+</p>
+<hr />
+<h1><a name="target">TARGET</a></h1>
+<PRE>
+Router
+</PRE><p>
+</p>
+<hr />
+<h1><a name="requirement_of_test">REQUIREMENT of TEST</a></h1>
+<PRE>
+    - Function of Real Home Link: YES
+
+    - NUT send RA on the egress interface in Home Link: YES
+</PRE><p>
+</p>
+<hr />
+<h1><a name="topology">TOPOLOGY</a></h1>
+<PRE>
+<UL>
+<LI><B><FONT SIZE="+1">TOPOLOGY-1 Real Home Link</FONT></B>
+</UL>
+                          |
+                         HA3                  CN0           VMN1
+                          |                    |             |
+                ---+------+--------------------+-------------+------ LinkZ
+                   |
+                                              LFN0   LFN1  VMN11
+                   :                           |      |      |
+                                     ---+------+------+------+------ Link1
+                   |                    |
+                   R2                  NUTY
+                   |                    |
+                ---+------+-------------+--------------------------- LinkY
+                          |
+                                              LFN0   LFN1  VMN11
+                          :                    |      |      |
+                                     ---+------+------+------+------ Link1
+                          |             |
+                          R1   NODE1   NUTX
+                          |      |      |
+  -----------------+------+------+------+--------------------------- LinkX
+                   |
+                                              LFN0   LFN1  VMN11
+                   :                           |      |      |
+                                     ---+------+------+------+------ Link1
+                   |                    |
+                  HA0          NODE0   NUT0
+                   |             |      |
+  -----------------+-------------+------+--------------------------- Link0
+</PRE>
+<BLOCKQUOTE>
+<TABLE BORDER>
+<TR>
+<TD><TT>Link0</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:100::/64</TT></TD>
+<TD><TT>home link</TT></TD>
+</TR>
+<TR>
+<TD><TT>LinkX</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:200::/64</TT></TD>
+<TD><TT>foreign link</TT></TD>
+</TR>
+<TR>
+<TD><TT>LinkY</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:300::/64</TT></TD>
+<TD><TT>foreign link</TT></TD>
+</TR>
+<TR>
+<TD><TT>LinkZ</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:400::/64</TT></TD>
+<TD><TT>foreign link</TT></TD>
+</TR>
+<TR>
+<TD><TT>Link1</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:104::/64</TT></TD>
+<TD><TT>NEMO link</TT></TD>
+</TR>
+<TR>
+<TD ROWSPAN="3"><TT>HA0 (Link0)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:100:200:ff:fe00:a0a0</TT></TD>
+<TD ROWSPAN="3"><TT>home agent</TT></TD>
+</TR>
+<TR>
+<TD><TT>link-local</TT></TD>
+<TD><TT>fe80::200:ff:fe00:a0a0</TT></TD>
+</TR>
+<TR>
+<TD><TT>ether</TT></TD>
+<TD><TT>00:00:00:00:a0:a0</TT></TD>
+</TR>
+<TR>
+<TD ROWSPAN="3"><TT>NODE0</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:100:200:ff:fe00:a3a3</TT></TD>
+<TD ROWSPAN="3"><TT>&nbsp;</TT></TD>
+</TR>
+<TR>
+<TD><TT>link-local</TT></TD>
+<TD><TT>fe80::200:ff:fe00:a3a3</TT></TD>
+</TR>
+<TR>
+<TD><TT>ether</TT></TD>
+<TD><TT>00:00:00:00:a3:a3</TT></TD>
+</TR>
+<TR>
+<TD ROWSPAN="3"><TT>R1 (LinkX)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:200:200:ff:fe00:a4a4</TT></TD>
+<TD ROWSPAN="3"><TT>&nbsp;</TT></TD>
+</TR>
+<TR>
+<TD><TT>link-local</TT></TD>
+<TD><TT>fe80::200:ff:fe00:a4a4</TT></TD>
+</TR>
+<TR>
+<TD><TT>ether</TT></TD>
+<TD><TT>00:00:00:00:a4:a4</TT></TD>
+</TR>
+<TR>
+<TD ROWSPAN="3"><TT>NODE1</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:200:200:ff:fe00:a5a5</TT></TD>
+<TD ROWSPAN="3"><TT>&nbsp;</TT></TD>
+</TR>
+<TR>
+<TD><TT>link-local</TT></TD>
+<TD><TT>fe80::200:ff:fe00:a5a5</TT></TD>
+</TR>
+<TR>
+<TD><TT>ether</TT></TD>
+<TD><TT>00:00:00:00:a5:a5</TT></TD>
+</TR>
+<TR>
+<TD ROWSPAN="3"><TT>R2 (LinkY)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:300:200:ff:fe00:a6a6</TT></TD>
+<TD ROWSPAN="3"><TT>&nbsp;</TT></TD>
+</TR>
+<TR>
+<TD><TT>link-local</TT></TD>
+<TD><TT>fe80::200:ff:fe00:a6a6</TT></TD>
+</TR>
+<TR>
+<TD><TT>ether</TT></TD>
+<TD><TT>00:00:00:00:a6:a6</TT></TD>
+</TR>
+<TR>
+<TD ROWSPAN="3"><TT>HA3 (LinkZ)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:400:200:ff:fe00:a8a8</TT></TD>
+<TD ROWSPAN="3"><TT> home agent of VMN1</TT></TD>
+</TR>
+<TR>
+<TD><TT>link-local</TT></TD>
+<TD><TT>fe80::200:ff:fe00:a8a8</TT></TD>
+</TR>
+<TR>
+<TD><TT>ether</TT></TD>
+<TD><TT>00:00:00:00:a8:a8</TT></TD>
+</TR>
+<TR>
+<TD ROWSPAN="3"><TT>CN0</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:400:200:ff:fe00:aaaa</TT></TD>
+<TD ROWSPAN="3"><TT>correspondent node</TT></TD>
+</TR>
+<TR>
+<TD><TT>link-local</TT></TD>
+<TD><TT>fe80::200:ff:fe00:aaaa</TT></TD>
+</TR>
+<TR>
+<TD><TT>ether</TT></TD>
+<TD><TT>00:00:00:00:aa:aa</TT></TD>
+</TR>
+<TR>
+<TD ROWSPAN="3"><TT>VMN1</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:400:200:ff:fe00:abab</TT></TD>
+<TD ROWSPAN="3"><TT>visited mobile node</TT></TD>
+</TR>
+<TR>
+<TD><TT>link-local</TT></TD>
+<TD><TT>fe80::200:ff:fe00:abab</TT></TD>
+</TR>
+<TR>
+<TD><TT>ether</TT></TD>
+<TD><TT>00:00:00:00:ab:ab</TT></TD>
+</TR>
+<TR>
+<TD><TT>VMN11 (Link1)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:104:200:ff:fe00:abab</TT></TD>
+<TD><TT> care-of address of VMN1</TT></TD>
+</TR>
+<TR>
+<TD ROWSPAN="3"><TT>LFN0</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:104:200:ff:fe00:b0b0</TT></TD>
+<TD ROWSPAN="3"><TT>local fixed node</TT></TD>
+</TR>
+<TR>
+<TD><TT>link-local</TT></TD>
+<TD><TT>fe80::200:ff:fe00:b0b0</TT></TD>
+</TR>
+<TR>
+<TD><TT>ether</TT></TD>
+<TD><TT>00:00:00:00:b0:b0</TT></TD>
+</TR>
+<TR>
+<TD ROWSPAN="3"><TT>LFN1</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:104:200:ff:fe00:b1b1</TT></TD>
+<TD ROWSPAN="3"><TT>local fixed node</TT></TD>
+</TR>
+<TR>
+<TD><TT>link-local</TT></TD>
+<TD><TT>fe80::200:ff:fe00:b1b1</TT></TD>
+</TR>
+<TR>
+<TD><TT>ether</TT></TD>
+<TD><TT>00:00:00:00:b1:b1</TT></TD>
+</TR>
+<TR>
+<TD ROWSPAN="3"><TT>NUT0 (Link0)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:100::&lt;NutDef.Link0_addr&gt;</TT></TD>
+<TD ROWSPAN="3"><TT>egress interface</TT></TD>
+</TR>
+<TR>
+<TD><TT>link-local</TT></TD>
+<TD><TT>fe80::&lt;NutDef.Link0_addr&gt;</TT></TD>
+</TR>
+<TR>
+<TD><TT>ether</TT></TD>
+<TD><TT>&lt;NutDef.Link0_addr&gt;</TT></TD>
+</TR>
+<TR>
+<TD><TT>NUTX (LinkX)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:200::&lt;NutDef.Link0_addr&gt;</TT></TD>
+<TD><TT>care-of address</TT></TD>
+</TR>
+<TR>
+<TD><TT>NUTY (LinkY)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:300::&lt;NutDef.Link0_addr&gt;</TT></TD>
+<TD><TT>care-of address</TT></TD>
+</TR>
+<TR>
+<TD ROWSPAN="3"><TT>NUT0 (Link1)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:104::&lt;NutDef.Link1_addr&gt;</TT></TD>
+<TD ROWSPAN="3"><TT>ingress interface</TT></TD>
+</TR>
+<TR>
+<TD><TT>link-local</TT></TD>
+<TD><TT>fe80::&lt;NutDef.Link1_addr&gt;</TT></TD>
+</TR>
+<TR>
+<TD><TT>ether</TT></TD>
+<TD><TT>&lt;NutDef.Link1_addr&gt;</TT></TD>
+</TR>
+</TABLE>
+</BLOCKQUOTE><p>
+</p>
+<hr />
+<h1><a name="setup">SETUP</a></h1>
+<PRE>
+<LI><B><FONT SIZE="+1">Common Setup-1</FONT></B>
+<UL>
+<LI>Reboot NUT
+<LI>Enable MR function
+<UL>
+<LI>Turn on MR functions
+</UL>
+<LI>Initialize IPsec configuration
+<LI>Set IPsec configuration
+<UL>
+<LI>This test requires following configurations.
+<UL>
+<LI><A HREF="SETUP_IPsec_HA0_SA1_SA2.html">MR-HA0 SA1/SA2, Transport mode, Binding Update/Binding Acknowledgement</A>
+</UL>
+<LI>This test requires following configurations, If a related message is used.
+<UL>
+<LI><A HREF="SETUP_IPsec_HA0_SA3_SA4.html">MR-HA0 SA3/SA4, Tunnel mode, Return Routability Signaling</A>
+<LI><A HREF="SETUP_IPsec_HA0_SA5_SA6.html">MR-HA0 SA5/SA6, Transport mode, Prefix Discovery</A>
+</UL>
+<LI>This test also allow to use following configurations.
+<UL>
+<LI><A HREF="SETUP_IPsec_HA0_SA7_SA8.html">MR-HA0 SA7/SA8, Tunnel mode, Payload Packets</A>
+<LI><A HREF="SETUP_IPsec_HA0_SA9_SA10.html">MR-HA0 SA9/SA10, Tunnel mode, Payload Packets that belong to mobile network prefix</A>
+<LI><A HREF="SETUP_IPsec_CN0_SA.html">MR-CN0, Transport mode, ICMP</A>
+</UL>
+</UL>
+<LI>Set Router Advertise configurations.
+<UL>
+<LI>Router Advertise interval : default 10 seconds. 
+</UL>
+</UL>
+</PRE><p>
+</p>
+<hr />
+<h1><a name="initialization">INITIALIZATION</a></h1>
+<PRE>
+
+      LFN0    NUT0     HA0      R1      R2     CN0
+        |       |       |       |       |       |
+        |       | <---- |       |       |       | 1.Router Advertisement
+        |       |       |       |       |       |
+        |     NUTX      |       |       |       |
+        |       |       |       |       |       |
+        |       | <------------ |       |       | 2.Router Advertisement
+        |       |       |       |       |       |
+        |       | ----> |       |       |       | 3.Neighbor Solicitation (NUD)
+        |       |       |       |       |       | 4.(no reply)
+        |       |       |       |       |       |
+        |       | ----> |       |       |       | 5.Binding Update
+        |       | <---- |       |       |       | 6.Binding Acknowledgement
+        |       |       |       |       |       |
+        1. Send Router Advertisement. (HA0 -> HA0_allnode_multi)
+        2. Send Router Advertisement. (R1 -> R1_allnode_multi)
+        3. Receive Neighbor Solicitation (NUD). (NUT0 -> HA0)
+        4. (no reply)
+        5. Receive Binding Update to HA0. (NUTX -> HA0)
+            # The Mobile Router Flag (R) is set to 1.
+        6. Send Binding Acknowledgement. (HA0 -> NUTX)
+            # The Mobile Router Flag (R) is set to 1.
+</PRE><p>
+</p>
+<hr />
+<h1><a name="test_procedure">TEST PROCEDURE</a></h1>
+<PRE>
+
+      LFN0    NUT0     HA0      R1      R2     CN0
+        |       |       |       |       |       |
+        |       | <---- |       |       |       | 1.Router Advertisement
+        |       |       |       |       |       |
+        |       | ------------> |       |       | 2.Neighbor Solicitation (NUD)
+        |       |       |       |       |       | 3.(no reply)
+        |       |       |       |       |       |
+        |       | ----> |       |       |       | 4.Binding Update
+        |       | <---- |       |       |       | 5.Binding Acknowledgement
+        |       |       |       |       |       |
+        |       | ----> |       |       |       | 6.Neighbor Advertisement
+        |       |       |       |       |       |
+        |       |       |       |       |       | 7.(wait)
+        |       |       |       |       |       |
+        |       | ----> |       |       |       | 8.Router Advertisement (*1)
+        |       |       |       |       |       |
+        1. Send Router Advertisement. (HA0 -> HA0_allnode_multi)
+        2. Receive Neighbor Solicitation (NUD). (NUTX -> R1)
+        3. (no reply)
+            # Wait during a maximum of 3 seconds(RFC2461).
+        4. Receive Binding Update. (NUT0 -> HA0)
+            # The Lifetime field is set to 0.
+            # The Mobile Router Flag (R) is set to 1.
+        5. Send Binding Acknowledgement. (HA0 -> NUT0)
+            # The Mobile Router Flag (R) is set to 1.
+        6. Send Neighbor Acknowledgement. (NUT0 -> HA0_allnode_multi)
+        7. (wait)
+            # Wait during Router Advertisement interval depending on NUT0.
+        8. Receive Router Advertisement. (NUT0 -> allnode_multi)
+    Focus Packet Format:
+        8. Router Advertisement Data is:
+            IPv6 header
+              source            = egress link-local address of nut0
+              destination       = all-node multicast address
+            ICMPv6 header
+              Router Advertisement
+                Lifetime        = 0
+</PRE><p>
+</p>
+<hr />
+<h1><a name="judgement">JUDGEMENT</a></h1>
+<PRE>
+ (*1) PASS: HA0 receives Router Advertisement from Mobile Router.
+            Then, check whether this packet fills all of the following,
+             - The Router Lifetime field is set to 0.
+</PRE>
+
+<p>
+</p>
+<hr />
+<h1><a name="reference">REFERENCE</a></h1>
+<PRE>
+RFC3963 NEMO Basic Support Protocol
+    See Section 5.8
+</PRE>
+
+
+</body>
+
+</html>

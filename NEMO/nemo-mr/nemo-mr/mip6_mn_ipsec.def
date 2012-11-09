@@ -1,0 +1,2234 @@
+//
+// Copyright (C) IPv6 Promotion Council,
+// NIPPON TELEGRAPH AND TELEPHONE CORPORATION (NTT),
+// Yokogwa Electoric Corporation, YASKAWA INFORMATION SYSTEMS Corporation
+// and NTT Advanced Technology Corporation(NTT-AT) All rights reserved.
+// 
+// Technology Corporation.
+// 
+// Redistribution and use of this software in source and binary forms, with 
+// or without modification, are permitted provided that the following 
+// conditions and disclaimer are agreed and accepted by the user:
+// 
+// 1. Redistributions of source code must retain the above copyright 
+// notice, this list of conditions and the following disclaimer.
+// 
+// 2. Redistributions in binary form must reproduce the above copyright 
+// notice, this list of conditions and the following disclaimer in the 
+// documentation and/or other materials provided with the distribution.
+// 
+// 3. Neither the names of the copyrighters, the name of the project which 
+// is related to this software (hereinafter referred to as "project") nor 
+// the names of the contributors may be used to endorse or promote products 
+// derived from this software without specific prior written permission.
+// 
+// 4. No merchantable use may be permitted without prior written 
+// notification to the copyrighters. However, using this software for the 
+// purpose of testing or evaluating any products including merchantable 
+// products may be permitted without any notification to the copyrighters.
+// 
+// 
+// 
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND 
+// CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING 
+// BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS 
+// FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE 
+// COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+// INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
+// SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
+// HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+// CONTRACT,STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF 
+// THE POSSIBILITY OF SUCH DAMAGE.
+//
+
+/*----------------------------------------------------------------------------*
+ *  COMMON
+ *----------------------------------------------------------------------------*/
+// other
+#if !defined(ESP_SEQ)
+#define ESP_SEQ     1
+#endif
+
+#if !defined(ESP_SEQ_ANY)
+#define ESP_SEQ_ANY any
+#endif
+
+/*----------------------------------------------------------------------------*
+ *  IPsec: MN <-> HA0
+ *----------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------*
+ *  IPsec SA1: Binding Update MN -> HA0 TRANSPORT
+ *----------------------------------------------------------------------------*/
+#if defined(IPSEC_MANUAL_SA1_MN_HA0_PROTO_ALL)
+	#define IPSEC_MANUAL_SA1_MN_HA0_PROTO_MH    1
+#endif
+
+#if defined(IPSEC_MANUAL_SA1_MN_HA0_PROTO_MH)
+	#define IPSEC_MANUAL_SA1_MN_HA0_PROTO_BU    1
+#endif
+
+#if defined(IPSEC_MANUAL_SA1_MN_HA0_PROTO_BU)
+
+	#if !defined(IPSEC_MANUAL_SA1_MN_HA0_SPI)
+		#define IPSEC_MANUAL_SA1_MN_HA0_SPI 0x111
+	#endif
+
+	#if defined(IPSEC_MANUAL_SA1_MN_HA0_ALGO_ESP)
+
+		#if defined(IPSEC_MANUAL_SA1_MN_HA0_ESP_DES3CBC)
+			#if !defined(IPSEC_MANUAL_SA1_MN_HA0_ESP_KEY)
+				#define IPSEC_MANUAL_SA1_MN_HA0_ESP_KEY "V6LC-111--12345678901234"
+			#endif
+			#ifdef TEST_FUNC_IKE
+				#define IPSEC_MANUAL_SA1_MN_HA0_CRYPT   des3cbc_2(hexstr(IPSEC_MANUAL_SA1_MN_HA0_ESP_KEY, 24))
+			#else
+				#define IPSEC_MANUAL_SA1_MN_HA0_CRYPT   des3cbc(IPSEC_MANUAL_SA1_MN_HA0_ESP_KEY)
+			#endif
+		#elif defined(IPSEC_MANUAL_SA1_MN_HA0_ESP_DESCBC)
+			#if !defined(IPSEC_MANUAL_SA1_MN_HA0_ESP_KEY)
+				#define IPSEC_MANUAL_SA1_MN_HA0_ESP_KEY "V6LC-111"
+			#endif
+			#ifdef TEST_FUNC_IKE
+				#define IPSEC_MANUAL_SA1_MN_HA0_CRYPT   descbc_2(hexstr(IPSEC_MANUAL_SA1_MN_HA0_ESP_KEY, 8))
+			#else
+				#define IPSEC_MANUAL_SA1_MN_HA0_CRYPT   descbc(IPSEC_MANUAL_SA1_MN_HA0_ESP_KEY)
+			#endif
+		#else
+			#define IPSEC_MANUAL_SA1_MN_HA0_CRYPT       null_crypt(8)
+		#endif
+
+		#if defined(IPSEC_MANUAL_SA1_MN_HA0_AH_HMACSHA1)
+			#if !defined(IPSEC_MANUAL_SA1_MN_HA0_AH_KEY)
+				#define IPSEC_MANUAL_SA1_MN_HA0_AH_KEY  "V6LC-111--1234567890"
+			#endif
+			#ifdef TEST_FUNC_IKE
+				#define IPSEC_MANUAL_SA1_MN_HA0_AUTH    hmacsha1_2(hexstr(IPSEC_MANUAL_SA1_MN_HA0_AH_KEY, 20))
+			#else
+				#define IPSEC_MANUAL_SA1_MN_HA0_AUTH    hmacsha1(IPSEC_MANUAL_SA1_MN_HA0_AH_KEY)
+			#endif
+		#elif defined(IPSEC_MANUAL_SA1_MN_HA0_AH_HMACMD5)
+			#if !defined(IPSEC_MANUAL_SA1_MN_HA0_AH_KEY)
+				#define IPSEC_MANUAL_SA1_MN_HA0_AH_KEY  "V6LC-111--123456"
+			#endif
+			#ifdef TEST_FUNC_IKE
+				#define IPSEC_MANUAL_SA1_MN_HA0_AUTH    hmacmd5_2(hexstr(IPSEC_MANUAL_SA1_MN_HA0_AH_KEY, 16))
+			#else
+				#define IPSEC_MANUAL_SA1_MN_HA0_AUTH    hmacmd5(IPSEC_MANUAL_SA1_MN_HA0_AH_KEY)
+			#endif
+		#else
+			#define IPSEC_MANUAL_SA1_MN_HA0_AUTH        null_auth(8)
+		#endif
+
+		ESPAlgorithm esp_sa1_mn_ha0 {
+			crypt = IPSEC_MANUAL_SA1_MN_HA0_CRYPT;
+			auth  = IPSEC_MANUAL_SA1_MN_HA0_AUTH;
+		}
+
+	#else
+
+		ESPAlgorithm esp_sa1_mn_ha0 {
+			crypt = null_crypt(8);
+		}
+
+	#endif
+
+	Hdr_ESP ext_sa1_mn_ha0 {
+		SPI            = IPSEC_MANUAL_SA1_MN_HA0_SPI;
+		SequenceNumber = ESP_SEQ_ANY;
+		algorithm      = esp_sa1_mn_ha0;
+	}
+
+#endif
+
+
+/*----------------------------------------------------------------------------*
+ *  IPsec SA2: Binding Acknowledgement HA0 -> MN TRANSPORT
+ *----------------------------------------------------------------------------*/
+#if defined(IPSEC_MANUAL_SA2_HA0_MN_PROTO_ALL)
+	#define IPSEC_MANUAL_SA2_HA0_MN_PROTO_MH    1
+#endif
+
+#if defined(IPSEC_MANUAL_SA2_HA0_MN_PROTO_MH)
+	#define IPSEC_MANUAL_SA2_HA0_MN_PROTO_BA    1
+#endif
+
+#if defined(IPSEC_MANUAL_SA2_HA0_MN_PROTO_BA)
+
+	#if !defined(IPSEC_MANUAL_SA2_HA0_MN_SPI)
+		#define IPSEC_MANUAL_SA2_HA0_MN_SPI    0x112
+	#endif
+
+	#if defined(IPSEC_MANUAL_SA2_HA0_MN_ALGO_ESP)
+
+		#if defined(IPSEC_MANUAL_SA2_HA0_MN_ESP_DES3CBC)
+			#if !defined(IPSEC_MANUAL_SA2_HA0_MN_ESP_KEY)
+				#define IPSEC_MANUAL_SA2_HA0_MN_ESP_KEY "V6LC-112--12345678901234"
+			#endif
+			#ifdef TEST_FUNC_IKE
+				#define IPSEC_MANUAL_SA2_HA0_MN_CRYPT   des3cbc_2(hexstr(IPSEC_MANUAL_SA2_HA0_MN_ESP_KEY, 24))
+			#else
+				#define IPSEC_MANUAL_SA2_HA0_MN_CRYPT   des3cbc(IPSEC_MANUAL_SA2_HA0_MN_ESP_KEY)
+			#endif
+		#elif defined(IPSEC_MANUAL_SA2_HA0_MN_ESP_DESCBC)
+			#if !defined(IPSEC_MANUAL_SA2_HA0_MN_ESP_KEY)
+				#define IPSEC_MANUAL_SA2_HA0_MN_ESP_KEY "V6LC-112"
+			#endif
+			#ifdef TEST_FUNC_IKE
+				#define IPSEC_MANUAL_SA2_HA0_MN_CRYPT   descbc_2(hexstr(IPSEC_MANUAL_SA2_HA0_MN_ESP_KEY, 8))
+			#else
+				#define IPSEC_MANUAL_SA2_HA0_MN_CRYPT   descbc(IPSEC_MANUAL_SA2_HA0_MN_ESP_KEY)
+			#endif
+		#else
+			#define IPSEC_MANUAL_SA2_HA0_MN_CRYPT       null_crypt(8)
+		#endif
+
+		#if defined(IPSEC_MANUAL_SA2_HA0_MN_AH_HMACSHA1)
+			#if !defined(IPSEC_MANUAL_SA2_HA0_MN_AH_KEY)
+				#define IPSEC_MANUAL_SA2_HA0_MN_AH_KEY  "V6LC-112--1234567890"
+			#endif
+			#ifdef TEST_FUNC_IKE
+				#define IPSEC_MANUAL_SA2_HA0_MN_AUTH    hmacsha1_2(hexstr(IPSEC_MANUAL_SA2_HA0_MN_AH_KEY, 20))
+			#else
+				#define IPSEC_MANUAL_SA2_HA0_MN_AUTH    hmacsha1(IPSEC_MANUAL_SA2_HA0_MN_AH_KEY)
+			#endif
+		#elif defined(IPSEC_MANUAL_SA2_HA0_MN_AH_HMACMD5)
+			#if !defined(IPSEC_MANUAL_SA2_HA0_MN_AH_KEY)
+				#define IPSEC_MANUAL_SA2_HA0_MN_AH_KEY  "V6LC-112--123456"
+			#endif
+			#ifdef TEST_FUNC_IKE
+				#define IPSEC_MANUAL_SA2_HA0_MN_AUTH    hmacmd5_2(hexstr(IPSEC_MANUAL_SA2_HA0_MN_AH_KEY, 16))
+			#else
+				#define IPSEC_MANUAL_SA2_HA0_MN_AUTH    hmacmd5(IPSEC_MANUAL_SA2_HA0_MN_AH_KEY)
+			#endif
+		#else
+			#define IPSEC_MANUAL_SA2_HA0_MN_AUTH        null_auth(8)
+		#endif
+
+		ESPAlgorithm esp_sa2_ha0_mn {
+			crypt = IPSEC_MANUAL_SA2_HA0_MN_CRYPT;
+			auth  = IPSEC_MANUAL_SA2_HA0_MN_AUTH;
+		}
+
+	#else
+
+		ESPAlgorithm esp_sa2_ha0_mn {
+			crypt = null_crypt(8);
+		}
+
+	#endif
+
+	Hdr_ESP ext_sa2_ha0_mn {
+		SPI            = IPSEC_MANUAL_SA2_HA0_MN_SPI;
+		SequenceNumber = ESP_SEQ;
+		algorithm      = esp_sa2_ha0_mn;
+	}
+
+#endif
+
+
+/*----------------------------------------------------------------------------*
+ *  IPsec SA3: Return Routability Signaling MN -> HA0 TUNNEL
+ *----------------------------------------------------------------------------*/
+#if defined(IPSEC_MANUAL_SA3_MN_HA0_PROTO_ALL)
+	#define IPSEC_MANUAL_SA3_MN_HA0_PROTO_MH    1
+#endif
+
+#if defined(IPSEC_MANUAL_SA3_MN_HA0_PROTO_MH)
+	#define IPSEC_MANUAL_SA3_MN_HA0_PROTO_HOTI    1
+#endif
+
+#if defined(IPSEC_MANUAL_SA3_MN_HA0_PROTO_HOTI)
+
+	#if !defined(IPSEC_MANUAL_SA3_MN_HA0_SPI)
+		#define IPSEC_MANUAL_SA3_MN_HA0_SPI    0x113
+	#endif
+
+	#if defined(IPSEC_MANUAL_SA3_MN_HA0_ALGO_ESP)
+
+		#if defined(IPSEC_MANUAL_SA3_MN_HA0_ESP_DES3CBC)
+			#if !defined(IPSEC_MANUAL_SA3_MN_HA0_ESP_KEY)
+				#define IPSEC_MANUAL_SA3_MN_HA0_ESP_KEY "V6LC-113--12345678901234"
+			#endif
+			#ifdef TEST_FUNC_IKE
+				#define IPSEC_MANUAL_SA3_MN_HA0_CRYPT   des3cbc_2(hexstr(IPSEC_MANUAL_SA3_MN_HA0_ESP_KEY, 24))
+			#else
+				#define IPSEC_MANUAL_SA3_MN_HA0_CRYPT   des3cbc(IPSEC_MANUAL_SA3_MN_HA0_ESP_KEY)
+			#endif
+		#elif defined(IPSEC_MANUAL_SA3_MN_HA0_ESP_DESCBC)
+			#if !defined(IPSEC_MANUAL_SA3_MN_HA0_ESP_KEY)
+				#define IPSEC_MANUAL_SA3_MN_HA0_ESP_KEY "V6LC-113"
+			#endif
+			#ifdef TEST_FUNC_IKE
+				#define IPSEC_MANUAL_SA3_MN_HA0_CRYPT   descbc_2(hexstr(IPSEC_MANUAL_SA3_MN_HA0_ESP_KEY, 8))
+			#else
+				#define IPSEC_MANUAL_SA3_MN_HA0_CRYPT   descbc(IPSEC_MANUAL_SA3_MN_HA0_ESP_KEY)
+			#endif
+		#else
+			#define IPSEC_MANUAL_SA3_MN_HA0_CRYPT       null_crypt(8)
+		#endif
+
+		#if defined(IPSEC_MANUAL_SA3_MN_HA0_AH_HMACSHA1)
+			#if !defined(IPSEC_MANUAL_SA3_MN_HA0_AH_KEY)
+				#define IPSEC_MANUAL_SA3_MN_HA0_AH_KEY  "V6LC-113--1234567890"
+			#endif
+			#ifdef TEST_FUNC_IKE
+				#define IPSEC_MANUAL_SA3_MN_HA0_AUTH    hmacsha1_2(hexstr(IPSEC_MANUAL_SA3_MN_HA0_AH_KEY, 20))
+			#else
+				#define IPSEC_MANUAL_SA3_MN_HA0_AUTH    hmacsha1(IPSEC_MANUAL_SA3_MN_HA0_AH_KEY)
+			#endif
+		#elif defined(IPSEC_MANUAL_SA3_MN_HA0_AH_HMACMD5)
+			#if !defined(IPSEC_MANUAL_SA3_MN_HA0_AH_KEY)
+				#define IPSEC_MANUAL_SA3_MN_HA0_AH_KEY  "V6LC-113--123456"
+			#endif
+			#ifdef TEST_FUNC_IKE
+				#define IPSEC_MANUAL_SA3_MN_HA0_AUTH    hmacmd5_2(hexstr(IPSEC_MANUAL_SA3_MN_HA0_AH_KEY, 16))
+			#else
+				#define IPSEC_MANUAL_SA3_MN_HA0_AUTH    hmacmd5(IPSEC_MANUAL_SA3_MN_HA0_AH_KEY)
+			#endif
+		#else
+			#define IPSEC_MANUAL_SA3_MN_HA0_AUTH        null_auth(8)
+		#endif
+
+		ESPAlgorithm esp_sa3_mn_ha0 {
+			crypt = IPSEC_MANUAL_SA3_MN_HA0_CRYPT;
+			auth  = IPSEC_MANUAL_SA3_MN_HA0_AUTH;
+		}
+
+	#else
+
+		ESPAlgorithm esp_sa3_mn_ha0 {
+			crypt = null_crypy(8);
+		}
+
+	#endif
+
+	Hdr_ESP ext_sa3_mn_ha0 {
+		SPI            = IPSEC_MANUAL_SA3_MN_HA0_SPI;
+		SequenceNumber = ESP_SEQ_ANY;
+		algorithm      = esp_sa3_mn_ha0;
+	}
+
+#elif defined(FUNC_DETAIL_HOA_ADDRESS_NEMO)
+
+	#if defined(IPSEC_MANUAL_SA9_MN_HA0_PROTO_X)
+
+		Hdr_ESP ext_sa3_mn_ha0 {
+			SPI            = IPSEC_MANUAL_SA9_MN_HA0_SPI;
+			SequenceNumber = ESP_SEQ_ANY;
+			algorithm      = esp_sa9_mn_ha0;
+		}
+
+	#endif
+
+#endif
+
+
+/*----------------------------------------------------------------------------*
+ *  IPsec SA4: Return Routability Signaling HA0 -> MN TUNNEL
+ *----------------------------------------------------------------------------*/
+#if defined(IPSEC_MANUAL_SA4_HA0_MN_PROTO_ALL)
+	#define IPSEC_MANUAL_SA4_HA0_MN_PROTO_MH    1
+#endif
+
+#if defined(IPSEC_MANUAL_SA4_HA0_MN_PROTO_MH)
+	#define IPSEC_MANUAL_SA4_HA0_MN_PROTO_HOT    1
+#endif
+
+#if defined(IPSEC_MANUAL_SA4_HA0_MN_PROTO_HOT)
+
+	#if !defined(IPSEC_MANUAL_SA4_HA0_MN_SPI)
+		#define IPSEC_MANUAL_SA4_HA0_MN_SPI    0x114
+	#endif
+
+	#if defined(IPSEC_MANUAL_SA4_HA0_MN_ALGO_ESP)
+
+		#if defined(IPSEC_MANUAL_SA4_HA0_MN_ESP_DES3CBC)
+			#if !defined(IPSEC_MANUAL_SA4_HA0_MN_ESP_KEY)
+				#define IPSEC_MANUAL_SA4_HA0_MN_ESP_KEY "V6LC-114--12345678901234"
+			#endif
+			#ifdef TEST_FUNC_IKE
+				#define IPSEC_MANUAL_SA4_HA0_MN_CRYPT   des3cbc_2(hexstr(IPSEC_MANUAL_SA4_HA0_MN_ESP_KEY, 24))
+			#else
+				#define IPSEC_MANUAL_SA4_HA0_MN_CRYPT   des3cbc(IPSEC_MANUAL_SA4_HA0_MN_ESP_KEY)
+			#endif
+		#elif defined(IPSEC_MANUAL_SA4_HA0_MN_ESP_DESCBC)
+			#if !defined(IPSEC_MANUAL_SA4_HA0_MN_ESP_KEY)
+				#define IPSEC_MANUAL_SA4_HA0_MN_ESP_KEY "V6LC-114"
+			#endif
+			#ifdef TEST_FUNC_IKE
+				#define IPSEC_MANUAL_SA4_HA0_MN_CRYPT   descbc_2(hexstr(IPSEC_MANUAL_SA4_HA0_MN_ESP_KEY, 8))
+			#else
+				#define IPSEC_MANUAL_SA4_HA0_MN_CRYPT   descbc(IPSEC_MANUAL_SA4_HA0_MN_ESP_KEY)
+			#endif
+		#else
+			#define IPSEC_MANUAL_SA4_HA0_MN_CRYPT       null_crypt(8)
+		#endif
+
+		#if defined(IPSEC_MANUAL_SA4_HA0_MN_AH_HMACSHA1)
+			#if !defined(IPSEC_MANUAL_SA4_HA0_MN_AH_KEY)
+				#define IPSEC_MANUAL_SA4_HA0_MN_AH_KEY  "V6LC-114--1234567890"
+			#endif
+			#ifdef TEST_FUNC_IKE
+				#define IPSEC_MANUAL_SA4_HA0_MN_AUTH    hmacsha1_2(hexstr(IPSEC_MANUAL_SA4_HA0_MN_AH_KEY, 20))
+			#else
+				#define IPSEC_MANUAL_SA4_HA0_MN_AUTH    hmacsha1(IPSEC_MANUAL_SA4_HA0_MN_AH_KEY)
+			#endif
+		#elif defined(IPSEC_MANUAL_SA4_HA0_MN_AH_HMACMD5)
+			#if !defined(IPSEC_MANUAL_SA4_HA0_MN_AH_KEY)
+				#define IPSEC_MANUAL_SA4_HA0_MN_AH_KEY  "V6LC-114--123456"
+			#endif
+			#ifdef TEST_FUNC_IKE
+				#define IPSEC_MANUAL_SA4_HA0_MN_AUTH    hmacmd5_2(hexstr(IPSEC_MANUAL_SA4_HA0_MN_AH_KEY, 16))
+			#else
+				#define IPSEC_MANUAL_SA4_HA0_MN_AUTH    hmacmd5(IPSEC_MANUAL_SA4_HA0_MN_AH_KEY)
+			#endif
+		#else
+			#define IPSEC_MANUAL_SA4_HA0_MN_AUTH        null_auth(8)
+		#endif
+
+		ESPAlgorithm esp_sa4_ha0_mn {
+			crypt = IPSEC_MANUAL_SA4_HA0_MN_CRYPT;
+			auth  = IPSEC_MANUAL_SA4_HA0_MN_AUTH;
+		}
+
+	#else
+
+		ESPAlgorithm esp_sa4_ha0_mn {
+			crypt = null_crypt(8);
+		}
+
+	#endif
+
+	Hdr_ESP ext_sa4_ha0_mn {
+		SPI            = IPSEC_MANUAL_SA4_HA0_MN_SPI;
+		SequenceNumber = ESP_SEQ;
+		algorithm      = esp_sa4_ha0_mn;
+	}
+
+#elif defined(FUNC_DETAIL_HOA_ADDRESS_NEMO)
+
+	#if defined(IPSEC_MANUAL_SA10_HA0_MN_PROTO_X)
+
+		Hdr_ESP ext_sa4_ha0_mn {
+			SPI            = IPSEC_MANUAL_SA10_HA0_MN_SPI;
+			SequenceNumber = ESP_SEQ_ANY;
+			algorithm      = esp_sa10_ha0_mn;
+		}
+
+	#endif
+
+#endif
+
+
+/*----------------------------------------------------------------------------*
+ *  IPsec SA5: Prefix Discovery MN -> HA0 TRANSPORT
+ *----------------------------------------------------------------------------*/
+#if defined(IPSEC_MANUAL_SA1_MN_HA0_PROTO_ALL)
+
+	#define IPSEC_MANUAL_SA5_MN_HA0_PROTO_ALL   1
+	#define IPSEC_MANUAL_SA5_MN_HA0_PROTO_ICMP  1
+	#define IPSEC_MANUAL_SA5_MN_HA0_PROTO_MPS   1
+
+	Hdr_ESP ext_sa5_mn_ha0 {
+		SPI            = IPSEC_MANUAL_SA1_MN_HA0_SPI;
+		SequenceNumber = ESP_SEQ_ANY;
+		algorithm      = esp_sa1_mn_ha0;
+	}
+
+#else 
+
+	#if defined(IPSEC_MANUAL_SA5_MN_HA0_PROTO_ALL)
+		#define IPSEC_MANUAL_SA5_MN_HA0_PROTO_ICMP  1
+	#endif
+
+	#if defined(IPSEC_MANUAL_SA5_MN_HA0_PROTO_ICMP)
+		#define IPSEC_MANUAL_SA5_MN_HA0_PROTO_MPS   1
+	#endif
+
+	#if defined(IPSEC_MANUAL_SA5_MN_HA0_PROTO_MPS)
+
+		#if !defined(IPSEC_MANUAL_SA5_MN_HA0_SPI)
+			#define IPSEC_MANUAL_SA5_MN_HA0_SPI     0x115
+		#endif
+
+		#if defined(IPSEC_MANUAL_SA5_MN_HA0_ALGO_ESP)
+
+			#if defined(IPSEC_MANUAL_SA5_MN_HA0_ESP_DES3CBC)
+				#if !defined(IPSEC_MANUAL_SA5_MN_HA0_ESP_KEY)
+					#define IPSEC_MANUAL_SA5_MN_HA0_ESP_KEY "V6LC-115--12345678901234"
+				#endif
+				#ifdef TEST_FUNC_IKE
+					#define IPSEC_MANUAL_SA5_MN_HA0_CRYPT   des3cbc_2(hexstr(IPSEC_MANUAL_SA5_MN_HA0_ESP_KEY, 24))
+				#else
+					#define IPSEC_MANUAL_SA5_MN_HA0_CRYPT   des3cbc(IPSEC_MANUAL_SA5_MN_HA0_ESP_KEY)
+				#endif
+			#elif defined(IPSEC_MANUAL_SA5_MN_HA0_ESP_DESCBC)
+				#if !defined(IPSEC_MANUAL_SA5_MN_HA0_ESP_KEY)
+					#define IPSEC_MANUAL_SA5_MN_HA0_ESP_KEY "V6LC-115"
+				#endif
+				#ifdef TEST_FUNC_IKE
+					#define IPSEC_MANUAL_SA5_MN_HA0_CRYPT   descbc_2(hexstr(IPSEC_MANUAL_SA5_MN_HA0_ESP_KEY, 8))
+				#else
+					#define IPSEC_MANUAL_SA5_MN_HA0_CRYPT   descbc(IPSEC_MANUAL_SA5_MN_HA0_ESP_KEY)
+				#endif
+			#else
+				#define IPSEC_MANUAL_SA5_MN_HA0_CRYPT       null_crypt(8)
+			#endif
+
+			#if defined(IPSEC_MANUAL_SA5_MN_HA0_AH_HMACSHA1)
+				#if !defined(IPSEC_MANUAL_SA5_MN_HA0_AH_KEY)
+					#define IPSEC_MANUAL_SA5_MN_HA0_AH_KEY  "V6LC-115--1234567890"
+				#endif
+				#ifdef TEST_FUNC_IKE
+					#define IPSEC_MANUAL_SA5_MN_HA0_AUTH    hmacsha1_2(hexstr(IPSEC_MANUAL_SA5_MN_HA0_AH_KEY, 20))
+				#else
+					#define IPSEC_MANUAL_SA5_MN_HA0_AUTH    hmacsha1(IPSEC_MANUAL_SA5_MN_HA0_AH_KEY)
+				#endif
+			#elif defined(IPSEC_MANUAL_SA5_MN_HA0_AH_HMACMD5)
+				#if !defined(IPSEC_MANUAL_SA5_MN_HA0_AH_KEY)
+					#define IPSEC_MANUAL_SA5_MN_HA0_AH_KEY  "V6LC-115--123456"
+				#endif
+				#ifdef TEST_FUNC_IKE
+					#define IPSEC_MANUAL_SA5_MN_HA0_AUTH    hmacmd5_2(hexstr(IPSEC_MANUAL_SA5_MN_HA0_AH_KEY, 16))
+				#else
+					#define IPSEC_MANUAL_SA5_MN_HA0_AUTH    hmacmd5(IPSEC_MANUAL_SA5_MN_HA0_AH_KEY)
+				#endif
+			#else
+				#define IPSEC_MANUAL_SA5_MN_HA0_AUTH        null_auth(8)
+			#endif
+
+			ESPAlgorithm esp_sa5_mn_ha0 {
+				crypt = IPSEC_MANUAL_SA5_MN_HA0_CRYPT;
+				auth  = IPSEC_MANUAL_SA5_MN_HA0_AUTH;
+			}
+
+		#else
+
+			ESPAlgorithm esp_sa5_mn_ha0 {
+				crypt = null_crypt(8);
+			}
+
+		#endif
+
+		Hdr_ESP ext_sa5_mn_ha0 {
+			SPI            = IPSEC_MANUAL_SA5_MN_HA0_SPI;
+			SequenceNumber = ESP_SEQ_ANY;
+			algorithm      = esp_sa5_mn_ha0;
+		}
+
+	#endif
+
+#endif
+
+
+/*----------------------------------------------------------------------------*
+ *  IPsec SA6: Prefix Discovery HA0 -> MN TRANSPORT
+ *----------------------------------------------------------------------------*/
+#if defined(IPSEC_MANUAL_SA2_HA0_MN_PROTO_ALL)
+
+	#define IPSEC_MANUAL_SA6_HA0_MN_PROTO_ALL   1
+	#define IPSEC_MANUAL_SA6_HA0_MN_PROTO_ICMP  1
+	#define IPSEC_MANUAL_SA6_HA0_MN_PROTO_MPA   1
+
+	Hdr_ESP ext_sa6_ha0_mn {
+		SPI            = IPSEC_MANUAL_SA2_HA0_MN_SPI;
+		SequenceNumber = ESP_SEQ;
+		algorithm      = esp_sa2_ha0_mn;
+	}
+
+#else
+
+	#if defined(IPSEC_MANUAL_SA6_HA0_MN_PROTO_ALL)
+		#define IPSEC_MANUAL_SA6_HA0_MN_PROTO_ICMP  1
+	#endif
+
+	#if defined(IPSEC_MANUAL_SA6_HA0_MN_PROTO_ICMP)
+		#define IPSEC_MANUAL_SA6_HA0_MN_PROTO_MPA   1
+	#endif
+
+	#if defined(IPSEC_MANUAL_SA6_HA0_MN_PROTO_MPA)
+
+		#if !defined(IPSEC_MANUAL_SA6_HA0_MN_SPI)
+			#define IPSEC_MANUAL_SA6_HA0_MN_SPI     0x116
+		#endif
+
+		#if defined(IPSEC_MANUAL_SA6_HA0_MN_ALGO_ESP)
+
+			#if defined(IPSEC_MANUAL_SA6_HA0_MN_ESP_DES3CBC)
+				#if !defined(IPSEC_MANUAL_SA6_HA0_MN_ESP_KEY)
+					#define IPSEC_MANUAL_SA6_HA0_MN_ESP_KEY "V6LC-116--12345678901234"
+				#endif
+				#ifdef TEST_FUNC_IKE
+					#define IPSEC_MANUAL_SA6_HA0_MN_CRYPT   des3cbc_2(hexstr(IPSEC_MANUAL_SA6_HA0_MN_ESP_KEY, 24))
+				#else
+					#define IPSEC_MANUAL_SA6_HA0_MN_CRYPT   des3cbc(IPSEC_MANUAL_SA6_HA0_MN_ESP_KEY)
+				#endif
+			#elif defined(IPSEC_MANUAL_SA6_HA0_MN_ESP_DESCBC)
+				#if !defined(IPSEC_MANUAL_SA6_HA0_MN_ESP_KEY)
+					#define IPSEC_MANUAL_SA6_HA0_MN_ESP_KEY "V6LC-116"
+				#endif
+				#ifdef TEST_FUNC_IKE
+					#define IPSEC_MANUAL_SA6_HA0_MN_CRYPT   descbc_2(hexstr(IPSEC_MANUAL_SA6_HA0_MN_ESP_KEY, 8))
+				#else
+					#define IPSEC_MANUAL_SA6_HA0_MN_CRYPT   descbc(IPSEC_MANUAL_SA6_HA0_MN_ESP_KEY)
+				#endif
+			#else
+				#define IPSEC_MANUAL_SA6_HA0_MN_CRYPT       null_crypt(8)
+			#endif
+
+			#if defined(IPSEC_MANUAL_SA6_HA0_MN_AH_HMACSHA1)
+				#if !defined(IPSEC_MANUAL_SA6_HA0_MN_AH_KEY)
+					#define IPSEC_MANUAL_SA6_HA0_MN_AH_KEY  "V6LC-116--1234567890"
+				#endif
+				#ifdef TEST_FUNC_IKE
+					#define IPSEC_MANUAL_SA6_HA0_MN_AUTH    hmacsha1_2(hexstr(IPSEC_MANUAL_SA6_HA0_MN_AH_KEY, 20))
+				#else
+					#define IPSEC_MANUAL_SA6_HA0_MN_AUTH    hmacsha1(IPSEC_MANUAL_SA6_HA0_MN_AH_KEY)
+				#endif
+			#elif defined(IPSEC_MANUAL_SA6_HA0_MN_AH_HMACMD5)
+				#if !defined(IPSEC_MANUAL_SA6_HA0_MN_AH_KEY)
+					#define IPSEC_MANUAL_SA6_HA0_MN_AH_KEY  "V6LC-116--123456"
+				#endif
+				#ifdef TEST_FUNC_IKE
+					#define IPSEC_MANUAL_SA6_HA0_MN_AUTH    hmacmd5_2(hexstr(IPSEC_MANUAL_SA6_HA0_MN_AH_KEY, 16))
+				#else
+					#define IPSEC_MANUAL_SA6_HA0_MN_AUTH    hmacmd5(IPSEC_MANUAL_SA6_HA0_MN_AH_KEY)
+				#endif
+			#else
+				#define IPSEC_MANUAL_SA6_HA0_MN_AUTH        null_auth(8)
+			#endif
+
+			ESPAlgorithm esp_sa6_ha0_mn {
+				crypt = IPSEC_MANUAL_SA6_HA0_MN_CRYPT;
+				auth  = IPSEC_MANUAL_SA6_HA0_MN_AUTH;
+			}
+
+		#else
+
+			ESPAlgorithm esp_sa6_ha0_mn {
+				crypt = null_crypt(8);
+			}
+
+		#endif
+
+		Hdr_ESP ext_sa6_ha0_mn {
+			SPI            = IPSEC_MANUAL_SA6_HA0_MN_SPI;
+			SequenceNumber = ESP_SEQ;
+			algorithm      = esp_sa6_ha0_mn;
+		}
+
+	#endif
+
+#endif
+
+
+/*----------------------------------------------------------------------------*
+ *  IPsec SA7: Payload Packets MN -> HA0 TUNNEL
+ *----------------------------------------------------------------------------*/
+#if defined(IPSEC_MANUAL_SA3_MN_HA0_PROTO_ALL)
+
+	#define IPSEC_MANUAL_SA7_MN_HA0_PROTO_ALL   1
+	#define IPSEC_MANUAL_SA7_MN_HA0_PROTO_X     1
+
+	Hdr_ESP ext_sa7_mn_ha0 {
+		SPI            = IPSEC_MANUAL_SA3_MN_HA0_SPI;
+		SequenceNumber = ESP_SEQ_ANY;
+		algorithm      = esp_sa3_mn_ha0;
+	}
+
+#else
+
+	#if defined(IPSEC_MANUAL_SA7_MN_HA0_PROTO_ALL)
+		#define IPSEC_MANUAL_SA7_MN_HA0_PROTO_X 1
+	#endif 
+
+	#if defined(IPSEC_MANUAL_SA7_MN_HA0_PROTO_X)
+
+		#if !defined(IPSEC_MANUAL_SA7_MN_HA0_SPI)
+			#define IPSEC_MANUAL_SA7_MN_HA0_SPI 0x117
+		#endif
+
+		#if defined(IPSEC_MANUAL_SA7_MN_HA0_ALGO_ESP)
+
+			#if defined(IPSEC_MANUAL_SA7_MN_HA0_ESP_DES3CBC)
+				#if !defined(IPSEC_MANUAL_SA7_MN_HA0_ESP_KEY)
+					#define IPSEC_MANUAL_SA7_MN_HA0_ESP_KEY "V6LC-117--12345678901234"
+				#endif
+				#ifdef TEST_FUNC_IKE
+					#define IPSEC_MANUAL_SA7_MN_HA0_CRYPT   des3cbc_2(hexstr(IPSEC_MANUAL_SA7_MN_HA0_ESP_KEY, 24))
+				#else
+					#define IPSEC_MANUAL_SA7_MN_HA0_CRYPT   des3cbc(IPSEC_MANUAL_SA7_MN_HA0_ESP_KEY)
+				#endif
+			#elif defined(IPSEC_MANUAL_SA7_MN_HA0_ESP_DESCBC)
+				#if !defined(IPSEC_MANUAL_SA7_MN_HA0_ESP_KEY)
+					#define IPSEC_MANUAL_SA7_MN_HA0_ESP_KEY "V6LC-117"
+				#endif
+				#ifdef TEST_FUNC_IKE
+					#define IPSEC_MANUAL_SA7_MN_HA0_CRYPT   descbc_2(hexstr(IPSEC_MANUAL_SA7_MN_HA0_ESP_KEY, 8))
+				#else
+					#define IPSEC_MANUAL_SA7_MN_HA0_CRYPT   descbc(IPSEC_MANUAL_SA7_MN_HA0_ESP_KEY)
+				#endif
+			#else
+				#define IPSEC_MANUAL_SA7_MN_HA0_CRYPT       null_crypt(8)
+			#endif
+
+			#if defined(IPSEC_MANUAL_SA7_MN_HA0_AH_HMACSHA1)
+				#if !defined(IPSEC_MANUAL_SA7_MN_HA0_AH_KEY)
+					#define IPSEC_MANUAL_SA7_MN_HA0_AH_KEY  "V6LC-117--1234567890"
+				#endif
+				#ifdef TEST_FUNC_IKE
+					#define IPSEC_MANUAL_SA7_MN_HA0_AUTH    hmacsha1_2(hexstr(IPSEC_MANUAL_SA7_MN_HA0_AH_KEY, 20))
+				#else
+					#define IPSEC_MANUAL_SA7_MN_HA0_AUTH    hmacsha1(IPSEC_MANUAL_SA7_MN_HA0_AH_KEY)
+				#endif
+			#elif defined(IPSEC_MANUAL_SA7_MN_HA0_AH_HMACMD5)
+				#if !defined(IPSEC_MANUAL_SA7_MN_HA0_AH_KEY)
+					#define IPSEC_MANUAL_SA7_MN_HA0_AH_KEY  "V6LC-117--123456"
+				#endif
+				#ifdef TEST_FUNC_IKE
+					#define IPSEC_MANUAL_SA7_MN_HA0_AUTH    hmacmd5_2(hexstr(IPSEC_MANUAL_SA7_MN_HA0_AH_KEY, 16))
+				#else
+					#define IPSEC_MANUAL_SA7_MN_HA0_AUTH    hmacmd5(IPSEC_MANUAL_SA7_MN_HA0_AH_KEY)
+				#endif
+			#else
+				#define IPSEC_MANUAL_SA7_MN_HA0_AUTH        null_auth(8)
+			#endif
+
+			ESPAlgorithm esp_sa7_mn_ha0 {
+				crypt = IPSEC_MANUAL_SA7_MN_HA0_CRYPT;
+				auth  = IPSEC_MANUAL_SA7_MN_HA0_AUTH;
+			}
+
+		#else
+
+			ESPAlgorithm esp_sa7_mn_ha0 {
+				crypt = null_crypy(8);
+			}
+
+		#endif
+
+		Hdr_ESP ext_sa7_mn_ha0 {
+			SPI            = IPSEC_MANUAL_SA7_MN_HA0_SPI;
+			SequenceNumber = ESP_SEQ_ANY;
+			algorithm      = esp_sa7_mn_ha0;
+		}
+
+	#elif defined(FUNC_DETAIL_HOA_ADDRESS_NEMO)
+
+		#if defined(IPSEC_MANUAL_SA9_MN_HA0_PROTO_X)
+
+			Hdr_ESP ext_sa7_mn_ha0 {
+				SPI            = IPSEC_MANUAL_SA9_MN_HA0_SPI;
+				SequenceNumber = ESP_SEQ_ANY;
+				algorithm      = esp_sa9_mn_ha0;
+			}
+
+		#endif
+
+	#endif
+
+#endif
+
+
+/*----------------------------------------------------------------------------*
+ *  IPsec SA8: Payload Packets HA0 -> MN TUNNEL
+ *----------------------------------------------------------------------------*/
+#if defined(IPSEC_MANUAL_SA4_HA0_MN_PROTO_ALL)
+
+	#define IPSEC_MANUAL_SA8_HA0_MN_PROTO_ALL   1
+	#define IPSEC_MANUAL_SA8_HA0_MN_PROTO_X     1
+
+	Hdr_ESP ext_sa8_ha0_mn {
+		SPI            = IPSEC_MANUAL_SA4_HA0_MN_SPI;
+		SequenceNumber = ESP_SEQ;
+		algorithm      = esp_sa4_ha0_mn;
+	}
+
+#else 
+
+	#if defined(IPSEC_MANUAL_SA8_HA0_MN_PROTO_ALL)
+		#define IPSEC_MANUAL_SA8_HA0_MN_PROTO_X 1
+	#endif 
+
+	#if defined(IPSEC_MANUAL_SA8_HA0_MN_PROTO_X)
+
+		#if !defined(IPSEC_MANUAL_SA8_HA0_MN_SPI)
+			#define IPSEC_MANUAL_SA8_HA0_MN_SPI 0x118
+		#endif
+
+		#if defined(IPSEC_MANUAL_SA8_HA0_MN_ALGO_ESP)
+
+			#if defined(IPSEC_MANUAL_SA8_HA0_MN_ESP_DES3CBC)
+				#if !defined(IPSEC_MANUAL_SA8_HA0_MN_ESP_KEY)
+					#define IPSEC_MANUAL_SA8_HA0_MN_ESP_KEY "V6LC-118--12345678901234"
+				#endif
+				#ifdef TEST_FUNC_IKE
+					#define IPSEC_MANUAL_SA8_HA0_MN_CRYPT   des3cbc_2(hexstr(IPSEC_MANUAL_SA8_HA0_MN_ESP_KEY, 24))
+				#else
+					#define IPSEC_MANUAL_SA8_HA0_MN_CRYPT   des3cbc(IPSEC_MANUAL_SA8_HA0_MN_ESP_KEY)
+				#endif
+			#elif defined(IPSEC_MANUAL_SA8_HA0_MN_ESP_DESCBC)
+				#if !defined(IPSEC_MANUAL_SA8_HA0_MN_ESP_KEY)
+					#define IPSEC_MANUAL_SA8_HA0_MN_ESP_KEY "V6LC-118"
+				#endif
+				#ifdef TEST_FUNC_IKE
+					#define IPSEC_MANUAL_SA8_HA0_MN_CRYPT   descbc_2(hexstr(IPSEC_MANUAL_SA8_HA0_MN_ESP_KEY, 8))
+				#else
+					#define IPSEC_MANUAL_SA8_HA0_MN_CRYPT   descbc(IPSEC_MANUAL_SA8_HA0_MN_ESP_KEY)
+				#endif
+			#else
+				#define IPSEC_MANUAL_SA8_HA0_MN_CRYPT       null_crypt(8)
+			#endif
+
+			#if defined(IPSEC_MANUAL_SA8_HA0_MN_AH_HMACSHA1)
+				#if !defined(IPSEC_MANUAL_SA8_HA0_MN_AH_KEY)
+					#define IPSEC_MANUAL_SA8_HA0_MN_AH_KEY  "V6LC-118--1234567890"
+				#endif
+				#ifdef TEST_FUNC_IKE
+					#define IPSEC_MANUAL_SA8_HA0_MN_AUTH    hmacsha1_2(hexstr(IPSEC_MANUAL_SA8_HA0_MN_AH_KEY, 20))
+				#else
+					#define IPSEC_MANUAL_SA8_HA0_MN_AUTH    hmacsha1(IPSEC_MANUAL_SA8_HA0_MN_AH_KEY)
+				#endif
+			#elif defined(IPSEC_MANUAL_SA8_HA0_MN_AH_HMACMD5)
+				#if !defined(IPSEC_MANUAL_SA8_HA0_MN_AH_KEY)
+					#define IPSEC_MANUAL_SA8_HA0_MN_AH_KEY  "V6LC-118--123456"
+				#endif
+				#ifdef TEST_FUNC_IKE
+					#define IPSEC_MANUAL_SA8_HA0_MN_AUTH    hmacmd5_2(hexstr(IPSEC_MANUAL_SA8_HA0_MN_AH_KEY, 16))
+				#else
+					#define IPSEC_MANUAL_SA8_HA0_MN_AUTH    hmacmd5(IPSEC_MANUAL_SA8_HA0_MN_AH_KEY)
+				#endif
+			#else
+				#define IPSEC_MANUAL_SA8_HA0_MN_AUTH        null_auth(8)
+			#endif
+
+			ESPAlgorithm esp_sa8_ha0_mn {
+				crypt = IPSEC_MANUAL_SA8_HA0_MN_CRYPT;
+				auth  = IPSEC_MANUAL_SA8_HA0_MN_AUTH;
+			}
+
+		#else
+
+			ESPAlgorithm esp_sa8_ha0_mn {
+				crypt = null_crypt(8);
+			}
+
+		#endif
+
+		Hdr_ESP ext_sa8_ha0_mn {
+			SPI            = IPSEC_MANUAL_SA8_HA0_MN_SPI;
+			SequenceNumber = ESP_SEQ;
+			algorithm      = esp_sa8_ha0_mn;
+		}
+
+	#elif defined(FUNC_DETAIL_HOA_ADDRESS_NEMO)
+
+		#if defined(IPSEC_MANUAL_SA10_HA0_MN_PROTO_X)
+
+			Hdr_ESP ext_sa8_ha0_mn {
+				SPI            = IPSEC_MANUAL_SAA_HA0_MN_SPI;
+				SequenceNumber = ESP_SEQ;
+				algorithm      = esp_sa10_ha0_mn;
+			}
+
+		#endif
+
+	#endif
+
+#endif
+
+
+/*----------------------------------------------------------------------------*
+ *  IPsec SA9: MOBILE NETWORK PREFIX -> HA0 TUNNEL
+ *----------------------------------------------------------------------------*/
+#if defined(IPSEC_MANUAL_SA9_MN_HA0_PROTO_X)
+
+	#if !defined(IPSEC_MANUAL_SA9_MN_HA0_SPI)
+		#define IPSEC_MANUAL_SA9_MN_HA0_SPI 0x119
+	#endif
+
+	#if defined(IPSEC_MANUAL_SA9_MN_HA0_ALGO_ESP)
+
+		#if defined(IPSEC_MANUAL_SA9_MN_HA0_ESP_DES3CBC)
+			#if !defined(IPSEC_MANUAL_SA9_MN_HA0_ESP_KEY)
+				#define IPSEC_MANUAL_SA9_MN_HA0_ESP_KEY "V6LC-119--12345678901234"
+			#endif
+			#ifdef TEST_FUNC_IKE
+				#define IPSEC_MANUAL_SA9_MN_HA0_CRYPT   des3cbc_2(hexstr(IPSEC_MANUAL_SA9_MN_HA0_ESP_KEY, 24))
+			#else
+				#define IPSEC_MANUAL_SA9_MN_HA0_CRYPT   des3cbc(IPSEC_MANUAL_SA9_MN_HA0_ESP_KEY)
+			#endif
+		#elif defined(IPSEC_MANUAL_SA9_MN_HA0_ESP_DESCBC)
+			#if !defined(IPSEC_MANUAL_SA9_MN_HA0_ESP_KEY)
+				#define IPSEC_MANUAL_SA9_MN_HA0_ESP_KEY "V6LC-119"
+			#endif
+			#ifdef TEST_FUNC_IKE
+				#define IPSEC_MANUAL_SA9_MN_HA0_CRYPT   descbc_2(hexstr(IPSEC_MANUAL_SA9_MN_HA0_ESP_KEY, 8))
+			#else
+				#define IPSEC_MANUAL_SA9_MN_HA0_CRYPT   descbc(IPSEC_MANUAL_SA9_MN_HA0_ESP_KEY)
+			#endif
+		#else
+			#define IPSEC_MANUAL_SA9_MN_HA0_CRYPT       null_crypt(8)
+		#endif
+
+		#if defined(IPSEC_MANUAL_SA9_MN_HA0_AH_HMACSHA1)
+			#if !defined(IPSEC_MANUAL_SA9_MN_HA0_AH_KEY)
+				#define IPSEC_MANUAL_SA9_MN_HA0_AH_KEY  "V6LC-119--1234567890"
+			#endif
+			#ifdef TEST_FUNC_IKE
+				#define IPSEC_MANUAL_SA9_MN_HA0_AUTH    hmacsha1_2(hexstr(IPSEC_MANUAL_SA9_MN_HA0_AH_KEY, 20))
+			#else
+				#define IPSEC_MANUAL_SA9_MN_HA0_AUTH    hmacsha1(IPSEC_MANUAL_SA9_MN_HA0_AH_KEY)
+			#endif
+		#elif defined(IPSEC_MANUAL_SA9_MN_HA0_AH_HMACMD5)
+			#if !defined(IPSEC_MANUAL_SA9_MN_HA0_AH_KEY)
+				#define IPSEC_MANUAL_SA9_MN_HA0_AH_KEY  "V6LC-119--123456"
+			#endif
+			#ifdef TEST_FUNC_IKE
+				#define IPSEC_MANUAL_SA9_MN_HA0_AUTH    hmacmd5_2(hexstr(IPSEC_MANUAL_SA9_MN_HA0_AH_KEY, 16))
+			#else
+				#define IPSEC_MANUAL_SA9_MN_HA0_AUTH    hmacmd5(IPSEC_MANUAL_SA9_MN_HA0_AH_KEY)
+			#endif
+		#else
+			#define IPSEC_MANUAL_SA9_MN_HA0_AUTH        null_auth(8)
+		#endif
+
+		ESPAlgorithm esp_sa9_mn_ha0 {
+			crypt = IPSEC_MANUAL_SA9_MN_HA0_CRYPT;
+			auth  = IPSEC_MANUAL_SA9_MN_HA0_AUTH;
+		}
+
+	#else
+
+		ESPAlgorithm esp_sa9_mn_ha0 {
+			crypt = null_crypy(8);
+		}
+
+	#endif
+
+	Hdr_ESP ext_sa9_mn_ha0 {
+		SPI            = IPSEC_MANUAL_SA9_MN_HA0_SPI;
+		SequenceNumber = ESP_SEQ_ANY;
+		algorithm      = esp_sa9_mn_ha0;
+	}
+
+#endif
+
+
+/*----------------------------------------------------------------------------*
+ *  IPsec SA10: Payload Packets HA0 -> MOBILE NETWORK PREFIX TUNNEL
+ *----------------------------------------------------------------------------*/
+#if defined(IPSEC_MANUAL_SA10_HA0_MN_PROTO_X)
+
+	#if !defined(IPSEC_MANUAL_SA10_HA0_MN_SPI)
+		#define IPSEC_MANUAL_SA10_HA0_MN_SPI    0x11A
+	#endif
+
+	#if defined(IPSEC_MANUAL_SA10_HA0_MN_ALGO_ESP)
+
+		#if defined(IPSEC_MANUAL_SA10_HA0_MN_ESP_DES3CBC)
+			#if !defined(IPSEC_MANUAL_SA10_HA0_MN_ESP_KEY)
+				#define IPSEC_MANUAL_SA10_HA0_MN_ESP_KEY    "V6LC-11A--12345678901234"
+			#endif
+			#ifdef TEST_FUNC_IKE
+				#define IPSEC_MANUAL_SA10_HA0_MN_CRYPT    des3cbc_2(hexstr(IPSEC_MANUAL_SA10_HA0_MN_ESP_KEY, 24))
+			#else
+				#define IPSEC_MANUAL_SA10_HA0_MN_CRYPT    des3cbc(IPSEC_MANUAL_SA10_HA0_MN_ESP_KEY)
+			#endif
+		#elif defined(IPSEC_MANUAL_SA10_HA0_MN_ESP_DESCBC)
+			#if !defined(IPSEC_MANUAL_SA10_HA0_MN_ESP_KEY)
+				#define IPSEC_MANUAL_SA10_HA0_MN_ESP_KEY    "V6LC-11A"
+			#endif
+			#ifdef TEST_FUNC_IKE
+				#define IPSEC_MANUAL_SA10_HA0_MN_CRYPT    descbc_2(hexstr(IPSEC_MANUAL_SA10_HA0_MN_ESP_KEY, 8))
+			#else
+				#define IPSEC_MANUAL_SA10_HA0_MN_CRYPT    descbc(IPSEC_MANUAL_SA10_HA0_MN_ESP_KEY)
+			#endif
+		#else
+			#define IPSEC_MANUAL_SA10_HA0_MN_CRYPT    null_crypt(8)
+		#endif
+
+		#if defined(IPSEC_MANUAL_SA10_HA0_MN_AH_HMACSHA1)
+			#if !defined(IPSEC_MANUAL_SA10_HA0_MN_AH_KEY)
+				#define IPSEC_MANUAL_SA10_HA0_MN_AH_KEY    "V6LC-11A--1234567890"
+			#endif
+			#ifdef TEST_FUNC_IKE
+				#define IPSEC_MANUAL_SA10_HA0_MN_AUTH    hmacsha1_2(hexstr(IPSEC_MANUAL_SA10_HA0_MN_AH_KEY, 20))
+			#else
+				#define IPSEC_MANUAL_SA10_HA0_MN_AUTH    hmacsha1(IPSEC_MANUAL_SA10_HA0_MN_AH_KEY)
+			#endif
+		#elif defined(IPSEC_MANUAL_SA10_HA0_MN_AH_HMACMD5)
+			#if !defined(IPSEC_MANUAL_SA10_HA0_MN_AH_KEY)
+				#define IPSEC_MANUAL_SA10_HA0_MN_AH_KEY    "V6LC-11A--123456"
+			#endif
+			#ifdef TEST_FUNC_IKE
+				#define IPSEC_MANUAL_SA10_HA0_MN_AUTH    hmacmd5_2(hexstr(IPSEC_MANUAL_SA10_HA0_MN_AH_KEY, 16))
+			#else
+				#define IPSEC_MANUAL_SA10_HA0_MN_AUTH    hmacmd5(IPSEC_MANUAL_SA10_HA0_MN_AH_KEY)
+			#endif
+		#else
+			#define IPSEC_MANUAL_SA10_HA0_MN_AUTH    null_auth(8)
+		#endif
+
+		ESPAlgorithm esp_sa10_ha0_mn {
+			crypt = IPSEC_MANUAL_SA10_HA0_MN_CRYPT;
+			auth  = IPSEC_MANUAL_SA10_HA0_MN_AUTH;
+		}
+
+	#else
+
+		ESPAlgorithm esp_sa10_ha0_mn {
+			crypt = null_crypt(8);
+		}
+
+	#endif
+
+	Hdr_ESP ext_sa10_ha0_mn {
+		SPI            = IPSEC_MANUAL_SA10_HA0_MN_SPI;
+		SequenceNumber = ESP_SEQ;
+		algorithm      = esp_sa10_ha0_mn;
+	}
+
+#endif
+
+
+/*----------------------------------------------------------------------------*
+ *  IPsec: MN <-> HA1
+ *----------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------*
+ *  IPsec SA1: Binding Update MN -> HA1 TRANSPORT
+ *----------------------------------------------------------------------------*/
+#if defined(IPSEC_MANUAL_SA1_MN_HA1_PROTO_ALL)
+	#define IPSEC_MANUAL_SA1_MN_HA1_PROTO_MH    1
+#endif
+
+#if defined(IPSEC_MANUAL_SA1_MN_HA1_PROTO_MH)
+	#define IPSEC_MANUAL_SA1_MN_HA1_PROTO_BU    1
+#endif
+
+#if defined(IPSEC_MANUAL_SA1_MN_HA1_PROTO_BU)
+
+	#if !defined(IPSEC_MANUAL_SA1_MN_HA1_SPI)
+		#define IPSEC_MANUAL_SA1_MN_HA1_SPI     0x211
+	#endif
+
+	#if defined(IPSEC_MANUAL_SA1_MN_HA1_ALGO_ESP)
+
+		#if defined(IPSEC_MANUAL_SA1_MN_HA1_ESP_DES3CBC)
+			#if !defined(IPSEC_MANUAL_SA1_MN_HA1_ESP_KEY)
+				#define IPSEC_MANUAL_SA1_MN_HA1_ESP_KEY "V6LC-211--12345678901234"
+			#endif
+			#ifdef TEST_FUNC_IKE
+				#define IPSEC_MANUAL_SA1_MN_HA1_CRYPT   des3cbc_2(hexstr(IPSEC_MANUAL_SA1_MN_HA1_ESP_KEY, 24))
+			#else
+				#define IPSEC_MANUAL_SA1_MN_HA1_CRYPT   des3cbc(IPSEC_MANUAL_SA1_MN_HA1_ESP_KEY)
+			#endif
+		#elif defined(IPSEC_MANUAL_SA1_MN_HA1_ESP_DESCBC)
+			#if !defined(IPSEC_MANUAL_SA1_MN_HA1_ESP_KEY)
+				#define IPSEC_MANUAL_SA1_MN_HA1_ESP_KEY "V6LC-211"
+			#endif
+			#ifdef TEST_FUNC_IKE
+				#define IPSEC_MANUAL_SA1_MN_HA1_CRYPT   descbc_2(hexstr(IPSEC_MANUAL_SA1_MN_HA1_ESP_KEY, 8))
+			#else
+				#define IPSEC_MANUAL_SA1_MN_HA1_CRYPT   descbc(IPSEC_MANUAL_SA1_MN_HA1_ESP_KEY)
+			#endif
+		#else
+			#define IPSEC_MANUAL_SA1_MN_HA1_CRYPT       null_crypt(8)
+		#endif
+
+		#if defined(IPSEC_MANUAL_SA1_MN_HA1_AH_HMACSHA1)
+			#if !defined(IPSEC_MANUAL_SA1_MN_HA1_AH_KEY)
+				#define IPSEC_MANUAL_SA1_MN_HA1_AH_KEY  "V6LC-211--1234567890"
+			#endif
+			#ifdef TEST_FUNC_IKE
+				#define IPSEC_MANUAL_SA1_MN_HA1_AUTH    hmacsha1_2(hexstr(IPSEC_MANUAL_SA1_MN_HA1_AH_KEY, 20))
+			#else
+				#define IPSEC_MANUAL_SA1_MN_HA1_AUTH    hmacsha1(IPSEC_MANUAL_SA1_MN_HA1_AH_KEY)
+			#endif
+		#elif defined(IPSEC_MANUAL_SA1_MN_HA1_AH_HMACMD5)
+			#if !defined(IPSEC_MANUAL_SA1_MN_HA1_AH_KEY)
+				#define IPSEC_MANUAL_SA1_MN_HA1_AH_KEY  "V6LC-211--123456"
+			#endif
+			#ifdef TEST_FUNC_IKE
+				#define IPSEC_MANUAL_SA1_MN_HA1_AUTH    hmacmd5_2(hexstr(IPSEC_MANUAL_SA1_MN_HA1_AH_KEY, 16))
+			#else
+				#define IPSEC_MANUAL_SA1_MN_HA1_AUTH    hmacmd5(IPSEC_MANUAL_SA1_MN_HA1_AH_KEY)
+			#endif
+		#else
+			#define IPSEC_MANUAL_SA1_MN_HA1_AUTH        null_auth(8)
+		#endif
+
+		ESPAlgorithm esp_sa1_mn_ha1 {
+			crypt = IPSEC_MANUAL_SA1_MN_HA1_CRYPT;
+			auth  = IPSEC_MANUAL_SA1_MN_HA1_AUTH;
+		}
+
+	#else
+
+		ESPAlgorithm esp_sa1_mn_ha1 {
+			crypt = null_crypt(8);
+		}
+
+	#endif
+
+	Hdr_ESP ext_sa1_mn_ha1 {
+		SPI            = IPSEC_MANUAL_SA1_MN_HA1_SPI;
+		SequenceNumber = ESP_SEQ_ANY;
+		algorithm      = esp_sa1_mn_ha1;
+	}
+
+#endif
+
+
+/*----------------------------------------------------------------------------*
+ *  IPsec SA2: Binding Acknowledgement HA1 -> MN TRANSPORT
+ *----------------------------------------------------------------------------*/
+#if defined(IPSEC_MANUAL_SA2_HA1_MN_PROTO_ALL)
+	#define IPSEC_MANUAL_SA2_HA1_MN_PROTO_MH    1
+#endif
+
+#if defined(IPSEC_MANUAL_SA2_HA1_MN_PROTO_MH)
+	#define IPSEC_MANUAL_SA2_HA1_MN_PROTO_BA    1
+#endif
+
+#if defined(IPSEC_MANUAL_SA2_HA1_MN_PROTO_BA)
+
+	#if !defined(IPSEC_MANUAL_SA2_HA1_MN_SPI)
+		#define IPSEC_MANUAL_SA2_HA1_MN_SPI     0x212
+	#endif
+
+	#if defined(IPSEC_MANUAL_SA2_HA1_MN_ALGO_ESP)
+
+		#if defined(IPSEC_MANUAL_SA2_HA1_MN_ESP_DES3CBC)
+			#if !defined(IPSEC_MANUAL_SA2_HA1_MN_ESP_KEY)
+				#define IPSEC_MANUAL_SA2_HA1_MN_ESP_KEY "V6LC-212--12345678901234"
+			#endif
+			#ifdef TEST_FUNC_IKE
+				#define IPSEC_MANUAL_SA2_HA1_MN_CRYPT   des3cbc_2(hexstr(IPSEC_MANUAL_SA2_HA1_MN_ESP_KEY, 24))
+			#else
+				#define IPSEC_MANUAL_SA2_HA1_MN_CRYPT   des3cbc(IPSEC_MANUAL_SA2_HA1_MN_ESP_KEY)
+			#endif
+		#elif defined(IPSEC_MANUAL_SA2_HA1_MN_ESP_DESCBC)
+			#if !defined(IPSEC_MANUAL_SA2_HA1_MN_ESP_KEY)
+				#define IPSEC_MANUAL_SA2_HA1_MN_ESP_KEY "V6LC-212"
+			#endif
+			#ifdef TEST_FUNC_IKE
+				#define IPSEC_MANUAL_SA2_HA1_MN_CRYPT   descbc_2(hexstr(IPSEC_MANUAL_SA2_HA1_MN_ESP_KEY, 8))
+			#else
+				#define IPSEC_MANUAL_SA2_HA1_MN_CRYPT   descbc(IPSEC_MANUAL_SA2_HA1_MN_ESP_KEY)
+			#endif
+		#else
+			#define IPSEC_MANUAL_SA2_HA1_MN_CRYPT       null_crypt(8)
+		#endif
+
+		#if defined(IPSEC_MANUAL_SA2_HA1_MN_AH_HMACSHA1)
+			#if !defined(IPSEC_MANUAL_SA2_HA1_MN_AH_KEY)
+				#define IPSEC_MANUAL_SA2_HA1_MN_AH_KEY  "V6LC-212--1234567890"
+			#endif
+			#ifdef TEST_FUNC_IKE
+				#define IPSEC_MANUAL_SA2_HA1_MN_AUTH    hmacsha1_2(hexstr(IPSEC_MANUAL_SA2_HA1_MN_AH_KEY, 20))
+			#else
+				#define IPSEC_MANUAL_SA2_HA1_MN_AUTH    hmacsha1(IPSEC_MANUAL_SA2_HA1_MN_AH_KEY)
+			#endif
+		#elif defined(IPSEC_MANUAL_SA2_HA1_MN_AH_HMACMD5)
+			#if !defined(IPSEC_MANUAL_SA2_HA1_MN_AH_KEY)
+				#define IPSEC_MANUAL_SA2_HA1_MN_AH_KEY  "V6LC-212--123456"
+			#endif
+			#ifdef TEST_FUNC_IKE
+				#define IPSEC_MANUAL_SA2_HA1_MN_AUTH    hmacmd5_2(hexstr(IPSEC_MANUAL_SA2_HA1_MN_AH_KEY, 16))
+			#else
+				#define IPSEC_MANUAL_SA2_HA1_MN_AUTH    hmacmd5(IPSEC_MANUAL_SA2_HA1_MN_AH_KEY)
+			#endif
+		#else
+			#define IPSEC_MANUAL_SA2_HA1_MN_AUTH        null_auth(8)
+		#endif
+
+		ESPAlgorithm esp_sa2_ha1_mn {
+			crypt = IPSEC_MANUAL_SA2_HA1_MN_CRYPT;
+			auth  = IPSEC_MANUAL_SA2_HA1_MN_AUTH;
+		}
+
+	#else
+
+		ESPAlgorithm esp_sa2_ha1_mn {
+			crypt = null_crypt(8);
+		}
+
+	#endif
+
+	Hdr_ESP ext_sa2_ha1_mn {
+		SPI            = IPSEC_MANUAL_SA2_HA1_MN_SPI;
+		SequenceNumber = ESP_SEQ;
+		algorithm      = esp_sa2_ha1_mn;
+	}
+
+#endif
+
+
+/*----------------------------------------------------------------------------*
+ *  IPsec SA3: Return Routability Signaling MN -> HA1 TUNNEL
+ *----------------------------------------------------------------------------*/
+#if defined(IPSEC_MANUAL_SA3_MN_HA1_PROTO_ALL)
+	#define IPSEC_MANUAL_SA3_MN_HA1_PROTO_MH    1
+#endif
+
+#if defined(IPSEC_MANUAL_SA3_MN_HA1_PROTO_MH)
+	#define IPSEC_MANUAL_SA3_MN_HA1_PROTO_HOTI  1
+#endif
+
+#if defined(IPSEC_MANUAL_SA3_MN_HA1_PROTO_HOTI)
+
+	#if !defined(IPSEC_MANUAL_SA3_MN_HA1_SPI)
+		#define IPSEC_MANUAL_SA3_MN_HA1_SPI     0x213
+	#endif
+
+	#if defined(IPSEC_MANUAL_SA3_MN_HA1_ALGO_ESP)
+
+		#if defined(IPSEC_MANUAL_SA3_MN_HA1_ESP_DES3CBC)
+			#if !defined(IPSEC_MANUAL_SA3_MN_HA1_ESP_KEY)
+				#define IPSEC_MANUAL_SA3_MN_HA1_ESP_KEY "V6LC-213--12345678901234"
+			#endif
+			#ifdef TEST_FUNC_IKE
+				#define IPSEC_MANUAL_SA3_MN_HA1_CRYPT   des3cbc_2(hexstr(IPSEC_MANUAL_SA3_MN_HA1_ESP_KEY, 24))
+			#else
+				#define IPSEC_MANUAL_SA3_MN_HA1_CRYPT   des3cbc(IPSEC_MANUAL_SA3_MN_HA1_ESP_KEY)
+			#endif
+		#elif defined(IPSEC_MANUAL_SA3_MN_HA1_ESP_DESCBC)
+			#if !defined(IPSEC_MANUAL_SA3_MN_HA1_ESP_KEY)
+				#define IPSEC_MANUAL_SA3_MN_HA1_ESP_KEY "V6LC-213"
+			#endif
+			#ifdef TEST_FUNC_IKE
+				#define IPSEC_MANUAL_SA3_MN_HA1_CRYPT   descbc_2(hexstr(IPSEC_MANUAL_SA3_MN_HA1_ESP_KEY, 8))
+			#else
+				#define IPSEC_MANUAL_SA3_MN_HA1_CRYPT   descbc(IPSEC_MANUAL_SA3_MN_HA1_ESP_KEY)
+			#endif
+		#else
+			#define IPSEC_MANUAL_SA3_MN_HA1_CRYPT       null_crypt(8)
+		#endif
+
+		#if defined(IPSEC_MANUAL_SA3_MN_HA1_AH_HMACSHA1)
+			#if !defined(IPSEC_MANUAL_SA3_MN_HA1_AH_KEY)
+				#define IPSEC_MANUAL_SA3_MN_HA1_AH_KEY  "V6LC-213--1234567890"
+			#endif
+			#ifdef TEST_FUNC_IKE
+				#define IPSEC_MANUAL_SA3_MN_HA1_AUTH    hmacsha1_2(hexstr(IPSEC_MANUAL_SA3_MN_HA1_AH_KEY, 20))
+			#else
+				#define IPSEC_MANUAL_SA3_MN_HA1_AUTH    hmacsha1(IPSEC_MANUAL_SA3_MN_HA1_AH_KEY)
+			#endif
+		#elif defined(IPSEC_MANUAL_SA3_MN_HA1_AH_HMACMD5)
+			#if !defined(IPSEC_MANUAL_SA3_MN_HA1_AH_KEY)
+				#define IPSEC_MANUAL_SA3_MN_HA1_AH_KEY  "V6LC-213--123456"
+			#endif
+			#ifdef TEST_FUNC_IKE
+				#define IPSEC_MANUAL_SA3_MN_HA1_AUTH    hmacmd5_2(hexstr(IPSEC_MANUAL_SA3_MN_HA1_AH_KEY, 16))
+			#else
+				#define IPSEC_MANUAL_SA3_MN_HA1_AUTH    hmacmd5(IPSEC_MANUAL_SA3_MN_HA1_AH_KEY)
+			#endif
+		#else
+			#define IPSEC_MANUAL_SA3_MN_HA1_AUTH        null_auth(8)
+		#endif
+
+		ESPAlgorithm esp_sa3_mn_ha1 {
+			crypt = IPSEC_MANUAL_SA3_MN_HA1_CRYPT;
+			auth  = IPSEC_MANUAL_SA3_MN_HA1_AUTH;
+		}
+
+	#else
+
+		ESPAlgorithm esp_sa3_mn_ha1 {
+			crypt = null_crypy(8);
+		}
+
+	#endif
+
+	Hdr_ESP ext_sa3_mn_ha1 {
+		SPI            = IPSEC_MANUAL_SA3_MN_HA1_SPI;
+		SequenceNumber = ESP_SEQ_ANY;
+		algorithm      = esp_sa3_mn_ha1;
+	}
+
+#elif defined(FUNC_DETAIL_HOA_ADDRESS_NEMO)
+
+	#if defined(IPSEC_MANUAL_SA9_MN_HA1_PROTO_X)
+
+		Hdr_ESP ext_sa3_mn_ha1 {
+			SPI            = IPSEC_MANUAL_SA9_MN_HA1_SPI;
+			SequenceNumber = ESP_SEQ_ANY;
+			algorithm      = esp_sa9_mn_ha1;
+		}
+
+	#endif
+
+#endif
+
+
+/*----------------------------------------------------------------------------*
+ *  IPsec SA4: Return Routability Signaling HA1 -> MN TUNNEL
+ *----------------------------------------------------------------------------*/
+#if defined(IPSEC_MANUAL_SA4_HA1_MN_PROTO_ALL)
+	#define IPSEC_MANUAL_SA4_HA1_MN_PROTO_MH    1
+#endif
+
+#if defined(IPSEC_MANUAL_SA4_HA1_MN_PROTO_MH)
+	#define IPSEC_MANUAL_SA4_HA1_MN_PROTO_HOT   1
+#endif
+
+#if defined(IPSEC_MANUAL_SA4_HA1_MN_PROTO_HOT)
+
+	#if !defined(IPSEC_MANUAL_SA4_HA1_MN_SPI)
+		#define IPSEC_MANUAL_SA4_HA1_MN_SPI     0x214
+	#endif
+
+	#if defined(IPSEC_MANUAL_SA4_HA1_MN_ALGO_ESP)
+
+		#if defined(IPSEC_MANUAL_SA4_HA1_MN_ESP_DES3CBC)
+			#if !defined(IPSEC_MANUAL_SA4_HA1_MN_ESP_KEY)
+				#define IPSEC_MANUAL_SA4_HA1_MN_ESP_KEY "V6LC-214--12345678901234"
+			#endif
+			#ifdef TEST_FUNC_IKE
+				#define IPSEC_MANUAL_SA4_HA1_MN_CRYPT   des3cbc_2(hexstr(IPSEC_MANUAL_SA4_HA1_MN_ESP_KEY, 24))
+			#else
+				#define IPSEC_MANUAL_SA4_HA1_MN_CRYPT   des3cbc(IPSEC_MANUAL_SA4_HA1_MN_ESP_KEY)
+			#endif
+		#elif defined(IPSEC_MANUAL_SA4_HA1_MN_ESP_DESCBC)
+			#if !defined(IPSEC_MANUAL_SA4_HA1_MN_ESP_KEY)
+				#define IPSEC_MANUAL_SA4_HA1_MN_ESP_KEY "V6LC-214"
+			#endif
+			#ifdef TEST_FUNC_IKE
+				#define IPSEC_MANUAL_SA4_HA1_MN_CRYPT   descbc_2(hexstr(IPSEC_MANUAL_SA4_HA1_MN_ESP_KEY, 8))
+			#else
+				#define IPSEC_MANUAL_SA4_HA1_MN_CRYPT   descbc(IPSEC_MANUAL_SA4_HA1_MN_ESP_KEY)
+			#endif
+		#else
+			#define IPSEC_MANUAL_SA4_HA1_MN_CRYPT       null_crypt(8)
+		#endif
+
+		#if defined(IPSEC_MANUAL_SA4_HA1_MN_AH_HMACSHA1)
+			#if !defined(IPSEC_MANUAL_SA4_HA1_MN_AH_KEY)
+				#define IPSEC_MANUAL_SA4_HA1_MN_AH_KEY  "V6LC-214--1234567890"
+			#endif
+			#ifdef TEST_FUNC_IKE
+				#define IPSEC_MANUAL_SA4_HA1_MN_AUTH    hmacsha1_2(hexstr(IPSEC_MANUAL_SA4_HA1_MN_AH_KEY, 20))
+			#else
+				#define IPSEC_MANUAL_SA4_HA1_MN_AUTH    hmacsha1(IPSEC_MANUAL_SA4_HA1_MN_AH_KEY)
+			#endif
+		#elif defined(IPSEC_MANUAL_SA4_HA1_MN_AH_HMACMD5)
+			#if !defined(IPSEC_MANUAL_SA4_HA1_MN_AH_KEY)
+				#define IPSEC_MANUAL_SA4_HA1_MN_AH_KEY  "V6LC-214--123456"
+			#endif
+			#ifdef TEST_FUNC_IKE
+				#define IPSEC_MANUAL_SA4_HA1_MN_AUTH    hmacmd5_2(hexstr(IPSEC_MANUAL_SA4_HA1_MN_AH_KEY, 16))
+			#else
+				#define IPSEC_MANUAL_SA4_HA1_MN_AUTH    hmacmd5(IPSEC_MANUAL_SA4_HA1_MN_AH_KEY)
+			#endif
+		#else
+			#define IPSEC_MANUAL_SA4_HA1_MN_AUTH        null_auth(8)
+		#endif
+
+		ESPAlgorithm esp_sa4_ha1_mn {
+			crypt = IPSEC_MANUAL_SA4_HA1_MN_CRYPT;
+			auth  = IPSEC_MANUAL_SA4_HA1_MN_AUTH;
+		}
+
+	#else
+
+		ESPAlgorithm esp_sa4_ha1_mn {
+			crypt = null_crypt(8);
+		}
+
+	#endif
+
+	Hdr_ESP ext_sa4_ha1_mn {
+		SPI            = IPSEC_MANUAL_SA4_HA1_MN_SPI;
+		SequenceNumber = ESP_SEQ;
+		algorithm      = esp_sa4_ha1_mn;
+	}
+
+#elif defined(FUNC_DETAIL_HOA_ADDRESS_NEMO)
+
+	#if defined(IPSEC_MANUAL_SA10_HA1_MN_PROTO_X)
+
+		Hdr_ESP ext_sa4_mn_ha1 {
+			SPI            = IPSEC_MANUAL_SA10_HA1_MN_SPI;
+			SequenceNumber = ESP_SEQ_ANY;
+			algorithm      = esp_sa10_ha1_mn;
+		}
+
+	#endif
+
+#endif
+
+
+/*----------------------------------------------------------------------------*
+ *  IPsec SA5: Prefix Discovery MN -> HA1 TRANSPORT
+ *----------------------------------------------------------------------------*/
+#if defined(IPSEC_MANUAL_SA1_MN_HA1_PROTO_ALL)
+
+	#define IPSEC_MANUAL_SA5_MN_HA1_PROTO_ALL   1
+	#define IPSEC_MANUAL_SA5_MN_HA1_PROTO_ICMP  1
+	#define IPSEC_MANUAL_SA5_MN_HA1_PROTO_MPS   1
+
+	Hdr_ESP ext_sa5_mn_ha1 {
+		SPI            = IPSEC_MANUAL_SA1_MN_HA1_SPI;
+		SequenceNumber = ESP_SEQ_ANY;
+		algorithm      = esp_sa1_mn_ha1;
+	}
+
+#else
+
+	#if defined(IPSEC_MANUAL_SA5_MN_HA1_PROTO_ALL)
+		#define IPSEC_MANUAL_SA5_MN_HA1_PROTO_ICMP  1
+	#endif
+
+	#if defined(IPSEC_MANUAL_SA5_MN_HA1_PROTO_ICMP)
+		#define IPSEC_MANUAL_SA5_MN_HA1_PROTO_MPS   1
+	#endif
+
+	#if defined(IPSEC_MANUAL_SA5_MN_HA1_PROTO_MPS)
+
+		#if !defined(IPSEC_MANUAL_SA5_MN_HA1_SPI)
+			#define IPSEC_MANUAL_SA5_MN_HA1_SPI     0x215
+		#endif
+
+		#if defined(IPSEC_MANUAL_SA5_MN_HA1_ALGO_ESP)
+
+			#if defined(IPSEC_MANUAL_SA5_MN_HA1_ESP_DES3CBC)
+				#if !defined(IPSEC_MANUAL_SA5_MN_HA1_ESP_KEY)
+					#define IPSEC_MANUAL_SA5_MN_HA1_ESP_KEY "V6LC-215--12345678901234"
+				#endif
+				#ifdef TEST_FUNC_IKE
+					#define IPSEC_MANUAL_SA5_MN_HA1_CRYPT   des3cbc_2(hexstr(IPSEC_MANUAL_SA5_MN_HA1_ESP_KEY, 24))
+				#else
+					#define IPSEC_MANUAL_SA5_MN_HA1_CRYPT   des3cbc(IPSEC_MANUAL_SA5_MN_HA1_ESP_KEY)
+				#endif
+			#elif defined(IPSEC_MANUAL_SA5_MN_HA1_ESP_DESCBC)
+				#if !defined(IPSEC_MANUAL_SA5_MN_HA1_ESP_KEY)
+					#define IPSEC_MANUAL_SA5_MN_HA1_ESP_KEY "V6LC-215"
+				#endif
+				#ifdef TEST_FUNC_IKE
+					#define IPSEC_MANUAL_SA5_MN_HA1_CRYPT   descbc_2(hexstr(IPSEC_MANUAL_SA5_MN_HA1_ESP_KEY, 8))
+				#else
+					#define IPSEC_MANUAL_SA5_MN_HA1_CRYPT   descbc(IPSEC_MANUAL_SA5_MN_HA1_ESP_KEY)
+				#endif
+			#else
+				#define IPSEC_MANUAL_SA5_MN_HA1_CRYPT       null_crypt(8)
+			#endif
+
+			#if defined(IPSEC_MANUAL_SA5_MN_HA1_AH_HMACSHA1)
+				#if !defined(IPSEC_MANUAL_SA5_MN_HA1_AH_KEY)
+					#define IPSEC_MANUAL_SA5_MN_HA1_AH_KEY  "V6LC-215--1234567890"
+				#endif
+				#ifdef TEST_FUNC_IKE
+					#define IPSEC_MANUAL_SA5_MN_HA1_AUTH    hmacsha1_2(hexstr(IPSEC_MANUAL_SA5_MN_HA1_AH_KEY, 20))
+				#else
+					#define IPSEC_MANUAL_SA5_MN_HA1_AUTH    hmacsha1(IPSEC_MANUAL_SA5_MN_HA1_AH_KEY)
+				#endif
+			#elif defined(IPSEC_MANUAL_SA5_MN_HA1_AH_HMACMD5)
+				#if !defined(IPSEC_MANUAL_SA5_MN_HA1_AH_KEY)
+					#define IPSEC_MANUAL_SA5_MN_HA1_AH_KEY  "V6LC-215--123456"
+				#endif
+				#ifdef TEST_FUNC_IKE
+					#define IPSEC_MANUAL_SA5_MN_HA1_AUTH    hmacmd5_2(hexstr(IPSEC_MANUAL_SA5_MN_HA1_AH_KEY, 16))
+				#else
+					#define IPSEC_MANUAL_SA5_MN_HA1_AUTH    hmacmd5(IPSEC_MANUAL_SA5_MN_HA1_AH_KEY)
+				#endif
+			#else
+				#define IPSEC_MANUAL_SA5_MN_HA1_AUTH        null_auth(8)
+			#endif
+
+			ESPAlgorithm esp_sa5_mn_ha1 {
+				crypt = IPSEC_MANUAL_SA5_MN_HA1_CRYPT;
+				auth  = IPSEC_MANUAL_SA5_MN_HA1_AUTH;
+			}
+
+		#else
+
+			ESPAlgorithm esp_sa5_mn_ha1 {
+				crypt = null_crypt(8);
+			}
+
+		#endif
+
+		Hdr_ESP ext_sa5_mn_ha1 {
+			SPI            = IPSEC_MANUAL_SA5_MN_HA1_SPI;
+			SequenceNumber = ESP_SEQ_ANY;
+			algorithm      = esp_sa5_mn_ha1;
+		}
+
+	#endif
+
+#endif
+
+
+/*----------------------------------------------------------------------------*
+ *  IPsec SA6: Prefix Discovery HA1 -> MN TRANSPORT
+ *----------------------------------------------------------------------------*/
+#if defined(IPSEC_MANUAL_SA2_HA1_MN_PROTO_ALL)
+
+	#define IPSEC_MANUAL_SA6_HA1_MN_PROTO_ALL   1
+	#define IPSEC_MANUAL_SA6_HA1_MN_PROTO_ICMP  1
+	#define IPSEC_MANUAL_SA6_HA1_MN_PROTO_MPA   1
+
+	Hdr_ESP ext_sa6_ha1_mn {
+		SPI            = IPSEC_MANUAL_SA2_HA1_MN_SPI;
+		SequenceNumber = ESP_SEQ;
+		algorithm      = esp_sa2_ha1_mn;
+	}
+
+#else
+
+	#if defined(IPSEC_MANUAL_SA6_HA1_MN_PROTO_ALL)
+		#define IPSEC_MANUAL_SA6_HA1_MN_PROTO_ICMP  1
+	#endif
+
+	#if defined(IPSEC_MANUAL_SA6_HA1_MN_PROTO_ICMP)
+		#define IPSEC_MANUAL_SA6_HA1_MN_PROTO_MPA   1
+	#endif
+
+	#if defined(IPSEC_MANUAL_SA6_HA1_MN_PROTO_MPA)
+
+		#if !defined(IPSEC_MANUAL_SA6_HA1_MN_SPI)
+			#define IPSEC_MANUAL_SA6_HA1_MN_SPI     0x216
+		#endif
+
+		#if defined(IPSEC_MANUAL_SA6_HA1_MN_ALGO_ESP)
+
+			#if defined(IPSEC_MANUAL_SA6_HA1_MN_ESP_DES3CBC)
+				#if !defined(IPSEC_MANUAL_SA6_HA1_MN_ESP_KEY)
+					#define IPSEC_MANUAL_SA6_HA1_MN_ESP_KEY "V6LC-216--12345678901234"
+				#endif
+				#ifdef TEST_FUNC_IKE
+					#define IPSEC_MANUAL_SA6_HA1_MN_CRYPT   des3cbc_2(hexstr(IPSEC_MANUAL_SA6_HA1_MN_ESP_KEY, 24))
+				#else
+					#define IPSEC_MANUAL_SA6_HA1_MN_CRYPT   des3cbc(IPSEC_MANUAL_SA6_HA1_MN_ESP_KEY)
+				#endif
+			#elif defined(IPSEC_MANUAL_SA6_HA1_MN_ESP_DESCBC)
+				#if !defined(IPSEC_MANUAL_SA6_HA1_MN_ESP_KEY)
+					#define IPSEC_MANUAL_SA6_HA1_MN_ESP_KEY "V6LC-216"
+				#endif
+				#ifdef TEST_FUNC_IKE
+					#define IPSEC_MANUAL_SA6_HA1_MN_CRYPT   descbc_2(hexstr(IPSEC_MANUAL_SA6_HA1_MN_ESP_KEY, 8))
+				#else
+					#define IPSEC_MANUAL_SA6_HA1_MN_CRYPT   descbc(IPSEC_MANUAL_SA6_HA1_MN_ESP_KEY)
+				#endif
+			#else
+				#define IPSEC_MANUAL_SA6_HA1_MN_CRYPT       null_crypt(8)
+			#endif
+
+			#if defined(IPSEC_MANUAL_SA6_HA1_MN_AH_HMACSHA1)
+				#if !defined(IPSEC_MANUAL_SA6_HA1_MN_AH_KEY)
+					#define IPSEC_MANUAL_SA6_HA1_MN_AH_KEY  "V6LC-216--1234567890"
+				#endif
+				#ifdef TEST_FUNC_IKE
+					#define IPSEC_MANUAL_SA6_HA1_MN_AUTH    hmacsha1_2(hexstr(IPSEC_MANUAL_SA6_HA1_MN_AH_KEY, 20))
+				#else
+					#define IPSEC_MANUAL_SA6_HA1_MN_AUTH    hmacsha1(IPSEC_MANUAL_SA6_HA1_MN_AH_KEY)
+				#endif
+			#elif defined(IPSEC_MANUAL_SA6_HA1_MN_AH_HMACMD5)
+				#if !defined(IPSEC_MANUAL_SA6_HA1_MN_AH_KEY)
+					#define IPSEC_MANUAL_SA6_HA1_MN_AH_KEY  "V6LC-216--123456"
+				#endif
+				#ifdef TEST_FUNC_IKE
+					#define IPSEC_MANUAL_SA6_HA1_MN_AUTH    hmacmd5_2(hexstr(IPSEC_MANUAL_SA6_HA1_MN_AH_KEY, 16))
+				#else
+					#define IPSEC_MANUAL_SA6_HA1_MN_AUTH    hmacmd5(IPSEC_MANUAL_SA6_HA1_MN_AH_KEY)
+				#endif
+			#else
+				#define IPSEC_MANUAL_SA6_HA1_MN_AUTH        null_auth(8)
+			#endif
+
+			ESPAlgorithm esp_sa6_ha1_mn {
+				crypt = IPSEC_MANUAL_SA6_HA1_MN_CRYPT;
+				auth  = IPSEC_MANUAL_SA6_HA1_MN_AUTH;
+			}
+
+		#else
+
+			ESPAlgorithm esp_sa6_ha1_mn {
+				crypt = null_crypt(8);
+			}
+
+		#endif
+
+		Hdr_ESP ext_sa6_ha1_mn {
+			SPI            = IPSEC_MANUAL_SA6_HA1_MN_SPI;
+			SequenceNumber = ESP_SEQ;
+			algorithm      = esp_sa6_ha1_mn;
+		}
+
+	#endif
+
+#endif
+
+
+/*----------------------------------------------------------------------------*
+ *  IPsec SA7: Payload Packets MN -> HA1 TUNNEL
+ *----------------------------------------------------------------------------*/
+#if defined(IPSEC_MANUAL_SA3_MN_HA1_PROTO_ALL)
+
+	#define IPSEC_MANUAL_SA7_MN_HA1_PROTO_ALL   1
+	#define IPSEC_MANUAL_SA7_MN_HA1_PROTO_X     1
+
+	Hdr_ESP ext_sa7_mn_ha1 {
+		SPI            = IPSEC_MANUAL_SA3_MN_HA1_SPI;
+		SequenceNumber = ESP_SEQ_ANY;
+		algorithm      = esp_sa3_mn_ha1;
+	}
+
+#else
+
+	#if defined(IPSEC_MANUAL_SA7_MN_HA1_PROTO_ALL)
+		#define IPSEC_MANUAL_SA7_MN_HA1_PROTO_X 1
+	#endif 
+
+	#if defined(IPSEC_MANUAL_SA7_MN_HA1_PROTO_X)
+
+		#if !defined(IPSEC_MANUAL_SA7_MN_HA1_SPI)
+			#define IPSEC_MANUAL_SA7_MN_HA1_SPI 0x217
+		#endif
+
+		#if defined(IPSEC_MANUAL_SA7_MN_HA1_ALGO_ESP)
+
+			#if defined(IPSEC_MANUAL_SA7_MN_HA1_ESP_DES3CBC)
+				#if !defined(IPSEC_MANUAL_SA7_MN_HA1_ESP_KEY)
+					#define IPSEC_MANUAL_SA7_MN_HA1_ESP_KEY "V6LC-217--12345678901234"
+				#endif
+				#ifdef TEST_FUNC_IKE
+					#define IPSEC_MANUAL_SA7_MN_HA1_CRYPT   des3cbc_2(hexstr(IPSEC_MANUAL_SA7_MN_HA1_ESP_KEY, 24))
+				#else
+					#define IPSEC_MANUAL_SA7_MN_HA1_CRYPT   des3cbc(IPSEC_MANUAL_SA7_MN_HA1_ESP_KEY)
+				#endif
+			#elif defined(IPSEC_MANUAL_SA7_MN_HA1_ESP_DESCBC)
+				#if !defined(IPSEC_MANUAL_SA7_MN_HA1_ESP_KEY)
+					#define IPSEC_MANUAL_SA7_MN_HA1_ESP_KEY "V6LC-217"
+				#endif
+				#ifdef TEST_FUNC_IKE
+					#define IPSEC_MANUAL_SA7_MN_HA1_CRYPT   descbc_2(hexstr(IPSEC_MANUAL_SA7_MN_HA1_ESP_KEY, 8))
+				#else
+					#define IPSEC_MANUAL_SA7_MN_HA1_CRYPT   descbc(IPSEC_MANUAL_SA7_MN_HA1_ESP_KEY)
+				#endif
+			#else
+				#define IPSEC_MANUAL_SA7_MN_HA1_CRYPT       null_crypt(8)
+			#endif
+
+			#if defined(IPSEC_MANUAL_SA7_MN_HA1_AH_HMACSHA1)
+				#if !defined(IPSEC_MANUAL_SA7_MN_HA1_AH_KEY)
+					#define IPSEC_MANUAL_SA7_MN_HA1_AH_KEY  "V6LC-217--1234567890"
+				#endif
+				#ifdef TEST_FUNC_IKE
+					#define IPSEC_MANUAL_SA7_MN_HA1_AUTH    hmacsha1_2(hexstr(IPSEC_MANUAL_SA7_MN_HA1_AH_KEY, 20))
+				#else
+					#define IPSEC_MANUAL_SA7_MN_HA1_AUTH    hmacsha1(IPSEC_MANUAL_SA7_MN_HA1_AH_KEY)
+				#endif
+			#elif defined(IPSEC_MANUAL_SA7_MN_HA1_AH_HMACMD5)
+				#if !defined(IPSEC_MANUAL_SA7_MN_HA1_AH_KEY)
+					#define IPSEC_MANUAL_SA7_MN_HA1_AH_KEY  "V6LC-217--123456"
+				#endif
+				#ifdef TEST_FUNC_IKE
+					#define IPSEC_MANUAL_SA7_MN_HA1_AUTH    hmacmd5_2(hexstr(IPSEC_MANUAL_SA7_MN_HA1_AH_KEY, 16))
+				#else
+					#define IPSEC_MANUAL_SA7_MN_HA1_AUTH    hmacmd5(IPSEC_MANUAL_SA7_MN_HA1_AH_KEY)
+				#endif
+			#else
+				#define IPSEC_MANUAL_SA7_MN_HA1_AUTH        null_auth(8)
+			#endif
+
+			ESPAlgorithm esp_sa7_mn_ha1 {
+				crypt = IPSEC_MANUAL_SA7_MN_HA1_CRYPT;
+				auth  = IPSEC_MANUAL_SA7_MN_HA1_AUTH;
+			}
+
+		#else
+
+			ESPAlgorithm esp_sa7_mn_ha1 {
+				crypt = null_crypy(8);
+			}
+
+		#endif
+
+		Hdr_ESP ext_sa7_mn_ha1 {
+			SPI            = IPSEC_MANUAL_SA7_MN_HA1_SPI;
+			SequenceNumber = ESP_SEQ_ANY;
+			algorithm      = esp_sa7_mn_ha1;
+		}
+
+	#elif defined(FUNC_DETAIL_HOA_ADDRESS_NEMO)
+
+		#if defined(IPSEC_MANUAL_SA9_MN_HA1_PROTO_X)
+
+			Hdr_ESP ext_sa7_mn_ha1 {
+				SPI            = IPSEC_MANUAL_SA9_MN_HA1_SPI;
+				SequenceNumber = ESP_SEQ_ANY;
+				algorithm      = esp_sa9_mn_ha1;
+			}
+
+		#endif
+
+	#endif
+
+#endif
+
+
+/*----------------------------------------------------------------------------*
+ *  IPsec SA8: Payload Packets HA1 -> MN TUNNEL
+ *----------------------------------------------------------------------------*/
+#if defined(IPSEC_MANUAL_SA4_HA1_MN_PROTO_ALL)
+
+	#define IPSEC_MANUAL_SA8_HA1_MN_PROTO_ALL   1
+	#define IPSEC_MANUAL_SA8_HA1_MN_PROTO_X     1
+
+	Hdr_ESP ext_sa8_ha1_mn {
+		SPI            = IPSEC_MANUAL_SA4_HA1_MN_SPI;
+		SequenceNumber = ESP_SEQ;
+		algorithm      = esp_sa4_ha1_mn;
+	}
+
+#else
+
+	#if defined(IPSEC_MANUAL_SA8_HA1_MN_PROTO_ALL)
+		#define IPSEC_MANUAL_SA8_HA1_MN_PROTO_X 1
+	#endif
+
+	#if defined(IPSEC_MANUAL_SA8_HA1_MN_PROTO_X)
+
+		#if !defined(IPSEC_MANUAL_SA8_HA1_MN_SPI)
+			#define IPSEC_MANUAL_SA8_HA1_MN_SPI 0x218
+		#endif
+
+		#if defined(IPSEC_MANUAL_SA8_HA1_MN_ALGO_ESP)
+
+			#if defined(IPSEC_MANUAL_SA8_HA1_MN_ESP_DES3CBC)
+				#if !defined(IPSEC_MANUAL_SA8_HA1_MN_ESP_KEY)
+					#define IPSEC_MANUAL_SA8_HA1_MN_ESP_KEY "V6LC-218--12345678901234"
+				#endif
+				#ifdef TEST_FUNC_IKE
+					#define IPSEC_MANUAL_SA8_HA1_MN_CRYPT   des3cbc_2(hexstr(IPSEC_MANUAL_SA8_HA1_MN_ESP_KEY, 24))
+				#else
+					#define IPSEC_MANUAL_SA8_HA1_MN_CRYPT   des3cbc(IPSEC_MANUAL_SA8_HA1_MN_ESP_KEY)
+				#endif
+			#elif defined(IPSEC_MANUAL_SA8_HA1_MN_ESP_DESCBC)
+				#if !defined(IPSEC_MANUAL_SA8_HA1_MN_ESP_KEY)
+					#define IPSEC_MANUAL_SA8_HA1_MN_ESP_KEY "V6LC-218"
+				#endif
+				#ifdef TEST_FUNC_IKE
+					#define IPSEC_MANUAL_SA8_HA1_MN_CRYPT   descbc_2(hexstr(IPSEC_MANUAL_SA8_HA1_MN_ESP_KEY, 8))
+				#else
+					#define IPSEC_MANUAL_SA8_HA1_MN_CRYPT   descbc(IPSEC_MANUAL_SA8_HA1_MN_ESP_KEY)
+				#endif
+			#else
+				#define IPSEC_MANUAL_SA4_HA1_MN_CRYPT       null_crypt(8)
+			#endif
+
+			#if defined(IPSEC_MANUAL_SA8_HA1_MN_AH_HMACSHA1)
+				#if !defined(IPSEC_MANUAL_SA8_HA1_MN_AH_KEY)
+					#define IPSEC_MANUAL_SA8_HA1_MN_AH_KEY  "V6LC-218--1234567890"
+				#endif
+				#ifdef TEST_FUNC_IKE
+					#define IPSEC_MANUAL_SA8_HA1_MN_AUTH    hmacsha1_2(hexstr(IPSEC_MANUAL_SA8_HA1_MN_AH_KEY, 20))
+				#else
+					#define IPSEC_MANUAL_SA8_HA1_MN_AUTH    hmacsha1(IPSEC_MANUAL_SA8_HA1_MN_AH_KEY)
+				#endif
+			#elif defined(IPSEC_MANUAL_SA8_HA1_MN_AH_HMACMD5)
+				#if !defined(IPSEC_MANUAL_SA8_HA1_MN_AH_KEY)
+					#define IPSEC_MANUAL_SA8_HA1_MN_AH_KEY  "V6LC-218--123456"
+				#endif
+				#ifdef TEST_FUNC_IKE
+					#define IPSEC_MANUAL_SA8_HA1_MN_AUTH    hmacmd5_2(hexstr(IPSEC_MANUAL_SA8_HA1_MN_AH_KEY, 16))
+				#else
+					#define IPSEC_MANUAL_SA8_HA1_MN_AUTH    hmacmd5(IPSEC_MANUAL_SA8_HA1_MN_AH_KEY)
+				#endif
+			#else
+				#define IPSEC_MANUAL_SA8_HA1_MN_AUTH        null_auth(8)
+			#endif
+
+			ESPAlgorithm esp_sa8_ha1_mn {
+				crypt = IPSEC_MANUAL_SA8_HA1_MN_CRYPT;
+				auth  = IPSEC_MANUAL_SA8_HA1_MN_AUTH;
+			}
+
+		#else
+
+			ESPAlgorithm esp_sa8_ha1_mn {
+				crypt = null_crypt(8);
+			}
+
+		#endif
+
+		Hdr_ESP ext_sa8_ha1_mn {
+			SPI            = IPSEC_MANUAL_SA8_HA1_MN_SPI;
+			SequenceNumber = ESP_SEQ;
+			algorithm      = esp_sa8_ha1_mn;
+		}
+
+	#elif defined(FUNC_DETAIL_HOA_ADDRESS_NEMO)
+
+		#if defined(IPSEC_MANUAL_SA10_HA1_MN_PROTO_X)
+
+			Hdr_ESP ext_sa8_ha1_mn {
+				SPI            = IPSEC_MANUAL_SAA_HA1_MN_SPI;
+				SequenceNumber = ESP_SEQ;
+				algorithm      = esp_sa10_ha1_mn;
+			}
+
+		#endif
+
+	#endif
+
+#endif
+
+
+/*----------------------------------------------------------------------------*
+ *  IPsec SA9: MOBILE NETWORK PREFIX -> HA1 TUNNEL
+ *----------------------------------------------------------------------------*/
+#if defined(IPSEC_MANUAL_SA9_MN_HA1_PROTO_X)
+
+	#if !defined(IPSEC_MANUAL_SA9_MN_HA1_SPI)
+		#define IPSEC_MANUAL_SA9_MN_HA1_SPI 0x219
+	#endif
+
+	#if defined(IPSEC_MANUAL_SA9_MN_HA1_ALGO_ESP)
+
+		#if defined(IPSEC_MANUAL_SA9_MN_HA1_ESP_DES3CBC)
+
+			#if !defined(IPSEC_MANUAL_SA9_MN_HA1_ESP_KEY)
+				#define IPSEC_MANUAL_SA9_MN_HA1_ESP_KEY "V6LC-219--12345678901234"
+			#endif
+			#ifdef TEST_FUNC_IKE
+				#define IPSEC_MANUAL_SA9_MN_HA1_CRYPT   des3cbc_2(hexstr(IPSEC_MANUAL_SA9_MN_HA1_ESP_KEY, 24))
+			#else
+				#define IPSEC_MANUAL_SA9_MN_HA1_CRYPT   des3cbc(IPSEC_MANUAL_SA9_MN_HA1_ESP_KEY)
+			#endif
+		#elif defined(IPSEC_MANUAL_SA9_MN_HA1_ESP_DESCBC)
+			#if !defined(IPSEC_MANUAL_SA9_MN_HA1_ESP_KEY)
+				#define IPSEC_MANUAL_SA9_MN_HA1_ESP_KEY "V6LC-219"
+			#endif
+			#ifdef TEST_FUNC_IKE
+				#define IPSEC_MANUAL_SA9_MN_HA1_CRYPT   descbc_2(hexstr(IPSEC_MANUAL_SA9_MN_HA1_ESP_KEY, 8))
+			#else
+				#define IPSEC_MANUAL_SA9_MN_HA1_CRYPT   descbc(IPSEC_MANUAL_SA9_MN_HA1_ESP_KEY)
+			#endif
+		#else
+			#define IPSEC_MANUAL_SA9_MN_HA1_CRYPT       null_crypt(8)
+		#endif
+
+		#if defined(IPSEC_MANUAL_SA9_MN_HA1_AH_HMACSHA1)
+			#if !defined(IPSEC_MANUAL_SA9_MN_HA1_AH_KEY)
+				#define IPSEC_MANUAL_SA9_MN_HA1_AH_KEY  "V6LC-219--1234567890"
+			#endif
+			#ifdef TEST_FUNC_IKE
+				#define IPSEC_MANUAL_SA9_MN_HA1_AUTH    hmacsha1_2(hexstr(IPSEC_MANUAL_SA9_MN_HA1_AH_KEY, 20))
+			#else
+				#define IPSEC_MANUAL_SA9_MN_HA1_AUTH    hmacsha1(IPSEC_MANUAL_SA9_MN_HA1_AH_KEY)
+			#endif
+		#elif defined(IPSEC_MANUAL_SA9_MN_HA1_AH_HMACMD5)
+			#if !defined(IPSEC_MANUAL_SA9_MN_HA1_AH_KEY)
+				#define IPSEC_MANUAL_SA9_MN_HA1_AH_KEY  "V6LC-219--123456"
+			#endif
+			#ifdef TEST_FUNC_IKE
+				#define IPSEC_MANUAL_SA9_MN_HA1_AUTH    hmacmd5_2(hexstr(IPSEC_MANUAL_SA9_MN_HA1_AH_KEY, 16))
+			#else
+				#define IPSEC_MANUAL_SA9_MN_HA1_AUTH    hmacmd5(IPSEC_MANUAL_SA9_MN_HA1_AH_KEY)
+			#endif
+		#else
+			#define IPSEC_MANUAL_SA9_MN_HA1_AUTH        null_auth(8)
+		#endif
+
+		ESPAlgorithm esp_sa9_mn_ha1 {
+			crypt = IPSEC_MANUAL_SA9_MN_HA1_CRYPT;
+			auth  = IPSEC_MANUAL_SA9_MN_HA1_AUTH;
+		}
+
+	#else
+
+		ESPAlgorithm esp_sa9_mn_ha1 {
+			crypt = null_crypy(8);
+		}
+
+	#endif
+
+	Hdr_ESP ext_sa9_mn_ha1 {
+		SPI            = IPSEC_MANUAL_SA9_MN_HA1_SPI;
+		SequenceNumber = ESP_SEQ_ANY;
+		algorithm      = esp_sa9_mn_ha1;
+	}
+
+#endif
+
+
+/*----------------------------------------------------------------------------*
+ *  IPsec SA10: Payload Packets HA1 -> MOBILE NETWORK PREFIX TUNNEL
+ *----------------------------------------------------------------------------*/
+#if defined(IPSEC_MANUAL_SA10_HA1_MN_PROTO_X)
+
+	#if !defined(IPSEC_MANUAL_SA10_HA1_MN_SPI)
+		#define IPSEC_MANUAL_SA10_HA1_MN_SPI    0x21A
+	#endif
+
+	#if defined(IPSEC_MANUAL_SA10_HA1_MN_ALGO_ESP)
+
+		#if defined(IPSEC_MANUAL_SA10_HA1_MN_ESP_DES3CBC)
+			#if !defined(IPSEC_MANUAL_SA10_HA1_MN_ESP_KEY)
+				#define IPSEC_MANUAL_SA10_HA1_MN_ESP_KEY    "V6LC-21A--12345678901234"
+			#endif
+			#ifdef TEST_FUNC_IKE
+				#define IPSEC_MANUAL_SA10_HA1_MN_CRYPT      des3cbc_2(hexstr(IPSEC_MANUAL_SA10_HA1_MN_ESP_KEY, 24))
+			#else
+				#define IPSEC_MANUAL_SA10_HA1_MN_CRYPT      des3cbc(IPSEC_MANUAL_SA10_HA1_MN_ESP_KEY)
+			#endif
+		#elif defined(IPSEC_MANUAL_SA10_HA1_MN_ESP_DESCBC)
+			#if !defined(IPSEC_MANUAL_SA10_HA1_MN_ESP_KEY)
+				#define IPSEC_MANUAL_SA10_HA1_MN_ESP_KEY    "V6LC-21A"
+			#endif
+			#ifdef TEST_FUNC_IKE
+				#define IPSEC_MANUAL_SA10_HA1_MN_CRYPT      descbc_2(hexstr(IPSEC_MANUAL_SA10_HA1_MN_ESP_KEY, 8))
+			#else
+				#define IPSEC_MANUAL_SA10_HA1_MN_CRYPT      descbc(IPSEC_MANUAL_SA10_HA1_MN_ESP_KEY)
+			#endif
+		#else
+			#define IPSEC_MANUAL_SA10_HA1_MN_CRYPT          null_crypt(8)
+		#endif
+
+		#if defined(IPSEC_MANUAL_SA10_HA1_MN_AH_HMACSHA1)
+			#if !defined(IPSEC_MANUAL_SA10_HA1_MN_AH_KEY)
+				#define IPSEC_MANUAL_SA10_HA1_MN_AH_KEY     "V6LC-21A--1234567890"
+			#endif
+			#ifdef TEST_FUNC_IKE
+				#define IPSEC_MANUAL_SA10_HA1_MN_AUTH       hmacsha1_2(hexstr(IPSEC_MANUAL_SA10_HA1_MN_AH_KEY, 20))
+			#else
+				#define IPSEC_MANUAL_SA10_HA1_MN_AUTH       hmacsha1(IPSEC_MANUAL_SA10_HA1_MN_AH_KEY)
+			#endif
+		#elif defined(IPSEC_MANUAL_SA10_HA1_MN_AH_HMACMD5)
+			#if !defined(IPSEC_MANUAL_SA10_HA1_MN_AH_KEY)
+				#define IPSEC_MANUAL_SA10_HA1_MN_AH_KEY     "V6LC-21A--123456"
+			#endif
+			#ifdef TEST_FUNC_IKE
+				#define IPSEC_MANUAL_SA10_HA1_MN_AUTH       hmacmd5_2(hexstr(IPSEC_MANUAL_SA10_HA1_MN_AH_KEY, 16))
+			#else
+				#define IPSEC_MANUAL_SA10_HA1_MN_AUTH       hmacmd5(IPSEC_MANUAL_SA10_HA1_MN_AH_KEY)
+			#endif
+		#else
+			#define IPSEC_MANUAL_SA10_HA1_MN_AUTH           null_auth(8)
+		#endif
+
+		ESPAlgorithm esp_sa10_ha1_mn {
+			crypt = IPSEC_MANUAL_SA10_HA1_MN_CRYPT;
+			auth  = IPSEC_MANUAL_SA10_HA1_MN_AUTH;
+		}
+
+	#else
+
+		ESPAlgorithm esp_sa10_ha1_mn {
+			crypt = null_crypt(8);
+		}
+
+	#endif
+
+	Hdr_ESP ext_sa10_ha1_mn {
+		SPI            = IPSEC_MANUAL_SA10_HA1_MN_SPI;
+		SequenceNumber = ESP_SEQ;
+		algorithm      = esp_sa10_ha1_mn;
+	}
+
+#endif
+
+
+/*----------------------------------------------------------------------------*
+ *  IPsec: MN <-> HA2
+ *----------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------*
+ *  IPsec SA1: Binding Update MN -> HA2 TRANSPORT
+ *----------------------------------------------------------------------------*/
+#if defined(IPSEC_MANUAL_SA1_MN_HA2_PROTO_ALL)
+	#define IPSEC_MANUAL_SA1_MN_HA2_PROTO_MH    1
+#endif
+
+#if defined(IPSEC_MANUAL_SA1_MN_HA2_PROTO_MH)
+	#define IPSEC_MANUAL_SA1_MN_HA2_PROTO_BU    1
+#endif
+
+#if defined(IPSEC_MANUAL_SA1_MN_HA2_PROTO_BU)
+
+	#if !defined(IPSEC_MANUAL_SA1_MN_HA2_SPI)
+		#define IPSEC_MANUAL_SA1_MN_HA2_SPI    0x311
+	#endif
+
+	#if defined(IPSEC_MANUAL_SA1_MN_HA2_ALGO_ESP)
+
+		#if defined(IPSEC_MANUAL_SA1_MN_HA2_ESP_DES3CBC)
+			#if !defined(IPSEC_MANUAL_SA1_MN_HA2_ESP_KEY)
+				#define IPSEC_MANUAL_SA1_MN_HA2_ESP_KEY    "V6LC-311--12345678901234"
+			#endif
+			#ifdef TEST_FUNC_IKE
+				#define IPSEC_MANUAL_SA1_MN_HA2_CRYPT    des3cbc_2(hexstr(IPSEC_MANUAL_SA1_MN_HA2_ESP_KEY, 24))
+			#else
+				#define IPSEC_MANUAL_SA1_MN_HA2_CRYPT    des3cbc(IPSEC_MANUAL_SA1_MN_HA2_ESP_KEY)
+			#endif
+		#elif defined(IPSEC_MANUAL_SA1_MN_HA2_ESP_DESCBC)
+			#if !defined(IPSEC_MANUAL_SA1_MN_HA2_ESP_KEY)
+				#define IPSEC_MANUAL_SA1_MN_HA2_ESP_KEY    "V6LC-311"
+			#endif
+			#ifdef TEST_FUNC_IKE
+				#define IPSEC_MANUAL_SA1_MN_HA2_CRYPT    descbc_2(hexstr(IPSEC_MANUAL_SA1_MN_HA2_ESP_KEY, 8))
+			#else
+				#define IPSEC_MANUAL_SA1_MN_HA2_CRYPT    descbc(IPSEC_MANUAL_SA1_MN_HA2_ESP_KEY)
+			#endif
+		#else
+			#define IPSEC_MANUAL_SA1_MN_HA2_CRYPT    null_crypt(8)
+		#endif
+
+		#if defined(IPSEC_MANUAL_SA1_MN_HA2_AH_HMACSHA2)
+			#if !defined(IPSEC_MANUAL_SA1_MN_HA2_AH_KEY)
+				#define IPSEC_MANUAL_SA1_MN_HA2_AH_KEY    "V6LC-311--1234567890"
+			#endif
+			#ifdef TEST_FUNC_IKE
+				#define IPSEC_MANUAL_SA1_MN_HA2_AUTH    hmacsHA2_2(hexstr(IPSEC_MANUAL_SA1_MN_HA2_AH_KEY, 20))
+			#else
+				#define IPSEC_MANUAL_SA1_MN_HA2_AUTH    hmacsHA2(IPSEC_MANUAL_SA1_MN_HA2_AH_KEY)
+			#endif
+		#elif defined(IPSEC_MANUAL_SA1_MN_HA2_AH_HMACMD5)
+			#if !defined(IPSEC_MANUAL_SA1_MN_HA2_AH_KEY)
+				#define IPSEC_MANUAL_SA1_MN_HA2_AH_KEY    "V6LC-311--123456"
+			#endif
+			#ifdef TEST_FUNC_IKE
+				#define IPSEC_MANUAL_SA1_MN_HA2_AUTH    hmacmd5_2(hexstr(IPSEC_MANUAL_SA1_MN_HA2_AH_KEY, 16))
+			#else
+				#define IPSEC_MANUAL_SA1_MN_HA2_AUTH    hmacmd5(IPSEC_MANUAL_SA1_MN_HA2_AH_KEY)
+			#endif
+		#else
+			#define IPSEC_MANUAL_SA1_MN_HA2_AUTH    null_auth(8)
+		#endif
+
+		ESPAlgorithm esp_sa1_mn_ha2 {
+			crypt = IPSEC_MANUAL_SA1_MN_HA2_CRYPT;
+			auth  = IPSEC_MANUAL_SA1_MN_HA2_AUTH;
+		}
+
+	#else
+
+		ESPAlgorithm esp_sa1_mn_ha2 {
+			crypt = null_crypt(8);
+		}
+
+	#endif
+
+	Hdr_ESP ext_sa1_mn_ha2 {
+		SPI            = IPSEC_MANUAL_SA1_MN_HA2_SPI;
+		SequenceNumber = ESP_SEQ_ANY;
+		algorithm      = esp_sa1_mn_ha2;
+	}
+
+#endif
+
+
+/*----------------------------------------------------------------------------*
+ *  IPsec SA2: Binding Acknowledgement HA2 -> MN TRANSPORT
+ *----------------------------------------------------------------------------*/
+#if defined(IPSEC_MANUAL_SA2_HA2_MN_PROTO_ALL)
+	#define IPSEC_MANUAL_SA2_HA2_MN_PROTO_MH    1
+#endif
+
+#if defined(IPSEC_MANUAL_SA2_HA2_MN_PROTO_MH)
+	#define IPSEC_MANUAL_SA2_HA2_MN_PROTO_BA    1
+#endif
+
+#if defined(IPSEC_MANUAL_SA2_HA2_MN_PROTO_BA)
+
+	#if !defined(IPSEC_MANUAL_SA2_HA2_MN_SPI)
+		#define IPSEC_MANUAL_SA2_HA2_MN_SPI     0x312
+	#endif
+
+	#if defined(IPSEC_MANUAL_SA2_HA2_MN_ALGO_ESP)
+
+		#if defined(IPSEC_MANUAL_SA2_HA2_MN_ESP_DES3CBC)
+			#if !defined(IPSEC_MANUAL_SA2_HA2_MN_ESP_KEY)
+				#define IPSEC_MANUAL_SA2_HA2_MN_ESP_KEY "V6LC-312--12345678901234"
+			#endif
+			#ifdef TEST_FUNC_IKE
+				#define IPSEC_MANUAL_SA2_HA2_MN_CRYPT   des3cbc_2(hexstr(IPSEC_MANUAL_SA2_HA2_MN_ESP_KEY, 24))
+			#else
+				#define IPSEC_MANUAL_SA2_HA2_MN_CRYPT   des3cbc(IPSEC_MANUAL_SA2_HA2_MN_ESP_KEY)
+			#endif
+		#elif defined(IPSEC_MANUAL_SA2_HA2_MN_ESP_DESCBC)
+			#if !defined(IPSEC_MANUAL_SA2_HA2_MN_ESP_KEY)
+				#define IPSEC_MANUAL_SA2_HA2_MN_ESP_KEY "V6LC-312"
+			#endif
+			#ifdef TEST_FUNC_IKE
+				#define IPSEC_MANUAL_SA2_HA2_MN_CRYPT   descbc_2(hexstr(IPSEC_MANUAL_SA2_HA2_MN_ESP_KEY, 8))
+			#else
+				#define IPSEC_MANUAL_SA2_HA2_MN_CRYPT   descbc(IPSEC_MANUAL_SA2_HA2_MN_ESP_KEY)
+			#endif
+		#else
+			#define IPSEC_MANUAL_SA2_HA2_MN_CRYPT       null_crypt(8)
+		#endif
+
+		#if defined(IPSEC_MANUAL_SA2_HA2_MN_AH_HMACSHA2)
+			#if !defined(IPSEC_MANUAL_SA2_HA2_MN_AH_KEY)
+				#define IPSEC_MANUAL_SA2_HA2_MN_AH_KEY  "V6LC-312--1234567890"
+			#endif
+			#ifdef TEST_FUNC_IKE
+				#define IPSEC_MANUAL_SA2_HA2_MN_AUTH    hmacsHA2_2(hexstr(IPSEC_MANUAL_SA2_HA2_MN_AH_KEY, 20))
+			#else
+				#define IPSEC_MANUAL_SA2_HA2_MN_AUTH    hmacsHA2(IPSEC_MANUAL_SA2_HA2_MN_AH_KEY)
+			#endif
+		#elif defined(IPSEC_MANUAL_SA2_HA2_MN_AH_HMACMD5)
+			#if !defined(IPSEC_MANUAL_SA2_HA2_MN_AH_KEY)
+				#define IPSEC_MANUAL_SA2_HA2_MN_AH_KEY  "V6LC-312--123456"
+			#endif
+			#ifdef TEST_FUNC_IKE
+				#define IPSEC_MANUAL_SA2_HA2_MN_AUTH    hmacmd5_2(hexstr(IPSEC_MANUAL_SA2_HA2_MN_AH_KEY, 16))
+			#else
+				#define IPSEC_MANUAL_SA2_HA2_MN_AUTH    hmacmd5(IPSEC_MANUAL_SA2_HA2_MN_AH_KEY)
+			#endif
+		#else
+			#define IPSEC_MANUAL_SA2_HA2_MN_AUTH        null_auth(8)
+		#endif
+
+		ESPAlgorithm esp_sa2_ha2_mn {
+			crypt = IPSEC_MANUAL_SA2_HA2_MN_CRYPT;
+			auth  = IPSEC_MANUAL_SA2_HA2_MN_AUTH;
+		}
+
+	#else
+
+		ESPAlgorithm esp_sa2_ha2_mn {
+			crypt = null_crypt(8);
+		}
+
+	#endif
+
+	Hdr_ESP ext_sa2_ha2_mn {
+		SPI            = IPSEC_MANUAL_SA2_HA2_MN_SPI;
+		SequenceNumber = ESP_SEQ;
+		algorithm      = esp_sa2_ha2_mn;
+	}
+
+#endif
+
+
+/*----------------------------------------------------------------------------*
+ *  IPsec: MN <-> CN0
+ *----------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------*
+ *  IPsec SA: ICMP MN -> CN0 TRANSPORT
+ *----------------------------------------------------------------------------*/
+#if defined(IPSEC_MANUAL_SA5_MN_CN0_PROTO_ICMP)
+
+	#if !defined(IPSEC_MANUAL_SA5_MN_CN0_SPI)
+		#define IPSEC_MANUAL_SA5_MN_CN0_SPI 0x415
+	#endif
+
+	#if defined(IPSEC_MANUAL_SA5_MN_CN0_ALGO_ESP)
+
+		#if defined(IPSEC_MANUAL_SA5_MN_CN0_ESP_DES3CBC)
+			#if !defined(IPSEC_MANUAL_SA5_MN_CN0_ESP_KEY)
+				#define IPSEC_MANUAL_SA5_MN_CN0_ESP_KEY "V6LC-415--12345678901234"
+			#endif
+			#define IPSEC_MANUAL_SA5_MN_CN0_CRYPT       des3cbc(IPSEC_MANUAL_SA5_MN_CN0_ESP_KEY)
+		#elif defined(IPSEC_MANUAL_SA5_MN_CN0_ESP_DESCBC)
+			#if !defined(IPSEC_MANUAL_SA5_MN_CN0_ESP_KEY)
+				#define IPSEC_MANUAL_SA5_MN_CN0_ESP_KEY "V6LC-415"
+			#endif
+			#define IPSEC_MANUAL_SA5_MN_CN0_CRYPT       descbc(IPSEC_MANUAL_SA5_MN_CN0_ESP_KEY)
+		#else
+			#define IPSEC_MANUAL_SA5_MN_CN0_CRYPT       null_crypt(8)
+		#endif
+
+		#if defined(IPSEC_MANUAL_SA5_MN_CN0_AH_HMACSHA1)
+			#if !defined(IPSEC_MANUAL_SA5_MN_CN0_AH_KEY)
+				#define IPSEC_MANUAL_SA5_MN_CN0_AH_KEY  "V6LC-415--1234567890"
+			#endif
+			#define IPSEC_MANUAL_SA5_MN_CN0_AUTH        hmacsha1(IPSEC_MANUAL_SA5_MN_CN0_AH_KEY)
+		#elif defined(IPSEC_MANUAL_SA5_MN_CN0_AH_HMACMD5)
+			#if !defined(IPSEC_MANUAL_SA5_MN_CN0_AH_KEY)
+				#define IPSEC_MANUAL_SA5_MN_CN0_AH_KEY  "V6LC-415--123456"
+			#endif
+			#define IPSEC_MANUAL_SA5_MN_CN0_AUTH        hmacmd5(IPSEC_MANUAL_SA5_MN_CN0_AH_KEY)
+		#else
+			#define IPSEC_MANUAL_SA5_MN_CN0_AUTH        null_auth(8)
+		#endif
+
+		ESPAlgorithm esp_sa5_mn_cn0 {
+			crypt = IPSEC_MANUAL_SA5_MN_CN0_CRYPT;
+			auth  = IPSEC_MANUAL_SA5_MN_CN0_AUTH;
+		}
+
+	#else
+
+		ESPAlgorithm esp_sa5_mn_cn0 {
+			crypt = null_crypt(8);
+		}
+
+	#endif
+
+	Hdr_ESP ext_sa5_mn_cn0 {
+		SPI            = IPSEC_MANUAL_SA5_MN_CN0_SPI;
+		SequenceNumber = ESP_SEQ_ANY;
+		algorithm      = esp_sa5_mn_cn0;
+	}
+
+#endif
+
+
+/*----------------------------------------------------------------------------*
+ *  IPsec SA: ICMP CN0 -> MN TRANSPORT
+ *----------------------------------------------------------------------------*/
+#if defined(IPSEC_MANUAL_SA6_CN0_MN_PROTO_ICMP)
+
+	#if !defined(SA6_CNO_MN_SPI)
+		#define IPSEC_MANUAL_SA6_CN0_MN_SPI 0x416
+	#endif
+
+	#if defined(IPSEC_MANUAL_SA6_CN0_MN_ALGO_ESP)
+
+		#if defined(IPSEC_MANUAL_SA6_CN0_MN_ESP_DES3CBC)
+			#if !defined(IPSEC_MANUAL_SA6_CN0_MN_ESP_KEY)
+				#define IPSEC_MANUAL_SA6_CN0_MN_ESP_KEY "V6LC-416--12345678901234"
+			#endif
+			#define IPSEC_MANUAL_SA6_CN0_MN_CRYPT       des3cbc(IPSEC_MANUAL_SA6_CN0_MN_ESP_KEY)
+		#elif defined(IPSEC_MANUAL_SA6_CN0_MN_ESP_DESCBC)
+			#if !defined(IPSEC_MANUAL_SA6_CN0_MN_ESP_KEY)
+				#define IPSEC_MANUAL_SA6_CN0_MN_ESP_KEY "V6LC-416"
+			#endif
+			#define IPSEC_MANUAL_SA6_CN0_MN_CRYPT       descbc(IPSEC_MANUAL_SA6_CN0_MN_ESP_KEY)
+		#else
+			#define IPSEC_MANUAL_SA6_CN0_MN_CRYPT       null_crypt(8)
+		#endif
+
+		#if defined(IPSEC_MANUAL_SA6_CN0_MN_AH_HMACSHA1)
+			#if !defined(IPSEC_MANUAL_SA6_CN0_MN_AH_KEY)
+				#define IPSEC_MANUAL_SA6_CN0_MN_AH_KEY  "V6LC-416--1234567890"
+			#endif
+			#define IPSEC_MANUAL_SA6_CN0_MN_AUTH        hmacsha1(IPSEC_MANUAL_SA6_CN0_MN_AH_KEY)
+		#elif defined(IPSEC_MANUAL_SA6_CN0_MN_AH_HMACMD5)
+			#if !defined(IPSEC_MANUAL_SA6_CN0_MN_AH_KEY)
+				#define IPSEC_MANUAL_SA6_CN0_MN_AH_KEY  "V6LC-416--123456"
+			#endif
+			#define IPSEC_MANUAL_SA6_CN0_MN_AUTH        hmacmd5(IPSEC_MANUAL_SA6_CN0_MN_AH_KEY)
+		#else
+			#define IPSEC_MANUAL_SA6_CN0_MN_AUTH        null_auth(8)
+		#endif
+
+		ESPAlgorithm esp_sa6_cn0_mn {
+			crypt = IPSEC_MANUAL_SA6_CN0_MN_CRYPT;
+			auth  = IPSEC_MANUAL_SA6_CN0_MN_AUTH;
+		}
+
+	#else
+
+		ESPAlgorithm esp_sa6_cn0_mn {
+			crypt = null_crypt(8);
+		}
+
+	#endif
+
+	Hdr_ESP ext_sa6_cn0_mn {
+		SPI            = IPSEC_MANUAL_SA6_CN0_MN_SPI;
+		SequenceNumber = ESP_SEQ;
+		algorithm      = esp_sa6_cn0_mn;
+	}
+
+#endif
+
+// End of File
