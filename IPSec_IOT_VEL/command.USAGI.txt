@@ -1,0 +1,224 @@
+# setkey
+CMD_SETKEY			/sbin/setkey -f /tmp/ipsec.conf
+
+# rm ipsec conf
+CMD_RM_IPSEC_CONF   rm /tmp/ipsec.conf
+
+# null
+CMD_AUTHENTICATION_ALGORITHM_NULL null
+CMD_ENCRYPTION_ALGORITHM_NULL null
+# uname -a
+CMD_UNAME_A     uname -a
+
+# ping6 from specific source address
+CMD_PING6_FROM_SPEC_SRC_ADDR    ping6 -I
+
+# ifconfig
+CMD_IFCONFIG_IF1_UP		/sbin/ifconfig MY_IF1 up
+CMD_IFCONFIG_IF2_UP		/sbin/ifconfig MY_IF2 up
+CMD_IFCONFIG_IF3_UP		/sbin/ifconfig MY_IF3 up
+
+#
+CMD_IFCONFIG_IF1_DOWN		/sbin/ifconfig MY_IF1 down
+CMD_IFCONFIG_IF2_DOWN		/sbin/ifconfig MY_IF2 down
+CMD_IFCONFIG_IF3_DOWN		/sbin/ifconfig MY_IF3 down
+
+#
+CMD_IFCONFIG_IF1_LLA_DELETE	/sbin/ifconfig MY_IF1 inet6 del MY_IF1_LLA/64
+CMD_IFCONFIG_IF2_LLA_DELETE	/sbin/ifconfig MY_IF2 inet6 del MY_IF2_LLA/64
+CMD_IFCONFIG_IF3_LLA_DELETE	/sbin/ifconfig MY_IF3 inet6 del MY_IF3_LLA/64
+
+CMD_IFCONFIG_IF1_ADD_LOGO_LLA		/sbin/ifconfig MY_IF1 inet6 add LOGO_IF1_LLA/64
+CMD_IFCONFIG_IF1_DELETE_LOGO_LLA	/sbin/ifconfig MY_IF1 inet6 del LOGO_IF1_LLA/64
+
+#
+CMD_IFCONFIG_IF1_PREFIX1_GA_ADD		/sbin/ifconfig MY_IF1 inet6 add MY_IF1_PREFIX1_GA/64
+CMD_IFCONFIG_IF2_PREFIX2_GA_ADD		/sbin/ifconfig MY_IF2 inet6 add MY_IF2_PREFIX2_GA/64
+CMD_IFCONFIG_IF3_PREFIX3_GA_ADD		/sbin/ifconfig MY_IF3 inet6 add MY_IF3_PREFIX3_GA/64
+
+CMD_IFCONFIG_IF1_PREFIX1_GA_DELETE	/sbin/ifconfig MY_IF1 inet6 del MY_IF1_PREFIX1_GA/64
+CMD_IFCONFIG_IF2_PREFIX2_GA_DELETE	/sbin/ifconfig MY_IF2 inet6 del MY_IF2_PREFIX2_GA/64
+CMD_IFCONFIG_IF3_PREFIX3_GA_DELETE	/sbin/ifconfig MY_IF3 inet6 del MY_IF3_PREFIX3_GA/64
+
+#
+CMD_IFCONFIG_IF1_PREFIX2_GA_ADD		/sbin/ifconfig MY_IF1 inet6 add MY_IF1_PREFIX2_GA/64
+CMD_IFCONFIG_IF1_PREFIX2_GA_DELETE	/sbin/ifconfig MY_IF1 inet6 del MY_IF1_PREFIX2_GA/64
+CMD_IFCONFIG_IF1_PREFIX3_GA_ADD		/sbin/ifconfig MY_IF1 inet6 add MY_IF1_PREFIX3_GA/64
+CMD_IFCONFIG_IF1_PREFIX3_GA_DELETE	/sbin/ifconfig MY_IF1 inet6 del MY_IF1_PREFIX3_GA/64
+CMD_IFCONFIG_IF1_PREFIX4_GA_ADD		/sbin/ifconfig MY_IF1 inet6 add MY_IF1_PREFIX4_GA/64
+CMD_IFCONFIG_IF1_PREFIX4_GA_DELETE	/sbin/ifconfig MY_IF1 inet6 del MY_IF1_PREFIX4_GA/64
+
+CMD_IFCONFIG_IF2_PREFIX3_GA_ADD		/sbin/ifconfig MY_IF2 inet6 add MY_IF2_PREFIX3_GA/64
+CMD_IFCONFIG_IF2_PREFIX3_GA_DELETE	/sbin/ifconfig MY_IF2 inet6 del MY_IF2_PREFIX3_GA/64
+CMD_IFCONFIG_IF2_PREFIX4_GA_ADD		/sbin/ifconfig MY_IF2 inet6 add MY_IF2_PREFIX4_GA/64
+CMD_IFCONFIG_IF2_PREFIX4_GA_DELETE	/sbin/ifconfig MY_IF2 inet6 del MY_IF2_PREFIX4_GA/64
+
+## 5.1 TGT-HOST2
+CMD_IFCONFIG_IF1_PREFIX2_GA_2_ADD	/sbin/ifconfig MY_IF1 inet6 add MY_IF1_PREFIX2_GA_2/64
+CMD_IFCONFIG_IF1_PREFIX2_GA_2_DELETE	/sbin/ifconfig MY_IF1 inet6 del MY_IF1_PREFIX2_GA_2/64
+
+## 5.2 REF-HOST
+CMD_IFCONFIG_IF1_PREFIX4_GA_2_ADD	/sbin/ifconfig MY_IF1 inet6 add MY_IF1_PREFIX4_GA_2/64
+CMD_IFCONFIG_IF1_PREFIX4_GA_2_DELETE	/sbin/ifconfig MY_IF1 inet6 del MY_IF1_PREFIX4_GA_2/64
+
+## 5.3 TAR-HOST1
+CMD_IFCONFIG_IF1_PREFIX1_GA_2_ADD	/sbin/ifconfig MY_IF1 inet6 add MY_IF1_PREFIX1_GA_2/64
+CMD_IFCONFIG_IF1_PREFIX1_GA_2_DELETE	/sbin/ifconfig MY_IF1 inet6 del MY_IF1_PREFIX1_GA_2/64
+
+## 5.3 REF-HOST
+CMD_IFCONFIG_IF1_PREFIX3_GA_2_ADD	/sbin/ifconfig MY_IF1 inet6 add MY_IF1_PREFIX3_GA_2/64
+CMD_IFCONFIG_IF1_PREFIX3_GA_2_DELETE	/sbin/ifconfig MY_IF1 inet6 del MY_IF1_PREFIX3_GA_2/64
+
+## 5.1 REF-ROUTER
+## 5.3 REF-ROUTER
+## 5.4 REF-ROUTER
+CMD_IFCONFIG_IF1_PREFIX1_GA_F_ADD	/sbin/ifconfig MY_IF1 inet6 add MY_IF1_PREFIX1_GA_F/64
+CMD_IFCONFIG_IF1_PREFIX1_GA_F_DELETE	/sbin/ifconfig MY_IF1 inet6 del MY_IF1_PREFIX1_GA_F/64
+CMD_IFCONFIG_IF2_PREFIX2_GA_F_ADD	/sbin/ifconfig MY_IF2 inet6 add MY_IF2_PREFIX2_GA_F/64
+CMD_IFCONFIG_IF2_PREFIX2_GA_F_DELETE	/sbin/ifconfig MY_IF2 inet6 del MY_IF2_PREFIX2_GA_F/64
+
+## 5.2 TAR-SGW
+CMD_IFCONFIG_IF1_PREFIX3_GA_D_ADD	/sbin/ifconfig MY_IF1 inet6 add MY_IF1_PREFIX3_GA_D/64
+CMD_IFCONFIG_IF1_PREFIX3_GA_D_DELETE	/sbin/ifconfig MY_IF1 inet6 del MY_IF1_PREFIX3_GA_D/64
+CMD_IFCONFIG_IF2_PREFIX4_GA_D_ADD	/sbin/ifconfig MY_IF2 inet6 add MY_IF2_PREFIX4_GA_D/64
+CMD_IFCONFIG_IF2_PREFIX4_GA_D_DELETE	/sbin/ifconfig MY_IF2 inet6 del MY_IF2_PREFIX4_GA_D/64
+
+## 5.2 REF-ROUTER
+CMD_IFCONFIG_IF1_PREFIX2_GA_E_ADD	/sbin/ifconfig MY_IF1 inet6 add MY_IF1_PREFIX2_GA_E/64
+CMD_IFCONFIG_IF1_PREFIX2_GA_E_DELETE	/sbin/ifconfig MY_IF1 inet6 del MY_IF1_PREFIX2_GA_E/64
+CMD_IFCONFIG_IF2_PREFIX3_GA_E_ADD	/sbin/ifconfig MY_IF2 inet6 add MY_IF2_PREFIX3_GA_E/64
+CMD_IFCONFIG_IF2_PREFIX3_GA_E_DELETE	/sbin/ifconfig MY_IF2 inet6 del MY_IF2_PREFIX3_GA_E/64
+
+# ndp
+CMD_CLEAR_NCE_IF1		execute "/sbin/ip neigh flush dev MY_IF1"
+CMD_CLEAR_NCE_IF2		execute "/sbin/ip neigh flush dev MY_IF2"
+CMD_CLEAR_NCE_IF3		execute "/sbin/ip neigh flush dev MY_IF3"
+CMD_PRINT_NCE_IF1		execute "/sbin/ip neigh show dev MY_IF1"
+CMD_PRINT_NCE_IF2		execute "/sbin/ip neigh show dev MY_IF2"
+CMD_PRINT_NCE_IF3		execute "/sbin/ip neigh show dev MY_IF3"
+
+# route
+CMD_FLUSH_ROUTE_PREFIX1_IF1	/sbin/ip -statistics route flush PREFIX1::/64 dev MY_IF1
+CMD_FLUSH_ROUTE_PREFIX2_IF1	/sbin/ip -statistics route flush PREFIX2::/64 dev MY_IF1
+CMD_FLUSH_ROUTE_PREFIX3_IF1	/sbin/ip -statistics route flush PREFIX3::/64 dev MY_IF1
+CMD_FLUSH_ROUTE_PREFIX2_IF2	/sbin/ip -statistics route flush PREFIX2::/64 dev MY_IF2
+CMD_FLUSH_ROUTE_PREFIX1_IF3	/sbin/ip -statistics route flush PREFIX1::/64 dev MY_IF3
+CMD_FLUSH_ROUTE_PREFIX3_IF3	/sbin/ip -statistics route flush PREFIX3::/64 dev MY_IF3
+CMD_FLUSH_ROUTE_PREFIX2_IF1	/sbin/ip -statistics route flush PREFIX2::/64 dev MY_IF1
+CMD_FLUSH_ROUTE_PREFIX3_IF2	/sbin/ip -statistics route flush PREFIX3::/64 dev MY_IF2
+CMD_FLUSH_ROUTE_PREFIX3_IF1	/sbin/ip -statistics route flush PREFIX3::/64 dev MY_IF1
+CMD_FLUSH_ROUTE_PREFIX4_IF2	/sbin/ip -statistics route flush PREFIX4::/64 dev MY_IF2
+
+# static route
+## 5.2 REF-ROUTER
+CMD_ADD_ROUTE_5_2_REF_1	/sbin/route -A inet6 add PREFIX1::/64 gw 
+CMD_ADD_ROUTE_5_2_REF_2	/sbin/route -A inet6 add PREFIX4::/64 gw 
+
+## 5.2 TAR-SGW
+CMD_ADD_ROUTE_5_2_TAR_1	/sbin/route -A inet6 add PREFIX1::/64 gw
+CMD_ADD_ROUTE_5_2_TAR_2	/sbin/route -A inet6 add PREFIX2::/64 gw
+
+## 5.3 REF-ROUTER for 5.3.x.en.sgw.tunnel
+CMD_ADD_ROUTE_5_3_REF_EN_SGW	/sbin/route -A inet6 add PREFIX3::/64 gw
+
+## 5.3 TAR-SGW for 5.3.x.en.sgw.tunnel
+CMD_ADD_ROUTE_5_3_TAR	/sbin/route -A inet6 add PREFIX1::/64 gw 
+
+## 5.3 REF-ROUTER for 5.3.x.sgw.en.tunnel
+CMD_ADD_ROUTE_5_3_REF_SGW_EN		route add -inet6 PREFIX3:: -prefixlen 64 
+
+# sysctl
+CMD_SYSCTL_ACCEPT_RA		/sbin/sysctl -w net.ipv6.conf.all.accept_ra=1
+CMD_SYSCTL_NOT_ACCEPT_RA	/sbin/sysctl -w net.ipv6.conf.all.accept_ra=0
+
+CMD_SYSCTL_FORWARDING		/sbin/sysctl -w net.ipv6.conf.all.forwarding=1
+CMD_SYSCTL_NOT_FORWARDING	/sbin/sysctl -w net.ipv6.conf.all.forwarding=0
+
+# rtsol
+#CMD_RTSOL_IF1		/usr/local/v6/sbin/rtsol MY_IF1
+#CMD_RTSOL_IF2		/usr/local/v6/sbin/rtsol MY_IF2
+#CMD_RTSOL_IF3		/usr/local/v6/sbin/rtsol MY_IF3
+CMD_RTSOL_IF1		/bin/echo > /dev/null
+CMD_RTSOL_IF2		/bin/echo > /dev/null
+CMD_RTSOL_IF3		/bin/echo > /dev/null
+
+# rtadvd
+CMD_RTADVD_IF1		/usr/sbin/radvd -C /tmp/rtadvd.conf
+CMD_RTADVD_IF2		/usr/sbin/radvd -C /tmp/rtadvd.conf
+CMD_RTADVD_IF3		/usr/sbin/radvd -C /tmp/rtadvd.conf
+CMD_RTADVD_IFS_1_2	/usr/sbin/radvd -C /tmp/rtadvd.conf
+
+CMD_STOP_RTADVD		killall -9 radvd
+CMD_RM_RTADVD_CONF	rm -f /tmp/rtadvd.conf
+
+# rtadvd.conf
+## 5.1
+## 5.3
+## 5.4
+CMD_RTADVD_CONF_5_1_1	/bin/sh -c echo interface MY_IF1 { > /tmp/rtadvd.conf
+CMD_RTADVD_CONF_5_1_2	/bin/sh -c echo -e      \\tAdvSendAdvert on\; MinRtrAdvInterval 3\; MaxRtrAdvInterval 10\; AdvDefaultLifetime 1800\; AdvLinkMTU 1500\; >> /tmp/rtadvd.conf
+CMD_RTADVD_CONF_5_1_3	/bin/sh -c echo -e      \\tprefix PREFIX1::/64 >> /tmp/rtadvd.conf
+CMD_RTADVD_CONF_5_1_4	/bin/sh -c echo -e      \\t{ >> /tmp/rtadvd.conf
+CMD_RTADVD_CONF_5_1_5	/bin/sh -c echo -e           \\t\\tAdvOnLink on\; >> /tmp/rtadvd.conf
+CMD_RTADVD_CONF_5_1_6	/bin/sh -c echo -e           \\t\\tAdvAutonomous on\; >> /tmp/rtadvd.conf
+CMD_RTADVD_CONF_5_1_7	/bin/sh -c echo -e      \\t}\; >> /tmp/rtadvd.conf
+CMD_RTADVD_CONF_5_1_8	/bin/sh -c echo    }\; >> /tmp/rtadvd.conf
+CMD_RTADVD_CONF_5_1_9	/bin/sh -c echo interface MY_IF2 { >> /tmp/rtadvd.conf
+CMD_RTADVD_CONF_5_1_A	/bin/sh -c echo -e      \\tAdvSendAdvert on\; MinRtrAdvInterval 3\; MaxRtrAdvInterval 10\; AdvDefaultLifetime 1800\; AdvLinkMTU 1500\; >> /tmp/rtadvd.conf
+CMD_RTADVD_CONF_5_1_B	/bin/sh -c echo -e      \\tprefix PREFIX2::/64 >> /tmp/rtadvd.conf
+CMD_RTADVD_CONF_5_1_C	/bin/sh -c echo -e      \\t{ >> /tmp/rtadvd.conf
+CMD_RTADVD_CONF_5_1_D	/bin/sh -c echo -e           \\t\\tAdvOnLink on\; >> /tmp/rtadvd.conf
+CMD_RTADVD_CONF_5_1_E	/bin/sh -c echo -e           \\t\\tAdvAutonomous on\; >> /tmp/rtadvd.conf
+CMD_RTADVD_CONF_5_1_F	/bin/sh -c echo -e      \\t}\; >> /tmp/rtadvd.conf
+CMD_RTADVD_CONF_5_1_G	/bin/sh -c echo    }\; >> /tmp/rtadvd.conf
+
+CMD_RTADVD_CONF_5_2_TAR_1	/bin/sh -c echo interface MY_IF1 { > /tmp/rtadvd.conf
+CMD_RTADVD_CONF_5_2_TAR_2	/bin/sh -c echo -e      \\tAdvSendAdvert on\; MinRtrAdvInterval 3\; MaxRtrAdvInterval 10\; AdvDefaultLifetime 1800\; AdvLinkMTU 1500\; >> /tmp/rtadvd.conf
+CMD_RTADVD_CONF_5_2_TAR_3	/bin/sh -c echo -e      \\tprefix PREFIX3::/64 >> /tmp/rtadvd.conf
+CMD_RTADVD_CONF_5_2_TAR_4	/bin/sh -c echo -e      \\t{ >> /tmp/rtadvd.conf
+CMD_RTADVD_CONF_5_2_TAR_5	/bin/sh -c echo -e           \\t\\tAdvOnLink on\; >> /tmp/rtadvd.conf
+CMD_RTADVD_CONF_5_2_TAR_6	/bin/sh -c echo -e           \\t\\tAdvAutonomous on\; >> /tmp/rtadvd.conf
+CMD_RTADVD_CONF_5_2_TAR_7	/bin/sh -c echo -e      \\t}\; >> /tmp/rtadvd.conf
+CMD_RTADVD_CONF_5_2_TAR_8	/bin/sh -c echo    }\; >> /tmp/rtadvd.conf
+CMD_RTADVD_CONF_5_2_TAR_9	/bin/sh -c echo interface MY_IF2 { >> /tmp/rtadvd.conf
+CMD_RTADVD_CONF_5_2_TAR_A	/bin/sh -c echo -e      \\tAdvSendAdvert on\; MinRtrAdvInterval 3\; MaxRtrAdvInterval 10\; AdvDefaultLifetime 1800\; AdvLinkMTU 1500\; >> /tmp/rtadvd.conf
+CMD_RTADVD_CONF_5_2_TAR_B	/bin/sh -c echo -e      \\tprefix PREFIX4::/64 >> /tmp/rtadvd.conf
+CMD_RTADVD_CONF_5_2_TAR_C	/bin/sh -c echo -e      \\t{ >> /tmp/rtadvd.conf
+CMD_RTADVD_CONF_5_2_TAR_D	/bin/sh -c echo -e           \\t\\tAdvOnLink on\; >> /tmp/rtadvd.conf
+CMD_RTADVD_CONF_5_2_TAR_E	/bin/sh -c echo -e           \\t\\tAdvAutonomous on\; >> /tmp/rtadvd.conf
+CMD_RTADVD_CONF_5_2_TAR_F	/bin/sh -c echo -e      \\t}\; >> /tmp/rtadvd.conf
+CMD_RTADVD_CONF_5_2_TAR_G	/bin/sh -c echo    }\; >> /tmp/rtadvd.conf
+
+CMD_RTADVD_CONF_5_2_REF_1	/bin/sh -c echo interface MY_IF1 { > /tmp/rtadvd.conf
+CMD_RTADVD_CONF_5_2_REF_2	/bin/sh -c echo -e      \\tAdvSendAdvert on\; MinRtrAdvInterval 3\; MaxRtrAdvInterval 10\; AdvDefaultLifetime 1800\; AdvLinkMTU 1500\; >> /tmp/rtadvd.conf
+CMD_RTADVD_CONF_5_2_REF_3	/bin/sh -c echo -e      \\tprefix PREFIX2::/64 >> /tmp/rtadvd.conf
+CMD_RTADVD_CONF_5_2_REF_4	/bin/sh -c echo -e      \\t{ >> /tmp/rtadvd.conf
+CMD_RTADVD_CONF_5_2_REF_5	/bin/sh -c echo -e           \\t\\tAdvOnLink on\; >> /tmp/rtadvd.conf
+CMD_RTADVD_CONF_5_2_REF_6	/bin/sh -c echo -e           \\t\\tAdvAutonomous on\; >> /tmp/rtadvd.conf
+CMD_RTADVD_CONF_5_2_REF_7	/bin/sh -c echo -e      \\t}\; >> /tmp/rtadvd.conf
+CMD_RTADVD_CONF_5_2_REF_8	/bin/sh -c echo    }\; >> /tmp/rtadvd.conf
+CMD_RTADVD_CONF_5_2_REF_9	/bin/sh -c echo interface MY_IF2 { >> /tmp/rtadvd.conf
+CMD_RTADVD_CONF_5_2_REF_A	/bin/sh -c echo -e      \\tAdvSendAdvert on\; MinRtrAdvInterval 3\; MaxRtrAdvInterval 10\; AdvDefaultLifetime 1800\; AdvLinkMTU 1500\; >> /tmp/rtadvd.conf
+CMD_RTADVD_CONF_5_2_REF_B	/bin/sh -c echo -e      \\tprefix PREFIX3::/64 >> /tmp/rtadvd.conf
+CMD_RTADVD_CONF_5_2_REF_C	/bin/sh -c echo -e      \\t{ >> /tmp/rtadvd.conf
+CMD_RTADVD_CONF_5_2_REF_D	/bin/sh -c echo -e           \\t\\tAdvOnLink on\; >> /tmp/rtadvd.conf
+CMD_RTADVD_CONF_5_2_REF_E	/bin/sh -c echo -e           \\t\\tAdvAutonomous on\; >> /tmp/rtadvd.conf
+CMD_RTADVD_CONF_5_2_REF_F	/bin/sh -c echo -e      \\t}\; >> /tmp/rtadvd.conf
+CMD_RTADVD_CONF_5_2_REF_G	/bin/sh -c echo    }\; >> /tmp/rtadvd.conf
+
+CMD_RTADVD_CONF_5_3_TAR_1	/bin/sh -c echo interface MY_IF1 { > /tmp/rtadvd.conf
+CMD_RTADVD_CONF_5_3_TAR_2	/bin/sh -c echo -e      \\tAdvSendAdvert on\; MinRtrAdvInterval 3\; MaxRtrAdvInterval 10\; AdvDefaultLifetime 1800\; AdvLinkMTU 1500\; >> /tmp/rtadvd.conf
+CMD_RTADVD_CONF_5_3_TAR_3	/bin/sh -c echo -e      \\tprefix PREFIX2::/64 >> /tmp/rtadvd.conf
+CMD_RTADVD_CONF_5_3_TAR_4	/bin/sh -c echo -e      \\t{ >> /tmp/rtadvd.conf
+CMD_RTADVD_CONF_5_3_TAR_5	/bin/sh -c echo -e           \\t\\tAdvOnLink on\; >> /tmp/rtadvd.conf
+CMD_RTADVD_CONF_5_3_TAR_6	/bin/sh -c echo -e           \\t\\tAdvAutonomous on\; >> /tmp/rtadvd.conf
+CMD_RTADVD_CONF_5_3_TAR_7	/bin/sh -c echo -e      \\t}\; >> /tmp/rtadvd.conf
+CMD_RTADVD_CONF_5_3_TAR_8	/bin/sh -c echo    }\; >> /tmp/rtadvd.conf
+CMD_RTADVD_CONF_5_3_TAR_9	/bin/sh -c echo interface MY_IF2 { >> /tmp/rtadvd.conf
+CMD_RTADVD_CONF_5_3_TAR_A	/bin/sh -c echo -e      \\tAdvSendAdvert on\; MinRtrAdvInterval 3\; MaxRtrAdvInterval 10\; AdvDefaultLifetime 1800\; AdvLinkMTU 1500\; >> /tmp/rtadvd.conf
+CMD_RTADVD_CONF_5_3_TAR_B	/bin/sh -c echo -e      \\tprefix PREFIX3::/64 >> /tmp/rtadvd.conf
+CMD_RTADVD_CONF_5_3_TAR_C	/bin/sh -c echo -e      \\t{ >> /tmp/rtadvd.conf
+CMD_RTADVD_CONF_5_3_TAR_D	/bin/sh -c echo -e           \\t\\tAdvOnLink on\; >> /tmp/rtadvd.conf
+CMD_RTADVD_CONF_5_3_TAR_E	/bin/sh -c echo -e           \\t\\tAdvAutonomous on\; >> /tmp/rtadvd.conf
+CMD_RTADVD_CONF_5_3_TAR_F	/bin/sh -c echo -e      \\t}\; >> /tmp/rtadvd.conf
+CMD_RTADVD_CONF_5_3_TAR_G	/bin/sh -c echo    }\; >> /tmp/rtadvd.conf

@@ -1,0 +1,177 @@
+#--------------------------------------------------#
+# COMMON configuration for all nodes and tsets     #
+#--------------------------------------------------#
+PREFIX1		3ffe:501:ffff:0
+PREFIX2		3ffe:501:ffff:1
+PREFIX3		3ffe:501:ffff:2
+PREFIX4		3ffe:501:ffff:3
+
+#--------------------------------------------------#
+# TARGET NODE configuration                        #
+#--------------------------------------------------#
+
+#
+# LOGO YOUR DEVICE
+#
+# LOGO TYPE: en (End-Node) or sgw (Security Gateway)
+LOGO_TYPE		sgw
+#LOGO_TYPE		sgw
+LOGO_NAME		FreeBSD
+
+# If LOGO_TYPE is sgw, both IF1 and IF2 is used.
+# If LOGO_TYPE is en, just IF1 is used.
+LOGO_IF1		rl0
+LOGO_IF1_MAC		00:0e:a6:87:1b:af
+LOGO_IF2	        sk0
+LOGO_IF2_MAC		00:0e:a6:75:2d:ba
+
+#
+# TARGET-1, TARGET-2, TARGET-3 and TARGET-4 are counter part devices.
+# If you use the device as EN, you must configure the IF1.
+# If you use the device as SGW, you must configure the IF1 and IF2.
+#
+
+#
+# TARGET-1
+#
+TAR1_ENABLE		YES
+
+TAR1_NAME		Linux
+TAR1_TYPE		sgw
+TAR1_TEST_MODE		tunnel
+
+TAR1_IF1		eth0
+TAR1_IF1_MAC		00:14:38:ee:6f:2c
+TAR1_IF2		eth1
+TAR1_IF2_MAC		00:14:38:ee:5f:4f
+TAR1_IFTG		eth2
+TAR1_IFTG_V4_ADDR	192.168.20.20
+
+#
+# TARGET-2
+#
+TAR2_ENABLE		USAGI
+
+TAR2_NAME		NetBSD
+TAR2_TYPE		en
+TAR2_TEST_MODE		tunnel
+
+
+TAR2_IF1		bge0
+TAR2_IF1_MAC		00:14:38:ee:6f:2c
+TAR2_IF2		bge1
+TAR2_IF2_MAC		00:14:38:ee:5f:4f
+TAR2_IFTG		wm0
+TAR2_IFTG_V4_ADDR	192.168.20.22
+
+#
+# TARGET-3
+#
+TAR3_ENABLE		YES
+
+TAR3_NAME		KAME
+TAR3_TYPE		en
+TAR3_TEST_MODE		tunnel
+
+TAR3_IF1		em1
+TAR3_IF1_MAC		00:30:64:03:81:9e
+TAR3_IF2		vr0
+TAR3_IF2_MAC		00:11:95:b7:30:c5
+TAR3_IFTG		em0
+TAR3_IFTG_V4_ADDR	192.168.20.14
+
+#
+# TARGET-4
+#
+TAR4_ENABLE		YES
+
+TAR4_NAME		USAGI
+TAR4_TYPE		sgw
+TAR4_TEST_MODE		tunnel
+
+TAR4_IF1		eth0
+TAR4_IF1_MAC		00:14:38:ee:6f:2c
+TAR4_IF2		eth1
+TAR4_IF2_MAC		00:14:38:ee:5f:4f
+TAR4_IFTG		eth2
+TAR4_IFTG_V4_ADDR	192.168.20.21
+
+#--------------------------------------------------#
+# REFERENCE NODE configuration			   #
+#--------------------------------------------------#
+
+# REF-1
+# 5.2 REF-HOST
+REF1_ENABLE		YES
+
+REF1_NAME		FreeBSD
+
+REF1_IF1		vr0
+REF1_IF1_MAC		00:13:46:6a:42:79
+
+REF1_IFTG		bge0
+REF1_IFTG_V4_ADDR	192.168.20.100
+
+
+# REF-2
+# 5.1 REF-ROUTER
+# 5.2 REF-ROUTER
+# 5.3 REF-ROUTER
+# 5.4 REF-ROUTER
+REF2_ENABLE		YES
+REF2_NAME		FreeBSD
+
+REF2_IF1		vr0
+REF2_IF1_MAC		00:13:46:72:88:ca
+REF2_IF2		vr1
+REF2_IF2_MAC		00:13:46:6a:42:7e
+
+REF2_IFTG		bge0
+REF2_IFTG_V4_ADDR	192.168.20.101
+
+
+# REF-3
+# 5.2 REF-HOST
+# 5.3 REF-HOST
+REF3_ENABLE		YES
+
+REF3_NAME		FreeBSD
+
+REF3_IF1		vr1
+REF3_IF1_MAC		00:13:46:6a:42:8b
+
+REF3_IFTG		fxp0
+REF3_IFTG_V4_ADDR	192.168.20.102
+
+
+#--------------------------------------------------#
+# PACKET CAPTURE NODE configuration		   #
+#--------------------------------------------------#
+
+DUMPER_NAME		FreeBSD
+
+#
+# interface name for capturing packets on Network 1
+#
+DUMPER_IF1		vr0
+
+#
+# interface name for capturing packets on Network 2
+#
+DUMPER_IF2		vr1
+
+#
+# interface name for capturing packets on Network 3
+#
+DUMPER_IF3		vr2
+
+#
+# interface name for capturing packets on Network 4
+#
+DUMPER_IF4		fxp0
+
+#
+# interface to control 
+#
+DUMPER_IFTG		rue0
+DUMPER_IFTG_V4_ADDR	192.168.20.2

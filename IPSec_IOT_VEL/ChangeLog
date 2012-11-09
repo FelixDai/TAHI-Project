@@ -1,0 +1,230 @@
+			      ChangeLog
+
+			TAHI Project/CHT-TL(Chunghwa Telecom Labs.)
+
+		      $Date: 2009/03/04 11:00 AM $
+
+2009-03-04  Wan-Der Chiou <wanderch@cht.com.tw>
+
+Add command.OpenBSD.txt (Not tested)
+
+2009-03-03  Wan-Der Chiou <wanderch@cht.com.tw>
+
+Add Camellia Cipher Algorithm 5.1.7, 5.2.7, 5.3.7, 5.4.7(Not tested)
+
+Support RFC 4312 Camellia Block Cipher (Not tested)
+(1)FreeBSD 7.0 or later
+(2)Kernel.Org 2.6.21 or later
+(3)OpenSSL
+
+2009-03-02  Wan-Der Chiou <wanderch@cht.com.tw>
+
+Fixed the following two bugs reported by Hiroshi Miyauchi@JATE
+1) About P2_IPSec_IOT_VEL_20071108/5.2.7.TGT_SGW1.ipsec.conf,
+
+    line15 : ipv6readylogsha11to2req => ipv6readysha11to2req
+    line18 : icmp6 128, 0 => 128,0
+    line28 : ipv6readylogsha12to1req => ipv6readysha12to1req
+    line41 : ipv6readylogsha11to2req => ipv6readysha11to2req
+    line54 : ipv6readylogsha12to1req => ipv6readysha12to1req
+
+2) About P2_IPSec_IOT_VEL_20071108/5.2.7.sgw.sgw.tunnel.sc, line 29.
+
+    syncevent finish_test setup_cleanup_REF1, setup_cleanup_REF2,
+    setup_cleanup_REF3, setup_cleanup_TEST-TAR-SGW, cleanup_DUMPER,
+    test_REF3, test_REF1;
+
+2007-11-01  Jackson Wu <jacksonwu@cht.com.tw>
+
+5.x.7 Select SPD
+
+Endnode vs Endnode Transport Mode/Tunnel Mode
+
+KernelOrg vs Endnode Transport Mode(KernelOrg, USAGI, NetBSD, KAME, FreeBSD): Select SPD PASS
+KernelOrg vs Endnode Tunnel Mode(KernelOrg, USAGI): Select SPD PASS
+
+2007-10-12  Jackson Wu <jacksonwu@cht.com.tw>
+
+Checked all setkey config files with P2 IPSec interop test specification
+
+	NUT Endnode:5.x.x.TGT_HOST1.ipsec.conf
+	NUT Secure Gatway: 5.x.x.TGT_SGW1.ipsec.conf
+
+Ran interop tests without IPSec v3 features as follows:
+
+Endnode:
+
+	Endnode vs Endnode Transport Mode(KernelOrg, USAGI, NetBSD, KAME)
+	Endnode vs Secure Gateway Tunnel Mode(NetBSD, KAME)
+
+    End-Node (Transport):
+      1. Vendor name: The USAGI Project  / Device name: USAGI                 / Version: usagi-linux26-s20060928
+      2. Vendor name: KernelOrg          / Device name: Mainline Linux Kernel / Version: 2.6.22.6
+      3. Vendor name: The KAME Project   / Device name: KAME                  / Version: kame-20070901-freebsd54-snap 
+      4. Vendor name: The NetBSD Project / Device name: NetBSD                / Version: 3.1-RELEASE
+
+    SGW (Tunnel):
+      1. Vendor name: The KAME Project   / Device name: KAME   / Version: kame-20070901-freebsd54-snap 
+      2. Vendor name: The NetBSD Project / Device name: NetBSD / Version: 3.1-RELEASE
+
+
+Secure Gateway:
+
+	SGW vs Endnode Tunnel Mode(KernelOrg, USAGI, NetBSD, KAME)
+	SGW vs SGW Tunnel Mode(NetBSD, KAME)
+
+    End-Node (Tunnel):
+      1. Vendor name: The USAGI Project  / Device name: USAGI                 / Version: usagi-linux26-s20060928
+      2. Vendor name: KernelOrg          / Device name: Mainline Linux Kernel / Version: 2.6.22.6
+      3. Vendor name: The KAME Project   / Device name: KAME                  / Version: kame-20070901-freebsd54-snap 
+      4. Vendor name: The NetBSD Project / Device name: NetBSD                / Version: 3.1-RELEASE
+      
+    SGW (Tunnel):
+      1. Vendor name: The KAME Project   / Device name: KAME   / Version: kame-20070901-freebsd54-snap 
+      2. Vendor name: The NetBSD Project / Device name: NetBSD / Version: 3.1-RELEASE
+
+2007-10-12  Wan-Der Chiou <wanderch@cht.com.tw>
+
+Design Principle:
+
+(1) Each physical interface of each node has three IPv6 addresses:
+link-local address, EUI-64 global addresss(GA), manual global address such as ::d, ::e, ::f and ::2.
+
+(2) Each host such as REF-HOST or Endnode learns the default route via Router Advertisement and gets EUI-64 global address.
+
+(3) Each router such as REF-ROUTER or Secure Gateway sets static routes to EUI-64 global address.
+
+(4) NOTE: VERY IMPORTANT
+ 
+All setkey config files in the interop_ph2_ipsec/*.ipsec.conf are NUT LOGO Vendor's IPSec configuration.
+
+NUT Endnode:5.x.x.TGT_HOST1.ipsec.conf
+NUT Secure Gatway: 5.x.x.TGT_SGW1.ipsec.conf
+
+You can give them directly to LOGO Vendors to translate into LOGO Vendor own IPSec commands to speed up the P2 IPSec interop test.
+
+(5) NOTE: VERY IMPORTANT
+
+make_scenario.pl copies automatically the NUT setkey config files and changes the following setkey parameters:
+	-E => \-E\
+	-P in => -P out
+	-P out => -P in
+
+For KAME only:
+	-E null => \-E\ null \"\"
+	-A null => -A null \"\"
+
+(6) NOTE: VERY IMPORTANT
+In order to identify the different OSs for multi-boot in the same single hardware, 
+5.1.x and 5.4.x append information "uname -a" to ping test result log.  
+
+Detail Change Log:
+
+	* interop_ph2_ipsec/make_scenario.pl 
+	Please compare with the original make_scenario.pl
+
+	* interop_ph2_ipsec/config.txt
+	add REF2_ENABLE YES
+
+	* interop_ph2_ipsec/*.sc
+	execte => execute
+	remove ";" from COPY_FILE_5.x.x.TGT_xxx1.ipsec.conf
+	add xxx_CMD_IFCONFIG_IFx_LLA_DELETE
+	add PRINT_FILE_5.x.x.TGT_xxx1.ipsec.conf
+		Please remove '^M' at the end of each line with vi.
+	add PRINT_FILE_5.x.x.x.topology
+		Please remove '^M' at the end of each line with vi.
+
+	* interop_ph2_ipsec/5.*.cleanup.sc
+	clean all network configurations only when abnormal crash.
+
+	* interop_ph2_ipsec/5.3.*.en.sgw.tunnel.sc
+	COPY_FILE_5.x.x.TGT_SGW1.ipsec.conf =>
+	COPY_FILE_5.x.x.TGT_HOST1.ipsec.conf
+
+	* interop_ph2_ipsec/5.3.*.sgw.en.tunnel.sc
+	COPY_FILE_5.x.x.TGT_HOST1.ipsec.conf =>
+	COPY_FILE_5.x.x.TGT_SGW1.ipsec.conf 
+
+	* interop_ph2_ipsec/command.FreeBSD.txt
+			    command.Linux.txt
+			    command.USAGI.txt
+			    command.KAME.txt
+			    command.NetBSD.txt
+
+	add CMD_AUTHENTICATION_ALGORITHM_NULL,
+	    CMD_ENCRYPTION_ALGORITHM_NULL, 
+	    CMD_UNAME_A, 
+	    CMD_PING6_FROM_SPEC_SRC_ADDR
+
+	change Static Route Command Format by moving routing gateway(EUI-64 global address) into 5.*.sc
+	CMD_ADD_ROUTE_5_2_REF_1
+	CMD_ADD_ROUTE_5_2_REF_2
+	CMD_ADD_ROUTE_5_2_TAR_1
+	CMD_ADD_ROUTE_5_2_TAR_2 
+	CMD_ADD_ROUTE_5_3_REF_EN_SGW
+	CMD_ADD_ROUTE_5_3_TAR
+	CMD_ADD_ROUTE_5_3_REF_SGW_EN
+
+For example(command.FreeBSD.txt):
+	# null
+	CMD_AUTHENTICATION_ALGORITHM_NULL null
+	CMD_ENCRYPTION_ALGORITHM_NULL null
+	# uname -a
+	CMD_UNAME_A     uname -a
+
+	# ping6 from specific source address
+	CMD_PING6_FROM_SPEC_SRC_ADDR    ping6 -S
+
+	# static route
+	## 5.2 REF-ROUTER
+	CMD_ADD_ROUTE_5_2_REF_1		route add -inet6 PREFIX1:: -prefixlen 64 
+	CMD_ADD_ROUTE_5_2_REF_2		route add -inet6 PREFIX4:: -prefixlen 64 
+
+	## 5.2 TAR-SGW
+	CMD_ADD_ROUTE_5_2_TAR_1	route add -inet6 PREFIX1:: -prefixlen 64 
+	CMD_ADD_ROUTE_5_2_TAR_2	route add -inet6 PREFIX2:: -prefixlen 64 
+
+	## 5.3 REF-ROUTER for 5.3.x.en.sgw.tunnel
+	CMD_ADD_ROUTE_5_3_REF_EN_SGW		route add -inet6 PREFIX3:: -prefixlen 64
+
+	## 5.3 TAR-SGW for 5.3.x.en.sgw.tunnel
+	CMD_ADD_ROUTE_5_3_TAR		route add -inet6 PREFIX1:: -prefixlen 64 
+
+	## 5.3 REF-ROUTER for 5.3.x.sgw.en.tunnel
+	CMD_ADD_ROUTE_5_3_REF_SGW_EN		route add -inet6 PREFIX3:: -prefixlen 64
+
+
+
+
+
+	* interop_ph2_ipsec/command.NetBSD.txt
+			    command.Linux.txt
+			    command.USAGI.txt
+
+	add TAB(-e \\t) into rtadvd.conf into NetBSD, Linux and USAGI
+
+	CMD_RTADVD_CONF_5_1_1	/bin/sh -c echo default:\\ > /tmp/rtadvd.conf
+	CMD_RTADVD_CONF_5_1_2	/bin/sh -c echo -e        \\t:vltime#2592000: >> /tmp/rtadvd.conf
+	CMD_RTADVD_CONF_5_1_3	/bin/sh -c echo MY_IF1:\\ >> /tmp/rtadvd.conf
+	CMD_RTADVD_CONF_5_1_4	/bin/sh -c echo -e        \\t:addrs#1:addr=\"PREFIX1::\":mtu#1500:tc=default: >> /tmp/rtadvd.conf
+	CMD_RTADVD_CONF_5_1_5	/bin/sh -c echo MY_IF2:\\ >> /tmp/rtadvd.conf
+	CMD_RTADVD_CONF_5_1_6	/bin/sh -c echo -e        \\t:addrs#1:addr=\"PREFIX2::\":mtu#1500:tc=default: >> /tmp/rtadvd.conf
+
+
+
+
+	* interop_ph2_ipsec/command.Linux.txt
+			                command.USAGI.txt
+	add CMD_IFCONFIG_IF2_PREFIX4_GA_ADD,
+	    CMD_IFCONFIG_IF2_PREFIX4_GA_DELETE
+
+	CMD_IFCONFIG_IF2_PREFIX4_GA_ADD		/sbin/ifconfig MY_IF2 inet6 add MY_IF2_PREFIX4_GA/64
+	CMD_IFCONFIG_IF2_PREFIX4_GA_DELETE	/sbin/ifconfig MY_IF2 inet6 del MY_IF2_PREFIX4_GA/64
+
+	* interop_ph2_ipsec/5.2.*.sgw.sgw.tunnel.sc
+				              5.3.*.en.sgw.tunnel.sc
+				              5.3.*.sgw.en.tunnel.sc
+	All scripts often crash. 
+	In order to avoid this kind of crash, slow down execution speed by adding some delay, 
+	but does not optimize.
