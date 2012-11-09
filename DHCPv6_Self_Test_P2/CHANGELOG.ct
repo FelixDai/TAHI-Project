@@ -1,0 +1,723 @@
+
+
+                                CHANGELOG
+
+                                   for
+
+         IPv6 Ready Logo Phase-2 DHCPv6 Conformance Test Package
+
+
+2010/05/14	Hiroki Endo
+	add "dns" flag to kRemote()
+		rfc3646/
+			C_RFC3646_5_DnsSchLstOpt_After_Confirm.seq
+
+2010/05/07	Hiroki Endo
+	skip receiving RS in re-connection phase ifUp()
+		DHCPv6_common.pm
+
+
+2010/03/30	Yoshio Uomori
+	o Modify user configuration filename in FILES .
+	Modified file:
+		Makefile
+	o Add delete function of *.pcap file.
+	Modified file:
+		rfc3315/
+			Makefile.test
+		rfc3646/
+			Makefile.test
+		rfc3736/
+			Makefile.test
+		rfc3633/
+			Makefile.test
+		rfc3633_rfc3646/
+			Makefile.test
+
+	o Rename the file having the long filename for LiveCD
+	Deleted file:
+		rfc3315/
+                         S_RFC3315_17.2.2_Creation-TransmissionOfAdvertiseMsgIfRelayReply.def 
+                         S_RFC3315_17.2.2_Creation-TransmissionOfAdvertiseMsgIfRelayReply.seq 
+                         S_RFC3315_17.2.2_Creation-TransmissionOfAdvertiseMsgIfRelayReply_wo_IFID.seq 
+                         S_RFC3315_17.2.2_Creation-TransmissionOfAdvertiseMsgIfRelayReply_wo_IFID.def 
+                         S_RFC3315_17.2.2_Creation-TransmissionOfAdvertiseMsgwithStatusCodeOP.seq 
+                         S_RFC3315_17.2.2_Creation-TransmissionOfAdvertiseMsgwithStatusCodeOP.def 
+                         S_RFC3315_17.2.3_Creation-TransmissionOfReplyMsgIfRelayReply_wo_IFID.def 
+                         S_RFC3315_17.2.3_Creation-TransmissionOfReplyMsgIfRelayReply_wo_IFID.seq 
+	Renamed file:
+		rfc3315/
+                         S_RFC3315_17.2.2_Create-TransOfAdvMsgIfRelRep.def 
+                         S_RFC3315_17.2.2_Create-TransOfAdvMsgIfRelRep.seq 
+                         S_RFC3315_17.2.2_Create-TransOfAdvMsgIfRelRep_wo_IFID.def 
+                         S_RFC3315_17.2.2_Create-TransOfAdvMsgIfRelRep_wo_IFID.seq 
+                         S_RFC3315_17.2.2_Create-TransOfAdvMsgwithStatusCodeOP.def 
+                         S_RFC3315_17.2.2_Create-TransOfAdvMsgwithStatusCodeOP.seq 
+                         S_RFC3315_17.2.3_Create-TransOfRepMsgIfRelRep_wo_IFID.def 
+                         S_RFC3315_17.2.3_Create-TransOfRepMsgIfRelRep_wo_IFID.seq 
+		
+	o Add print line for LiveCD
+	Modified file:
+		remote/
+			manual/dhcp6c.rmt
+		remote/
+			manual/dhcp6r.rmt
+		remote/
+			manual/dhcp6s.rmt	
+
+	o Add new file for LiveCD
+	Added file:
+		gui.xml
+
+2010/02/03	Yoshio Uomori
+	Bug fix for Client  
+		o Modify the configuration of Global Address and the sequence of cleanup for Global Address, when target(client) receive RA or not RA .  
+		Modified files:
+			config.txt
+			DHCPv6_common.pm
+			DHCPv6_config.pm
+			Client_pktdesc.pm
+			rfc3736/
+				C_RFC3736_5_3_InfWDnsSchLstOpt.seq
+				C_RFC3736_5_3_InfWDnsSchLstOptReply.seq
+				C_RFC3736_5_3_InfWDnsSvrOpt.seq
+				C_RFC3736_5_3_InfWDnsSvrOptReply.seq
+				C_RFC3736_CltMsgFormat.seq
+				C_RFC3736_CltMsgMCastAddrFormat.seq
+				C_RFC3736_DiscCnf.seq
+				C_RFC3736_DiscDec.seq
+				C_RFC3736_DiscInf.seq
+				C_RFC3736_DiscInvalidInfWoSrvIdOpt.seq
+				C_RFC3736_DiscInvalidReplyWErrTransid.seq
+				C_RFC3736_DiscReb.seq
+				C_RFC3736_DiscRel.seq
+				C_RFC3736_DiscRen.seq
+				C_RFC3736_DiscReq.seq
+				C_RFC3736_DiscSol.seq
+				C_RFC3736_INfoRetransMRT.seq
+				C_RFC3736_INfoRetransRT.seq
+				C_RFC3736_InfoRetrans.seq
+				C_RFC3736_InvalidUdpPort.seq
+				C_RFC3736_RelayForw.seq
+				C_RFC3736_RelayRepl.seq
+				C_RFC3736_UdpPort.seq
+				C_RFC3736_basic.seq
+
+2009/12/21	version 1.1.0
+	Official release
+
+
+2009/12/09	Yoshio Uomori
+	Bug fix for Client and RequestingRouter 
+		o Modify the check of the IAID value(not only non-zero value).  
+		Modified files:
+			rfc3315/
+				C_RFC3315_22_4_IANAOpt.seq
+			rfc3633/
+				C_RFC3633_IAPDOpSol_10_1_1_A.seq
+
+
+2009/12/03	Yoshio Uomori
+	Bug fix for DelegatingRouter(Server) 
+		o Modify the packet definition of DHCPv6 message
+		  via unicast address.  
+
+		Modified files:
+			rfc3633/
+				S_RFC3633_DiscardUnicastRebindMsg_11_3_4_A.seq
+				S_RFC3633_ReplyReceiptReleaseMsgViaUcast_11_3_5_A.seq
+
+
+2009/11/30	Yoshio Uomori
+	Bug fix for Server 
+		o Modify the packet definition of DHCPv6 message
+		  via unicast address.  
+
+		Modified files:
+			config.txt
+			DHCPv6_common.pm
+			DHCPv6_config.pm
+			Server_pktdesc.pm
+			rfc3315/
+				S_RFC3315_18.2.3_DiscardReceiptRenewMsg.seq
+				S_RFC3315_18.2.4_DiscardUnicastRebindMsg.seq
+				S_RFC3315_18.2.6_DiscardReceiptReleaseMsg.seq
+				S_RFC3315_18.2.7_DiscardReceiptDeclineMsg.seq
+
+
+2009/10/27	Yoshio Uomori
+	Bug fix for Server 
+		o Modify the packet definition of RA.  
+		Modified files:
+			DHCPv6_common.pm
+			DHCPv6.def
+			Server_pktdesc.pm
+
+			
+2009/10/26	Yoshio Uomori
+	Bug fix for Cilent 
+		o Modify Tester allow DAD for the assigned address
+		  after Client/Reply message exchange terminated.  
+		Modified files:
+			rfc3315/
+				C_RFC3315_18_1_2_ResvCnf.seq
+
+	Bug fix for Common File 
+		o Modify after re-connected interface, Tester have
+		  a optional RA.  
+
+		Modified files:
+			DHCPv6_common.pm
+
+
+2009/10/22	Yoshio Uomori
+	Bug fix for Server 
+		o Modify the packet definition of Information-request message.  
+		Modified files:
+			rfc3736/
+				S_RFC3736_5.3_SLDHCPDNSOP_ONLY.seq
+
+	Bug fix for Delegating Router 
+		o Modify   
+		Modified files:
+			rfc3633/
+				S_RFC3633_StatusCodeopt_Format_11_1_9.seq
+				S_RFC3633_NoPrefixAvail_11_3_1_E.seq
+
+
+2009/10/19	Yoshio Uomori
+	Bug fix for Remote File 
+		o Modify setting the configuration parameter
+		  for Address Assignment.
+
+		Modified files:
+			remote/
+				manual/dhcp6s.rmt
+
+	Bug fix for Remote File 
+		o Change the Install Guide of remote file for manual.
+		Modified files:
+			Common files:
+				INSTALL.ct
+				Makefile
+				Makefile.inc
+
+			remote/
+				Makefile
+				manual/Makefile
+
+	Bug fix for Client(Requesting Router) 
+		o Modify the tests checking the Elapsed Time value. 
+		Modified files:
+			rfc3315/
+				C_RFC3315_18_1_1_ReqRetransMRT.seq
+				C_RFC3315_18_1_1_RetransReq.seq
+				C_RFC3315_18_1_2_CnfRetransMRT.seq
+				C_RFC3315_18_1_2_RetransCnf.seq
+				INDEX_p2_client
+
+			rfc3633/
+				C_RFC3633_MaxRetransTimeReqMsg_10_2_3_C.seq
+				C_RFC3633_MaxRetransCountReqMsg_10_2_3_D.seq
+				C_RFC3633_MaxRetransCountRelMsg_10_2_6_C.seq
+				INDEX_p2_requesting_router
+		Added files:
+			rfc3315/
+				C_RFC3315_18_1_6_RetransRel_Eltime.seq
+			rfc3633/
+				C_RFC3633_MaxRetransCountRelMsg_10_2_6_E.seq
+
+	Bug fix for Delegating Router 
+		o Modify the check about expected packet in response to Renew
+		  with invalid prefix. 
+		Modified files:
+			Common files:
+				DHCPv6_common.pm
+
+			rfc3633/
+				S_RFC3633_ReceiptRenewMsgWithInvalidPrefix_11_3_3_C.seq
+				INDEX_p2_delegating_router
+
+		o Modify the number of tests, since added and removed tests. 
+		Modified files:
+			rfc3633/
+				INDEX_p2_delegating_router
+
+
+2009/09/28      Beta version 1.1.0B1
+	Bate version release
+
+
+2009/02/25      version 1.0.17
+	Official release
+
+
+2009/02/24
+	Bug fix for Client
+	o Test related for Decline message of Client
+	  Test DHCP_CONF.2.8 Part D script has possibility of
+	  losing 1st Decline message.
+
+		Reported by SAKAMAKI Yoshinori 
+	    Modified file:
+		Client_pktdesc.pm
+		C_RFC3315_18_1_7_DecReplyFail.seq
+		C_RFC3315_18_1_7_DecRetransRT.seq
+		C_RFC3315_18_1_7_RetransDec.seq
+		C_RFC3315_18_1_7_TransDec.seq
+		C_RFC3315_18_1_7_TransDecErrDetect.seq
+		C_RFC3315_18_1_8_DecReply.seq
+		C_RFC3315_DecReply.seq
+
+
+2009/01/22      version 1.0.16
+	Official release
+
+
+2009/01/22
+	Bug fix for Server
+	o Test DHCP_CONF.2.1.10 : Status Code Option Format
+	    Checking the position of Status code option is corrected.
+		Reported by Yang Ren
+	    Modified file:
+	        DHCPv6_common.pm
+	        rfc3315/S_RFC3315_22.13_StatusCodeOP.seq
+
+
+2009/01/05      version 1.0.15
+	Official release
+
+
+2008/01/05
+	Bug fix for common packet definition
+	    Modify TN sending IA address
+		- Assigned non EUI-64 based address instead of NUT's 
+		  EUI-64 based address
+	Bug fix for common function
+	    Correct message output function
+		- Now searchlist field of Domain Search List option
+		  is outputed correctly
+
+
+2008/12/12
+	Bug fix for Client
+	    Restore packet definition from unintended deletion.
+		Reported by Dwight Tovey
+
+
+2008/11/17      version 1.0.14
+	Official release
+
+
+2008/11/14
+	Bug fix for Server
+	    Correct status code value check.
+		Some tests always expected to be returned status code
+		Success(0) from Server after message exchange. However the
+		Status Code option does not appear in a message in which the
+		option could appear, the status of the message is assumed to
+		be Success(0). (See also RFC3315 section 22.13)
+		Therefore, now test accept without Status Code option with
+		value Success.
+
+
+2008/11/15
+	Added make file install option.
+
+
+2008/10/23
+	Bug fix for Server
+		Two different tester node used same source address, modify it
+		to use different source address.
+
+	Modified file:
+	rfc3315/
+		S_RFC3315_17.2.2_Creation-TransmissionOfAdvertiseMsgwithStatusCodeOP.seq
+		S_RFC3315_18.2.1_ReceiptRequestMsgWithStatusCodeOPNoAddrsAvail.seq
+
+
+2008/10/07
+	Bug fix for Client
+	o Test DHCP_CONF.1.3.3 : Client initiated Exchange - Reception of
+	                         Reply messages cont'd
+		TN didn't reply to NS. Now TN reply to NS.
+	Bug fix for Server
+	o Test DHCP_CONF.2.2.3 : Transmission of Relay-Reply Messages
+		TN must transmit packet to ALL_DHCP_Servers(ff05::1:3)
+		using multicast(33:33:00:01:00:03).
+		However destination address of ether was unicast.
+	Modified file:
+		DHCPv6.def
+
+
+2008/10/06      version 1.0.13
+	Official release
+
+
+2008/10/03
+	Bug fix for client test
+	rfc3315/
+		Correct test result status when test has failed.
+			C_RFC3315_18_1_2_RetransCnf.seq
+
+
+2008/10/03
+	Correct related to Client/Server/Relay Agent test as below;
+		Message Validation test
+		Invalid UDP port of Implementation of DHCP constants test	
+		Many typos
+	Modified files:
+		Common files:
+			Client_pktdesc.pm
+			DHCPv6.def
+			DHCPv6_common.pm
+			DHCPv6_options.def
+			Server_pktdesc.pm
+		rfc3315/
+			C_RFC3315_15_13_DiscRelayForw.seq
+			C_RFC3315_15_14_DiscRelayRepl.seq
+			C_RFC3315_15_2_DiscSol.seq
+			C_RFC3315_15_4_DiscReq.seq
+			C_RFC3315_15_5_DiscCnf.seq
+			C_RFC3315_15_6_DiscRen.seq
+			C_RFC3315_15_7_DiscReb.seq
+			C_RFC3315_15_8_DiscDec.seq
+			C_RFC3315_15_9_DiscRel.seq
+			C_RFC3315_5_2_InvalidUdpPort.def
+			INDEX_p2_relay
+			INDEX_p2_server
+			R_RFC3315_15.10_InvalidReplyMsg.def
+			R_RFC3315_15.10_InvalidReplyMsg.seq
+			R_RFC3315_15.3_InvalidAdvertiseMsg.def
+			R_RFC3315_15.3_InvalidAdvertiseMsg.seq
+			R_RFC3315_20_DiscardRelayMsgFromRelayAgent.seq
+			R_RFC3315_5.1_InvalidUDPPorts.seq
+			S_RFC3315_15.10_InvalidReplyMsg.def
+			S_RFC3315_15.10_InvalidReplyMsg.seq
+			S_RFC3315_15.14_InvalidRelayReplyMsg.def
+			S_RFC3315_15.14_InvalidRelayReplyMsg.seq
+			S_RFC3315_15.3_InvalidAdvertiseMsg.def
+			S_RFC3315_15.3_InvalidAdvertiseMsg.seq
+			S_RFC3315_5.1_InvalidUDPPorts.seq
+		rfc3736/
+			C_RFC3736_DiscCnf.seq
+			C_RFC3736_DiscDec.seq
+			C_RFC3736_DiscInf.seq
+			C_RFC3736_DiscReb.seq
+			C_RFC3736_DiscRel.seq
+			C_RFC3736_DiscRen.seq
+			C_RFC3736_DiscReq.seq
+			C_RFC3736_DiscSol.seq
+			C_RFC3736_RelayForw.seq
+			C_RFC3736_RelayRepl.seq
+			INDEX_p2_client
+			R_RFC3736_DiscardRelayMsgFromRelayAgent.seq
+			R_RFC3736_InvalidAdvertiseMsg.def
+			R_RFC3736_InvalidAdvertiseMsg.seq
+			R_RFC3736_InvalidReplyMsg.def
+			R_RFC3736_InvalidReplyMsg.seq
+			R_RFC3736_InvalidUDPPorts.seq
+			S_RFC3736_InvalidAdvertiseMsg.def
+			S_RFC3736_InvalidAdvertiseMsg.seq
+			S_RFC3736_InvalidRelayReplyMsg.seq
+			S_RFC3736_InvalidReplyMsg.def
+			S_RFC3736_InvalidReplyMsg.seq
+			S_RFC3736_InvalidUDPPorts.seq
+
+
+2008/09/29
+	Remove unused file.
+	Fixed many typos
+
+
+2008/09/10
+	Bug fix for client
+	rfc3315/
+		Omit the checking of upper limit of RT.
+		It is only possible to check that RT is greater than IRT.
+			C_RFC3315_17_1_2_SolWaitAdv.seq
+
+
+2008/08/28      version 1.0.12
+	Official release
+
+
+2008/08/26
+	Bug fix for client
+	rfc3315/
+		Add judgment to check RT > IRT.
+			C_RFC3315_17_1_2_SolWaitAdv.seq
+		Modify output message.
+			C_RFC3315_17_1_2_SolNoAdvRT.seq 
+
+
+2008/08/21
+	Bug fix for server test
+	rfc3315/
+		Operation command is corrected after the NUT is rebooted.
+			S_RFC3315_9.3_DUID-ENPersit.seq 
+
+
+2008/08/19
+	Bug fix for client test in RFC3315.
+	Apply patch from Mitsuru Chinen.
+	Related to recevied solicit message.
+	rfc3315/
+		C_RFC3315_17_1_2_SolWaitAdv.seq
+
+
+2008/08/05      version 1.0.11
+	Official release
+
+
+2008/08/02      Nobumichi Ozoe
+	Bug fix for client, server, relay agent test
+
+	DHCPv6_common.pm, DHCPv6.def
+		Relay agent address definition was corrected.
+	rfc3315/
+		Destination address was corrected.
+			S_RFC3315_15.10_InvalidReplyMsg.def
+			S_RFC3315_15.3_InvalidAdvertiseMsg.def
+		Output interface was corrected.
+			R_RFC3315_15.10_InvalidReplyMsg.def
+			R_RFC3315_15.10_InvalidReplyMsg.seq
+			R_RFC3315_15.3_InvalidAdvertiseMsg.def
+			R_RFC3315_15.3_InvalidAdvertiseMsg.seq
+		Relay agent's listen address was corrected.
+			R_RFC3315_20_DiscardRelayMsgFromRelayAgent.seq
+			R_RFC3315_20_MultiRelayRelayForwardCnfMsg.seq
+			R_RFC3315_20_MultiRelayRelayForwardDecMsg.seq
+			R_RFC3315_20_MultiRelayRelayForwardRebMsg.seq
+			R_RFC3315_20_MultiRelayRelayForwardRelMsg.seq
+			R_RFC3315_20_MultiRelayRelayForwardRenMsg.seq
+			R_RFC3315_20_MultiRelayRelayForwardReqMsg.seq
+			R_RFC3315_20_MultiRelayRelayForwardReqMsg.seq
+			R_RFC3315_20_MultiRelayReplyAdvMsg.seq
+			R_RFC3315_20_MultiRelayReplyRepMsg.seq
+		Fixed Typo 
+			INDEX_p2_relay
+			INDEX_p2_server
+			S_RFC3315_7_Relay-replyMsgFormat.seq 
+	rfc3646/
+		Relay agent's listen address was corrected.
+			R_RFC3646_3_MultiRelayRelayForwardRebMsg.seq
+			R_RFC3646_3_MultiRelayRelayForwardRenMsg.seq
+			R_RFC3646_3_MultiRelayRelayForwardReqMsg.seq
+			R_RFC3646_3_MultiRelayRelayForwardSolMsg.seq
+			R_RFC3646_3_MultiRelayReplyAdvMsg.seq
+			R_RFC3646_3_MultiRelayReplyRepMsg.seq
+			R_RFC3646_4_MultiRelayRelayForwardRebMsg.seq
+			R_RFC3646_4_MultiRelayRelayForwardRenMsg.seq
+			R_RFC3646_4_MultiRelayRelayForwardReqMsg.seq
+			R_RFC3646_4_MultiRelayRelayForwardSolMsg.seq
+			R_RFC3646_4_MultiRelayReplyAdvMsg.seq
+			R_RFC3646_4_MultiRelayReplyRepMsg.seq 
+		Fixed Typo
+			INDEX_p2_relay
+	rfc3736/
+		Relay agent's listen address was corrected.
+			R_RFC3736_3_MultiRelayRelayForwardInfMsg.seq 
+			R_RFC3736_3_MultiRelayReplyRepMsg.seq
+			R_RFC3736_4_MultiRelayRelayForwardInfMsg.seq 
+			R_RFC3736_4_MultiRelayReplyRepMsg.seq
+		Output interface was corrected.
+			R_RFC3736_DiscardRelayMsgFromRelayAgent.seq
+		Destination address was corrected.
+			R_RFC3736_InvalidAdvertiseMsg.def
+			R_RFC3736_InvalidAdvertiseMsg.seq
+			R_RFC3736_InvalidReplyMsg.def
+			R_RFC3736_InvalidReplyMsg.seq
+			S_RFC3736_InvalidAdvertiseMsg.def
+			S_RFC3736_InvalidReplyMsg.def
+		Include Option Request Option in packet sent by TN
+			S_RFC3736_basic.seq
+		Fixed typo
+			INDEX_p2_relay
+			INDEX_p2_server
+			S_RFC3736_5.2_SLDHCPInterID.seq
+
+
+2008/07/09      version 1.0.10
+	Official release
+
+
+2008/07/08      Nobumichi Ozoe
+	Bug fix for DHCP Unique Identifier (DUID) contents test
+	DHCPv6_common.pm
+	rfc3315/
+		S_RFC3315_9.2_DUID-LLTFormat.seq, S_RFC3315_9.2_DUID-LLTPersit.seq
+		S_RFC3315_9.3_DUID-ENFormat.seq, S_RFC3315_9.3_DUID-ENPersit.seq
+		S_RFC3315_9.4_DUID-LLFormat.seq, S_RFC3315_9.4_DUID-LLPersit.seq
+	rfc3736/
+		S_RFC3736_DUID-ENFormat.seq, S_RFC3736_DUID-ENPersit.seq
+		S_RFC3736_DUID-LLFormat.seq, S_RFC3736_DUID-LLPersit.seq
+		S_RFC3736_DUID-LLTFormat.seq, S_RFC3736_DUID-LLTPersit.seq
+
+
+2008/04/02      version 1.0.9
+	Bug fix for client test in RFC3315, RFC3736.
+	Apply patch from Mitsuru Chinen.
+	Related to Retransmit time, Maximum RT and MRD.
+
+
+2007/11/26      version 1.0.8
+	Bug fix for client test in RFC3315.
+	Related to Retransmit time, Maximum RT and MRD.
+
+
+2007/09/20      version 1.0.7
+	Official release
+
+
+2007/09/20	Hideshi Enokihara
+	DHCPv6_common.pm(getElapsedtime)
+		- modify getting elapsed time
+	rfc3315/C_RFC2462_RA_FTF.seq
+		- typo
+
+
+2007/09/19      version 1.0.6
+	Official release
+
+
+2007/09/19	Hideshi Enokihara
+	rfc3315/C_RFC3315_18_1_8_ReqReplyUseIAStatusWoNoAddrAvail.seq
+	rfc3315/C_RFC3315_18_1_8_ReqReplyAllIAStatusNoAddrAvail.seq
+		- removed
+
+
+2007/09/14	Hideshi Enokihara
+	rfc3646/C_RFC3646_5_InvRelDnsSchLstOpt.seq
+		- bug fix (removed ORO option from Reply message)
+
+
+2007/08/29	Hideshi Enokihara
+	rfc3315/C_RFC3315_18_1_2_ResvCnf.seq
+		- added wait time after Confirm message
+
+
+2007/08/29	Hideshi Enokihara
+	rfc3315/
+		C_RFC3315_18_1_8_ReqReplyUseIAStatusWoNoAddrAvail.seq
+			- bug fix (added checking number of IA_NA options)
+
+	rfc3315/
+		S_RFC3315_17.2.3_Creation-TransmissionOfReplyMsgIfRelayReply.seq
+		S_RFC3315_17.2.3_Creation-TransmissionOfReplyMsgIfRelayReply_wo_IFID.seq
+		S_RFC3315_20.3_Relay-replyConstruction.seq
+			- bug fix (fixed setting address range)
+
+
+2007/08/16      version 1.0.5
+	Official release
+
+
+2007/08/10	Hideshi Enokihara
+	rfc3315/C_RFC3315_17_1_2_SolRetransMRT.seq
+	rfc3315/C_RFC3315_18_1_1_ReqRetransMRT.seq
+	rfc3315/C_RFC3315_18_1_2_CnfRetransMRT.seq
+	rfc3315/C_RFC3315_18_1_3_RenRetransMRT.seq
+	rfc3315/C_RFC3315_18_1_3_RetransRen.seq
+	rfc3315/C_RFC3315_18_1_4_RebRetransMRT.seq
+	rfc3736/C_RFC3736_INfoRetransMRT.seq
+		- bug fix (replace 'gt' with '>')
+
+
+2007/08/08      version 1.0.4
+	Official release
+
+
+2007/08/07	Hideshi Enokihara
+	rfc3315/S_RFC3315_SolicitMsgwEN.seq
+	rfc3315/S_RFC3315_SolicitMsgwLL.seq
+	rfc3315/S_RFC3315_SolicitMsgwLLT.seq
+		- bug fix (fixed setting address range)
+
+
+2007/07/11      version 1.0.3
+	Official release
+
+
+2007/07/11	Hideshi Enokihara
+	rfc3315/C_RFC3315_17_1_2_SolRetransMRT.seq
+	rfc3315/C_RFC3315_18_1_1_ReqRetransMRT.seq
+	rfc3315/C_RFC3315_18_1_2_CnfRetransMRT.seq
+	rfc3315/C_RFC3315_18_1_3_RenRetransMRT.seq
+	rfc3315/C_RFC3315_18_1_3_RetransRen.seq
+	rfc3315/C_RFC3315_18_1_4_RebRetransMRT.seq
+	rfc3736/C_RFC3736_INfoRetransMRT.seq
+		- bug fix (added tentative codes related to "timeout" )
+
+
+2007/06/15	Hideshi Enokihara
+	rfc3646/C_RFC3646_5_InvDecDnsSvrOpt.seq
+		- bug fix (change option code checking function)
+
+
+2007/06/08      version 1.0.2
+	Official release
+
+
+2007/06/05	Hideshi Enokihara
+	rfc3646/C_RFC3646_3_DnsSchLstOpt_Reb.seq
+	rfc3646/C_RFC3646_3_DnsSchLstOpt_Ren.seq
+	rfc3646/C_RFC3646_3_DnsSchLstOpt_Req.seq
+	rfc3646/C_RFC3646_3_DnsSchLstOpt_Sol.seq
+	rfc3646/C_RFC3646_3_DnsSvrOpt.seq
+	rfc3646/C_RFC3646_3_DnsSvrOpt_Reb.seq
+	rfc3646/C_RFC3646_3_DnsSvrOpt_Ren.seq
+	rfc3646/C_RFC3646_3_DnsSvrOpt_Req.seq
+	rfc3646/C_RFC3646_3_DnsSvrOpt_Sol.seq
+	rfc3646/C_RFC3646_4_DnsSchLstOpt.seq
+		- bug fix (change option code checking function)
+
+
+2007/05/25      version 1.0.1
+	Official release
+
+
+2007/05/16	Hideshi Enokihara
+	rfc3315/S_RFC3315_22.13_StatusCodeOP.seq
+		- bug fix (change option checking function)
+
+
+2007/04/27      version 1.0.0
+	Official release
+
+
+2007/04/20	Hideshi Enokihara
+	rfc3646/C_RFC3646_3_DnsSvrOpt_rep.seq
+	rfc3646/C_RFC3646_4_DnsSchLstOpt_rep.seq
+	rfc3736/C_RFC3736_5_3_InfWDnsSchLstOptReply.seq
+	rfc3736/C_RFC3736_5_3_InfWDnsSvrOptReply.seq
+	rfc3736/C_RFC3736_UdpPort.seq
+	rfc3736/C_RFC3736_basic.seq
+		- bug fix (add handing function for manual test)
+
+
+2007/04/10	Hideshi Enokihara
+	rfc3315/S_RFC3315_5.1_InvalidUDPPorts.seq
+	rfc3315/R_RFC3315_5.1_InvalidUDPPorts.seq
+	rfc3736/S_RFC3736_InvalidUDPPorts.seq
+	rfc3736/R_RFC3736_InvalidUDPPorts.seq
+		- bug fix (remove port unreachable check)
+
+
+2007/04/04	Hideshi Enokihara
+	rfc3646/S_RFC3646_34_DNSOP.seq
+	rfc3646/S_RFC3646_34_DNSOP_DSLOP.seq
+	rfc3736/S_RFC3736_5.3_SLDHCPDNSOP_ONLY.seq
+	rfc3736/S_RFC3736_5.3_SLDHCPDNSOP_DSLOP.seq
+		- add new tests
+
+
+2007/04/03	Hideshi Enokihara
+	DHCPv6.def
+		- fix the mistake of packet definitions for relayed
+		  information-request message
+
+
+2007/03/15      Beta version 1.0.0B1
+	Bate version release
+                                                      [end of CHANGELOG]

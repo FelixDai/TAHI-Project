@@ -1,0 +1,24 @@
+#
+# Makefile
+#
+# $TAHI: dhcpv6.p2/Makefile.test,v 1.4 2009/12/03 06:03:10 akisada Exp $
+#
+
+ipv6ready_p2_client       document_ipv6ready_p2_client      \
+ipv6ready_p2_server       document_ipv6ready_p2_server     \
+ipv6ready_p2_relay     document_ipv6ready_p2_relay	\
+ipv6ready_p2_requesting_router     document_ipv6ready_p2_requesting_router	\
+ipv6ready_p2_delegating_router     document_ipv6ready_p2_delegating_router:
+	@for subdir in ${SUBDIR}; do \
+		echo "===> $$subdir"; \
+		(cd $$subdir; ${MAKE} $@); \
+	done
+
+clean:
+	@for subdir in ${SUBDIR}; do \
+		echo "===> $$subdir"; \
+		(cd $$subdir; ${MAKE} $@); \
+	done
+
+
+.include "Makefile.inc"

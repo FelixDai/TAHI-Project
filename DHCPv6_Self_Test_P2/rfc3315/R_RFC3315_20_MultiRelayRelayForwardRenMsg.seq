@@ -1,0 +1,399 @@
+#!/usr/bin/perl
+#
+# Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009
+# Yokogawa Electric Corporation.
+# All rights reserved.
+# 
+# Redistribution and use of this software in source and binary
+# forms, with or without modification, are permitted provided that
+# the following conditions and disclaimer are agreed and accepted
+# by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in
+#    the documentation and/or other materials provided with
+#    the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project
+#    which is related to this software (hereinafter referred to as
+#    "project") nor the names of the contributors may be used to
+#    endorse or promote products derived from this software without
+#    specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written
+#    notification to the copyrighters.
+# 
+# 5. The copyrighters, the project and the contributors may prohibit
+#    the use of this software at any time.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+# STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+# IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+# $TAHI: dhcpv6.p2/rfc3315/R_RFC3315_20_MultiRelayRelayForwardRenMsg.seq,v 1.6 2009/12/03 06:03:15 akisada Exp $
+########################################################################
+BEGIN { $V6evalTool::TestVersion = '$Name: T_DHCPv6_Self_Test_P2_1_1_4 $';
+}
+
+use strict;
+use V6evalTool;
+
+use lib '../.';
+use DHCPv6_common;
+use Server_pktdesc;
+
+my $type=$V6evalTool::NutDef{Type};
+if($type ne 'router') {
+	vLogHTML('<FONT COLOR="#FF0000">This test does not support Host!</FONT>');
+	exit $V6evalTool::exitRouterOnly;
+
+}
+
+dhcpExitNS if(ChkFuncSupport('ADDRASSIGN'));
+
+#--------------------------------------------------------------#
+# Initialization
+#--------------------------------------------------------------#
+
+vLogHTML('<B>==== NUT Initialization ====</B><BR>');
+my $IF0 = "Link0";
+my $IF1 = "Link1";
+
+#initial NUT config parameters,
+my %NUT_Relay_Config = (
+			'if_nut0'=> "$V6evalTool::NutDef{Link0_device}",
+			'if_nut1' => "$V6evalTool::NutDef{Link1_device}",
+#			'if_add0' => "$NUTRELAY1_LINK0_GLOBAL_UCAST",
+#			'if_add1' => "$NUTRELAY1_LINK1_GLOBAL_UCAST",
+#			'if_length0' => "64",
+#			'if_length1' => "64",
+#			'if_type0'=> "unicast",
+#			'if_type1'=> "unicast",
+			'init_opcode' => "vRemote(\"dhcp6r.rmt\", \"start\",\"link0=$V6evalTool::NutDef{Link0_device}\",\"link1=$V6evalTool::NutDef{Link1_device}\",\"clientunicast=$NUTRELAY1_LINK1_GLOBAL_UCAST\",\"servermulticast\")"
+			);
+
+dhcpRelayInit(\%NUT_Relay_Config);
+
+my ($retping,%ping) = ping_test_nut1("Link1");
+if($retping != 0){
+        dhcpExitFail;
+}
+my $src_addr = $ping{"Frame_Ether.Packet_IPv6.Hdr_IPv6.SourceAddress"};
+
+# Need add the Relay-forward Message
+# Relay 2 --> NUT(Solicit)
+$CID_OPTION = "opt_CID_LLT_client1";
+$IA_NA_OPTION = "opt_IA_NA";
+$ElapsedTime_OPTION = "opt_ElapsedTime";
+# Send  the Relay_Forward message(Solicit)
+my($ret1, %rfsol1) = send_relay_forward($IF1,"relayforward_solicit_relay2_to_nut");
+#dhcpExitFail if (0!=$ret1);
+
+ 
+# wait for DHCPv6 Relay reforward Message(Solicit)
+my ($ret2, %rfsol2) =  wait_for_relay_forward($IF0, 5,"relay_forward_nut_server");
+if (0 != $ret2){
+ 	dhcpExitError("NG: The message have not be relayed");
+}
+
+
+
+# Send the Relay Reply Messge(Advertise)
+$CID_OPTION = "opt_CID_LLT_client1";
+$SID_OPTION = "opt_SID_LLT_server1";
+$IA_NA_OPTION = "opt_IA_NA_Addr_Relay";
+my $cpp = '';
+$ElapsedTime_OPTION = undef;
+my ($ret3, %rradv3) = send_relay_reply($IF0,"relay_advertise_server1_to_client1_2relay",\%rfsol2,$cpp);
+dhcpExitFail if(0 != $ret3);
+
+
+# Receive the Advertise Message from $IF1
+my ($ret4, %adv4) = wait_for_relay_reply_advertise($IF1,5,"relay_reply_relay1_relay2");
+dhcpExitFail if(0 != $ret4);
+
+
+
+
+# Need add the Relay-forward Message
+# Relay 2 --> NUT(Request)
+$CID_OPTION = "opt_CID_LLT_client1";
+$IA_NA_OPTION = "opt_IA_NA";
+$ElapsedTime_OPTION = "opt_ElapsedTime";
+# Send  the Relay_Forward message(Request)
+my($ret5, %rfreq5) = send_relay_forward($IF1,"relayforward_request_relay2_to_nut");
+dhcpExitFail if (0!=$ret5);
+
+ 
+# wait for DHCPv6 Relay reforward Message(Request)
+my ($ret6, %rrreq6) =  wait_for_relay_forward($IF0, 5,"relay_forward_nut_server");
+if (0 != $ret6){
+ 	dhcpExitError("NG: The message have not be relayed");
+}
+
+$CID_OPTION = "opt_CID_LLT_client1";
+$SID_OPTION = "opt_SID_LLT_server1";
+$IA_NA_OPTION = "opt_IA_NA_Addr_Relay";
+my $cpp = '';
+$ElapsedTime_OPTION = undef;
+my ($ret7, %rrrep7) = send_relay_reply($IF0,"relay_reply_server1_to_client1_2relay",\%rrreq6,,$cpp);
+dhcpExitFail if(0 != $ret7);
+
+# Receive the Reply Message from $IF1
+my ($ret8, %rep8) = wait_for_relay_reply_reply($IF1,5,"relay_reply_relay1_relay2");
+dhcpExitFail if(0 != $ret8);
+
+vSleep(5);
+
+# Need add the Relay-forward Message
+# Relay 2 --> NUT(Renew)
+$ElapsedTime_OPTION = "opt_ElapsedTime";
+# Send  the Relay_Forward message(Renew)
+my($ret9, %rfren9) = send_relay_forward($IF1,"relayforward_renew_relay2_to_nut");
+dhcpExitFail if (0!=$ret9);
+
+
+# wait for DHCPv6 Relay reforward Message(Renew)
+my ($ret10, %rrren10) =  wait_for_relay_forward($IF0, 5,"relay_forward_nut_server");
+if (0 != $ret10){
+ 	dhcpExitError("NG: The message have not be relayed");
+}
+
+
+#Check the Multicast address
+if("ff05::1:3" ne $rrren10{"Frame_Ether.Packet_IPv6.Hdr_IPv6.DestinationAddress"}){
+	dhcpExitError("NG: The Destination Port used by the Relay-forwad Message is not valid!");
+}
+
+#Check the HopLimit = 32 & hopcount = 0;(default);
+if(0 != ckRelayForwardMsgHopCount(\%rrren10,1)){
+	dhcpExitFail;
+}
+
+#-------------------------------------------------------------------
+vLogHTML("<B><FONT COLOR=#006666>The Hop count is correct</FONT></B><BR>");
+#-------------------------------------------------------------------
+
+#check the Link-address
+if(0 != ckRelayForwardLinkAddress(\%rrren10,$src_addr)){
+	dhcpExitError("The link-address is not properly!");
+}
+
+#-------------------------------------------------------------------
+vLogHTML("<B><FONT COLOR=#006666>The link-address is correct</FONT></B><BR>");
+#-------------------------------------------------------------------
+
+#Check the peer-link
+if(0 != ckRelayForwardPeerAddress(\%rrren10,\%rfren9)){
+	dhcpExitFail;
+}
+#-------------------------------------------------------------------
+vLogHTML("<B><FONT COLOR=#006666>The peer-addess is correct</FONT></B><BR>");
+#-------------------------------------------------------------------
+
+
+
+#Check the relay-forward message
+if ( 0 != chkMsgAfterRelay(\%rfren9,\%rrren10,)){
+	dhcpExitError("NG: The relay-forward message is not correct!");
+}
+
+#-------------------------------------------------------------------
+vLogHTML("<B><FONT COLOR=#006666>The Message exchange is correct</FONT></B><BR>");
+#-------------------------------------------------------------------
+dhcpExitPass();
+vClear($IF0);
+vClear($IF1);
+
+#NOTREACHED
+
+########################################################################
+__END__
+
+=head1 NAME
+
+  R_RFC3315_20_MultiRelayRelayForwardRneMsg.seq - Relay-forward Renew message transmission through the layered Relay agents
+
+=head1 TARGET
+
+  Relay agent
+
+=head1 SYNOPSIS
+
+=begin html
+ <PRE>
+ <A HREF="./R_RFC3315_20_MultiRelayRelayForwardRenMsg.seq">R_RFC3315_20_MultiRelayRelayForwardRenCnf.seq </A>[-tooloption ...]
+ -pkt <A HREF="./R_RFC3315_20_MultiRelayRelayForwardRenMsg.def">R_RFC3315_20_MultiRelayRelayForwardRenMsg.def </A>
+ -tooloption: v6eval tool option
+See Also <A HREF="../DHCPv6.def"> DHCPv6.def </A>
+ </PRE>
+
+=head1 INITIALIZATION
+
+=begin html
+  <ul>
+  <li><STRONG>Network Topology</STRONG></li>
+  </ul>
+ <PRE>
+                         TN(Client1)
+                              |
+Link2 -------------+----------+---------------------3ffe:501:ffff:102::/64
+                   |                       
+                   |                       
+             TN(Relay2)
+                   |                       
+                   |                       
+Link1 -------------+-----------------------+-------- 3ffe:501:ffff:101::/64
+                                           |
+                                           |
+                                     NUT(Relay1)
+                                           |
+                                           |
+Link0 ------------------------+------------+-------- 3ffe:501:ffff:100::/64
+                              |
+                           TN(Server1)
+  </PRE>
+  <ul>
+      <li><STRONG>Verification Points</STRONG><p>
+          <ul>
+          <PRE>
+Relay-forward Message Format
+      <li>destination address</li>
+          <B>All_DHCP_Servers(FF05::1:3)</B>
+      <li>msg-type</li>
+          <b>RELAY-FORW(12)</b>
+      <li>hop-count</li>
+	  <b>1</b>
+      <li>link-address</li>
+          <b>0 or global address assigned to the interface on which the message was received</b>
+      <li>peer-address</li>
+          <b>Copied from the Relay-forward Renew message</b>
+      <li>options</li>
+          <b>Relay Message option</b>
+	  <b>Same as the Message that be relayed</b>
+	  <b>(Relay-forward Renew message)</b>
+          </PRE>
+          </ul>
+  </ul>
+  <ul>
+      <li><STRONG>Configuration</STRONG></li>
+	<BLOCKQUOTE>
+	<TABLE BORDER>
+	<TR>
+	<TD><TT>Device Name</TT></TD>
+	<TD><TT>Device Type</TT></TD>
+	<TD><TT>I/F</TT></TD>
+	<TD><TT>Assigned Prefix</TT></TD>
+	<TD><TT>Link Local Addr</TT></TD>
+	<TD><TT>MAC Addr</TT></TD>
+	</TR>
+	<TR>
+	<TD><TT>Relay1(Link0)</TT></TD>
+	<TD><TT>NUT</TT></TD>
+	<TD><TT>Link0</TT></TD>
+	<TD><TT>3ffe:501:ffff:100::/64</TT></TD>
+	<TD><TT>NUT's Linklocal address(Link0)</TT></TD>
+	<TD><TT>NUT's MAC address(Link0)</TT></TD>
+	</TR>
+	<TR>
+	<TD><TT>Relay1(Link1)</TT></TD>
+	<TD><TT>NUT</TT></TD>
+	<TD><TT>Link1</TT></TD>
+	<TD><TT>3ffe:501:ffff:101::/64</TT></TD>
+	<TD><TT>NUT's Linklocal address(Link1)</TT></TD>
+	<TD><TT>NUT's MAC address(Link1)</TT></TD>
+	</TR>
+	<TR>
+	<TD><TT>Server1</TT></TD>
+	<TD><TT>TN</TT></TD>
+	<TD><TT>Link0</TT></TD>
+	<TD><TT>3ffe:501:ffff:100::/64</TT></TD>
+	<TD><TT>fe80::200:ff:fe00:a1a1</TT></TD>
+	<TD><TT>00:00:00:00:a1:a1</TT></TD>
+	</TR>
+	<TR>
+	<TD><TT>Relay2</TT></TD>
+	<TD><TT>TN</TT></TD>
+	<TD><TT>Link1</TT></TD>
+	<TD><TT>3ffe:501:ffff:101::/64</TT></TD>
+	<TD><TT>fe80::200:ff:fe00:a7a7</TT></TD>
+	<TD><TT>00:00:00:00:a7:a7</TT></TD>
+	</TR>
+	<TR>
+	<TD><TT>Client1</TT></TD>
+	<TD><TT>TN</TT></TD>
+	<TD><TT>Link2</TT></TD>
+	<TD><TT>3ffe:501:ffff:102::/64</TT></TD>
+	<TD><TT>fe80::200:ff:fe00:a2a2</TT></TD>
+	<TD><TT>00:00:00:00:a2:a2</TT></TD>
+	</TR>
+	</TABLE>
+	</BLOCKQUOTE>
+  </ul>
+
+=end html
+
+=head1 TEST PROCEDURE
+
+=begin html
+<PRE>
+	    TN(Client1)TN(Relay2) NUT(Relay1) TN(Server1)
+	        |       |           |              |
+	        | ----> |           |              |Solicit
+	        |       | ----->    |              |Relay-forward(Solicit)
+	        |       |           |  ------->    |Relay-forward(Solicit)
+	        |       |           |  <------     |Relay-reply Message(Relay-reply/Advertise)
+	        |       | <----     |              |Relay-reply Message(Advertise)
+	        |       |           |              |
+	        | ----> |           |              |Request
+	        |       | ----->    |              |Relay-forward(Request)
+	        |       |           |  ------->    |Relay-forward(Request) 
+	        |       |           |  <------     |Relay-reply Message(Relay-reply/Reply)  
+	        |       | <----     |              |Relay-reply Message2(Reply)
+	        |       |           |              |
+	        | ----> |           |              |Renew
+	        |       | ----->    |              |Relay-forward(Renew)
+	        |       |           |  ------->    |Relay-forward(Renew)  (*1)
+	        |       |           |              |
+</PRE>
+
+=end html
+
+=head1 JUDGEMENT
+
+<PRE>
+(*1)PASS: Relay-forward Message is same as the description of verification points.
+</PRE>
+
+=head1 TERMINATION
+
+  N/A
+
+=head1 REFERENCE
+
+=begin html
+<PRE>
+  see also RFC3315
+  20.1, 20.1.1 and 20.1.2
+</PRE>
+
+=end html
+
+=head1 SEE ALSO
+
+  perldoc V6evalTool
+
+=cut
+

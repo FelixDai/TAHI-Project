@@ -1,0 +1,340 @@
+#!/usr/bin/perl
+#
+# Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009
+# Yokogawa Electric Corporation.
+# All rights reserved.
+# 
+# Redistribution and use of this software in source and binary
+# forms, with or without modification, are permitted provided that
+# the following conditions and disclaimer are agreed and accepted
+# by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in
+#    the documentation and/or other materials provided with
+#    the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project
+#    which is related to this software (hereinafter referred to as
+#    "project") nor the names of the contributors may be used to
+#    endorse or promote products derived from this software without
+#    specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written
+#    notification to the copyrighters.
+# 
+# 5. The copyrighters, the project and the contributors may prohibit
+#    the use of this software at any time.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+# STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+# IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+# $TAHI: dhcpv6.p2/rfc3646/R_RFC3646_3_MultiRelayReplyAdvMsg.seq,v 1.4 2009/12/03 06:03:45 akisada Exp $
+########################################################################
+BEGIN { $V6evalTool::TestVersion = '$Name: T_DHCPv6_Self_Test_P2_1_1_4 $';
+}
+
+use strict;
+use V6evalTool;
+
+use lib '../.';
+use DHCPv6_common;
+use Server_pktdesc;
+
+my $type=$V6evalTool::NutDef{Type};
+if($type ne 'router') {
+	vLogHTML('<FONT COLOR="#FF0000">This test does not support Host!</FONT>');
+	exit $V6evalTool::exitRouterOnly;
+}
+
+dhcpExitNS if(ChkFuncSupport('ADDRASSIGN'));
+dhcpExitNS if(ChkFuncSupport('DNS'));
+
+#--------------------------------------------------------------#
+# Initialization
+#--------------------------------------------------------------#
+
+vLogHTML('<B>==== NUT Initialization ====</B><BR>');
+my $IF0 = "Link0";
+my $IF1 = "Link1";
+
+#IID dentifier
+#my $IID_IDENTIFIER = '00000001';
+
+#initial NUT config parameters,
+my %NUT_Relay_Config = (
+	'if_nut0'=> "$V6evalTool::NutDef{Link0_device}",
+	'if_nut1' => "$V6evalTool::NutDef{Link1_device}",
+#	'if_add0' => "$NUTRELAY1_LINK0_GLOBAL_UCAST",
+#	'if_add1' => "$NUTRELAY1_LINK1_GLOBAL_UCAST",
+#	'if_length0' => "64",
+#	'if_length1' => "64",
+#	'if_type0'=> "unicast",
+#	'if_type1'=> "unicast",
+	'init_opcode' => "vRemote(\"dhcp6r.rmt\", \"start\",\"link0=$V6evalTool::NutDef{Link0_device}\",\"link1=$V6evalTool::NutDef{Link1_device}\",\"clientunicast=$NUTRELAY1_LINK1_GLOBAL_UCAST\",\"servermulticast\")"
+#	\"serverunicast=$NUTRELAY1_LINK0_GLOBAL_UCAST\")"##,\"interfaceid=\'$IID_IDENTIFIER\'\")"
+);
+dhcpRelayInit(\%NUT_Relay_Config);
+
+# Need add the Relay-forward Message
+# Relay 2 --> NUT(Solicit)
+$CID_OPTION = "opt_CID_LLT_client1";
+$IA_NA_OPTION = "opt_IA_NA";
+$ElapsedTime_OPTION = "opt_ElapsedTime";
+$OptionRequest_OPTION = "opt_ORO_dns_servers";
+# Send  the Relay_Forward message(Solicit)
+my($ret1, %rfsol1) = send_relay_forward($IF1,"relayforward_solicit_relay2_to_nut");
+#dhcpExitFail if (0!=$ret1);
+
+ 
+# wait for DHCPv6 Relay reforward Message(Solicit)
+my ($ret2, %rrsol2) =  wait_for_relay_forward($IF0, 5,"relay_forward_nut_server");
+if (0 != $ret2){
+ 	dhcpExitError("NG: The message have not be relayed");
+}
+#my $ID = $rrsol2{"Frame_Ether.Packet_IPv6.Upp_UDP.Udp_DHCPv6_RelayForward.Opt_DHCPv6_IID.Identifier"};
+
+#my $cpp .= " -D\'IID_IDENTIFIER=hexstr(\"$ID\",4)\' ";
+# Send the Relay Reply Messge(Advertise)
+$CID_OPTION = "opt_CID_LLT_client1";
+$SID_OPTION = "opt_SID_LLT_server1";
+$IA_NA_OPTION = "opt_IA_NA_Addr_Relay";
+my $cpp = '';
+$ElapsedTime_OPTION = undef;
+$OptionRequest_OPTION = undef;
+$DNS_SVR_OPTION = "opt_DNS_Name_Server1";
+my ($ret3, %rradv3) = send_relay_reply($IF0,"relay_advertise_server1_to_client1_2relay",\%rrsol2,$cpp);
+dhcpExitFail if(0 != $ret3);
+
+# Receive the Advertise Message from $IF1
+my ($ret4, %adv4) = wait_for_relay_reply_advertise($IF1,5,"relay_reply_relay1_relay2");
+dhcpExitFail if(0 != $ret4);
+
+
+if(0 != chkMsgAfterRelay(\%adv4,\%rradv3)){
+	dhcpExitError("NG: The Relay-reply message can\'t be correctly relayed!");
+}
+
+my $peeraddress =$rradv3{"Frame_Ether.Packet_IPv6.Upp_UDP.Udp_DHCPv6_RelayReply.PeerAddr"};
+my $dstaddress =$adv4{"Frame_Ether.Packet_IPv6.Hdr_IPv6.DestinationAddress"};
+
+if($peeraddress ne $dstaddress){
+	dhcpExitError("NG: Destination address is not same as peer-address!");
+}
+vLogHTML("<B>Checking the destination address is passed.</B><BR>");
+
+#-------------------------------------------------------------------
+vLogHTML("<B><FONT COLOR=#006666>The Message exchange is correct</FONT></B><BR>");
+#-------------------------------------------------------------------
+dhcpExitPass();
+#NOTREACHED
+
+########################################################################
+__END__
+
+=head1 NAME
+
+  R_RFC3646_3_MultiRelayReplyAdvMsg.seq - Relay-Reply Advertise message transmission through the layered Relay agents for DNS Recursive Name Server option
+
+=head1 TARGET
+
+  Relay agent
+
+=head1 SYNOPSIS
+
+=begin html
+ <PRE>
+ <A HREF="./R_RFC3646_3_MultiRelayReplyAdvMsg.seq">R_RFC3646_3_MultiRelayReplyAdvMsg.seq </A>[-tooloption ...]
+ -pkt <A HREF="./R_RFC3646_3_MultiRelayReplyAdvMsg.def">R_RFC3646_3_MultiRelayReplyAdvMsg.def </A>
+ -tooloption: v6eval tool option
+ </PRE>
+
+=head1 INITIALIZATION
+
+=begin html
+  <UL>
+  <LI><STRONG>Network Topology</STRONG></LI>
+  </UL>
+	<PRE>
+                         TN(Client1)
+                              |
+Link2 -------------+----------+---------------------3ffe:501:ffff:102::/64
+                   |                       
+                   |                       
+             TN(Relay2)
+                   |                       
+                   |                       
+Link1 -------------+-----------------------+-------- 3ffe:501:ffff:101::/64
+                                           |
+                                           |
+                                     NUT(Relay1)
+                                           |
+                                           |
+Link0 ------------------------+------------+-------- 3ffe:501:ffff:100::/64
+                              |
+                           TN(Server1)
+	</PRE>
+       </UL>
+<UL>
+      <LI><STRONG>Verification Points</STRONG><p></LI>
+        <PRE><B>Relay-reply Message 2</B>
+        <UL>
+	<LI>msg-type</LI>
+	<B>RELAY-REPLY</B>
+	<LI>hop-count</LI>
+	<B>0</B>
+	<LI>link-address</LI>
+	<B>Rleay2's address (Link2)</B>       
+	<LI>peer-address</LI>
+	<B>Client1's addess</B>       
+	<LI>Relay Message option</LI>
+	<B>Advertise Message with DNS Recursive Name Server option</B>
+        </UL>
+       </PRE>
+</UL>
+<UL>
+      <LI><STRONG>Configuration</STRONG></LI>
+        <PRE>
+        <B>Relay-reply Message 1</B>
+	<LI>msg-type</LI>
+		<B>RELAY-REPLY</B>
+		<LI>hop-count</LI>
+		<B>1</B>
+		<LI>link-address</LI>
+		<B>0</B>       
+		<LI>peer-address</LI>
+		<B>Relay2's Global address (Link1) </B>
+		<LI>Relay Message option</LI>
+		<UL>
+			<LI>msg-type</LI>
+			<B>RELAY-REPLY</B>
+			<LI>hop-count</LI>
+			<B>0</B>
+			<LI>link-address</LI>
+			<B>Rleay2's address (Link2)</B>       
+			<LI>peer-address</LI>
+			<B>Client1's addess</B>       
+			<LI>Relay Message option</LI>
+			<B>Advertise Message with DNS Recursive Name Server option</B>
+		</UL>
+       </PRE>
+	<BLOCKQUOTE>
+	<TABLE BORDER>
+	<TR>
+	<TD><TT>Device Name</TT></TD>
+	<TD><TT>Device Type</TT></TD>
+	<TD><TT>I/F</TT></TD>
+	<TD><TT>Assigned Prefix</TT></TD>
+	<TD><TT>Link Local Addr</TT></TD>
+	<TD><TT>MAC Addr</TT></TD>
+	</TR>
+	<TR>
+	<TD><TT>Relay1(Link0)</TT></TD>
+	<TD><TT>NUT</TT></TD>
+	<TD><TT>Link0</TT></TD>
+	<TD><TT>3ffe:501:ffff:100::/64</TT></TD>
+	<TD><TT>NUT's Linklocal address(Link0)</TT></TD>
+	<TD><TT>NUT's MAC address(Link0)</TT></TD>
+	</TR>
+	<TR>
+	<TD><TT>Relay1(Link1)</TT></TD>
+	<TD><TT>NUT</TT></TD>
+	<TD><TT>Link1</TT></TD>
+	<TD><TT>3ffe:501:ffff:101::/64</TT></TD>
+	<TD><TT>NUT's Linklocal address(Link1)</TT></TD>
+	<TD><TT>NUT's MAC address(Link1)</TT></TD>
+	</TR>
+	<TR>
+	<TD><TT>Server1</TT></TD>
+	<TD><TT>TN</TT></TD>
+	<TD><TT>Link0</TT></TD>
+	<TD><TT>3ffe:501:ffff:100::/64</TT></TD>
+	<TD><TT>fe80::200:ff:fe00:a1a1</TT></TD>
+	<TD><TT>00:00:00:00:a1:a1</TT></TD>
+	</TR>
+	<TR>
+	<TD><TT>Relay2(Link1)</TT></TD>
+	<TD><TT>TN</TT></TD>
+	<TD><TT>Link1</TT></TD>
+	<TD><TT>3ffe:501:ffff:101::/64</TT></TD>
+	<TD><TT>fe80::200:ff:fe00:a7a7</TT></TD>
+	<TD><TT>00:00:00:00:a7:a7</TT></TD>
+	</TR>
+	<TR>
+	<TD><TT>Relay2(Link2)</TT></TD>
+	<TD><TT>TN</TT></TD>
+	<TD><TT>Link2</TT></TD>
+	<TD><TT>3ffe:501:ffff:102::/64</TT></TD>
+	<TD><TT>fe80::200:ff:fe00:a8a8</TT></TD>
+	<TD><TT>00:00:00:00:a8:a8</TT></TD>
+	</TR>
+	<TR>
+	<TD><TT>Client1</TT></TD>
+	<TD><TT>TN</TT></TD>
+	<TD><TT>Link2</TT></TD>
+	<TD><TT>3ffe:501:ffff:102::/64</TT></TD>
+	<TD><TT>fe80::200:ff:fe00:a2a2</TT></TD>
+	<TD><TT>00:00:00:00:a2:a2</TT></TD>
+	</TR>
+	</TABLE>
+	</BLOCKQUOTE>
+  </UL>
+
+=end html
+
+=head1 TEST PROCEDURE
+
+=begin html
+<PRE>
+	    TN(Client1)TN(Relay2) NUT(Relay1) TN(Server1)
+	        |       |           |              |
+	        | ----> |           |              |Solicit w/ ORO(DNS Recursive Name Server option
+	        |       | ----->    |              |Relay-forward(Solicit w/ ORO(DNS Recursive Name Server option))
+	        |       |           |  ------->    |Relay-forward(Solicit w/ ORO(DNS Recursive Name Server option))
+	        |       |           |  <------     |Relay-reply Message1(Relay-reply/Advertise w/ DNS Recursive Name Server option)  (*1)
+	        |       | <----     |              |Relay-reply Message2(Advertise w/ DNS Recursive Name Server option)  (*2)
+	        |       |           |              |
+</PRE>
+
+=end html
+
+=head1 JUDGEMENT
+
+<PRE>
+ (*1)(*2) PASS: NUT converts the Relay-reply message correctly.
+</PRE>
+
+=head1 TERMINATION
+
+  N/A
+
+=head1 REFERENCE
+
+=begin html
+<PRE>
+  see also RFC3315
+  20.3. Construction of  Relay-reply Messages
+  see also RFC3646
+  3. DNS Recursive Name Server option
+</PRE>
+
+=end html
+
+=head1 SEE ALSO
+
+  perldoc V6evalTool
+
+=cut

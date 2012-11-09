@@ -1,0 +1,315 @@
+#!/usr/bin/perl
+#
+#Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009
+#Yokogawa Electric Corporation.
+#All rights reserved.
+#
+#Redistribution and use of this software in source and binary
+#forms, with or without modification, are permitted provided that
+#the following conditions and disclaimer are agreed and accepted
+#by the user:
+#
+#1. Redistributions of source code must retain the above copyright
+#   notice, this list of conditions and the following disclaimer.
+#
+#2. Redistributions in binary form must reproduce the above copyright
+#   notice, this list of conditions and the following disclaimer in
+#   the documentation and/or other materials provided with
+#   the distribution.
+#
+#3. Neither the names of the copyrighters, the name of the project
+#   which is related to this software (hereinafter referred to as
+#   "project") nor the names of the contributors may be used to
+#   endorse or promote products derived from this software without
+#   specific prior written permission.
+#
+#4. No merchantable use may be permitted without prior written
+#   notification to the copyrighters.
+#
+#5. The copyrighters, the project and the contributors may prohibit
+#   the use of this software at any time.
+#
+#THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+#CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+#BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+#FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+#COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+#INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+#(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+#SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+#HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+#STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+#IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+#POSSIBILITY OF SUCH DAMAGE.
+#
+#$Id: C_RFC3315_22_9_ElapTimeOpt_CnfMsg.seq,v 1.2 2009/12/03 06:03:14 akisada Exp $
+###############################################################################
+BEGIN{
+	$V6evalTool::TestVersion = '$Name: T_DHCPv6_Self_Test_P2_1_1_4 $';
+}
+use strict;
+use V6evalTool;
+
+use lib '../.';
+use DHCPv6_common;
+use Client_pktdesc;
+
+my $type	= $V6evalTool::NutDef{'Type'};
+if($type ne 'host') {
+	vLogHTML('<FONT COLOR="#FF0000">This test supports only Host</FONT>');
+	exit($V6evalTool::exitHostOnly);
+}
+
+dhcpExitNS if(ChkFuncSupport('ADDRASSIGN'));
+
+#--------------------------------------------------------------#
+# Initialization variables
+#--------------------------------------------------------------#
+my $IF0_NUT = $V6evalTool::NutDef{"Link0_device"};
+my $IF0 = "Link0";
+vCapture($IF0);
+#--------------------------------------------------------------#
+# Initialize DHCPv6 Client
+#--------------------------------------------------------------#
+my $ret = initial_ra_w_ping($IF0,'ra_server2_to_all');
+if($ret == 0){
+	vLogHTML('<FONT COLOR="#FF0000">Global Address of NUT is assigned by RA!</FONT><BR>');
+	dhcpExitFail;
+}
+
+$ret = vRemote("dhcp6c.rmt", "start", "iana", "iaid=111111", "link0=$IF0_NUT");
+if($ret != 0) {
+	vLogHTML('<FONT COLOR="#FF0000">Cannot Initialize DHCPv6 Client program.</FONT><BR>');
+	dhcpExitFail;
+};
+#--------------------------------------------------------------#
+#1.  Wait until Solicit arrives 
+#--------------------------------------------------------------#
+my ($retsol,%sol) = wait_for_solicit($IF0,30) ;
+if($retsol != 0){
+	dhcpExitFail;
+}
+#vClear($IF0);
+#--------------------------------------------------------------#
+# 2. send Advertise message 
+#--------------------------------------------------------------#
+$SID_OPTION = "opt_SID_LLT_server1";
+$IA_NA_OPTION = "opt_IA_NA_Addr_woStatus";
+my ($retadv, %adv) = send_advertise($IF0, "advertise_server1_to_nut", \%sol, "");
+if($retadv != 0){
+	dhcpExitFail;
+}
+#--------------------------------------------------------------#
+#3.  Wait until Request arrives 
+#--------------------------------------------------------------#
+my ($retreq,%req) = wait_for_request($IF0,30);
+if($retreq != 0){
+	dhcpExitFail;
+}
+vClear($IF0);
+#--------------------------------------------------------------#
+#4. send Reply message
+#--------------------------------------------------------------#
+$StatusCode_OPTION = "opt_StatusCode";
+my ($retrep, %rep) = send_reply($IF0, "reply_server1_to_nut", \%req, "");
+if($retrep !=0){
+	dhcpExitFail;
+}
+# wait for DAD completion
+vRecv($IF0, 3, 0, 0, 'dadns_nutga');
+vSleep(3);
+my $ret = ping_test($IF0);
+if($ret != 0){
+	dhcpExitFail;
+}
+vClear($IF0);
+
+# interface up/down
+ifDown($IF0_NUT);
+vSleep(5);
+ifUp($IF0_NUT);
+#--------------------------------------------------------------#
+#5. wait until confirm arrives
+#--------------------------------------------------------------#
+my ($retcnf,%cnf) = wait_for_confirm($IF0, 15);
+if($retcnf != 0) {
+	dhcpExitFail;
+};
+
+#--------------------------------------------------------------#
+# Parse the option 
+#--------------------------------------------------------------#
+$ret = options_exist(\%cnf,$CMP_ETIME);
+if($ret != 0){
+        dhcpExitFail;
+}
+
+my $base="Frame_Ether.Packet_IPv6.Upp_UDP.Udp_DHCPv6_Confirm.Opt_DHCPv6_ElapsedTime";
+my $length=$cnf{"$base"."."."Length"};
+my $time=$cnf{"$base"."."."Time"};
+
+vLogHTML("<B> Length of Elapsed Time Option is $length </B><BR>");
+vLogHTML("<B> Time of Elapsed Time Option is $time </B><BR>");
+
+if($length != 2){
+ vLogHTML('<FONT COLOR="#FF0000">length is not much.</FONT><BR>');
+        dhcpExitFail;
+}
+
+if($time != 0){
+ vLogHTML('<FONT COLOR="#FF0000">Elapsed Time is not a proper time.</FONT><BR>');
+        dhcpExitFail;
+}
+
+vClear($IF0);
+vStop($IF0);
+dhcpExitPass;
+###############################################################################
+__END__
+
+=head1 NAME 
+
+  C_RFC3315_22_9_ElapTimeOpt_CnfMsg.seq - Test the format of Elapsed Time option
+
+=head1 TARGET
+
+  Client
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./C_RFC3315_22_9_ElapTimeOpt_CnfMsg.seq"> C_RFC3315_22_9_ElapTimeOpt_CnfMsg.seq</A> [-tooloption...] <BR>  -pkt  <A HREF="./C_RFC3315_22_9_ElapTimeOpt_CnfMsg.def"> C_RFC3315_22_9_ElapTimeOpt_CnfMsg.def</A> <BR>  -tooloption : v6eval tool option
+<BR>
+  See Also <A HREF="../DHCPv6.def"> DHCPv6.def </A> 
+</PRE>
+
+=end html
+
+=head1 INITIALIZATION
+
+=begin html
+  <ul>
+  <li><STRONG>Network Topology</STRONG></li> 
+   <PRE>
+          NUT(Client)
+          |           
+          |                        
+Link0   --+--------+------------------------ 3ffe:501:ffff:100::/64
+                   |
+                   |          
+                   TN(Server) 
+   </PRE>
+  </ul>
+  <ul>
+  <li><STRONG>Verification Points</STRONG></li><br>
+   <PRE>
+   The format of Elapsed Time option is :  <BR>
+         0                   1                   2                   3
+       0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |      OPTION_ELAPSED_TIME      |           option-len          |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |          elapsed-time         |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ <BR>
+      option-code   OPTION_ELAPSED_TIME (8). <BR>
+      option-len    2. <BR>
+      elapsed-time  The amount of time since the client began its
+                    current DHCP transaction.  This time is expressed in
+                    hundredths of a second (10^-2 seconds). <BR>
+   A client MUST include an Elapsed Time option in messages to indicate
+   how long the client has been trying to complete a DHCP message
+   exchange.  
+   </PRE>
+  </ul> 
+  <ul>
+  <li><STRONG>Configurations</STRONG></li><br>
+   <BR>
+    <TABLE BORDER="1">
+    <TR>
+    <TD><TT>Device Name</TT></TD>
+    <TD><TT>Device Type</TT></TD>
+    <TD><TT>Interface</TT></TD>
+    <TD><TT>Assigned Prefix</TT></TD>
+    <TD><TT>Link Local Addr</TT></TD>
+    <TD><TT>MAC Addr</TT></TD>
+    </TR>
+    <TR>
+    <TD><TT>Client</TT></TD>
+    <TD><TT>NUT</TT></TD>
+    <TD><TT>Link0</TT></TD>
+    <TD><TT>3ffe:501:ffff:100::/64</TT></TD>
+    <TD><TT>NUT's Linklocal address</TT></TD>
+    <TD><TT>NUT's MAC address</TT></TD>
+    </TR>
+    <TR>
+    <TD><TT>Server</TT></TD>
+    <TD><TT>TN</TT></TD>
+    <TD><TT>Link0</TT></TD>
+    <TD><TT>3ffe:501:ffff:100::/64</TT></TD>
+    <TD><TT>fe80::200:ff:fe00:a1a1</TT></TD>
+    <TD><TT>00:00:00:00:a1:a1</TT></TD>
+    </TR>
+    </TABLE>
+  </ul>
+
+=end html
+
+=head1 TEST PROCEDURE
+
+=begin html
+<PRE>
+<BR>
+       NUT      TN
+        |       | 
+        |       |Initialize NUT(as a DHCPv6 client)
+        | ----> |<B>Solicit</B> (1*)
+        |       |
+        
+<BR>
+</PRE>
+
+=end html
+
+=head1 JUDGEMENT
+
+=begin html
+<PRE>
+<BR>  
+  (1*)PASS: NUT transmits Solicit message with Elapsed time option.
+</PRE>
+
+=end html
+
+=head1 TERMINATION
+
+=begin html
+<PRE>
+  N/A
+</PRE>
+
+=end html
+
+=head1 REFERENCE
+
+=begin html
+<PRE>
+  Also see RFC3315
+<BR>
+  22.9. Elapsed Time Option  
+<BR>
+</PRE>
+
+=end html
+
+=head1 SEE ALSO
+
+=begin html
+<PRE>
+<BR>
+  perldoc  V6evalTool
+<BR>
+</PRE>
+
+=end html
+

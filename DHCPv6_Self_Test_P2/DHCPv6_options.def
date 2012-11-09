@@ -1,0 +1,1529 @@
+/* 
+ * Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009
+ * Yokogawa Electric Corporation.
+ * All rights reserved.
+ * 
+ * Redistribution and use of this software in source and binary
+ * forms, with or without modification, are permitted provided that
+ * the following conditions and disclaimer are agreed and accepted
+ * by the user:
+ * 
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in
+ *    the documentation and/or other materials provided with
+ *    the distribution.
+ * 
+ * 3. Neither the names of the copyrighters, the name of the project
+ *    which is related to this software (hereinafter referred to as
+ *    "project") nor the names of the contributors may be used to
+ *    endorse or promote products derived from this software without
+ *    specific prior written permission.
+ * 
+ * 4. No merchantable use may be permitted without prior written
+ *    notification to the copyrighters.
+ * 
+ * 5. The copyrighters, the project and the contributors may prohibit
+ *    the use of this software at any time.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+ * CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+ * BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ * FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+ * COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+ * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+ * IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ * $Id: DHCPv6_options.def,v 1.24 2012/02/02 10:02:40 miyata Exp $
+ * $TAHI: dhcpv6.p2/DHCPv6_options.def,v 1.24 2012/02/02 10:02:40 miyata Exp $
+ *
+ */
+
+ /*-----------------------------------------------------------------------------------*
+ *
+ *  General
+ *
+ *-----------------------------------------------------------------------------------*/
+#define SERVER1_ROUTER_PREFIX  v6("3ffe:501:ffff:100::")
+#define SERVER1_ROUTER_PREFIX2  v6("3ffe:501:ffff:101::")
+#define SERVER1_ROUTER_PREFIX3  v6("3ffe:501:ffff:103::")
+#define SERVER1_ROUTER_PREFIX4  v6("2001:db8:ffff:100::")
+#define SERVER1_ROUTER_PREFIX5  v6("2001:db8:ffff:101::")
+#define SERVER1_ROUTER_PREFIX6  v6("2001:db8:ffff:102::")
+#define SERVER2_ROUTER_PREFIX  v6("5ffe:501:ffff:100::")
+#define SERVER1_ROUTER_DELEGATE_PREFIX  v6("2001:db8:ffff::")
+#define SERVER1_ROUTER_DELEGATE_PREFIX2  v6("2002:db8:ffff::")
+#define SERVER1_ROUTER_DELEGATE_PREFIX_MULTI  v6("2001:db9:ffff::")
+#define SERVER1_ROUTER_DELEGATE_PREFIX_NOTONLINK  v6("::")
+ /*-----------------------------------------------------------------------------------*
+ *
+ *  Definitions
+ *  Please be carefully of the changing of parameters!!!!!!
+ *  Keep a consistent net toplogy in whole development
+ *  (consitent network parameters)
+ *-----------------------------------------------------------------------------------*/
+// for server test
+// @ 8/9 changed NUT_GLOBAL_UCAST for unicast option test
+#define NUT_LLOCAL_UCAST    nutv6()
+#ifdef  LINK1
+#define NUT_LLOCAL_UCAST1   nutv6("Link1")
+#else
+#define NUT_LLOCAL_UCAST1   nutv6()
+#endif
+
+// This is for Relay and Server
+#define NUT_LINK0_GLOBAL_UCAST	v6merge(_GLOBAL0_UCAST_PRFX,_GLOBAL0_UCAST_PRFXLEN,nutv6())
+#ifdef SERVERRELAY
+#define NUT_GLOBAL_UCAST	NUT_LINK0_GLOBAL_UCAST
+#else
+// This is for client
+#define NUT_GLOBAL_UCAST	v6("3ffe:501:ffff:100::abcd")
+#endif
+
+// This is for client
+#define NUT_GLOBAL_UCAST_ADDR1	v6merge(_GLOBAL0_UCAST_PRFX,_GLOBAL0_UCAST_PRFXLEN,nutv6()) 
+#define NUT_GLOBAL_UCAST_ADDR2	v6merge(_GLOBAL1_UCAST_PRFX,_GLOBAL0_UCAST_PRFXLEN,nutv6()) 
+#define NUT_GLOBAL_UCAST2	v6("3ffe:501:ffff:100::6666")
+#define NUT_GLOBAL_UCAST4	v6("3ffe:501:ffff:101::beaf")
+
+// This is for relay agent 
+#ifdef  LINK1
+#define RELAY_ADDR	v6merge(_GLOBAL1_UCAST_PRFX,_GLOBAL0_UCAST_PRFXLEN,nutv6("Link1"))
+#else
+// This is for relay agent which has only 1 interface
+#define RELAY_ADDR	NUT_LINK0_GLOBAL_UCAST
+#endif
+
+#define NUTRELAY1_LINK0_GLOBAL_UCAST	NUT_LINK0_GLOBAL_UCAST
+#define NUTRELAY1_LINK1_GLOBAL_UCAST	RELAY_ADDR
+
+#define NUTRELAY1_LINK0_LLOCAL_UCAST	nutv6("Link0")
+#ifdef  LINK1
+#define NUTRELAY1_LINK1_LLOCAL_UCAST	nutv6("Link1")	
+#else
+#define NUTRELAY1_LINK1_LLOCAL_UCAST	nutv6("Link0")	
+#endif
+
+#define NUT_MAC_ADDR	nutether()
+
+#ifdef  LINK1
+#define NUT_MAC_ADDR1	nutether("Link1")
+#endif
+
+#ifndef	LINKN_DEVICE
+#define LINKN_DEVICE	"Link0" 
+#endif 
+#define NUT_LINKN_MAC_ADDR        nutether(LINKN_DEVICE)
+
+#define NUT_GLOBAL_NOTONLINK    v6("3ffe:503:ffff:100::abcd")
+
+
+#define _DNS1_MAC_ADDR       "00:00:00:00:3f:3e"
+#define DNS1_MAC_ADDR        ether(_DNS1_MAC_ADDR)
+#define DNS_SVR1_GLOBAL_UCAST    v6("3ffe:501:ffff:100:200:ff:fe00:3f3e") 
+#define DNS_SVR2_GLOBAL_UCAST    v6("3ffe:501:ffff:100:200:ff:fe00:3e3f") 
+
+#define _SERVER1_LLOCAL_UCAST   "fe80::200:ff:fe00:a1a1"
+#define _SERVER1_GLOBAL_UCAST   "3ffe:501:ffff:100:200:ff:fe00:a1a1"
+#define _SERVER1_MAC_ADDR       "00:00:00:00:a1:a1"
+#define SERVER1_LLOCAL_UCAST    v6(_SERVER1_LLOCAL_UCAST)
+#define SERVER1_GLOBAL_UCAST    v6(_SERVER1_GLOBAL_UCAST)
+#define SERVER1_MAC_ADDR        ether(_SERVER1_MAC_ADDR)
+
+#define _SERVER2_LLOCAL_UCAST   "fe80::200:ff:fe00:a6a6"
+#define _SERVER2_GLOBAL_UCAST   "3ffe:501:ffff:101:200:ff:fe00:a6a6"
+#define _SERVER2_MAC_ADDR       "00:00:00:00:a6:a6"
+#define SERVER2_LLOCAL_UCAST    v6(_SERVER2_LLOCAL_UCAST)
+#define SERVER2_GLOBAL_UCAST    v6(_SERVER2_GLOBAL_UCAST)
+#define SERVER2_MAC_ADDR        ether(_SERVER2_MAC_ADDR)
+
+
+#define _CLIENT1_LLOCAL_UCAST   "fe80::200:ff:fe00:a2a2"
+#define _CLIENT1_GLOBAL_UCAST   "3ffe:501:ffff:100:200:ff:fe00:a2a2"
+#define _CLIENT1_MAC_ADDR       "00:00:00:00:a2:a2"
+#define CLIENT1_LLOCAL_UCAST    v6(_CLIENT1_LLOCAL_UCAST)
+#define CLIENT1_GLOBAL_UCAST    v6(_CLIENT1_GLOBAL_UCAST)
+#define CLIENT1_MAC_ADDR        ether(_CLIENT1_MAC_ADDR)
+
+// For address assgin test;
+#define _CLIENT2_LLOCAL_UCAST   "fe80::200:ff:fe00:a3a3"
+#define _CLIENT2_GLOBAL_UCAST   "3ffe:501:ffff:100:200:ff:fe00:a3a3"
+#define _CLIENT2_MAC_ADDR       "00:00:00:00:a3:a3"
+#define CLIENT2_LLOCAL_UCAST    v6(_CLIENT2_LLOCAL_UCAST)
+#define CLIENT2_GLOBAL_UCAST    v6(_CLIENT2_GLOBAL_UCAST)
+#define CLIENT2_MAC_ADDR        ether(_CLIENT2_MAC_ADDR)
+
+#define _CLIENT3_LLOCAL_UCAST   "fe80::200:ff:fe00:b3b3"
+#define _CLIENT3_GLOBAL_UCAST   "3ffe:501:ffff:101:200:ff:fe00:b3b3"
+#define _CLIENT3_MAC_ADDR       "00:00:00:00:b3:b3"
+#define CLIENT3_LLOCAL_UCAST    v6(_CLIENT3_LLOCAL_UCAST)
+#define CLIENT3_GLOBAL_UCAST    v6(_CLIENT3_GLOBAL_UCAST)
+#define CLIENT3_MAC_ADDR        ether(_CLIENT3_MAC_ADDR)
+
+#define _CLIENT4_LLOCAL_UCAST   "fe80::200:ff:fe00:b4b4"
+#define _CLIENT4_GLOBAL_UCAST   "3ffe:501:ffff:102:200:ff:fe00:b4b4"
+#define _CLIENT4_MAC_ADDR       "00:00:00:00:b4:b4"
+#define CLIENT4_LLOCAL_UCAST    v6(_CLIENT4_LLOCAL_UCAST)
+#define CLIENT4_GLOBAL_UCAST    v6(_CLIENT4_GLOBAL_UCAST)
+#define CLIENT4_MAC_ADDR        ether(_CLIENT4_MAC_ADDR)
+
+#define _RELAY1_0_LLOCAL_UCAST   "fe80::200:ff:fe00:a4a4"
+#define _RELAY1_0_GLOBAL_UCAST   "3ffe:501:ffff:100:200:ff:fe00:a4a4"
+#define _RELAY1_0_MAC_ADDR       "00:00:00:00:a4:a4"
+#define RELAY1_0_LLOCAL_UCAST    v6(_RELAY1_0_LLOCAL_UCAST)
+#define RELAY1_0_GLOBAL_UCAST    v6(_RELAY1_0_GLOBAL_UCAST)
+#define RELAY1_0_MAC_ADDR        ether(_RELAY1_0_MAC_ADDR)
+
+//Only for 2 relay agents connected to 1 interface;
+//Don't use them for other test!!!!!!
+#define _RELAY2_0_LLOCAL_UCAST   "fe80::200:ff:fe00:a7a7"
+#define _RELAY2_0_GLOBAL_UCAST   "3ffe:501:ffff:100:200:ff:fe00:a7a7"
+#define _RELAY2_0_MAC_ADDR       "00:00:00:00:a7:a7"
+#define RELAY2_0_LLOCAL_UCAST    v6(_RELAY2_0_LLOCAL_UCAST)
+#define RELAY2_0_GLOBAL_UCAST    v6(_RELAY2_0_GLOBAL_UCAST)
+#define RELAY2_0_MAC_ADDR        ether(_RELAY2_0_MAC_ADDR)
+
+#define _RELAY1_1_LLOCAL_UCAST   "fe80::200:ff:fe00:a5a5"
+#define _RELAY1_1_GLOBAL_UCAST   "3ffe:501:ffff:101:200:ff:fe00:a5a5"
+#define _RELAY1_1_MAC_ADDR       "00:00:00:00:a5:a5"
+#define RELAY1_1_LLOCAL_UCAST    v6(_RELAY1_1_LLOCAL_UCAST)
+#define RELAY1_1_GLOBAL_UCAST    v6(_RELAY1_1_GLOBAL_UCAST)
+#define RELAY1_1_MAC_ADDR        ether(_RELAY1_1_MAC_ADDR)
+
+#define _RELAY2_1_LLOCAL_UCAST   "fe80::200:ff:fe00:a7a7"
+#define _RELAY2_1_GLOBAL_UCAST   "3ffe:501:ffff:101:200:ff:fe00:a7a7"
+#define _RELAY2_1_MAC_ADDR       "00:00:00:00:a7:a7"
+#define RELAY2_1_LLOCAL_UCAST    v6(_RELAY2_1_LLOCAL_UCAST)
+#define RELAY2_1_GLOBAL_UCAST    v6(_RELAY2_1_GLOBAL_UCAST)
+#define RELAY2_1_MAC_ADDR        ether(_RELAY2_1_MAC_ADDR)
+
+#define _RELAY2_2_LLOCAL_UCAST   "fe80::200:ff:fe00:a8a8"
+#define _RELAY2_2_GLOBAL_UCAST   "3ffe:501:ffff:102:200:ff:fe00:a8a8"
+#define _RELAY2_2_MAC_ADDR       "00:00:00:00:a8:a8"
+#define RELAY2_2_LLOCAL_UCAST    v6(_RELAY2_2_LLOCAL_UCAST)
+#define RELAY2_2_GLOBAL_UCAST    v6(_RELAY2_2_GLOBAL_UCAST)
+#define RELAY2_2_MAC_ADDR        ether(_RELAY2_2_MAC_ADDR)
+
+#define _RELAY2_3_LLOCAL_UCAST   "fe80::200:ff:fe00:b8b8"
+#define _RELAY2_3_GLOBAL_UCAST   "3ffe:501:ffff:101:200:ff:fe00:b8b8"
+#define _RELAY2_3_MAC_ADDR       "00:00:00:00:b8:b8"
+#define RELAY2_3_LLOCAL_UCAST    v6(_RELAY2_3_LLOCAL_UCAST)
+#define RELAY2_3_GLOBAL_UCAST    v6(_RELAY2_3_GLOBAL_UCAST)
+#define RELAY2_3_MAC_ADDR        ether(_RELAY2_3_MAC_ADDR)
+
+#define _RELAY3_0_LLOCAL_UCAST   "fe80::200:ff:fe00:a9a9"
+#define _RELAY3_0_GLOBAL_UCAST   "3ffe:501:ffff:102:200:ff:fe00:a9a9"
+#define _RELAY3_0_MAC_ADDR       "00:00:00:00:a9:a9"
+#define RELAY3_0_LLOCAL_UCAST    v6(_RELAY3_0_LLOCAL_UCAST)
+#define RELAY3_0_GLOBAL_UCAST    v6(_RELAY3_0_GLOBAL_UCAST)
+#define RELAY3_0_MAC_ADDR        ether(_RELAY3_0_MAC_ADDR)
+
+#define ALLDHCPAGENTS_MCAST_ADDR v6(_ALLDHCPAGENTS_MCAST_ADDR)
+#define ALLDHCPSEVERS_MCAST_ADDR v6(_ALLDHCPSERVERS_MCAST_ADDR)
+
+//for DNS Name Server test 
+#define _DNS_NAME_SERVER_GLOBAL_UCAST "3ffe:501:ffff:101::100"
+#define DNS_NAME_SERVER_GLOBAL_UCAST   v6(_DNS_NAME_SERVER_GLOBAL_UCAST)
+
+
+//"test.com"                            4 t e s t 3 c o m /
+#define DNS_DOMAIN_SEARCHLIST_STR     "047465737403636f6d00"
+//test.example.com
+#define DNS_DOMAIN_SEARCHLIST_STR2     "0474657374076578616D706C6503636F6D00"
+//test.example.org
+#define DNS_DOMAIN_SEARCHLIST_STR3     "0474657374076578616D706C65036F726700"
+
+_HETHER_define(_HETHER_client1_to_nut	, CLIENT1_MAC_ADDR   , NUT_MAC_ADDR)
+_HETHER_define(_HETHER_client2_to_nut	, CLIENT2_MAC_ADDR   , NUT_MAC_ADDR)
+_HETHER_define(_HETHER_server1_to_nut	, SERVER1_MAC_ADDR   , NUT_MAC_ADDR)
+_HETHER_define(_HETHER_server2_to_nut	, SERVER2_MAC_ADDR   , NUT_MAC_ADDR)
+_HETHER_define(_HETHER_server1_to_client1, SERVER1_MAC_ADDR   , CLIENT1_MAC_ADDR)
+_HETHER_define(_HETHER_dns_to_nut	, DNS1_MAC_ADDR   , NUT_MAC_ADDR)
+
+#ifdef  LINK1
+_HETHER_define(_HETHER_server2_to_nut1      , SERVER2_MAC_ADDR   , NUT_MAC_ADDR1)
+#else
+_HETHER_define(_HETHER_server2_to_nut1      , SERVER2_MAC_ADDR   , NUT_MAC_ADDR)
+#endif
+
+_HETHER_define(_HETHER_server1_to_all	, SERVER1_MAC_ADDR   , v62ethermulti(v6(_ALLNODES_MCAST_ADDR)))
+_HETHER_define(_HETHER_server2_to_all	, SERVER2_MAC_ADDR   , v62ethermulti(v6(_ALLNODES_MCAST_ADDR)))
+
+_HETHER_define(_HETHER_client1_to_all	, CLIENT1_MAC_ADDR , v62ethermulti(v6(_ALLNODES_MCAST_ADDR)))
+_HETHER_define(_HETHER_client1_to_alldhcp, CLIENT1_MAC_ADDR , v62ethermulti(v6(_ALLDHCPAGENTS_MCAST_ADDR)))
+_HETHER_define(_HETHER_client2_to_alldhcp, CLIENT2_MAC_ADDR , v62ethermulti(v6(_ALLDHCPAGENTS_MCAST_ADDR)))
+
+_HETHER_define(_HETHER_relay1_0_to_nut       , RELAY1_0_MAC_ADDR, NUT_MAC_ADDR)
+_HETHER_define(_HETHER_relay2_0_to_nut       , RELAY2_0_MAC_ADDR, NUT_MAC_ADDR)
+_HETHER_define(_HETHER_relay2_0_to_alldhcp   , RELAY2_0_MAC_ADDR, v62ethermulti(v6(_ALLDHCPSERVERS_MCAST_ADDR)))
+_HETHER_define(_HETHER_relay1_1_to_nut       , RELAY1_1_MAC_ADDR, NUT_MAC_ADDR)
+_HETHER_define(_HETHER_relay1_0_to_alldhcp   , RELAY1_0_MAC_ADDR, v62ethermulti(v6(_ALLDHCPSERVERS_MCAST_ADDR)))
+_HETHER_define(_HETHER_relay1_1_to_alldhcp   , RELAY1_1_MAC_ADDR, v62ethermulti(v6(_ALLDHCPSERVERS_MCAST_ADDR)))
+_HETHER_define(_HETHER_relay2_1_to_nut       , RELAY2_1_MAC_ADDR, NUT_MAC_ADDR)
+_HETHER_define(_HETHER_relay2_1_to_alldhcp   , RELAY2_1_MAC_ADDR, v62ethermulti(v6(_ALLDHCPSERVERS_MCAST_ADDR)))
+_HETHER_define(_HETHER_relay2_1_to_relay1_1  , RELAY2_1_MAC_ADDR, RELAY1_1_MAC_ADDR)
+_HETHER_define(_HETHER_relay2_3_to_relay1_1  , RELAY2_3_MAC_ADDR, RELAY1_1_MAC_ADDR)
+
+_HETHER_define(_HETHER_nut_to_client1	, NUT_MAC_ADDR   , CLIENT1_MAC_ADDR)
+_HETHER_define(_HETHER_nut_to_server1	, NUT_MAC_ADDR   , SERVER1_MAC_ADDR)
+_HETHER_define(_HETHER_nut_to_client2	, NUT_MAC_ADDR   , CLIENT2_MAC_ADDR)
+_HETHER_define(_HETHER_nut_to_server2	, NUT_MAC_ADDR   , SERVER2_MAC_ADDR)
+_HETHER_define(_HETHER_nut_to_relay2	, NUT_MAC_ADDR   , RELAY2_2_MAC_ADDR)
+_HETHER_define(_HETHER_nut_to_alldhcp	, NUT_MAC_ADDR   , v62ethermulti(v6(_ALLDHCPAGENTS_MCAST_ADDR)))
+_HETHER_define(_HETHER_nutrelayforward_to_alldhcp, NUT_MAC_ADDR   , v62ethermulti(v6(_ALLDHCPSERVERS_MCAST_ADDR)))
+_HETHER_define(_HETHER_nut_to_any	, NUT_LINKN_MAC_ADDR  , any)
+_HETHER_define(_HETHER_nut_dad, NUT_MAC_ADDR	, _ETHER_SOLNODE_MCAST(NUT_GLOBAL_UCAST))
+_HETHER_define(_HETHER_nut_to_linkallrouter	, NUT_MAC_ADDR,     v62ethermulti(v6(_ALLROUTERS_MCAST_ADDR)))
+_HETHER_define(_HETHER_nut_to_dns_server	, NUT_MAC_ADDR, any)
+_HETHER_define(_HETHER_nut2_dad, NUT_MAC_ADDR	, _ETHER_SOLNODE_MCAST(NUT_GLOBAL_UCAST2))
+#ifdef  LINK1
+_HETHER_define(_HETHER_nut1_to_server2	, NUT_MAC_ADDR1, SERVER2_MAC_ADDR)
+#else
+_HETHER_define(_HETHER_nut1_to_server2	, NUT_MAC_ADDR, SERVER2_MAC_ADDR)
+#endif
+
+_HETHER_define(_HETHER_any	, any  , any)
+ 
+#define OPTION_CLIENTID 1
+#define OPTION_SERVERID 2
+#define OPTION_IA_NA 3
+#define OPTION_IA_TA 4
+#define OPTION_IAADDR 5
+#define OPTION_ORO 6
+#define OPTION_PREFERENCE 7
+#define OPTION_ELAPSED_TIME 8
+#define OPTION_RELAY_MSG 9
+#define OPTION_AUTH 11
+#define OPTION_UNICAST 12
+#define OPTION_STATUS_CODE 13
+#define OPTION_RAPID_COMMIT 14
+#define OPTION_USER_CLASS 15
+#define OPTION_VENDOR_CLASS 16
+#define OPTION_VENDOR_OPTS 17
+#define OPTION_INTERFACE_ID 18
+#define OPTION_RECONF_MSG 19
+#define OPTION_RECONF_ACCEPT 20
+#define OPTION_SIP_SERVER_D 21
+#define OPTION_SIP_SERVER_A 22
+#define OPTION_DNS_SERVERS 23
+#define OPTION_DNS_DOMAIN_LIST 24
+#define OPTION_IA_PD 25
+#define OPTION_IAPREFIX 26
+
+/*-----------------------------------------------------------------------------------*
+ *  DHCPv6 options
+ *-----------------------------------------------------------------------------------*/
+// for DUID
+#ifndef NUT_DUID_TIME
+#define NUT_DUID_TIME   200000
+#endif
+
+#ifndef NUT_DUID_MAC_ADDR
+#define NUT_DUID_MAC_ADDR   nutether()
+#endif
+
+#ifndef CID_DUID_TIME
+#define CID_DUID_TIME  300000
+#endif
+
+#ifndef SID_DUID_TIME
+#define SID_DUID_TIME  400000
+#endif
+
+#ifndef TN_DUID_MAC_ADDR
+#define TN_DUID_MAC_ADDR   ether(_TN_MAC_ADDR)
+#endif
+
+#ifndef NUT_DUID_EN_ID
+#define NUT_DUID_EN_ID  repeat(0x01, 8)
+#endif
+
+#ifndef NUT_DUID_EN_ENNUM
+#define NUT_DUID_EN_ENNUM repeat(0x01, 8)
+#endif
+
+// for IA_TA/IA_NA
+#ifndef IA_ADDR_ADDR
+#define IA_ADDR_ADDR  NUT_GLOBAL_UCAST
+#endif
+
+#ifndef IA_ADDR_ADDR_2
+#define IA_ADDR_ADDR_2  NUT_GLOBAL_UCAST2
+#endif
+
+#ifndef IA_ADDR_ADDR_4
+#define IA_ADDR_ADDR_4  NUT_GLOBAL_UCAST4
+#endif
+
+
+#ifndef IA_ADDR_ADDR_NOTONLINK
+#define IA_ADDR_ADDR_NOTONLINK     NUT_GLOBAL_NOTONLINK
+#endif
+
+#ifndef IA_ADDR_PLTIME
+#define IA_ADDR_PLTIME 100
+#endif
+#ifndef IA_ADDR_VLTIME
+#define IA_ADDR_VLTIME 200
+#endif
+#ifndef IA_NA_IDENTIFIER
+#define IA_NA_IDENTIFIER   101010
+#endif
+
+#ifndef IA_NA_IDENTIFIER1
+#define IA_NA_IDENTIFIER1   101011
+#endif
+#ifndef IA_NA_IDENTIFIER_1
+#define IA_NA_IDENTIFIER_1   101011
+#endif
+#ifndef IA_NA_IDENTIFIER_2
+#define IA_NA_IDENTIFIER_2   101012
+#endif
+#ifndef IA_TA_IDENTIFIER
+#define IA_TA_IDENTIFIER   202020
+#endif
+#ifndef IA_PD_IDENTIFIER
+#define IA_PD_IDENTIFIER   303030
+#endif
+
+#ifndef IA_PD_IDENTIFIER_1
+#define IA_PD_IDENTIFIER_1   303031
+#endif
+#ifndef IA_PD_IDENTIFIER_2
+#define IA_PD_IDENTIFIER_2   303032
+#endif
+#ifndef IA_PD_IDENTIFIER_3
+#define IA_PD_IDENTIFIER_3   303033
+#endif
+#ifndef IA_PD_IDENTIFIER_4
+#define IA_PD_IDENTIFIER_4   303034
+#endif
+
+#ifndef IA_NA_TIME1
+#define IA_NA_TIME1  50
+#endif
+#ifndef IA_NA_TIME2
+#define IA_NA_TIME2  80
+#endif
+#ifndef IA_STATUSCODE
+#define IA_STATUSCODE 0
+#endif
+#ifndef IA_STATUSCODE_1
+#define IA_STATUSCODE_1 0
+#endif
+#ifndef IA_STATUSCODE_2
+#define IA_STATUSCODE_2 0
+#endif
+#ifndef IA_PREFIX_STATUSCODE 
+#define IA_PREFIX_STATUSCODE 0
+#endif
+#ifndef IA_PREFIX_STATUSCODE_2
+#define IA_PREFIX_STATUSCODE_2 6
+#endif
+
+#ifndef PREFERENCE
+#define PREFERENCE 10
+#endif
+
+//IA_PD time
+#ifndef IA_PD_TIME1
+#define IA_PD_TIME1  5000
+#endif
+#ifndef IA_PD_TIME2
+#define IA_PD_TIME2  8000
+#endif
+#ifndef IA_PD_TIME3
+#define IA_PD_TIME3  50
+#endif
+#ifndef IA_PD_TIME4
+#define IA_PD_TIME4  80
+#endif
+
+
+//IA_PREFIX Option Time
+#ifndef IA_PREFIX_PLTIME 
+#define IA_PREFIX_PLTIME 100
+#endif
+#ifndef IA_PREFIX_VLTIME
+#define IA_PREFIX_VLTIME 200
+#endif
+//IA_PREFIX Option Time (Invalid PTime>VTime)
+#ifndef IA_PREFIX_2nd_PLTIME 
+#define IA_PREFIX_2nd_PLTIME 200
+#endif
+#ifndef IA_PREFIX_2nd_VLTIME
+#define IA_PREFIX_2nd_VLTIME 100
+#endif
+//IA_PREFIX Option Prefix
+#ifndef IA_PREFIX_PREFIX
+#define IA_PREFIX_PREFIX   SERVER1_ROUTER_PREFIX
+#endif
+#ifndef IA_PREFIX_PREFIX_1
+#define IA_PREFIX_PREFIX_1  SERVER1_ROUTER_PREFIX
+#endif
+#ifndef IA_PREFIX_PREFIX_2
+#define IA_PREFIX_PREFIX_2  SERVER2_ROUTER_PREFIX
+#endif
+#ifndef IA_PREFIX_PREFIX_3
+#define IA_PREFIX_PREFIX_3  SERVER1_ROUTER_PREFIX3
+#endif
+#ifndef IA_PREFIX_PREFIX_4
+#define IA_PREFIX_PREFIX_4  SERVER1_ROUTER_PREFIX4
+#endif
+#ifndef IA_PREFIX_PREFIX_5
+#define IA_PREFIX_PREFIX_5  SERVER1_ROUTER_PREFIX5
+#endif
+#ifndef IA_PREFIX_PREFIX_6
+#define IA_PREFIX_PREFIX_6  SERVER1_ROUTER_PREFIX6
+#endif
+#ifndef IA_PREFIX_DELEGATE_PREFIX
+#define IA_PREFIX_DELEGATE_PREFIX  SERVER1_ROUTER_DELEGATE_PREFIX
+#endif
+#ifndef IA_PREFIX_DELEGATE_PREFIX_2
+#define IA_PREFIX_DELEGATE_PREFIX_2  SERVER1_ROUTER_DELEGATE_PREFIX2
+#endif
+#ifndef IA_PREFIX_DELEGATE_PREFIX_MULTI
+#define IA_PREFIX_DELEGATE_PREFIX_MULTI  SERVER1_ROUTER_DELEGATE_PREFIX_MULTI
+#endif
+
+
+#ifndef IA_PREFIX_PREFIX_NOTONLINK
+#define IA_PREFIX_PREFIX_NOTONLINK  SERVER1_ROUTER_DELEGATE_PREFIX_NOTONLINK
+#endif
+
+#ifndef IA_PREFIX_LEN
+#define IA_PREFIX_LEN 48
+#endif
+
+#ifndef ELAPSED_TIME_UPDATE
+#define ELAPSED_TIME_UPDATE 300
+#endif
+
+//#define IID_IDENTIFIER repeat(0x00, 8)
+#ifndef IID_IDENTIFIER
+#define IID_IDENTIFIER repeat(0x01, 4)
+#endif
+
+#ifndef RECONFIGURE_TYPE
+#define RECONFIGURE_TYPE 5
+#endif
+
+
+//DNS options
+#ifndef IA_DNSSVR1_ADDR
+#define IA_DNSSVR1_ADDR 
+#endif
+
+#ifndef IA_DNSSVR2_ADDR
+#define IA_DNSSVR2_ADDR 
+#endif
+
+// transaction ID
+#ifndef ID_SOL
+#define ID_SOL 100
+#endif
+#ifndef ID_REQ
+#define ID_REQ 101
+#endif
+#ifndef ID_INFOREQ
+#define ID_INFOREQ 102
+#endif
+#ifndef ID_ADV
+#define ID_ADV 103
+#endif
+#ifndef ID_REP
+#define ID_REP 104
+#endif
+#ifndef ID_CONFIRM
+#define ID_CONFIRM 105
+#endif
+#ifndef ID_RENEW
+#define ID_RENEW 106
+#endif
+#ifndef ID_REBIND
+#define ID_REBIND 106
+#endif
+#ifndef ID_RELEASE
+#define ID_RELEASE 107
+#endif
+#ifndef ID_DECLINE
+#define ID_DECLINE 108
+#endif
+#ifndef ID_RECONF
+#define ID_RECONF 109
+#endif
+/*
+ Some implementation can't handling same transaction ID correctly.
+ When you want to check it, change the following parameter.
+*/
+#ifndef ID_SOL2
+#define ID_SOL2 100
+#endif
+#ifndef ID_REQ2
+#define ID_REQ2 101
+#endif
+
+#ifndef DUIDANY_SID_TYPE
+#define DUIDANY_SID_TYPE 255
+#endif
+
+#ifndef DUIDANY_SID_DATA
+#define DUIDANY_SID_DATA repeat(0x00, 8)
+#endif
+
+#ifndef DNS_NAME
+#define DNS_NAME "dhcpv6.test.example.com"
+#endif
+
+#ifndef DNS_NAME2
+#define DNS_NAME2 "dhcpv6.test.com"
+#endif
+//================================================================
+// DHCP unique identifier
+//================================================================
+//---------------------------------------
+// DUID any
+//---------------------------------------
+DHCPv6_DUID_ANY duid_ANY {
+	Type 	= 255;
+	data		= repeat(0x00, 8);
+}
+
+DHCPv6_DUID_ANY duid_SID_ANY {
+	Type 	= DUIDANY_SID_TYPE;
+	data		= DUIDANY_SID_DATA;
+}
+
+
+//---------------------------------------
+// DUID-LLT (Link-layer Address Plus Time)
+//---------------------------------------
+DHCPv6_DUID_LLT_ANY duid_LLT_ANY {
+	HardwareType		= 255;
+	LinkLayerAddress	= repeat(0x12, 8);
+}
+
+#ifndef NUT_DUID_HARDWARE_TYPE
+#define NUT_DUID_HARDWARE_TYPE 1
+#endif
+
+
+DHCPv6_DUID_LLT_Ether duid_LLT_nut {
+	HardwareType = NUT_DUID_HARDWARE_TYPE;	
+	Time = NUT_DUID_TIME;
+	LinkLayerAddress	= NUT_DUID_MAC_ADDR;
+}
+DHCPv6_DUID_LLT_Ether duid_LLT_client1 {
+	Time = CID_DUID_TIME;
+	LinkLayerAddress	= CLIENT1_MAC_ADDR;
+}
+DHCPv6_DUID_LLT_Ether duid_LLT_client2{
+	Time = CID_DUID_TIME;
+	LinkLayerAddress	= CLIENT2_MAC_ADDR;
+}
+DHCPv6_DUID_LLT_Ether duid_LLT_client3{
+	Time = CID_DUID_TIME;
+	LinkLayerAddress	= CLIENT3_MAC_ADDR;
+}
+DHCPv6_DUID_LLT_Ether duid_LLT_client4{
+	Time = CID_DUID_TIME;
+	LinkLayerAddress	= CLIENT4_MAC_ADDR;
+}
+DHCPv6_DUID_LLT_Ether duid_LLT_server1 {
+	Time = SID_DUID_TIME;
+	LinkLayerAddress	= SERVER1_MAC_ADDR;
+}
+DHCPv6_DUID_LLT_Ether duid_LLT_server2{
+	Time = SID_DUID_TIME;
+	LinkLayerAddress	= SERVER2_MAC_ADDR;
+}
+DHCPv6_DUID_LLT_Ether duid_LLT_invalid_server1 {
+	Time = CID_DUID_TIME;
+	LinkLayerAddress	= CLIENT1_MAC_ADDR;
+}
+
+//---------------------------------------
+// DUID-EN (Enterprise Number)
+//---------------------------------------
+DHCPv6_DUID_EN duid_EN {
+	EnterpriseNumber = NUT_DUID_EN_ENNUM;
+	Identifier	= repeat(0x01, 8);
+}
+
+
+DHCPv6_DUID_EN duid_EN_nut {
+	EnterpriseNumber = NUT_DUID_EN_ENNUM;
+	Identifier = NUT_DUID_EN_ID;
+}
+
+//---------------------------------------
+// DUID-LL (Link-layer Address)
+//---------------------------------------
+DHCPv6_DUID_LL_ANY duid_LL_ANY {
+	HardwareType		= 255;
+	LinkLayerAddress	= repeat(0x12, 8);
+}
+DHCPv6_DUID_LL_Ether duid_LL_nut {
+	HardwareType	= NUT_DUID_HARDWARE_TYPE;
+	LinkLayerAddress	= NUT_DUID_MAC_ADDR;
+}
+DHCPv6_DUID_LL_Ether duid_LL_client1 {
+	LinkLayerAddress	= CLIENT1_MAC_ADDR;
+}
+DHCPv6_DUID_LL_Ether duid_LL_client2 {
+	LinkLayerAddress	= CLIENT2_MAC_ADDR;
+}
+DHCPv6_DUID_LLT_Ether duid_LL_server1 {
+	LinkLayerAddress	= SERVER1_MAC_ADDR;
+}
+DHCPv6_DUID_LLT_Ether duid_LL_server2 {
+	LinkLayerAddress	= SERVER2_MAC_ADDR;
+}
+//================================================================
+// Client Identifier option
+//
+
+Opt_DHCPv6_CID opt_CID_LLT_nut {
+	duid = duid_LLT_nut;
+}
+Opt_DHCPv6_CID opt_CID_ANY {
+	duid	= duid_ANY;
+}
+Opt_DHCPv6_CID opt_CID_LLT_client1 {
+	duid = duid_LLT_client1;
+}
+Opt_DHCPv6_CID opt_CID_LLT_client2 {
+	duid = duid_LLT_client2;
+}
+Opt_DHCPv6_CID opt_CID_LLT_client3 {
+	duid = duid_LLT_client3;
+}
+Opt_DHCPv6_CID opt_CID_LLT_client4 {
+	duid = duid_LLT_client4;
+}
+Opt_DHCPv6_CID opt_CID_LL_client1 {
+	duid	= duid_LL_client1;
+}
+Opt_DHCPv6_CID opt_CID_LL_client2 {
+	duid	= duid_LL_client2;
+}
+Opt_DHCPv6_CID opt_CID_EN {
+	duid	= duid_EN;
+}
+
+Opt_DHCPv6_CID opt_CID_EN_nut {
+	duid  = duid_EN_nut;
+}
+
+Opt_DHCPv6_CID opt_CID_LL_nut {
+	duid = duid_LL_nut;
+}
+
+//================================================================
+// Server Identifier option
+//
+Opt_DHCPv6_SID opt_SID_ANY {
+	duid	= duid_SID_ANY;
+}
+Opt_DHCPv6_SID opt_SID_LLT_nut {
+	duid	= duid_LLT_nut;
+}
+Opt_DHCPv6_SID opt_SID_LL_nut {
+	duid	= duid_LL_nut;
+}
+Opt_DHCPv6_SID opt_SID_LLT_server1 {
+	duid	= duid_LLT_server1;
+}
+Opt_DHCPv6_SID opt_SID_LL_server1 {
+	duid	= duid_LL_server1;
+}
+Opt_DHCPv6_SID opt_SID_LLT_server2 {
+	duid	= duid_LLT_server2;
+}
+Opt_DHCPv6_SID opt_SID_LL_server2 {
+	duid	= duid_LL_server2;
+}	
+Opt_DHCPv6_SID opt_SID_EN {
+	duid	= duid_EN;
+}
+Opt_DHCPv6_SID opt_SID_LLT_invalid_server1 {
+	duid	= duid_LLT_invalid_server1;
+}
+//================================================================
+// IA_NA (Identity Association for Non-temporary Addresses Option)
+//
+Opt_DHCPv6_IA_NA opt_IA_NA {
+	Identifier	= IA_NA_IDENTIFIER;
+	Time1 = IA_NA_TIME1;
+	Time2 = IA_NA_TIME2;
+}
+Opt_DHCPv6_IA_NA opt_IA_NA_wStatus {
+	Identifier	= IA_NA_IDENTIFIER;
+	Time1 = IA_NA_TIME1;
+	Time2 = IA_NA_TIME2;
+	option	= opt_StatusCode;
+}
+Opt_DHCPv6_IA_NA opt_IA_NA1 {
+	Identifier	= IA_NA_IDENTIFIER1;
+	Time1 = IA_NA_TIME1;
+	Time2 = IA_NA_TIME2;
+}
+Opt_DHCPv6_IA_NA opt_IA_NA_Addr {
+	Identifier	= IA_NA_IDENTIFIER;
+	Time1 = IA_NA_TIME1;
+	Time2 = IA_NA_TIME2;
+	option	= opt_IA_Address;
+}
+Opt_DHCPv6_IA_NA opt_IA_NA_Addr_Relay {
+	Identifier	= IA_NA_IDENTIFIER;
+	Time1 = IA_NA_TIME1;
+	Time2 = IA_NA_TIME2;
+	option	= opt_IA_Address_4;
+}
+Opt_DHCPv6_IA_NA opt_IA_NA_Addr_Relay_confirm {
+	Identifier	= IA_NA_IDENTIFIER;
+	Time1 = 0;
+	Time2 = 0;
+	option	= opt_IA_Address_4_confirm;
+}
+Opt_DHCPv6_IA_NA opt_IA_NA_Addr_Relay_wStatus {
+	Identifier	= IA_NA_IDENTIFIER;
+	Time1 = IA_NA_TIME1;
+	Time2 = IA_NA_TIME2;
+	option	= opt_IA_Address_4_wStatus;
+}
+Opt_DHCPv6_IA_NA opt_IA_NA_Addr_woStatus {
+	Identifier	= IA_NA_IDENTIFIER;
+	Time1 = IA_NA_TIME1;
+	Time2 = IA_NA_TIME2;
+	option	= opt_IA_Address_woStatus;
+}
+Opt_DHCPv6_IA_NA opt_IA_NA_Addr_wStatus {
+	Identifier	= IA_NA_IDENTIFIER;
+	Time1 = IA_NA_TIME1;
+	Time2 = IA_NA_TIME2;
+	option	= opt_IA_Address_wStatus;
+}
+Opt_DHCPv6_IA_NA  opt_IA_NA_Addr_woStatus_1{
+	Identifier	= IA_NA_IDENTIFIER;
+	Time1 = IA_NA_TIME1;
+	Time2 = IA_NA_TIME2;
+	option	= opt_IA_Address_woStatus_1;
+}
+Opt_DHCPv6_IA_NA opt_IA_NA_StatusOnly {
+	Identifier	= IA_NA_IDENTIFIER;
+	Time1 = IA_NA_TIME1;
+	Time2 = IA_NA_TIME2;
+	option	= opt_StatusCode;
+}
+Opt_DHCPv6_IA_NA opt_IA_NA_Addr_2{
+	Identifier      = IA_NA_IDENTIFIER_2;
+        Time1 = IA_NA_TIME1;
+        Time2 = IA_NA_TIME2;
+        option  = opt_IA_Address_2;
+}
+
+Opt_DHCPv6_IA_NA opt_IA_NA_StatusOnly_1{
+	Identifier = IA_NA_IDENTIFIER_1;
+	Time1 = IA_NA_TIME1;
+	Time2 = IA_NA_TIME2;
+	option  = opt_StatusCode_1;
+}
+Opt_DHCPv6_IA_NA opt_IA_NA_StatusOnly_2{
+	Identifier = IA_NA_IDENTIFIER_2;
+	Time1 = IA_NA_TIME1;
+	Time2 = IA_NA_TIME2;
+        option  = opt_StatusCode_2;
+}
+Opt_DHCPv6_IA_NA opt_IA_NA_Addr_2IAAddr {
+	Identifier = IA_NA_IDENTIFIER;
+	Time1 = IA_NA_TIME1;
+	Time2 = IA_NA_TIME2;
+	option	= opt_IA_Address;
+	option  = opt_IA_Address_2;
+}
+
+//================================================================
+// IA_TA (Identity Association for Temporary Addresses Option)
+//
+Opt_DHCPv6_IA_TA opt_IA_TA {
+	Identifier	= IA_TA_IDENTIFIER;
+}
+Opt_DHCPv6_IA_TA opt_IA_TA_Addr {
+	Identifier	= IA_TA_IDENTIFIER;
+	option	= opt_IA_Address;
+}
+Opt_DHCPv6_IA_TA opt_IA_TA_Addr_woStatus {
+	Identifier	= IA_TA_IDENTIFIER;
+	option	= opt_IA_Address_woStatus_1;
+}
+//================================================================
+// IA_PD (Identity Association for PD Option)
+//
+Opt_DHCPv6_IA_PD opt_IA_PD {
+	Identifier	= IA_PD_IDENTIFIER;
+        Time1 = IA_PD_TIME1;
+        Time2 = IA_PD_TIME2;
+//	option	= opt_IA_Address;
+}
+
+Opt_DHCPv6_IA_PD opt_IA_PD1 {
+        Identifier      = IA_PD_IDENTIFIER_1;
+        Time1 = IA_PD_TIME1;
+        Time2 = IA_PD_TIME2;
+	//option = opt_IA_Prefix_1;
+}
+
+Opt_DHCPv6_IA_PD opt_IA_PD2 {
+        Identifier      = IA_PD_IDENTIFIER_2;
+        Time1 = IA_PD_TIME1;
+        Time2 = IA_PD_TIME2;
+	//option = opt_IA_Prefix_2;
+}
+
+Opt_DHCPv6_IA_PD opt_IA_PD_Prefix {
+        Time1 = IA_PD_TIME1;
+        Time2 = IA_PD_TIME2;
+	Identifier	= IA_PD_IDENTIFIER;
+	option	= opt_IA_Prefix;
+}
+Opt_DHCPv6_IA_PD opt_IA_PD_Prefix2 {
+        Time1 = IA_PD_TIME3;
+        Time2 = IA_PD_TIME4;
+//      Identifier      = IA_PD_IDENTIFIER_2;
+        Identifier      = IA_PD_IDENTIFIER;
+        option  = opt_IA_Delegate_Prefix;
+}
+
+Opt_DHCPv6_IA_PD opt_IA_PD_Prefix3 {
+        Time1 = IA_PD_TIME3;
+        Time2 = IA_PD_TIME4;
+//	Identifier      = IA_PD_IDENTIFIER_3;
+        Identifier      = IA_PD_IDENTIFIER;
+        option  = opt_IA_Delegate_Prefix;
+}
+
+Opt_DHCPv6_IA_PD opt_IA_PD_Prefix4 {
+        Time1 = IA_PD_TIME3;
+        Time2 = IA_PD_TIME4;
+        Identifier      = IA_PD_IDENTIFIER_4;
+        option  = opt_IA_Delegate_Prefix;
+}
+
+Opt_DHCPv6_IA_PD opt_IA_PD_Prefix_Multi {
+        Time1 = IA_PD_TIME3;
+        Time2 = IA_PD_TIME4;
+        Identifier      = IA_PD_IDENTIFIER_4;
+        option  = opt_IA_Delegate_Prefix_Multi;
+}
+
+Opt_DHCPv6_IA_PD opt_IA_PD_Prefix_invalid {
+        Time1 = IA_PD_TIME3;
+        Time2 = IA_PD_TIME4;
+//      Identifier      = IA_PD_IDENTIFIER_2;
+        Identifier      = IA_PD_IDENTIFIER;
+        option  = opt_IA_Delegate_Prefix_2;
+}
+Opt_DHCPv6_IA_PD opt_IA_PD_Prefix_Rebind {
+        Time1 = IA_PD_TIME1;
+        Time2 = IA_PD_TIME2;
+        Identifier      = IA_PD_IDENTIFIER;
+        option  = opt_IA_Prefix_Rebind;
+}
+
+Opt_DHCPv6_IA_PD opt_IA_PD_config {
+	Time1 = IA_PD_TIME1;
+	Time2 = IA_PD_TIME2;
+	Identifier = IA_PD_IDENTIFIER;
+	option = opt_IA_Prefix_status;
+}
+Opt_DHCPv6_IA_PD opt_IA_PD_NoAvail {
+	option = opt_Prefix_StatusCode;
+}
+Opt_DHCPv6_IA_PD opt_IA_PD_NoAvail_2 {
+        option = opt_Prefix_StatusCode_2;
+}
+Opt_DHCPv6_IA_PD opt_IA_PD_StatusOnly {
+        Identifier      = IA_PD_IDENTIFIER;
+        Time1 = IA_PD_TIME3;
+        Time2 = IA_PD_TIME4;
+        //option  = opt_StatusCode;
+        option  = opt_Prefix_StatusCode;
+}
+
+Opt_DHCPv6_IA_PD opt_IA_PD_Status {
+	Identifier = IA_PD_IDENTIFIER;
+	option = opt_StatusCode;
+}
+Opt_DHCPv6_IA_PD opt_IA_PD_Prefix_woStatus {
+        Identifier      = IA_PD_IDENTIFIER;
+        Time1 = IA_PD_TIME3;
+        Time2 = IA_PD_TIME4;
+        option  = opt_IA_Prefix_woStatus;
+}
+
+Opt_DHCPv6_IA_PD opt_IA_PD_Prefix_noPrefix {
+        Identifier      = IA_PD_IDENTIFIER;
+        Time1 = IA_PD_TIME3;
+        Time2 = IA_PD_TIME4;
+//        option  = opt_IA_Prefix_woStatus;
+}
+
+Opt_DHCPv6_IA_PD opt_IA_PD_2Prefix {
+	Time1 = IA_PD_TIME3;
+	Time2 = IA_PD_TIME4;
+	Identifier = IA_PD_IDENTIFIER;
+//	option = opt_IA_Prefix_1;
+//	option = opt_IA_Prefix_2;
+	option  = opt_IA_Delegate_Prefix;
+	option  = opt_IA_Delegate_Prefix_2;
+}
+
+Opt_DHCPv6_IA_PD opt_IA_PD_2Prefix_PV {
+	Time1 = IA_PD_TIME3;
+	Time2 = IA_PD_TIME4;
+	Identifier = IA_PD_IDENTIFIER;
+	option  = opt_IA_Delegate_Prefix;
+	option  = opt_IA_Delegate_Prefix_2_PV;
+}
+
+Opt_DHCPv6_IA_Prefix opt_IA_Prefix {
+	PreferredLifetime = IA_PREFIX_PLTIME;
+	ValidLifetime = IA_PREFIX_VLTIME;
+	PrefixLength = 64;
+//	Prefix	= v6("3ffe:501:ffff:100::");
+//	Prefix	= v6("3ffe:501:ffff:101::");
+//	Prefix	= v6("3ffe:501:ffff:200::");
+//	Prefix	= v6("3ffe:501:ffff:300::");
+//	Prefix	= v6("2001:db8:1111::");
+	Prefix  = IA_PREFIX_PREFIX_5;
+//	option	= opt_ElapsedTime;
+}
+
+Opt_DHCPv6_IA_Prefix opt_IA_Delegate_Prefix {
+        PreferredLifetime = IA_PREFIX_PLTIME;
+        ValidLifetime = IA_PREFIX_VLTIME;
+        PrefixLength = 48;
+        Prefix  = IA_PREFIX_DELEGATE_PREFIX;
+//      option  = opt_ElapsedTime;
+}
+
+Opt_DHCPv6_IA_Prefix opt_IA_Delegate_Prefix_2 {
+        PreferredLifetime = IA_PREFIX_PLTIME;
+        ValidLifetime = IA_PREFIX_VLTIME;
+        PrefixLength = 48;
+        Prefix  = IA_PREFIX_DELEGATE_PREFIX_2;
+//      option  = opt_ElapsedTime;
+}
+
+Opt_DHCPv6_IA_Prefix opt_IA_Delegate_Prefix_2_PV {
+        PreferredLifetime = IA_PREFIX_2nd_PLTIME;
+        ValidLifetime = IA_PREFIX_2nd_VLTIME;
+        PrefixLength = 48;
+        Prefix  = IA_PREFIX_DELEGATE_PREFIX_2;
+}
+
+Opt_DHCPv6_IA_Prefix opt_IA_Delegate_Prefix_Multi {
+        PreferredLifetime = IA_PREFIX_PLTIME;
+        ValidLifetime = IA_PREFIX_VLTIME;
+        PrefixLength = 48;
+        Prefix  = IA_PREFIX_DELEGATE_PREFIX_MULTI;
+//      option  = opt_ElapsedTime;
+}
+
+Opt_DHCPv6_IA_Prefix opt_IA_Prefix_Rebind {
+        PreferredLifetime = IA_PREFIX_PLTIME;
+        ValidLifetime = IA_PREFIX_VLTIME;
+        PrefixLength = 48;
+//      Prefix  = v6("3ffe:501:ffff:100::");
+//      Prefix  = v6("3ffe:501:ffff:101::");
+//      Prefix  = v6("3ffe:501:ffff:200::");
+        Prefix  = IA_PREFIX_DELEGATE_PREFIX;
+//      option  = opt_ElapsedTime;
+}
+
+Opt_DHCPv6_IA_Prefix opt_IA_Prefix_status{
+	PreferredLifetime = IA_PREFIX_PLTIME;
+	ValidLifetime = IA_PREFIX_VLTIME;
+	PrefixLength = IA_PREFIX_LEN;
+	Prefix = IA_PREFIX_PREFIX;
+	option = opt_Prefix_StatusCode;
+}
+
+Opt_DHCPv6_IA_Prefix opt_IA_Prefix_NoAvail{
+	//PreferredLifetime = IA_PREFIX_PLTIME;
+	//ValidLifetime = IA_PREFIX_VLTIME;
+	//PrefixLength = IA_PREFIX_LEN;
+	//Prefix = IA_PREFIX_PREFIX;
+	option = opt_Prefix_StatusCode;
+}
+Opt_DHCPv6_IA_Prefix opt_IA_Prefix_1{
+	PreferredLifetime = IA_PREFIX_PLTIME;
+	ValidLifetime = IA_PREFIX_VLTIME;
+	PrefixLength = IA_PREFIX_LEN;
+	Prefix = IA_PREFIX_PREFIX_1;
+	option = opt_Prefix_StatusCode;
+}
+Opt_DHCPv6_IA_Prefix opt_IA_Prefix_2{
+	PreferredLifetime = IA_PREFIX_PLTIME;
+	ValidLifetime = IA_PREFIX_VLTIME;
+	PrefixLength = IA_PREFIX_LEN;
+	Prefix = IA_PREFIX_PREFIX_2;
+	option = opt_Prefix_StatusCode;
+}
+Opt_DHCPv6_IA_Prefix opt_IA_Prefix_woStatus {
+        Prefix = IA_PREFIX_DELEGATE_PREFIX_2;
+        PreferredLifetime = IA_PREFIX_PLTIME;
+        ValidLifetime = IA_PREFIX_VLTIME;
+	//option  = opt_StatusCode;
+}
+
+//================================================================
+// IA Address option
+//
+Opt_DHCPv6_IA_Address opt_IA_Address {
+	Address	= IA_ADDR_ADDR;
+	PreferredLifetime = IA_ADDR_PLTIME;
+	ValidLifetime = IA_ADDR_VLTIME;
+	option	= opt_StatusCode;
+}
+//================================================================
+// IA Address option
+//
+
+Opt_DHCPv6_IA_Address opt_IA_Address_4{
+	Address	= IA_ADDR_ADDR_4;
+	PreferredLifetime = IA_ADDR_PLTIME;
+	ValidLifetime = IA_ADDR_VLTIME;
+}
+Opt_DHCPv6_IA_Address opt_IA_Address_4_confirm{
+	Address	= IA_ADDR_ADDR_4;
+	PreferredLifetime = 0;
+	ValidLifetime = 0;
+}
+Opt_DHCPv6_IA_Address opt_IA_Address_4_wStatus{
+	Address	= IA_ADDR_ADDR_4;
+	PreferredLifetime = IA_ADDR_PLTIME;
+	ValidLifetime = IA_ADDR_VLTIME;
+	option	= opt_StatusCode;
+}
+Opt_DHCPv6_IA_Address opt_IA_Address_2{
+	Address	= IA_ADDR_ADDR_2;
+	PreferredLifetime = IA_ADDR_PLTIME;
+	ValidLifetime = IA_ADDR_VLTIME;
+	option = opt_StatusCode_2;
+}
+Opt_DHCPv6_IA_Address opt_IA_Address_woStatus {
+	Address	= IA_ADDR_ADDR;
+	PreferredLifetime = IA_ADDR_PLTIME;
+	ValidLifetime = IA_ADDR_VLTIME;
+}
+Opt_DHCPv6_IA_Address opt_IA_Address_wStatus {
+	Address	= IA_ADDR_ADDR;
+	PreferredLifetime = IA_ADDR_PLTIME;
+	ValidLifetime = IA_ADDR_VLTIME;
+	option = opt_StatusCode;
+}
+Opt_DHCPv6_IA_Address opt_IA_Address_woStatus_1 {
+	Address	= NUT_GLOBAL_UCAST;
+	PreferredLifetime = IA_ADDR_PLTIME;
+	ValidLifetime = IA_ADDR_VLTIME;
+}
+
+
+//================================================================
+// Option Request option
+//
+Opt_DHCPv6_OptionRequest opt_All_ORO {
+	//OptionCode	= 0; 
+	//OptionCode	= OPTION_CLIENTID;
+	//OptionCode	= OPTION_SERVERID;
+	//OptionCode	= OPTION_IA_NA;
+	//OptionCode	= OPTION_IA_TA;
+	//OptionCode	= OPTION_IAADDR;
+	//OptionCode	= OPTION_ORO;
+	OptionCode	= OPTION_PREFERENCE;
+	//OptionCode	= OPTION_ELAPSED_TIME;
+	//OptionCode	= OPTION_RELAY_MSG;
+	//OptionCode	= OPTION_AUTH;
+	//OptionCode	= OPTION_UNICAST;
+	//OptionCode	= OPTION_STATUS_CODE;
+	//OptionCode	= OPTION_RAPID_COMMIT;
+	//OptionCode	= OPTION_USER_CLASS;
+	//OptionCode	= OPTION_VENDOR_CLASS;
+	//OptionCode	= OPTION_VENDOR_OPTS;
+	//OptionCode	= OPTION_INTERFACE_ID;
+	//OptionCode	= OPTION_RECONF_MSG;
+	//OptionCode	= OPTION_RECONF_ACCEPT;
+    OptionCode  = OPTION_DNS_SERVERS;
+}
+Opt_DHCPv6_OptionRequest opt_ORO_pref_unicast {
+	OptionCode	= OPTION_PREFERENCE;
+    OptionCode  = OPTION_UNICAST;
+}
+
+Opt_DHCPv6_OptionRequest opt_ORO_dns_servers {
+    OptionCode  = OPTION_DNS_SERVERS;
+}
+
+//for stateless test items
+Opt_DHCPv6_OptionRequest opt_ORO_dns_servers_statuscode {
+    OptionCode  = OPTION_DNS_SERVERS;
+    OptionCode  = OPTION_STATUS_CODE;
+}
+
+Opt_DHCPv6_OptionRequest opt_ORO_sip {
+    OptionCode  = OPTION_SIP_SERVER_D;
+    OptionCode  = OPTION_SIP_SERVER_A;
+}
+
+Opt_DHCPv6_OptionRequest opt_ORO_dns_servers_domainlists {
+    OptionCode  = OPTION_DNS_SERVERS;
+    OptionCode  = OPTION_DNS_DOMAIN_LIST;
+}
+
+Opt_DHCPv6_OptionRequest opt_ORO_dns_domainlists {
+    OptionCode  = OPTION_DNS_DOMAIN_LIST;
+}
+
+Opt_DHCPv6_OptionRequest opt_ORO_pref_dns {
+	OptionCode	= OPTION_PREFERENCE;
+    OptionCode  = OPTION_DNS_SERVERS;
+}
+
+Opt_DHCPv6_OptionRequest opt_ORO_pref {
+	OptionCode	= OPTION_PREFERENCE;
+}
+
+Opt_DHCPv6_OptionRequest opt_Solicit_ORO {
+	OptionCode	=OPTION_IA_NA;
+}
+Opt_DHCPv6_OptionRequest opt_OptionRequest_IA_NA {
+	OptionCode	=OPTION_IA_NA;
+}
+Opt_DHCPv6_OptionRequest opt_OptionRequest_IA_TA {
+	OptionCode	= OPTION_IA_TA;
+}
+Opt_DHCPv6_OptionRequest opt_OptionRequest_IA_PD {
+	OptionCode	= OPTION_IA_PD;
+}
+Opt_DHCPv6_OptionRequest opt_OptionRequest_Unicast {
+	OptionCode	= OPTION_UNICAST;
+}
+//================================================================
+// Preference option
+//
+Opt_DHCPv6_Preference opt_Preference {
+	Preference = PREFERENCE;
+}
+//================================================================
+// Elapsed Time option
+//
+Opt_DHCPv6_ElapsedTime opt_ElapsedTime {}
+
+Opt_DHCPv6_ElapsedTime opt_ElapsedTime_update {
+         Time = ELAPSED_TIME_UPDATE; 
+}
+
+//================================================================
+// Relay Message option
+//
+//Opt_DHCPv6_RelayMessage opt_RelayMessage {
+//	relay	= _UDP_DHCPV6_NAME(Advertise);
+//}
+Opt_DHCPv6_RelayMessage opt_RelayMessage1 {
+}
+//================================================================
+// Authentication option
+//
+
+#ifndef AUTH_PROTO
+#define AUTH_PROTO 2	// 2: Delayed Authentication, 3: Reconfigure Key Authentication
+#endif
+
+#ifndef AUTH_ALGO
+#define AUTH_ALGO 1	// 1: HMAC-MD5
+#endif
+
+#ifndef AUTH_RDM
+#define AUTH_RDM 0	// 0: Replay detection field is set to 
+			//    the value of a monotonically increasing counter
+#endif
+
+#ifndef AUTH_COUNTER
+#define AUTH_COUNTER repeat(0x00, 8) // 0: means Solicit message
+#endif
+
+
+#ifndef AUTH_KEY_VALUE
+#define AUTH_KEY_VALUE "TAHITEST89ABCDEF"
+#endif
+
+#ifdef NO_AUTH_INFO 
+
+#ifdef AUTH_INVALID_RDM_LENGTH
+Opt_DHCPv6_Authentication opt_Auth {
+	Protocol	= AUTH_PROTO;
+	Length		= AUTH_INVALID_RDM_LENGTH;
+	Algorithm	= AUTH_ALGO;
+	RDM		= AUTH_RDM;
+	ReplayDetection	= AUTH_COUNTER;
+	auth		= no_auth;
+}
+#else // !AUTH_INVALID_RDM_LENGTH
+Opt_DHCPv6_Authentication opt_Auth {
+	Protocol	= AUTH_PROTO;
+	Algorithm	= AUTH_ALGO;
+	RDM		= AUTH_RDM;
+	ReplayDetection	= AUTH_COUNTER;
+	auth		= no_auth;
+}
+#endif // AUTH_INVALID_RDM_LENGTH
+
+DHCPv6_Auth_ANY no_auth {
+}
+
+#else //!NO_AUTH_INFO
+
+#ifndef AUTH_REALM
+#define AUTH_REALM repeat(0x11, 16)
+#endif
+
+#ifndef AUTH_KEY_ID 
+#define AUTH_KEY_ID 1
+#endif
+
+#ifndef AUTH_INFO
+#define AUTH_INFO auth_delayed  // auth_delayed: Delayed Authentication, 
+				// auth_type_key: Reconfigure Key Authentication to send Key for a client 
+				// auth_type_hmac: Reconfigure Key Message to provice autheticaion 
+				// for a Reconfigura message  
+#endif
+
+Opt_DHCPv6_Authentication opt_Auth {
+	Protocol	= AUTH_PROTO;
+	Algorithm	= AUTH_ALGO;
+	RDM		= AUTH_RDM;
+	ReplayDetection	= AUTH_COUNTER;
+	auth		= AUTH_INFO;
+}
+
+DHCPv6_Auth_ANY auth_any {
+}
+
+DHCPv6_Auth_Delayed auth_delayed {
+	Realm           = AUTH_REALM;
+	Identifier      = AUTH_KEY_ID;
+	Authenticator   = dhcpauth(AUTH_KEY_VALUE);
+}
+
+DHCPv6_Auth_ReconfigureKey auth_type_key {
+	Type    = 1;
+	data    = ascii(AUTH_KEY_VALUE, 16);
+}
+
+DHCPv6_Auth_ReconfigureKey auth_type_hmac {
+	Type    = 2;
+	data    = dhcpauth(AUTH_KEY_VALUE);
+}
+
+#endif //NO_AUTH_INFO
+
+//================================================================
+// Server unicast option
+//
+Opt_DHCPv6_ServerUnicast opt_ServerUnicast {
+	Address	= NUT_LLOCAL_UCAST;
+}
+Opt_DHCPv6_ServerUnicast opt_gaServerUnicast {
+	Address = SERVER1_GLOBAL_UCAST;
+}
+Opt_DHCPv6_ServerUnicast opt_laServerUnicast {
+	Address = SERVER1_LLOCAL_UCAST;
+}
+
+//================================================================
+// Status Code Option
+//
+Opt_DHCPv6_StatusCode opt_StatusCode {
+	StatusCode = IA_STATUSCODE;
+	Message	= repeat(0x00, 2);
+}
+
+Opt_DHCPv6_StatusCode opt_StatusCode_1 {
+	StatusCode = IA_STATUSCODE_1;
+	Message	= repeat(0x00, 2);
+}
+
+Opt_DHCPv6_StatusCode opt_StatusCode_2 {
+	StatusCode = IA_STATUSCODE_2;
+	Message	= repeat(0x00, 2);
+}
+Opt_DHCPv6_StatusCode opt_Prefix_StatusCode {
+	StatusCode = IA_PREFIX_STATUSCODE;
+	Message = repeat(0x00, 2);
+}
+Opt_DHCPv6_StatusCode opt_Prefix_StatusCode_2 {
+        StatusCode = IA_PREFIX_STATUSCODE_2;
+        Message = repeat(0x00, 2);
+}
+
+
+//================================================================
+// Rapid Commit option
+//
+Opt_DHCPv6_RapidCommit opt_RapidCommit {}
+//================================================================
+// User Class option
+//
+Opt_DHCPv6_UserClass opt_UserClass {
+	data	= user_class_data0;
+	data	= user_class_data1;
+	data	= user_class_data2;
+}
+DHCPv6_UserClassData user_class_data0 {}
+DHCPv6_UserClassData user_class_data1 {
+	data	= repeat(0x08, 8);
+}
+DHCPv6_UserClassData user_class_data2 {
+	data	= repeat(0x16, 16);
+}
+//================================================================
+// Vendor Class Option
+//
+Opt_DHCPv6_VendorClass opt_VendorClass {
+	data	= vendor_class_data0;
+	data	= vendor_class_data1;
+	data	= vendor_class_data2;
+}
+DHCPv6_VendorClassData vendor_class_data0 {}
+DHCPv6_VendorClassData vendor_class_data1 {
+	data	= repeat(0x08, 8);
+}
+DHCPv6_VendorClassData vendor_class_data2 {
+	data	= repeat(0x16, 16);
+}
+//================================================================
+// Vendor-specific Information option
+//
+Opt_DHCPv6_VendorSpecificInfo opt_VendorSpecificInfo {
+	data	= option_data0;
+	data	= option_data1;
+	data	= option_data2;
+}
+DHCPv6_OptionData option_data0 {}
+DHCPv6_OptionData option_data1 {
+	data	= repeat(0x08, 8);
+}
+DHCPv6_OptionData option_data2 {
+	data	= repeat(0x16, 16);
+}
+
+//================================================================
+// Interface-Id Option
+//
+Opt_DHCPv6_IID opt_IID {
+	Identifier	= IID_IDENTIFIER;
+}
+//================================================================
+// Reconfigure Message option
+//
+Opt_DHCPv6_ReconfigureMessage opt_ReconfigureMessage {
+	Type            = RECONFIGURE_TYPE;
+}
+//================================================================
+// Reconfigure Accept option
+//
+Opt_DHCPv6_ReconfigureAccept opt_ReconfigureAccept {
+
+}
+//================================================================
+// DNS Severs option
+//
+Opt_DHCPv6_DNS_Servers opt_DNS_Server {
+	Address	= DNS_SVR1_GLOBAL_UCAST;
+	Address	= DNS_SVR2_GLOBAL_UCAST;
+}
+Opt_DHCPv6_DNS_Servers opt_DNS_Server1 {
+	Address = v6("3ffe:ffff::1234");
+}
+
+Opt_DHCPv6_DNS_Servers opt_DNS_Name_Server1{
+//	Address = SERVER1_GLOBAL_UCAST;
+	Address = DNS_SVR1_GLOBAL_UCAST;
+}
+
+Opt_DHCPv6_DNS_Servers opt_DNS_Name_Server2{
+//	Address = SERVER1_GLOBAL_UCAST;
+	Address = DNS_SVR2_GLOBAL_UCAST;
+}
+//================================================================
+// DNS Domain search list option
+//
+Opt_DHCPv6_DNS_SearchList opt_DNS_ServerSearchList {
+	SearchString = hexstr(DNS_DOMAIN_SEARCHLIST_STR2);
+}
+
+Opt_DHCPv6_DNS_SearchList opt_DNS_ServerSearchList_2 {
+        SearchString = hexstr(DNS_DOMAIN_SEARCHLIST_STR);
+}
+
+//================================================================
+
+#ifdef PD_TROAN
+//
+// Prefix Delegation Option
+//
+////////////////////////////////
+
+Opt_DHCPv6_PrefixDelegation opt_PrefixDelegation {
+	option	= opt_PrefixInformation;
+}
+
+//
+// Prefix Information option
+//
+////////////////////////////////
+
+Opt_DHCPv6_PrefixInformation opt_PrefixInformation {
+	Prefix	= v6("3ffe::7");
+}
+
+//
+// Prefix Request option
+//
+////////////////////////////////
+
+Opt_DHCPv6_PrefixRequest opt_PrefixRequest {}
+#else
+
+/*
+//
+// IA_PD Prefix option
+//
+////////////////////////////////
+
+Opt_DHCPv6_IA_PD opt_IA_PD {
+	Time1	= IA_PD_TIME1;
+	Time2	= IA_PD_TIME2;
+	option	= opt_IA_Prefix;
+}
+
+//
+// IA_PD Prefix option
+//
+////////////////////////////////
+
+Opt_DHCPv6_IA_Prefix opt_IA_Prefix {
+	Prefix	= v6("3ffe::7");
+	option	= opt_ElapsedTime;
+}
+*/
+#endif
+

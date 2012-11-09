@@ -1,0 +1,281 @@
+#!/usr/bin/perl
+#
+# Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009
+# Yokogawa Electric Corporation.
+# All rights reserved.
+# 
+# Redistribution and use of this software in source and binary
+# forms, with or without modification, are permitted provided that
+# the following conditions and disclaimer are agreed and accepted
+# by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in
+#    the documentation and/or other materials provided with
+#    the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project
+#    which is related to this software (hereinafter referred to as
+#    "project") nor the names of the contributors may be used to
+#    endorse or promote products derived from this software without
+#    specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written
+#    notification to the copyrighters.
+# 
+# 5. The copyrighters, the project and the contributors may prohibit
+#    the use of this software at any time.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+# STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+# IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+# $TAHI: dhcpv6.p2/rfc3736/R_RFC3736_MCastAddrHopLimit.seq,v 1.5 2009/12/03 06:03:51 akisada Exp $
+########################################################################
+BEGIN { $V6evalTool::TestVersion = '$Name: T_DHCPv6_Self_Test_P2_1_1_4 $';
+}
+
+use strict;
+use V6evalTool;
+
+use lib '../.';
+use DHCPv6_common;
+use Server_pktdesc;
+
+my $type=$V6evalTool::NutDef{Type};
+if($type eq 'host') {
+	vLogHTML('<FONT COLOR="#FF0000">This test does not support Host!</FONT>');
+	exit $V6evalTool::exitRouterOnly;
+}
+
+dhcpExitNS if(ChkFuncSupport('STATELESSDHCP'));
+dhcpExitNS if(ChkFuncSupport('DNS'));
+
+#--------------------------------------------------------------#
+# Initialization
+#--------------------------------------------------------------#
+
+vLogHTML('<B>==== NUT Initialization ====</B><BR>');
+my $IF0 = "Link0";
+my $IF1 = "Link1";
+
+my %NUT_Relay_Config = (
+	'if_nut0'=> "$V6evalTool::NutDef{Link0_device}",
+	'if_nut1' => "$V6evalTool::NutDef{Link1_device}",
+#	'if_add0' => "$NUTRELAY1_LINK0_GLOBAL_UCAST",
+#	'if_add1' => "$NUTRELAY1_LINK1_GLOBAL_UCAST",
+#	'if_length0' => "64",
+#	'if_length1' => "64",
+#	'if_type0'=> "unicast",
+#	'if_type1'=> "unicast",
+	'init_opcode' => "vRemote(\"dhcp6r.rmt\", \"start\",\"link0=$V6evalTool::NutDef{Link0_device}\",\"link1=$V6evalTool::NutDef{Link1_device}\",\"servermulticast\",\"clientmulticast\")"
+);
+
+dhcpRelayInit(\%NUT_Relay_Config);
+
+# set Options
+$CID_OPTION = "opt_CID_LLT_client1";
+$ElapsedTime_OPTION = "opt_ElapsedTime";
+$OptionRequest_OPTION = "opt_ORO_dns_servers";
+my ($ret1, %ireq1) = send_information_request($IF1, "information_request_client1_to_alldhcp", undef, undef);
+dhcpExitFail if(0 != $ret1);
+
+
+# Receive the Relay_Forward message(Information-request)
+my($ret2, %rfireq2) = wait_for_relay_forward($IF0,5,"relayforward_infomationrequest_client1_to_alldhcp_with_optreqopt");
+if (0 != $ret2){
+	dhcpExitFail();
+} 
+
+#modified judgement
+my $base = "Frame_Ether.Packet_IPv6.Upp_UDP.Udp_DHCPv6_RelayForward.Opt_DHCPv6_RelayMessage";
+my $base_oro = "$base"."."."Udp_DHCPv6_InformationRequest.Opt_DHCPv6_OptionRequest.OptionCode";
+if (23 != ($rfireq2{$base_oro})) {
+        dhcpExitError("<B>NG: The required option is not exist.</B>");
+}
+
+#-------------------------------------------------------------------
+vLogHTML("<B><FONT COLOR=#006666> Option Request Option's option code is correct</FONT></B><BR>");
+#-------------------------------------------------------------------
+
+
+#Check the Multicast address
+if("ff05::1:3" ne $rfireq2{"Frame_Ether.Packet_IPv6.Hdr_IPv6.DestinationAddress"}){
+	dhcpExitError("NG: The Destination Port used by the Relay-forwad Message is not valid!");
+}
+
+
+#-------------------------------------------------------------------
+vLogHTML("<B><FONT COLOR=#006666>The Multicast address used by Relay-forward message is correct</FONT></B><BR>");
+#-------------------------------------------------------------------
+
+
+ #Check the HopLimit = 32 & hopcount = 0;(default);
+if(0 != (ckRelayMsgHopLimit(\%rfireq2,32))){
+	dhcpExitFail;
+}
+
+#-------------------------------------------------------------------
+vLogHTML("<B><FONT COLOR=#006666>The HopLimit is correct</FONT></B><BR>");
+#-------------------------------------------------------------------
+
+#-------------------------------------------------------------------
+vLogHTML("<B><FONT COLOR=#006666>The Message exchange is correct</FONT></B><BR>");
+#-------------------------------------------------------------------
+dhcpExitPass();
+#NOTREACHED
+
+########################################################################
+__END__
+
+=head1 NAME
+
+  R_RFC3736_MCastAddrHopLimit.seq - Multicast Address and Hop Limit
+
+
+
+=head1 TARGET
+
+  Relay agent
+
+=head1 SYNOPSIS
+
+=begin html
+ <PRE>
+ <A HREF="./R_RFC3736_MCastAddrHopLimit.seq">R_RFC3736_MCastAddrHopLimit.seq </A>[-tooloption ...]
+ -pkt <A HREF="./R_RFC3736_MCastAddrHopLimit.def">R_RFC3736_MCastAddrHopLimit.def </A>
+ -tooloption: v6eval tool option
+See Also <A HREF="../DHCPv6.def"> DHCPv6.def </A>
+ </PRE>
+
+=head1 INITIALIZATION
+
+=begin html
+  <UL>
+  <LI><STRONG>Network Topology</STRONG></LI>
+  </UL>
+  <PRE>
+                TN(Client1)
+                   |
+Link1 -------------+-------+-------------- 3ffe:501:ffff:101::/64
+                           |
+                         NUT(Relay1)
+                           |
+Link0 ---------------------+---------+--- 3ffe:501:ffff:100::/64
+                                     |
+                                 TN(Server1)
+  </PRE>
+  <UL>
+      <LI><STRONG>Verification Points</STRONG></LI>
+          <UL>          <PRE>
+The default destination address of the Relay-forward Message
+      <LI><B>All_DHCP_Servers(FF05::1:3)</B></LI>
+The default value of Hop Limit field of IPv6 packet
+	<LI><B>32</B></LI><P>
+          </PRE>
+          </UL>
+  </UL>
+  <UL>
+      <LI><STRONG>Configuration</STRONG></LI>
+	<BLOCKQUOTE>
+	<TABLE BORDER>
+	<TR>
+	<TD><TT>Device Name</TT></TD>
+	<TD><TT>Device Type</TT></TD>
+	<TD><TT>I/F</TT></TD>
+	<TD><TT>Assigned Prefix</TT></TD>
+	<TD><TT>Link Local Addr</TT></TD>
+	<TD><TT>MAC Addr</TT></TD>
+	</TR>
+	<TR>
+	<TD><TT>Relay1(Link0)</TT></TD>
+	<TD><TT>NUT</TT></TD>
+	<TD><TT>Link0</TT></TD>
+	<TD><TT>3ffe:501:ffff:100::/64</TT></TD>
+	<TD><TT>NUT's Linklocal address(Link0)</TT></TD>
+	<TD><TT>NUT's MAC address(Link0)</TT></TD>
+	</TR>
+	<TR>
+	<TD><TT>Relay1(Link1)</TT></TD>
+	<TD><TT>NUT</TT></TD>
+	<TD><TT>Link1</TT></TD>
+	<TD><TT>3ffe:501:ffff:101::/64</TT></TD>
+	<TD><TT>NUT's Linklocal address(Link1)</TT></TD>
+	<TD><TT>NUT's MAC address(Link1)</TT></TD>
+	</TR>
+	<TR>
+	<TD><TT>Server1</TT></TD>
+	<TD><TT>TN</TT></TD>
+	<TD><TT>Link0</TT></TD>
+	<TD><TT>3ffe:501:ffff:100::/64</TT></TD>
+	<TD><TT>fe80::200:ff:fe00:a1a1</TT></TD>
+	<TD><TT>00:00:00:00:a1:a1</TT></TD>
+	</TR>
+	<TR>
+	<TD><TT>Client1</TT></TD>
+	<TD><TT>TN</TT></TD>
+	<TD><TT>Link1</TT></TD>
+	<TD><TT>3ffe:501:ffff:101::/64</TT></TD>
+	<TD><TT>fe80::200:ff:fe00:a2a2</TT></TD>
+	<TD><TT>00:00:00:00:a2:a2</TT></TD>
+	</TR>
+	</TABLE>
+	</BLOCKQUOTE>
+  </UL>
+
+=end html
+
+=head1 TEST PROCEDURE
+
+=begin html
+<PRE>
+   TN(Server1) NUT(Relay1)  TN(Client1)
+        |       |           |
+        |       |           |     initialize NUT (as a stateless DHCPv6 Relay agent)
+        |       | <----     |     Information-request 
+        | <---- |           |     Relay-forward (Information-request)(*1)
+        |       |           |    
+</PRE>
+
+=end html
+
+=head1 JUDGEMENT
+
+<PRE>
+(*1)PASS: Checking the format and destination address of Relay-forward Message.
+TN receives Relay-forwad Message from NUT and IP destination Address is FF02::1:3, Hop Limit is 32.
+</PRE>
+
+=head1 TERMINATION
+
+  N/A
+
+=head1 REFERENCE
+
+=begin html
+<PRE>
+   see also RFC3315
+   5.2. UDP Ports
+   see also RFC3736
+   5.1.  Messages Required for Stateless DHCP Service
+</PRE>
+
+=end html
+
+=head1 SEE ALSO
+
+  perldoc V6evalTool
+
+=cut

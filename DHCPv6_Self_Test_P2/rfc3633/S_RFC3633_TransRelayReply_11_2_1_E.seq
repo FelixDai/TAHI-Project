@@ -1,0 +1,345 @@
+#!/usr/bin/perl
+#
+# Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009
+# Yokogawa Electric Corporation.
+# All rights reserved.
+# 
+# Redistribution and use of this software in source and binary
+# forms, with or without modification, are permitted provided that
+# the following conditions and disclaimer are agreed and accepted
+# by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in
+#    the documentation and/or other materials provided with
+#    the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project
+#    which is related to this software (hereinafter referred to as
+#    "project") nor the names of the contributors may be used to
+#    endorse or promote products derived from this software without
+#    specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written
+#    notification to the copyrighters.
+# 
+# 5. The copyrighters, the project and the contributors may prohibit
+#    the use of this software at any time.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+# STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+# IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+# $TAHI: dhcpv6.p2/rfc3633/S_RFC3633_TransRelayReply_11_2_1_E.seq,v 1.2 2009/12/03 06:03:42 akisada Exp $
+#
+########################################################################
+
+BEGIN { $V6evalTool::TestVersion = '$Name: T_DHCPv6_Self_Test_P2_1_1_4 $';
+}
+
+use strict;
+use V6evalTool;
+
+use lib '../.';
+use DHCPv6_common;
+use Server_pktdesc;
+
+my $type=$V6evalTool::NutDef{Type};
+if($type ne 'router') {
+	vLogHTML('<FONT COLOR="#FF0000">This test does not support Host!</FONT>');
+	exit $V6evalTool::exitRouterOnly;
+}
+
+dhcpExitNS if(ChkFuncSupport('PREFIX_DELEGATION'));
+
+#--------------------------------------------------------------#
+# Initialization
+#--------------------------------------------------------------#
+
+vLogHTML('<B>==== NUT Initialization ====</B><BR>');
+my $IF0 = "Link0";
+
+#initial NUT config parameters,
+my %NUT_Delegating_Config = (
+       'if_nut0'=> "$V6evalTool::NutDef{Link0_device}",
+#      'if_nut1' => "$V6evalTool::NutDef{Link1_device}",
+#      'if_add0' => "$NUTRELAY1_LINK0_GLOBAL_UCAST",
+#      'if_add1' => "$NUTRELAY1_LINK1_GLOBAL_UCAST",
+#      'if_length0' => "64",
+#      'if_length1' => "64",
+#      'if_type0'=> "unicast",
+#      'if_type1'=> "unicast",
+	'init_opcode' => "vRemote(\"dhcp6s.rmt\", \"start\",\"link0=$V6evalTool::NutDef{Link0_device}\",\"startaddr=3ffe:501:ffff:100::10\",\"endaddr=3ffe:501:ffff:100::11\",\"delegateprefix=2001:db8:ffff::\",\"delegateprefix_range=48\",\"delegateprefixlength=48\",\"preferredlifetime=10000\", \"validlifetime=20000\", \"renewtime=50\",\"rebindtime=80\",\"valduid=$DUID_CLIENT3\")");
+
+dhcpDelegatingInit(\%NUT_Delegating_Config);
+
+vClear($IF0);
+#--------------------------------------------------------------#
+# Main Procedure
+#--------------------------------------------------------------#
+
+# send DHCPv6 Relay Forward Message(Solicit)
+
+$CID_OPTION = "opt_CID_LLT_client3";
+$IA_PD_OPTION = "opt_IA_PD";
+$ElapsedTime_OPTION = "opt_ElapsedTime";
+my($ret1, %rfsol1) = send_relay_forward($IF0, "relayforward_solicit_client1_to_alldhcp");
+ if (0 != $ret1){
+ 	dhcpExitFail();
+ }
+
+# wait for DHCPv6 Relay Reply Message(Advertise)
+my ($ret2, %rradv2) =  wait_for_relay_reply_advertise2($IF0, 5,"relay_reply_nut_relay");
+if (0 != $ret2){
+	dhcpExitFail();
+}
+
+# check unicast address
+if ( $rradv2{"Frame_Ether.Packet_IPv6.Hdr_IPv6.DestinationAddress"} != $rfsol1{"Frame_Ether.Packet_IPv6.Hdr_IPv6.SourceAddress"}) {
+	dhcpExitError("DHCPv6 Server not send Advertise message via unicast.")
+}
+
+# A msg-type field set to RELAY-REPLY(13)
+#       my $basesol = "Frame_Ether.Packet_IPv6.Upp_UDP.Udp_DHCPv6_Solicit";
+       my $baserelayrep = "Frame_Ether.Packet_IPv6.Upp_UDP.Udp_DHCPv6_RelayReply";
+if (13 != $rradv2{"$baserelayrep.Type"}){
+        dhcpExitFail();
+}
+
+# compare hopcount
+if (0 != compare_hopcount(\%rfsol1, \%rradv2)){
+        dhcpExitError("<B>The option error!Do not same as the previous message</B><BR>");
+}
+
+my $strIndexBase = "Frame_Ether.Packet_IPv6.Upp_UDP";
+#check for Relay reply message contents
+if ($rfsol1{"$strIndexBase.Udp_DHCPv6_RelayForward.HopCount"} != $rradv2{"$strIndexBase.Udp_DHCPv6_RelayReply.HopCount"}){
+	dhcpExitError("The HopCount isn\'t same between Relay Forward Msg & Relay Reply Msg<BR>");
+}
+else{
+	my $msg = "<b><font color='blue'>HopCount matched.</font></b>:";
+	$msg .= $rfsol1{"$strIndexBase.Udp_DHCPv6_RelayForward.HopCount"};
+	$msg .= " == ";
+	$msg .= $rradv2{"$strIndexBase.Udp_DHCPv6_RelayReply.HopCount"};
+	$msg .= "<br>";
+	vLogHTML($msg);
+}
+
+if ($rfsol1{"$strIndexBase.Udp_DHCPv6_RelayForward.LinkAddr"} != $rradv2{"$strIndexBase.Udp_DHCPv6_RelayReply.LinkAddr"}){
+	dhcpExitError("The LinkAddr isn\'t same between Relay Forward Msg & Relay Reply Msg<BR>");
+}
+else{
+	my $msg = "<b><font color='blue'>LinkAddr matched.</font></b>:";
+	$msg .= $rfsol1{"$strIndexBase.Udp_DHCPv6_RelayForward.LinkAddr"};
+	$msg .= " == ";
+	$msg .= $rradv2{"$strIndexBase.Udp_DHCPv6_RelayReply.LinkAddr"};
+	$msg .= "<br>";
+	vLogHTML($msg);
+}
+
+if ($rfsol1{"$strIndexBase.Udp_DHCPv6_RelayForward.PeerAddr"} != $rradv2{"$strIndexBase.Udp_DHCPv6_RelayReply.PeerAddr"}){
+	dhcpExitError("The PeerAddr isn\'t same between Relay Forward Msg & Relay Reply Msg<BR>");
+}
+else{
+	my $msg = "<b><font color='blue'>PeerAddr matched.</font></b>:";
+	$msg .= $rfsol1{"$strIndexBase.Udp_DHCPv6_RelayForward.PeerAddr"};
+	$msg .= " == ";
+	$msg .= $rradv2{"$strIndexBase.Udp_DHCPv6_RelayReply.PeerAddr"};
+	$msg .= "<br>";
+	vLogHTML($msg);
+}
+# check options in Relay-Reply message
+if (0 != options_exist(\%rradv2, ($CMP_RELAYMSG))){
+	dhcpExitFail();
+}
+
+#check for contents in Relay message option
+my $option_base = "Frame_Ether.Packet_IPv6.Upp_UDP.Udp_DHCPv6_RelayReply.Opt_DHCPv6_RelayMessage";
+
+	my $option_code = $option_base."."."Code";
+	my $option_len = $option_base."."."Length";
+	my $option_message_type = $option_base."."."Udp_DHCPv6_Advertise";
+
+if(defined $rradv2{$option_base}){
+        vLogHTML("<B> Relay Message option Code = $rradv2{$option_code} <B><BR>");
+        vLogHTML("<B> Relay Message option Length = $rradv2{$option_len} <B><BR>");
+	vLogHTML("<B> Relay Message option DHCP-relqy-message  = $rradv2{$option_message_type} <B><BR>");
+}
+
+# check options in Advertise Message
+my $option_base = "Frame_Ether.Packet_IPv6.Upp_UDP.Udp_DHCPv6_RelayReply.Opt_DHCPv6_RelayMessage.Udp_DHCPv6_Advertise";
+
+	my $option_CID = $option_base."."."Opt_DHCPv6_CID";
+	my $option_SID = $option_base."."."Opt_DHCPv6_SID";
+	my $option_IAPD = $option_base."."."Opt_DHCPv6_IA_PD";
+
+if(defined $rradv2{$option_base}){
+	if(defined($rradv2{$option_CID})){
+		vLogHTML("<B> CID = $rradv2{$option_CID} <B><BR>");
+	}else{
+		dhcpExitError("No CID<BR>");
+	}
+	if(defined($rradv2{$option_SID})){
+		vLogHTML("<B> SID = $rradv2{$option_SID} <B><BR>");
+	}else{
+		dhcpExitError("No SID<BR>");
+	}
+	if(defined($rradv2{$option_IAPD})){
+		vLogHTML("<B> IA_PD  = $rradv2{$option_IAPD} <B><BR>");
+	}else{
+		dhcpExitError("No IAPD<BR>");
+	}
+}
+
+# compare CID
+if ($rradv2{$option_CID} !=  $rfsol1{"Frame_Ether.Packet_IPv6.Upp_UDP.Udp_DHCPv6_RelayReply.Opt_DHCPv6_RelayMessage.Udp_DHCPv6_Solicit.Opt_DHCPv6_CID"}){
+	dhcpExitFail();
+}
+
+##-------------------------------------------------------------------
+vLogHTML("<B><FONT COLOR=#006666>Messages Exchange is correct</FONT></B><BR>");
+##-------------------------------------------------------------------
+
+vClear($IF0);
+vStop($IF0);
+dhcpExitPass;
+
+
+
+#NOTREACHED
+
+########################################################################
+__END__
+
+=head1 NAME
+
+  S_RFC3633_TransRelayReply_11_2_1_E.seq - Respond to the Solicit Message in a Relay-forward message (w/o Interface-ID)
+
+=head1 TARGET
+
+  Server
+
+=head1 SYNOPSIS
+
+=begin html
+ <PRE>
+ <A HREF="./S_RFC3633_TransRelayReply_11_2_1_E.seq">S_RFC3633_TransRelayReply_11_2_1_E.seq </A>[-tooloption ...]
+ -pkt <A HREF="./S_RFC3633_TransRelayReply_11_2_1_E.def">S_RFC3633_TransRelayReply_11_2_1_E.def </A>
+ -tooloption: v6eval tool option
+See Also <A HREF="./DHCPv6.def"> DHCPv6.def </A>
+ </PRE>
+
+=head1 INITIALIZATION
+
+=begin html
+  <ul>
+  <li><STRONG>Network Topology</STRONG></li>
+  </ul>
+  <PRE>
+          TN(Relay-agent1)  
+             |
+Link0 -------+---------+------------- 3ffe:501:ffff:100::/64
+                       |
+                       NUT(Server1)
+  </PRE>
+  <ul>
+      <li><STRONG>Verification Points</STRONG></li>
+	<ul>
+	<PRE>
+Packet's destination address
+	<li><b>unicast</b> to the relay agent's address from the received packet</li>
+Relay-reply Message
+	<li>msg-type</li>
+	<b>RELAY-REPL(13)</b>
+	<li>Relay Message Option</li>
+	<b>With Advertise Message</b>
+	</ul>
+	</PRE>
+  </ul>
+  <ul>
+      <li><STRONG>Configuration</STRONG></li>
+	<BLOCKQUOTE>
+	<TABLE BORDER>
+	<TR>
+	<TD><TT>Device Name</TT></TD>
+	<TD><TT>Device Type</TT></TD>
+	<TD><TT>I/F</TT></TD>
+	<TD><TT>Assigned Prefix</TT></TD>
+	<TD><TT>Link Local Addr</TT></TD>
+	<TD><TT>MAC Addr</TT></TD>
+	</TR>
+	<TR>
+	<TD><TT>Server1</TT></TD>
+	<TD><TT>NUT</TT></TD>
+	<TD><TT>Link0</TT></TD>
+	<TD><TT>3ffe:501:ffff:100::/64</TT></TD>
+	<TD><TT>NUT's Linklocal address</TT></TD>
+	<TD><TT>NUT's MAC address</TT></TD>
+	</TR>
+	<TR>
+	<TD><TT>Relay agent1</TT></TD>
+	<TD><TT>TN</TT></TD>
+	<TD><TT>Link0</TT></TD>
+	<TD><TT>3ffe:501:ffff:100::/64</TT></TD>
+	<TD><TT>fe80::200:ff:fe00:b3b3</TT></TD>
+	<TD><TT>00:00:00:00:b3:b3</TT></TD>
+	</TR>
+	</TABLE>
+	</BLOCKQUOTE>
+</ul>
+
+=end html
+
+=head1 TEST PROCEDURE
+
+=begin html
+<PRE>
+       NUT     TN
+        |       | 
+        |       | initialize NUT (as a DHCPv6 Server)
+        |       | 
+        | <---- | Relay-forward(include "Socilit")
+        | ----> | Relay-reply (w/ Advertise message)(*1)
+        |       | 
+</PRE>
+
+=end html
+
+=head1 JUDGEMENT
+
+<PRE>
+(*1) PASS:Relay-reply message will be received by TN.
+</PRE>
+
+=head1 TERMINATION
+
+  N/A
+
+=head1 REFERENCE
+
+=begin html
+<PRE>
+   see also RFC3315
+   17.2.2.  Creation and Transmission of Advertise Messages 
+</PRE>
+
+=end html
+
+=head1 SEE ALSO
+
+  perldoc V6evalTool
+
+=cut
+ 

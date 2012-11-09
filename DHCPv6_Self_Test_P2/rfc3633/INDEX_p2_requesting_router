@@ -1,0 +1,187 @@
+#
+# Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009
+# Yokogawa Electric Corporation.
+# All rights reserved.
+# 
+# Redistribution and use of this software in source and binary
+# forms, with or without modification, are permitted provided that
+# the following conditions and disclaimer are agreed and accepted
+# by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in
+#    the documentation and/or other materials provided with
+#    the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project
+#    which is related to this software (hereinafter referred to as
+#    "project") nor the names of the contributors may be used to
+#    endorse or promote products derived from this software without
+#    specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written
+#    notification to the copyrighters.
+# 
+# 5. The copyrighters, the project and the contributors may prohibit
+#    the use of this software at any time.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+# STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+# IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+# $Name: T_DHCPv6_Self_Test_P2_1_1_4 $
+# $TAHI: dhcpv6.p2/rfc3633/INDEX_p2_requesting_router,v 1.2 2009/12/03 06:03:41 akisada Exp $
+
+# ###############################################################
+# <coverage Number><seq>:<def>:<opts>:<htmldoc>:<dscription>:<links>
+#
+./DHCPv6_CltInit.seq:/dev/null:::Initialization:
+
+#################################################################
+&print:<B>Group1 : Client Basic Behaviors, Constants and Format</B>
+#################################################################
+
+&print:<B>Test DHCP_CONF.10.1.1 : Prefix Options Format</B>
+./C_RFC3633_IAPDOpSol_10_1_1_A.seq:./C_RFC3633_IAPDOpSol_10_1_1_A.def::: Part A &#58; IA_PD Option Format
+./C_RFC3633_SIDOptFormat_10_1_1_B.seq:./C_RFC3633_SIDOptFormat_10_1_1_B.def::: Part B &#58; Server identifier Option Format
+./C_RFC3633_IAPDPREOpReq_10_1_1_C.seq:./C_RFC3633_IAPDPREOpReq_10_1_1_C.def::: Part C &#58; IA_PD Prefix Option Format
+./C_RFC3633_IAIDconsistency_10_1_1_D.seq:./C_RFC3633_IAIDconsistency_10_1_1_D.def::: Part D &#58; IAID Consistency
+
+
+&print:<B>Test DHCP_CONF.10.1.2 : Basic Message Exchange</B>
+./C_RFC3633_ValidRep_resReq_10_1_2_A.seq:./C_RFC3633_ValidRep_resReq_10_1_2_A.def::: Part A &#58; Valid Reply message in response to Request
+./C_RFC3633_ValidRep_resRen_10_1_2_B.seq:./C_RFC3633_ValidRep_resRen_10_1_2_B.def::: Part B &#58; Valid Reply message in response to a Renew message
+./C_RFC3633_ValidRep_resReb_10_1_2_C.seq:./C_RFC3633_ValidRep_resReb_10_1_2_C.def::: Part C &#58; Valid Reply message in response to a Rebind message
+./C_RFC3633_ValidRep_resRel_10_1_2_D.seq:./C_RFC3633_ValidRep_resRel_10_1_2_D.def::: Part D &#58; Valid Reply message in response to a Release message
+
+&print:<B>Test DHCP_CONF.10.1.3 : Implementation of DHCP constants</B>
+./C_RFC3633_McastAddr_10_1_3_A.seq:./C_RFC3633_McastAddr_10_1_3_A.def::: Part A &#58; Multicast Address
+./C_RFC3633_ValidUDPport_10_1_3_B.seq:./C_RFC3633_ValidUDPport_10_1_3_B.def:::Part B &#58; Valid UDP port
+./C_RFC3633_InvalidUDPport_10_1_3_C.seq:./C_RFC3633_InvalidUDPport_10_1_3_C.def::: Part C &#58; Invalid UDP port
+
+&print:<B>Test DHCP_CONF.10.1.4 : Client Message Format</B>
+./C_RFC3633_ClientMsgFormat_10_1_4.seq:./C_RFC3633_ClientMsgFormat_10_1_4.def::: Client Message Format
+
+&print:<B>Test DHCP_CONF.10.1.5 : Client Identifier Option Format</B>
+./C_RFC3633_CIDOptFormat_10_1_5.seq:./C_RFC3633_CIDOptFormat_10_1_5.def::: Client Identifier Format
+
+&print:<B>Test DHCP_CONF.10.1.6 : Client DHCP Unique Identifier Contents</B>
+./C_RFC3633_DUIDLLT_Format_10_1_6_A.seq:./C_RFC3633_DUIDLLT_Format_10_1_6_A.def::: Part A &#58; DUID-LLT Format
+./C_RFC3633_DUIDLLT_Consistency_10_1_6_B.seq:./C_RFC3633_DUIDLLT_Consistency_10_1_6_B.def::: Part B &#58; DUID-LLT Consistency
+
+./C_RFC3633_DUIDEN_Format_10_1_6_C.seq:./C_RFC3633_DUIDEN_Format_10_1_6_C.def::: Part C &#58; DUID-EN Format
+./C_RFC3633_DUIDEN_Consistency_10_1_6_D.seq:./C_RFC3633_DUIDEN_Consistency_10_1_6_D.def::: Part D &#58; DUID-EN Consistency
+
+./C_RFC3633_DUIDLL_Format_10_1_6_E.seq:./C_RFC3633_DUIDLL_Format_10_1_6_E.def::: Part E &#58; DUID-LL Format
+./C_RFC3633_DUIDLL_Consistency_10_1_6_F.seq:./C_RFC3633_DUIDLL_Consistency_10_1_6_F.def::: Part F &#58; DUID-LL Consistency
+
+&print:<B>Test DHCP_CONF.10.1.7 : Elapsed Time Option Format</B>
+./C_RFC3633_ElapsedTimeopt_Format_10_1_7_A.seq:./C_RFC3633_ElapsedTimeopt_Format_10_1_7_A.def::: Part A &#58; Elapsed Time Option Format in Solicit message for Prefix Delegation
+./C_RFC3633_EltimeOptForm_ReqMsg_10_1_7_B.seq:./C_RFC3633_EltimeOptForm_ReqMsg_10_1_7_B.def::: Part B &#58; Elapsed Time Option Format in Request message for Prefix Delegation
+./C_RFC3633_EltimeOptForm_RenMsg_10_1_7_C.seq:./C_RFC3633_EltimeOptForm_RenMsg_10_1_7_C.def::: Part C &#58; Elapsed Time Option Format in Renew message for Prefix Delegation
+./C_RFC3633_EltimeOptForm_RebMsg_10_1_7_D.seq:./C_RFC3633_EltimeOptForm_RebMsg_10_1_7_D.def::: Part D &#58; Elapsed Time Option Format in Rebind message for Prefix Delegation
+./C_RFC3633_EltimeOptForm_RelMsg_10_1_7_E.seq:./C_RFC3633_EltimeOptForm_RelMsg_10_1_7_E.def::: Part E &#58; Elapsed Time Option Format in Release message for Prefix Delegation
+#./C_RFC3633_ElapsedTime_Field_10_1_7_B.seq:./C_RFC3633_ElapsedTime_Field_10_1_7_B.def::: Part B &#58; Elapsed Time in elapsed-time field
+./C_RFC3633_MaxElapsedTimeField_10_1_7_F.seq:./C_RFC3633_MaxElapsedTimeField_10_1_7_F.def::: Part F &#58; Maximum Elapsed Time in elapsed-time field
+
+
+#################################################################
+&print:<B>Group2 : Client Message Transmission </B>
+#################################################################
+
+&print:<B>Test DHCP_CONF.10.2.1 : Transmission of Solicit Message for Prefix Delegation</B>
+./C_RFC3633_SolMsg_10_2_1_A.seq:./C_RFC3633_SolMsg_10_2_1_A.def::: Part A &#58; Solicit message format
+./C_RFC3633_DHCPv6Retrans_10_2_1_B.seq:./C_RFC3633_DHCPv6Retrans_10_2_1_B.def::: Part B &#58; Reliability of DHCPv6 Retransmission
+./C_RFC3633_RetransSolMsg_10_2_1_C.seq:./C_RFC3633_RetransSolMsg_10_2_1_C.def::: Part C &#58; Retransmission of Solicit Message
+./C_RFC3633_MaxRetransTimeSolMsg_10_2_1_D.seq:./C_RFC3633_MaxRetransTimeSolMsg_10_2_1_D.def::: Part D &#58; Maximum Retransmission Time of solicit message
+
+&print:<B>Test DHCP_CONF.10.2.2 : Message Exchange Termination for Solicit Message</B>
+./C_RFC3633_WithoutPrefOptBefore_10_2_2_A.seq:./C_RFC3633_WithoutPrefOptBefore_10_2_2_A.def::: Part A &#58; Receives Advertise message without Preference Option before first RT elapse 
+./C_RFC3633_WithoutPrefOptAfter_10_2_2_B.seq:./C_RFC3633_WithoutPrefOptAfter_10_2_2_B.def ::: Part B &#58; Receives Advertise message without Preference Option after first RT elapse 
+
+&print:<B>Test DHCP_CONF.10.2.3 : Transmission of Request message for Prefix Delegation</B>
+./C_RFC3633_ReqMsg_10_2_3_A.seq:./C_RFC3633_ReqMsg_10_2_3_A.def::: Part A &#58; Request message format
+./C_RFC3633_RetransReqMsg_10_2_3_B.seq:./C_RFC3633_RetransReqMsg_10_2_3_B.def::: Part B &#58; Retransmission of Request messages
+./C_RFC3633_MaxRetransTimeReqMsg_10_2_3_C.seq:./C_RFC3633_MaxRetransTimeReqMsg_10_2_3_C.def::: Part C &#58; Maximum Retransmission Time of Request messages
+./C_RFC3633_MaxRetransCountReqMsg_10_2_3_D.seq:./C_RFC3633_MaxRetransCountReqMsg_10_2_3_D.def::: Part D &#58; Maximum Retransmission Count of Request messages
+
+&print:<B>Test DHCP_CONF.10.2.4 : Transmission of Renew message for Prefix Delegation</B>
+./C_RFC3633_RenMsg_10_2_4_A.seq:./C_RFC3633_RenMsg_10_2_4_A.def::: Part A &#58; Renew message format 
+./C_RFC3633_RetransRenMsg_10_2_4_B.seq:./C_RFC3633_RetransRenMsg_10_2_4_B.def::: Part B &#58; Retransmission of Renew message, T1 and T2 non-zero 
+./C_RFC3633_MaxRetransTimeRenMsg_10_2_4_C.seq:./C_RFC3633_MaxRetransTimeRenMsg_10_2_4_C.def::: Part C &#58; Maximum Retransmission Time of Renew message T1 and T2 non-zero
+./C_RFC3633_MaxRetransDurationRenMsg_10_2_4_D.seq:./C_RFC3633_MaxRetransDurationRenMsg_10_2_4_D.def::: Part D &#58; Maximum Retransmission Duration of Renew message, T1 and T2 non-zero 
+
+&print:<B>Test DHCP_CONF.10.2.5 : Transmission of Rebind message for Prefix Delegation</B>
+./C_RFC3633_TransReb_10_2_5_A.seq:./C_RFC3633_TransReb_10_2_5_A.def::: Part A &#58; Transmission of Rebind message after T2 expires 
+./C_RFC3633_RetransReb_10_2_5_B.seq:./C_RFC3633_RetransReb_10_2_5_B.def::: Part B &#58; Retransmission of Rebind message, T1 and T2 non-zero 
+./C_RFC3633_TransRebLinkDown_10_2_5_C.seq:./C_RFC3633_TransRebLinkDown_10_2_5_C.def::: Part C &#58; Transmission of Rebind message after link down situation
+./C_RFC3633_RetransRebLinkDown_10_2_5_D.seq:./C_RFC3633_RetransRebLinkDown_10_2_5_D.def::: Part D &#58; Retransmission of Rebind message after link down situation 
+
+&print:<B>Test DHCP_CONF.10.2.6 : Transmission of Release message for Prefix Delegation</B>
+./C_RFC3633_RelMsg_10_2_6_A.seq:./C_RFC3633_RelMsg_10_2_6_A.def:::  Part A &#58; Release message format 
+./C_RFC3633_RetransRelMsg_10_2_6_B.seq:./C_RFC3633_RetransRelMsg_10_2_6_B.def::: Part B &#58; Retransmission of Release message 
+./C_RFC3633_MaxRetransCountRelMsg_10_2_6_C.seq:./C_RFC3633_MaxRetransCountRelMsg_10_2_6_C.def::: Part C &#58; Maximum Retransmission Count of Release message, no Reply message from Server
+./C_RFC3633_Retrans_ServerReply_10_2_6_D.seq:./C_RFC3633_Retrans_ServerReply_10_2_6_D.def::: Part D &#58; Retransmission and message exchange termination, Server responds with Reply message
+./C_RFC3633_EltimeValue_retrans_RelMsg_10_2_6_E.seq:./C_RFC3633_EltimeValue_retrans_RelMsg_10_2_6_E.def::: Part E &#58; Elapsed-time value of the retransmit Release message
+
+
+#################################################################
+&print:<B>Group3 : Message Reception</B>
+#################################################################
+
+&print:<B>Test DHCP_CONF.10.3.1 : Receipt of Advertise Message for Prefix Delegation</B>
+./C_RFC3633_ReceiptAdvMsg_10_3_1.seq:./C_RFC3633_ReceiptAdvMsg_10_3_1.def::: Receipt of Advertise Messages for Prefix Delegation
+
+&print:<B>Test DHCP_CONF.10.3.2 : Client initiated Exchange - Reception of Reply messages for Prefix Delegation</B>
+./C_RFC3633_ValidRep_resReq_10_3_2_A.seq:./C_RFC3633_ValidRep_resReq_10_3_2_A.def::: Part A &#58; Valid Reply message in response to Request
+./C_RFC3633_T1andT2timesRecorded_10_3_2_B.seq:./C_RFC3633_T1andT2timesRecorded_10_3_2_B.def::: Part B &#58; T1 and T2 times recorded
+./C_RFC3633_T1andT2timesUpdated_10_3_2_C.seq:./C_RFC3633_T1andT2timesUpdated_10_3_2_C.def::: Part C &#58; T1 and T2 times updated 
+./C_RFC3633_NewPrefix_IAPDoption_10_3_2_D.seq:./C_RFC3633_NewPrefix_IAPDoption_10_3_2_D.def::: Part D &#58; New Prefix in IA_PD option
+./C_RFC3633_Update_Lifetimes_10_3_2_E.seq:./C_RFC3633_Update_Lifetimes_10_3_2_E.def::: Part E &#58; Update Lifetimes
+./C_RFC3633_Update_Lifetimes_Zero_10_3_2_F.seq:./C_RFC3633_Update_Lifetimes_Zero_10_3_2_F.def::: Part F &#58; Valid Lifetime set to zero
+./C_RFC3633_Update_WithoutIAPrefixopt_10_3_2_G.seq:./C_RFC3633_Update_WithoutIAPrefixopt_10_3_2_G.def::: Part G &#58; IA Prefix option not included in IA PD from Server
+
+&print:<B>Test DHCP_CONF.10.3.3 : Client initiated Exchange - Reception of Reply messages for Prefix Delegation cont'd</B>
+./C_RFC3633_RepMsgWithNotOnLink_10_3_3_A.seq:./C_RFC3633_RepMsgWithNotOnLink_10_3_3_A.def::: Part A &#58; Reply Message contains NotOnLink in response to a Request message
+./C_RFC3633_RepMsgWithNoPrefixAvail_10_3_3_B.seq:./C_RFC3633_RepMsgWithNoPrefixAvail_10_3_3_B.def:::  Part B &#58; Reply Message contains NoPrefixAvail in response to a Request message
+
+./C_RFC3633_RepMsgWithNoBinding_10_3_3_C.seq:./C_RFC3633_RepMsgWithNoBinding_10_3_3_C.def::: Part C &#58; Reply message contains NoBinding in response to a Renew message
+
+./C_RFC3633_NoIA_RenMsg_10_3_3_D.seq:./C_RFC3633_NoIA_RenMsg_10_3_3_D.def:::  Part D &#58;  Reply Message contains no IA in response to a Renew message
+./C_RFC3633_NoIA_RebMsg_10_3_3_E.seq:./C_RFC3633_NoIA_RebMsg_10_3_3_E.def::: Part E &#58; Reply Message contains no IA in response to a Rebind message
+./C_RFC3633_NoBinding_RelMsg_10_3_3_F.seq:./C_RFC3633_NoBinding_RelMsg_10_3_3_F.def::: Part F &#58; Reply message contains NoBinding in response to a Release message
+./C_RFC3633_RepMsgWithUnspecFail_10_3_3_G.seq:./C_RFC3633_RepMsgWithUnspecFail_10_3_3_G.def::: Part G &#58; Reply message contains UnspecFail
+./C_RFC3633_RepMsgWithUseMulticast_10_3_3_H.seq:./C_RFC3633_RepMsgWithUseMulticast_10_3_3_H.def::: Part H &#58; Reply message contains UseMulticast
+./C_RFC3633_RepMsgWithNoBinding_RebMsg_10_3_3_I.seq:./C_RFC3633_RepMsgWithNoBinding_RebMsg_10_3_3_I.def::: Part I &#58; Reply message contains NoBinding in response to a Rebind message
+
+&print:<B>Test DHCP_CONF.10.3.4 : Reception of Invalid Reply Message for Prefix Delegation</B>
+./C_RFC3633_RepMsg_InvalidIAPD_10_3_4_A.seq:./C_RFC3633_RepMsg_InvalidIAPD_10_3_4_A.def::: Part A &#58; Reply Message contains IA_PD option with T1>T2
+./C_RFC3633_RepMsg_InvalidPrefix_10_3_4_B.seq:./C_RFC3633_RepMsg_InvalidPrefix_10_3_4_B.def::: Part B &#58; Reply Message contains invalid Prefix (preferred lifetime > valid lifetime)
+
+&print:<B>Test DHCP_CONF.10.3.5 : Receipt of Invalid Advertise message</B>
+./C_RFC3633_NoSIDopt_10_3_5_A.seq:./C_RFC3633_NoSIDopt_10_3_5_A.def::: Part A &#58; No Server Identifier option
+./C_RFC3633_NoCIDopt_10_3_5_B.seq:./C_RFC3633_NoCIDopt_10_3_5_B.def::: Part B &#58; No Client Identifier option
+./C_RFC3633_NoMatchCIDopt_10_3_5_C.seq:./C_RFC3633_NoMatchCIDopt_10_3_5_C.def::: Part C &#58; Client Identifier that does not match the DUID of the client
+./C_RFC3633_MisMatchTransID_10_3_5_D.seq:./C_RFC3633_MisMatchTransID_10_3_5_D.def::: Part D &#58; Transaction ID Mismatch
+
+&print:<B>Test DHCP_CONF.10.3.6 : Client Message Validation</B>
+./C_RFC3633_DiscardSolMsg_10_3_6_A.seq:./C_RFC3633_DiscardSolMsg_10_3_6_A.def::: Part A &#58; Solicit message (type1)
+./C_RFC3633_DiscardReqMsg_10_3_6_B.seq:./C_RFC3633_DiscardReqMsg_10_3_6_B.def::: Part B &#58; Request message (type3)
+./C_RFC3633_DiscardRenMsg_10_3_6_C.seq:./C_RFC3633_DiscardRenMsg_10_3_6_C.def::: Part C &#58; Renew message (type 5)
+./C_RFC3633_DiscardRebMsg_10_3_6_D.seq:./C_RFC3633_DiscardRebMsg_10_3_6_D.def::: Part D &#58; Rebind message (type 6)
+./C_RFC3633_DiscardRelMsg_10_3_6_E.seq:./C_RFC3633_DiscardRelMsg_10_3_6_E.def::: Part E &#58; Release message (type 8)
+./C_RFC3633_DiscardRelayForwardMsg_10_3_6_F.seq:./C_RFC3633_DiscardRelayForwardMsg_10_3_6_F.def::: Part F &#58; Relay-forward message (type 12)
+./C_RFC3633_DiscardRelayReplyMsg_10_3_6_G.seq:./C_RFC3633_DiscardRelayReplyMsg_10_3_6_G.def::: Part G &#58; Relay-reply message (type 13)
+./C_RFC3633_DiscardInfoReqMsg_10_3_6_H.seq:./C_RFC3633_DiscardInfoReqMsg_10_3_6_H.def::: Part H &#58; Information-request message (type 11)

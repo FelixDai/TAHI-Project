@@ -1,0 +1,88 @@
+#
+# Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009
+# Yokogawa Electric Corporation.
+# All rights reserved.
+# 
+# Redistribution and use of this software in source and binary
+# forms, with or without modification, are permitted provided that
+# the following conditions and disclaimer are agreed and accepted
+# by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in
+#    the documentation and/or other materials provided with
+#    the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project
+#    which is related to this software (hereinafter referred to as
+#    "project") nor the names of the contributors may be used to
+#    endorse or promote products derived from this software without
+#    specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written
+#    notification to the copyrighters.
+# 
+# 5. The copyrighters, the project and the contributors may prohibit
+#    the use of this software at any time.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+# STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+# IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+# $Name: T_DHCPv6_Self_Test_P2_1_1_4 $
+# $TAHI: dhcpv6.p2/rfc3646/INDEX_p2_server,v 1.12 2011/04/11 01:38:56 miyata Exp $
+
+# ###############################################################
+# <coverage Number><seq>:<def>:<opts>:<htmldoc>:<dscription>:<links>
+#
+./DHCPv6_SvrInit.seq:/dev/null:::Initialization:
+
+
+&print:<B>Test DHCP_CONF.5.1.1 : DNS Recursive Name Server Option Format</B>
+./S_RFC3646_3_DNSOP.seq:./S_RFC3646_3_DNSOP.def::: DNS Recursive Name Server Option Format
+
+&print:<B>Test DHCP_CONF.5.1.2 : Domain Search List Option Format</B>
+./S_RFC3646_4_DSLOP.seq:./S_RFC3646_4_DSLOP.def::: Domain Search List Option Format
+
+&print:<B>Test DHCP_CONF.5.1.3 : Configuration of DNS options</B>
+./S_RFC3646_34_DNSOP.seq:./S_RFC3646_34_DNSOP.def:::  Part A &#58;Returning of DNS Recursive Name Server option
+./S_RFC3646_34_DNSOP_DSLOP.seq:./S_RFC3646_34_DNSOP_DSLOP.def:::  Part B &#58;Returning of DNS Recursive Name Server option and Domain Search List Option
+
+
+&print:<B>Test DHCP_CONF.5.1.4 : Transmission of Advertise Messages for DNS Configuration options</B>
+./S_RFC3646_3_DNSOP_for_Advertise.seq:./S_RFC3646_3_DNSOP_for_Advertise.def::: Part A &#58; Advertise message in response to Solicit message with ORO (DNS Recursive Name Server option)
+./S_RFC3646_4_DSLOP_for_Advertise.seq:./S_RFC3646_4_DSLOP_for_Advertise.def::: Part B &#58; Advertise message in response to Solicit message with ORO (Domain Search List Option)
+
+&print:<B>Test DHCP_CONF.5.1.5 : Transmission of Reply Messages for DNS Configuration options</B>
+./S_RFC3646_3_DNSOP_for_Reply.seq:./S_RFC3646_3_DNSOP_for_Reply.def::: Part A &#58; Reply message in response to Request message with ORO (DNS Recursive Name Server option)
+./S_RFC3646_4_DSLOP_for_Reply.seq:./S_RFC3646_4_DSLOP_for_Reply.def::: Part B &#58; Reply message in response to Request message with ORO (Domain Search List Option)
+
+&print:<B>Test DHCP_CONF.5.1.6 : Reception of Renew messages for DNS Configuration options</B>
+./S_RFC3646_3_DNSOP_to_Renew.seq:./S_RFC3646_3_DNSOP_to_Renew.def::: Part A &#58; Reception of Renew message with ORO(DNS Recursive Name Server option)
+./S_RFC3646_4_DSLOP_to_Renew.seq:./S_RFC3646_4_DSLOP_to_Renew.def::: Part B &#58; Reception of Renew message with ORO(Domain Search List Option)
+
+&print:<B>Test DHCP_CONF.5.1.7 : Reception of Rebind messages for DNS Configuration options</B>
+./S_RFC3646_3_DNSOP_to_Rebind.seq:./S_RFC3646_3_DNSOP_to_Rebind.def::: Part A &#58; Reception of Rebind message with ORO(DNS Recursive Name Server option)
+./S_RFC3646_4_DSLOP_to_Rebind.seq:./S_RFC3646_4_DSLOP_to_Rebind.def::: Part B &#58; Reception of Rebind message with ORO(Domain Search List Option)
+
+
+&print:<B>Test DHCP_CONF.5.1.8 : DHCP Unique Identifire(DUID) Contents</B>
+./S_RFC3646_DUID_LLTFormat.seq:./S_RFC3646_DUID_LLTFormat.def::: Part A &#58; DUID based on Link_layer Address Plus Time [DUID-LLT] Format
+./S_RFC3646_DUID_LLTPersit.seq:./S_RFC3646_DUID_LLTPersit.def::: Part B &#58; DUID based on Link_layer Address Plus Time [DUID-LLT] Consistency
+./S_RFC3646_DUID_ENFormat.seq:./S_RFC3646_DUID_ENFormat.def::: Part C &#58; DUID assigned by vendor based on Enterprise Number [DUID-EN] Format
+./S_RFC3646_DUID_ENPersit.seq:./S_RFC3646_DUID_ENPersit.def::: Part D &#58; DUID assigned by vendor based on Enterprise Number [DUID-EN] Consistency
+./S_RFC3646_DUID_LLFormat.seq:./S_RFC3646_DUID_LLFormat.def::: Part E &#58; DUID based on Link-layer Address [DUID-LL] Format
+./S_RFC3646_DUID_LLPersit.seq:./S_RFC3646_DUID_LLPersit.def::: Part F &#58; DUID based on Link-layer Address [DUID-LL] Consistency
+

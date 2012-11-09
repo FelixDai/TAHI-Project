@@ -1,0 +1,394 @@
+#!/usr/bin/perl
+#
+# Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009
+# Yokogawa Electric Corporation.
+# All rights reserved.
+# 
+# Redistribution and use of this software in source and binary
+# forms, with or without modification, are permitted provided that
+# the following conditions and disclaimer are agreed and accepted
+# by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in
+#    the documentation and/or other materials provided with
+#    the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project
+#    which is related to this software (hereinafter referred to as
+#    "project") nor the names of the contributors may be used to
+#    endorse or promote products derived from this software without
+#    specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written
+#    notification to the copyrighters.
+# 
+# 5. The copyrighters, the project and the contributors may prohibit
+#    the use of this software at any time.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+# STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+# IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+# $TAHI: dhcpv6.p2/rfc3736/S_RFC3736_Relay-replyLayerdRelay.seq,v 1.2 2009/12/03 06:03:51 akisada Exp $
+########################################################################
+BEGIN { $V6evalTool::TestVersion = '$Name: T_DHCPv6_Self_Test_P2_1_1_4 $';
+}
+
+use strict;
+use V6evalTool;
+
+use lib '../.';
+use DHCPv6_common;
+use Server_pktdesc;
+
+my $type	= $V6evalTool::NutDef{'Type'};
+if($type ne 'host') {
+	vLogHTML('<FONT COLOR="#FF0000">This test supports only Host</FONT>');
+	exit($V6evalTool::exitHostOnly);
+}
+
+dhcpExitNS if(ChkFuncSupport('STATELESSDHCP'));
+dhcpExitNS if(ChkFuncSupport('DNS'));
+
+#Prompt Strings define
+my $strErrDest = 'NG: The Destination address of Relay-reply Message is not correctly!';
+
+#--------------------------------------------------------------#
+# Initialization
+#--------------------------------------------------------------#
+
+vLogHTML('<B>==== NUT Initialization ====</B><BR>');
+my $IF0 = "Link0";
+#initial NUT config parameters,
+my %NUT_Server_Config = (
+	'if_nut0'=> "$V6evalTool::NutDef{Link0_device}",
+	'init_opcode' => "vRemote(\"dhcp6s.rmt\", \"start\",\"link0=$V6evalTool::NutDef{Link0_device}\",\"stateless\",\"dns=3ffe:501:ffff:100:200:ff:fe00:3f3e\",\"valduid=$DUID_CLIENT\")"
+);
+
+dhcpSvrInitS(\%NUT_Server_Config);
+vClear($IF0);
+#--------------------------------------------------------------#
+# Main Procedure
+#--------------------------------------------------------------#
+vLogHTML('<B>==== Creation and Transmission of Relay Reply Messages #1  ====</B><BR>');
+
+
+# set Options
+$CID_OPTION = "opt_CID_LLT_client1";
+$OptionRequest_OPTION = "opt_ORO_dns_servers";
+$ElapsedTime_OPTION = "opt_ElapsedTime";
+# send DHCPv6 Relay Forward Message(information-request)
+my($ret1, %rfsol1) = send_relay_forward($IF0, "relayforward_infomationrequest_client1_to_relay2_to_relay1_alldhcp_send");
+ if (0 != $ret1){
+ 	dhcpExitFail();
+ }
+
+# wait for DHCPv6 Relay Reply Message(reply)
+my ($ret2, %rrrep2) =  wait_for_relay_reply_relay($IF0, 5,undef);
+if (0 != $ret2){
+	dhcpExitFail();
+}
+
+
+my $strIndexBase = "Frame_Ether.Packet_IPv6.Upp_UDP";
+#check for Relay reply message contents
+if ($rfsol1{"$strIndexBase.Udp_DHCPv6_RelayForward.HopCount"} !=
+    $rrrep2{"$strIndexBase.Udp_DHCPv6_RelayReply.HopCount"}){
+	dhcpExitError("The HopCount isn\'t same between Relay Forward Msg & Relay Reply Msg<BR>");
+}else{
+	my $msg = "<b><font color='blue'>HopCount matched.</font></b>:";
+	$msg .= $rfsol1{"$strIndexBase.Udp_DHCPv6_RelayForward.HopCount"};
+	$msg .= " == ";
+	$msg .= $rrrep2{"$strIndexBase.Udp_DHCPv6_RelayReply.HopCount"};
+	$msg .= "<br>";
+	vLogHTML($msg);
+}
+
+if ($rfsol1{"$strIndexBase.Udp_DHCPv6_RelayForward.LinkAddr"} !=
+    $rrrep2{"$strIndexBase.Udp_DHCPv6_RelayReply.LinkAddr"}){
+	dhcpExitError("The LinkAddr isn\'t same between Relay Forward Msg & Relay Reply Msg<BR>");
+}else{
+	my $msg = "<b><font color='blue'>LinkAddr matched.</font></b>:";
+	$msg .= $rfsol1{"$strIndexBase.Udp_DHCPv6_RelayForward.LinkAddr"};
+	$msg .= " == ";
+	$msg .= $rrrep2{"$strIndexBase.Udp_DHCPv6_RelayReply.LinkAddr"};
+	$msg .= "<br>";
+	vLogHTML($msg);
+}
+
+if ($rfsol1{"$strIndexBase.Udp_DHCPv6_RelayForward.PeerAddr"} !=
+    $rrrep2{"$strIndexBase.Udp_DHCPv6_RelayReply.PeerAddr"}){
+	dhcpExitError("The PeerAddr isn\'t same between Relay Forward Msg & Relay Reply Msg<BR>");
+}else{
+	my $msg = "<b><font color='blue'>PeerAddr matched.</font></b>:";
+	$msg .= $rfsol1{"$strIndexBase.Udp_DHCPv6_RelayForward.PeerAddr"};
+	$msg .= " == ";
+	$msg .= $rrrep2{"$strIndexBase.Udp_DHCPv6_RelayReply.PeerAddr"};
+	$msg .= "<br>";
+	vLogHTML($msg);
+}
+
+
+my $strIndexBaseInf = "Frame_Ether.Packet_IPv6.Upp_UDP.Udp_DHCPv6_RelayForward.Opt_DHCPv6_RelayMessage";
+my $strIndexBaseRep = "Frame_Ether.Packet_IPv6.Upp_UDP.Udp_DHCPv6_RelayReply.Opt_DHCPv6_RelayMessage";
+
+#check for Relay reply message contents
+if ($rfsol1{"$strIndexBaseInf.Udp_DHCPv6_RelayForward.HopCount"} !=
+    $rrrep2{"$strIndexBaseRep.Udp_DHCPv6_RelayReply.HopCount"}){
+	dhcpExitError("The HopCount isn\'t same between Relay Forward Msg & Relay Reply Msg<BR>");
+}else{
+	my $msg = "<b><font color='blue'>HopCount matched.</font></b>:";
+	$msg .= $rfsol1{"$strIndexBaseInf.Udp_DHCPv6_RelayForward.HopCount"};
+	$msg .= " == ";
+	$msg .= $rrrep2{"$strIndexBaseRep.Udp_DHCPv6_RelayReply.HopCount"};
+	$msg .= "<br>";
+	vLogHTML($msg);
+}
+
+if ($rfsol1{"$strIndexBaseInf.Udp_DHCPv6_RelayForward.LinkAddr"} !=
+    $rrrep2{"$strIndexBaseRep.Udp_DHCPv6_RelayReply.LinkAddr"}){
+	dhcpExitError("The LinkAddr isn\'t same between Relay Forward Msg & Relay Reply Msg<BR>");
+}else{
+	my $msg = "<b><font color='blue'>LinkAddr matched.</font></b>:";
+	$msg .= $rfsol1{"$strIndexBaseInf.Udp_DHCPv6_RelayForward.LinkAddr"};
+	$msg .= " == ";
+	$msg .= $rrrep2{"$strIndexBaseRep.Udp_DHCPv6_RelayReply.LinkAddr"};
+	$msg .= "<br>";
+	vLogHTML($msg);
+}
+
+if ($rfsol1{"$strIndexBaseInf.Udp_DHCPv6_RelayForward.PeerAddr"} !=
+    $rrrep2{"$strIndexBaseRep.Udp_DHCPv6_RelayReply.PeerAddr"}){
+	dhcpExitError("The PeerAddr isn\'t same between Relay Forward Msg & Relay Reply Msg<BR>");
+}else{
+	my $msg = "<b><font color='blue'>PeerAddr matched.</font></b>:";
+	$msg .= $rfsol1{"$strIndexBaseInf.Udp_DHCPv6_RelayForward.PeerAddr"};
+	$msg .= " == ";
+	$msg .= $rrrep2{"$strIndexBaseRep.Udp_DHCPv6_RelayReply.PeerAddr"};
+	$msg .= "<br>";
+	vLogHTML($msg);
+}
+
+
+#Check the Reply message
+my $ret3 = CheckMessageInRelayOption(\%rrrep2,"RelayReply");
+if (0 != $ret3){
+	dhcpExitError("The Relay-reply message do not include Reply Reply message");
+}
+
+#Check the Advertise message
+my $ret4 = CheckMessageInRelayOption(\%rrrep2,"Reply");
+if (0 != $ret4){
+	dhcpExitError("The Relay-reply message do not include Reply message");
+}
+
+#-------------------------------------------------------------------
+vLogHTML("<B><FONT COLOR=#006666>The Message exchange is correct</FONT></B><BR>");
+#-------------------------------------------------------------------
+
+vClear($IF0);
+vStop($IF0);
+dhcpExitPass();
+#NOTREACHED
+
+########################################################################
+__END__
+
+=head1 NAME
+
+  S_RFC3736_Relay-replyLayerdRelay.seq - Relay-Reply message transmission through the Layered Relay agents
+
+=head1 TARGET
+
+  Server
+
+=head1 SYNOPSIS
+
+=begin html
+ <PRE>
+ <A HREF="./S_RFC3736_Relay-replyLayerdRelay.seq">S_RFC3736_Relay-replyLayerdRelay.seq </A>[-tooloption ...]
+ -pkt <A HREF="./S_RFC3736_Relay-replyLayerdRelay.def">S_RFC3736_Relay-replyLayerdRelay.def </A>
+ -tooloption: v6eval tool option
+See Also <A HREF="../DHCPv6.def"> DHCPv6.def </A>
+ </PRE>
+
+=head1 INITIALIZATION
+
+=begin html
+  <UL>
+  <LI><STRONG>Network Topology</STRONG></LI>
+  </UL>
+  <PRE>
+                         TN(Client1)
+                              |
+Link2 -------------+----------+---------------------3ffe:501:ffff:102::/64
+                   |                       
+                   |                       
+             TN(Relay2)
+                   |                       
+                   |                       
+Link1 -------------+-----------------------+-------- 3ffe:501:ffff:101::/64
+                                           |
+                                           |
+                                     TN(Relay1)
+                                           |
+                                           |
+Link0 ------------------------+------------+-------- 3ffe:501:ffff:100::/64
+                              |
+                           NUT(Server1)
+  </PRE>
+  <UL>
+      <LI><STRONG>Verification Points</STRONG></LI>
+          <UL>
+          <PRE>Relay-reply Message 
+	<LI>msg-type</LI>
+        <B>RELAY-REPLY</B>
+        <LI>hop-count</LI>
+        <B>1</B>
+        <LI>link-address</LI>
+        <B>0</B>       
+        <LI>peer-address</LI>
+        <B>3ffe:501:ffff:101::xxxx</B>       
+        <LI>Relay Message option</LI>
+        <UL>
+	<LI>msg-type</LI>
+        <B>RELAY-REPLY</B>
+        <LI>hop-count</LI>
+        <B>0</B>
+        <LI>link-address</LI>
+        <B>3ffe:501:ffff:102::xxxx</B>       
+        <LI>peer-address</LI>
+        <B>fe80::200:ff:fe00:a2a2</B>       
+        <LI>Relay Message option</LI>
+        <B>Reply Message</B>
+        </UL>
+          </PRE>
+          </UL>
+  </UL>
+  <UL>
+      <LI><STRONG>Configuration</STRONG></LI>
+	<BLOCKQUOTE>
+	<TABLE BORDER>
+	<TR>
+	<TD><TT>Device Name</TT></TD>
+	<TD><TT>Device Type</TT></TD>
+	<TD><TT>I/F</TT></TD>
+	<TD><TT>Assigned Prefix</TT></TD>
+	<TD><TT>Link Local Addr</TT></TD>
+	<TD><TT>MAC Addr</TT></TD>
+	</TR>
+	<TR>
+	<TD><TT>Server1</TT></TD>
+	<TD><TT>NUT</TT></TD>
+	<TD><TT>Link0</TT></TD>
+	<TD><TT>3ffe:501:ffff:100::/64</TT></TD>
+	<TD><TT>NUT's Linklocal address</TT></TD>
+	<TD><TT>NUT's MAC address</TT></TD>
+	</TR>
+	<TR>
+	<TD><TT>Client1</TT></TD>
+	<TD><TT>TN</TT></TD>
+	<TD><TT>Link0</TT></TD>
+	<TD><TT>3ffe:501:ffff:100::/64</TT></TD>
+	<TD><TT>fe80::200:ff:fe00:a2a2</TT></TD>
+	<TD><TT>00:00:00:00:a2:a2</TT></TD>
+	</TR>
+	<TR>
+	<TD><TT>Relay1(Link0)</TT></TD>
+	<TD><TT>TN</TT></TD>
+	<TD><TT>Link0</TT></TD>
+	<TD><TT>3ffe:501:ffff:100::/64</TT></TD>
+	<TD><TT>fe80::200:ff:fe00:a4a4</TT></TD>
+	<TD><TT>00:00:00:00:a4:a4</TT></TD>
+	</TR>
+	<TR>
+	<TD><TT>Relay1(Link1)</TT></TD>
+	<TD><TT>TN</TT></TD>
+	<TD><TT>Link1</TT></TD>
+	<TD><TT>3ffe:501:ffff:101::/64</TT></TD>
+	<TD><TT>fe80::200:ff:fe00:a5a5</TT></TD>
+	<TD><TT>00:00:00:00:a5:a5</TT></TD>
+	</TR>
+	<TR>
+	<TD><TT>Relay2(Link1)</TT></TD>
+	<TD><TT>TN</TT></TD>
+	<TD><TT>Link1</TT></TD>
+	<TD><TT>3ffe:501:ffff:101::/64</TT></TD>
+	<TD><TT>fe80::200:ff:fe00:a5a5</TT></TD>
+	<TD><TT>00:00:00:00:a5:a5</TT></TD>
+	</TR>
+	<TR>
+	<TD><TT>Relay2(Link2)</TT></TD>
+	<TD><TT>TN</TT></TD>
+	<TD><TT>Link2</TT></TD>
+	<TD><TT>3ffe:501:ffff:102::/64</TT></TD>
+	<TD><TT>fe80::200:ff:fe00:a6a6</TT></TD>
+	<TD><TT>00:00:00:00:a6:a6</TT></TD>
+	</TR>
+	</TABLE>
+	</BLOCKQUOTE>
+  </UL>
+
+=end html
+
+=head1 TEST PROCEDURE
+
+=begin html
+<PRE>
+	    TN(Client1)TN(Relay2) TN(Relay1) NUT(Server1)
+	        |       |           |              |
+	        | ----> |           |              |Information-request
+	        |       | ----->    |              |Relay-forward(Information-request)
+	        |       |           |  ------->    |Relay-forward(Information-request)
+	        |       |           |  <------     |Relay-reply(Reply)  (*1)
+	        |       |           |              |
+</PRE>
+
+=end html
+
+=head1 JUDGEMENT
+
+<PRE>
+(*1)PASS: NUT will send the correctly Relay-reply message.
+</PRE>
+
+=head1 TERMINATION
+
+  N/A
+
+=head1 REFERENCE
+
+=begin html
+<PRE>
+   See also RFC3315 
+   20.3
+
+   See also RFC3646 
+   3 and 4
+
+   see also RFC3736
+   5.1. 5.2 adn 5.3
+</PRE>
+
+=end html
+
+=head1 SEE ALSO
+
+  perldoc V6evalTool
+
+=cut
+
+

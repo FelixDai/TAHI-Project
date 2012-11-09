@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+    <package protocol="DHCPv6">
+        <config name="config.pl" path="./config.pl" title="Configure the advanced functionalities support">
+            <item name="$Address_assignment" type="Boolean" defaultvalue="1" description="support addrss assignment in RFC 3315"></item>
+            <item name="$Prefix_Delegation" type="Boolean" defaultvalue="1" description="support IPv6 prefix options"></item>
+            <item name="$DNS_configuration" type="Boolean" defaultvalue="1" description="support DNS configuration options"></item>
+            <item name="$Stateless_DHCPv6" type="Boolean" defaultvalue="1" description="support stateless DHCPv6"></item>
+            <item name="$Support_DUID_LLT" type="Boolean" defaultvalue="1" description="[for Clinet, Server and Relay agent] It is required to select one DUID type from [LLT | EN | LL]"></item>
+            <item name="$Support_DUID_EN" type="Boolean" defaultvalue="0" description="[for Clinet, Server and Relay agent] It is required to select one DUID type from [LLT | EN | LL]"></item>
+            <item name="$Support_DUID_LL" type="Boolean" defaultvalue="0" description="[for Clinet, Server and Relay agent] It is required to select one DUID type from [LLT | EN | LL]"></item>
+            <item name="$Send_Initial_RA" type="Boolean" defaultvalue="1" description="Initial RA configuration [for Clinet and Server]"></item>
+            <item name="$Support_Listen_LLA" type="Boolean" defaultvalue="1" description="[for Server] Send Packet, it is required to select one of the two packets from [LLA | RA]"></item>
+            <item name="$Support_Listen_GA" type="Boolean" defaultvalue="0" description="[for Server] Send Packet, it is required to select one of the two packets from [LLA | RA]"></item>
+            <item name="$Cleanup" type="String" defaultvalue="normal" minimumvalue="" maximumvalue="" unit="" description="Common Cleanup Procedure [ normal | reboot | nothing ]"></item>
+            <item name="$Wait_Incomplete" type="int" defaultvalue="10" minimumvalue="" maximumvalue="" unit="sec" description="wait for Target Neighbor Node Cache state transit to INCOMPLETE "></item>
+            <item name="$Wait_Rebootcmd" type="int" defaultvalue="300" minimumvalue="" maximumvalue="" unit="sec" description="maximum waiting time for putting reboot command to NUT"></item>
+            <item name="$Sleep_After_Reboot" type="int" defaultvalue="10" minimumvalue="" maximumvalue="" unit="sec" description="sleep time after reboot"></item>
+        </config>
+
+        <target name="ipv6ready_p2_client" title="Phase-2 DHCPv6 for Client">
+
+                <subdir path="./rfc3315" title="Section 1: RFC 3315 - Address Assignment for Client">
+                    <index>./rfc3315/INDEX_p2_client</index>
+                </subdir>
+
+                <subdir path="./rfc3646" title="Section 4 : RFC3646 - DNS configuration in parallel with Address Assignment for Client">
+                    <index>./rfc3646/INDEX_p2_client</index>
+                </subdir>
+
+                <subdir path="./rfc3736" title="Section 7 : RFC3736 - Stateless DHCPv6 for DNS configuration for Client">
+                    <index>./rfc3736/INDEX_p2_client</index>
+                </subdir>
+        </target>
+
+        <target name="ipv6ready_p2_server" title="Phase-2 DHCPv6 for Server">
+
+                <subdir path="./rfc3315" title="Section 2: RFC 3315 - Address Assignment for Server">
+                    <index>./rfc3315/INDEX_p2_server</index>
+                </subdir>
+
+                <subdir path="./rfc3646" title="Section 5 : RFC3646 - DNS configuration in parallel with Address Assignment for Server">
+                    <index>./rfc3646/INDEX_p2_server</index>
+                </subdir>
+
+                <subdir path="./rfc3736" title="Section 8 : RFC3736 - Stateless DHCPv6 for DNS configuration for Server">
+                    <index>./rfc3736/INDEX_p2_server</index>
+                </subdir>
+        </target>
+
+        <target name="ipv6ready_p2_relay" title="Phase-2 DHCPv6 for Relay Agent">
+
+                <subdir path="./rfc3315" title="Section 3: RFC 3315 - Address Assignment for Relay Agent">
+                    <index>./rfc3315/INDEX_p2_relay</index>
+                </subdir>
+
+                <subdir path="./rfc3646" title="Section 6 : RFC3646 - DNS configuration in parallel with Address Assignment for Relay Agent">
+                    <index>./rfc3646/INDEX_p2_relay</index>
+                </subdir>
+
+                <subdir path="./rfc3736" title="Section 9 : RFC3736 - Stateless DHCPv6 for DNS configuration for Relay Agent">
+                    <index>./rfc3736/INDEX_p2_relay</index>
+                </subdir>
+        </target>
+
+        <target name="ipv6ready_p2_requesting_router" title="Phase-2 DHCPv6 for Requesting Router">
+
+                <subdir path="./rfc3633" title="Section 10: RFC 3633 - IPv6 Prefix Option for Dynamic Host Configuration Protocol(DHCP) version 6 for Requesting Router">
+                    <index>./rfc3633/INDEX_p2_requesting_router</index>
+                </subdir>
+
+                <subdir path="./rfc3633_rfc3646" title="Section 12 : RFC3633 + RFC3646 -  DNS Configuration options for Dynamic Host Configuration Protocol for IPv6(DHCPv6) for Requesting Router">
+                    <index>./rfc3633_rfc3646/INDEX_p2_requesting_router</index>
+                </subdir>
+        </target>
+
+        <target name="ipv6ready_p2_delegating_router" title="Phase-2 DHCPv6 for Delegating Router">
+
+                <subdir path="./rfc3633" title="Section 11: RFC 3633 - IPv6 Prefix Option for Dynamic Host Configuration Protocol(DHCP) version 6 for Delegating Router">
+                    <index>./rfc3633/INDEX_p2_delegating_router</index>
+                </subdir>
+
+                <subdir path="./rfc3633_rfc3646" title="Section 13 : RFC3633 + RFC3646 -  DNS Configuration options for Dynamic Host Configuration Protocol for IPv6(DHCPv6) for Delegating Router">
+                    <index>./rfc3633_rfc3646/INDEX_p2_delegating_router</index>
+                </subdir>
+        </target>
+    </package>
+

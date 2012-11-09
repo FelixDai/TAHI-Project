@@ -1,0 +1,28 @@
+<BR>
+<BR>
+Terminology
+<UL>
+  Client: A node that initiates requests on a link to abtain configuration parameters from one or more DHCP server.<BR>
+  Server: A node that responds to requests from clients, and may or may not be on the same link as the client(s).<BR> 
+  Relay agent: A node that acts as an intermediary to deliver DHCP messages between clients and servers, and is on the same link as the client.<BR>
+  DAD: Duplicate Address Detection<BR>
+  NA: Neighbor Advertisement<BR>
+  NS: Neighbor Solicitation<BR>
+  NUT: Node Under Test<BR>
+  RUT: Router Under Test<BR>
+  TN: Tester Node<BR>
+  TR: Testing Router<BR>
+  DHCP: Dynamic Host Configuration Protocol<BR>
+  IA: Identity Association
+  ID: Identifier
+  DUID: DHCP Unique Identifier
+</UL>
+<HR>    
+Index
+<UL>
+  <LI><A HREF="../rfc3315/index.html">RFC 3315 - Dynamic Host Configuration Protocol for IPv6(DHCPv6)</A> : Address Assignment<BR>
+  <LI><A HREF="../rfc3646/index.html">RFC 3646 - DNS Configuration options for Dynamic Host Configuration Protocol for IPv6(DHCPv6)</A> : DNS configuration in parallel with Address Assignment<BR>
+  <LI>RFC 3736 - IPv6 Stateless Dynamic Host Configuration Protocol(DHCP) Service for IPv6 : Stateless DHCPv6 for DNS configuration<BR>
+  <LI><A HREF="../rfc3633/index.html">RFC 3633 - IPv6 Prefix Option for Dynamic Host Configuration Protocol(DHCP) version 6</A> : Prefix Delegation<BR>
+  <LI><A HREF="../rfc3633_rfc3646/index.html">RFC 3633 + rfc3646- DNS Configuration options for Dynamic Host Configuration Protocol for IPv6(DHCPv6)</A> : DNS configuration in parallel with Prefix Delegation<BR>
+</UL>

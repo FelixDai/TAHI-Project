@@ -1,0 +1,335 @@
+#!/usr/bin/perl
+#
+#Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009
+#Yokogawa Electric Corporation.
+#All rights reserved.
+#
+#Redistribution and use of this software in source and binary
+#forms, with or without modification, are permitted provided that
+#the following conditions and disclaimer are agreed and accepted
+#by the user:
+#
+#1. Redistributions of source code must retain the above copyright
+#   notice, this list of conditions and the following disclaimer.
+#
+#2. Redistributions in binary form must reproduce the above copyright
+#   notice, this list of conditions and the following disclaimer in
+#   the documentation and/or other materials provided with
+#   the distribution.
+#
+#3. Neither the names of the copyrighters, the name of the project
+#   which is related to this software (hereinafter referred to as
+#   "project") nor the names of the contributors may be used to
+#   endorse or promote products derived from this software without
+#   specific prior written permission.
+#
+#4. No merchantable use may be permitted without prior written
+#   notification to the copyrighters.
+#
+#5. The copyrighters, the project and the contributors may prohibit
+#   the use of this software at any time.
+#
+#THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+#CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+#BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+#FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+#COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+#INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+#(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+#SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+#HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+#STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+#IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+#POSSIBILITY OF SUCH DAMAGE.
+#
+#$Id: C_RFC3736_InfoRetrans.seq,v 1.5 2010/03/29 23:33:13 mario Exp $
+###############################################################################
+BEGIN{
+	$V6evalTool::TestVersion = '$Name: T_DHCPv6_Self_Test_P2_1_1_4 $';
+}
+use strict;
+use V6evalTool;
+
+use lib '../.';
+use DHCPv6_common;
+use DHCPv6_config;
+use Client_pktdesc;
+
+my $type	= $V6evalTool::NutDef{'Type'};
+if($type ne 'host') {
+	vLogHTML('<FONT COLOR="#FF0000">This test supports only Host</FONT>');
+	exit($V6evalTool::exitHostOnly);
+}
+
+dhcpExitNS if(ChkFuncSupport('STATELESSDHCP'));
+dhcpExitNS if(ChkFuncSupport('DNS'));
+
+#--------------------------------------------------------------#
+# Initialization variables
+#--------------------------------------------------------------#
+my $IF0_NUT = $V6evalTool::NutDef{"Link0_device"};
+my $IF0 = "Link0";
+my $timeout = 20;
+my $dstport = 0;
+my $TargetAddress = 'Frame_Ether.Packet_IPv6.ICMPv6_NS.TargetAddress';
+my %ret0 ;
+vCapture($IF0);
+
+#--------------------------------------------------------------#
+# manuallly address configuration 
+#--------------------------------------------------------------#
+if($INITIAL_RA) {
+        my $ret = initial_ra_w_ping($IF0,'ra_server2_to_all_addr_assign_vltime100');
+        if($ret != 0){
+                vLogHTML('<FONT COLOR="#FF0000">Global Address of NUT is not assigned by RA!</FONT><BR>');
+                dhcpExitFail;
+        }
+} else {
+        print "not RA\n";
+        my %ret0 = vSend($IF0, 'dummy');
+        unless(defined($ret0{$TargetAddress})) {
+                vLogHTML('<FONT COLOR="#FF0000"><B>Can\'t get TargetAddress.</B></FONT><BR>');
+                exit($V6evalTool::exitFatal);
+                #NOTREACHED
+        }
+
+        if(vRemote(
+                'manualaddrconf.rmt',
+                "if=$V6evalTool::NutDef{'Link0_device'}",
+                "addr=$ret0{$TargetAddress}",
+                'len=64',
+                'type=unicast'
+        )) {
+                vLogHTML('<FONT COLOR="#FF0000"><B>'.
+                        'manualaddrconf.rmt: Could\'t set the address'.
+                        '</B></FONT><BR>');
+
+                exit($V6evalTool::exitFatal);
+                #NOTREACHED
+        }
+}
+my $ret = vRemote("dhcp6c.rmt", "start", "inforeq", "dns", "link0=$IF0_NUT");
+if($ret != 0) {
+	vLogHTML('<FONT COLOR="#FF0000">Cannot Initialize DHCPv6 Client program.</FONT><BR>');
+	dhcpExitFail;
+};
+#--------------------------------------------------------------#
+# 1. Capture Information-request
+#--------------------------------------------------------------#
+my ($retinf, %inf) = wait_for_information_request($IF0, $timeout);
+if($retinf != 0){
+	dhcpExitFail;
+}
+
+#check the IP SourceAddress of Information-request Message
+$ret = check_ipaddr_local(\%inf,"SourceAddress");
+if($ret != 0){
+	dhcpExitFail;
+}
+my $identifier = $inf{"Frame_Ether.Packet_IPv6.Upp_UDP.Udp_DHCPv6_InformationRequest.Identifier"};
+vLogHTML("<B> Identifier is $identifier </B><BR>");
+if($identifier == 0){
+	vLogHTML('<FONT COLOR="#FF0000">Identifier is not non-zero value.</FONT><BR>');
+	dhcpExitFail;
+}
+my $optcode = lookup_OptRequestCode(\%inf,23);
+if($optcode != 0){
+	vLogHTML('<FONT COLOR="#FF0000">Correct option Code is not found! </FONT><BR>');
+	dhcpExitFail;
+}
+
+#--------------------------------------------------------------#
+# 2. Capture Information-request
+#--------------------------------------------------------------#
+my ($retinf2, %inf2) = wait_for_information_request($IF0, $timeout);
+if($retinf2 != 0){
+	dhcpExitFail;
+}
+
+#--------------------------------------------------------------#
+#Compare messages
+#--------------------------------------------------------------#
+$ret = compare_message(\%inf,\%inf2);
+if($ret!=0){
+	dhcpExitFail;
+}
+#--------------------------------------------------------------#
+# CleanUp
+#--------------------------------------------------------------#
+if($INITIAL_RA) {
+	my $ret = cleanup();
+	if($ret != 0) {
+	        dhcpExitFail;
+	}
+} else {
+        my %ret0 = vSend($IF0, 'dummy');
+        unless(defined($ret0{$TargetAddress})) {
+                vLogHTML('<FONT COLOR="#FF0000"><B>Can\'t get TargetAddress.</B></FONT><BR>');
+                exit($V6evalTool::exitFatal);
+                #NOTREACHED
+        }
+
+        if(vRemote(
+                'manualaddrconf.rmt',
+                "if=$V6evalTool::NutDef{'Link0_device'}",
+                "addr=$ret0{$TargetAddress}",
+                'len=64',
+                'type=delete'
+                )) {
+                vLogHTML('<FONT COLOR="#FF0000"><B>'.
+                        'manualaddrconf.rmt: Could\'t remove the address'.
+                        '</B></FONT><BR>');
+
+                exit($V6evalTool::exitFatal);
+                #NOTREACHED
+        }
+}
+
+vLogHTML("<B> Retransmittion Information-request message same as 1st Information-request message</B><BR>");
+
+
+vClear($IF0);
+vStop($IF0);
+dhcpExitPass;
+###############################################################################
+__END__
+
+=head1 NAME 
+
+  C_RFC3736_InfoRetrans.seq - Reliability of DHCPv6 Retransmission
+
+=head1 TARGET
+
+  Client
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./C_RFC3736_InfoRetrans.seq"> C_RFC3736_InfoRetrans.seq</A> [-tooloption...] <BR>  -pkt  <A HREF="./C_RFC3736_InfoRetrans.def"> C_RFC3736_InfoRetrans.def</A> <BR>  -tooloption : v6eval tool option
+<BR>
+  See Also <A HREF="../DHCPv6.def"> DHCPv6.def </A> 
+</PRE>
+
+=end html
+
+=head1 INITIALIZATION
+
+=begin html
+  <ul>
+  <li><STRONG>Network Topology</STRONG></li> 
+    <PRE>
+          NUT(Client) 3ffe:501:ffff:100::abcd            
+          |                       
+          |                       
+Link0   --+--------+------------+---------- 3ffe:501:ffff:100::/64
+                   |            |
+                   |            |
+                   TN(Server)   TN(DNS Server)
+		                3ffe:501:ffff:100:200:ff:fe00:3f3e
+    </PRE>
+  </ul>  
+  <ul>
+  <li><STRONG>Verification Points</STRONG></li><br>
+    <PRE>
+   DHCP clients are responsible for reliable delivery of messages in the
+   client-initiated message exchanges. If a DHCP client fails to receive
+   an expected response from a server, the client must retransmit its 
+   message.  
+    </PRE>
+  </ul>
+  <ul>  
+  <li><STRONG>Configurations</STRONG></li><br>
+   <BR>
+    <TABLE BORDER="1">
+    <TR>
+    <TD><TT>Device Name</TT></TD>
+    <TD><TT>Device Type</TT></TD>
+    <TD><TT>Interface</TT></TD>
+    <TD><TT>Assigned Prefix</TT></TD>
+    <TD><TT>Link Local Addr</TT></TD>
+    <TD><TT>MAC Addr</TT></TD>
+    </TR>
+    <TR>
+    <TD><TT>Client</TT></TD>
+    <TD><TT>NUT</TT></TD>
+    <TD><TT>Link0</TT></TD>
+    <TD><TT>3ffe:501:ffff:100::/64</TT></TD>
+    <TD><TT>NUT's Linklocal address</TT></TD>
+    <TD><TT>NUT's MAC address</TT></TD>
+    </TR>
+    <TR>
+    <TD><TT>Server</TT></TD>
+    <TD><TT>TN</TT></TD>
+    <TD><TT>Link0</TT></TD>
+    <TD><TT>3ffe:501:ffff:100::/64</TT></TD>
+    <TD><TT>fe80::200:ff:fe00:a1a1</TT></TD>
+    <TD><TT>00:00:00:00:a1:a1</TT></TD>
+    </TR>
+    </TABLE>
+  </ul>
+
+=end html
+
+=head1 TEST PROCEDURE
+
+=begin html
+<PRE>
+<BR>
+       NUT      TN
+        |       |
+        |       | NUT has been configured with IPv6 address,
+        |       | and request stateless DHCPv6 service
+        |       |
+        | ----> |<B>Information-request</B> w/Option Request Option(1*)
+        |       |
+        |       |waiting until message arrives
+        |       |
+        | ----> |<B>Information-request</B> w/Option Request Option(2*)
+        |       |
+<BR>
+</PRE>
+
+=end html
+
+=head1 JUDGEMENT
+
+=begin html
+<PRE>
+<BR>  
+  (1*)PASS: TN receives Information-request from NUT.
+  (2*)PASS: TN should receive Solicit from NUT, and the content of message 
+            is same with that in (1*).
+</PRE>
+
+=end html
+
+=head1 TERMINATION
+
+=begin html
+<PRE>
+  N/A
+</PRE>
+
+=end html
+
+=head1 REFERENCE
+
+=begin html
+<PRE>
+  Also see RFC3315 Section 14
+  Also see RFC3736
+</PRE>
+
+=end html
+
+=head1 SEE ALSO
+
+=begin html
+<PRE>
+<BR>
+  perldoc  V6evalTool
+<BR>
+</PRE>
+
+=end html

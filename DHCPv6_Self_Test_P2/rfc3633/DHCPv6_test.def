@@ -1,0 +1,3 @@
+#ifndef __INITIALIZE_V6EVAL__
+#include "DHCPv6_test_pkt.def"
+#endif  // __INITIALIZE_V6EVAL__

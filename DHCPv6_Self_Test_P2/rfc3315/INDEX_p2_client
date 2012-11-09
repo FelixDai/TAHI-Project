@@ -1,0 +1,219 @@
+#
+# Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009
+# Yokogawa Electric Corporation.
+# All rights reserved.
+# 
+# Redistribution and use of this software in source and binary
+# forms, with or without modification, are permitted provided that
+# the following conditions and disclaimer are agreed and accepted
+# by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in
+#    the documentation and/or other materials provided with
+#    the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project
+#    which is related to this software (hereinafter referred to as
+#    "project") nor the names of the contributors may be used to
+#    endorse or promote products derived from this software without
+#    specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written
+#    notification to the copyrighters.
+# 
+# 5. The copyrighters, the project and the contributors may prohibit
+#    the use of this software at any time.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+# STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+# IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+# $Name: T_DHCPv6_Self_Test_P2_1_1_4 $
+# $TAHI: dhcpv6.p2/rfc3315/INDEX_p2_client,v 1.37 2009/12/03 06:03:15 akisada Exp $
+
+# ###############################################################
+# <coverage Number><seq>:<def>:<opts>:<htmldoc>:<dscription>:<links>
+#
+./DHCPv6_CltInit.seq:/dev/null:::Initialization:
+
+#################################################################
+&print:<B>Group1 : Client Basic Behaviors, Constants and Format</B>
+#################################################################
+
+&print:<B>Test DHCP_CONF.1.1.1 : Basic Message Exchange</B>
+./C_RFC3315_SolAdvReqReply.seq:./C_RFC3315_SolAdvReqReply.def::: Part A &#58; Valid Reply message in response to Request
+./C_RFC3315_CnfReply.seq:./C_RFC3315_CnfReply.def::: Part B &#58; Valid Reply message in response to Confirm message
+./C_RFC3315_RenReply.seq:./C_RFC3315_RenReply.def::: Part C &#58; Valid Reply message in response to Renew message
+./C_RFC3315_RebReply.seq:./C_RFC3315_RebReply.def::: Part D &#58; Valid Reply message in response to Rebind message
+./C_RFC3315_RelReply.seq:./C_RFC3315_RelReply.def::: Part E &#58; Valid Reply message in response to Release message
+./C_RFC3315_DecReply.seq:./C_RFC3315_DecReply.def::: Part F &#58; Valid Reply message in response to Decline message
+
+
+
+&print:<B>Test DHCP_CONF.1.1.2 : Implementation of DHCP constants</B>
+./C_RFC3315_13_CltMsgMCastAddrFormat.seq:./C_RFC3315_13_CltMsgMCastAddrFormat.def::: Part A &#58; Multicast Address
+./C_RFC3315_5_2_UdpPort.seq:./C_RFC3315_5_2_UdpPort.def:::Part B &#58; Valid UDP port
+./C_RFC3315_5_2_InvalidUdpPort.seq:./C_RFC3315_5_2_InvalidUdpPort.def::: Part C &#58; Invalid UDP port
+
+&print:<B>Test DHCP_CONF.1.1.3 : Client Message Format</B>
+./C_RFC3315_6_CltMsgFormat.seq:./C_RFC3315_6_CltMsgFormat.def::: Client Message Format
+
+&print:<B>Test DHCP_CONF.1.1.4 : Client Identifier Format</B>
+./C_RFC3315_22_2_CltIdOpt.seq:./C_RFC3315_22_2_CltIdOpt.def::: Client Identifier Format
+
+&print:<B>Test DHCP_CONF.1.1.5 : Client DHCP Unique Identifier Contents</B>
+./C_RFC3315_9_2_CltDUIDLLTFormat.seq:./C_RFC3315_9_2_CltDUIDLLTFormat.def::: Part A &#58; DUID-LLT Format
+./C_RFC3315_9_2_CltDUIDLLTRebootFormat.seq:./C_RFC3315_9_2_CltDUIDLLTRebootFormat.def::: Part B &#58; DUID-LLT Consistency
+
+./C_RFC3315_9_3_CltDUIDENFormat.seq:./C_RFC3315_9_3_CltDUIDENFormat.def::: Part C &#58; DUID-EN Format
+./C_RFC3315_9_3_CltDUIDENRebootFormat.seq:./C_RFC3315_9_3_CltDUIDENRebootFormat.def::: Part D &#58; DUID-EN Consistency
+
+./C_RFC3315_9_4_CltDUIDLLFormat.seq:./C_RFC3315_9_4_CltDUIDLLFormat.def::: Part E &#58; DUID-LL Format
+./C_RFC3315_9_4_CltDUIDLLRebootFormat.seq:./C_RFC3315_9_4_CltDUIDLLRebootFormat.def::: Part E &#58; DUID-LL Consistency
+
+&print:<B>Test DHCP_CONF.1.1.6 : IA_NA Option Format</B>
+./C_RFC3315_22_4_IANAOpt.seq:./C_RFC3315_22_4_IANAOpt.def::: IA_NA Option Format
+&print:<B>Test DHCP_CONF.1.1.7 : Identity Association Consistency</B>
+./C_RFC3315_10_CltIAIDFormat.seq:./C_RFC3315_10_CltIAIDFormat.def::: Identity Association Consistency
+
+&print:<B>Test DHCP_CONF.1.1.8 : Server Identifier Option Format</B>
+./C_RFC3315_22_3_SrvIdOpt.seq:./C_RFC3315_22_3_SrvIdOpt.def::: Server Identifier Option Format
+
+&print:<B>Test DHCP_CONF.1.1.9 : IA Address Option Format</B>
+./C_RFC3315_22_6_IAAddrOpt.seq:./C_RFC3315_22_6_IAAddrOpt.def::: IA Address Option Format
+
+&print:<B>Test DHCP_CONF.1.1.10 : Elapsed Time Option Format</B>
+./C_RFC3315_22_9_ElapTimeOpt.seq:./C_RFC3315_22_9_ElapTimeOpt.def::: Part A &#58; Elapsed Time Option in Solicit message
+./C_RFC3315_22_9_ElapTimeOpt_ReqMsg.seq:./C_RFC3315_22_9_ElapTimeOpt_ReqMsg.def::: Part B &#58; Elapsed Time Option Format in Request message
+./C_RFC3315_22_9_ElapTimeOpt_CnfMsg.seq:./C_RFC3315_22_9_ElapTimeOpt_CnfMsg.def::: Part C &#58; Elapsed Time Option Format in Confirm message
+./C_RFC3315_22_9_ElapTimeOpt_RenMsg.seq:./C_RFC3315_22_9_ElapTimeOpt_RenMsg.def::: Part D &#58; Elapsed Time Option Format in Renew message
+./C_RFC3315_22_9_ElapTimeOpt_RebMsg.seq:./C_RFC3315_22_9_ElapTimeOpt_RebMsg.def::: Part E &#58; Elapsed Time Option Format in Rebind message
+./C_RFC3315_22_9_ElapTimeOpt_RelMsg.seq:./C_RFC3315_22_9_ElapTimeOpt_RelMsg.def::: Part F &#58; Elapsed Time Option Format in Release message
+./C_RFC3315_22_9_ElapTimeOpt_DecMsg.seq:./C_RFC3315_22_9_ElapTimeOpt_DecMsg.def::: Part G &#58; Elapsed Time Option Format in Decline message
+./C_RFC3315_22_9_ElapTimeOpt_maxtime.seq:./C_RFC3315_22_9_ElapTimeOpt_maxtime.def::: Part H &#58; Maximum Elapsed Time in elapsed-time field
+
+
+
+#################################################################
+&print:<B>Group2 : Client Message Transmission </B>
+#################################################################
+
+&print:<B>Test DHCP_CONF.1.2.1 : Transmission of Solicit Message</B>
+./C_RFC3315_17_1_1_Sol.seq:./C_RFC3315_17_1_1_Sol.def::: Part A &#58; Solicit message format
+./C_RFC3315_14_CltMsgRetrans.seq:./C_RFC3315_14_CltMsgRetrans.def::: Part B &#58; Reliability of DHCPv6 Retransmission
+./C_RFC3315_17_1_2_SolRetransRT.seq:./C_RFC3315_17_1_2_SolRetransRT.def::: Part C &#58; Retransmission of Solicit Message
+./C_RFC3315_17_1_2_SolRetransMRT.seq:./C_RFC3315_17_1_2_SolRetransMRT.def::: Part D &#58; Maximum Retransmission Time of solicit message
+
+&print:<B>Test DHCP_CONF.1.2.2 : Message Exchange Termination for Solicit Message</B>
+./C_RFC3315_17_1_2_SolWaitAdv.seq:./C_RFC3315_17_1_2_SolWaitAdv.def::: Part A &#58; Receives Advertise message without Preference Option before first RT elapse 
+./C_RFC3315_17_1_2_SolNoAdvRT.seq:./C_RFC3315_17_1_2_SolNoAdvRT.def ::: Part B &#58; Receives Advertise message without Preference Option after first RT elapse 
+
+&print:<B>Test DHCP_CONF.1.2.3 : Transmission of Request message</B>
+./C_RFC3315_18_1_1_TransReq.seq:./C_RFC3315_18_1_1_TransReq.def::: Part A &#58; Request message format
+./C_RFC3315_18_1_1_ReqRetransRT.seq:./C_RFC3315_18_1_1_ReqRetransRT.def::: Part B &#58; Retransmission of Request messages
+./C_RFC3315_18_1_1_ReqRetransMRT.seq:./C_RFC3315_18_1_1_ReqRetransMRT.def::: Part C &#58; Maximum Retransmission Time of Request messages
+./C_RFC3315_18_1_1_RetransReq.seq:./C_RFC3315_18_1_1_RetransReq.def::: Part D &#58; Maximum Retransmission Count of Request messages
+
+&print:<B>Test DHCP_CONF.1.2.4 : Transmission of Confirm message</B>
+./C_RFC3315_18_1_2_TransCnf.seq:./C_RFC3315_18_1_2_TransCnf.def::: Part A &#58; Confirm message format 
+./C_RFC3315_18_1_2_CnfRetransRT.seq:./C_RFC3315_18_1_2_CnfRetransRT.def::: Part B &#58; Retransmission of Confirm message 
+./C_RFC3315_18_1_2_CnfRetransMRT.seq:./C_RFC3315_18_1_2_CnfRetransMRT.def::: Part C &#58; Maximum Retransmission Time of Confirm message
+./C_RFC3315_18_1_2_RetransCnf.seq:./C_RFC3315_18_1_2_RetransCnf.def::: Part D &#58; Maximum Retransmission Duration of Confirm message 
+./C_RFC3315_18_1_2_ResvCnf.seq:./C_RFC3315_18_1_2_ResvCnf.def::: Part E  &#58; Reserved Address Information 
+
+&print:<B>Test DHCP_CONF.1.2.5 : Transmission of Renew message</B>
+./C_RFC3315_18_1_3_TransRen.seq:./C_RFC3315_18_1_3_TransRen.def::: Part A &#58; Renew message format 
+./C_RFC3315_18_1_3_RenRetransRT.seq:./C_RFC3315_18_1_3_RenRetransRT.def::: Part B &#58; Retransmission of Renew message, T1 and T2 non-zero
+./C_RFC3315_18_1_3_RenRetransMRT.seq:./C_RFC3315_18_1_3_RenRetransMRT.def::: Part C &#58; Maximum Retransmission Time of Renew message, T1 and T2 non-zero
+./C_RFC3315_18_1_3_RetransRen.seq:./C_RFC3315_18_1_3_RetransRen.def::: Part D &#58; Maximum Retransmission Duration of Renew message, T1 and T2 non-zero
+
+&print:<B>Test DHCP_CONF.1.2.6 : Transmission of Rebind message</B>
+./C_RFC3315_18_1_4_TransReb.seq:./C_RFC3315_18_1_4_TransReb.def:::  Part A &#58; Rebind message format 
+./C_RFC3315_18_1_4_RebRetransRT.seq:./C_RFC3315_18_1_4_RebRetransRT.def::: Part B &#58; Retransmission of Rebind message, T1 and T2 non-zero 
+./C_RFC3315_18_1_4_RebRetransMRT.seq:./C_RFC3315_18_1_4_RebRetransMRT.def::: Part C &#58; Maximum Retransmission Time of Rebind message, T1 and T2 non-zero
+./C_RFC3315_18_1_4_RetransReb.seq:./C_RFC3315_18_1_4_RetransReb.def::: Part D &#58; Maximum Retransmission Duration of Rebind message, T1 and T2 non-zero
+
+&print:<B>Test DHCP_CONF.1.2.7 : Transmission of Release message</B>
+./C_RFC3315_18_1_6_TransRel.seq:./C_RFC3315_18_1_6_TransRel.def:::  Part A &#58; Release message format 
+./C_RFC3315_18_1_6_TransRelErrDetect.seq:./C_RFC3315_18_1_6_TransRelErrDetect.def::: Part B &#58; Release of received address
+./C_RFC3315_18_1_6_RelRetransRT.seq:./C_RFC3315_18_1_6_RelRetransRT.def::: Part C &#58; Retransmission of Release message
+./C_RFC3315_18_1_6_RetransRel.seq:./C_RFC3315_18_1_6_RetransRel.def::: Part D &#58; Maximum Retransmission Count of Release message, no reply message from Server
+./C_RFC3315_18_1_6_RelReplyFail.seq:./C_RFC3315_18_1_6_RelReplyFail.def:::  Part E &#58; Retransmission and message exchange termination, Server responds with Reply message
+./C_RFC3315_18_1_6_RetransRel_Eltime.seq:./C_RFC3315_18_1_6_RetransRel_Eltime.def:::  Part F &#58; Elapsed-time value of the retransmit Release message
+
+&print:<B>Test DHCP_CONF.1.2.8 : Transmission of Decline message</B>
+./C_RFC3315_18_1_7_TransDec.seq:./C_RFC3315_18_1_7_TransDec.def::: Part A &#58; Decline message format 
+./C_RFC3315_18_1_7_TransDecErrDetect.seq:./C_RFC3315_18_1_7_TransDecErrDetect.def::: Part B &#58; Decline of received address
+./C_RFC3315_18_1_7_DecRetransRT.seq:./C_RFC3315_18_1_7_DecRetransRT.def::: Part C &#58; Retransmission of Decline message
+./C_RFC3315_18_1_7_RetransDec.seq:./C_RFC3315_18_1_7_RetransDec.def::: Part D &#58; Maximum Retransmission Count of Decline message, no reply message from Server
+./C_RFC3315_18_1_7_DecReplyFail.seq:./C_RFC3315_18_1_7_DecReplyFail.def::: Part E &#58; Retransmission and message exchange termination, Server responds with Reply message
+
+
+#################################################################
+&print:<B>Group3 : Message Reception</B>
+#################################################################
+
+&print:<B>Test DHCP_CONF.1.3.1 : Reception of Advertise messages</B>
+./C_RFC3315_17_1_3_AdvWStatusCode.seq:./C_RFC3315_17_1_3_AdvWStatusCode.def::: Reception of Advertise messages
+
+&print:<B>Test DHCP_CONF.1.3.2 : Client initiated Exchange - Reception of Reply messages</B>
+./C_RFC3315_18_1_8_RecvReplyUseT1T2.seq:./C_RFC3315_18_1_8_RecvReplyUseT1T2.def::: Part A &#58; T1 and T2 Times Recorded
+./C_RFC3315_18_1_8_RecvReplyUseNewAddr.seq:./C_RFC3315_18_1_8_RecvReplyUseNewAddr.def::: Part B &#58; New Address in IA option
+./C_RFC3315_18_1_8_RecvReplyUpdatedAddr.seq:./C_RFC3315_18_1_8_RecvReplyUpdatedAddr.def::: Part C &#58; Update Lifetimes
+./C_RFC3315_18_1_8_RecvReplyUpdatedZero.seq:./C_RFC3315_18_1_8_RecvReplyUpdatedZero.def::: Part D &#58; IA Address option - Valid Lifetime set to zero
+./C_RFC3315_18_1_8_RecvReplyNewAddrZero.seq:./C_RFC3315_18_1_8_RecvReplyNewAddrZero.def::: Part E &#58; IA Address option not included in IA from Server
+
+&print:<B>Test DHCP_CONF.1.3.3 : Client initiated Exchange - Reception of Reply messages cont'd</B>
+./C_RFC3315_18_1_8_RecvReplyWStatusUnspecFail.seq:./C_RFC3315_18_1_8_RecvReplyWStatusUnspecFail.def::: Part A &#58; Reply message contain UnspecFail
+./C_RFC3315_18_1_8_RecvReplyWStatusUseMulticast.seq:./C_RFC3315_18_1_8_RecvReplyWStatusUseMulticast.def:::  Part B &#58; Reply message contain UseMulticast
+
+./C_RFC3315_18_1_8_ReqReplyWStatusNotOnLink.seq:./C_RFC3315_18_1_8_ReqReplyWStatusNotOnLink.def::: Part C &#58; Reply message contains NotOnLink in response to a Request message
+
+./C_RFC3315_18_1_8_CnfReplyWStatusNotOnLink.seq:./C_RFC3315_18_1_8_CnfReplyWStatusNotOnLink.def:::  Part D &#58; Reply message contains NotOnLink in response to a Confirm message 
+./C_RFC3315_18_1_8_CnfReplyWoStatusNotOnLink.seq:./C_RFC3315_18_1_8_CnfReplyWoStatusNotOnLink.def::: Part E &#58; Reply message in response to a Confirm message
+./C_RFC3315_18_1_8_RenReplyWIAStatusNoBinding.seq:./C_RFC3315_18_1_8_RenReplyWIAStatusNoBinding.def::: Part F &#58; Reply message contains NoBinding in response to a Renew message
+./C_RFC3315_18_1_8_RebReplyWIAStatusNoBinding.seq:./C_RFC3315_18_1_8_RebReplyWIAStatusNoBinding.def::: Part G &#58; Reply message contains NoBinding in response to a Rebind message
+./C_RFC3315_18_1_8_RenReplyNotWantedIA.seq:./C_RFC3315_18_1_8_RenReplyNotWantedIA.def::: Part H &#58; Reply message contains no IA in response to a Renew message
+./C_RFC3315_18_1_8_RebReplyNotWantedIA.seq:./C_RFC3315_18_1_8_RebReplyNotWantedIA.def::: Part I &#58; Reply message contains no IA in response to a Rebind message
+./C_RFC3315_18_1_8_RelReply.seq:./C_RFC3315_18_1_8_RelReply.def::: Part J &#58; Reply message contains NoBinding in response to a Release message
+./C_RFC3315_18_1_8_DecReply.seq:./C_RFC3315_18_1_8_DecReply.def::: Part K &#58; Reply message contains NoBinding in response to a Decline message
+
+
+
+
+&print:<B>Test DHCP_CONF.1.3.4 : Reception of Invalid Advertise message</B>
+./C_RFC3315_15_3_DiscInvalidAdvWoSrvIdOpt.seq:./C_RFC3315_15_3_DiscInvalidAdvWoSrvIdOpt.def::: Part A &#58; No Server Identifier option
+./C_RFC3315_15_3_DiscInvalidAdvWoCltIdOpt.seq:./C_RFC3315_15_3_DiscInvalidAdvWoCltIdOpt.def::: Part B &#58; No Client Identifier option
+./C_RFC3315_15_3_DiscInvalidAdvWErrCltIdOpt.seq:./C_RFC3315_15_3_DiscInvalidAdvWErrCltIdOpt.def::: Part C &#58; Client Identifier that does not match the DUID of the client
+./C_RFC3315_15_3_DiscInvalidAdvWErrTransid.seq:./C_RFC3315_15_3_DiscInvalidAdvWErrTransid.def::: Part D &#58; Transaction ID Mismatch
+
+&print:<B>Test DHCP_CONF.1.3.5 : Reception of Invalid Reply message</B>
+./C_RFC3315_15_10_DiscInvalidReplyWoSrvIdOpt.seq:./C_RFC3315_15_10_DiscInvalidReplyWoSrvIdOpt.def::: Part A &#58; No Server Identifier option
+./C_RFC3315_15_10_DiscInvalidReplyWErrTransid.seq:./C_RFC3315_15_10_DiscInvalidReplyWErrTransid.def::: Part B &#58; Transaction ID Mismatch
+./C_RFC3315_22_4_IANAOptInvalidTime.seq:./C_RFC3315_22_4_IANAOptInvalidTime.def::: Part C &#58; Contains invalid IA_NA option T1>T2
+./C_RFC3315_22_6_DiscInvalidIAAddr.seq:./C_RFC3315_22_6_DiscInvalidIAAddr.def::: Part D &#58; Contains invalid IA Address (preferred lifetime > valid lifetime)
+
+&print:<B>Test DHCP_CONF.1.3.6 : Client Message Validation</B>
+./C_RFC3315_15_2_DiscSol.seq:./C_RFC3315_15_2_DiscSol.def::: Part A &#58; Solicit message (type1)
+./C_RFC3315_15_4_DiscReq.seq:./C_RFC3315_15_4_DiscReq.def::: Part B &#58; Request message (type3)
+./C_RFC3315_15_5_DiscCnf.seq:./C_RFC3315_15_5_DiscCnf.def::: Part C &#58; Confirm message (type 4)
+./C_RFC3315_15_6_DiscRen.seq:./C_RFC3315_15_6_DiscRen.def::: Part D &#58; Renew message (type 5)
+./C_RFC3315_15_7_DiscReb.seq:./C_RFC3315_15_7_DiscReb.def::: Part E &#58; Rebind message (type 6)
+./C_RFC3315_15_8_DiscDec.seq:./C_RFC3315_15_8_DiscDec.def::: Part F &#58; Decline message (type 9)
+./C_RFC3315_15_9_DiscRel.seq:./C_RFC3315_15_9_DiscRel.def::: Part G &#58; Release message (type 8)
+./C_RFC3315_15_13_DiscRelayForw.seq:./C_RFC3315_15_13_DiscRelayForw.def::: Part H &#58; Relay-forward message (type 12)
+./C_RFC3315_15_14_DiscRelayRepl.seq:./C_RFC3315_15_14_DiscRelayRepl.def::: Part I &#58; Relay-reply message (type 13)
+./C_RFC3315_15_11_DiscInfoReq.seq:./C_RFC3315_15_11_DiscInfoReq.def::: Part J &#58; Information-request message (type 11)

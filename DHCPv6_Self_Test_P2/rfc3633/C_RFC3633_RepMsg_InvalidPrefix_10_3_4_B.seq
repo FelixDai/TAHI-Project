@@ -1,0 +1,349 @@
+#!/usr/bin/perl
+#
+# Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009
+# Yokogawa Electric Corporation.
+# All rights reserved.
+# 
+# Redistribution and use of this software in source and binary
+# forms, with or without modification, are permitted provided that
+# the following conditions and disclaimer are agreed and accepted
+# by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in
+#    the documentation and/or other materials provided with
+#    the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project
+#    which is related to this software (hereinafter referred to as
+#    "project") nor the names of the contributors may be used to
+#    endorse or promote products derived from this software without
+#    specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written
+#    notification to the copyrighters.
+# 
+# 5. The copyrighters, the project and the contributors may prohibit
+#    the use of this software at any time.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+# STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+# IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+# $TAHI: dhcpv6.p2/rfc3633/C_RFC3633_RepMsg_InvalidPrefix_10_3_4_B.seq,v 1.4 2012/02/02 10:03:10 miyata Exp $
+#
+########################################################################
+
+BEGIN{
+	$V6evalTool::TestVersion = '$Name: T_DHCPv6_Self_Test_P2_1_1_4 $';
+}
+use strict;
+use V6evalTool;
+
+use lib '../.';
+use DHCPv6_common;
+use Client_pktdesc;
+
+my $type=$V6evalTool::NutDef{Type};
+if($type ne 'router') {
+	vLogHTML('<FONT COLOR="#FF0000">This test does not support Host!</FONT>');
+	exit $V6evalTool::exitRouterOnly;
+}
+
+dhcpExitNS if(ChkFuncSupport('PREFIX_DELEGATION'));
+
+#--------------------------------------------------------------#
+# Initialization variables
+#--------------------------------------------------------------#
+my $IF0_NUT = $V6evalTool::NutDef{"Link0_device"};
+my $IF0 = "Link0";
+my ($plifetime, $vlifetime) = (100, 200);
+my ($time1, $time2) = (0.5*$plifetime, 0.8*$plifetime);
+my $timeout = $time1 + 5;
+
+vCapture($IF0);
+#--------------------------------------------------------------#
+# Initialize DHCPv6 Client
+#--------------------------------------------------------------#
+my $ret = vRemote("dhcp6c.rmt", "start", "prefix", "pd_iaid", "rd_iaid", "rentime=50","rebtime=80", "link0=$IF0_NUT");
+if($ret != 0) {
+	vLogHTML('<FONT COLOR="#FF0000">Cannot Initialize DHCPv6 Client program.</FONT><BR>');
+	dhcpExitFail;
+};
+#--------------------------------------------------------------#
+#1.  Wait until Solicit arrives 
+#--------------------------------------------------------------#
+my ($retsol,%sol) = wait_for_solicit($IF0,30);
+if($retsol != 0){
+	dhcpExitFail;
+}
+vClear($IF0);
+#--------------------------------------------------------------#
+#2. Send Advertise to reply to Solicit
+#--------------------------------------------------------------#
+$SID_OPTION = "opt_SID_LLT_server1";
+$IA_PD_OPTION = "opt_IA_PD_Prefix2";
+$ElapsedTime_OPTION = "opt_ElapsedTime";
+
+#my ($plifetime, $vlifetime) = (100, 200);
+#my ($time1, $time2) = (0.5*$plifetime, 0.8*$plifetime);
+#my ($time1, $time2) = (50, 80);
+#my ($retadv, %adv) = send_advertise($IF0, "advertise_server1_to_nut", \%sol, "-DIA_PD_TIME1=$time1 -DIA_PD_TIME2=$time2 -DIA_PREFIX_PLTIME=$plifetime -DIA_PREFIX_VLTIME=$vlifetime ");
+my ($retadv, %adv) = send_advertise($IF0, "advertise_server1_to_nut", \%sol, "");
+if($retadv != 0){
+	dhcpExitFail;
+}
+#--------------------------------------------------------------#
+#3.  Wait until Request arrives 
+#--------------------------------------------------------------#
+my ($retreq, %req) = wait_for_request($IF0,30);
+if($retreq != 0){
+	dhcpExitFail;
+}
+
+vClear($IF0);
+#--------------------------------------------------------------#
+#4. send Reply message
+#--------------------------------------------------------------#
+$IA_PD_OPTION = "opt_IA_PD_Prefix2";
+$StatusCode_OPTION = "opt_StatusCode";
+
+#my ($plifetime, $vlifetime) = (100, 200);
+#my ($time1, $time2) = (0.5*$plifetime, 0.8*$plifetime);
+#my ($time1, $time2) = (50, 80);
+#my ($retrep, %rep) = send_reply($IF0, "reply_server1_to_nut", \%req, "-DIA_PD_TIME1=$time1 -DIA_PD_TIME2=$time2 -DIA_PREFIX_PLTIME=$plifetime -DIA_PREFIX_VLTIME=$vlifetime ");
+my ($retrep, %rep) = send_reply($IF0, "reply_server1_to_nut", \%req, "");
+if($retrep != 0){
+	dhcpExitFail;
+}
+
+
+vSleep(50);
+#--------------------------------------------------------------#
+#5. Wait until Renew arrives 
+#--------------------------------------------------------------#
+# Judge CID,SID option
+my ($retren1,%ren1) = wait_for_renew($IF0, $timeout);
+if($retren1 != 0){
+	dhcpExitFail;
+}
+
+# check recvtime
+if (0 != check_RecvTime(\%rep, \%ren1, $time1)){
+        dhcpExitError("<B>The Received time error! </B><BR>");
+}
+
+vClear($IF0);
+#--------------------------------------------------------------#
+#6. send Reply message
+#--------------------------------------------------------------#
+#my ($2nd_plifetime, $2nd_vlifetime) = (200, 100);
+$IA_PD_OPTION = "opt_IA_PD_2Prefix_PV";
+$StatusCode_OPTION = "opt_StatusCode";
+
+my ($retrep2, %rep2) = send_reply($IF0, "reply_server1_to_nut", \%ren1, "-DIA_PD_TIME3=$time1 -DIA_PD_TIME4=$time2");
+if($retrep2 != 0){
+        dhcpExitFail;
+}
+
+#--------------------------------------------------------------#
+#7. Wait until Another Renew arrives 
+#--------------------------------------------------------------#
+# Judge CID,SID option
+my ($retren2,%ren2) = wait_for_renew2($IF0, $timeout);
+if($retren2 != 0){
+        dhcpExitFail;
+}
+
+# check recvtime
+if (0 != check_RecvTime(\%rep2, \%ren2, $time1)){
+        dhcpExitError("<B>The Received time error! </B><BR>");
+}
+
+#--------------------------------------------------------------#
+# Judge
+#--------------------------------------------------------------#
+
+my $base = "Frame_Ether.Packet_IPv6.Upp_UDP.Udp_DHCPv6_Renew";
+my $msgtype =$ren2{"$base"."."."Type"};
+vLogHTML("<B> Type is $msgtype </B><BR>");
+if($msgtype != 5){
+        vLogHTML('<FONT COLOR="#FF0000">msg-type is not a proper value.</FONT><BR>');
+        dhcpExitFail;
+}
+
+my $identifier =$ren2{"$base"."."."Identifier"};
+vLogHTML("<B> Identifier is $identifier </B><BR>");
+if($identifier == 0){
+        vLogHTML('<FONT COLOR="#FF0000">Identifier is not non-zero value.</FONT><BR>');
+        dhcpExitFail;
+}
+
+if(0 != options_exist(\%ren2,($CMP_SID|$CMP_CID|$CMP_IA_PD))){
+vLogHTML('<FONT COLOR="#FF0000">option is not a proper format.</FONT><BR>');
+        dhcpExitFail;
+}
+# compare prefix
+if (0 != compare_prefix(\%ren1, \%ren2, ($CMP_IA_PREFIX))){
+        dhcpExitError("<B>The option error!Do not same as the previous message</B><BR>");
+}
+
+vClear($IF0);
+vStop($IF0);
+dhcpExitPass;
+###############################################################################
+__END__
+
+=head1 NAME 
+
+  C_RFC3633_RepMsg_InvalidPrefix_10_3_4_B.seq - Check when preferred-lifetime is greater than valid-lifetime
+
+=head1 TARGET
+
+  Client
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./C_RFC3633_RepMsg_InvalidPrefix_10_3_4_B.seq"> C_RFC3633_RepMsg_InvalidPrefix_10_3_4_B.seq</A> [-tooloption...] <BR>  -pkt <A HREF="./C_RFC3633_RepMsg_InvalidPrefix_10_3_4_B.def"> C_RFC3633_RepMsg_InvalidPrefix_10_3_4_B.def</A> <BR>  -tooloption : v6eval tool option
+  See Also <A HREF="../DHCPv6.def"> DHCPv6.def </A> 
+</PRE>
+
+=end html
+
+=head1 INITIALIZATION
+
+=begin html
+  <ul>
+  <li><STRONG>Network Topology</STRONG></li> 
+   <PRE>
+          NUT(Client)
+          |           
+          |                        
+Link0   --+--------+------------------------ 3ffe:501:ffff:100::/64
+                   |
+                   |          
+                   TN(Server) 
+   </PRE>
+  </ul>
+  <ul> 
+  <li><STRONG>Verification Points</STRONG></li><br>
+   <PRE>
+   A client discards any prefixes for which the preferred lifetime is
+   greater than the valid lifetime. 
+   </PRE>
+  </ul>
+  <ul> 
+  <li><STRONG>Configurations</STRONG></li><br>
+   <BR>
+    <TABLE BORDER="1">
+    <TR>
+    <TD><TT>Device Name</TT></TD>
+    <TD><TT>Device Type</TT></TD>
+    <TD><TT>Interface</TT></TD>
+    <TD><TT>Assigned Prefix</TT></TD>
+    <TD><TT>Link Local Addr</TT></TD>
+    <TD><TT>MAC Addr</TT></TD>
+    </TR>
+    <TR>
+    <TD><TT>Client</TT></TD>
+    <TD><TT>NUT</TT></TD>
+    <TD><TT>Link0</TT></TD>
+    <TD><TT>3ffe:501:ffff:100::/64</TT></TD>
+    <TD><TT>NUT's Linklocal address</TT></TD>
+    <TD><TT>NUT's MAC address</TT></TD>
+    </TR>
+    <TR>
+    <TD><TT>Server</TT></TD>
+    <TD><TT>TN</TT></TD>
+    <TD><TT>Link0</TT></TD>
+    <TD><TT>3ffe:501:ffff:100::/64</TT></TD>
+    <TD><TT>fe80::200:ff:fe00:a1a1</TT></TD>
+    <TD><TT>00:00:00:00:a1:a1</TT></TD>
+    </TR>
+    </TABLE>
+  </ul>
+
+=end html
+
+=head1 TEST PROCEDURE
+
+=begin html
+<PRE>
+  
+<BR>
+       NUT      TN
+        |       | 
+        |       |Initialize NUT (as a DHCPv6 Client)
+        |       | 
+        | ----> |<B>Solicit</B> 
+        | <---- |<B>Advertise</B> 
+        | ----> |<B>Request</B> 
+        | <---- |<B>Reply</B> w/IA_PD Option (w/IA_PD Prefix Option, T1=50, T2=80)
+        |       | 
+        |       | Before T1 expired
+        |       | 
+        | ----> |<B>Renew</B> 
+        | <---- |<B>Reply</B> w/IA_PD Option (w/IA_PD Prefix Option, preferred-lifetime=200,valid-lifetime=100)
+        |       | 
+        | ----> |<B>Renew</B> (7*)
+        |       |
+<BR>  
+</PRE>
+
+=end html
+
+=head1 JUDGEMENT
+
+=begin html
+<PRE>
+  (7*)PASS: NUT transmit Renew w/IA_PD Prefix Option.
+</PRE>
+
+=end html
+
+=head1 TERMINATION
+
+=begin html
+<PRE>
+  N/A
+</PRE>
+
+=end html
+
+=head1 REFERENCE
+
+=begin html
+<PRE>
+  Also see RFC3315
+<BR>
+  22.6. IA Address Option
+</PRE>
+
+=end html
+
+=head1 SEE ALSO
+
+=begin html
+<PRE>
+<BR>
+  perldoc  V6evalTool
+<BR>
+</PRE>
+
+=end html
+
+

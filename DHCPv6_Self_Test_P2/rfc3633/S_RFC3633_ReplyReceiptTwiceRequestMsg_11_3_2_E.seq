@@ -1,0 +1,361 @@
+#!/usr/bin/perl
+#
+# Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009
+# Yokogawa Electric Corporation.
+# All rights reserved.
+# 
+# Redistribution and use of this software in source and binary
+# forms, with or without modification, are permitted provided that
+# the following conditions and disclaimer are agreed and accepted
+# by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in
+#    the documentation and/or other materials provided with
+#    the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project
+#    which is related to this software (hereinafter referred to as
+#    "project") nor the names of the contributors may be used to
+#    endorse or promote products derived from this software without
+#    specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written
+#    notification to the copyrighters.
+# 
+# 5. The copyrighters, the project and the contributors may prohibit
+#    the use of this software at any time.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+# STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+# IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+# $TAHI: dhcpv6.p2/rfc3633/S_RFC3633_ReplyReceiptTwiceRequestMsg_11_3_2_E.seq,v 1.3 2011/05/29 10:53:27 miyata Exp $
+#
+########################################################################
+
+BEGIN { $V6evalTool::TestVersion = '$Name: T_DHCPv6_Self_Test_P2_1_1_4 $';
+}
+
+use strict;
+use V6evalTool;
+
+use lib '../.';
+use DHCPv6_common;
+use Server_pktdesc;
+
+my $type=$V6evalTool::NutDef{Type};
+if($type ne 'router') {
+	vLogHTML('<FONT COLOR="#FF0000">This test does not support Host!</FONT>');
+	exit $V6evalTool::exitRouterOnly;
+}
+
+dhcpExitNS if(ChkFuncSupport('PREFIX_DELEGATION'));
+
+#--------------------------------------------------------------#
+# Initialization
+#--------------------------------------------------------------#
+
+vLogHTML('<B>==== NUT Initialization ====</B><BR>');
+my $IF0 = "Link0";
+#initial NUT config parameters,
+my %NUT_Delegating_Config = (
+       'if_nut0'=> "$V6evalTool::NutDef{Link0_device}",
+#      'if_nut1' => "$V6evalTool::NutDef{Link1_device}",
+#      'if_add0' => "$NUTRELAY1_LINK0_GLOBAL_UCAST",
+#      'if_add1' => "$NUTRELAY1_LINK1_GLOBAL_UCAST",
+#      'if_length0' => "64",
+#      'if_length1' => "64",
+#      'if_type0'=> "unicast",
+#      'if_type1'=> "unicast",
+       'init_opcode' => "vRemote(\"dhcp6s.rmt\", \"start\",\"link0=$V6evalTool::NutDef{Link0_device}\",\"startaddr=3ffe:501:ffff:100::10\",\"endaddr=3ffe:501:ffff:100::11\",\"delegateprefix=2001:db8:ffff::\",\"delegateprefix_range=48\",\"delegateprefixlength=48\",\"preferredlifetime=10000\", \"validlifetime=20000\", \"renewtime=50\",\"rebindtime=80\")");
+
+dhcpDelegatingInit(\%NUT_Delegating_Config);
+
+
+vClear($IF0);
+#--------------------------------------------------------------#
+# Main Procedure
+#--------------------------------------------------------------#
+vLogHTML('<B>==== Resend Reply message for Request message  ====</B><BR>');
+
+# send DHCPv6 Solicit Message
+$CID_OPTION = "opt_CID_LLT_client1";
+$IA_PD_OPTION = "opt_IA_PD";
+$ElapsedTime_OPTION = "opt_ElapsedTime";
+my ($ret1, %sol1) = send_solicit($IF0, "solicit_client1_to_alldhcp", "");
+if (0 != $ret1){
+	dhcpExitFail()
+}
+
+
+# wait for DHCPv6 Advertise Message
+my ($ret2, %adv2) = wait_for_advertise($IF0, 5);
+if (0 != $ret2) {
+	vLogHTML("NUT did not send Advertise Message.<BR>");
+	dhcpExitFail();
+}
+
+vClear($IF0);
+# send DHCPv6 Request Message
+$CID_OPTION = "opt_CID_LLT_client1";
+$SID_OPTION = "opt_SID_ANY";
+$IA_PD_OPTION = "opt_IA_PD_Prefix2";
+$ElapsedTime_OPTION = "opt_ElapsedTime";
+my ($ret3, %req3) = send_request($IF0, "request_client1_to_alldhcp", \%adv2, "");
+if (0 != $ret3){
+        dhcpExitFail()
+}
+
+# wait for DHCPv6 Reply Message
+my ($ret4, %rep4) = wait_for_reply($IF0, 5);
+
+if (0 != $ret4){
+        dhcpExitFail()
+}
+
+#--------------------------------------------------------------#
+# Judge
+#--------------------------------------------------------------#
+
+# A Server and Client Identifier option (containing DUID)
+if (0 != options_exist(\%rep4,($CMP_CID|$CMP_SID))){
+        dhcpExitError("Can not find necessary(SID) option! ");
+}
+
+# A Client identifier option set to the same as Solicit message's Client identifier option
+if(0 != compare_id(\%req3, \%rep4, $CMP_CID)){
+        dhcpExitFail();
+}
+
+
+# Check the format of IA_PD option
+if (0 != parse_IAPD_option2(\%rep4)){
+        dhcpExitError("<B>Do not include necessary options!</B>");
+}
+
+if (0 != parse_IAPrefix_option(\%rep4)){
+        dhcpExitError("<B>Do not include necessary options!</B>");
+}
+
+
+vClear($IF0);
+# send DHCPv6 Request Message
+$CID_OPTION = "opt_CID_LLT_client1";
+$SID_OPTION = "opt_SID_ANY";
+$IA_PD_OPTION = "opt_IA_PD_Prefix2";
+$ElapsedTime_OPTION = "opt_ElapsedTime_update";
+my ($plifetime, $vlifetime) = (120, 100);
+
+my ($ret5, %req5) = send_request($IF0, "request_client1_to_alldhcp", \%adv2, "");
+if (0 != $ret5){
+	dhcpExitFail()
+}
+
+# wait for DHCPv6 Reply Message
+my ($ret6, %rep6) = wait_for_reply($IF0, 5);
+
+if (0 != $ret6){
+	dhcpExitFail()
+}
+
+#--------------------------------------------------------------#
+# Judge
+#--------------------------------------------------------------#
+
+# A Server and Client Identifier option (containing DUID)
+if (0 != options_exist(\%rep6,($CMP_CID|$CMP_SID))){
+        dhcpExitError("Can not find necessary(SID) option! ");
+}
+
+# A Client identifier option set to the same as Solicit message's Client identifier option
+if(0 != compare_id(\%req5, \%rep6, $CMP_CID)){
+        dhcpExitFail();
+}
+
+
+# Check the format of IA_PD option
+if (0 != parse_IAPD_option2(\%rep6)){
+        dhcpExitError("<B>Do not include necessary options!</B>");
+}
+
+if (0 != parse_IAPrefix_option(\%rep6)){
+        dhcpExitError("<B>Do not include necessary options!</B>");
+}
+
+my $baseopt = "Frame_Ether.Packet_IPv6.Upp_UDP.Udp_DHCPv6_Reply.Opt_DHCPv6_IA_PD";
+my $optionCode = "$baseopt.Code";
+my $optionID = "$baseopt.Identifier";
+my $optionLength = "$baseopt.Length";
+my $optionTime1 = "$baseopt.Time1";
+my $optionTime2 = "$baseopt.Time2";
+if((($rep4{"$optionCode"}) != ($rep6{"$optionCode"})) && (($rep4{"$optionID"}) != ($rep6{"$optionID"})) && (($rep4{"$optionID"}) != ($rep6{"$optionID"})) && (($rep4{"$optionTime1"}) != ($rep6{"$optionTime1"})) && (($rep4{"$optionTime2"}) != ($rep6{"$optionTime2"}))){
+ dhcpExitError("<B>Do not include necessary options!</B>");
+}
+
+
+if(0 != compare_options(\%rep4, \%rep6, $CMP_IA_PD)){
+dhcpExitError("<B>Do not include necessary options!</B>");
+}
+#-----------------------------------------------------------------
+vLogHTML("<B><FONT COLOR=#006666>Messages Exchange is correct</FONT></B><BR>");
+#-------------------------------------------------------------------
+
+vClear($IF0);
+vStop($IF0);
+dhcpExitPass;
+
+
+
+#NOTREACHED
+
+########################################################################
+__END__
+
+=head1 NAME
+
+  S_RFC3633_ReplyReceiptTwiceRequestMsg_11_3_2_E.seq - Resend Reply message 
+
+=head1 TARGET
+
+  Server
+
+=head1 SYNOPSIS
+
+=begin html
+ <PRE>
+ <A HREF="./S_RFC3633_ReplyReceiptTwiceRequestMsg_11_3_2_E.seq">S_RFC3633_ReplyReceiptTwiceRequestMsg_11_3_2_E.seq </A>[-tooloption ...]
+ -pkt <A HREF="./S_RFC3633_ReplyReceiptTwiceRequestMsg_11_3_2_E.def">S_RFC3633_ReplyReceiptTwiceRequestMsg_11_3_2_E.def </A>
+ -tooloption: v6eval tool option
+See Also <A HREF="../DHCPv6.def"> DHCPv6.def </A>
+ </PRE>
+
+=head1 INITIALIZATION
+
+=begin html
+  <UL>
+  <LI><STRONG>Network Topology</STRONG></LI>
+  </UL>
+  <PRE>
+          TN(Client1)  
+             |
+Link0 -------+-----------+--------------- 3ffe:501:ffff:100::/64
+                         |
+                       NUT(Server1)
+  </PRE>
+  <UL>
+      <LI><STRONG>Verification Points</STRONG></LI><P>
+          <UL>
+          <PRE>
+Reply Message Format
+      <LI>msg-type</LI>
+          <B>REPLY(7)</B>
+      <LI>transaction-id</LI>
+	  <B>Any</B>
+      <LI>Server ID option</LI>
+	  <B>Any</B>
+      <LI>Client ID option</LI>
+	  <B>Any</B>
+      <LI>IA_PD option</LI>
+	  <B>Any</B>
+  </UL>
+<BR>
+</PRE>
+ </UL>
+  <UL>
+      <LI><STRONG>Configuration</STRONG></LI>
+  </UL>
+	<BLOCKQUOTE>
+	<TABLE BORDER>
+	<TR>
+	<TD><TT>Device Name</TT></TD>
+	<TD><TT>Device Type</TT></TD>
+	<TD><TT>I/F</TT></TD>
+	<TD><TT>Assigned Prefix</TT></TD>
+	<TD><TT>Link Local Addr</TT></TD>
+	<TD><TT>MAC Addr</TT></TD>
+	</TR>
+	<TR>
+	<TD><TT>Server1</TT></TD>
+	<TD><TT>NUT</TT></TD>
+	<TD><TT>Link0</TT></TD>
+	<TD><TT>3ffe:501:ffff:100::/64</TT></TD>
+	<TD><TT>NUT's Linklocal address</TT></TD>
+	<TD><TT>NUT's MAC address</TT></TD>
+	</TR>
+	<TR>
+	<TD><TT>Client1</TT></TD>
+	<TD><TT>TN</TT></TD>
+	<TD><TT>Link0</TT></TD>
+	<TD><TT>3ffe:501:ffff:100::/64</TT></TD>
+	<TD><TT>fe80::200:ff:fe00:a2a2</TT></TD>
+	<TD><TT>00:00:00:00:a2:a2</TT></TD>
+	</TR>
+	</TABLE>
+	</BLOCKQUOTE>
+
+=end html
+
+=head1 TEST PROCEDURE
+
+=begin html
+<PRE>
+       NUT     TN
+        |       | 
+        |       | initialize NUT (as a DHCPv6 Server)
+        |       | 
+        | <---- | Solicit
+        | ----> | Advertise
+        | <---- | Request (*1)
+        | ----> | Reply (*2)
+        |       | 
+        |       | Waiting
+        | <---- | TN resends the Request(w/IA_PD option) ,same as the (*1)
+        | ----> | resends a previously cached Reply message(*3)
+        |       |  or 
+        |       | sends a new Reply message. (*4)
+</PRE>
+
+=end html
+
+=head1 JUDGEMENT
+
+<PRE>
+(*2) PASS: TN obtain the addresss.
+           The Solicit & Advertise & Request message must exchanged correctly.
+(*3)(*4) PASS: NUT respond with Reply message <B>same as last time(same as *1)</B>, 
+           or sends a <B>new </B>Reply message.
+</PRE>
+
+=head1 TERMINATION
+
+  N/A
+
+=head1 REFERENCE
+
+=begin html
+<PRE>
+   see also RFC3315
+   18 DHCP Client-Initiated Configuration Exchange
+   18.2.1 Receipt of Request Messages
+</PRE>
+
+=end html
+
+=head1 SEE ALSO
+
+  perldoc V6evalTool
+
+=cut

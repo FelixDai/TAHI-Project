@@ -1,0 +1,276 @@
+#!/usr/bin/perl
+#
+# Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009
+# Yokogawa Electric Corporation.
+# All rights reserved.
+# 
+# Redistribution and use of this software in source and binary
+# forms, with or without modification, are permitted provided that
+# the following conditions and disclaimer are agreed and accepted
+# by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in
+#    the documentation and/or other materials provided with
+#    the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project
+#    which is related to this software (hereinafter referred to as
+#    "project") nor the names of the contributors may be used to
+#    endorse or promote products derived from this software without
+#    specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written
+#    notification to the copyrighters.
+# 
+# 5. The copyrighters, the project and the contributors may prohibit
+#    the use of this software at any time.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+# STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+# IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+# $TAHI: dhcpv6.p2/rfc3633/C_RFC3633_InvalidUDPport_10_1_3_C.seq,v 1.2 2009/12/03 06:03:40 akisada Exp $
+#
+########################################################################
+
+BEGIN{
+	$V6evalTool::TestVersion = '$Name: T_DHCPv6_Self_Test_P2_1_1_4 $';
+}
+use strict;
+use V6evalTool;
+
+use lib '../.';
+use DHCPv6_common;
+use Client_pktdesc;
+
+my $type=$V6evalTool::NutDef{Type};
+if($type ne 'router') {
+	vLogHTML('<FONT COLOR="#FF0000">This test does not support Host!</FONT>');
+	exit $V6evalTool::exitRouterOnly;
+}
+
+dhcpExitNS if(ChkFuncSupport('PREFIX_DELEGATION'));
+
+#--------------------------------------------------------------#
+# Initialization variables
+#--------------------------------------------------------------#
+my $IF0_NUT = $V6evalTool::NutDef{"Link0_device"};
+my $IF0 = "Link0";
+my $dstport = 0;
+my $ret = 1;
+
+vCapture($IF0);
+#--------------------------------------------------------------#
+# Initialize DHCPv6 Client
+#--------------------------------------------------------------#
+
+my $ret = vRemote("dhcp6c.rmt", "start", "pd_iaid", "rd_iaid","prefix", "rentime=50", "rebtime=80", "link0=$IF0_NUT");
+if($ret != 0) {
+	vLogHTML('<FONT COLOR="#FF0000">Cannot Initialize DHCPv6 Client program.</FONT><BR>');
+	dhcpExitFail;
+};
+#--------------------------------------------------------------#
+#1.  Wait until Solicit arrives 
+#--------------------------------------------------------------#
+my ($retsol,%sol) = wait_for_solicit($IF0,30) ;
+if($retsol != 0){
+	dhcpExitFail;
+}
+
+$dstport = get_udp_destport(\%sol);
+vLogHTML("<B>Solicit destination UDP port number is $dstport</B><BR>");
+if($dstport != $LISTEN_UDPPORT_SVRRELAY){
+	vLogHTML('<FONT COLOR="#FF0000">Client use Error Destination UDP Port.</FONT><BR>');
+	dhcpExitFail;
+}
+
+#vClear($IF0);
+#--------------------------------------------------------------#
+# 2. send Advertise message 
+#--------------------------------------------------------------#
+$CID_OPTION = "opt_CID_LLT_nut";
+$SID_OPTION = "opt_SID_LLT_server1";
+$IA_PD_OPTION = "opt_IA_PD_Prefix2";
+my ($retadv, %adv) = send_advertise($IF0, "advertise_server1_to_nut_invalid_udp", \%sol, "");
+#my ($retadv, %adv) = send_advertise($IF0, "advertise_server1_to_nut", \%sol, "");
+#if($retadv != 0){
+#	dhcpExitFail;
+#}
+$dstport = get_udp_destport(\%adv);
+vLogHTML("<B>Advertise destination UDP port number is $dstport  </B><BR>");
+
+#--------------------------------------------------------------#
+#3.  Wait until Request arrives
+#--------------------------------------------------------------#
+#my ($retreq,%req) = wait_for_request($IF0,30);
+#if($retreq != 0){
+#	dhcpExitFail;
+#}
+
+my %reterr = vRecvPacket2($IF0, 10, 0, 0, "dst_unreach");
+if ($reterr{status} != 0) {
+	vLogHTML('<FONT COLOR="#FF0000">TN can not receive ICMPv6 error message from NUT</FONT><BR>');
+	dhcpExitFail;
+}
+elsif ($reterr{recvFrame} eq 'dst_unreach') {
+	vLogHTML("<B>TN can receive ICMPv6 error message from NUT  </B><BR>");
+	vLog("OK");	
+}
+
+
+vClear($IF0);
+vStop($IF0);
+dhcpExitPass;
+###############################################################################
+__END__
+
+=head1 NAME 
+
+  C_RFC3633_InvalidUDPport_10_1_3_C.seq - Invalid UDP Port
+
+=head1 TARGET
+
+  Requesting Router
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./C_RFC3633_InvalidUDPport_10_1_3_C.seq"> C_RFC3633_InvalidUDPport_10_1_3_C.seq</A> [-tooloption...] <BR>  -pkt  <A HREF="./C_RFC3633_InvalidUDPport_10_1_3_C.def"> C_RFC3633_InvalidUDPport_10_1_3_C.def</A> <BR>  -tooloption : v6eval tool option
+<BR>
+  See Also <A HREF="../DHCPv6.def"> DHCPv6.def </A> 
+</PRE>
+
+=end html
+
+=head1 INITIALIZATION
+
+=begin html
+  <ul>
+  <li><STRONG>Network Topology</STRONG></li> 
+   <PRE>
+          NUT(Requesting Router)
+          |           
+          |                        
+Link0   --+--------+------------------------ 3ffe:501:ffff:100::/64
+                   |
+                   |          
+                   TN(Delegating Router) 
+   </PRE>
+  </ul>
+  <ul> 
+  <li><STRONG>Verification Points</STRONG></li><br>
+   <PRE>
+   Clients and servers exchange DHCP messages using UDP. Clients listen
+   for DHCP messages on UDP port 546.  Servers and relay agents listen
+   for DHCP messages on UDP port 547.<BR>
+   To check if the client(NUT) listening UDP port is 546, the server sends
+   Advertise to NUT. NUT will send Request to TN.
+   </PRE>
+  </ul>
+  <ul>
+  <li><STRONG>Configurations</STRONG></li><br>
+   <BR>
+    <TABLE BORDER="1">
+    <TR>
+    <TD><TT>Device Name</TT></TD>
+    <TD><TT>Device Type</TT></TD>
+    <TD><TT>Interface</TT></TD>
+    <TD><TT>Assigned Prefix</TT></TD>
+    <TD><TT>Link Local Addr</TT></TD>
+    <TD><TT>MAC Addr</TT></TD>
+    </TR>
+    <TR>
+    <TD><TT>Requesitng Router</TT></TD>
+    <TD><TT>NUT</TT></TD>
+    <TD><TT>Link0</TT></TD>
+    <TD><TT>3ffe:501:ffff:100::/64</TT></TD>
+    <TD><TT>NUT's Linklocal address</TT></TD>
+    <TD><TT>NUT's MAC address</TT></TD>
+    </TR>
+    <TR>
+    <TD><TT>Delegating Router</TT></TD>
+    <TD><TT>TN</TT></TD>
+    <TD><TT>Link0</TT></TD>
+    <TD><TT>3ffe:501:ffff:100::/64</TT></TD>
+    <TD><TT>fe80::200:ff:fe00:a1a1</TT></TD>
+    <TD><TT>00:00:00:00:a1:a1</TT></TD>
+    </TR>
+    </TABLE>
+    </PRE>
+    </ul>
+
+=end html
+
+=head1 TEST PROCEDURE
+
+=begin html
+<PRE>
+<BR>
+       NUT      TN
+        |       |
+        |       |Initialize NUT(as a DHCPv6 requesting router)
+        |       |
+        | ----> |<B>Solicit</B> 
+        | <---- |<B>Advertise</B> 
+        | ----> |<B>Request</B> (3*)
+        |       |
+<BR>
+</PRE>
+
+=end html
+
+=head1 JUDGEMENT
+
+=begin html
+<PRE>
+<BR>  
+  (3*)PASS: TN receives Request from NUT which meets Verification Points.
+</PRE>
+
+=end html
+
+=head1 TERMINATION
+
+=begin html
+<PRE>
+  N/A
+</PRE>
+
+=end html
+
+=head1 REFERENCE
+
+=begin html
+<PRE>
+  Also see RFC3315
+<BR>
+  18.1.1. Creation and Transmission of Request Messages
+<BR>
+</PRE>
+
+=end html
+
+=head1 SEE ALSO
+
+=begin html
+<PRE>
+<BR>
+  perldoc  V6evalTool
+<BR>
+</PRE>
+
+=end html
