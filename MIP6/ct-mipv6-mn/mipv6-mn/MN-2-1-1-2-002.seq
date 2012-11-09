@@ -1,0 +1,606 @@
+#!/usr/bin/perl
+#
+# Copyright (C) IPv6 Promotion Council,
+# NIPPON TELEGRAPH AND TELEPHONE CORPORATION (NTT),
+# Yokogwa Electoric Corporation, YASKAWA INFORMATION SYSTEMS Corporation
+# and NTT Advanced Technology Corporation(NTT-AT) All rights reserved.
+# 
+# Technology Corporation.
+# 
+# Redistribution and use of this software in source and binary forms, with 
+# or without modification, are permitted provided that the following 
+# conditions and disclaimer are agreed and accepted by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright 
+# notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright 
+# notice, this list of conditions and the following disclaimer in the 
+# documentation and/or other materials provided with the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project which 
+# is related to this software (hereinafter referred to as "project") nor 
+# the names of the contributors may be used to endorse or promote products 
+# derived from this software without specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written 
+# notification to the copyrighters. However, using this software for the 
+# purpose of testing or evaluating any products including merchantable 
+# products may be permitted without any notification to the copyrighters.
+# 
+# 
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND 
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING 
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS 
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE 
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+# CONTRACT,STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF 
+# THE POSSIBILITY OF SUCH DAMAGE.
+#
+
+#--------------------------------------------------------------#
+# ENTRANCE
+#--------------------------------------------------------------#
+# Set the test version used for the display.
+BEGIN { $V6evalTool::TestVersion = '$Name: MIPv6_4_0_5 $'; }
+
+# Import the package.
+use V6evalTool;
+use mip6_mn_config;
+use mip6_mn_common;
+use mip6_mn_get;
+use mip6_mn_send;
+use mip6_mn_recv;
+use mip6_mn_msg;
+
+#--------------------------------------------------------------#
+# INITIALIZATION
+#--------------------------------------------------------------#
+# Do the test satisfied the condition.
+my @options = (
+	'TEST_STATE_NORMAL',        'YES',                0,
+	'TEST_FUNC_REAL_HOME_LINK', 'YES',                0,
+	'TEST_FUNC_RR',             'YES',                0,
+	'TEST_FUNC_RR_AS_CN',       'YES',                0,
+);
+
+# Set the special environment
+$MN_CONF{ENV_CN0_SET} = 'YES';
+
+# Initialize the state of TARGET.
+Init_MN(@options);
+
+#--------------------------------------------------------------#
+# PREPARATION
+#--------------------------------------------------------------#
+# Prepare other local variables.
+my @value;
+my $sec;
+
+#--------------------------------------------------------------#
+# TEST PROCEDURE
+#--------------------------------------------------------------#
+#--------------------------------------------------------------#
+vLogHTML_Info("<B>CN0 moves from LinkZ to LinkY.</B>");
+#--------------------------------------------------------------#
+#--------------------------------------------------------------#
+# NUT starts at Link0.
+#--------------------------------------------------------------#
+# Send Router Advertisement. (HA0 -> HA0_allnode_multi)
+vRecv_at_Link0($IF0, $FIRST_RA_TIME);
+
+#--------------------------------------------------------------#
+vLogHTML_Info("<B>CN0 sends Home/Care-of Test Init at LinkY.</B>");
+#--------------------------------------------------------------#
+# Send Home Test Init. (CN0 -> NUT0)
+# Send Care-of Test Init. (CN0Y -> NUT0)
+vSend_hoti($IF0, 'hoti_cn0ga_nuthga', 0);
+vSend_coti($IF0, 'coti_cn0yga_nuthga', 0);
+
+# Receive Care-of Test. (NUT0 -> CN0Y)
+# Receive Home Test. (NUT0 -> CN0)
+$now_time = time;
+$end_time = $now_time + $RR_TIME;
+while ($now_time <= $end_time) {
+
+	$sec = $end_time - $now_time;
+	%packet = vRecv_at_Link0($IF0, $sec,
+		'hot_nuthga_cn0ga',
+		'cot_nuthga_cn0yga');
+	$now_time = time;
+
+	if ($packet{recvFrame} eq 'hot_nuthga_cn0ga') {
+		%packet_hot = %packet;
+		if (%packet_cot != 0) {
+			last;
+		}
+	}
+	elsif ($packet{recvFrame} eq 'cot_nuthga_cn0yga') {
+		%packet_cot = %packet;
+		if ($packet_hot != 0) {
+			last;
+		}
+	}
+}
+if ((%packet_hot == 0) || (%packet_cot == 0)) {
+	vLogHTML_Fail("INIT FAIL: CN0 does not receive Home/Care-of Test Init at LinkY.");
+	$initcount ++;
+	goto TERM;
+}
+
+#--------------------------------------------------------------#
+vLogHTML_Info("<B>CN0 sends Binding Update at LinkY.</B>");
+#--------------------------------------------------------------#
+# Send Binding Update. (CN0Y -> NUT0)
+%value_hot = get_value_of_hot(0, \%packet_hot);
+%value_cot = get_value_of_cot(0, \%packet_cot);
+$seq = get_sequence() + 5;
+$life = int($MAX_RR_BINDING_LIFETIME / 4);
+@value = (
+	'BU_Reserved1', 0,
+	'BU_Seqence', $seq,
+	'BU_Aflag1', 1,
+	'BU_Hflag', 0,
+	'BU_Lflag', 0,
+	'BU_Kflag', 0,
+	'BU_Reserved2', 0,
+	'BU_Lifetime', $life,
+	# opt_bu_altercoa_cn0y;
+	#   Address = BU_ALTER_ADDR_LINKY_MN_TO_MN
+	#             BU_ALTER_ADDR_LINKY_MN_TO_MN v6(CN0Y_GLOBAL_UCAST)
+	# option   = opt_bu_nonceindices;
+	#   HoNonceIndex = BU_HO_NONCE_INDEX;
+	#   CoNonceIndex = BU_CO_NONCE_INDEX;
+	'BU_HO_NONCE_INDEX', $value_hot{Index},
+	'BU_CO_NONCE_INDEX', $value_cot{Index},
+	# option   = opt_bu_authdata_cn0_to_nuth
+	#   Authenticator = bsa(kbm(HOCOOKIE, COCOOKIE), v6(CN0_GLOBAL_UCAST), v6(NUTH_GLOBAL_UCAST));
+	#   Authenticator = bsa(kbm(hexstr(BU_TO_NUT_HOCOOKIE, 8), hexstr(BU_TO_NUT_COCOOKIE, 8)), v6(CN0_GLOBAL_UCAST), v6(NUTH_GLOBAL_UCAST));
+	'BU_TO_NUT_HOCOOKIE', "\\\"$value_hot{KeygenToken}\\\"",
+	'BU_TO_NUT_COCOOKIE', "\\\"$value_cot{KeygenToken}\\\""
+);
+vSend_bu_cn($IF0, 'bu_cn0yga_nuthga_hoa_cn0ga_coa_cn0yga', 0, @value);
+
+# Receive Binding Acknowledgement. (NUT0 -> CN0Y)
+vRecv_at_Link0($IF0, 5, 'ba_nuthga_cn0yga_rh2_cn0ga');
+
+#--------------------------------------------------------------#
+# NUT moves from Link0 to LinkX.
+#--------------------------------------------------------------#
+# Receive Binding Update. (NUTX -> HA0)
+# Send Binding Acknowledgement. (HA0 -> NUTX)
+%packet = vRecv_to_move_from_Link0_to_LinkX_w_all_SA($IF0);
+if ($packet{status} != 0) {
+	$initcount ++;
+	goto TERM;
+}
+
+#--------------------------------------------------------------#
+vLogHTML_Info("<B>CN0 sends ICMP Echo Request with Home Address Option by tunneling.</B>");
+#--------------------------------------------------------------#
+# Send ICMP Echo Request. (out: HA0 -> NUTX, in: CN0Y -> NUT0 with Home Address Option)
+vSend_echorequest($IF0, 'echorequest_cn0yga_nuthga_hoa_cn0ga_tnl_ha0_nutx', 0);
+
+# Receive Home Test Init. (out: NUTX -> HA0, in: NUT0 -> CN0)
+%packet = vRecv_at_LinkX($IF0, $RR_TIME,
+	'hoti_nuthga_cn0ga_tnl_nutx_ha0',
+	'hoti_nuthga_cn0yga_rh2_cn0ga_tnl_nutx_ha0');
+
+#--------------------------------------------------------------#
+# JUDGEMENT
+#--------------------------------------------------------------#
+if ($packet{recvFrame} eq 'hoti_nuthga_cn0ga_tnl_nutx_ha0') {
+	vLogHTML_Pass("(*1) PASS: CN0 receives Home Test Init by reverse tunneling.");
+}
+elsif ($packet{recvFrame} eq 'hoti_nuthga_cn0yga_rh2_cn0ga_tnl_nutx_ha0') {
+	vLogHTML_Fail("(*1) Fail: CN0 receives Home Test Init with Type2 Routing Header by tunneling.");
+	vLogHTML_Fail("           CN0 does not receive Home Test Init by reverse tunneling.");
+	$failcount ++;
+	goto TERM;
+}
+else {
+	vLogHTML_Fail("(*1) FAIL: CN0 does not receive Home Test Init by reverse tunneling.");
+	$failcount ++;
+	goto TERM;
+}
+
+# auto
+vLogHTML_Pass("The Destination Address(inner) is set to the Home Address of ICMP Echo Request[12].");
+
+TERM:
+#--------------------------------------------------------------#
+# TERMINATION
+#--------------------------------------------------------------#
+# Terminate the state of TARGET.
+Term_MN($IF0, 1);
+
+################################################################
+__END__
+
+
+=head1 NAME
+
+=begin html
+  MN-2-1-1-2-002 - Receiving the packet &#40;including home address destination&#41; by tunneling
+
+=end html
+
+=head1 TARGET
+
+=begin html
+<PRE>
+Host
+</PRE>
+
+=end html
+
+=head1 REQUIREMENT of TEST
+
+=begin html
+<PRE>
+    - Function of Real Home Link: YES
+    - Function of Return Routability: YES
+    - Function of Mobile to Mobile: YES
+                    
+</PRE>
+
+=end html
+
+=head1 TOPOLOGY
+
+=begin html
+<PRE>
+<UL>
+<LI><B><FONT SIZE="+1">TOPOLOGY-4 In the case of Real Home Link</FONT></B>
+</UL>
+                    
+                            |
+                           HAcn    CN0            NUTZ
+                            |       |               |
+                ----+-------+-------+---------------+------- LinkZ
+                    |
+                    R2             CN0Y           NUTY
+                    |               |               |
+                ----+-------+-------+---------------+------- LinkY
+                            |
+                            R1     CN0X           NUTX
+                            |       |               |
+                ----+-------+-------+---------------+------- LinkX
+                    |
+                   HA0             CN00           NUT0
+                    |               |               |
+        ------------+---------------+---------------+------- Link0
+                    
+</PRE>
+<BLOCKQUOTE>
+<TABLE BORDER>
+<TR>
+<TD><TT>Link0</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:100::/64</TT></TD>
+<TD><TT>home link</TT></TD>
+</TR>
+<TR>
+<TD><TT>LinkX</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:102::/64</TT></TD>
+<TD><TT>foreign link</TT></TD>
+</TR>
+<TR>
+<TD><TT>LinkY</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:103::/64</TT></TD>
+<TD><TT>foreign link</TT></TD>
+<TABLE BORDER>
+<TR>
+<TD><TT>Link0</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:100::/64</TT></TD>
+<TD><TT>home link</TT></TD>
+</TR>
+<TR>
+<TD><TT>LinkX</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:102::/64</TT></TD>
+<TD><TT>foreign link</TT></TD>
+</TR>
+<TR>
+<TD><TT>LinkY</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:103::/64</TT></TD>
+<TD><TT>foreign link</TT></TD>
+</TR>
+<TR>
+<TD><TT>LinkZ</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:104::/64</TT></TD>
+<TD><TT>CN0 home link</TT></TD>
+</TR>
+<TR>
+<TD ROWSPAN="3"><TT>HA0 (Link0)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:100:200:ff:fe00:a0a0</TT></TD>
+<TD ROWSPAN="3"><TT>home agent</TT></TD>
+</TR>
+<TR>
+<TD><TT>link-local</TT></TD>
+<TD><TT>fe80::200:ff:fe00:a0a0</TT></TD>
+</TR>
+<TR>
+<TD><TT>ether</TT></TD>
+<TD><TT>00:00:00:00:a0:a0</TT></TD>
+</TR>
+<TR>
+<TD ROWSPAN="3"><TT>R1 (LinkX)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:102:200:ff:fe00:a4a4</TT></TD>
+<TD ROWSPAN="3"><TT>&nbsp;</TT></TD>
+</TR>
+<TR>
+<TD><TT>link-local</TT></TD>
+<TD><TT>fe80::200:ff:fe00:a4a4</TT></TD>
+</TR>
+<TR>
+<TD><TT>ether</TT></TD>
+<TD><TT>00:00:00:00:a4:a4</TT></TD>
+</TR>
+<TR>
+<TD ROWSPAN="3"><TT>R2 (LinkY)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:103:200:ff:fe00:a6a6</TT></TD>
+<TD ROWSPAN="3"><TT>&nbsp;</TT></TD>
+</TR>
+<TR>
+<TD><TT>link-local</TT></TD>
+<TD><TT>fe80::200:ff:fe00:a6a6</TT></TD>
+</TR>
+<TR>
+<TD><TT>ether</TT></TD>
+<TD><TT>00:00:00:00:a6:a6</TT></TD>
+</TR>
+<TR>
+<TD ROWSPAN="3"><TT>CN0 (LinkZ)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:104:200:ff:fe00:a8a8</TT></TD>
+<TD ROWSPAN="3"><TT>correspondent node</TT></TD>
+</TR>
+<TR>
+<TD><TT>link-local</TT></TD>
+<TD><TT>fe80::200:ff:fe00:a8a8</TT></TD>
+</TR>
+<TR>
+<TD><TT>ether</TT></TD>
+<TD><TT>00:00:00:00:a8:a8</TT></TD>
+</TR>
+<TR>
+<TD><TT>CN0Y (LinkY)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:103:200:ff:fe00:a8a8</TT></TD>
+<TD><TT>CN0 care-of address</TT></TD>
+</TR>
+<TR>
+<TD><TT>CN0X (LinkX)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:102:200:ff:fe00:a8a8</TT></TD>
+<TD><TT>CN0 care-of address</TT></TD>
+</TR>
+<TR>
+<TD><TT>CN00 (Link0)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:100:200:ff:fe00:a8a8</TT></TD>
+<TD><TT>CN0 care-of address</TT></TD>
+</TR>
+<TR>
+<TD ROWSPAN="3"><TT>HAcn (LinkZ)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:104:200:ff:fe00:aaaa</TT></TD>
+<TD ROWSPAN="3"><TT>CN0 home agent</TT></TD>
+</TR>
+<TR>
+<TD><TT>link-local</TT></TD>
+<TD><TT>fe80::200:ff:fe00:aaaa</TT></TD>
+</TR>
+<TR>
+<TD><TT>ether</TT></TD>
+<TD><TT>00:00:00:00:aa:aa</TT></TD>
+</TR>
+<TR>
+<TD ROWSPAN="3"><TT>NUT0 (Link0)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:100::&lt;NutDef.Link0_addr&gt;</TT></TD>
+<TD ROWSPAN="3"><TT>home address</TT></TD>
+</TR>
+<TR>
+<TD><TT>link-local</TT></TD>
+<TD><TT>fe80::&lt;NutDef.Link0_addr&gt;</TT></TD>
+</TR>
+<TR>
+<TD><TT>ether</TT></TD>
+<TD><TT>&lt;NutDef.Link0_addr&gt;</TT></TD>
+</TR>
+<TR>
+<TD><TT>NUTX (LinkX)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:102::&lt;NutDef.Link0_addr&gt;</TT></TD>
+<TD><TT>care-of address</TT></TD>
+</TR>
+<TR>
+<TD><TT>NUTY (LinkY)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:103::&lt;NutDef.Link0_addr&gt;</TT></TD>
+<TD><TT>care-of address</TT></TD>
+</TR>
+<TR>
+<TD><TT>NUTZ (LinkZ)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:104::&lt;NutDef.Link0_addr&gt;</TT></TD>
+<TD><TT>care-of address</TT></TD>
+</TR>
+</TABLE>
+</BLOCKQUOTE>
+
+=end html
+
+=head1 SETUP
+
+=begin html
+<PRE>
+<LI><B><FONT SIZE="+1">Common Setup-1</FONT></B>
+<UL>
+<LI>Reboot NUT
+<LI>Enable MN function
+<UL>
+<LI>Turn on MN functions
+</UL>
+<LI>Initialize IPsec configuration
+<LI>Set IPsec configuration
+<UL>
+<LI>This test requires following configurations.
+<UL>
+<LI><A HREF="SETUP_IPsec_HA0_SA1_SA2.html">MN-HA0 SA1/SA2, Transport mode, Binding Update/Binding Acknowledgement</A>
+<LI><A HREF="SETUP_IPsec_HA0_SA3_SA4.html">MN-HA0 SA3/SA4, Tunnel mode, Return Routability Signaling</A>
+</UL>
+<LI>This test requires following configurations, If a related message is used.
+<UL>
+<LI><A HREF="SETUP_IPsec_HA0_SA5_SA6.html">MN-HA0 SA5/SA6, Transport mode, Prefix Discovery</A>
+</UL>
+<LI>This test also allow to use following configurations.
+<UL>
+<LI><A HREF="SETUP_IPsec_HA0_SA7_SA8.html">MN-HA0 SA7/SA8, Tunnel mode, Payload Packets</A>
+<LI><A HREF="SETUP_IPsec_CN0_SA.html">MN-CN0, Transport mode, ICMP</A>
+</UL>
+</UL>
+</UL>
+</PRE>
+
+=end html
+
+=head1 INITIALIZATION
+
+=begin html
+<PRE>
+                    
+       HA0    NUT0      R1      R2     CN0     HAcn
+        |       |       |       |      CN0Y     |
+        |       |       |       |       |       |
+        |       |       |       |       | ----> | 1.Binding Update
+        |       |       |       |       | <---- | 2.Binding Acknowledgement
+        |       |       |       |       |       |
+                    
+        1. Receive Binding Update to HAcn. (CN0Y -> HAcn)
+        2. Send Binding Acknowledgement. (HAcn -> CN0Y)
+                    
+</PRE>
+
+=end html
+
+=head1 TEST PROCEDURE
+
+=begin html
+<PRE>
+                    
+       HA0    NUT0      R1      R2     CN0Y    HAcn
+        |       |       |       |       |       |
+        | ----> |       |       |       |       | 1.Router Advertisement
+        |       |       |       |       |       |
+        |       | <-------------------- | ====> | 2.Home Test Init
+        |       | <-------------------- |       | 3.Care-of Test Init
+        |       | --------------------> |       | 4.Care-of Test
+        |       | --------------------> | <==== | 5.Home Test
+        |       |       |       |       |       |
+        |       | <-------------------- |       | 6.Binding Update
+        |       | --------------------> |       | 7.Binding Acknowledgement
+        |       |       |       |       |       |
+        |     NUTX      |       |       |       |
+        |       |       |       |       |       |
+        |       | <---- |       |       |       | 8.Router Advertisement
+        |       |       |       |       |       |
+        | <---- |       |       |       |       | 9.Neighbor Solicitation (NUD)
+        |       |       |       |       |       | 10.(no reply)
+        |       |       |       |       |       |
+        | <---- |       |       |       |       | 11.Binding Update
+        | ----> |       |       |       |       | 12.Binding Acknowledgement
+        |       |       |       |       |       |
+        | ====> | <-------------------- |       | 13.Echo Request
+        |       |       |       |       |       |
+        | <==== | --------------------> | <==== | 14.Home Test Init (*1)
+        |       |       |       |       |       |
+                    
+        1. Send Router Advertisement. (HA0 -> HA0_allnode_multi)
+        2. Send Home Test Init. (CN0 -> NUT0)
+        3. Send Care-of Test Init. (CN0Y -> NUT0)
+        4. Receive Care-of Test. (NUT0 -> CN0Y)
+        5. Receive Home Test. (NUT0 -> CN0)
+        6. Send Binding Update. (CN0Y -> NUT0)
+        7. Receive Binding Acknowledgement. (NUT0 -> CN0Y)
+        8. Send Router Advertisement. (R1 -> R1_allnode_multi)
+        9. Receive Neighbor Solicitation (NUD). (NUT0 -> HA0)
+       10. (no reply)
+            # Wait during a maximum of 3 seconds(RFC2461).
+       11. Receive Binding Update. (NUTX -> HA0)
+       12. Send Binding Acknowledgement. (HA0 -> NUTX)
+       13. Send ICMP Echo Request. (out: HA0 -> NUTX, in: CN0Y -> NUT0 with Home Address Option)
+       14. Receive Home Test Init. (out: NUTX -> HA0, in: NUT0 -> CN0)
+                    
+    Focus Packet Format:
+       13. ICMP Echo Request
+          o format #1
+            IPv6 header
+                source          = home agent
+                destination     = care-of address
+            ESP header
+                SPI             = SA4 SPI (SA4 protects any header) or
+                                = SA8 SPI (SA8 protects any header)
+            IPv6 header
+                source          = care-of address of correspondent node
+                destination     = home address
+            Destination Options header
+              Home Address Option
+                home address    = home address of correspondent node
+            ICMPv6 header
+              Echo Request
+                    
+          o format #2
+            IPv6 header
+                source          = home agent
+                destination     = care-of address
+            IPv6 header
+                source          = care-of address of correspondent node
+                destination     = home address
+            Destination Options header
+              Home Address Option
+                home address    = home address of correspondent node
+            ICMPv6 header
+              Echo Request
+                    
+       <A HREF="../images/Home_Test_Init_message_format_receiving_ESP.gif">14. Home Test Init</A>
+</PRE>
+
+=end html
+
+=head1 JUDGEMENT
+
+=begin html
+<PRE>
+ (*1) PASS: HA0 receives Home Test Init.
+            - The Destination Address(inner) is set to Home Address of ICMP Echo Request[13].
+</PRE>
+
+=end html
+
+=head1 REFERENCE
+
+=begin html
+<PRE>
+RFC3775 Mobility Support in IPv6
+    See Section 11.7.2, 9.3.1, 6.1
+</PRE>
+
+=end html
+

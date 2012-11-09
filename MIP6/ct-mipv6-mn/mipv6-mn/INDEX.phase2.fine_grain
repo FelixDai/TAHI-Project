@@ -1,0 +1,229 @@
+#
+# Copyright (C) IPv6 Promotion Council,
+# NIPPON TELEGRAPH AND TELEPHONE CORPORATION (NTT),
+# Yokogwa Electoric Corporation, YASKAWA INFORMATION SYSTEMS Corporation
+# and NTT Advanced Technology Corporation(NTT-AT) All rights reserved.
+# 
+# Technology Corporation.
+# 
+# Redistribution and use of this software in source and binary forms, with 
+# or without modification, are permitted provided that the following 
+# conditions and disclaimer are agreed and accepted by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright 
+# notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright 
+# notice, this list of conditions and the following disclaimer in the 
+# documentation and/or other materials provided with the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project which 
+# is related to this software (hereinafter referred to as "project") nor 
+# the names of the contributors may be used to endorse or promote products 
+# derived from this software without specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written 
+# notification to the copyrighters. However, using this software for the 
+# purpose of testing or evaluating any products including merchantable 
+# products may be permitted without any notification to the copyrighters.
+# 
+# 
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND 
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING 
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS 
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE 
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+# CONTRACT,STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF 
+# THE POSSIBILITY OF SUCH DAMAGE.
+#
+########################################################################
+#
+# $Name: MIPv6_4_0_5 $
+#
+
+#--------------------------------------------------------------#
+&print:<B> 1. Generate HoA</B>
+#--------------------------------------------------------------#
+
+#--------------------------------------------------------------#
+&print:<B> 2. Generate CoA</B>
+#--------------------------------------------------------------#
+
+#--------------------------------------------------------------#
+&print:<B> 3. Movement Detection</B>
+#--------------------------------------------------------------#
+
+#--------------------------------------------------------------#
+&print:<B> 4. Home Registration</B>
+#--------------------------------------------------------------#
+&print:<B> (1) Sending BU</B>
+#--------------------------------------------------------------#
+./MN-2-1-1-1-001.seq:./mip6_mn_common.def:::MN-2-1-1-1-001 - Sending BU (after moving from home):
+
+#--------------------------------------------------------------#
+&print:<B> (2) Receiving BA</B>
+#--------------------------------------------------------------#
+./MN-2-2-1-1-001.seq:./mip6_mn_common.def:::MN-2-2-1-1-001 - BU accepted (Status = 0):
+./MN-2-2-1-1-038.seq:./mip6_mn_common.def:::MN-2-2-1-1-038 - BA which is not protected by IPsec:
+
+#--------------------------------------------------------------#
+&print:<B> 5. Home Re-Registration</B>
+#--------------------------------------------------------------#
+&print:<B> (1) Sending BU</B>
+#--------------------------------------------------------------#
+./MN-2-1-2-1-001.seq:./mip6_mn_common.def:::MN-2-1-2-1-001 - Sending BU (after moving from foreign to foreign):
+
+#--------------------------------------------------------------#
+#&print:<B> (2) Receiving BA</B>
+#--------------------------------------------------------------#
+
+#--------------------------------------------------------------#
+&print:<B> 6. Returning Home</B>
+#--------------------------------------------------------------#
+&print:<B> (1) Sending BU</B>
+#--------------------------------------------------------------#
+./MN-2-1-3-1-001.seq:./mip6_mn_common.def:::MN-2-1-3-1-001 - Sending BU of de-registration:
+
+#--------------------------------------------------------------#
+&print:<B> (2) Receiving BA</B>
+#--------------------------------------------------------------#
+./MN-2-2-2-1-001.seq:./mip6_mn_common.def:::MN-2-2-2-1-001 - BU of de-registration accepted (Status = 0):
+
+#--------------------------------------------------------------#
+&print:<B> (3) Neighbor Discovery</B>
+#--------------------------------------------------------------#
+
+#--------------------------------------------------------------#
+&print:<B> 7. Correspondent Registration</B>
+#--------------------------------------------------------------#
+&print:<B> (1) Sending HoTI</B>
+#--------------------------------------------------------------#
+
+#--------------------------------------------------------------#
+&print:<B> (2) Receiving HoT</B>
+#--------------------------------------------------------------#
+
+#--------------------------------------------------------------#
+&print:<B> (3) Sending CoTI</B>
+#--------------------------------------------------------------#
+
+#--------------------------------------------------------------#
+&print:<B> (4) Receiving CoT</B>
+#--------------------------------------------------------------#
+
+#--------------------------------------------------------------#
+&print:<B> (5) Sending BU</B>
+#--------------------------------------------------------------#
+./MN-3-1-1-2-001.seq:./mip6_mn_common.def:::MN-3-1-1-2-001 - Sending BU to CN:
+
+#--------------------------------------------------------------#
+&print:<B> (6) Receiving BA</B>
+#--------------------------------------------------------------#
+./MN-3-2-1-2-001.seq:./mip6_mn_common.def:::MN-3-2-1-2-001 - BU accepted (Status=0):
+
+#--------------------------------------------------------------#
+&print:<B> (7) Sending BU (Re-Registration)</B>
+#--------------------------------------------------------------#
+./MN-3-1-2-2-004.seq:./mip6_mn_common.def:::MN-3-1-2-2-004 - Sending BU for each CN in BUL (after home re-registration):
+
+#--------------------------------------------------------------#
+&print:<B> (8) Returning Home</B>
+#--------------------------------------------------------------#
+./MN-3-1-3-2-001.seq:./mip6_mn_common.def:::MN-3-1-3-2-001 - Sending BU of de-registration:
+
+#--------------------------------------------------------------#
+&print:<B> (9) Receiving BRR</B>
+#--------------------------------------------------------------#
+./MN-3-4-1-2-001.seq:./mip6_mn_common.def:::MN-3-4-1-2-001 - Receiving BRR:
+
+#--------------------------------------------------------------#
+&print:<B> 8. Dynamic Home Agent Address Discovery</B>
+#--------------------------------------------------------------#
+&print:<B> (1) Sending HAAD-Request</B>
+#--------------------------------------------------------------#
+
+#--------------------------------------------------------------#
+&print:<B> (2) Receiving HAAD-Reply</B>
+#--------------------------------------------------------------#
+./MN-5-1-2-1-016.seq:./mip6_mn_common.def:::MN-5-1-2-1-016 - Receiving HAAD-Reply at foreign-link:
+./MN-5-1-2-1-027.seq:./mip6_mn_common.def:::MN-5-1-2-1-027 - Receiving HAAD-Reply from the 2nd HA of HAAD-Reply(1st=HA1 & 2nd = HA0):
+
+#--------------------------------------------------------------#
+&print:<B> 9. Mobile Prefix Discovery</B>
+#--------------------------------------------------------------#
+&print:<B> (1) Sending MPS</B>
+#--------------------------------------------------------------#
+./MN-4-1-1-1-002.seq:./mip6_mn_common.def:::MN-4-1-1-1-002 - Sending MPS (after receiving unsolicited MPA):
+
+#--------------------------------------------------------------#
+&print:<B> (2) Receiving MPA</B>
+#--------------------------------------------------------------#
+./MN-4-2-1-1-001.seq:./mip6_mn_common.def:::MN-4-2-1-1-001 - Receiving solicited MPA:
+
+#--------------------------------------------------------------#
+&print:<B>10. Binding Error</B>
+#--------------------------------------------------------------#
+&print:<B> (1) Sending BE</B>
+#--------------------------------------------------------------#
+./MN-6-2-1-1-003.seq:./mip6_mn_common.def:::MN-6-2-1-1-003 - Receiving invalid BA (invalid MH Type) from HA:
+./MN-4-2-1-2-010.seq:./mip6_mn_common.def:::MN-4-2-1-2-010 - Receiving invalid HoT (invalid MH Type) from CN:
+
+#--------------------------------------------------------------#
+&print:<B> (2) Receiving BE</B>
+#--------------------------------------------------------------#
+
+#--------------------------------------------------------------#
+&print:<B>11. ICMP Error</B>
+#--------------------------------------------------------------#
+&print:<B> (1) Sending ICMP ERROR</B>
+#--------------------------------------------------------------#
+
+#--------------------------------------------------------------#
+&print:<B> (2) Receiving ICMP ERROR</B>
+#--------------------------------------------------------------#
+
+#--------------------------------------------------------------#
+&print:<B>12. Payload Packet</B>
+#--------------------------------------------------------------#
+&print:<B> (1) Sending Payload Packet</B>
+#--------------------------------------------------------------#
+
+#--------------------------------------------------------------#
+&print:<B>    (2) Receiving Payload Packet</B>
+#--------------------------------------------------------------#
+
+#--------------------------------------------------------------#
+&print:<B>13. IPsec SA</B>
+#--------------------------------------------------------------#
+&print:<B>13.1 manual configuration</B>
+#--------------------------------------------------------------#
+./MN-1-1-2-1-001.seq:./mip6_mn_common.def:::MN-1-1-2-1-001 - Use the manual configuration of security association between MN and HA:
+
+#--------------------------------------------------------------#
+&print:<B>14. Mobile to Mobile</B>
+#--------------------------------------------------------------#
+&print:<B>    (1) Route Optimization</B>
+#--------------------------------------------------------------#
+./MN-2-1-1-2-003.seq:./mip6_mn_common.def:::MN-2-1-1-2-003 - Don't start the return routability procedure (when receiving the tunneled CoTI):
+
+#--------------------------------------------------------------#
+&print:<B>    (2) Home Registration and Correspondent Registration</B>
+#--------------------------------------------------------------#
+
+#--------------------------------------------------------------#
+&print:<B>    (3) General packet send and receiving</B>
+#--------------------------------------------------------------#
+./MN-4-1-1-3-001.seq:./mip6_mn_common.def:::MN-4-1-1-3-001 - Send and receive the packets (including Type2 Routing Header and home address destination):
+
+#--------------------------------------------------------------#
+&print:<B>    (4) Binding Error</B>
+#--------------------------------------------------------------#
+./MN-4-1-2-3-001.seq:./mip6_mn_common.def:::MN-4-1-2-3-001 - Sending BE by reverse tunneling:
+
+# End of File

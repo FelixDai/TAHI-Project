@@ -1,0 +1,1141 @@
+//
+// Copyright (C) IPv6 Promotion Council,
+// NIPPON TELEGRAPH AND TELEPHONE CORPORATION (NTT),
+// Yokogwa Electoric Corporation, YASKAWA INFORMATION SYSTEMS Corporation
+// and NTT Advanced Technology Corporation(NTT-AT) All rights reserved.
+// 
+// Technology Corporation.
+// 
+// Redistribution and use of this software in source and binary forms, with 
+// or without modification, are permitted provided that the following 
+// conditions and disclaimer are agreed and accepted by the user:
+// 
+// 1. Redistributions of source code must retain the above copyright 
+// notice, this list of conditions and the following disclaimer.
+// 
+// 2. Redistributions in binary form must reproduce the above copyright 
+// notice, this list of conditions and the following disclaimer in the 
+// documentation and/or other materials provided with the distribution.
+// 
+// 3. Neither the names of the copyrighters, the name of the project which 
+// is related to this software (hereinafter referred to as "project") nor 
+// the names of the contributors may be used to endorse or promote products 
+// derived from this software without specific prior written permission.
+// 
+// 4. No merchantable use may be permitted without prior written 
+// notification to the copyrighters. However, using this software for the 
+// purpose of testing or evaluating any products including merchantable 
+// products may be permitted without any notification to the copyrighters.
+// 
+// 
+// 
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND 
+// CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING 
+// BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS 
+// FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE 
+// COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+// INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
+// SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
+// HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+// CONTRACT,STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF 
+// THE POSSIBILITY OF SUCH DAMAGE.
+//
+
+/*----------------------------------------------------------------------------*
+ * Default Field Value
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Router Solicitation
+#ifndef RS_IPv6_Hop_Any
+#define RS_IPv6_Hop_Any any
+#endif
+
+#ifndef RS_IPv6_Hop
+#define RS_IPv6_Hop     255
+#endif
+
+#ifndef RS_Code
+#define RS_Code         0
+#endif
+
+#ifndef RS_Reserved
+#define RS_Reserved     0
+#endif
+
+//=============================================================================
+// Router Advertisement
+#ifndef RA_IPv6_Hop_Any
+#define RA_IPv6_Hop_Any any
+#endif
+
+#ifndef RA_IPv6_Hop
+#define RA_IPv6_Hop     255
+#endif
+
+#ifndef RA_Code
+#define RA_Code         0
+#endif
+
+#ifndef RA_CurHop
+#define RA_CurHop       0
+#endif
+
+#ifndef RA_Mflag
+#define RA_Mflag        0
+#endif
+
+#ifndef RA_Oflag
+#define RA_Oflag        0
+#endif
+
+#ifndef RA_Hflag_0
+#define RA_Hflag_0      0
+#endif
+
+#ifndef RA_Hflag_1
+#define RA_Hflag_1      1
+#endif
+
+#ifndef RA_Reserved
+#define RA_Reserved     0
+#endif
+
+#ifndef RA_Lifetime
+#define RA_Lifetime     7200
+#endif
+
+#ifndef RA_Reachtime
+#define RA_Reachtime    10000
+#endif
+
+#ifndef RA_Retranstimer
+#define RA_Retranstimer 0
+#endif
+
+//=============================================================================
+// Neighber Solicitation
+#ifndef NS_IPv6_Hop_Any
+#define NS_IPv6_Hop_Any any
+#endif
+
+#ifndef NS_IPv6_Hop
+#define NS_IPv6_Hop     255
+#endif
+
+#ifndef NS_Code
+#define NS_Code         0
+#endif
+
+#ifndef NS_Code_1
+#define NS_Code_1       1
+#endif
+
+#ifndef NS_Reserved
+#define NS_Reserved     0
+#endif
+
+//=============================================================================
+// Neighber Advertisement
+#ifndef NA_IPv6_Hop
+#define NA_IPv6_Hop     255
+#endif
+
+#ifndef NA_Code
+#define NA_Code         0
+#endif
+
+#ifndef NA_Rflag_0
+#define NA_Rflag_0      0
+#endif
+
+#ifndef NA_Rflag_1
+#define NA_Rflag_1      1
+#endif
+
+#ifndef NA_Sflag_0
+#define NA_Sflag_0      0
+#endif
+
+#ifndef NA_Sflag_1
+#define NA_Sflag_1      1
+#endif
+
+#ifndef NA_Oflag
+#define NA_Oflag        any
+#endif
+
+#ifndef NA_Oflag_1
+#define NA_Oflag_1      1
+#endif
+
+#ifndef NA_Oflag_0
+#define NA_Oflag_0      0
+#endif
+
+#ifndef NA_Reserved
+#define NA_Reserved     0
+#endif
+
+//=============================================================================
+// Prefix Information Option
+#ifndef PREINFO_Lflag
+#define PREINFO_Lflag           1
+#endif
+
+#ifndef PREINFO_Aflag
+#define PREINFO_Aflag           1
+#endif
+
+#ifndef PREINFO_Rflag_0
+#define PREINFO_Rflag_0         0
+#endif
+
+#ifndef PREINFO_Rflag_1
+#define PREINFO_Rflag_1         1
+#endif
+
+#ifndef PREINFO_Reserved1
+#define PREINFO_Reserved1       0
+#endif
+
+#ifndef PREINFO_VLD_Lifetime
+#define PREINFO_VLD_Lifetime    7200
+#endif
+
+#ifndef PREINFO_PRE_Lifetime
+#define PREINFO_PRE_Lifetime    7200
+#endif
+
+#ifndef PREINFO_Reserved2
+#define PREINFO_Reserved2       0
+#endif
+
+//=============================================================================
+// Home Agent Information Option
+#ifndef HA_Reserved
+#define HA_Reserved     0
+#endif
+
+#ifndef HA_Preference
+#define HA_Preference   0
+#endif
+
+#ifndef HA_Lifetime
+#define HA_Lifetime     7200
+#endif
+
+/*----------------------------------------------------------------------------*
+ * Option
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Source Link-layer Address
+Opt_ICMPv6_SLL opt_sll_any {
+	LinkLayerAddress = SRC_ETHER_ANY;
+}
+
+Opt_ICMPv6_SLL opt_sll_nut {
+	LinkLayerAddress = NUT0_ETHER_ADDR;
+}
+
+Opt_ICMPv6_SLL opt_sll_ha0 {
+	LinkLayerAddress = HA0_ETHER_ADDR;
+}
+
+Opt_ICMPv6_SLL opt_sll_ha1 {
+	LinkLayerAddress = HA1_ETHER_ADDR;
+}
+
+Opt_ICMPv6_SLL opt_sll_rt {
+	LinkLayerAddress = R1_ETHER_ADDR;
+}
+
+Opt_ICMPv6_SLL opt_sll_r1 {
+	LinkLayerAddress = R1_ETHER_ADDR;
+}
+
+Opt_ICMPv6_SLL opt_sll_r2 {
+	LinkLayerAddress = R2_ETHER_ADDR;
+}
+
+//=============================================================================
+// Target Link-layer Address
+Opt_ICMPv6_TLL opt_tll_any {
+	LinkLayerAddress = TARGET_ETHER_ANY;
+}
+
+Opt_ICMPv6_TLL opt_tll_nut {
+	LinkLayerAddress = NUT0_ETHER_ADDR;
+}
+
+Opt_ICMPv6_TLL opt_tll_ha0 {
+	LinkLayerAddress = HA0_ETHER_ADDR;
+}
+
+Opt_ICMPv6_TLL opt_tll_ha1 {
+	LinkLayerAddress = HA1_ETHER_ADDR;
+}
+
+Opt_ICMPv6_TLL opt_tll_r1 {
+	LinkLayerAddress = R1_ETHER_ADDR;
+}
+
+Opt_ICMPv6_TLL opt_tll_r2 {
+	LinkLayerAddress = R2_ETHER_ADDR;
+}
+
+//=============================================================================
+// Prefix Information Option
+Opt_ICMPv6_Prefix opt_prefixinformation_any {
+	LFlag             = PREINFO_Lflag;
+	AFlag             = PREINFO_Aflag;
+	RFlag             = PREINFO_Rflag_0;
+	Reserved1         = PREINFO_Reserved1;
+	ValidLifetime     = PREINFO_VLD_Lifetime;
+	PreferredLifetime = PREINFO_PRE_Lifetime;
+	Reserved2         = PREINFO_Reserved2;
+	Prefix            = v6(PREFIX_INFO_ANY);
+}
+
+Opt_ICMPv6_Prefix opt_prefixinformation_link0 {
+	LFlag             = PREINFO_Lflag;
+	AFlag             = PREINFO_Aflag;
+	RFlag             = PREINFO_Rflag_0;
+	Reserved1         = PREINFO_Reserved1;
+	ValidLifetime     = PREINFO_VLD_Lifetime;
+	PreferredLifetime = PREINFO_PRE_Lifetime;
+	Reserved2         = PREINFO_Reserved2;
+	Prefix            = v6(LINK0_GLOBAL_PREFIX);
+}
+
+Opt_ICMPv6_Prefix opt_prefixinformation_ha0ga {
+	LFlag             = PREINFO_Lflag;
+	AFlag             = PREINFO_Aflag;
+	RFlag             = PREINFO_Rflag_1;
+	Reserved1         = PREINFO_Reserved1;
+	ValidLifetime     = PREINFO_VLD_Lifetime;
+	PreferredLifetime = PREINFO_PRE_Lifetime;
+	Reserved2         = PREINFO_Reserved2;
+	Prefix            = v6(HA0_GLOBAL_UCAST);
+}
+
+Opt_ICMPv6_Prefix opt_prefixinformation_ha1ga {
+	LFlag             = PREINFO_Lflag;
+	AFlag             = PREINFO_Aflag;
+	RFlag             = PREINFO_Rflag_1;
+	Reserved1         = PREINFO_Reserved1;
+	ValidLifetime     = PREINFO_VLD_Lifetime;
+	PreferredLifetime = PREINFO_PRE_Lifetime;
+	Reserved2         = PREINFO_Reserved2;
+	Prefix            = v6(HA1_GLOBAL_UCAST);
+}
+
+Opt_ICMPv6_Prefix opt_prefixinformation_linkx {
+	LFlag             = PREINFO_Lflag;
+	AFlag             = PREINFO_Aflag;
+	RFlag             = PREINFO_Rflag_0;
+	Reserved1         = PREINFO_Reserved1;
+	ValidLifetime     = PREINFO_VLD_Lifetime;
+	PreferredLifetime = PREINFO_PRE_Lifetime;
+	Reserved2         = PREINFO_Reserved2;
+	Prefix            = v6(LINKX_GLOBAL_PREFIX);
+}
+
+Opt_ICMPv6_Prefix opt_prefixinformation_r1ga {
+	LFlag             = PREINFO_Lflag;
+	AFlag             = PREINFO_Aflag;
+	RFlag             = PREINFO_Rflag_1;
+	Reserved1         = PREINFO_Reserved1;
+	ValidLifetime     = PREINFO_VLD_Lifetime;
+	PreferredLifetime = PREINFO_PRE_Lifetime;
+	Reserved2         = PREINFO_Reserved2;
+	Prefix            = v6(R1_GLOBAL_UCAST);
+}
+
+Opt_ICMPv6_Prefix opt_prefixinformation_linky {
+	LFlag             = PREINFO_Lflag;
+	AFlag             = PREINFO_Aflag;
+	RFlag             = PREINFO_Rflag_0;
+	Reserved1         = PREINFO_Reserved1;
+	ValidLifetime     = PREINFO_VLD_Lifetime;
+	PreferredLifetime = PREINFO_PRE_Lifetime;
+	Reserved2         = PREINFO_Reserved2;
+	Prefix            = v6(LINKY_GLOBAL_PREFIX);
+}
+
+Opt_ICMPv6_Prefix opt_prefixinformation_r2ga {
+	LFlag             = PREINFO_Lflag;
+	AFlag             = PREINFO_Aflag;
+	RFlag             = PREINFO_Rflag_1;
+	Reserved1         = PREINFO_Reserved1;
+	ValidLifetime     = PREINFO_VLD_Lifetime;
+	PreferredLifetime = PREINFO_PRE_Lifetime;
+	Reserved2         = PREINFO_Reserved2;
+	Prefix            = v6(R2_GLOBAL_UCAST);
+}
+
+//=============================================================================
+// MTU
+Opt_ICMPv6_MTU opt_mtu_1500 {
+	MTU = 1500;
+}
+
+//=============================================================================
+// Home Agent Information Option
+Opt_ICMPv6_HomeAgentInfo opt_hainformation {
+	Reserved   = HA_Reserved;
+	Preference = HA_Preference;
+	Lifetime   = HA_Lifetime;
+}
+
+/*----------------------------------------------------------------------------*
+ * Packet
+ *----------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------*
+ * Router Solicitation (NUT -> TN)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// RS: ANY -> ANY
+FEM_icmp6_rs (
+	rs_any_any,
+	_HETHER_any,
+	{
+		HopLimit = RS_IPv6_Hop_Any;
+		_SRC(any);
+		_DST(any);
+	},
+	{
+		Code     = RS_Code;
+		Reserved = RS_Reserved;
+	}
+)
+
+//=============================================================================
+// RS: ANY -> ANY option(free)
+FEM_icmp6_rs (
+	rs_any_any_opt_any,
+	_HETHER_any,
+	{
+		HopLimit = RS_IPv6_Hop_Any;
+		_SRC(any);
+		_DST(any);
+	},
+	{
+		Code     = RS_Code;
+		Reserved = RS_Reserved;
+		option   = stop;
+	}
+)
+
+/*----------------------------------------------------------------------------*
+ * Router Advertisement (NUT -> TN)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// RA: ANY -> ANY
+FEM_icmp6_ra (
+	ra_any_any,
+	_HETHER_any,
+	{
+		_SRC(any);
+		_DST(any);
+	},
+	{
+		Code          = any;
+		CurHopLimit   = any;
+		MFlag         = any;
+		OFlag         = any;
+		HFlag         = any;
+		Reserved      = any;
+		LifeTime      = any;
+		ReachableTime = any;
+		RetransTimer  = any;
+	}
+)
+
+//=============================================================================
+// RA: ANY -> ANY option(free)
+FEM_icmp6_ra (
+	ra_any_any_opt_any,
+	_HETHER_any,
+	{
+		_SRC(any);
+		_DST(any);
+	},
+	{
+		Code          = any;
+		CurHopLimit   = any;
+		MFlag         = any;
+		OFlag         = any;
+		HFlag         = any;
+		Reserved      = any;
+		LifeTime      = any;
+		ReachableTime = any;
+		RetransTimer  = any;
+		option        = stop;
+	}
+)
+
+/*----------------------------------------------------------------------------*
+ * Router Advertisement (TN -> NUT)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// RA: ANY -> ANY sll(any) prefix(any)
+FEM_icmp6_ra (
+	ra_any_any_sll_any_mtu_pfx_any,
+	_HETHER_any_to_any,
+	{
+		HopLimit = RA_IPv6_Hop;
+		_SRC(v6(IP_SRC_ADDR_ANY));
+		_DST(v6(IP_DEST_ADDR_ANY));
+	},
+	{
+		Code          = RA_Code;
+		CurHopLimit   = RA_CurHop;
+		MFlag         = RA_Mflag;
+		OFlag         = RA_Oflag;
+		HFlag         = RA_Hflag_0;
+		Reserved      = RA_Reserved;
+		LifeTime      = RA_Lifetime;
+		ReachableTime = RA_Reachtime;
+		RetransTimer  = RA_Retranstimer;
+		option        = opt_sll_any;
+		option        = opt_mtu_1500;
+		option        = opt_prefixinformation_any;
+	}
+)
+
+//=============================================================================
+// RA: ANY -> ANY sll(any) prefix(any) hainfo
+FEM_icmp6_ra (
+	ra_any_any_sll_any_mtu_pfx_any_hainfo,
+	_HETHER_any_to_any,
+	{
+		HopLimit = RA_IPv6_Hop;
+		_SRC(v6(IP_SRC_ADDR_ANY));
+		_DST(v6(IP_DEST_ADDR_ANY));
+	},
+	{
+		Code          = RA_Code;
+		CurHopLimit   = RA_CurHop;
+		MFlag         = RA_Mflag;
+		OFlag         = RA_Oflag;
+		HFlag         = RA_Hflag_1;
+		Reserved      = RA_Reserved;
+		LifeTime      = RA_Lifetime;
+		ReachableTime = RA_Reachtime;
+		RetransTimer  = RA_Retranstimer;
+		option        = opt_sll_any;
+		option        = opt_mtu_1500;
+		option        = opt_prefixinformation_any;
+		option        = opt_hainformation;
+	}
+)
+
+/*----------------------------------------------------------------------------*
+ * Router Advertisement(HA0 -> Multicast)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// RA: HA0(LLA) -> Multicast sll(ha0) prefix(link0)
+FEM_icmp6_ra (
+	ra_ha0lla_allnodemcast_sll_ha0_mtu_pfx_link0,
+	_HETHER_ha0_to_all,
+	{
+		HopLimit = RA_IPv6_Hop;
+		_SRC(v6(HA0_LLOCAL_UCAST));
+		_DST(v6(_ALLNODES_MCAST_ADDR));
+	},
+	{
+		Code          = RA_Code;
+		CurHopLimit   = RA_CurHop;
+		MFlag         = RA_Mflag;
+		OFlag         = RA_Oflag;
+		HFlag         = RA_Hflag_0;
+		Reserved      = RA_Reserved;
+		LifeTime      = RA_Lifetime;
+		ReachableTime = RA_Reachtime;
+		RetransTimer  = RA_Retranstimer;
+		option        = opt_sll_ha0;
+		option        = opt_mtu_1500;
+		option        = opt_prefixinformation_link0;
+	}
+)
+
+//=============================================================================
+// RA: HA0(LLA) -> Multicast sll(ha0) prefix(ha0)
+FEM_icmp6_ra (
+	ra_ha0lla_allnodemcast_sll_ha0_mtu_pfx_ha0ga,
+	_HETHER_ha0_to_all,
+	{
+		HopLimit = RA_IPv6_Hop;
+		_SRC(v6(HA0_LLOCAL_UCAST));
+		_DST(v6(_ALLNODES_MCAST_ADDR));
+	},
+	{
+		Code          = RA_Code;
+		CurHopLimit   = RA_CurHop;
+		MFlag         = RA_Mflag;
+		OFlag         = RA_Oflag;
+		HFlag         = RA_Hflag_1;
+		Reserved      = RA_Reserved;
+		LifeTime      = RA_Lifetime;
+		ReachableTime = RA_Reachtime;
+		RetransTimer  = RA_Retranstimer;
+		option        = opt_sll_ha0;
+		option        = opt_mtu_1500;
+		option        = opt_prefixinformation_ha0ga;
+	}
+)
+
+//=============================================================================
+// RA: HA0(LLA) -> Multicast sll(ha0) prefix(ha0) hainfo
+FEM_icmp6_ra (
+	ra_ha0lla_allnodemcast_sll_ha0_mtu_pfx_ha0ga_hainfo,
+	_HETHER_ha0_to_all,
+	{
+		HopLimit = RA_IPv6_Hop;
+		_SRC(v6(HA0_LLOCAL_UCAST));
+		_DST(v6(_ALLNODES_MCAST_ADDR));
+	},
+	{
+		Code          = RA_Code;
+		CurHopLimit   = RA_CurHop;
+		MFlag         = RA_Mflag;
+		OFlag         = RA_Oflag;
+		HFlag         = RA_Hflag_1;
+		Reserved      = RA_Reserved;
+		LifeTime      = RA_Lifetime;
+		ReachableTime = RA_Reachtime;
+		RetransTimer  = RA_Retranstimer;
+		option        = opt_sll_ha0;
+		option        = opt_mtu_1500;
+		option        = opt_prefixinformation_ha0ga;
+		option        = opt_hainformation;
+	}
+)
+
+/*----------------------------------------------------------------------------*
+ * Router Advertisement (R1 -> Multicast)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// RA: R1(LLA) -> Multicast sll(r1) prefix(linkx)
+FEM_icmp6_ra (
+	ra_r1lla_allnodemcast_sll_r1_mtu_pfx_linkx,
+	_HETHER_r1_to_all,
+	{
+		HopLimit = RA_IPv6_Hop;
+		_SRC(v6(R1_LLOCAL_UCAST));
+		_DST(v6(_ALLNODES_MCAST_ADDR));
+	},
+	{
+		Code          = RA_Code;
+		CurHopLimit   = RA_CurHop;
+		MFlag         = RA_Mflag;
+		OFlag         = RA_Oflag;
+		HFlag         = RA_Hflag_0;
+		Reserved      = RA_Reserved;
+		LifeTime      = RA_Lifetime;
+		ReachableTime = RA_Reachtime;
+		RetransTimer  = RA_Retranstimer;
+		option        = opt_sll_r1;
+		option        = opt_mtu_1500;
+		option        = opt_prefixinformation_linkx;
+	}
+)
+
+//=============================================================================
+// RA: R1(LLA) -> Multicast sll(r1) prefix(r1)
+FEM_icmp6_ra (
+	ra_r1lla_allnodemcast_sll_r1_mtu_pfx_r1ga,
+	_HETHER_r1_to_all,
+	{
+		HopLimit = RA_IPv6_Hop;
+		_SRC(v6(R1_LLOCAL_UCAST));
+		_DST(v6(_ALLNODES_MCAST_ADDR));
+	},
+	{
+		Code          = RA_Code;
+		CurHopLimit   = RA_CurHop;
+		MFlag         = RA_Mflag;
+		OFlag         = RA_Oflag;
+		HFlag         = RA_Hflag_0;
+		Reserved      = RA_Reserved;
+		LifeTime      = RA_Lifetime;
+		ReachableTime = RA_Reachtime;
+		RetransTimer  = RA_Retranstimer;
+		option        = opt_sll_r1;
+		option        = opt_mtu_1500;
+		option        = opt_prefixinformation_r1ga;
+	}
+)
+
+/*----------------------------------------------------------------------------*
+ * Router Advertisement (R2 -> Multiacast)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// RA: R2(LLA) -> Multiacast sll(r2) prefix(linky)
+FEM_icmp6_ra (
+	ra_r2lla_allnodemcast_sll_r2_mtu_pfx_linky,
+	_HETHER_r2_to_all,
+	{
+		HopLimit = RA_IPv6_Hop;
+		_SRC(v6(R2_LLOCAL_UCAST));
+		_DST(v6(_ALLNODES_MCAST_ADDR));
+	},
+	{
+		Code	      = RA_Code;
+		CurHopLimit   = RA_CurHop;
+		MFlag         = RA_Mflag;
+		OFlag         = RA_Oflag;
+		HFlag         = RA_Hflag_0;
+		Reserved      = RA_Reserved;
+		LifeTime      = RA_Lifetime;
+		ReachableTime = RA_Reachtime;
+		RetransTimer  = RA_Retranstimer;
+		option        = opt_sll_r2;
+		option        = opt_mtu_1500;
+		option        = opt_prefixinformation_linky;
+	}
+)
+
+//=============================================================================
+// RA: R2(LLA) -> Multicast sll(r2) prefix(r2)
+FEM_icmp6_ra (
+	ra_r2lla_allnodemcast_sll_r2_mtu_pfx_r2ga,
+	_HETHER_r2_to_all,
+	{
+		HopLimit = RA_IPv6_Hop;
+		_SRC(v6(R2_LLOCAL_UCAST));
+		_DST(v6(_ALLNODES_MCAST_ADDR));
+	},
+	{
+		Code          = RA_Code;
+		CurHopLimit   = RA_CurHop;
+		MFlag         = RA_Mflag;
+		OFlag         = RA_Oflag;
+		HFlag         = RA_Hflag_0;
+		Reserved      = RA_Reserved;
+		LifeTime      = RA_Lifetime;
+		ReachableTime = RA_Reachtime;
+		RetransTimer  = RA_Retranstimer;
+		option        = opt_sll_r2;
+		option        = opt_mtu_1500;
+		option        = opt_prefixinformation_r2ga;
+	}
+)
+
+/*----------------------------------------------------------------------------*
+ * Neighbor Solicitation (NUT -> TN)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// NS: ANY -> ANY
+FEM_icmp6_ns (
+	ns_any_any,
+	_HETHER_any,
+	{
+		_SRC(any);
+		_DST(any);
+	},
+	{
+		Code          = any;
+		Reserved      = any;
+		TargetAddress = any;
+	}
+)
+
+//=============================================================================
+// NS: ANY -> ANY with IPsec
+FEM_icmp6_ns_exth (
+	ns_any_any_w_ipsec,
+	_HETHER_any,
+	{
+		_SRC(any);
+		_DST(any);
+	},
+	{
+		header = _HDR_IPV6_NAME(ns_any_any_w_ipsec);
+#if defined(IPSEC_MANUAL_SA5_MN_HA0_PROTO_ICMP)
+		exthdr = ext_sa5_mn_ha0;
+#endif
+		upper  = _ICMPV6_NAME(ns_any_any_w_ipsec);
+	},
+	{
+		Code          = any;
+		Reserved      = any;
+		TargetAddress = any;
+	}
+)
+
+//=============================================================================
+// NS: ANY -> ANY option(free)
+FEM_icmp6_ns (
+	ns_any_any_opt_any,
+	_HETHER_any,
+	{
+		_SRC(any);
+		_DST(any);
+	},
+	{
+		Code          = any;
+		Reserved      = any;
+		TargetAddress = any;
+		option        = stop;
+	}
+)
+
+//=============================================================================
+// NS: ANY -> ANY option(free) with IPsec
+FEM_icmp6_ns_exth (
+	ns_any_any_opt_any_w_ipsec,
+	_HETHER_any,
+	{
+		_SRC(any);
+		_DST(any);
+	},
+	{
+		header = _HDR_IPV6_NAME(ns_any_any_opt_any_w_ipsec);
+#if defined(IPSEC_MANUAL_SA5_MN_HA0_PROTO_ICMP)
+		exthdr = ext_sa5_mn_ha0;
+#endif
+		upper  = _ICMPV6_NAME(ns_any_any_opt_any_w_ipsec);
+	},
+	{
+		Code          = any;
+		Reserved      = any;
+		TargetAddress = any;
+		option        = stop;
+	}
+)
+
+/*----------------------------------------------------------------------------*
+ * Neighbor Solicitation (0 ->  NUT0(sol) address resolution)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// NS: 0 -> MULTI target(nut0)
+FEM_icmp6_ns (
+	ns_0_nuthsol_tgt_nuthga,
+	_HETHER_nut0_dad,
+	{
+		_SRC(v6(IP_ADDR_UNSPEC));
+		_DST(_IPV6_SOLNODE_MCAST(v6(NUTH_GLOBAL_UCAST)));
+	},
+	{
+		Code          = NS_Code;
+		Reserved      = NS_Reserved;
+		TargetAddress = v6(NUTH_GLOBAL_UCAST);
+	}
+)
+
+/*----------------------------------------------------------------------------*
+ * Neighbor Solicitation (HA0 ->  NUT0(sol) address resolution)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// NS: HA0 -> NUT0(SOL) target(nut0) sll(ha0)
+FEM_icmp6_ns (
+	ns_ha0ga_nuthsol_tgt_nuthga_sll_ha0,
+	_HETHER_ha0_to_nut0solnode,
+	{
+		HopLimit = NS_IPv6_Hop;
+		_SRC(v6(HA0_GLOBAL_UCAST));
+		_DST(_IPV6_SOLNODE_MCAST(v6(NUTH_GLOBAL_UCAST)));
+	},
+	{
+		Code          = NS_Code;
+		Reserved      = NS_Reserved;
+		TargetAddress = v6(NUTH_GLOBAL_UCAST);
+		option        = opt_sll_ha0;
+	}
+)
+
+/*----------------------------------------------------------------------------*
+ * Neighbor Solicitation (R1 -> NUTX)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// NS: R1 -> NUTX target(nutx)
+FEM_icmp6_ns (
+	ns_r1ga_nutxga_tgt_nutxga,
+	_HETHER_r1_to_nutx,
+	{
+		HopLimit = NS_IPv6_Hop;
+		_SRC(v6(R1_GLOBAL_UCAST));
+		_DST(v6(NUTX_GLOBAL_UCAST));
+	},
+	{
+		Code          = NS_Code;
+		Reserved      = NS_Reserved;
+		TargetAddress = v6(NUTX_GLOBAL_UCAST);
+	}
+)
+
+/*----------------------------------------------------------------------------*
+ * Neighbor Advertisement (NUT -> TN)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// NA: ANY -> ANY
+FEM_icmp6_na (
+	na_any_any,
+	_HETHER_any,
+	{
+		_SRC(any);
+		_DST(any);
+	},
+	{
+		Code          = any;
+		RFlag         = any;
+		SFlag         = any;
+		OFlag         = any;
+		Reserved      = any;
+		TargetAddress = any;
+	}
+)
+
+//=============================================================================
+// NA: ANY -> ANY option(free)
+FEM_icmp6_na (
+	na_any_any_opt_any,
+	_HETHER_any,
+	{
+		_SRC(any);
+		_DST(any);
+	},
+	{
+		Code          = any;
+		RFlag         = any;
+		SFlag         = any;
+		OFlag         = any;
+		Reserved      = any;
+		TargetAddress = any;
+		option        = stop;
+	}
+)
+
+//=============================================================================
+// NA: ANY -> ANY dst-hoa NUT0
+FEM_icmp6_na_exth (
+	na_any_any_hoa_nuthga,
+	_HETHER_any,
+	{
+		_SRC(any);
+		_DST(any);
+	},
+	{
+		header = _HDR_IPV6_NAME(na_any_any_hoa_nuthga);
+		exthdr = ext_homeaddress_nuth;
+		upper  = _ICMPV6_NAME(na_any_any_hoa_nuthga);
+	},
+	{
+		Code          = any;
+		RFlag         = any;
+		SFlag         = any;
+		OFlag         = any;
+		Reserved      = any;
+		TargetAddress = any;
+	}
+)
+
+//=============================================================================
+// NA: ANY -> ANY dst-hoa NUT0 option(free)
+FEM_icmp6_na_exth (
+	na_any_any_hoa_nuthga_opt_any,
+	_HETHER_any,
+	{
+		_SRC(any);
+		_DST(any);
+	},
+	{
+		header = _HDR_IPV6_NAME(na_any_any_hoa_nuthga_opt_any);
+		exthdr = ext_homeaddress_nuth;
+		upper  = _ICMPV6_NAME(na_any_any_hoa_nuthga_opt_any);
+	},
+	{
+		Code          = any;
+		RFlag         = any;
+		SFlag         = any;
+		OFlag         = any;
+		Reserved      = any;
+		TargetAddress = any;
+		option        = stop;
+	}
+)
+
+/*----------------------------------------------------------------------------*
+ * Neighbor Advertisement (TN -> NUT)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// NA: ANY -> ANY tll(any)
+FEM_icmp6_na (
+	na_any_any_tll_any,
+	_HETHER_any_to_any,
+	{
+		HopLimit = NA_IPv6_Hop;
+		_SRC(v6(IP_SRC_ADDR_ANY));
+		_DST(v6(IP_DEST_ADDR_ANY));
+	},
+	{
+		Code          = NA_Code;
+		RFlag         = NA_Rflag_1;
+		SFlag         = NA_Sflag_1;
+		OFlag         = NA_Oflag_1;
+		Reserved      = NA_Reserved;
+		TargetAddress = v6(IP_TAGET_ADDR_ANY);
+		option        = opt_tll_any;
+	}
+)
+
+//=============================================================================
+// NA: ANY -> ANY tll(any) with IPsec
+FEM_icmp6_na_exth (
+	na_any_any_tll_any_w_ipsec,
+	_HETHER_any_to_any,
+	{
+		HopLimit = NA_IPv6_Hop;
+		_SRC(v6(IP_SRC_ADDR_ANY));
+		_DST(v6(IP_DEST_ADDR_ANY));
+	},
+	{
+		header = _HDR_IPV6_NAME(na_any_any_tll_any_w_ipsec);
+#if defined(IPSEC_MANUAL_SA6_HA0_MN_PROTO_ICMP)
+		exthdr = ext_sa6_ha0_mn;
+#endif
+		upper  = _ICMPV6_NAME(na_any_any_tll_any_w_ipsec);
+	},
+	{
+		Code          = NA_Code;
+		RFlag         = NA_Rflag_1;
+		SFlag         = NA_Sflag_1;
+		OFlag         = NA_Oflag_1;
+		Reserved      = NA_Reserved;
+		TargetAddress = v6(IP_TAGET_ADDR_ANY);
+		option        = opt_tll_any;
+	}
+)
+
+/*----------------------------------------------------------------------------*
+ * Neighbor Advertisement (HA0 -> Multicast)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// NA: HA0(LLA) -> Multicast target(nut0 lla) tll(ha0)
+FEM_icmp6_na (
+	na_ha0lla_alnodemcast_tgt_nuthlla_tll_ha0,
+	_HETHER_ha0_to_all,
+	{
+		HopLimit = NA_IPv6_Hop;
+		_SRC(v6(HA0_LLOCAL_UCAST));
+		_DST(v6(_ALLNODES_MCAST_ADDR));
+	},
+	{
+		Code          = NA_Code;
+		RFlag         = NA_Rflag_0;
+		SFlag         = NA_Sflag_0;
+		OFlag         = NA_Oflag_1;
+		Reserved      = NA_Reserved;
+		TargetAddress = v6(NUTH_LLOCAL_UCAST);
+		option        = opt_tll_ha0;
+	}
+)
+
+//=============================================================================
+// NA: HA0(LLA) -> Multicast target(nut0) tll(ha0)
+FEM_icmp6_na (
+	na_ha0lla_alnodemcast_tgt_nuthga_tll_ha0,
+	_HETHER_ha0_to_all,
+	{
+		HopLimit = NA_IPv6_Hop;
+		_SRC(v6(HA0_LLOCAL_UCAST));
+		_DST(v6(_ALLNODES_MCAST_ADDR));
+	},
+	{
+		Code          = NA_Code;
+		RFlag         = NA_Rflag_0;
+		SFlag         = NA_Sflag_0;
+		OFlag         = NA_Oflag_1;
+		Reserved      = NA_Reserved;
+		TargetAddress = v6(NUTH_GLOBAL_UCAST);
+		option        = opt_tll_ha0;
+	}
+)
+
+/*----------------------------------------------------------------------------*
+ * Neighbor Advertisement (NUT0 -> HA0)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// NA: NUT0(LLA) -> HA0 target(nut0)
+FEM_icmp6_na (
+	na_nuthlla_ha0ga_tgt_nuthga,
+	_HETHER_nut0_to_ha0,
+	{
+		_SRC(v6(NUTH_LLOCAL_UCAST));
+		_DST(v6(HA0_GLOBAL_UCAST));
+	},
+	{
+		SFlag         = NA_Sflag_1;
+		OFlag         = NA_Oflag;
+		TargetAddress = v6(NUTH_GLOBAL_UCAST);
+	}
+)
+
+//=============================================================================
+// NA: NUT0(LLA) -> HA0 target(nut0) tll(nut0)
+FEM_icmp6_na (
+	na_nuthlla_ha0ga_tgt_nuthga_tll_nuth,
+	_HETHER_nut0_to_ha0,
+	{
+		_SRC(v6(NUTH_LLOCAL_UCAST));
+		_DST(v6(HA0_GLOBAL_UCAST));
+	},
+	{
+		SFlag         = NA_Sflag_1;
+		OFlag         = NA_Oflag;
+		TargetAddress = v6(NUTH_GLOBAL_UCAST);
+		option        = opt_tll_nut;
+	}
+)
+
+//=============================================================================
+// NA: NUT0 -> HA0 target(nut0)
+FEM_icmp6_na_exth (
+	na_nuthga_ha0ga_tgt_nuthga,
+	_HETHER_nut0_to_ha0,
+	{
+		_SRC(v6(NUTH_GLOBAL_UCAST));
+		_DST(v6(HA0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(na_nuthga_ha0ga_tgt_nuthga);
+#if defined(IPSEC_MANUAL_SA5_MN_HA0_PROTO_ICMP)
+		exthdr = ext_sa5_mn_ha0;
+#endif
+		upper  = _ICMPV6_NAME(na_nuthga_ha0ga_tgt_nuthga);
+	},
+	{
+		SFlag         = NA_Sflag_1;
+		OFlag         = NA_Oflag;
+		TargetAddress = v6(NUTH_GLOBAL_UCAST);
+	}
+)
+
+//=============================================================================
+// NA: NUT0 -> HA0 target(nut0) tll(nut0)
+FEM_icmp6_na_exth (
+	na_nuthga_ha0ga_tgt_nuthga_tll_nuth,
+	_HETHER_nut0_to_ha0,
+	{
+		_SRC(v6(NUTH_GLOBAL_UCAST));
+		_DST(v6(HA0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(na_nuthga_ha0ga_tgt_nuthga_tll_nuth);
+#if defined(IPSEC_MANUAL_SA5_MN_HA0_PROTO_ICMP)
+		exthdr = ext_sa5_mn_ha0;
+#endif
+		upper  = _ICMPV6_NAME(na_nuthga_ha0ga_tgt_nuthga_tll_nuth);
+	},
+	{
+		SFlag         = NA_Sflag_1;
+		OFlag         = NA_Oflag;
+		TargetAddress = v6(NUTH_GLOBAL_UCAST);
+		option        = opt_tll_nut;
+	}
+)
+
+// End of File

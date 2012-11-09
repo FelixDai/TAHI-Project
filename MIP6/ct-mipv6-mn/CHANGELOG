@@ -1,0 +1,1451 @@
+#
+# Copyright (C) IPv6 Promotion Council,
+# NIPPON TELEGRAPH AND TELEPHONE CORPORATION (NTT),
+# Yokogwa Electoric Corporation, YASKAWA INFORMATION SYSTEMS Corporation
+# and NTT Advanced Technology Corporation(NTT-AT) All rights reserved.
+# 
+# Technology Corporation.
+# 
+# Redistribution and use of this software in source and binary forms, with 
+# or without modification, are permitted provided that the following 
+# conditions and disclaimer are agreed and accepted by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright 
+# notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright 
+# notice, this list of conditions and the following disclaimer in the 
+# documentation and/or other materials provided with the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project which 
+# is related to this software (hereinafter referred to as "project") nor 
+# the names of the contributors may be used to endorse or promote products 
+# derived from this software without specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written 
+# notification to the copyrighters. However, using this software for the 
+# purpose of testing or evaluating any products including merchantable 
+# products may be permitted without any notification to the copyrighters.
+# 
+# 
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND 
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING 
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS 
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE 
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+# CONTRACT,STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF 
+# THE POSSIBILITY OF SUCH DAMAGE.
+#
+########################################################################
+
+	CHANGELOG for MIPv6 Conformance Test Package
+
+
+2008/01/28	Release 4.0.5
+	Official release
+
+
+2008/01/10	kawaguti@ysknet.co.jp
+	mipv6-mn: MN-2-1-1-1-008, MN-3-4-1-1-002
+		- fix RA sending after returning to Link.
+
+
+2007/09/18	Release 4.0.4
+	Official release
+	IPv6 Ready Logo Phase-2 MIP6-HA update
+	- add Fine-Grain Selectors
+
+
+2007/08/01	Release 4.0.3
+	Official release
+
+
+2007/07/07	kawaguti@ysknet.co.jp
+	mipv6-mn: added IPsec for IPsec v3.
+		- renewed packet figure in profile.
+		- renewed packet definition.
+		- renewed configuration.
+	mipv6-mn: fixed default SPIs and Keys.
+
+
+2007/02/22	kawaguti@ysknet.co.jp
+	mipv6-mn: INSTALL
+		- correct some information.
+	mipv6-mn: all files
+		- correct COPYRIGHT to all files.
+
+
+2006/11/06	kawaguti@ysknet.co.jp
+	mipv6-mn/MN-0-0-0-1-001 
+		- corrected the procedure ((1) 4. (wait)) in profile.
+	mipv6-mn/MN-2-1-2-1-004
+		- corrected the procedure ((1) 6. (wait)) in profile.
+
+
+2006/9/1	Release 4.0.2
+	Official release
+
+
+2006/8/28	kawaguti@ysknet.co.jp
+	mipv6-mn/00README_mn.txt mip6_mn_config.pm
+		- corrected the condition check of IPv6 Ready Logo.
+
+
+2006/8/3	Release 4.0.1
+	Official release
+
+
+2006/8/3	kawaguti@ysknet.co.jp
+	mipv6-mn/config.txt, mip6_mn_config.pm, mip6_mn_common.pm
+		- The former procedure item of each test was divided.
+
+
+2006/7/7	kawaguti@ysknet.co.jp
+	mipv6-mn/mip6_mn_common.pm, mip6_mn_get.pm, mip6_mn_recv.pm
+		- corrected processing that detects a doubtful packet from
+		  unexpected packet(s).
+	mipv6-mn/mip6_mn_config.pm, mip6_mn_common.pm
+		- Internal update.
+
+
+2005/06/02	kawaguti@ysknet.co.jp
+	mipv6-mn: MN-2-1-3-2-015, 2-2-1-1-039, MN-2-1-4-2-014, MN-3-2-1-2-029,
+	          MN-3-4-1-2-006, MN-4-2-1-1-015, MN-5-1-2-1-021
+	- Typo in "TEST PROCEDURE"
+	  "fileld" -> "field"
+
+
+2006/06/01	Release 4.0.0
+	Official release
+
+
+2005/05/12	kawaguti@ysknet.co.jp
+	mipv6-mn: all profile
+	- "INITIALIZATION" was separated to "REQUIREMENT of TEST", "SETUP" and
+	  "INITIALIZATION".
+
+
+2005/05/12	kawaguti@ysknet.co.jp
+	mipv6-mn: Makefile.test, mip6_mn_config.pm
+		- support for IPv6 ready logo program phase-2
+
+
+2006/03/02	Release 4.0.a9
+	Official release
+
+
+2005/02/22	kawaguti@ysknet.co.jp
+	mipv6-mn/mip6_mn_common.pm, mip6_mn_get.pm, mip6_mn_recv.pm
+		- check unexpect packet.
+		  If tester find a doubtful packet, judge WARN. 
+	mipv6-mn/MN-2-1-1-2-028 mip6_mn_other.def mip6_mn_msg.pm
+		- check the illegal ICMPv6 Destination Unreachable.
+	mipv6-mn/MN-4-2-2-2-012 mip6_mn_echo.def mip6_mn_msg.pm
+		- check the illegal Echo Reply.
+
+
+2006/02/03	Release 4.0.a8
+	Official release
+
+
+2005/01/19	kawaguti@ysknet.co.jp
+	mipv6-mn/MN-5-1-2-1-021
+		- fix the trouble that the test doesn't end.
+	mipv6-mn/MN-2-1-2-1-005
+		- fix the bug about judgment of bu lifetime.
+	mipv6-mn/MN-5-1-1-1-006
+		- fix the bug about judgment of HAAD request interval.
+
+
+2004/12/19	kawaguti@ysknet.co.jp
+	mipv6-mn/MN-3-1-1-1-001,MN-3-1-1-1-009
+		- fix the sequence.
+		  The source of Echo Request is changed from HA0 to CN0.
+	mipv6-mn/MN-2-2-2-1-008,MN-3-4-1-1-002,mip6_mn_comfig.pl
+		 mip6_mn_config.pm,mip6_mn_network.def
+		- fix the address setting when specifying 
+		  "FUNC_DETAIL_HOME_ADDRESS STATIC" and
+		  "FUNC_DETAIL_COA_ADDRESS STATIC"  in config.txt
+	mipv6-mn/config.txt,mip6_mn_config.pm
+		- add IPV6_READY_LOGO_PAHSE2
+		  check whether the config setting conforms to IPv6 Ready Logo.
+
+
+2004/11/01	kawaguti@ysknet.co.jp
+	mipv6-mn/MN-3-4-1-2-001,MN-3-4-1-2-006
+		- fix the comment mistake of judgment.
+
+
+2005/10/02	Release 4.0.a7
+	Official release
+
+
+2004/08/24	kawaguti@ysknet.co.jp
+	mipv6-mn/mip6_mn_ike.pm
+		- fix the mistake of the setting HMAC-MD5.
+		- add that KE payload is not used as a comment on IKE configure.
+
+
+2004/08/19	kawaguti@ysknet.co.jp
+	mipv6-mn/MN-1-2-3-1-006
+		- fix the bug of judgement.
+
+
+2004/07/14	kawaguti@ysknet.co.jp
+	mipv6-mn/mip6_mn_config.pm
+		- A useless parameter 'TEST_STATE_PHASE2' was deleted.
+
+
+2004/06/09	kawaguti@ysknet.co.jp
+	mipv6-mn/MN-2-1-3-2-007,MN-4-2-2-2-007,mip6_mn_other.def,
+	         mip6_mn_msg.pm
+		- fixed the mistake of Binding Update with
+		  alternate care-of address option to CN.
+
+
+2004/06/06	kawaguti@ysknet.co.jp
+	mipv6-mn/MN-3-1-3-3-001,MN-4-1-1-3-001,MN-4-1-2-3-001,
+	         mip6_mn_mh.def,mip6_mn_msg.pm,mip6_mn_recv.pm
+		- fixed the BU to delete binding that other MN sent the target.
+		  The alternate care-of address is set to home address.
+
+	mipv6-mn/MN-2-1-1-2-017,MN-2-1-2-2-017,mip6_mn_mh.def
+	         mip6_mn_msg.pm
+		- skip the test, when MN deleted the registration of CN.
+
+	mipv6-mn/MN-4-1-2-2-010,MN-4-2-2-2-010
+		- fixed mistake of Packet Format fig.
+
+
+2004/05/11	kawaguti@ysknet.co.jp
+	mipv6-mn/Makefile.test
+		- add -F option to autorun for ipv6ready_p2
+
+	mipv6-mn/mip6_mn_config.pm mip6_mn_common.pm
+	         mip6_mn_ipsec.pm mip6_mn_ike.pm
+		- modified the call of remote files.
+
+	mipv6-mn/mip6_mn_ike.pm
+		- fixed the setting of IKE for NUT-HA1.
+
+	mipv6-mn/MN-2-1-1-1-013,MN-2-2-1-1-003,MN-2-2-1-1-004,
+	         MN-2-2-1-1-005,MN-2-2-1-1-006,MN-2-2-1-1-007,
+	         MN-2-2-1-1-009,MN-2-2-1-1-010,MN-2-2-1-1-017,
+	         MN-2-2-1-1-035,MN-2-2-1-1-038,MN-2-1-2-1-006,
+	         MN-6-2-1-1-004
+		- added the check on an unjustified packet.
+
+	mipv6-mn/MN-1-2-2-1-004,
+		- fixed the bug of no goto label in perl.
+
+	mipv6-mn/MN-1-2-3-1-006
+		- fixed the bug of packet check.
+
+	mipv6-mn/MN-2-1-2-1-001,MN-2-1-2-1-005,MN-2-1-2-1-006
+		- fixed the lengthy procedure.
+
+	mipv6-mn/all
+		- correction and union of terms.
+		  example)
+			typo
+			  Solicitations -> Solicitation
+			Capital/small letters
+			  home address option -> Home Address Option
+
+
+2004/04/26	kawaguti@ysknet.co.jp
+	mipv6-mn/MN-4-2-1-2-006
+		- fixed missing the packet check. 
+
+	mipv6-mn/mip6_mn_common.pm,mip6_mn_ike.pm
+		- in v4.
+		  always call the init and term of IKE module function
+
+
+2005/04/22	Release 4.0.a3
+	Official release
+
+
+2005/04/22	Release 3.1.1
+	Official release
+
+
+2004/04/11	kawaguti@ysknet.co.jp
+	mipv6-mn/mip6_mn_ipsec.pm
+		- replaced the order of "ipsecSetSAD.rmt" and "ipsecSetSPD.rmt".
+		- added the call of remote file "ipsecEnable.rmt".
+
+	mipv6-mn/mip6_mn_neighbor.pm
+		- fixed RS/RA messages for MN-3-3-1-1-003, MN-3-3-1-1-005
+
+	mipv6-mn/MN-2-2-2-1-027
+		- typo
+        Packet Format is:
+           5.Neighbor Solicitations is:
+             IPv6 header (source Address = home agent,
+                          destination Address = home address)
+                       => destination Address = solicited-node multicast)
+
+	mipv6-mn/MN-3-2-1-2-025
+		- typo
+         Packet Format is:
+          8.Binding Acknowledgement Data is:
+
+              <= Padding option
+                 Authorization Data option (illegal location)
+              => Padding option
+
+	mipv6-mn/MN-3-4-1-1-001
+		- typo
+         Packet Format is:
+           6.Neighbor Advertisement Data is:
+             IPv6 header (source = unspecified address,
+          => IPv6 header (source = home address,
+
+	mipv6-mn/MN-2-1-1-2-002,MN-4-2-2-2-011
+		- typo "Echo" -> "ICMP Echo" in PROFILE
+		- typo "Runction" -> "Function"
+
+	mipv6-mn/MN-2-2-1-1-010
+		- typo "CN0 sends" -> "HA0 sends" in log message
+
+	mipv6-mn/MN-2-1-3-1-007,MN-2-2-2-1-001,MN-2-2-2-1-027,
+	         MN-3-4-1-1-001,
+		- add the address of link layler address in packet format.
+
+	mipv6-mn/MN-2-1-3-1-007,MN-2-2-2-1-027,MN-3-1-3-2-001,
+		- deleted a needless initialization procedure. 
+
+
+2005/03/28	Release 4.0.a2
+	Official release
+
+
+2005/03/28	Release 3.1.0
+	Official release
+
+
+2004/03/24	kawaguti@ysknet.co.jp
+	mipv6-mn/MN-2-1-1-1-004,MN-2-2-1-1-014
+		- added the test condition of BU((K)bit OFF) in PROFILE.
+
+	mipv6-mn/MN-2-1-1-2-006
+		- added processing that considered usual re-registration.
+
+	mipv6-mn/MN-2-1-4-2-002
+		- fixed the mistake of the test sequence in PROFILE.
+
+	mipv6-mn/MN-2-2-1-1-002
+		- fixed the judgment mistake of the echo reply.
+
+	mipv6-mn/MN-3-2-1-2-010
+		- check only sequence number of two binding update messages.
+
+	mipv6-mn/MN-3-2-1-2-017,MN-3-2-1-2-018
+		- fixed the check which is missed checking of Echo Reply.
+
+	mipv6-mn/MN-4-1-1-2-005,MN-4-1-1-2-006,mip6_mn_echo.def,
+	         mip6_mn_msg.pm
+		- added the check of Echo Reply to EchoRequest at the RR.
+
+	mipv6-mn/MN-4-2-1-2-005,MN-4-2-1-2-006
+		- deleted the delay processing of CoT in this test case.
+
+	mipv6-mn/MN-5-1-2-1-028,MN-5-1-2-1-029
+		- fixed the mistake of internal processing.
+
+	mipv6-mn/mip6_mn_ipsec.pm
+		- fixed the status code when making an internal error.
+
+	mipv6-mn/config.txt,mip6_mn_config.pm,mip6_mn_common.pm
+		- added the config concerning the setting of IPsec.
+		  ENV_IPSEC_SET - it is necessary to set IPsec when booting.
+
+	mipv6-mn/
+		- update 00README_mn.txt and some shell scripts
+
+
+2005/03/02	kawaguti@ysknet.co.jp
+	mipv6-mn/
+		- Version 4.0.a1 for IKE is released. 
+		- add 00README_mn.txt and some shell scripts in mipv6-mn/
+
+
+2005/03/01	taisuke.sako@ntt-at.co.jp
+	mipv6-cn/*seq,INDEX*,
+		- change name(MIPv6_4_0_A_1)
+
+	mipv6-cn/mip6cnt.pm
+		- fixed display protocol of SPD at CN-6-4-2 
+
+
+2005/02/28	kawaguti@ysknet.co.jp
+	mipv6-mn/MN-2-2-1-1-010
+		- check only sequence number of two binding update messages.
+
+	mipv6-mn/MN-5-1-2-1-029
+		- Change in internal processing
+		  fix that did not necessarily need HAAD Request
+		  before first BU.
+
+
+2005/02/22	taisuke.sako@ntt-at.co.jp
+	mipv6-cn/CN-2-4-2.seq
+		- fixed support RA for two prefix at type=Router 
+
+	mipv6-cn/mip6cnt.pm, config.pl
+		- added print a note for CN-2-4-2
+
+
+2005/02/15	taisuke.sako@ntt-at.co.jp
+	mipv6-cn/mip6cnt.pm, mip6cnt.def, config.txt, config.pl *.seq
+		- added support new target type=Router
+
+	mipv6-cn/CN-6-4-2.html
+		- fixed figure of sequence
+
+
+2005/01/22	kawaguti@ysknet.co.jp
+	mipv6-mn/config.txt
+		- The setting that turns off all IPsec is added in config.txt.
+		  TEST_FUNC_IPSEC
+
+2005/01/05	kawaguti@ysknet.co.jp
+	mipv6-mn/config.txt
+		- The specification of a static address became possible.
+
+2005/01/01	kawaguti@ysknet.co.jp
+	mipv6-mn/Overall correction(*.pm,*.def,and many *.seq)
+		- The packet definition was composed again.
+		- The address definition was composed again.
+		- Internal initial processing was corrected.
+
+2004/12/24	kawaguti@ysknet.co.jp
+	mipv6-mn/MN-2-1-1-1-008
+		- permit that BU is not resent within test time.
+
+	mipv6-mn/MN-3-2-1-2-017,MN-3-2-1-2-018
+		- permit not beginning routability procedure again
+		  to CN which did not reply to the routability
+		  procedure between fixed time.
+
+	mipv6-mn/mip6_mn_echo.def(MN-2-1-1-2-016)
+		- corrected the error to the setup of tunnel mode of
+		  IPsec SA7.
+
+	mipv6-mn/mip6_mn_neighbor.def(MN-2-1-3-1-007)
+		- corrected the setup of Solicited-Node multicast address.
+
+	mipv6-mn/MN-2-1-2-1-006
+		- corrected to the judgment which admits transmitting
+		  tunneled Echo Reply to Echo Request /w Type2,
+		  even if MN did not have BUL entry.
+
+	mipv6-mn/MN-2-1-2-2-010,MN-2-1-4-2-003,MN-2-1-4-2-004,
+	         MN-2-1-4-2-014,MN-3-2-1-2-012,MN-4-2-1-2-013
+		- corrected transmitting HOT to HOTI.
+
+	mipv6-mn/MN-4-2-1-2-011,MN-4-2-1-2-012
+		- corrected so that reception of ICMP PP might not
+		  be omitted.
+
+	mipv6-mn/MN-2-2-1-1-017
+		- Only in PROFILE.
+		  In this case, NUT does not need to move between
+		  two foreign-links.
+		  It corrected so that NUT be on one foreign link.
+
+	mipv6-mn/MN-2-2-1-1-020,MN-2-2-1-1-026
+		- Only in PROFILE.
+		  corrected description of Lifetime of BA.
+
+	mipv6-mn/MN-2-1-3-2-002,MN-2-1-3-2-011,MN-2-2-1-1-005,
+	         MN-3-1-3-3-001,MN-3-2-1-1-001,MN-4-1-1-1-004,
+	         MN-4-2-1-1-012,MN-4-2-1-1-013,MN-4-2-1-2-005,
+	         MN-4-2-1-2-011,MN-4-2-1-2-012,MN-5-1-1-1-006,
+		- simple description mistake and typo
+
+
+2004/12/20	Release 3.0.2
+	Official release
+
+
+2004/12/17	mizusawa@mitaka.ntt-at.co.jp
+	mipv6-cn/CN-6-4-2
+		- change keys for IPsec
+		- fix the bug that fails to detect the error
+		  in the initialization phase.
+
+2004/12/17	Yukiyo.Akisada@jp.yokogawa.com
+	mipv6-ha: HA_1_1_6.seq
+		- correct usage of array
+			reported by nakam@linux-ipv6.org
+
+	mipv6-ha: HA_3_3_*.seq
+		- correct judgement in binding existence test
+			reported by nakam@linux-ipv6.org
+
+	mipv6-ha: HA_8_1_[3-4].seq, mipv6.pm
+		- correct mpd_confirmation() behavior
+		  when RUT doesn't have binding cache entry
+			reported by nakam@linux-ipv6.org
+
+	mipv6-ha: HA_1_1_7.def
+		- correct ether address in 'local_bu', 'local_icmp_error'
+			reported by nakam@linux-ipv6.org
+		- correct Pointer value in 'local_icmp_error'
+
+	mipv6-ha: mipv6.pm
+		- fix typo, s/Could't/Couldn't/g
+			reported by nakam@linux-ipv6.org
+
+
+2004/12/13	Release 3.0.1
+	Official release
+
+
+2004/12/13	Yukiyo.Akisada@jp.yokogawa.com
+	mipv6-ha:
+		correct usage of ROTATE_HOA macro
+
+
+2004/12/10	Release 3.0
+	Official release
+
+
+2004/12/10	Yukiyo.Akisada@jp.yokogawa.com
+	mipv6-ha:
+		re-write all of functions related on IPsec
+
+
+2004/12/06	mizusawa@mitaka.ntt-at.co.jp
+	mipv6-cn/mip6cnt.def CN-5-3-1 CN-5-3-2 CN-5-3-2
+		- modifyed tests so that they don't use IPsec for BU
+		  because their focuses are BA with status=131 and 139.
+	mipv6-cn/mip6cnt.pm config.txt
+		- added new configuration item WAIT_RATELIMIT
+		  to avoid influence of Rate Limitation.
+
+
+2004/12/01	kawaguti@ysknet.co.jp
+	mipv6-mn/all files
+		- fixed typo and redundant.
+			number of messages in TEST PROCEDURE
+			format of messages in TEST PROCEDURE
+
+	mipv6-mn/MN-3-2-1-2-011,MN-3-2-1-2-012,MN-3-2-1-2-013
+		- fixed BA(status 136,137,138) so that Authorization
+		  Data must not be included.
+
+
+2004/11/18	kawaguti@ysknet.co.jp
+	mipv6-mn/all files
+		- change the name of config options in config.txt.
+
+	mipv6-mn/MN-3-3-1-1-005
+		- fixed the judgment error when receiving a NUD packet.
+
+	mipv6-mn/MN-0-0-0-1-001,MN-2-1-1-1-008,MN-2-1-2-1-004,
+	         MN-2-1-2-1-005,MN-2-1-2-1-006,MN-2-2-1-1-002,
+	         MN-2-2-1-1-003,MN-2-2-1-1-004,MN-2-2-1-1-005,
+	         MN-2-2-1-1-006,MN-2-2-1-1-007,MN-2-2-1-1-009,
+	         MN-2-2-1-1-014,MN-2-2-1-1-020,MN-2-2-1-1-026,
+	         MN-2-2-1-1-033,MN-2-2-1-1-035,MN-2-2-1-1-039,
+	         MN-2-2-2-1-001,MN-2-2-2-1-008,MN-3-4-1-1-001,
+	         MN-3-4-1-1-002,MN-5-1-2-1-028,MN-6-2-1-1-001,
+	         MN-6-2-1-1-002,MN-6-2-1-1-003,MN-6-2-1-1-004,
+	         mip6_mn_send.pm,mip6_mn_recv.pm
+		- change the internal processing about BU/BA.
+
+	mipv6-mn/MN-2-1-3-1-007,MN-2-2-2-1-008,MN-3-4-1-1-002,
+	         mip6_mn_recv.pm
+		- change the processing to the message(src link local)
+		  from NUT before de-registraion.
+
+	mipv6-mn/MN-2-2-1-1-003,MN-2-2-1-1-004,MN-2-2-1-1-005,
+	         MN-2-2-1-1-006,MN-2-2-1-1-007,MN-2-2-1-1-009,
+	         MN-2-2-1-1-010,MN-2-2-1-1-035,MN-3-1-2-2-006,
+	         MN-3-2-1-2-003,MN-3-2-1-2-010,MN-3-2-1-2-011,
+	         MN-3-2-1-2-012,MN-3-2-1-2-013,MN-4-1-1-1-004,
+	         MN-5-1-1-1-001,MN-5-1-1-1-005,MN-5-1-1-1-006,
+	         MN-5-1-2-1-002,MN-5-1-2-1-021,MN-5-1-2-1-028,
+	         MN-6-2-1-1-003
+		- fixed the redundant or simple mistake.
+
+
+2004/11/04	kawaguti@ysknet.co.jp
+	mipv6-mn/MN-2-1-1-2-004,MN-2-1-2-2-004,
+	         mip6_mn_mh.def,mip6_mn_echo.def,mip6_mn_msg.def
+		- increased the IPsecSA pattern of the tunnel packet.
+		  And the JUDGEMENT was changed.
+
+	mipv6-mn/mip6_mn_addr.pm,mip6_mn_neighbor.pm
+		- fixed so that NS to solicited-node multicast address
+		  based on anycast address to HA be received.
+
+	mipv6-mn/mip6_mn_send.pm
+		- fixed a setup of lifetime by BA.
+
+
+2004/10/21	kawaguti@ysknet.co.jp
+	mipv6-mn/MN-4-1-1-1-004
+		- fixed the judgment to MN resending MPS in consideration
+		 of time not remaining.
+
+	mipv6-mn/MN-2-2-2-1-008
+		- fixed the error of a judgment.
+
+	mipv6-mn/MN-3-3-1-2-004
+		- fixed the error of log message. 
+			"ICMP Error" -> "Binding Error"
+
+	mipv6-mn/MN-2-2-1-1-003,MN-2-2-1-1-004,MN-2-2-1-1-005,
+	         MN-2-2-1-1-006,MN-2-2-1-1-007,MN-2-2-1-1-009,
+	         MN-2-2-1-1-010,MN-2-2-1-1-017,MN-2-2-1-1-035,
+	         MN-2-2-1-1-038,MN-6-2-1-1-004
+		- fixed to the judgment which admits transmitting
+		  tunneled Echo Reply to Echo Request /w Type2,
+		  even if MN did not have BUL entry.
+
+	mipv6-mn/MN-3-1-3-2-001
+		- fixed the disagreement of a test and PROFILE.
+
+	mipv6-mn/mip6_mn_config.pl
+		- removed the check of a SPI value.
+
+
+2004/10/04	kawaguti@ysknet.co.jp
+	mipv6-mn/MN-2-1-1-1-013,MN-2-1-1-2-010,MN-2-1-2-1-006,
+	         MN-2-1-2-2-010,MN-2-1-3-2-003,MN-2-1-3-2-004,
+	         MN-2-1-4-2-003,MN-2-1-4-2-004,MN-2-2-1-1-017,
+	         MN-2-2-1-1-038,MN-3-1-1-2-006,MN-3-2-1-2-014,
+	         MN-3-2-1-2-024,MN-3-2-1-2-025,MN-4-1-1-1-004,
+	         MN-4-2-1-2-007,MN-4-2-1-2-013,MN-6-2-1-1-004,
+	         mip6_mn_config.pm
+		- fixed to the judgment of resending interval
+		  MAX_BINDACK_TIMEOUT with the margin.
+
+
+2004/09/30	kawaguti@ysknet.co.jp
+	mipv6-mn/mip6_mn_ipsec.def, mip6_mn_ipsec.pm
+		- fixed the error of an IPsecSA setup.
+			MN <- HA0: SA8
+			MN <- HA1: SA2,SA8
+			MN <- CN0: SA6
+
+
+2004/09/30	kawaguti@ysknet.co.jp
+	mipv6-mn/MN-2-2-1-1-003,MN-2-2-1-1-004,MN-2-2-1-1-005,
+	         MN-2-2-1-1-006,MN-2-2-1-1-007,MN-2-2-1-1-009,
+	         MN-2-2-1-1-010,MN-2-2-1-1-035,MN-3-2-1-2-003,
+	         MN-3-2-1-2-010,MN-3-2-1-2-011,MN-3-2-1-2-012,
+	         MN-3-2-1-2-013
+		- fixed the JUDGEMENT error of the resending interval
+		  when receiving BA(status >= 128).
+		  AN exponential back-off is not applied when receiving
+		  a valid matching response.
+
+
+2004/09/27	kawaguti@ysknet.co.jp
+	mipv6-mn/MN-2-1-2-1-006
+		- fixed the error of JUDGMENT (2) processing.
+
+	mipv6-mn/MN-0-0-0-2-001,MN-2-1-1-2-009,MN-2-1-2-1-004,
+	         MN-2-1-2-2-009,MN-2-2-1-1-020,MN-2-2-1-1-026,
+	         MN-3-1-3-2-001,MN-4-1-1-2-005
+		-    fixed the typo: Registraion => Registration
+
+
+2004/09/17	kawaguti@ysknet.co.jp
+	mipv6-mn/MN-0-0-0-1-001,MN-0-0-0-2-001,MN-0-0-0-3-001,
+	         MN-2-1-1-2-002,MN-2-1-2-1-001,MN-2-1-2-1-005,
+	         MN-2-1-3-1-001,MN-2-1-3-1-007,MN-2-2-2-1-001,
+	         MN-2-2-2-1-008,MN-2-2-2-1-027,MN-3-1-2-2-002,
+	         MN-4-1-1-1-001,MN-4-1-1-1-004,MN-4-1-1-2-004,
+	         MN-4-1-2-2-007,MN-5-1-1-1-001,MN-5-1-2-1-002
+		- deleted the redundant description of the waiting
+		  time of NUD all over the figure of TEST PROCEDURE.
+
+	mipv6-mn/MN-3-1-1-1-001,MN-3-1-1-1-009,MN-3-1-1-1-010,
+	         MN-3-2-1-1-001
+		- fixed the error of the waiting time of DAD in
+		  explanation of TEST PROCEDURE.
+
+	mipv6-mn/MN-3-1-3-2-001
+		- fixed that the arrow of the No. 20 message all over
+		  the figure of TEST PROCEDURE was reverse.
+		- fixed the error of the number of RFC of REFERENCE.
+
+	mipv6-mn/MN-3-3-1-1-003
+		- fixed to setting global address as prefix information
+		  of RA which R1 and R2 transmit.
+
+	mipv6-mn/mip6_mn_network.def, mip6_mn_neighbor.def
+		(for MN-2-1-3-1-007)
+		- fixed the packet which has not specified source
+		  address of NS.
+
+	mipv6-mn/mip6_mn_neighbor.pm
+		- fixed that (R) bit and prefix of prefix information
+		  of RA which answers RS were not in agreement.
+
+
+2004/09/03	mizusawa@mitaka.ntt-at.co.jp
+	mipv6-cn/mip6cnt.def
+		- corrected the packet format of the BU so that
+		  the alignment requirement for the Alt-CoA option is fulfilled.
+		  The following tests use that BU:
+			CN-2-6-3, CN-2-6-5,
+			CN-3-1-1, CN-3-1-2, CN-3-3-1-3,
+			CN-3-3-1-4, CN-3-3-1-5, CN-3-3-1-6,
+			CN-3-3-2-5, CN-3-3-2-6, CN-3-3-2-7, CN-3-3-2-8,
+			CN-3-3-2-13, CN-3-3-2-14, CN-3-3-2-15, CN-3-3-2-16,
+			CN-4-2-2, CN-4-3-2, CN-4-4-2, CN-4-5-2,
+			CN-4-8-2, CN-4-9-2, CN-4-6-2, CN-4-12-2,
+			CN-5-4-1, CN-5-3-1, CN-5-3-2, CN-5-3-3
+
+
+2004/09/03	kawaguti@ysknet.co.jp
+	mipv6-mn/MN-2-1-3-1-007,
+	         mip6_mn_neighbor.def mip6_mn_msg.pm
+		- fixed that (S) bit of NA was wrong to NS whose
+		  source address is 0.
+
+	mipv6-mn/MN-2-2-1-1-038, MN-4-2-1-1-015
+		- fixed that "PROFILE - NAME" was wrong.
+
+	mipv6-mn/MN-4-1-2-2-006
+		- add "PROFILE - REFERENCE".
+
+	mipv6-mn/MN-4-2-1-1-001, MN-4-2-1-1-015
+		- fixed Lifetime of MPA to MPS, in order to make it
+		  resending of MPS not occur.
+
+	mipv6-mn/MN-4-2-2-2-011
+		- fixed that pointer of ICMPv6 Parameter Problem
+		  was mistaken.
+
+	mipv6-mn/MN-5-1-1-1-006
+		- fixed the error of a JUDGMENT.
+		  INITIAL_BINDACK_TIMEOUT => INITIAL_DHAAD_TIMEOUT
+
+	mipv6-mn/MN-5-1-2-1-028
+		- fixed in consideration of NUT which transmits
+		  HAAD Request, before transmitting Binding update.
+
+	mipv6-mn/all tests
+		- fixed "PROFILE - TARGET".
+		  => "Host/Special Device" => "Host"
+
+	mipv6-mn/mip6_mn_mh.def
+		- fixed the error of boundary conditions in case
+		  the Alternate CoA option is attached to BU to CN.
+
+	mipv6-mn/mip6_mn_config.pm, mip6_mn_addr.pm, mip6_mn_ipsec.pm,
+	         mip6_mn_common.pm, mip6_mn_recv.pm
+		- fixed internal processing composition.
+
+
+2004/08/11	mizusawa@mitaka.ntt-at.co.jp
+	mipv6-cn/CN-6-3-2
+		- accept ignoreing a payload packet with multicast
+		  home address in HaO in addtion to returning BE.
+
+	mipv6-CN/CN-6-4-2 CN-5-3-1 CN-5-3-2 CN-5-3-2
+		- added tests which use IPsec between MN and CN.
+
+	mipv6-CN/config.txt config.pl
+		- support two encryption and two hash algorithms for ESP,
+		  3des-cbc(default)/des-cbc and hmac-sha1(default)/hmac-md5.
+		- support CNs requiring manual configuration of the IP address.
+
+
+2004/08/09	kawaguti@ysknet.co.jp
+	mipv6-mn/MN-0-0-0-0-001, mip6_mn_config.pl, mip6_mn_config.pm
+		- added the user option check.
+
+	mipv6-mn/MN-2-1-2-1-001
+		- fixed the judgment error of BU reception.
+
+	mipv6-mn/MN-2-1-3-1-007, MN-3-1-1-1-001, MN-3-1-1-1-009
+	         MN-3-2-1-1-001, MN-3-3-1-1-002, MN-3-3-1-1-003
+	         MN-3-3-1-1-005, MN-3-4-1-1-002, (for MN-2-2-2-1-027)
+	         mip6_mn_ipsec.pm, mip6_mn_msg.pm, mip6_mn_neighbor.def
+	         mip6_mn_neighbor.pm, mip6_mn_recv.pm
+		- add ND packet processing with IPsec in a home link.
+
+	mipv6-mn/MN-2-2-2-1-001, MN-2-2-2-1-027
+		- add the log messages.
+
+	mipv6-mn/MN-3-1-2-2-001
+		- fixed the error of user option (BU_TO_CN_ABIT).
+
+	mipv6-mn/MN-3-1-3-2-001
+		- fixed the judgment error by the error detection.
+
+	mipv6-mn/MN-4-2-1-1-015
+		- fixed the log messages.
+
+	mipv6-mn/MN-5-1-1-1-006
+		- fixed the error of the waiting for resending of a message.
+
+	mipv6-mn/mip6_mn_mh.def (for MN-4-2-1-2-013)
+		- fixed the CoT packet in order to set a value as a checksum.
+		- fixed the BU (to NUT) packet.
+
+	mipv6-mn/mip6_mn_send.pm
+		- changed a setup of lifetime by BA and MPA.
+
+
+2004/08/04	Release 3.0 beta
+	Official release
+
+	- RFC 3775 - Mobility Support in IPv6
+	- RFC 3776 - Home Agent IPsec
+
+
+2004/08/04	mizusawa@mitaka.ntt-at.co.jp
+	mipv6-cn/
+		- added tests for de-registration from the foreign link,
+		  which send BU w/ Alt-CoA option.
+		- modifyed the packet format of BU
+		  used in the de-registration from the foreign link.
+
+
+2004/08/04	kawaguti@ysknet.co.jp
+	mipv6-mn/
+		MN tester's main contents of change
+		- A setup of a user option was changed.
+		- It corresponded to Virtual Home Link.
+		- The setting method of IPsec was changed.
+
+
+2004/07/29	Yukiyo.Akisada@jp.yokogawa.com
+	mip6-ha-24
+		- change default encryption and hash algorithm for ESP
+			des-cbc  -> 3des-cbc
+			hmac-md5 -> hmac-sha1
+
+	HA_3_1_3, HA_3_1_8, HA_3_1_5, HA_3_1_10,
+	HA_3_2_3, HA_3_2_8, HA_3_2_5, HA_3_2_10
+	HA_4_2_7, HA_4_2_8, HA_4_2_15,
+	HA_4_4_7, HA_4_4_8, HA_4_4_15
+		- change these tests to informational tests,
+		  they were too strict.
+
+
+2004/05/10	Release 2.0.15
+	Official release
+
+
+2004/04/27	kawaguti@ysknet.co.jp
+	mipv6-mn-24/MN-3-2-1-2-017 MN-3-2-1-2-018 MN-4-1-1-2-005
+		- fixed so that Return Routability procedure might be permitted,
+		  after receiving Echo Request(with type2 Routing Header). 
+
+	mipv6-mn-24/MN-3-4-1-1-002
+		- fixed the bug of the DAD judging after returning home.
+
+	mipv6-mn-24/MN-4-1-2-2-004 MN-4-1-2-2-005
+	            mip6_mn_echo.def mip6_mn_mh.def mip6_mn_msg.pm
+		- fixed the packet form according to the contents of a test.
+		- fixed the packet checked as an error.
+
+
+2004/04/26	Release 2.0.14
+	Official release
+
+
+2004/04/23	kawaguti@ysknet.co.jp
+	mipv6-mn-24/MN-0-0-0-3-001
+		- fixed the bug made at v2.0.10.
+
+	mipv6-mn-24/MN-2-2-1-1-020
+		- fixed the mistake of variable substitution.
+
+
+2004/04/06	Release 2.0.13
+	Official release
+
+
+2004/04/02	mizusawa@mitaka.ntt-at.co.jp
+	mipv6-cn-24/config.txt
+		- add explanation about IPSEC_SUPPORT.
+
+	mipv6-cn-24/CN-3-4-3-21.seq
+		- correct difference of a test sequence
+		  between a profile and actual behavior.
+
+	mipv6-cn-24/CN-6-3-3-21.seq
+		- fix the misjudgement when unexpected packet is received.
+
+
+2004/03/29	Release 2.0.12
+	Official release
+
+
+2004/03/26	kawaguti@ysknet.co.jp
+	mipv6-mn-24/MN-0-0-0-2-001
+		- fixed the sequence of HoTI/HoT after returning home.
+
+	mipv6-mn-24/MN-2-1-2-2-010
+		- fixed the sequence of Return Routability.
+
+	mipv6-mn-24/MN-3-2-1-2-001
+		- fixed the condition of executing the test.
+
+	mipv6-mn-24/mip6_mn_neighbor.def
+		- fixed the packet format of "ns_r1ga_to_nutxga_trgtga"
+		  for MN-4-1-1-2-006.
+
+
+2004/03/22	Release 2.0.11
+	Official release
+
+
+2004/03/18	mizusawa@mitaka.ntt-at.co.jp
+	mipv6-cn-24/mip6cnt.def
+	            CN-5-3-6-24.seq
+		- correct the packet format of BA.
+
+	mipv6-cn-24/CN-5-4-1-24.seq
+		- allow a NUT to discard the replayed BU after De-Registration.
+
+	mipv6-cn-24/mip6cnt.pm
+	            CN-2-1-2-21.seq   CN-2-1-3-24.seq
+	            CN-2-1-5-24.seq   CN-2-1-6-21.seq
+	            CN-2-2-2-21.seq   CN-2-2-3-24.seq
+	            CN-2-2-5-24.seq   CN-2-2-6-21.seq
+	            CN-2-3-1-2-21.seq CN-2-3-3-24.seq  CN-2-3-5-24.seq
+	            CN-2-4-1-21.seq   CN-6-2-*-21.seq  CN-6-3-*-21.seq
+		- avoid misjudgements when rate limiting is applyed to BE.
+
+	mipv6-cn-24/CN-1-2-21.seq     CN-1-3-24.seq
+	            CN-2-2-1-2-21.seq CN-3-2-1-21.seq  CN-3-2-2-21.seq
+	            CN-3-3-17-21.seq  CN-3-4-1-21.seq  CN-3-4-2-21.seq
+	            CN-5-2-*-21.seq   CN-6-2-3-21.seq
+	            CN-6-3-2-21.seq   CN-6-3-3-21.seq
+		- correct difference of test sequences between profiles and
+		  actual behavior.
+
+	mipv6-cn-24/CN-2-3-10-2-21.seq CN-3-3-17-21.seq
+	            CN-4-4-*-21.seq    CN-4-9-*-21.seq
+	            CN-5-2-*-21.seq    CN-5-4-3-21.seq
+		- fix the misjudgement when BA or EchoReply with unexpected
+		  format is received.
+
+
+2004/03/09	Yukiyo.Akisada@jp.yokogawa.com
+	Bug Fix: mip6-ha-24/HA_8_1_5.seq
+                            HA_8_1_6.seq
+                            HA_8_1_9.seq
+		- add IPsec ESP transport mode configuration for MPS/MPA
+
+
+2004/03/09	Release 2.0.10
+	Official release
+
+
+2004/03/05	Morita.Masanori@lab.ntt.co.jp
+	doc/MIPv6_Profile_v2_0-4.pdf:
+		- fixed the mistake of the packet format in
+		  "(23-2)Payload packet format (MN#A->MN#B)".
+
+
+2004/03/05	kawaguti@ysknet.co.jp
+	mipv6-mn-24/MN-0-0-0-2-001 mip6_mn_mh.def mip6_mn_msg.pm
+	            mip6_mn_recv.pm
+		- added the packet format of HoTI that MN sent on home link.
+
+	mipv6-mn-24/MN-2-1-1-1-006 MN-2-1-1-1-007 MN-2-1-2-1-004
+	            MN-4-1-1-1-001 MN-4-1-1-1-004
+		- fixed the REFERENCE in PROFILE.
+		- fixed the judgement of prefix lifetime.
+
+	mipv6-mn-24/MN-2-2-1-1-009
+		- fixed the test condition and the judgement of
+		  new Home Address.
+
+	mipv6-mn-24/MN-3-2-1-2-001
+		- fixed the log messsage.
+
+	mipv6-mn-24/MN-3-2-1-2-017 MN-3-2-1-2-018
+		- fixed the TEST PROCEDURE and the JUDGEMENT in PROFILE.
+
+	mipv6-mn-24/MN-3-4-1-2-001
+		- fixed the bug of processing.
+
+	mipv6-mn-24/MN-4-2-2-2-002 MN-4-2-2-2-010 MN-4-2-2-2-011
+	            MN-6-2-2-1-001
+		- skip the test, When IPsec is used.
+
+	mipv6-mn-24/MN-4-2-2-2-011
+		- fixed the log messsage.
+
+
+2004/03/04	Yukiyo.Akisada@jp.yokogawa.com
+	typo: mip6-ha-24/config.txt
+		- correct the comment around WAIT_EXPIRE option
+
+
+2004/03/03	mizusawa@mitaka.ntt-at.co.jp
+	mipv6-cn-24/*.seq
+		- fix the misjudgement when TN fails at an setup phase.
+
+	mipv6-cn-24/CN-4-4-2-21.seq CN-4-4-3-21.seq CN-4-5-3-24.seq
+	            CN-4-6-2-21.seq CN-4-8-2-21.seq
+		- correct log messages.
+
+	mipv6-cn-24/mip6cnt.pm
+		- reduce influence of existing BCE in CN-3-2-3,4.
+
+
+2004/02/29	kawaguti@ysknet.co.jp
+	mipv6-mn-24/MN-0-0-0-3-001
+		- fixed to take the interval of moving MN on foreign link.
+
+	mipv6-mn-24/MN-4-2-1-1-001 MN-4-2-1-1-019
+		- fixed to skipping test, when MN did not retransmit MPS
+		  in config.txt.
+
+	mipv6-mn-24/mip6_mn_recv.pm
+		- fixed the reception processing of the NA after Returning Home.
+
+	mipv6-mn-24/MN-2-1-1-1-013 MN-2-1-1-2-010 MN-2-1-2-1-005
+	            MN-2-1-2-2-010 MN-4-2-1-1-004 MN-4-2-1-1-013
+		- fixed the bug of processing which judged Lifetime.
+
+	mipv6-mn-24/MN-2-2-1-1-010 MN-2-2-1-1-020 MN-2-2-1-1-026
+	            MN-3-1-1-2-001 MN-3-1-2-2-001 MN-3-1-2-2-004
+		- fixed the typo of judgement messages.
+	            
+	mipv6-mn-24/MN-3-2-1-2-014
+		- added the check for test condition.
+
+	mipv6-mn-24/mip6_mn_send.pm
+		- fixed the BA sending to CN.
+
+
+2004/02/26	Yukiyo.Akisada@jp.yokogawa.com
+	Bug fix: mip6-ha-24/HA_2_1_4.seq
+	                    HA_2_1_8.seq
+	                    HA_7_2_10.seq
+	                    HA_7_2_11.seq
+	                    HA_7_2_13.seq
+		- avoid to pass for() loop without evaluation
+
+
+2004/02/25	Yukiyo.Akisada@jp.yokogawa.com
+	Bug fix: mip6-ha-24/HA_1_1_7.seq
+		- fix exit code around INITIALIZATION
+
+	Bug fix: mip6-ha-24/MIP6.pm
+		- optimize MIP6_DADFail()
+
+
+2004/02/24	Yukiyo.Akisada@jp.yokogawa.com
+	Bug fix: mip6-ha-24/MIP6_ICMP_Error.def
+		- avoid to require Link1 configuration even when not using Link1
+
+
+2004/02/16	Release 2.0.9
+	Official release
+
+
+2004/02/12	Yukiyo.Akisada@jp.yokogawa.com
+	Bug fix: mip6-ha-24/MIP6.pm
+		- fix to get lifetime field in MPA correctly while using ESP
+
+
+2004/02/12	kawaguti@ysknet.co.jp
+	mipv6-mn-24/ for all
+		- fixed the prefix lifetime management of the tester.
+		- fixed the log messages to show the test operation.
+		- fixed typo.
+
+	mipv6-mn-24/MN-0-0-0-1-001 MN-0-0-0-2-001 MN-0-0-0-3-001
+	            MN-3-4-1-1-001:
+		- fixed the judgement of (L) bit in Binding Update.
+
+	mipv6-mn-24/MN-0-0-0-1-001 MN-0-0-0-1-002
+	            MN-2-2-1-1-020 MN-2-2-1-1-026
+	            MN-3-1-1-2-001 MN-3-1-2-2-001 MN-3-1-2-2-004
+	            MN-3-2-1-2-017 MN-3-2-1-2-018 MN-3-2-1-2-023
+	            MN-4-2-1-1-004:
+		- fixed the judgement of lifetime. Trial.
+
+	mipv6-mn-24/MN-2-1-1-1-008 MN-2-1-1-1-011 MN-2-1-1-1-013
+	            MN-2-1-1-2-010 MN-2-1-2-2-010:
+		- fixed the judgement of retransmission. Trial.
+
+	mipv6-mn-24/MN-2-1-1-1-006 MN-2-1-1-1-007 MN-2-1-2-1-004
+	            MN-4-1-1-1-001 MN-4-1-1-1-004:
+		- fixed the judgement of prefix lifetime. Under construction.
+
+	mipv6-mn-24/mip6_mn_send.pm:
+		- fixed the internal error,
+		  when (A) bit of Binding Update to HA.
+
+	mipv6-mn-24/mip6_mn_mh.def:
+		- fixed Care-of Nonce Index of de-registraion to CN
+		  as disregard, after the returning home.
+
+
+2004/02/09	Release 2.0.8
+	Official release
+
+
+2004/02/09	Yukiyo.Akisada@jp.yokogawa.com
+	Bug fix: mip6-ha-24/MIP6.pm
+
+		- fix typo in IPsec configuration message
+
+
+2004/02/04	Yukiyo.Akisada@jp.yokogawa.com
+	Bug fix: mip6-ha-24/HA_5_1_7.seq
+                            MIP6.pm
+                            MIP6_ICMP_Error.def
+
+		- correct source address selection around ICMPv6 error
+
+
+2004/02/02	Release 2.0.7
+	Official release
+
+
+2004/01/29	MIPv6_Support@tahi.org
+	mipv6-mn-24/MN-2-1-1-2-017, MN-2-1-2-2-017:
+		- fixed an improper log message of MPS. 
+
+	mipv6-mn-24/MN-2-1-3-2-008, MN-2-1-4-2-007:
+		- fixed processing of the reply of HOT/COT. 
+
+	mipv6-mn-24/MN-3-1-2-2-001:
+		- fixed the judgment mistake of Nonce Index. 
+
+	mipv6-mn-24/MN-3-2-1-2-017, MN-3-2-1-2-018,
+	            MN-4-1-1-3-001, MN-4-1-2-3-001:
+		- fixed the judgment mistake of Echo Reply. 
+
+	mipv6-mn-24/MN-3-4-1-1-001:
+		- fixed the mistake of the packet composition in PROFILE. 
+
+	mipv6-mn-24/MN-3-4-1-1-002:
+		- fixed the processing of cutting lifetime. 
+
+	mipv6-mn-24/MN-4-1-1-1-001:
+		- fixed the judgment mistake of CoA. 
+
+	mipv6-mn-24/MN-4-2-1-1-004:
+		- fixed an improper log message of MPS. 
+		- fixed the mistake of which it made an error because of
+		  the transmission processing of MPA. 
+
+	mipv6-mn-24/MN-6-2-1-1-003:
+		- fixed processing of the reply of BE. 
+
+	mipv6-mn-24/MN-6-2-2-1-001:
+		- fixed the mistake of REFERENCE in PROFILE. 
+
+	mipv6-mn-24/mipv6_mn_recv.pm:
+		- fixed processing of the reply of HOT/COT. 
+		- fixed the processing when "RETURN" was selected by
+		  the initialization method in config.txt. 
+
+
+2004/01/27	Release 2.0.6
+	Official release
+
+
+2004/01/26	Yukiyo.Akisada@jp.yokogawa.com
+	Bug fix: mip6-ha-24
+		- decrease binding lifetime in BU.
+			Lifetime: 0xffff -> 0x0010
+
+		- change to ignore MLDv2 report packet.
+
+		- correct expected packet in HA_5_1_3, HA_5_1_7
+			HA should relay 'hop limit exceeded'
+			as 'address unreachable'.
+
+		- correct CoA in Alt CoA option at HA_1_1_6, HA_1_1_7.
+
+
+2004/01/22	MIPv6_Support@tahi.org
+	mipv6-cn-24/CN-2-1-2-21.seq,    CN-2-1-6-21.seq,
+	            CN-2-2-2-21.seq,    CN-2-2-6-21.seq,
+	            CN-2-3-1-2-21.seq,  CN-2-3-6-21.seq,
+	            CN-2-3-10-1-21.seq, CN-2-3-10-2-21.seq, CN-2-3-11-21.seq,
+	            CN-2-4-1-21.seq,    CN-2-5-1-21.seq,    CN-5-4-2-24.seq
+
+		- fixed the misjudgement when unexpected packet is received.
+
+
+2003/01/06	MIPv6_Support@tahi.org
+	mipv6-mn-24/MN-0-0-0-2-001,
+	            mip6_mn_mh.def, mip6_mn_msg.pm, mip6_mn_recv.pm
+
+		- fixed the packet of BU which does correspondent
+		  registration at home link.
+
+	mipv6-mn-24/MN-3-2-1-2-014, MN-3-2-1-2-017, MN-3-2-1-2-018,
+	            mip6_mn_recv.pm
+
+		- fixed the waiting time of the reception processing. 
+
+
+2004/01/05	Release 2.0.5
+	Official release
+
+
+2003/12/26	Yukiyo.Akisada@jp.yokogawa.com
+	doc/MIPv6_Profile_v2_0-5_2_HA.pdf:
+		- correct contents
+
+
+2003/12/26	MIPv6_Support@tahi.org
+	mipv6-mn-24/MN-2-2-1-1-003, MN-2-2-1-1-004, MN-2-2-1-1-005,
+	            MN-2-2-1-1-006, MN-2-2-1-1-007, MN-2-2-1-1-009,
+	            MN-2-2-1-1-010, MN-2-2-1-1-035, MN-2-2-1-1-037:
+
+		- fixed SEQUENCE and JUDGEMENT of the retransmission of BU
+		  when BA(the status field is grater than or equal 128) was
+		  received.
+
+	mipv6-mn-24/MN-6-2-2-1-001
+		- fixed SEQUENCE and JUDGEMENT of the retransmission of BU
+		  when ICMP ERROR(the Code field is 1) was received.
+
+
+2003/12/22	Release 2.0.4
+	Official release
+
+
+2003/12/22	Yukiyo.Akisada@jp.yokogawa.com
+	mipv6-ha-24/config.txt
+		- correct comment for NEED_REBOOT
+
+
+2003/12/19	MIPv6_Support@tahi.org
+	mipv6-cn-24/mip6cnt.pm:
+	mipv6-cn-24/CN-3-2-4-24.seq:
+		- fixed the problem that BRR cannot be received in some case.
+
+	mipv6-cn-24/CN-6-4-1-24.*:
+		- fixed the misjudgement when unexpected packet is received.
+
+
+2003/12/19	MIPv6_Support@tahi.org
+	mipv6-mn-24/MN-2-1-3-1-001:
+		- fixed JUDGEMENT and REFERENCE of Home Address option of BU.
+
+	mipv6-mn-24/mip6_mn_get.pm:
+		- fixed an internal check.
+
+
+2003/12/16	MIPv6_Support@tahi.org
+	doc/*.pdf
+		- avoid multi byte font
+
+
+2003/12/15	Release 2.0.3
+	Official release
+
+
+2003/12/10	MIPv6_Support@tahi.org
+	mipv6-mn-24/MN-4-2-1-1-002, MN-4-2-1-1-003, INDEX:
+		- removed the test because of ambiguity.
+
+	mipv6-mn-24/MN-0-0-0-3-001:
+		- fixed the mistake of error message
+
+	mipv6-mn-24/MN-3-1-3-3-001, MN-4-1-2-3-001:
+		- fixed the mistake of the profile
+                  (the packet format data in the TEST PROCEDURE).
+
+	mipv6-mn-24/MN-4-1-1-3-001:
+		- fixed the mistake of the profile
+		  (in the JUDGEMENT).
+		- fixed the mistake of judgement message
+
+
+2003/12/08	Release 2.0.2
+	Official release
+
+
+2003/12/05      MIPv6_Support@tahi.org
+	mipv6-cn-24/CN-2-3-2-21.*, INDEX:
+		- removed the test because of ambiguity.
+
+
+2003/12/05	MIPv6_Support@tahi.org
+	mipv6-mn-24/mip6_mn_echo.def:
+		- fixed the ether header of packet
+		  (echorequest_cn0yga_opthomerouth2_to_nutyga)
+		  (echoreply_nutyga_opthomerouth2_to_cn0yga).
+
+	mipv6-mn-24/mip6_mn_mh.def:
+		- fixed the IPsec of packet(be_nut0ga_to_ha0ga).
+
+	mipv6-mn-24/MN-0-0-0-3-001.seq:
+	mipv6-mn-24/MN-3-1-1-3-001.seq:
+	mipv6-mn-24/MN-3-1-2-3-001.seq:
+	mipv6-mn-24/MN-3-1-3-3-001.seq:
+	mipv6-mn-24/MN-4-1-1-3-001.seq:
+	mipv6-mn-24/MN-4-1-2-3-001.seq:
+		- fixed CN Registration Lifetime.
+
+	mipv6-mn-24/MN-3-1-2-2-001.seq:
+	mipv6-mn-24/MN-3-1-2-2-002.seq:
+		- fixed the mistake of the profile
+		  (the figure in the TEST PROCEDURE).
+
+	mipv6-mn-24/MN-3-4-1-1-002.seq:
+		- added RA of HA0 in the sequence beginning.
+
+
+2003/12/03	Release 2.0.1
+	Official release
+
+
+2003/11/28	MIPv6_Support@tahi.org
+	mipv6-cn-24/mip6cnt.def
+		- fixed the packet definition of BRR.
+
+	mipv6-cn-24/CN-3-2-3-24.seq
+		- fixed the mistake of the profile
+		  (the JUDGEMENT and the figure in the TEST PROCEDURE).
+
+	mipv6-cn-24/CN-3-2-4-24.seq
+		- fixed the mistake of the profile
+		  (the figure in the TEST PROCEDURE).
+                - fixed the problem that TN waits for a BRR too long.
+
+
+2003/11/26	MIPv6_Support@tahi.org
+	mipv6-mn-24/mip6_mn_ipsec.pm:
+		- fixed the setting of IPsec (SAD & SPD).
+
+
+2003/11/21	Release 2.0
+	Official release
+
+	- change to use 135 as mobility protocol number
+
+
+2003/10/22	Release 2.0 beta
+	Official release
+
+	- draft-ietf-mobileip-ipv6-24.txt
+	- draft-ietf-mobileip-mipv6-ha-ipsec-06.txt
+
+
+2003/09/02	Release 1.1
+	Official release
+
+
+2003/09/02	MIPv6_Support@tahi.org
+	mipv6-mn-21/MN-2-1-1-1-002.seq:
+		- fixed the mistake of the received packet.
+
+
+2003/08/21	MIPv6_Support@tahi.org
+	mipv6-cn-21/mip6cnt.*:
+		- Fix the position of Binding Authorization Data option in BA.
+		- Fix that NA with TLL option cannot be received.
+
+
+2003/08/18	MIPv6_Support@tahi.org
+	mipv6-mn-21/mip6_mn_neighbor.def:
+		- fixed and added na_* packet for generalizing.
+
+	mipv6-mn-21/mip6_mn_mh.def:
+		- deleted a fixed value of the HopLimit field.
+		- When IPsec was not used,
+		  the option of Binding Update was not judged.
+
+	mipv6-mn-21/mip6_mn_other.def:
+		- deleted a fixed value of the HopLimit field.
+		- fixed the mistake of the mpa_* packet.
+		- fixed the mistake of the haadreply_* packet.
+
+	mipv6-mn-21/mip6_mn_msg.pm:
+		- reflected the change in the na_* packet.
+
+	mipv6-mn-21/mip6_mn_send.pm:
+		- fixed the mistake of the comment.
+
+	mipv6-mn-21/mip6_mn_recv.pm:
+		- reflected the change in the na_* packet.
+		- fixed the case where a minus value is specified
+		  for the time-out argument of the vRecv_at_Link*().
+		- fixed the judgment of NA after the home had returned.
+		- fixed the mistake of the log message in the log display.
+
+	mipv6-mn-21/MN-0-0-0-1-001.seq:
+		- fixed the mistake of the log message in the log display.
+		- fixed the judgment of NA after the home had returned.
+
+	mipv6-mn-21/MN-0-0-0-2-001.seq:
+		- fixed the judgment of NA after the home had returned.
+		- fixed the mistake of the received packet name.
+
+	mipv6-mn-21/MN-2-1-1-2-007.seq:
+		- fixed recycling Nonce by re-registration as permission.
+
+	mipv6-mn-21/MN-2-1-2-1-005.seq:
+		- fixed a specified mistake
+		  in the Binding Update reception waiting time.
+
+	mipv6-mn-21/MN-2-1-2-2-007.seq:
+		- fixed recycling Nonce by re-registration as permission.
+
+	mipv6-mn-21/MN-2-1-3-2-007.seq:
+		- fixed the mistake of figure in TEST PROCEDURE of profile.
+
+	mipv6-mn-21/MN-2-1-4-2-006.seq:
+		- fixed the mistake of figure in TEST PROCEDURE of profile.
+
+	mipv6-mn-21/MN-2-2-1-1-033.seq:
+		- added the field display in the log display.
+
+	mipv6-mn-21/MN-2-2-2-1-001.seq:
+		- fixed the mistake of the transmitted packet.
+		- fixed the judgment of NA after the home had returned.
+		- deleted the mistake log message in the log display.
+
+	mipv6-mn-21/MN-3-4-1-1-001.seq:
+		- fixed the mistake of the log message in the log display.
+		- fixed the judgment of NA after the home had returned.
+
+	mipv6-mn-21/MN-4-2-1-1-001.seq:
+		- fixed the mistake of figure in TEST PROCEDURE of profile.
+		- fixed the mistake of the transmitted packet.
+
+	mipv6-mn-21/MN-5-1-1-1-005.seq:
+		- fixed the mistake of goto.
+
+	mipv6-mn-21/MN-5-1-2-1-016.seq:
+		- fixed the mistake of the JUDGEMENT number in the log display.
+		- fixed the mistake of goto.
+		- added WARNNING to JUDGEMENT.
+
+
+2003/07/20	Release 1.0
+	Official release
+
+	- draft-ietf-mobileip-ipv6-21.txt
+	- draft-ietf-mobileip-mipv6-ha-ipsec-04.txt
+
+
+2003/05/30	Release 1.0 beta
+	1st official release
+
+
+							[end of CHANGELOG]

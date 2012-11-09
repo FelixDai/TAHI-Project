@@ -1,0 +1,38 @@
+<HTML>
+<HEAD>
+<TITLE>IPsec Configuration MN - CN0</TITLE>
+</HEAD>
+<BODY>
+<H1>IPsec Configuration MN - CN0</H1>
+<UL>
+<LI>MN->CN0 (Transport mode, ICMPv6)
+<BLOCKQUOTE>
+<PRE>
+SPI <B>0x415 (1045)</B>
+    src:            MN  3ffe:501:ffff:100::<B>&lt;Interface ID&gt;</B>
+    dst:            CN0 3ffe:501:ffff:104:200:ff:fe00:a8a8
+    mode:           ESP transport
+    upper layer:    header type <B>ICMPv6</B>
+    enc algorithm:  <B>3des-cbc</B>,  enc key:  <B>V6LC-415--12345678901234</B> (default)
+                    <B>des-cbc</B>              <B>V6LC-415</B>
+    auth algorithm: <B>hmac-sha1</B>, auth key: <B>V6LC-415--1234567890</B>     (default)
+                    <B>hmac-md5</B>             <B>V6LC-415--123456</B>
+</PRE>
+</BLOCKQUOTE>
+<LI>MN<-CN0 (Transport mode, ICMPv6)
+<BLOCKQUOTE>
+<PRE>
+SPI <B>0x416 (1046)</B>
+    src:            CN0 3ffe:501:ffff:104:200:ff:fe00:a8a8
+    dst:            MN  3ffe:501:ffff:100::<B>&lt;Interface ID&gt;</B>
+    mode:           ESP transport
+    upper layer:    header type <B>ICMPv6</B>
+    enc algorithm:  <B>3des-cbc</B>,  enc key:  <B>V6LC-416--12345678901234</B> (default)
+                    <B>des-cbc</B>              <B>V6LC-416</B>
+    auth algorithm: <B>hmac-sha1</B>, auth key: <B>V6LC-416--1234567890</B>     (default)
+                    <B>hmac-md5</B>             <B>V6LC-416--123456</B>
+</PRE>
+</BLOCKQUOTE>
+</UL>
+</BODY>
+</HTML>

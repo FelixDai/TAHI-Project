@@ -1,0 +1,428 @@
+#
+# Copyright (C) IPv6 Promotion Council,
+# NIPPON TELEGRAPH AND TELEPHONE CORPORATION (NTT),
+# Yokogwa Electoric Corporation, YASKAWA INFORMATION SYSTEMS Corporation
+# and NTT Advanced Technology Corporation(NTT-AT) All rights reserved.
+# 
+# Technology Corporation.
+# 
+# Redistribution and use of this software in source and binary forms, with 
+# or without modification, are permitted provided that the following 
+# conditions and disclaimer are agreed and accepted by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright 
+# notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright 
+# notice, this list of conditions and the following disclaimer in the 
+# documentation and/or other materials provided with the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project which 
+# is related to this software (hereinafter referred to as "project") nor 
+# the names of the contributors may be used to endorse or promote products 
+# derived from this software without specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written 
+# notification to the copyrighters. However, using this software for the 
+# purpose of testing or evaluating any products including merchantable 
+# products may be permitted without any notification to the copyrighters.
+# 
+# 
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND 
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING 
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS 
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE 
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+# CONTRACT,STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF 
+# THE POSSIBILITY OF SUCH DAMAGE.
+#
+########################################################################
+#
+# $Name: MIPv6_4_0_5 $
+#
+
+#--------------------------------------------------------------#
+&print:<B> 0. Basic Sequence</B>
+#--------------------------------------------------------------#
+./MN-0-0-0-1-001.seq:./mip6_mn_common.def:::MN-0-0-0-1-001 - Mobile Node Operation-1:
+./MN-0-0-0-2-001.seq:./mip6_mn_common.def:::MN-0-0-0-2-001 - Mobile Node Operation-2:
+
+#--------------------------------------------------------------#
+&print:<B> 1. Generate HoA</B>
+#--------------------------------------------------------------#
+./MN-3-1-1-1-001.seq:./mip6_mn_common.def:::MN-3-1-1-1-001 - Generate HoA using RFC2462:
+./MN-3-1-1-1-009.seq:./mip6_mn_common.def:::MN-3-1-1-1-009 - Set the static home prefix at home-link:
+./MN-3-1-1-1-010.seq:./mip6_mn_common.def:::MN-3-1-1-1-010 - Set the static home prefix at foreign-link:
+
+#--------------------------------------------------------------#
+&print:<B> 2. Generate CoA</B>
+#--------------------------------------------------------------#
+./MN-3-2-1-1-001.seq:./mip6_mn_common.def:::MN-3-2-1-1-001 - Generate CoA using RFC2462 at foreign-link:
+
+#--------------------------------------------------------------#
+&print:<B> 3. Movement Detection</B>
+#--------------------------------------------------------------#
+./MN-3-3-1-1-003.seq:./mip6_mn_common.def:::MN-3-3-1-1-003 - Use Neighbor Unreachability Detection (Target Address=global):
+./MN-3-3-1-1-005.seq:./mip6_mn_common.def:::MN-3-3-1-1-005 - Routers use the Router Address (R) bit (The link-local addresses of Routers are not globally unique):
+./MN-3-3-1-1-002.seq:./mip6_mn_common.def:::MN-3-3-1-1-002 - Use the old router when the old router is reachable:
+./MN-3-3-1-1-004.seq:./mip6_mn_common.def:::MN-3-3-1-1-004 - Invalidate CoA on the unreachable link:
+
+#--------------------------------------------------------------#
+&print:<B> 4. Home Registration</B>
+#--------------------------------------------------------------#
+&print:<B> (1) Sending BU</B>
+#--------------------------------------------------------------#
+./MN-2-1-1-1-001.seq:./mip6_mn_common.def:::MN-2-1-1-1-001 - Sending BU (after moving from home):
+./MN-2-1-1-1-002.seq:./mip6_mn_common.def:::MN-2-1-1-1-002 - Valid BU (L = ON):
+./MN-2-1-1-1-004.seq:./mip6_mn_common.def:::MN-2-1-1-1-004 - Valid BU (K = OFF by manual key management):
+./MN-2-1-1-1-006.seq:./mip6_mn_common.def:::MN-2-1-1-1-006 - Valid Lifetime (Lifetime of HoA > Lifetime of CoA):
+./MN-2-1-1-1-007.seq:./mip6_mn_common.def:::MN-2-1-1-1-007 - Valid Lifetime (Lifetime of HoA < Lifetime of CoA):
+./MN-2-1-1-1-008.seq:./mip6_mn_common.def:::MN-2-1-1-1-008 - Sending BU (after the expiration of home registration):
+./MN-2-1-1-1-013.seq:./mip6_mn_common.def:::MN-2-1-1-1-013 - Retransmissions & Back off (Use InitialBindackTimeoutFirstReg as the initial retransmission timer):
+
+#--------------------------------------------------------------#
+&print:<B> (2) Receiving BA</B>
+#--------------------------------------------------------------#
+./MN-2-2-1-1-001.seq:./mip6_mn_common.def:::MN-2-2-1-1-001 - BU accepted (Status = 0):
+./MN-2-2-1-1-039.seq:./mip6_mn_common.def:::MN-2-2-1-1-039 - BU accepted (Invalid Mobility Header Reserved):
+./MN-2-2-1-1-014.seq:./mip6_mn_common.def:::MN-2-2-1-1-014 - BU accepted (K = OFF by manual key management):
+./MN-2-2-1-1-020.seq:./mip6_mn_common.def:::MN-2-2-1-1-020 - Valid Lifetime (Lifetime of BA < Lifetime of BU):
+./MN-2-2-1-1-026.seq:./mip6_mn_common.def:::MN-2-2-1-1-026 - Valid Lifetime (Refresh Interval of BA < Lifetime of BU):
+./MN-2-2-1-1-002.seq:./mip6_mn_common.def:::MN-2-2-1-1-002 - BU accepted (Status = 1):
+./MN-2-2-1-1-033.seq:./mip6_mn_common.def:::MN-2-2-1-1-033 - BU accepted (Status = 2-127):
+./MN-2-2-1-1-003.seq:./mip6_mn_common.def:::MN-2-2-1-1-003 - BU rejected (Status = 128):
+./MN-2-2-1-1-004.seq:./mip6_mn_common.def:::MN-2-2-1-1-004 - BU rejected (Status = 129):
+./MN-2-2-1-1-005.seq:./mip6_mn_common.def:::MN-2-2-1-1-005 - BU rejected (Status = 130):
+./MN-2-2-1-1-006.seq:./mip6_mn_common.def:::MN-2-2-1-1-006 - BU rejected (Status = 131):
+./MN-2-2-1-1-007.seq:./mip6_mn_common.def:::MN-2-2-1-1-007 - BU rejected (Status = 132):
+./MN-2-2-1-1-009.seq:./mip6_mn_common.def:::MN-2-2-1-1-009 - BU rejected (Status = 134):
+./MN-2-2-1-1-010.seq:./mip6_mn_common.def:::MN-2-2-1-1-010 - BU rejected (Status = 135):
+./MN-2-2-1-1-035.seq:./mip6_mn_common.def:::MN-2-2-1-1-035 - BU rejected (Status = 255):
+./MN-2-2-1-1-016.seq:./mip6_mn_common.def:::MN-2-2-1-1-016 - Valid Sequence Number (Status = 135 & Sequence Number=65535):
+./MN-2-2-1-1-017.seq:./mip6_mn_common.def:::MN-2-2-1-1-017 - Invalid Sequence Number (BA != BU):
+./MN-2-2-1-1-038.seq:./mip6_mn_common.def:::MN-2-2-1-1-038 - BA which is not protected by IPsec:
+
+#--------------------------------------------------------------#
+&print:<B> 5. Home Re-Registration</B>
+#--------------------------------------------------------------#
+&print:<B> (1) Sending BU</B>
+#--------------------------------------------------------------#
+./MN-2-1-2-1-001.seq:./mip6_mn_common.def:::MN-2-1-2-1-001 - Sending BU (after moving from foreign to foreign):
+./MN-2-1-2-1-004.seq:./mip6_mn_common.def:::MN-2-1-2-1-004 - Sending BU (before the expiration of home registration):
+./MN-2-1-2-1-005.seq:./mip6_mn_common.def:::MN-2-1-2-1-005 - Sending BU (when the lifetime for a changed prefix decreases):
+./MN-2-1-2-1-006.seq:./mip6_mn_common.def:::MN-2-1-2-1-006 - Retransmissions & Back off (Use INITIAL_BINDACK_TIMEOUT as the initial retransmission timer):
+
+#--------------------------------------------------------------#
+#&print:<B> (2) Receiving BA</B>
+#--------------------------------------------------------------#
+
+#--------------------------------------------------------------#
+&print:<B> 6. Returning Home</B>
+#--------------------------------------------------------------#
+&print:<B> (1) Sending BU</B>
+#--------------------------------------------------------------#
+./MN-2-1-3-1-007.seq:./mip6_mn_common.def:::MN-2-1-3-1-007 - Sending Neighbor Solicitation for the home agent's address:
+./MN-2-1-3-1-001.seq:./mip6_mn_common.def:::MN-2-1-3-1-001 - Sending BU of de-registration:
+
+#--------------------------------------------------------------#
+&print:<B> (2) Receiving BA</B>
+#--------------------------------------------------------------#
+./MN-2-2-2-1-027.seq:./mip6_mn_common.def:::MN-2-2-2-1-027 - Receiving Neighbor Solicitation for home address:
+./MN-2-2-2-1-001.seq:./mip6_mn_common.def:::MN-2-2-2-1-001 - BU of de-registration accepted (Status = 0):
+./MN-2-2-2-1-008.seq:./mip6_mn_common.def:::MN-2-2-2-1-008 - BU of de-registration rejected (Status = 133):
+
+#--------------------------------------------------------------#
+&print:<B> (3) Neighbor Discovery</B>
+#--------------------------------------------------------------#
+./MN-3-4-1-1-001.seq:./mip6_mn_common.def:::MN-3-4-1-1-001 - Sending NA (Target Address = link-layer address):
+./MN-3-4-1-1-002.seq:./mip6_mn_common.def:::MN-3-4-1-1-002 - Returning home (after the expiration of home registration):
+
+#--------------------------------------------------------------#
+&print:<B> 7. Correspondent Registration</B>
+#--------------------------------------------------------------#
+&print:<B> (1) Sending HoTI</B>
+#--------------------------------------------------------------#
+./MN-2-1-1-2-001.seq:./mip6_mn_common.def:::MN-2-1-1-2-001 - Sending HoTI (when receiving the tunneled packet from unknown node):
+./MN-2-1-1-2-019.seq:./mip6_mn_common.def:::MN-2-1-1-2-019 - Sending HoTI (when receiving the tunneled packet after the expiration of correspondent registration):
+./MN-2-1-1-2-009.seq:./mip6_mn_common.def:::MN-2-1-1-2-009 - Sending HoTI for each CN in BUL (after home re-registration):
+./MN-2-1-1-2-017.seq:./mip6_mn_common.def:::MN-2-1-1-2-017 - Sending HoTI (when the lifetime for a changed prefix decreases):
+./MN-2-1-1-2-028.seq:./mip6_mn_common.def:::MN-2-1-1-2-028 - Don't send HoTI (when receiving the tunneled packet(inner dst != HoA)):
+./MN-2-1-1-2-004.seq:./mip6_mn_common.def:::MN-2-1-1-2-004 - Don't send HoTI (when receiving the tunneled packet(inner src == outer src)):
+./MN-2-1-1-2-006.seq:./mip6_mn_common.def:::MN-2-1-1-2-006 - Don't start the return routability procedure (when receiving the packet directly from known node):
+./MN-2-1-1-2-010.seq:./mip6_mn_common.def:::MN-2-1-1-2-010 - Retransmissions & Back off (Use INITIAL_BINDACK_TIMEOUT as the initial retransmission timer):
+./MN-2-1-1-2-015.seq:./mip6_mn_common.def:::MN-2-1-1-2-015 - Check not to support the Route Optimization:
+./MN-2-1-1-2-016.seq:./mip6_mn_common.def:::MN-2-1-1-2-016 - Check to disable the Route Optimization:
+
+#--------------------------------------------------------------#
+&print:<B> (2) Receiving HoT</B>
+#--------------------------------------------------------------#
+./MN-2-1-3-2-001.seq:./mip6_mn_common.def:::MN-2-1-3-2-001 - Receiving HoT after CoT:
+./MN-2-1-3-2-007.seq:./mip6_mn_common.def:::MN-2-1-3-2-007 - Receiving HoT before CoT:
+./MN-2-1-3-2-015.seq:./mip6_mn_common.def:::MN-2-1-3-2-015 - Receiving HoT (Invalid Mobility Header Reserved):
+./MN-2-1-3-2-008.seq:./mip6_mn_common.def:::MN-2-1-3-2-008 - Receiving twice HoT:
+./MN-2-1-3-2-002.seq:./mip6_mn_common.def:::MN-2-1-3-2-002 - Receiving Delayed HoT:
+./MN-2-1-3-2-003.seq:./mip6_mn_common.def:::MN-2-1-3-2-003 - Invalid cookie (HoT != HoTI): 
+./MN-2-1-3-2-004.seq:./mip6_mn_common.def:::MN-2-1-3-2-004 - Invalid inner src address:
+./MN-2-1-3-2-011.seq:./mip6_mn_common.def:::MN-2-1-3-2-011 - Receiving unexpected HoT from unknown node:
+./MN-2-1-3-2-012.seq:./mip6_mn_common.def:::MN-2-1-3-2-012 - Receiving unexpected HoT from known node:
+
+#--------------------------------------------------------------#
+&print:<B> (3) Sending CoTI</B>
+#--------------------------------------------------------------#
+./MN-2-1-2-2-001.seq:./mip6_mn_common.def:::MN-2-1-2-2-001 - Sending CoTI (when receiving the tunneled packet from unknown node):
+./MN-2-1-2-2-019.seq:./mip6_mn_common.def:::MN-2-1-2-2-019 - Sending CoTI (when receiving the tunneled packet after the expiration of correspondent registration):
+./MN-2-1-2-2-009.seq:./mip6_mn_common.def:::MN-2-1-2-2-009 - Sending CoTI for each CN in BUL (after home re-registration):
+./MN-2-1-2-2-017.seq:./mip6_mn_common.def:::MN-2-1-2-2-017 - Sending CoTI (when the lifetime for a changed prefix decreases):
+./MN-2-1-2-2-004.seq:./mip6_mn_common.def:::MN-2-1-2-2-004 - Don't send CoTI (when receiving the tunneled packet(inner src == outer src)):
+./MN-2-1-2-2-010.seq:./mip6_mn_common.def:::MN-2-1-2-2-010 - Retransmissions & Back off (Use INITIAL_BINDACK_TIMEOUT as the initial retransmission timer):
+
+#--------------------------------------------------------------#
+&print:<B> (4) Receiving CoT</B>
+#--------------------------------------------------------------#
+./MN-2-1-4-2-001.seq:./mip6_mn_common.def:::MN-2-1-4-2-001 - Receiving CoT before HoT:
+./MN-2-1-4-2-006.seq:./mip6_mn_common.def:::MN-2-1-4-2-006 - Receiving CoT after HoT:
+./MN-2-1-4-2-014.seq:./mip6_mn_common.def:::MN-2-1-4-2-014 - Receiving CoT (Invalid Mobility Header Reserved):
+./MN-2-1-4-2-007.seq:./mip6_mn_common.def:::MN-2-1-4-2-007 - Receiving twice CoT:
+./MN-2-1-4-2-002.seq:./mip6_mn_common.def:::MN-2-1-4-2-002 - Receiving Delayed CoT:
+./MN-2-1-4-2-003.seq:./mip6_mn_common.def:::MN-2-1-4-2-003 - Invalid cookie (CoT != CoTI): 
+./MN-2-1-4-2-004.seq:./mip6_mn_common.def:::MN-2-1-4-2-004 - Invalid source address:
+./MN-2-1-4-2-010.seq:./mip6_mn_common.def:::MN-2-1-4-2-010 - Receiving unexpected CoT from unknown node:
+./MN-2-1-4-2-011.seq:./mip6_mn_common.def:::MN-2-1-4-2-011 - Receiving unexpected CoT from known node:
+
+#--------------------------------------------------------------#
+&print:<B> (5) Sending BU</B>
+#--------------------------------------------------------------#
+./MN-3-1-1-2-001.seq:./mip6_mn_common.def:::MN-3-1-1-2-001 - Sending BU to CN:
+./MN-3-1-1-2-002.seq:./mip6_mn_common.def:::MN-3-1-1-2-002 - Valid BU (A=OFF):
+./MN-3-1-1-2-003.seq:./mip6_mn_common.def:::MN-3-1-1-2-003 - Valid BU (A=ON):
+./MN-3-1-1-2-004.seq:./mip6_mn_common.def:::MN-3-1-1-2-004 - Valid BU of registration (src address == CoA or Alternate CoA option == CoA):
+./MN-3-1-1-2-006.seq:./mip6_mn_common.def:::MN-3-1-1-2-006 - Retransmissions & Back off (Use INITIAL_BINDACK_TIMEOUT as the initial retransmission timer):
+
+#--------------------------------------------------------------#
+&print:<B> (6) Receiving BA</B>
+#--------------------------------------------------------------#
+./MN-3-2-1-2-001.seq:./mip6_mn_common.def:::MN-3-2-1-2-001 - BU accepted (Status=0):
+./MN-3-2-1-2-029.seq:./mip6_mn_common.def:::MN-3-2-1-2-029 - BU accepted (Invalid Mobility Header Reserved):
+./MN-3-2-1-2-017.seq:./mip6_mn_common.def:::MN-3-2-1-2-017 - Valid Lifetime (Lifetime of BA < Lifetime of BU):
+./MN-3-2-1-2-018.seq:./mip6_mn_common.def:::MN-3-2-1-2-018 - Valid Lifetime (Lifetime of BA == Lifetime of BU):
+./MN-3-2-1-2-003.seq:./mip6_mn_common.def:::MN-3-2-1-2-003 - BU rejected (Status = 128):
+./MN-3-2-1-2-010.seq:./mip6_mn_common.def:::MN-3-2-1-2-010 - BU rejected (Status = 135):
+./MN-3-2-1-2-011.seq:./mip6_mn_common.def:::MN-3-2-1-2-011 - BU rejected (Status = 136):
+./MN-3-2-1-2-012.seq:./mip6_mn_common.def:::MN-3-2-1-2-012 - BU rejected (Status = 137):
+./MN-3-2-1-2-013.seq:./mip6_mn_common.def:::MN-3-2-1-2-013 - BU rejected (Status = 138):
+./MN-3-2-1-2-014.seq:./mip6_mn_common.def:::MN-3-2-1-2-014 - Invalid Sequence Number (BA != BU):
+./MN-3-2-1-2-023.seq:./mip6_mn_common.def:::MN-3-2-1-2-023 - Unrecognized mobility option (Binding Refresh Advice option):
+./MN-3-2-1-2-024.seq:./mip6_mn_common.def:::MN-3-2-1-2-024 - Invalid Authorization Data:
+./MN-3-2-1-2-025.seq:./mip6_mn_common.def:::MN-3-2-1-2-025 - The Binding Authorization Data mobility option be not the last option:
+
+#--------------------------------------------------------------#
+&print:<B> (7) Sending BU (Re-Registration)</B>
+#--------------------------------------------------------------#
+./MN-3-1-2-2-006.seq:./mip6_mn_common.def:::MN-3-1-2-2-006 - Sending BU (before the expiration of correspondent registration):
+./MN-3-1-2-2-004.seq:./mip6_mn_common.def:::MN-3-1-2-2-004 - Sending BU for each CN in BUL (after home re-registration):
+./MN-3-1-2-2-002.seq:./mip6_mn_common.def:::MN-3-1-2-2-002 - Valid BU of re-registration (src address == CoA or Alternate CoA option == CoA):
+./MN-3-1-2-2-001.seq:./mip6_mn_common.def:::MN-3-1-2-2-001 - Sending BU to CN (when the lifetime for a changed prefix decreases):
+
+#--------------------------------------------------------------#
+&print:<B> (8) Returning Home</B>
+#--------------------------------------------------------------#
+./MN-3-1-3-2-001.seq:./mip6_mn_common.def:::MN-3-1-3-2-001 - Sending BU of de-registration:
+
+#--------------------------------------------------------------#
+&print:<B> (9) Receiving BRR</B>
+#--------------------------------------------------------------#
+./MN-3-4-1-2-001.seq:./mip6_mn_common.def:::MN-3-4-1-2-001 - Receiving BRR:
+./MN-3-4-1-2-006.seq:./mip6_mn_common.def:::MN-3-4-1-2-006 - Receiving BRR (Invalid Mobility Header Reserved):
+./MN-3-4-1-2-005.seq:./mip6_mn_common.def:::MN-3-4-1-2-005 - Receiving BRR from unknown node:
+
+#--------------------------------------------------------------#
+&print:<B> 8. Dynamic Home Agent Address Discovery</B>
+#--------------------------------------------------------------#
+&print:<B> (1) Sending HAAD-Request</B>
+#--------------------------------------------------------------#
+./MN-5-1-1-1-001.seq:./mip6_mn_common.def:::MN-5-1-1-1-001 - Sending HAAD-Request at home-link:
+./MN-5-1-1-1-005.seq:./mip6_mn_common.def:::MN-5-1-1-1-005 - Sending HAAD-Request at foreign-link:
+./MN-5-1-1-1-006.seq:./mip6_mn_common.def:::MN-5-1-1-1-006 - Retransmissions & Back off (Use INITIAL_DHAAD_TIMEOUT as the initial retransmission timer):
+
+#--------------------------------------------------------------#
+&print:<B> (2) Receiving HAAD-Reply</B>
+#--------------------------------------------------------------#
+./MN-5-1-2-1-002.seq:./mip6_mn_common.def:::MN-5-1-2-1-002 - Receiving HAAD-Reply at home-link:
+./MN-5-1-2-1-016.seq:./mip6_mn_common.def:::MN-5-1-2-1-016 - Receiving HAAD-Reply at foreign-link:
+./MN-5-1-2-1-021.seq:./mip6_mn_common.def:::MN-5-1-2-1-021 - Receiving HAAD-Reply (Invalid ICMP Header Reserved):
+./MN-5-1-2-1-026.seq:./mip6_mn_common.def:::MN-5-1-2-1-026 - Receiving HAAD-Reply from the 1st HA of HAAD-Reply(1st=HA0 & 2nd = HA1):
+./MN-5-1-2-1-027.seq:./mip6_mn_common.def:::MN-5-1-2-1-027 - Receiving HAAD-Reply from the 2nd HA of HAAD-Reply(1st=HA1 & 2nd = HA0):
+./MN-5-1-2-1-028.seq:./mip6_mn_common.def:::MN-5-1-2-1-028 - Trying instead the next home agent returned during dynamic home agent address discovery:
+./MN-5-1-2-1-029.seq:./mip6_mn_common.def:::MN-5-1-2-1-029 - Sending BU to the 2nd HA of HAAD-Reply(1st=HA0(failed in binding) & 2nd = HA1):
+
+#--------------------------------------------------------------#
+&print:<B> 9. Mobile Prefix Discovery</B>
+#--------------------------------------------------------------#
+&print:<B> (1) Sending MPS</B>
+#--------------------------------------------------------------#
+./MN-4-1-1-1-001.seq:./mip6_mn_common.def:::MN-4-1-1-1-001 - Sending MPS (before the HoA becomes invalid):
+./MN-4-1-1-1-002.seq:./mip6_mn_common.def:::MN-4-1-1-1-002 - Sending MPS (after receiving unsolicited MPA):
+./MN-4-1-1-1-004.seq:./mip6_mn_common.def:::MN-4-1-1-1-004 - Retransmissions & Back off (Use INITIAL_SOLICIT_TIMER as the initial retransmission timer):
+
+#--------------------------------------------------------------#
+&print:<B> (2) Receiving MPA</B>
+#--------------------------------------------------------------#
+./MN-4-2-1-1-001.seq:./mip6_mn_common.def:::MN-4-2-1-1-001 - Receiving solicited MPA:
+./MN-4-2-1-1-015.seq:./mip6_mn_common.def:::MN-4-2-1-1-015 - Receiving solicited MPA (Invalid ICMP Header Reserved):
+./MN-4-2-1-1-004.seq:./mip6_mn_common.def:::MN-4-2-1-1-004 - Valid solicited MPA (the change of Valid and Preferred Lifetime):
+./MN-4-2-1-1-012.seq:./mip6_mn_common.def:::MN-4-2-1-1-012 - Receiving solicited MPA from unknown HA:
+./MN-4-2-1-1-013.seq:./mip6_mn_common.def:::MN-4-2-1-1-013 - Invalid solicited MPA (no Type2 Routing Header)
+./MN-4-2-1-1-014.seq:./mip6_mn_common.def:::MN-4-2-1-1-014 - Invalid Identifier (MPS != MPA)
+./MN-4-2-1-1-019.seq:./mip6_mn_common.def:::MN-4-2-1-1-019 - Unrecognized option (the option other than Prefix Information option):
+
+#--------------------------------------------------------------#
+&print:<B>10. Binding Error</B>
+#--------------------------------------------------------------#
+&print:<B> (1) Sending BE</B>
+#--------------------------------------------------------------#
+./MN-6-2-1-1-003.seq:./mip6_mn_common.def:::MN-6-2-1-1-003 - Receiving invalid BA (invalid MH Type) from HA:
+./MN-4-2-1-2-010.seq:./mip6_mn_common.def:::MN-4-2-1-2-010 - Receiving invalid HoT (invalid MH Type) from CN:
+./MN-4-2-1-2-015.seq:./mip6_mn_common.def:::MN-4-2-1-2-015 - Receiving invalid CoT (invalid MH Type) from CN:
+
+#--------------------------------------------------------------#
+&print:<B> (2) Receiving BE</B>
+#--------------------------------------------------------------#
+./MN-3-3-1-2-004.seq:./mip6_mn_common.def:::MN-3-3-1-2-004 - Receiving BE (Status = 1) 
+./MN-3-3-1-2-009.seq:./mip6_mn_common.def:::MN-3-3-1-2-009 - Receiving BE (Status = 2) after sending CoTI:
+./MN-3-3-1-2-011.seq:./mip6_mn_common.def:::MN-3-3-1-2-011 - Receiving BE (Status = 2) after sending HoTI:
+./MN-3-3-1-2-001.seq:./mip6_mn_common.def:::MN-3-3-1-2-001 - Receiving BE (Status = 2) after sending BU(A = ON):
+./MN-3-3-1-2-002.seq:./mip6_mn_common.def:::MN-3-3-1-2-002 - Receiving unexpected BE (Status = 2) after sending BU(A = OFF):
+./MN-3-3-1-2-007.seq:./mip6_mn_common.def:::MN-3-3-1-2-007 - Receiving unexpected BE (Status = 2) from unknown node:
+
+#--------------------------------------------------------------#
+&print:<B>11. ICMP Error</B>
+#--------------------------------------------------------------#
+&print:<B> (1) Sending ICMP ERROR</B>
+#--------------------------------------------------------------#
+./MN-6-2-1-1-001.seq:./mip6_mn_common.def:::MN-6-2-1-1-001 - Receiving invalid BA (Payload Proto != IPPROTO_NONE) from HA:
+./MN-6-2-1-1-002.seq:./mip6_mn_common.def:::MN-6-2-1-1-002 - Receiving invalid BA (Header Len != 1) from HA:
+./MN-6-2-1-1-004.seq:./mip6_mn_common.def:::MN-6-2-1-1-004 - Receiving invalid BA (invalid checksum) from HA:
+./MN-4-2-1-2-005.seq:./mip6_mn_common.def:::MN-4-2-1-2-005 - Receiving invalid HoT (Payload Proto != IPPROTO_NONE) from CN:
+./MN-4-2-1-2-006.seq:./mip6_mn_common.def:::MN-4-2-1-2-006 - Receiving invalid HoT (Header Len != 2) from CN:
+./MN-4-2-1-2-007.seq:./mip6_mn_common.def:::MN-4-2-1-2-007 - Receiving invalid HoT (invalid checksum) from CN:
+./MN-4-2-1-2-011.seq:./mip6_mn_common.def:::MN-4-2-1-2-011 - Receiving invalid CoT (Payload Proto != IPPROTO_NONE) from CN:
+./MN-4-2-1-2-012.seq:./mip6_mn_common.def:::MN-4-2-1-2-012 - Receiving invalid CoT (Header Len != 2) from CN:
+./MN-4-2-1-2-013.seq:./mip6_mn_common.def:::MN-4-2-1-2-013 - Receiving invalid CoT (invalid checksum) from CN:
+
+#--------------------------------------------------------------#
+&print:<B> (2) Receiving ICMP ERROR</B>
+#--------------------------------------------------------------#
+./MN-6-2-2-1-001.seq:./mip6_mn_common.def:::MN-6-2-2-1-001 - Receiving ICMP error (Code = 1) after sending BU to HA:
+./MN-4-2-2-2-002.seq:./mip6_mn_common.def:::MN-4-2-2-2-002 - Receiving ICMP error (Code = 1) after sending HoTI:
+./MN-4-2-2-2-005.seq:./mip6_mn_common.def:::MN-4-2-2-2-005 - Receiving ICMP error (Code = 1) after sending CoTI:
+./MN-4-2-2-2-007.seq:./mip6_mn_common.def:::MN-4-2-2-2-007 - Receiving ICMP error (Code = 1) after sending BU to CN:
+./MN-4-2-2-2-012.seq:./mip6_mn_common.def:::MN-4-2-2-2-012 - Receiving ICMP error (Destination Unreachable) after sending HoTI:
+./MN-4-2-2-2-010.seq:./mip6_mn_common.def:::MN-4-2-2-2-010 - Don't start the return routability procedure (when receiving ICMP error):
+./MN-4-2-2-2-011.seq:./mip6_mn_common.def:::MN-4-2-2-2-011 - Receiving ICMP error (Code = 2) from registered CN:
+
+#--------------------------------------------------------------#
+&print:<B>12. Payload Packet</B>
+#--------------------------------------------------------------#
+&print:<B> (1) Sending Payload Packet</B>
+#--------------------------------------------------------------#
+./MN-4-1-1-2-001.seq:./mip6_mn_common.def:::MN-4-1-1-2-001 - Sending the packets via HA:
+./MN-4-1-1-2-002.seq:./mip6_mn_common.def:::MN-4-1-1-2-002 - Sending the packets directly to CN:
+./MN-4-1-1-2-004.seq:./mip6_mn_common.def:::MN-4-1-1-2-004 - Sending the packets while it is at home-link:
+./MN-4-1-1-2-005.seq:./mip6_mn_common.def:::MN-4-1-1-2-005 - Sending the packets after deleting the BUL entry:
+./MN-4-1-1-2-006.seq:./mip6_mn_common.def:::MN-4-1-1-2-006 - Sending Neighbor Discovery message (does not use home address destination option):
+./MN-4-1-1-2-007.seq:./mip6_mn_common.def:::MN-4-1-1-2-007 - Use IPsec to protect the payload packets between MN and CN:
+
+#--------------------------------------------------------------#
+&print:<B>    (2) Receiving Payload Packet</B>
+#--------------------------------------------------------------#
+./MN-4-1-2-2-007.seq:./mip6_mn_common.def:::MN-4-1-2-2-007 - Receiving the packets while it is at home-link:
+./MN-4-1-2-2-006.seq:./mip6_mn_common.def:::MN-4-1-2-2-006 - Receiving the packets (link-local address):
+./MN-4-1-2-2-010.seq:./mip6_mn_common.def:::MN-4-1-2-2-010 - Receiving the packets directly with invalid care-of address:
+./MN-4-1-2-2-003.seq:./mip6_mn_common.def:::MN-4-1-2-2-003 - Receiving the packets directly from known CN:
+./MN-4-1-2-2-004.seq:./mip6_mn_common.def:::MN-4-1-2-2-004 - Invalid Type2 Routing Header (length != 2):
+./MN-4-1-2-2-005.seq:./mip6_mn_common.def:::MN-4-1-2-2-005 - Invalid Type2 Routing Header (segments left != 1):
+./MN-4-1-2-2-011.seq:./mip6_mn_common.def:::MN-4-1-2-2-011 - Invalid Type2 Routing Header (Invalid Home Address):
+
+#--------------------------------------------------------------#
+&print:<B>13. IPsec SA</B>
+#--------------------------------------------------------------#
+&print:<B>13.1 manual configuration</B>
+#--------------------------------------------------------------#
+./MN-1-1-2-1-001.seq:./mip6_mn_common.def:::MN-1-1-2-1-001 - Use the manual configuration of security association between MN and HA:
+
+#--------------------------------------------------------------#
+&print:<B>13.2 auto configuration (IKEv1)</B>
+#--------------------------------------------------------------#
+&print:<B> (1) Binding Updates and Acknowledgements</B>
+#--------------------------------------------------------------#
+./MN-1-2-1-1-001.seq:./mip6_mn_common.def:::MN-1-2-1-1-001 - Sending BU (Establishing New SA1/SA2):
+./MN-1-2-1-1-002.seq:./mip6_mn_common.def:::MN-1-2-1-1-002 - Sending BU (Foreign -> Stay, ISAKMP SA expired, IPsec SA1/SA2 expired):
+./MN-1-2-1-1-004.seq:./mip6_mn_common.def:::MN-1-2-1-1-004 - Sending BU (Foreign -> Stay, ISAKMP SA exist, IPsec SA1/SA2 expired):
+./MN-1-2-1-1-012.seq:./mip6_mn_common.def:::MN-1-2-1-1-012 - Sending BU (Foreign -> Foreign -> Stay, ISAKMP SA discard, IPsec SA1/SA2 expired):
+./MN-1-2-1-1-014.seq:./mip6_mn_common.def:::MN-1-2-1-1-014 - Sending BU (Foreign -> Foreign -> Stay, ISAKMP SA update, IPsec SA1/SA2 expired):
+./MN-1-2-1-1-022.seq:./mip6_mn_common.def:::MN-1-2-1-1-022 - Sending BU (Foreign -> Home -> Foreign, ISAKMP SA expired, IPsec SA1/SA2 expired):
+./MN-1-2-1-1-024.seq:./mip6_mn_common.def:::MN-1-2-1-1-024 - Sending BU (Foreign -> Home -> Foreign, ISAKMP SA exist, IPsec SA1/SA2 expired):
+./MN-1-2-1-1-025.seq:./mip6_mn_common.def:::MN-1-2-1-1-025 - Sending BU (Foreign -> Home -> Foreign, IPsec SA1/SA2 exist):
+
+#--------------------------------------------------------------#
+&print:<B> (2) Return Routability Signaling</B>
+#--------------------------------------------------------------#
+./MN-1-2-2-1-001.seq:./mip6_mn_common.def:::MN-1-2-2-1-001 - Sending HoTI (Establishing New SA3/SA4):
+./MN-1-2-2-1-002.seq:./mip6_mn_common.def:::MN-1-2-2-1-002 - Sending HoTI (Foreign -> Stay, ISAKMP SA expired, IPsec SA3/SA4 expired):
+./MN-1-2-2-1-004.seq:./mip6_mn_common.def:::MN-1-2-2-1-004 - Sending HoTI (Foreign -> Foreign -> Stay, ISAKMP SA discard, IPsec SA3/SA4 expired):
+./MN-1-2-2-1-006.seq:./mip6_mn_common.def:::MN-1-2-2-1-006 - Sending HoTI (Foreign -> Foreign -> Stay, ISAKMP SA update, IPsec SA3/SA4 expired):
+./MN-1-2-2-1-018.seq:./mip6_mn_common.def:::MN-1-2-2-1-018 - Sending HoTI (Security policy entries is inactive):
+./MN-1-2-2-1-010.seq:./mip6_mn_common.def:::MN-1-2-2-1-010 - Sending HoTI (Foreign -> home -> Foreign, ISAKMP SA expired, IPsec SA3/SA4 expired):
+./MN-1-2-2-1-014.seq:./mip6_mn_common.def:::MN-1-2-2-1-014 - Sending HoTI (Foreign -> home -> Foreign, ISAKMP SA exist, IPsec SA3/SA4 expired):
+./MN-1-2-2-1-019.seq:./mip6_mn_common.def:::MN-1-2-2-1-019 - Sending HoTI (Foreign -> home -> Foreign):
+
+#--------------------------------------------------------------#
+&print:<B> (3) Prefix Discovery</B>
+#--------------------------------------------------------------#
+./MN-1-2-3-1-001.seq:./mip6_mn_common.def:::MN-1-2-3-1-001 - Sending MPS (Establishing New SA5/SA6):
+./MN-1-2-3-1-002.seq:./mip6_mn_common.def:::MN-1-2-3-1-002 - Sending MPS (Foreign -> Stay, ISAKMP SA expired, IPsec SA5/SA6 expired):
+./MN-1-2-3-1-004.seq:./mip6_mn_common.def:::MN-1-2-3-1-004 - Sending MPS (Foreign -> Foreign -> Stay, ISAKMP SA discard, IPsec SA5/SA6 expired):
+./MN-1-2-3-1-006.seq:./mip6_mn_common.def:::MN-1-2-3-1-006 - Sending MPS (Foreign -> Foreign -> Stay, ISAKMP SA update, IPsec SA5/SA6 expired):
+./MN-1-2-3-1-010.seq:./mip6_mn_common.def:::MN-1-2-3-1-010 - Sending MPS (Foreign -> Home -> Foreign, ISAKMP SA expired, IPsec SA5/SA6 expired):
+./MN-1-2-3-1-014.seq:./mip6_mn_common.def:::MN-1-2-3-1-014 - Sending MPS (Foreign -> Home -> Foreign, ISAKMP SA exist, IPsec SA5/SA6 expired):
+./MN-1-2-3-1-017.seq:./mip6_mn_common.def:::MN-1-2-3-1-017 - Sending MPS (Foreign -> Home -> Foreign, IPsec SA5/SA6 exist):
+
+#--------------------------------------------------------------#
+&print:<B>14. Mobile to Mobile</B>
+#--------------------------------------------------------------#
+&print:<B>    (0) Basic sequence</B>
+#--------------------------------------------------------------#
+./MN-0-0-0-3-001.seq:./mip6_mn_common.def:::MN-0-0-0-3-001 - Mobile Node Operation-3:
+
+#--------------------------------------------------------------#
+&print:<B>    (1) Route Optimization</B>
+#--------------------------------------------------------------#
+./MN-2-1-1-2-002.seq:./mip6_mn_common.def:::MN-2-1-1-2-002 - Receiving the packet (including home address destination) by tunneling:
+./MN-2-1-1-2-003.seq:./mip6_mn_common.def:::MN-2-1-1-2-003 - Don't start the return routability procedure (when receiving the tunneled CoTI):
+./MN-2-1-1-3-001.seq:./mip6_mn_common.def:::MN-2-1-1-3-001 - Sending HoT by reverse tunneling (after receiving the tunneled HoTI):
+./MN-2-1-2-3-001.seq:./mip6_mn_common.def:::MN-2-1-2-3-001 - Sending CoT by reverse tunneling (after receiving the tunneled CoTI):
+
+#--------------------------------------------------------------#
+&print:<B>    (2) Home Registration and Correspondent Registration</B>
+#--------------------------------------------------------------#
+./MN-3-1-1-3-001.seq:./mip6_mn_common.def:::MN-3-1-1-3-001 - Sending BA by reverse tunneling (after receiving the tunneled BU):
+./MN-3-1-2-3-001.seq:./mip6_mn_common.def:::MN-3-1-2-3-001 - Sending BU (before the expiration of home registration):
+./MN-3-1-3-3-001.seq:./mip6_mn_common.def:::MN-3-1-3-3-001 - Sending BU (when the lifetime for a changed prefix decreases):
+
+#--------------------------------------------------------------#
+&print:<B>    (3) General packet send and receiving</B>
+#--------------------------------------------------------------#
+./MN-4-1-1-3-001.seq:./mip6_mn_common.def:::MN-4-1-1-3-001 - Send and receive the packets (including Type2 Routing Header and home address destination):
+
+#--------------------------------------------------------------#
+&print:<B>    (4) Binding Error</B>
+#--------------------------------------------------------------#
+./MN-4-1-2-3-001.seq:./mip6_mn_common.def:::MN-4-1-2-3-001 - Sending BE by reverse tunneling:
+
+# End of File

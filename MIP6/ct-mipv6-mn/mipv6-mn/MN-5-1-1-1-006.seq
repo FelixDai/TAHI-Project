@@ -1,0 +1,631 @@
+#!/usr/bin/perl
+#
+# Copyright (C) IPv6 Promotion Council,
+# NIPPON TELEGRAPH AND TELEPHONE CORPORATION (NTT),
+# Yokogwa Electoric Corporation, YASKAWA INFORMATION SYSTEMS Corporation
+# and NTT Advanced Technology Corporation(NTT-AT) All rights reserved.
+# 
+# Technology Corporation.
+# 
+# Redistribution and use of this software in source and binary forms, with 
+# or without modification, are permitted provided that the following 
+# conditions and disclaimer are agreed and accepted by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright 
+# notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright 
+# notice, this list of conditions and the following disclaimer in the 
+# documentation and/or other materials provided with the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project which 
+# is related to this software (hereinafter referred to as "project") nor 
+# the names of the contributors may be used to endorse or promote products 
+# derived from this software without specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written 
+# notification to the copyrighters. However, using this software for the 
+# purpose of testing or evaluating any products including merchantable 
+# products may be permitted without any notification to the copyrighters.
+# 
+# 
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND 
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING 
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS 
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE 
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+# CONTRACT,STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF 
+# THE POSSIBILITY OF SUCH DAMAGE.
+#
+
+#--------------------------------------------------------------#
+# ENTRANCE
+#--------------------------------------------------------------#
+# Set the test version used for the display.
+BEGIN { $V6evalTool::TestVersion = '$Name: MIPv6_4_0_5 $'; }
+
+# Import the package.
+use V6evalTool;
+use mip6_mn_config;
+use mip6_mn_common;
+use mip6_mn_get;
+use mip6_mn_send;
+use mip6_mn_recv;
+use mip6_mn_msg;
+
+#--------------------------------------------------------------#
+# INITIALIZATION
+#--------------------------------------------------------------#
+# Do the test satisfied the condition.
+my @options = (
+	'TEST_STATE_ABNORMAL',              'YES',                0,
+	'TEST_FUNC_DHAAD',                  'YES',                0,
+	'FUNC_DETAIL_DHAAD_RETRANSMISSION', 'YES',                0,
+	'FUNC_DETAIL_DHAAD_RETRANSMISSION', 'NO',                 0,
+#kawa
+#	'ENV_INITIALIZE',                   'BOOT',               0,
+);
+
+# Initialize the state of TARGET.
+Init_MN(@options);
+
+#--------------------------------------------------------------#
+# PREPARATION
+#--------------------------------------------------------------#
+# Prepare other local variables.
+my @value;
+my $sec;
+
+#--------------------------------------------------------------#
+# TEST PROCEDURE
+#--------------------------------------------------------------#
+#--------------------------------------------------------------#
+# NUT moves from Link0 to LinkX.
+#--------------------------------------------------------------#
+# Send Router Advertisement. (HA0 -> HA0_allnode_multi)
+vRecv_at_Link0_NonHA($IF0, $FIRST_RA_TIME);
+
+# Receive Home Agent Address Discovery Request. (NUTX -> NUT0_ha_any)
+# (no reply)
+my $num = 0;
+while ($num <= ($DHAAD_RETRIES + 1)) {
+
+	%packet = vRecv_at_LinkX($IF0, ((2 ** ($DHAAD_RETRIES + 1)) * $INITIAL_DHAAD_TIMEOUT), 
+			'haadrequest_nutxga_link0haany');
+
+	if ($packet{status} == 0) {
+		%{"packet_haad_$num"} = %packet;
+		$num ++;
+	}
+	else {
+		# no check -- over MAX_BINDACK_TIMEOUT
+		last;
+	}
+}
+if ($num == 0) {
+	vLogHTML_Fail("INIT FAIL: HA0 does not receive Home Agent Address Discovery Request.");
+	$initcount ++;
+	goto TERM;
+}
+
+#--------------------------------------------------------------#
+# JUDGEMENT
+#--------------------------------------------------------------#
+# check retrans-haad
+if ($MN_CONF{FUNC_DETAIL_DHAAD_RETRANSMISSION} eq 'YES') {
+	if ($num > 1) {
+		vLogHTML_Pass("(*1) PASS: HA0 receives the Home Agent Address Discovery Request.");
+	}
+	else {
+		vLogHTML_Fail("(*1) FAIL: HA0 does not receive the retransmitted Home Agent Address Discovery Request.");
+		$failcount ++;
+	}
+}
+else {
+	if ($num == 1) {
+		vLogHTML_Pass("(*1) PASS: HA0 does not receive the Home Agent Address Discovery Request.");
+	}
+	else {
+		vLogHTML_Fail("(*1) FAIL: HA0 receives the retransmitted Home Agent Address Discovery Request.");
+		$failcount ++;
+	}
+}
+
+
+# haad
+%value_haad = get_value_of_haadrequest(0, \%packet_haad_0);
+$pre_time = $packet_haad_0{recvTime1};
+$pre_interval = $INITIAL_DHAAD_TIMEOUT / 2;
+
+for ($no = 1; $no < $num; $no ++) {
+
+	# retrans-haad
+	%value_haad = get_value_of_haadrequest(0, \%{"packet_haad_$no"});
+	$time = ${"packet_haad_$no"}{recvTime1};
+	$interval = $time - $pre_time;
+
+	# check interval retransmission timer
+	if (check_backoff($interval, $pre_interval) == 0) {
+		if ($no == 1) {
+			vLogHTML_Pass("The initial retransmission timer is set to INITIAL_DHAAD_TIMEOUT. $interval [sec]");
+		}
+		else {
+			vLogHTML_Pass("Timeout period is doubled upon each retransmission. $interval [sec]");
+		}
+	}
+	else {
+		if ($no == 1) {
+			vLogHTML_Fail("FAIL: The initial retransmission timer is not set to INITIAL_DHAAD_TIMEOUT. $interval [sec]");
+			$failcount ++;
+		}
+		else {
+			vLogHTML_Fail("FAIL: Timeout period is not doubled upon each retransmission. $interval [sec]");
+			$failcount ++;
+		}
+	}
+
+	$pre_time = $time;
+	$pre_interval = $interval;
+}
+
+if ($num <= ($DHAAD_RETRIES + 1)) {
+	vLogHTML_Pass("The times of retransmission is less than about DHAAD_RETRIES.");
+}
+else {
+	vLogHTML_Fail("FAIL: The times of retransmission is over DHAAD_RETRIES.");
+	$failcount ++;
+}
+
+TERM:
+#--------------------------------------------------------------#
+# TERMINATION
+#--------------------------------------------------------------#
+# Terminate the state of TARGET.
+Term_MN($IF0, 1);
+
+################################################################
+__END__
+
+
+=head1 NAME
+
+=begin html
+  MN-5-1-1-1-006 - Retransmissions & Back off &#40;Use INITIAL_DHAAD_TIMEOUT as the initial retransmission timer&#41;
+
+=end html
+
+=head1 TARGET
+
+=begin html
+<PRE>
+Host
+</PRE>
+
+=end html
+
+=head1 REQUIREMENT of TEST
+
+=begin html
+<PRE>
+    - Function of Dynamic Home Agent Address Discovery: YES
+                    
+    - NUT re-transmits HAAD Request for valuable HAAD Reply: YES/NO
+                    
+</PRE>
+
+=end html
+
+=head1 TOPOLOGY
+
+=begin html
+<PRE>
+<UL>
+<LI><B><FONT SIZE="+1">TOPOLOGY-1 In the case of Real Home Link</FONT></B>
+</UL>
+                    
+                            |
+                            R      CN0
+                            |       |
+                ----+-------+-------+----------------------- LinkZ
+                    |
+                    R2                            NUTY
+                    |                               |
+                ----+-------+-----------------------+------- LinkY
+                            |
+                            R1                    NUTX
+                            |                       |
+                ----+-------+-----------------------+------- LinkX
+                    |
+                   HA0                            NUT0
+                    |                               |
+        ------------+-------------------------------+------- Link0
+                    
+</PRE>
+<BLOCKQUOTE>
+<TABLE BORDER>
+<TR>
+<TD><TT>Link0</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:100::/64</TT></TD>
+<TD><TT>home link</TT></TD>
+</TR>
+<TR>
+<TD><TT>LinkX</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:102::/64</TT></TD>
+<TD><TT>foreign link</TT></TD>
+</TR>
+<TR>
+<TD><TT>LinkY</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:103::/64</TT></TD>
+<TD><TT>foreign link</TT></TD>
+</TR>
+<TR>
+<TD><TT>LinkZ</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:104::/64</TT></TD>
+<TD><TT>foreign link</TT></TD>
+</TR>
+<TR>
+<TD ROWSPAN="3"><TT>HA0 (Link0)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:100:200:ff:fe00:a0a0</TT></TD>
+<TD ROWSPAN="3"><TT>home agent</TT></TD>
+</TR>
+<TR>
+<TD><TT>link-local</TT></TD>
+<TD><TT>fe80::200:ff:fe00:a0a0</TT></TD>
+</TR>
+<TR>
+<TD><TT>ether</TT></TD>
+<TD><TT>00:00:00:00:a0:a0</TT></TD>
+</TR>
+<TR>
+<TD ROWSPAN="3"><TT>R1 (LinkX)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:102:200:ff:fe00:a4a4</TT></TD>
+<TD ROWSPAN="3"><TT>&nbsp;</TT></TD>
+</TR>
+<TR>
+<TD><TT>link-local</TT></TD>
+<TD><TT>fe80::200:ff:fe00:a4a4</TT></TD>
+</TR>
+<TR>
+<TD><TT>ether</TT></TD>
+<TD><TT>00:00:00:00:a4:a4</TT></TD>
+</TR>
+<TR>
+<TD ROWSPAN="3"><TT>R2 (LinkY)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:103:200:ff:fe00:a6a6</TT></TD>
+<TD ROWSPAN="3"><TT>&nbsp;</TT></TD>
+</TR>
+<TR>
+<TD><TT>link-local</TT></TD>
+<TD><TT>fe80::200:ff:fe00:a6a6</TT></TD>
+</TR>
+<TR>
+<TD><TT>ether</TT></TD>
+<TD><TT>00:00:00:00:a6:a6</TT></TD>
+</TR>
+<TR>
+<TD ROWSPAN="3"><TT>CN0 (LinkZ)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:104:200:ff:fe00:a8a8</TT></TD>
+<TD ROWSPAN="3"><TT>correspondent node</TT></TD>
+</TR>
+<TR>
+<TD><TT>link-local</TT></TD>
+<TD><TT>fe80::200:ff:fe00:a8a8</TT></TD>
+</TR>
+<TR>
+<TD><TT>ether</TT></TD>
+<TD><TT>00:00:00:00:a8:a8</TT></TD>
+</TR>
+<TR>
+<TD ROWSPAN="3"><TT>NUT0 (Link0)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:100::&lt;NutDef.Link0_addr&gt;</TT></TD>
+<TD ROWSPAN="3"><TT>home address</TT></TD>
+</TR>
+<TR>
+<TD><TT>link-local</TT></TD>
+<TD><TT>fe80::&lt;NutDef.Link0_addr&gt;</TT></TD>
+</TR>
+<TR>
+<TD><TT>ether</TT></TD>
+<TD><TT>&lt;NutDef.Link0_addr&gt;</TT></TD>
+</TR>
+<TR>
+<TD><TT>NUTX (LinkX)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:102::&lt;NutDef.Link0_addr&gt;</TT></TD>
+<TD><TT>care-of address</TT></TD>
+</TR>
+<TR>
+<TD><TT>NUTY (LinkY)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:103::&lt;NutDef.Link0_addr&gt;</TT></TD>
+<TD><TT>care-of address</TT></TD>
+</TR>
+</TABLE>
+</BLOCKQUOTE>
+<PRE>
+                    
+<UL>
+<LI><B><FONT SIZE="+1">TOPOLOGY-1 In the case of Virtual Home Link</FONT></B>
+</UL>
+                    
+                            |
+                            R      CN0
+                            |       |
+                ----+-------+-------+----------------------- LinkZ
+                    |
+                    R2                            NUTY
+                    |                               |
+                ----+-------+-----------------------+------- LinkY
+                            |
+                            R1                    NUTX
+                            |                       |
+                ----+-------+-----------------------+------- LinkX
+                    |
+    -------------- HA0 ----------------------------------------------
+                    |                             NUT0       virtual home link
+                    |                               |
+        ------------+-------------------------------+------- Link0
+                    
+</PRE>
+<BLOCKQUOTE>
+<TABLE BORDER>
+<TR>
+<TD><TT>Link0</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:100::/64</TT></TD>
+<TD><TT>virtual home link</TT></TD>
+</TR>
+<TR>
+<TD><TT>LinkX</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:102::/64</TT></TD>
+<TD><TT>foreign link</TT></TD>
+</TR>
+<TR>
+<TD><TT>LinkY</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:103::/64</TT></TD>
+<TD><TT>foreign link</TT></TD>
+</TR>
+<TR>
+<TD><TT>LinkZ</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:104::/64</TT></TD>
+<TD><TT>foreign link</TT></TD>
+</TR>
+<TR>
+<TD ROWSPAN="3"><TT>HA0 (Link0)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:100:200:ff:fe00:a0a0</TT></TD>
+<TD ROWSPAN="3"><TT>home agent</TT></TD>
+</TR>
+<TR>
+<TD><TT>link-local</TT></TD>
+<TD><TT>fe80::200:ff:fe00:a0a0</TT></TD>
+</TR>
+<TR>
+<TD><TT>ether</TT></TD>
+<TD><TT>00:00:00:00:a0:a0</TT></TD>
+</TR>
+<TR>
+<TD ROWSPAN="3"><TT>R1 (LinkX)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:102:200:ff:fe00:a4a4</TT></TD>
+<TD ROWSPAN="3"><TT>&nbsp;</TT></TD>
+</TR>
+<TR>
+<TD><TT>link-local</TT></TD>
+<TD><TT>fe80::200:ff:fe00:a4a4</TT></TD>
+</TR>
+<TR>
+<TD><TT>ether</TT></TD>
+<TD><TT>00:00:00:00:a4:a4</TT></TD>
+</TR>
+<TR>
+<TD ROWSPAN="3"><TT>R2 (LinkY)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:103:200:ff:fe00:a6a6</TT></TD>
+<TD ROWSPAN="3"><TT>&nbsp;</TT></TD>
+</TR>
+<TR>
+<TD><TT>link-local</TT></TD>
+<TD><TT>fe80::200:ff:fe00:a6a6</TT></TD>
+</TR>
+<TR>
+<TD><TT>ether</TT></TD>
+<TD><TT>00:00:00:00:a6:a6</TT></TD>
+</TR>
+<TR>
+<TD ROWSPAN="3"><TT>CN0 (LinkZ)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:104:200:ff:fe00:a8a8</TT></TD>
+<TD ROWSPAN="3"><TT>correspondent node</TT></TD>
+</TR>
+<TR>
+<TD><TT>link-local</TT></TD>
+<TD><TT>fe80::200:ff:fe00:a8a8</TT></TD>
+</TR>
+<TR>
+<TD><TT>ether</TT></TD>
+<TD><TT>00:00:00:00:a8:a8</TT></TD>
+</TR>
+<TR>
+<TD ROWSPAN="3"><TT>NUT0 (Link0)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:100::&lt;NutDef.Link0_addr&gt;</TT></TD>
+<TD ROWSPAN="3"><TT>egress interface</TT></TD>
+</TR>
+<TR>
+<TD><TT>link-local</TT></TD>
+<TD><TT>fe80::&lt;NutDef.Link0_addr&gt;</TT></TD>
+</TR>
+<TR>
+<TD><TT>ether</TT></TD>
+<TD><TT>&lt;NutDef.Link0_addr&gt;</TT></TD>
+</TR>
+<TR>
+<TD><TT>NUTX (LinkX)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:102::&lt;NutDef.Link0_addr&gt;</TT></TD>
+<TD><TT>care-of address</TT></TD>
+</TR>
+<TR>
+<TD><TT>NUTY (LinkY)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:103::&lt;NutDef.Link0_addr&gt;</TT></TD>
+<TD><TT>care-of address</TT></TD>
+</TR>
+</TABLE>
+</BLOCKQUOTE>
+
+=end html
+
+=head1 SETUP
+
+=begin html
+<PRE>
+<LI><B><FONT SIZE="+1">Common Setup-1</FONT></B>
+<UL>
+<LI>Reboot NUT
+<LI>Enable MN function
+<UL>
+<LI>Turn on MN functions
+</UL>
+<UL>
+<LI>This test requires following configurations, If a related message is used.
+<UL>
+<LI><A HREF="SETUP_IPsec_HA0_SA1_SA2.html">MN-HA0 SA1/SA2, Transport mode, Binding Update/Binding Acknowledgement</A>
+<LI><A HREF="SETUP_IPsec_HA0_SA5_SA6.html">MN-HA0 SA5/SA6, Transport mode, Prefix Discovery</A>
+<LI><A HREF="SETUP_IPsec_HA0_SA3_SA4.html">MN-HA0 SA3/SA4, Tunnel mode, Return Routability Signaling</A>
+</UL>
+<LI>This test also allow to use following configurations.
+<UL>
+<LI><A HREF="SETUP_IPsec_HA0_SA7_SA8.html">MN-HA0 SA7/SA8, Tunnel mode, Payload Packets</A>
+<LI><A HREF="SETUP_IPsec_CN0_SA.html">MN-CN0, Transport mode, ICMP</A>
+</UL>
+</UL>
+</UL>
+</PRE>
+
+=end html
+
+=head1 INITIALIZATION
+
+=begin html
+<PRE>
+<UL>
+<LI><B><FONT SIZE="+1">In the case of Real Home Link</FONT></B>
+</UL>
+                    
+       HA0    NUT0      R1      R2     CN0
+        |       |       |       |       |
+        | ----> |       |       |       | 1.Router Advertisement
+        |       |       |       |       |
+        |     NUTX      |       |       |
+        |       |       |       |       |
+        |       | <---- |       |       | 2.Router Advertisement
+        |       |       |       |       |
+        | <---- |       |       |       | 3.Neighbor Solicitation (NUD)
+        |       |       |       |       | 4.(no reply)
+        |       |       |       |       |
+                    
+        1. Send Router Advertisement. (HA0 -> HA0_allnode_multi)
+            # The Home Agent (H) bit is clear.
+        2. Send Router Advertisement. (R1 -> R1_allnode_multi)
+        3. Receive Neighbor Solicitation (NUD). (NUT0 -> HA0)
+        4. (no reply)
+                    
+<UL>
+<LI><B><FONT SIZE="+1">In the case of Virtual Home Link</FONT></B>
+</UL>
+                    
+       HA0    NUTX      R1      R2     CN0
+        |       |       |       |       |
+        |       | <---- |       |       | 1.Router Advertisement
+        |       |       |       |       |
+                    
+        1. Send Router Advertisement. (R1 -> R1_allnode_multi)
+                    
+</PRE>
+
+=end html
+
+=head1 TEST PROCEDURE
+
+=begin html
+<PRE>
+                    
+       HA0    NUTX      R1      R2     CN0
+        |       |       |       |       |
+        |       | <---- |       |       | 1.Router Advertisement
+        |       |       |       |       |
+        | <---- |       |       |       | 2.Home Agent Address Discovery Request
+        |       |       |       |       | 3.(no reply)
+        |       |       |       |       |
+        | <---- |       |       |       | 4.Home Agent Address Discovery Request (*1)
+        |       |       |       |       | 5.(no reply)
+        |       |       |       |       |
+        | <---- |       |       |       | 6.Home Agent Address Discovery Request (*1)
+        |       |       |       |       | 7.(no reply)
+        |       |       |       |       |
+        |       |       |       |       | :
+        |       |       |       |       |
+                    
+        1. Send Router Advertisement. (R1 -> R1_allnode_multi)
+        2. Receive Home Agent Address Discovery Request. (NUTX -> NUT0_ha_any)
+        3. (no reply)
+        4. Receive Home Agent Address Discovery Request. (NUTX -> NUT0_ha_any)
+        5. (no reply)
+        6. Receive Home Agent Address Discovery Request. (NUTX -> NUT0_ha_any)
+        7. (no reply)
+                  
+    Focus Packet Format:
+        <A HREF="../images/ICMP_HAAD_request_message_format_from_MN_to_HA.gif">4. Home Agent Address Discovery Request</A>
+</PRE>
+
+=end html
+
+=head1 JUDGEMENT
+
+=begin html
+<PRE>
+ The judgment changes by the following settings of "REQUIREMENT of TEST".
+                    
+   - NUT re-transmits HAAD Request for valuable HAAD Reply: YES
+     (*1) PASS: HA0 receives the retransmitted Home Agent Address Discovery Request.
+                Then, check whether this packet fills all of the following.
+                - The initial retransmission timer is set to INITIAL_DHAAD_TIMEOUT.
+                - Timeout period is doubled upon each retransmission.
+                - This retransmission MAY be repeated up to a maximum of DHAAD_RETRIES attempts.
+                    
+   - NUT re-transmits HAAD Request for valuable HAAD Reply: NO
+     (*1) PASS: HA0 does not receives the retransmitted Home Agent Address Discovery Request.
+</PRE>
+
+=end html
+
+=head1 REFERENCE
+
+=begin html
+<PRE>
+RFC3775 Mobility Support in IPv6
+    See Section 11.4.1
+</PRE>
+
+=end html
+

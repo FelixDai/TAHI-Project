@@ -1,0 +1,650 @@
+#!/usr/bin/perl
+#
+# Copyright (C) IPv6 Promotion Council,
+# NIPPON TELEGRAPH AND TELEPHONE CORPORATION (NTT),
+# Yokogwa Electoric Corporation, YASKAWA INFORMATION SYSTEMS Corporation
+# and NTT Advanced Technology Corporation(NTT-AT) All rights reserved.
+# 
+# Technology Corporation.
+# 
+# Redistribution and use of this software in source and binary forms, with 
+# or without modification, are permitted provided that the following 
+# conditions and disclaimer are agreed and accepted by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright 
+# notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright 
+# notice, this list of conditions and the following disclaimer in the 
+# documentation and/or other materials provided with the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project which 
+# is related to this software (hereinafter referred to as "project") nor 
+# the names of the contributors may be used to endorse or promote products 
+# derived from this software without specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written 
+# notification to the copyrighters. However, using this software for the 
+# purpose of testing or evaluating any products including merchantable 
+# products may be permitted without any notification to the copyrighters.
+# 
+# 
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND 
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING 
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS 
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE 
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+# CONTRACT,STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF 
+# THE POSSIBILITY OF SUCH DAMAGE.
+#
+
+#--------------------------------------------------------------#
+# ENTRANCE
+#--------------------------------------------------------------#
+# Set the test version used for the display.
+BEGIN { $V6evalTool::TestVersion = '$Name: MIPv6_4_0_5 $'; }
+
+# Import the package.
+use V6evalTool;
+use mip6_mn_config;
+use mip6_mn_common;
+use mip6_mn_get;
+use mip6_mn_send;
+use mip6_mn_recv;
+use mip6_mn_msg;
+
+#--------------------------------------------------------------#
+# INITIALIZATION
+#--------------------------------------------------------------#
+# Do the test satisfied the condition.
+my @options = (
+	'TEST_STATE_ABNORMAL',           'YES',                0,
+	'TEST_FUNC_BASIC',               'YES',                0,
+	'IPSEC_MANUAL_SA1_MN_HA0_PROTO', 'NONE',               0,
+	'IPSEC_MANUAL_SA2_HA0_MN_PROTO', 'NONE',               0,
+);
+
+# Initialize the state of TARGET.
+Init_MN(@options);
+
+#--------------------------------------------------------------#
+# PREPARATION
+#--------------------------------------------------------------#
+# Prepare other local variables.
+my @value;
+my $sec;
+
+#--------------------------------------------------------------#
+# TEST PROCEDURE
+#--------------------------------------------------------------#
+#--------------------------------------------------------------#
+# NUT starts at Link0.
+#--------------------------------------------------------------#
+# Send Router Advertisement. (HA0 -> HA0_allnode_multi)
+vRecv_at_Link0($IF0, $FIRST_RA_TIME);
+
+#--------------------------------------------------------------#
+# NUT moves from Link0 to LinkX.
+#--------------------------------------------------------------#
+# Receive Binding Update. (NUTX -> HA0)
+%packet = vRecv_to_detect_movement_at_LinkX($IF0, $BU_TIME);
+if ($packet{status} != 0) {
+	$initcount ++;
+	goto TERM;
+}
+
+#--------------------------------------------------------------#
+vLogHTML_Info("<B>HA0 sends ICMP Parameter Problem(Code 1) for Binding Update.</B>");
+#--------------------------------------------------------------#
+# Send ICMP Parameter Problem, Code 1.(HA0 -> NUTX)
+#   The Code field is set to 1.
+%value_bu = get_value_of_bu(0, \%RECV_PACKET_BU);
+$esp_bu_seq = $RECV_PACKET_BU{'Frame_Ether.Packet_IPv6.Hdr_ESP.SequenceNumber'} + 0;
+@value = (
+	'ICMP_Code',        1,
+	'PAR_PROB_POINTER', 40,
+	'ESP_SEQ_ANY',      $esp_bu_seq,
+	'BU_Reserved1',     0,
+	'BU_Seqence',       $value_bu{SequenceNumber},
+	'BU_Aflag',         $value_bu{AFlag},
+	'BU_Hflag',         $value_bu{HFlag},
+	'BU_Lflag',         $value_bu{LFlag},
+	'BU_Kflag',         $value_bu{KFlag},
+	'BU_Reserved2',     0,
+	'BU_Lifetime',      $value_bu{Lifetime}
+);
+vSend_icmp6_pp($IF0, 'icmp6_pp_ha0ga_nutxga_pay_bu', 0, @value);
+vCPP('');
+
+# (wait)
+#   Wait during retransmission time of Binding Update.
+#   (MAX_BINDACK_TIMEOUT(32 seconds) / 2)
+$now_time = time;
+$end_time = $now_time + ($MAX_BINDACK_TIMEOUT / 2);
+while ($now_time < $end_time) {
+
+	$sec = $end_time - $now_time;
+	%packet = vRecv_at_LinkX($IF0, $sec,
+		'haadrequest_nutxga_link0haany',
+		'mps_nutxga_ha0ga_hoa_nuthga',
+		'bu_nutxga_ha0ga_hoa_nuthga');
+	$now_time = time;
+
+	if ($packet{recvFrame} eq 'mps_nutxga_ha0ga_hoa_nuthga') {
+		vLogHTML_Warn("WARN: HA0 receives Mobile Prefix Solocotation.");
+		vLogHTML_Warn("      MN has the possibility of creating a binding update list entry.");
+		$warncount ++;
+	}
+	elsif ($packet{status} == 0) {
+		last;
+	}
+}
+
+#--------------------------------------------------------------#
+# JUDGEMENT (*1 a)
+#--------------------------------------------------------------#
+if ($packet{recvFrame} eq 'haadrequest_nutxga_link0haany') {
+	vLogHTML_Info("HA0 receives Home Agent Address Discovery Request.");
+	vLogHTML_Pass("(*1) PASS: HA0 does not receive the retransmitted of Binding Update.");
+	goto TERM;
+}
+elsif ($packet{recvFrame} eq 'bu_nutxga_ha0ga_hoa_nuthga') {
+	vLogHTML_Fail("(*1) FAIL: HA0 receives the retransmitted of Binding Update.");
+	$failcount ++;
+	goto TERM;
+}
+
+#--------------------------------------------------------------#
+# NUTX moves from LinkX to LinkY.
+#--------------------------------------------------------------#
+# Send Router Advertisement. (R2 -> R2_allnode_multi)
+# (wait)
+#   Wait during retransmission time of Binding Update.
+#   (MAX_BINDACK_TIMEOUT(32 seconds) / 2)
+$now_time = time;
+$end_time = $now_time + ($MAX_BINDACK_TIMEOUT / 2);
+while ($now_time < $end_time) {
+
+	$sec = $end_time - $now_time;
+	%packet = vRecv_at_LinkY($IF0, $sec,
+		'haadrequest_nutyga_link0haany',
+		'mps_nutyga_ha0ga_hoa_nuthga',
+		'bu_nutyga_ha0ga_hoa_nuthga');
+	$now_time = time;
+
+	if ($packet{recvFrame} eq 'mps_nutyga_ha0ga_hoa_nuthga') {
+		vLogHTML_Warn("WARN: HA0 receives Mobile Prefix Solocotation.");
+		vLogHTML_Warn("      MN has the possibility of creating a binding update list entry.");
+		$warncount ++;
+	}
+	elsif ($packet{status} == 0) {
+		last;
+	}
+}
+
+#--------------------------------------------------------------#
+# JUDGEMENT (*1 b)
+#--------------------------------------------------------------#
+if ($packet{recvFrame} eq 'haadrequest_nutyga_link0haany') {
+	vLogHTML_Info("HA0 receives Home Agent Address Discovery Request.");
+}
+elsif ($packet{recvFrame} eq 'bu_nutyga_ha0ga_hoa_nuthga') {
+	vLogHTML_Fail("(*1) FAIL: HA0 receives Binding Update.");
+	$failcount ++;
+	goto TERM;
+}
+
+vLogHTML_Pass("(*1) PASS: HA0 does not receive the retransmitted Binding Update.");
+
+TERM:
+#--------------------------------------------------------------#
+# TERMINATION
+#--------------------------------------------------------------#
+# Terminate the state of TARGET.
+Term_MN($IF0, 1);
+
+################################################################
+__END__
+
+
+=head1 NAME
+
+=begin html
+  MN-6-2-2-1-001 - Receiving ICMP error &#40;Code = 1&#41; after sending BU to HA
+
+=end html
+
+=head1 TARGET
+
+=begin html
+<PRE>
+Host
+</PRE>
+
+=end html
+
+=head1 REQUIREMENT of TEST
+
+=begin html
+<PRE>
+    - none
+                    
+</PRE>
+
+=end html
+
+=head1 TOPOLOGY
+
+=begin html
+<PRE>
+<UL>
+<LI><B><FONT SIZE="+1">TOPOLOGY-1 In the case of Real Home Link</FONT></B>
+</UL>
+                    
+                            |
+                            R      CN0
+                            |       |
+                ----+-------+-------+----------------------- LinkZ
+                    |
+                    R2                            NUTY
+                    |                               |
+                ----+-------+-----------------------+------- LinkY
+                            |
+                            R1                    NUTX
+                            |                       |
+                ----+-------+-----------------------+------- LinkX
+                    |
+                   HA0                            NUT0
+                    |                               |
+        ------------+-------------------------------+------- Link0
+                    
+</PRE>
+<BLOCKQUOTE>
+<TABLE BORDER>
+<TR>
+<TD><TT>Link0</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:100::/64</TT></TD>
+<TD><TT>home link</TT></TD>
+</TR>
+<TR>
+<TD><TT>LinkX</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:102::/64</TT></TD>
+<TD><TT>foreign link</TT></TD>
+</TR>
+<TR>
+<TD><TT>LinkY</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:103::/64</TT></TD>
+<TD><TT>foreign link</TT></TD>
+</TR>
+<TR>
+<TD><TT>LinkZ</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:104::/64</TT></TD>
+<TD><TT>foreign link</TT></TD>
+</TR>
+<TR>
+<TD ROWSPAN="3"><TT>HA0 (Link0)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:100:200:ff:fe00:a0a0</TT></TD>
+<TD ROWSPAN="3"><TT>home agent</TT></TD>
+</TR>
+<TR>
+<TD><TT>link-local</TT></TD>
+<TD><TT>fe80::200:ff:fe00:a0a0</TT></TD>
+</TR>
+<TR>
+<TD><TT>ether</TT></TD>
+<TD><TT>00:00:00:00:a0:a0</TT></TD>
+</TR>
+<TR>
+<TD ROWSPAN="3"><TT>R1 (LinkX)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:102:200:ff:fe00:a4a4</TT></TD>
+<TD ROWSPAN="3"><TT>&nbsp;</TT></TD>
+</TR>
+<TR>
+<TD><TT>link-local</TT></TD>
+<TD><TT>fe80::200:ff:fe00:a4a4</TT></TD>
+</TR>
+<TR>
+<TD><TT>ether</TT></TD>
+<TD><TT>00:00:00:00:a4:a4</TT></TD>
+</TR>
+<TR>
+<TD ROWSPAN="3"><TT>R2 (LinkY)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:103:200:ff:fe00:a6a6</TT></TD>
+<TD ROWSPAN="3"><TT>&nbsp;</TT></TD>
+</TR>
+<TR>
+<TD><TT>link-local</TT></TD>
+<TD><TT>fe80::200:ff:fe00:a6a6</TT></TD>
+</TR>
+<TR>
+<TD><TT>ether</TT></TD>
+<TD><TT>00:00:00:00:a6:a6</TT></TD>
+</TR>
+<TR>
+<TD ROWSPAN="3"><TT>CN0 (LinkZ)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:104:200:ff:fe00:a8a8</TT></TD>
+<TD ROWSPAN="3"><TT>correspondent node</TT></TD>
+</TR>
+<TR>
+<TD><TT>link-local</TT></TD>
+<TD><TT>fe80::200:ff:fe00:a8a8</TT></TD>
+</TR>
+<TR>
+<TD><TT>ether</TT></TD>
+<TD><TT>00:00:00:00:a8:a8</TT></TD>
+</TR>
+<TR>
+<TD ROWSPAN="3"><TT>NUT0 (Link0)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:100::&lt;NutDef.Link0_addr&gt;</TT></TD>
+<TD ROWSPAN="3"><TT>home address</TT></TD>
+</TR>
+<TR>
+<TD><TT>link-local</TT></TD>
+<TD><TT>fe80::&lt;NutDef.Link0_addr&gt;</TT></TD>
+</TR>
+<TR>
+<TD><TT>ether</TT></TD>
+<TD><TT>&lt;NutDef.Link0_addr&gt;</TT></TD>
+</TR>
+<TR>
+<TD><TT>NUTX (LinkX)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:102::&lt;NutDef.Link0_addr&gt;</TT></TD>
+<TD><TT>care-of address</TT></TD>
+</TR>
+<TR>
+<TD><TT>NUTY (LinkY)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:103::&lt;NutDef.Link0_addr&gt;</TT></TD>
+<TD><TT>care-of address</TT></TD>
+</TR>
+</TABLE>
+</BLOCKQUOTE>
+<PRE>
+                    
+<UL>
+<LI><B><FONT SIZE="+1">TOPOLOGY-1 In the case of Virtual Home Link</FONT></B>
+</UL>
+                    
+                            |
+                            R      CN0
+                            |       |
+                ----+-------+-------+----------------------- LinkZ
+                    |
+                    R2                            NUTY
+                    |                               |
+                ----+-------+-----------------------+------- LinkY
+                            |
+                            R1                    NUTX
+                            |                       |
+                ----+-------+-----------------------+------- LinkX
+                    |
+    -------------- HA0 ----------------------------------------------
+                    |                             NUT0       virtual home link
+                    |                               |
+        ------------+-------------------------------+------- Link0
+                    
+</PRE>
+<BLOCKQUOTE>
+<TABLE BORDER>
+<TR>
+<TD><TT>Link0</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:100::/64</TT></TD>
+<TD><TT>virtual home link</TT></TD>
+</TR>
+<TR>
+<TD><TT>LinkX</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:102::/64</TT></TD>
+<TD><TT>foreign link</TT></TD>
+</TR>
+<TR>
+<TD><TT>LinkY</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:103::/64</TT></TD>
+<TD><TT>foreign link</TT></TD>
+</TR>
+<TR>
+<TD><TT>LinkZ</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:104::/64</TT></TD>
+<TD><TT>foreign link</TT></TD>
+</TR>
+<TR>
+<TD ROWSPAN="3"><TT>HA0 (Link0)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:100:200:ff:fe00:a0a0</TT></TD>
+<TD ROWSPAN="3"><TT>home agent</TT></TD>
+</TR>
+<TR>
+<TD><TT>link-local</TT></TD>
+<TD><TT>fe80::200:ff:fe00:a0a0</TT></TD>
+</TR>
+<TR>
+<TD><TT>ether</TT></TD>
+<TD><TT>00:00:00:00:a0:a0</TT></TD>
+</TR>
+<TR>
+<TD ROWSPAN="3"><TT>R1 (LinkX)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:102:200:ff:fe00:a4a4</TT></TD>
+<TD ROWSPAN="3"><TT>&nbsp;</TT></TD>
+</TR>
+<TR>
+<TD><TT>link-local</TT></TD>
+<TD><TT>fe80::200:ff:fe00:a4a4</TT></TD>
+</TR>
+<TR>
+<TD><TT>ether</TT></TD>
+<TD><TT>00:00:00:00:a4:a4</TT></TD>
+</TR>
+<TR>
+<TD ROWSPAN="3"><TT>R2 (LinkY)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:103:200:ff:fe00:a6a6</TT></TD>
+<TD ROWSPAN="3"><TT>&nbsp;</TT></TD>
+</TR>
+<TR>
+<TD><TT>link-local</TT></TD>
+<TD><TT>fe80::200:ff:fe00:a6a6</TT></TD>
+</TR>
+<TR>
+<TD><TT>ether</TT></TD>
+<TD><TT>00:00:00:00:a6:a6</TT></TD>
+</TR>
+<TR>
+<TD ROWSPAN="3"><TT>CN0 (LinkZ)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:104:200:ff:fe00:a8a8</TT></TD>
+<TD ROWSPAN="3"><TT>correspondent node</TT></TD>
+</TR>
+<TR>
+<TD><TT>link-local</TT></TD>
+<TD><TT>fe80::200:ff:fe00:a8a8</TT></TD>
+</TR>
+<TR>
+<TD><TT>ether</TT></TD>
+<TD><TT>00:00:00:00:a8:a8</TT></TD>
+</TR>
+<TR>
+<TD ROWSPAN="3"><TT>NUT0 (Link0)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:100::&lt;NutDef.Link0_addr&gt;</TT></TD>
+<TD ROWSPAN="3"><TT>egress interface</TT></TD>
+</TR>
+<TR>
+<TD><TT>link-local</TT></TD>
+<TD><TT>fe80::&lt;NutDef.Link0_addr&gt;</TT></TD>
+</TR>
+<TR>
+<TD><TT>ether</TT></TD>
+<TD><TT>&lt;NutDef.Link0_addr&gt;</TT></TD>
+</TR>
+<TR>
+<TD><TT>NUTX (LinkX)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:102::&lt;NutDef.Link0_addr&gt;</TT></TD>
+<TD><TT>care-of address</TT></TD>
+</TR>
+<TR>
+<TD><TT>NUTY (LinkY)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:103::&lt;NutDef.Link0_addr&gt;</TT></TD>
+<TD><TT>care-of address</TT></TD>
+</TR>
+</TABLE>
+</BLOCKQUOTE>
+
+=end html
+
+=head1 SETUP
+
+=begin html
+<PRE>
+<LI><B><FONT SIZE="+1">Common Setup-1</FONT></B>
+<UL>
+<LI>Reboot NUT
+<LI>Enable MN function
+<UL>
+<LI>Turn on MN functions
+</UL>
+<LI>Initialize IPsec configuration
+<LI>Set IPsec configuration
+<UL>
+<LI>This test requires following configurations.
+<UL>
+<LI><A HREF="SETUP_IPsec_HA0_SA1_SA2.html">MN-HA0 SA1/SA2, Transport mode, Binding Update/Binding Acknowledgement</A>
+</UL>
+<LI>This test requires following configurations, If a related message is used.
+<UL>
+<LI><A HREF="SETUP_IPsec_HA0_SA3_SA4.html">MN-HA0 SA3/SA4, Tunnel mode, Return Routability Signaling</A>
+<LI><A HREF="SETUP_IPsec_HA0_SA5_SA6.html">MN-HA0 SA5/SA6, Transport mode, Prefix Discovery</A>
+</UL>
+<LI>This test also allow to use following configurations.
+<UL>
+<LI><A HREF="SETUP_IPsec_HA0_SA7_SA8.html">MN-HA0 SA7/SA8, Tunnel mode, Payload Packets</A>
+<LI><A HREF="SETUP_IPsec_CN0_SA.html">MN-CN0, Transport mode, ICMP</A>
+</UL>
+</UL>
+</UL>
+</PRE>
+
+=end html
+
+=head1 INITIALIZATION
+
+=begin html
+<PRE>
+<UL>
+<LI><B><FONT SIZE="+1">In the case of Real Home Link</FONT></B>
+</UL>
+                    
+       HA0    NUT0      R1      R2     CN0
+        |       |       |       |       |
+        | ----> |       |       |       | 1.Router Advertisement
+        |       |       |       |       |
+        |     NUTX      |       |       |
+        |       |       |       |       |
+        |       | <---- |       |       | 2.Router Advertisement
+        |       |       |       |       |
+        | <---- |       |       |       | 3.Neighbor Solicitation (NUD)
+        |       |       |       |       | 4.(no reply)
+        |       |       |       |       |
+                    
+        1. Send Router Advertisement. (HA0 -> HA0_allnode_multi)
+        2. Send Router Advertisement. (R1 -> R1_allnode_multi)
+        3. Receive Neighbor Solicitation (NUD). (NUT0 -> HA0)
+        4. (no reply)
+                    
+<UL>
+<LI><B><FONT SIZE="+1">In the case of Virtual Home Link</FONT></B>
+</UL>
+                    
+       HA0    NUTX      R1      R2     CN0
+        |       |       |       |       |
+        |       | <---- |       |       | 1.Router Advertisement
+        |       |       |       |       |
+                    
+        1. Send Router Advertisement. (R1 -> R1_allnode_multi)
+                    
+</PRE>
+
+=end html
+
+=head1 TEST PROCEDURE
+
+=begin html
+<PRE>
+                    
+       HA0    NUTX      R1      R2     CN0
+        |       |       |       |       |
+        | <---- |       |       |       | 1.Binding Update
+        | ----> |       |       |       | 2.ICMP Error(Code=1)
+        |       |       |       |       |
+        |       |       |       |       | 3.(wait) (*1)
+        |       |       |       |       |
+        |       | <------------ |       | 4.Router Advertisement
+        |       |       |       |       |
+        |       |       |       |       | 5.(wait) (*1)
+        |       |       |       |       |
+                    
+        1. Receive Binding Update. (NUTX -> HA0)
+        2. Send ICMP Parameter Problem, Code 1.(HA0 -> NUTX)
+            # The Code field is set to 1.
+        3. (wait)
+            # Wait during retransmission time of Binding Update.
+            #  (MAX_BINDACK_TIMEOUT(32 seconds) / 2)
+        4. Send Router Advertisement. (R2 -> R2_allnode_multi)
+        5. (wait)
+            # Wait during retransmission time of Binding Update.
+            #  (MAX_BINDACK_TIMEOUT(32 seconds) / 2)
+                    
+    Focus Packet Format:
+        2. ICMP Parameter Problem
+            IPv6 header
+                source          = home agent
+                destination     = care-of address
+            ICMPv6 header
+              ICMPv6 Error
+                type            = 4 (Parameter Problem)
+                code            = 1 (unrecognized Next Header type encountered)
+                pointer         = 40 (The Next Header field of Destination Options header in BU)
+</PRE>
+
+=end html
+
+=head1 JUDGEMENT
+
+=begin html
+<PRE>
+ (*1) PASS: HA0 does not receive the retransmitted Binding Update.
+</PRE>
+
+=end html
+
+=head1 REFERENCE
+
+=begin html
+<PRE>
+RFC3775 Mobility Support in IPv6
+    See Section 11.3.5, 11.1
+</PRE>
+
+=end html
+

@@ -1,0 +1,47 @@
+<HTML>
+<HEAD>
+<TITLE>IPsec Configuration MN - HA1 (SA3/SA4)</TITLE>
+</HEAD>
+<BODY>
+<H1>IPsec Configuration MN - HA1 (SA3/SA4)</H1>
+<TT><B>Bold texts indicate configurable parameters.</B></TT>
+<UL>
+<LI>SA3 (Tunnel mode, Home Test Init)
+<BLOCKQUOTE>
+<PRE>
+SPI <B>0x213 (531)</B>
+    src:            MN  3ffe:501:ffff:100::<B>&lt;Interface ID&gt;</B>
+    dst:            HA1 3ffe:501:ffff:100:200:ff:fe00:a1a1
+    mode:           ESP tunnel
+    tunneled src:   MN  3ffe:501:ffff:100::<B>&lt;Interface ID&gt;</B>
+    tunneled dst:   any ::/0
+    upper layer:    header type <B>Mobility Header</B> (default)
+                    message type <B>Mobility Header, Home Test Init Message</B>
+                    <B>any</B> (SA3 include SA7)
+    enc algorithm:  <B>3des-cbc</B>,  enc key:  <B>V6LC-213--12345678901234</B> (default)
+                    <B>des-cbc</B>              <B>V6LC-213</B>
+    auth algorithm: <B>hmac-sha1</B>, auth key: <B>V6LC-213--1234567890</B>     (default)
+                    <B>hmac-md5</B>             <B>V6LC-213--123456</B>
+</PRE>
+</BLOCKQUOTE>
+<LI>SA4 (Tunnel mode, Home Test)
+<BLOCKQUOTE>
+<PRE>
+SPI <B>0x214 (532)</B>
+    src:            HA1 3ffe:501:ffff:100:200:ff:fe00:a1a1
+    dst:            MN  3ffe:501:ffff:100::<B>&lt;Interface ID&gt;</B>
+    mode:           ESP tunnel
+    tunneled src:   any ::/0
+    tunneled dst:   MN  3ffe:501:ffff:100::<B>&lt;Interface ID&gt;</B>
+    upper layer:    header type <B>Mobility Header</B> (default)
+                    message type <B>Mobility Header, Home Test Message</B>
+                    <B>any</B> (SA4 include SA8)
+    enc algorithm:  <B>3des-cbc</B>,  enc key:  <B>V6LC-214--12345678901234</B> (default)
+                    <B>des-cbc</B>              <B>V6LC-214</B>
+    auth algorithm: <B>hmac-sha1</B>, auth key: <B>V6LC-214--1234567890</B>     (default)
+                    <B>hmac-md5</B>             <B>V6LC-214--123456</B>
+</PRE>
+</BLOCKQUOTE>
+</UL>
+</BODY>
+</HTML>

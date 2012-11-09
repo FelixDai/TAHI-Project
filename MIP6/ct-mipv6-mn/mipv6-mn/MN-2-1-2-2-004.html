@@ -1,0 +1,504 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>MN-2-1-2-2-004 - Don't send CoTI &amp;#40;when receiving the tunneled packet&amp;#40;inner src == outer src&amp;#41;&amp;#41;</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:root@jail-99255.freebsd.org" />
+</head>
+
+<body style="background-color: white">
+
+<p><a name="__index__"></a></p>
+<!-- INDEX BEGIN -->
+<!--
+
+<ul>
+
+	<li><a href="#name">NAME</a></li>
+	<li><a href="#target">TARGET</a></li>
+	<li><a href="#requirement_of_test">REQUIREMENT of TEST</a></li>
+	<li><a href="#topology">TOPOLOGY</a></li>
+	<li><a href="#setup">SETUP</a></li>
+	<li><a href="#initialization">INITIALIZATION</a></li>
+	<li><a href="#test_procedure">TEST PROCEDURE</a></li>
+	<li><a href="#judgement">JUDGEMENT</a></li>
+	<li><a href="#reference">REFERENCE</a></li>
+</ul>
+-->
+<!-- INDEX END -->
+
+<p>
+</p>
+<h1><a name="name">NAME</a></h1>
+MN-2-1-2-2-004 - Don't send CoTI &#40;when receiving the tunneled packet&#40;inner src == outer src&#41;&#41;<p>
+</p>
+<hr />
+<h1><a name="target">TARGET</a></h1>
+<PRE>
+Host
+</PRE><p>
+</p>
+<hr />
+<h1><a name="requirement_of_test">REQUIREMENT of TEST</a></h1>
+<PRE>
+    - Function of Return Routability: YES
+
+</PRE><p>
+</p>
+<hr />
+<h1><a name="topology">TOPOLOGY</a></h1>
+<PRE>
+<UL>
+<LI><B><FONT SIZE="+1">TOPOLOGY-1 In the case of Real Home Link</FONT></B>
+</UL>
+
+                            |
+                            R      CN0
+                            |       |
+                ----+-------+-------+----------------------- LinkZ
+                    |
+                    R2                            NUTY
+                    |                               |
+                ----+-------+-----------------------+------- LinkY
+                            |
+                            R1                    NUTX
+                            |                       |
+                ----+-------+-----------------------+------- LinkX
+                    |
+                   HA0                            NUT0
+                    |                               |
+        ------------+-------------------------------+------- Link0
+</PRE>
+<BLOCKQUOTE>
+<TABLE BORDER>
+<TR>
+<TD><TT>Link0</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:100::/64</TT></TD>
+<TD><TT>home link</TT></TD>
+</TR>
+<TR>
+<TD><TT>LinkX</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:102::/64</TT></TD>
+<TD><TT>foreign link</TT></TD>
+</TR>
+<TR>
+<TD><TT>LinkY</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:103::/64</TT></TD>
+<TD><TT>foreign link</TT></TD>
+</TR>
+<TR>
+<TD><TT>LinkZ</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:104::/64</TT></TD>
+<TD><TT>foreign link</TT></TD>
+</TR>
+<TR>
+<TD ROWSPAN="3"><TT>HA0 (Link0)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:100:200:ff:fe00:a0a0</TT></TD>
+<TD ROWSPAN="3"><TT>home agent</TT></TD>
+</TR>
+<TR>
+<TD><TT>link-local</TT></TD>
+<TD><TT>fe80::200:ff:fe00:a0a0</TT></TD>
+</TR>
+<TR>
+<TD><TT>ether</TT></TD>
+<TD><TT>00:00:00:00:a0:a0</TT></TD>
+</TR>
+<TR>
+<TD ROWSPAN="3"><TT>R1 (LinkX)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:102:200:ff:fe00:a4a4</TT></TD>
+<TD ROWSPAN="3"><TT>&nbsp;</TT></TD>
+</TR>
+<TR>
+<TD><TT>link-local</TT></TD>
+<TD><TT>fe80::200:ff:fe00:a4a4</TT></TD>
+</TR>
+<TR>
+<TD><TT>ether</TT></TD>
+<TD><TT>00:00:00:00:a4:a4</TT></TD>
+</TR>
+<TR>
+<TD ROWSPAN="3"><TT>R2 (LinkY)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:103:200:ff:fe00:a6a6</TT></TD>
+<TD ROWSPAN="3"><TT>&nbsp;</TT></TD>
+</TR>
+<TR>
+<TD><TT>link-local</TT></TD>
+<TD><TT>fe80::200:ff:fe00:a6a6</TT></TD>
+</TR>
+<TR>
+<TD><TT>ether</TT></TD>
+<TD><TT>00:00:00:00:a6:a6</TT></TD>
+</TR>
+<TR>
+<TD ROWSPAN="3"><TT>CN0 (LinkZ)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:104:200:ff:fe00:a8a8</TT></TD>
+<TD ROWSPAN="3"><TT>correspondent node</TT></TD>
+</TR>
+<TR>
+<TD><TT>link-local</TT></TD>
+<TD><TT>fe80::200:ff:fe00:a8a8</TT></TD>
+</TR>
+<TR>
+<TD><TT>ether</TT></TD>
+<TD><TT>00:00:00:00:a8:a8</TT></TD>
+</TR>
+<TR>
+<TD ROWSPAN="3"><TT>NUT0 (Link0)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:100::&lt;NutDef.Link0_addr&gt;</TT></TD>
+<TD ROWSPAN="3"><TT>home address</TT></TD>
+</TR>
+<TR>
+<TD><TT>link-local</TT></TD>
+<TD><TT>fe80::&lt;NutDef.Link0_addr&gt;</TT></TD>
+</TR>
+<TR>
+<TD><TT>ether</TT></TD>
+<TD><TT>&lt;NutDef.Link0_addr&gt;</TT></TD>
+</TR>
+<TR>
+<TD><TT>NUTX (LinkX)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:102::&lt;NutDef.Link0_addr&gt;</TT></TD>
+<TD><TT>care-of address</TT></TD>
+</TR>
+<TR>
+<TD><TT>NUTY (LinkY)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:103::&lt;NutDef.Link0_addr&gt;</TT></TD>
+<TD><TT>care-of address</TT></TD>
+</TR>
+</TABLE>
+</BLOCKQUOTE>
+<PRE>
+<UL>
+<LI><B><FONT SIZE="+1">TOPOLOGY-1 In the case of Virtual Home Link</FONT></B>
+</UL>
+                            |
+                            R      CN0
+                            |       |
+                ----+-------+-------+----------------------- LinkZ
+                    |
+                    R2                            NUTY
+                    |                               |
+                ----+-------+-----------------------+------- LinkY
+                            |
+                            R1                    NUTX
+                            |                       |
+                ----+-------+-----------------------+------- LinkX
+                    |
+    -------------- HA0 ----------------------------------------------
+                    |                             NUT0       virtual home link
+                    |                               |
+        ------------+-------------------------------+------- Link0
+</PRE>
+<BLOCKQUOTE>
+<TABLE BORDER>
+<TR>
+<TD><TT>Link0</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:100::/64</TT></TD>
+<TD><TT>virtual home link</TT></TD>
+</TR>
+<TR>
+<TD><TT>LinkX</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:102::/64</TT></TD>
+<TD><TT>foreign link</TT></TD>
+</TR>
+<TR>
+<TD><TT>LinkY</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:103::/64</TT></TD>
+<TD><TT>foreign link</TT></TD>
+</TR>
+<TR>
+<TD><TT>LinkZ</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:104::/64</TT></TD>
+<TD><TT>foreign link</TT></TD>
+</TR>
+<TR>
+<TD ROWSPAN="3"><TT>HA0 (Link0)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:100:200:ff:fe00:a0a0</TT></TD>
+<TD ROWSPAN="3"><TT>home agent</TT></TD>
+</TR>
+<TR>
+<TD><TT>link-local</TT></TD>
+<TD><TT>fe80::200:ff:fe00:a0a0</TT></TD>
+</TR>
+<TR>
+<TD><TT>ether</TT></TD>
+<TD><TT>00:00:00:00:a0:a0</TT></TD>
+</TR>
+<TR>
+<TD ROWSPAN="3"><TT>R1 (LinkX)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:102:200:ff:fe00:a4a4</TT></TD>
+<TD ROWSPAN="3"><TT>&nbsp;</TT></TD>
+</TR>
+<TR>
+<TD><TT>link-local</TT></TD>
+<TD><TT>fe80::200:ff:fe00:a4a4</TT></TD>
+</TR>
+<TR>
+<TD><TT>ether</TT></TD>
+<TD><TT>00:00:00:00:a4:a4</TT></TD>
+</TR>
+<TR>
+<TD ROWSPAN="3"><TT>R2 (LinkY)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:103:200:ff:fe00:a6a6</TT></TD>
+<TD ROWSPAN="3"><TT>&nbsp;</TT></TD>
+</TR>
+<TR>
+<TD><TT>link-local</TT></TD>
+<TD><TT>fe80::200:ff:fe00:a6a6</TT></TD>
+</TR>
+<TR>
+<TD><TT>ether</TT></TD>
+<TD><TT>00:00:00:00:a6:a6</TT></TD>
+</TR>
+<TR>
+<TD ROWSPAN="3"><TT>CN0 (LinkZ)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:104:200:ff:fe00:a8a8</TT></TD>
+<TD ROWSPAN="3"><TT>correspondent node</TT></TD>
+</TR>
+<TR>
+<TD><TT>link-local</TT></TD>
+<TD><TT>fe80::200:ff:fe00:a8a8</TT></TD>
+</TR>
+<TR>
+<TD><TT>ether</TT></TD>
+<TD><TT>00:00:00:00:a8:a8</TT></TD>
+</TR>
+<TR>
+<TD ROWSPAN="3"><TT>NUT0 (Link0)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:100::&lt;NutDef.Link0_addr&gt;</TT></TD>
+<TD ROWSPAN="3"><TT>egress interface</TT></TD>
+</TR>
+<TR>
+<TD><TT>link-local</TT></TD>
+<TD><TT>fe80::&lt;NutDef.Link0_addr&gt;</TT></TD>
+</TR>
+<TR>
+<TD><TT>ether</TT></TD>
+<TD><TT>&lt;NutDef.Link0_addr&gt;</TT></TD>
+</TR>
+<TR>
+<TD><TT>NUTX (LinkX)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:102::&lt;NutDef.Link0_addr&gt;</TT></TD>
+<TD><TT>care-of address</TT></TD>
+</TR>
+<TR>
+<TD><TT>NUTY (LinkY)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:103::&lt;NutDef.Link0_addr&gt;</TT></TD>
+<TD><TT>care-of address</TT></TD>
+</TR>
+</TABLE>
+</BLOCKQUOTE><p>
+</p>
+<hr />
+<h1><a name="setup">SETUP</a></h1>
+<PRE>
+<LI><B><FONT SIZE="+1">Common Setup-1</FONT></B>
+<UL>
+<LI>Reboot NUT
+<LI>Enable MN function
+<UL>
+<LI>Turn on MN functions
+</UL>
+<LI>Initialize IPsec configuration
+<LI>Set IPsec configuration
+<UL>
+<LI>This test requires following configurations.
+<UL>
+<LI><A HREF="SETUP_IPsec_HA0_SA1_SA2.html">MN-HA0 SA1/SA2, Transport mode, Binding Update/Binding Acknowledgement</A>
+<LI><A HREF="SETUP_IPsec_HA0_SA3_SA4.html">MN-HA0 SA3/SA4, Tunnel mode, Return Routability Signaling</A>
+</UL>
+<LI>This test requires following configurations, If a related message is used.
+<UL>
+<LI><A HREF="SETUP_IPsec_HA0_SA5_SA6.html">MN-HA0 SA5/SA6, Transport mode, Prefix Discovery</A>
+</UL>
+<LI>This test also allow to use following configurations.
+<UL>
+<LI><A HREF="SETUP_IPsec_HA0_SA7_SA8.html">MN-HA0 SA7/SA8, Tunnel mode, Payload Packets</A>
+<LI><A HREF="SETUP_IPsec_CN0_SA.html">MN-CN0, Transport mode, ICMP</A>
+</UL>
+</UL>
+</UL>
+</PRE><p>
+</p>
+<hr />
+<h1><a name="initialization">INITIALIZATION</a></h1>
+<PRE>
+<UL>
+<LI><B><FONT SIZE="+1">In the case of Real Home Link</FONT></B>
+</UL>
+
+       HA0    NUT0      R1      R2     CN0
+        |       |       |       |       |
+        | ----> |       |       |       | 1.Router Advertisement
+        |       |       |       |       |
+        |     NUTX      |       |       |
+        |       |       |       |       |
+        |       | <---- |       |       | 2.Router Advertisement
+        |       |       |       |       |
+        | <---- |       |       |       | 3.Neighbor Solicitation (NUD)
+        |       |       |       |       | 4.(no reply)
+        |       |       |       |       |
+        | <---- |       |       |       | 5.Binding Update
+        | ----> |       |       |       | 6.Binding Acknowledgement
+        |       |       |       |       |
+        1. Send Router Advertisement. (HA0 -> HA0_allnode_multi)
+        2. Send Router Advertisement. (R1 -> R1_allnode_multi)
+        3. Receive Neighbor Solicitation (NUD). (NUT0 -> HA0)
+        4. (no reply)
+        5. Receive Binding Update to HA0. (NUTX -> HA0)
+        6. Send Binding Acknowledgement. (HA0 -> NUTX)
+<UL>
+<LI><B><FONT SIZE="+1">In the case of Virtual Home Link</FONT></B>
+</UL>
+       HA0    NUTX      R1      R2     CN0
+        |       |       |       |       |
+        |       | <---- |       |       | 1.Router Advertisement
+        |       |       |       |       |
+        | <---- |       |       |       | 2.Binding Update
+        | ----> |       |       |       | 3.Binding Acknowledgement
+        |       |       |       |       |
+        1. Send Router Advertisement. (R1 -> R1_allnode_multi)
+        2. Receive Binding Update to HA0. (NUTX -> HA0)
+        3. Send Binding Acknowledgement. (HA0 -> NUTX)
+
+</PRE><p>
+</p>
+<hr />
+<h1><a name="test_procedure">TEST PROCEDURE</a></h1>
+<PRE>
+                    
+       HA0    NUTX      R1      R2     CN0
+        |       |       |       |       |
+        | ====> |       |       |       | 1.ICMP Echo Request
+        | <==== |       |       |       | 2.ICMP Echo Reply
+        | <---- |       |       |       | 3.ICMP Echo Reply
+        |       |       |       |       |
+        |       |       |       |       | 4.(wait) (*1)
+        |       |       |       |       |
+                    
+        1. Send ICMP Echo Request. (out: HA0 -> NUTX, in: HA0 -> NUT0)
+            # Source Address of outer packet and inner packet is set to the same.
+        2. Receive ICMP Echo Reply or [3]. (out: NUTX -> HA0, in: NUT0 -> HA0)
+        3. [2] or Receive ICMP Echo Reply. (NUTX -> HA0 with Home Address Option)
+        4. (wait)
+            # Wait during 32(MAX_BINDACK_TIMEOUT) seconds.
+                    
+    Focus Packet Format:
+        1. ICMP Echo Request
+          o format #1
+            IPv6 header
+                source          = home agent
+                destination     = care-of address
+            ESP header
+                SPI             = SA4 SPI (SA4 protects any header) or
+                                = SA8 SPI (SA8 protects any header)
+            IPv6 header
+                source          = home agent
+                destination     = home address
+            ICMPv6 header
+              Echo Request
+                    
+          o format #2
+            IPv6 header
+                source          = home agent
+                destination     = care-of address
+            IPv6 header
+                source          = home agent
+                destination     = home address
+            ICMPv6 header
+              Echo Request
+                    
+        2. ICMP Echo Reply
+          o format #1
+            IPv6 header
+                source          = care-of address
+                destination     = home agent
+            ESP header
+                SPI             = SA3 SPI (SA3 protects any header) or
+                                = SA7 SPI (SA7 protects any header)
+            IPv6 header
+                source          = home address
+                destination     = home agent
+            ICMPv6 header
+              Echo Reply
+                    
+          o format #2
+            IPv6 header
+                source          = care-of address
+                destination     = home agent
+            IPv6 header
+                source          = home address
+                destination     = home agent
+            ICMPv6 header
+              Echo Reply
+                    
+        3. ICMP Echo Reply
+          o format #1
+            IPv6 header
+                source          = care-of address
+                destination     = home agent
+            Destination Options header
+              Home Address Option
+                home address    = home address
+            ESP header
+                SPI             = SA1 SPI (SA1 protects any header) or
+                                = SA5 SPI (SA5 protects ICMPv6 header)
+            ICMPv6 header
+              Echo Reply
+                    
+          o format #2
+            IPv6 header
+                source          = care-of address
+                destination     = home agent
+            Destination Options header
+              Home Address Option
+                home address    = home address
+            ICMPv6 header
+              Echo Reply
+</PRE>
+
+<p>
+</p>
+<hr />
+<h1><a name="judgement">JUDGEMENT</a></h1>
+<PRE>
+ (*1) PASS: CN0 does not receive Home/Care-of Test Init.
+</PRE>
+
+<p>
+</p>
+<hr />
+<h1><a name="reference">REFERENCE</a></h1>
+<PRE>
+RFC3775 Mobility Support in IPv6
+    See Section 11.7.2
+</PRE>
+
+
+</body>
+
+</html>

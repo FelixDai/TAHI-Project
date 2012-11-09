@@ -1,0 +1,473 @@
+#!/usr/bin/perl
+#
+# Copyright (C) IPv6 Promotion Council,
+# NIPPON TELEGRAPH AND TELEPHONE CORPORATION (NTT),
+# Yokogwa Electoric Corporation, YASKAWA INFORMATION SYSTEMS Corporation
+# and NTT Advanced Technology Corporation(NTT-AT) All rights reserved.
+# 
+# Technology Corporation.
+# 
+# Redistribution and use of this software in source and binary forms, with 
+# or without modification, are permitted provided that the following 
+# conditions and disclaimer are agreed and accepted by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright 
+# notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright 
+# notice, this list of conditions and the following disclaimer in the 
+# documentation and/or other materials provided with the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project which 
+# is related to this software (hereinafter referred to as "project") nor 
+# the names of the contributors may be used to endorse or promote products 
+# derived from this software without specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written 
+# notification to the copyrighters. However, using this software for the 
+# purpose of testing or evaluating any products including merchantable 
+# products may be permitted without any notification to the copyrighters.
+# 
+# 
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND 
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING 
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS 
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE 
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+# CONTRACT,STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF 
+# THE POSSIBILITY OF SUCH DAMAGE.
+#
+
+#--------------------------------------------------------------#
+# ENTRANCE
+#--------------------------------------------------------------#
+# Set the test version used for the display.
+BEGIN { $V6evalTool::TestVersion = '$Name: MIPv6_4_0_5 $'; }
+
+# Import the package.
+use V6evalTool;
+use mip6_mn_config;
+use mip6_mn_common;
+use mip6_mn_get;
+use mip6_mn_send;
+use mip6_mn_neighbor;
+use mip6_mn_recv;
+use mip6_mn_msg;
+
+#--------------------------------------------------------------#
+# INITIALIZATION
+#--------------------------------------------------------------#
+# Do the test satisfied the condition.
+my @options = (
+	'TEST_STATE_NORMAL',        'YES',     0,
+	'TEST_FUNC_REAL_HOME_LINK', 'YES',     0,
+	'FUNC_DETAIL_HOME_ADDRESS', 'RFC2462', 0,
+#kawa
+#	'ENV_INITIALIZE',           'BOOT',    0,
+);
+
+# Set the special environment
+$MN_CONF{ENV_CN0_SET} = 'YES';
+
+# Initialize the state of TARGET.
+Init_MN(@options);
+
+#--------------------------------------------------------------#
+# PREPARATION
+#--------------------------------------------------------------#
+# Prepare other variables.
+my @value;
+my $sec;
+
+#--------------------------------------------------------------#
+# TEST PROCEDURE 1
+#--------------------------------------------------------------#
+#--------------------------------------------------------------#
+# NUT starts at Link0.
+#--------------------------------------------------------------#
+# Send Router Advertisement. (HA0 -> HA0_allnode_multi)
+# Receive Neighbor Solicitation (DAD). (Unspecified -> solicited-node multicast)
+$now_time = time;
+$end_time = $now_time + $DAD_TIME;
+while ($now_time < $end_time) {
+
+	$sec = $end_time - $now_time;
+	%packet = vRecv_at_Link0($IF0, $sec,
+		'ns_any_any',
+		'ns_any_any_w_ipsec',
+		'ns_any_any_opt_any',
+		'ns_any_any_opt_any_w_ipsec');
+	$now_time = time;
+
+	if ($packet{status} == 0) {
+		$rtn = check_ns(1, \%packet);
+		if ($rtn == 0) {
+			vSend_na2($IF0, \%packet);
+		}
+		elsif ($rtn == 1) {
+			vLogHTML_Info("    no-reply");
+			%value_dad = get_value_of_ns(0, \%packet);
+			if ($value_dad{TargetAddress} eq $node_hash{nut0_ga}) {
+				%packet_dad_nut0ga = %packet;
+				if (%packet_dad_lla != 0) {
+					last;
+				}
+			}
+			elsif ($value_dad{TargetAddress} eq $node_hash{nut0_lla}) {
+				%packet_dad_lla = %packet;
+				if (%packet_dad_nut0ga != 0) {
+					last;
+				}
+			}
+		}
+		else {
+			vLogHTML_Info("    no-reply");
+		}
+	}
+}
+
+#--------------------------------------------------------------#
+# JUDGEMENT 1
+#--------------------------------------------------------------#
+if (%packet_dad_nut0ga != 0) {
+	vLogHTML_Info("HA0 receives Neighbor Solicitation (DAD).");
+	vLogHTML_Info("The target address is a tentative address(home Address).");
+}
+
+if (%packet_dad_lla != 0) {
+	vLogHTML_Pass("(*1) PASS: HA0 receives Neighbor Solicitation (DAD).");
+	vLogHTML_Pass("           The target address is a link-local address.");
+}
+else {
+	vLogHTML_Fail("(*1) FAIL: HA0 does not receive Neighbor Solicitation (DAD).");
+	vLogHTML_Fail("           The target address is a link-local address.");
+	$failcount ++;
+	goto TERM;
+}
+
+# (no reply)
+# Wait during 3 seconds.
+vRecv_at_Link0($IF0, $MinDelayBetweenRAs);
+
+#--------------------------------------------------------------#
+# TEST PROCEDURE 2
+#--------------------------------------------------------------#
+#--------------------------------------------------------------#
+vLogHTML_Info("<B>CN0 sends ICMP Echo Request.</B>");
+#--------------------------------------------------------------#
+# Send ICMP Echo Request. (CN0 -> NUT0)
+#   Destination address is set to Home Address of mobile node.
+vSend_echorequest($IF0, 'echorequest_cn0ga_nut0ga', 0);
+
+# Receive ICMP Echo Reply. (NUT0 -> CN0)
+%packet_echoreply = vRecv_at_Link0($IF0, $ECHO_TIME, 'echoreply_nut0ga_cn0ga');
+
+#--------------------------------------------------------------#
+# JUDGEMENT 2
+#--------------------------------------------------------------#
+if ($packet_echoreply{status} == 0) {
+	vLogHTML_Pass("(*2) PASS: CN0 receives ICMP Echo Reply.");
+}
+else {
+	vLogHTML_Fail("(*2) FAIL: CN0 does not receive ICMP Echo Reply. $ECHO_TIME [sec]");
+	$failcount ++;
+	goto TERM;
+}
+
+%value_echoreply_addr = get_value_of_ipv6(0, \%packet_echoreply);
+
+if ($value_echoreply_addr{SourceAddress} ne $node_hash{nut0_ga}) {
+	vLogHTML_Fail("FAIL: The SourceAddress of ICMP Echo Reply and the TargetAddress of Neighbor Solicitation (DAD) are different.");
+	$failcount ++;
+}
+
+TERM:
+#--------------------------------------------------------------#
+# TERMINATION
+#--------------------------------------------------------------#
+# Terminate the state of TARGET.
+Term_MN($IF0, 1);
+
+################################################################
+__END__
+
+
+=head1 NAME
+
+=begin html
+  MN-3-1-1-1-001 - Generate HoA using RFC2462
+
+=end html
+
+=head1 TARGET
+
+=begin html
+<PRE>
+Host
+</PRE>
+
+=end html
+
+=head1 REQUIREMENT of TEST
+
+=begin html
+<PRE>
+    - Function of Real Home Link: YES
+                    
+    - NUT creates home address with RFC2462 in home link: YES
+                    
+</PRE>
+
+=end html
+
+=head1 TOPOLOGY
+
+=begin html
+<PRE>
+<UL>
+<LI><B><FONT SIZE="+1">TOPOLOGY-1 In the case of Real Home Link</FONT></B>
+</UL>
+                    
+                            |
+                            R      CN0
+                            |       |
+                ----+-------+-------+----------------------- LinkZ
+                    |
+                    R2                            NUTY
+                    |                               |
+                ----+-------+-----------------------+------- LinkY
+                            |
+                            R1                    NUTX
+                            |                       |
+                ----+-------+-----------------------+------- LinkX
+                    |
+                   HA0                            NUT0
+                    |                               |
+        ------------+-------------------------------+------- Link0
+                    
+</PRE>
+<BLOCKQUOTE>
+<TABLE BORDER>
+<TR>
+<TD><TT>Link0</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:100::/64</TT></TD>
+<TD><TT>home link</TT></TD>
+</TR>
+<TR>
+<TD><TT>LinkX</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:102::/64</TT></TD>
+<TD><TT>foreign link</TT></TD>
+</TR>
+<TR>
+<TD><TT>LinkY</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:103::/64</TT></TD>
+<TD><TT>foreign link</TT></TD>
+</TR>
+<TR>
+<TD><TT>LinkZ</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:104::/64</TT></TD>
+<TD><TT>foreign link</TT></TD>
+</TR>
+<TR>
+<TD ROWSPAN="3"><TT>HA0 (Link0)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:100:200:ff:fe00:a0a0</TT></TD>
+<TD ROWSPAN="3"><TT>home agent</TT></TD>
+</TR>
+<TR>
+<TD><TT>link-local</TT></TD>
+<TD><TT>fe80::200:ff:fe00:a0a0</TT></TD>
+</TR>
+<TR>
+<TD><TT>ether</TT></TD>
+<TD><TT>00:00:00:00:a0:a0</TT></TD>
+</TR>
+<TR>
+<TD ROWSPAN="3"><TT>R1 (LinkX)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:102:200:ff:fe00:a4a4</TT></TD>
+<TD ROWSPAN="3"><TT>&nbsp;</TT></TD>
+</TR>
+<TR>
+<TD><TT>link-local</TT></TD>
+<TD><TT>fe80::200:ff:fe00:a4a4</TT></TD>
+</TR>
+<TR>
+<TD><TT>ether</TT></TD>
+<TD><TT>00:00:00:00:a4:a4</TT></TD>
+</TR>
+<TR>
+<TD ROWSPAN="3"><TT>R2 (LinkY)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:103:200:ff:fe00:a6a6</TT></TD>
+<TD ROWSPAN="3"><TT>&nbsp;</TT></TD>
+</TR>
+<TR>
+<TD><TT>link-local</TT></TD>
+<TD><TT>fe80::200:ff:fe00:a6a6</TT></TD>
+</TR>
+<TR>
+<TD><TT>ether</TT></TD>
+<TD><TT>00:00:00:00:a6:a6</TT></TD>
+</TR>
+<TR>
+<TD ROWSPAN="3"><TT>CN0 (LinkZ)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:104:200:ff:fe00:a8a8</TT></TD>
+<TD ROWSPAN="3"><TT>correspondent node</TT></TD>
+</TR>
+<TR>
+<TD><TT>link-local</TT></TD>
+<TD><TT>fe80::200:ff:fe00:a8a8</TT></TD>
+</TR>
+<TR>
+<TD><TT>ether</TT></TD>
+<TD><TT>00:00:00:00:a8:a8</TT></TD>
+</TR>
+<TR>
+<TD ROWSPAN="3"><TT>NUT0 (Link0)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:100::&lt;NutDef.Link0_addr&gt;</TT></TD>
+<TD ROWSPAN="3"><TT>home address</TT></TD>
+</TR>
+<TR>
+<TD><TT>link-local</TT></TD>
+<TD><TT>fe80::&lt;NutDef.Link0_addr&gt;</TT></TD>
+</TR>
+<TR>
+<TD><TT>ether</TT></TD>
+<TD><TT>&lt;NutDef.Link0_addr&gt;</TT></TD>
+</TR>
+<TR>
+<TD><TT>NUTX (LinkX)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:102::&lt;NutDef.Link0_addr&gt;</TT></TD>
+<TD><TT>care-of address</TT></TD>
+</TR>
+<TR>
+<TD><TT>NUTY (LinkY)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:103::&lt;NutDef.Link0_addr&gt;</TT></TD>
+<TD><TT>care-of address</TT></TD>
+</TR>
+</TABLE>
+</BLOCKQUOTE>
+
+=end html
+
+=head1 SETUP
+
+=begin html
+<PRE>
+<LI><B><FONT SIZE="+1">Common Setup-1</FONT></B>
+<UL>
+<LI>Reboot NUT
+<LI>Enable MN function
+<UL>
+<LI>Turn on MN functions
+</UL>
+<LI>Initialize IPsec configuration
+<LI>Set IPsec configuration
+<UL>
+<LI>This test requires following configurations, If a related message is used.
+<UL>
+<LI><A HREF="SETUP_IPsec_HA0_SA1_SA2.html">MN-HA0 SA1/SA2, Transport mode, Binding Update/Binding Acknowledgement</A>
+<LI><A HREF="SETUP_IPsec_HA0_SA3_SA4.html">MN-HA0 SA3/SA4, Tunnel mode, Return Routability Signaling</A>
+<LI><A HREF="SETUP_IPsec_HA0_SA5_SA6.html">MN-HA0 SA5/SA6, Transport mode, Prefix Discovery</A>
+</UL>
+<LI>This test also allow to use following configurations.
+<UL>
+<LI><A HREF="SETUP_IPsec_HA0_SA7_SA8.html">MN-HA0 SA7/SA8, Tunnel mode, Payload Packets</A>
+<LI><A HREF="SETUP_IPsec_CN0_SA.html">MN-CN0, Transport mode, ICMP</A>
+</UL>
+</UL>
+</UL>
+</PRE>
+
+=end html
+
+=head1 INITIALIZATION
+
+=begin html
+<PRE>
+    - none
+                    
+</PRE>
+
+=end html
+
+=head1 TEST PROCEDURE
+
+=begin html
+<PRE>
+                    
+       HA0    NUT0      R1      R2     CN0
+        |       |       |       |       |
+        | ----> |       |       |       | 1.Router Advertisement
+        |       |       |       |       |
+        | <---- |       |       |       | 2.Neighbor Solicitation (DAD) (*1)
+        |       |       |       |       | 3.(no reply)
+        |       |       |       |       |
+        |       | <-------------------- | 4.ICMP Echo Request
+        |       | --------------------> | 5.ICMP Echo Reply (*2)
+        |       |       |       |       |
+                    
+        1. Send Router Advertisement. (HA0 -> HA0_allnode_multi)
+        2. Receive Neighbor Solicitation (DAD). (Unspecified -> solicited-node multicast)
+        3. (no reply)
+            # Wait during 1 second.
+        4. Send ICMP Echo Request. (CN0 -> NUT0)
+            # Destination address is set to Home Address of mobile node.
+        5. Receive ICMP Echo Reply. (NUT0 -> CN0)
+                    
+    Focus Packet Format:
+        2. Neighbor Solicitation (DAD)
+            IPv6 header
+                source          = 0::0
+                destination     = solicited-node multicast
+            ICMPv6 header
+              Neighbor Solicitation
+                code            = 0
+                target address  = link-local address
+                    
+        5. ICMP Echo Reply
+            IPv6 header
+                source          = home address
+                destination     = correspondent node
+            ICMPv6 header
+              Echo Reply
+</PRE>
+
+=end html
+
+=head1 JUDGEMENT
+
+=begin html
+<PRE>
+ (*1) PASS: HA0 receives Neighbor Solicitation (DAD).
+            Then, check whether this packet fills all of the following.
+             - The target address is a link-local address.
+ (*2) PASS: CN0 receives ICMP Echo Reply.
+</PRE>
+
+=end html
+
+=head1 REFERENCE
+
+=begin html
+<PRE>
+RFC3775 Mobility Support in IPv6
+</PRE>
+
+=end html
+

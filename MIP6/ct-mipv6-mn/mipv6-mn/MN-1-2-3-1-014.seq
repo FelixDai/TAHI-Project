@@ -1,0 +1,655 @@
+#!/usr/bin/perl
+#
+# Copyright (C) IPv6 Promotion Council,
+# NIPPON TELEGRAPH AND TELEPHONE CORPORATION (NTT),
+# Yokogwa Electoric Corporation, YASKAWA INFORMATION SYSTEMS Corporation
+# and NTT Advanced Technology Corporation(NTT-AT) All rights reserved.
+# 
+# Technology Corporation.
+# 
+# Redistribution and use of this software in source and binary forms, with 
+# or without modification, are permitted provided that the following 
+# conditions and disclaimer are agreed and accepted by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright 
+# notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright 
+# notice, this list of conditions and the following disclaimer in the 
+# documentation and/or other materials provided with the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project which 
+# is related to this software (hereinafter referred to as "project") nor 
+# the names of the contributors may be used to endorse or promote products 
+# derived from this software without specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written 
+# notification to the copyrighters. However, using this software for the 
+# purpose of testing or evaluating any products including merchantable 
+# products may be permitted without any notification to the copyrighters.
+# 
+# 
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND 
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING 
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS 
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE 
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+# CONTRACT,STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF 
+# THE POSSIBILITY OF SUCH DAMAGE.
+#
+
+#--------------------------------------------------------------#
+# ENTRANCE
+#--------------------------------------------------------------#
+# Set the test version used for the display.
+BEGIN { $V6evalTool::TestVersion = '$Name: MIPv6_4_0_5 $'; }
+
+# Import the package.
+use V6evalTool;
+use mip6_mn_config;
+use mip6_mn_common;
+use mip6_mn_get;
+use mip6_mn_send;
+use mip6_mn_recv;
+use mip6_mn_msg;
+use IKEapi;
+use mip6_mn_ike;
+
+#--------------------------------------------------------------#
+# INITIALIZATION
+#--------------------------------------------------------------#
+# Do the test satisfied the condition.
+my @options = (
+	'TEST_STATE_NORMAL',                 'YES',                0,
+	'TEST_FUNC_IKE',                     'YES',                0,
+	'TEST_FUNC_REAL_HOME_LINK',          'YES',                0,
+	'TEST_FUNC_MPD',                     'YES',                0,
+	'FUNC_DETAIL_MN_BU_TO_HA_K',         'YES',                0,
+	'IPSEC_IKE_SA56_MN_HA0_ID_PROTO',    'ICMP',               0,
+	'IPSEC_IKE_SA56_MN_HA0_ID_PROTO',    'SA12',               0,
+);
+
+# Initialize the state of TARGET.
+Init_MN(@options);
+
+#--------------------------------------------------------------#
+# PREPARATION
+#--------------------------------------------------------------#
+# Prepare other variables.
+my @value;
+my $sec;
+
+#--------------------------------------------------------------#
+# TEST PROCEDURE
+#--------------------------------------------------------------#
+#--------------------------------------------------------------#
+# NUT starts at Link0.
+#--------------------------------------------------------------#
+# Send Router Advertisement. (R1 -> R1_allnode_multi)
+vRecv_at_Link0($IF0, $FIRST_RA_TIME);
+
+#--------------------------------------------------------------#
+# NUT moves from Link0 to LinkX.
+#--------------------------------------------------------------#
+# Receive Binding Update. (NUTX -> HA0)
+# Send Binding Acknowledgement. (HA0 -> NUTX)
+# # The Status field is set to 1 (accepted but prefix discovery necessary).
+%packet = vRecv_to_detect_movement_at_LinkX($IF0, $BU_TIME);
+if ($packet{status} != 0) {
+	$initcount ++;
+	goto TERM;
+}
+
+@value = ('BA_Status', 1);
+vSend_ba($IF0, 'ba_ha0ga_nutxga_rh2_nuthga', \%RECV_PACKET_BU, @value);
+%packet_bu = %RECV_PACKET_BU;
+
+# Receive Mobile Prefix Solicitation. (NUTX -> HA0 with Home Address Option)
+# Send Mobile Prefix Advertisement. (HA0 -> NUTX with Type2 Routing Header)
+$now_time = time;
+$end_time = $now_time + $BU_TIME;
+while ($now_time < $end_time) {
+
+	$sec = $end_time - $now_time;
+	%packet = vRecv_at_LinkX($IF0, $sec,
+		'mps_nutxga_ha0ga_hoa_nuthga', 
+		'bu_nutxga_ha0ga_hoa_nuthga');
+	$now_time = time;
+
+	if ($packet{recvFrame} eq 'mps_nutxga_ha0ga_hoa_nuthga') {
+		vSend_mpa($IF0, 'mpa_ha0ga_nutxga_rh2_nuthga_pfx_ha0', \%packet); 
+		$old_sa56_ha0 = $i_sa56_ha0;
+		$m_flag = 1;
+		last;
+	}
+	elsif ($packet{recvFrame} eq 'bu_nutxga_ha0ga_hoa_nuthga') {
+		@value = ('BA_Status', 1);
+		vSend_ba($IF0, 'ba_ha0ga_nutxga_rh2_nuthga', \%packet, @value);
+	}
+}
+if ($m_flag == 0) {
+	vLogHTML_Fail("INIT FAIL: HA0 does not receive Mobile Prefix Solicitation.");
+	$initcount ++;
+	goto TERM;
+}
+
+if (!defined($old_sa56_ha0->{'SA_HANDLER'})) {
+	vLogHTML_Fail("INIT FAIL: HA0 receives Mobile Prefix Solicitation without IPsec SA5.");
+	$initcount ++;
+	goto TERM;
+}
+
+# wait for ALL SA establish
+if (vRecv_to_establish_all_SA_at_LinkX($IF0) != 0) {
+	$initcount ++;
+	goto TERM;
+}
+
+#--------------------------------------------------------------#
+# MN moves from LinkX to Link0.
+#--------------------------------------------------------------#
+%packet = vRecv_to_move_from_LinkX_to_Link0($IF0);
+if ($packet{status} != 0) {
+	$initcount ++;
+	goto TERM;
+}
+$old_sa56_ha0 = $i_sa56_ha0;
+
+#--------------------------------------------------------------#
+# waits for IPsec SA5 to expire
+#--------------------------------------------------------------#
+$now_time = time;
+$end_time = $old_sa56_ha0->{'START_TIME'} + $old_sa56_ha0->{'IN_LIFETIME'};
+$sec = $end_time - $now_time;
+
+#--------------------------------------------------------------#
+vLogHTML_Info("<B>waits for IPsec SA5 to expire, $sec [sec]</B>");
+#--------------------------------------------------------------#
+vRecv_at_Link0($IF0, $sec);
+
+# dummy route for debug
+if ($MN_CONF{ENV_IKE_WO_IKE} == 1) {
+	$DMMY56 = 0;
+}
+# end
+
+#--------------------------------------------------------------#
+# MN moves from Link0 to LinkX.
+#--------------------------------------------------------------#
+%packet_bu = vRecv_at_LinkX($IF0, $BU_TIME, 'bu_nutxga_ha0ga_hoa_nuthga');
+if ($packet_bu{recvFrame} ne 'bu_nutxga_ha0ga_hoa_nuthga') {
+	vLogHTML_Fail("INIT FAIL: HA0 does not receive Binding Update.");
+	$initcount ++;
+	goto TERM;
+}
+
+@value = ('BA_Status', 1);
+vSend_ba($IF0, 'ba_ha0ga_nutxga_rh2_nuthga',  \%packet_bu, @value);
+
+# set link0 lifetime
+%value_bu = get_value_of_bu(0, \%packet_bu);
+$mpa_lifetime = $value_bu{Lifetime} * 2;
+if ($mpa_lifetime > $BU_TIME) {
+	$mpa_lifetime = $BU_TIME;
+}
+
+set_link_lifetime('Link0', $mpa_lifetime, $mpa_lifetime);
+
+# Receive Mobile Prefix Solicitation. (NUTX -> HA0 with Home Address Option)
+# Send Mobile Prefix Advertisement. (HA0 -> NUTX with Type2 Routing Header)
+$now_time = time;
+$end_time = $now_time + $BU_TIME;
+while ($now_time < $end_time) {
+
+	$sec = $end_time - $now_time;
+	%packet = vRecv_at_LinkX($IF0, $sec,
+		'mps_nutxga_ha0ga_hoa_nuthga',
+		'bu_nutxga_ha0ga_hoa_nuthga');
+	$now_time = time;
+
+	if ($packet{recvFrame} eq 'mps_nutxga_ha0ga_hoa_nuthga') {
+		vSend_mpa($IF0, 'mpa_ha0ga_nutxga_rh2_nuthga_pfx_ha0', \%packet);
+		$new_sa56_ha0 = $i_sa56_ha0;
+		%packet_mps = %packet;
+		$m_flag2 = 1;
+	}
+	elsif ($packet{recvFrame} eq 'bu_nutxga_ha0ga_hoa_nuthga') {
+		if ($m_flag2 == 0) {
+			@value = ('BA_Status', 1);
+			vSend_ba($IF0, 'ba_ha0ga_nutxga_rh2_nuthga', \%packet, @value);
+		}
+		else {
+			vSend_ba($IF0, 'ba_ha0ga_nutxga_rh2_nuthga', \%packet);
+			$bu_flag = 1;
+			last;
+		}
+	}
+}
+if ($m_flag2 == 0) {
+	vLogHTML_Fail("(*2) FAIL: HA0 does not receive Mobile Prefix Solicitation.");
+	$failcount ++;
+	goto TERM;
+}
+
+#--------------------------------------------------------------#
+# JUDGEMENT
+#--------------------------------------------------------------#
+# PASS1
+if (($new_sa56_ha0->{'SA_HANDLER'}) eq ($old_sa56_ha0->{'SA_HANDLER'})) {
+	vLogHTML_Fail("(*1) FAIL: IPsec SA5/SA6 is not re-established.");
+	$failcount ++;
+	goto TERM;
+}
+else {
+	vLogHTML_Pass("(*1) PASS: IPsec SA5/SA6 is re-established.");
+}
+
+# PASS2
+vLogHTML_Pass("(*2) PASS: HA0 receives Mobile Prefix Solicitation.");
+
+if (($new_sa56_ha0->{'IN_SPI'}) ne ($packet_mps{'Frame_Ether.Packet_IPv6.Hdr_ESP.SPI'})) {
+	vLogHTML_Fail("FAIL: - not using new IPsec SA5.");
+	$failcount ++;
+	goto TERM;
+}
+else {
+	vLogHTML_Pass(" - using new IPsec SA5.");
+}
+
+# PASS3
+if ($bu_flag == 0) {
+	vLogHTML_Fail("(*3) FAIL: HA0 does not receive Binding Update.");
+	$failcount ++;
+	goto TERM;
+}
+else {
+	vLogHTML_Pass("(*3) PASS: HA0 receives Binding Update.");
+}
+
+TERM:
+#--------------------------------------------------------------#
+# TERMINATION
+#--------------------------------------------------------------#
+# Terminate the state of TARGET.
+Term_MN($IF0, 1);
+
+################################################################
+__END__
+
+
+=head1 NAME
+
+=begin html
+  MN-1-2-3-1-014 - Sending MPS (Foreign -> Home -> Foreign, ISAKMP SA exist, IPsec SA5/SA6 expired)
+
+=end html
+
+=head1 TARGET
+
+=begin html
+<PRE>
+Host
+</PRE>
+
+=end html
+
+=head1 REQUIREMENT of TEST
+
+=begin html
+<PRE>
+    - Function of IKEv1: YES
+    - Function of Mobile Prefix Discovery: YES
+    - Function of Real Home Link: YES
+                    
+    - NUT sets (K) bit in BU which is transmitted to HA: YES
+                    
+</PRE>
+
+=end html
+
+=head1 TOPOLOGY
+
+=begin html
+<PRE>
+<UL>
+<LI><B><FONT SIZE="+1">TOPOLOGY-1 In the case of Real Home Link</FONT></B>
+</UL>
+                    
+                            |
+                            R      CN0
+                            |       |
+                ----+-------+-------+----------------------- LinkZ
+                    |
+                    R2                            NUTY
+                    |                               |
+                ----+-------+-----------------------+------- LinkY
+                            |
+                            R1                    NUTX
+                            |                       |
+                ----+-------+-----------------------+------- LinkX
+                    |
+                   HA0                            NUT0
+                    |                               |
+        ------------+-------------------------------+------- Link0
+                    
+</PRE>
+<BLOCKQUOTE>
+<TABLE BORDER>
+<TR>
+<TD><TT>Link0</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:100::/64</TT></TD>
+<TD><TT>home link</TT></TD>
+</TR>
+<TR>
+<TD><TT>LinkX</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:102::/64</TT></TD>
+<TD><TT>foreign link</TT></TD>
+</TR>
+<TR>
+<TD><TT>LinkY</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:103::/64</TT></TD>
+<TD><TT>foreign link</TT></TD>
+</TR>
+<TR>
+<TD><TT>LinkZ</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:104::/64</TT></TD>
+<TD><TT>foreign link</TT></TD>
+</TR>
+<TR>
+<TD ROWSPAN="3"><TT>HA0 (Link0)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:100:200:ff:fe00:a0a0</TT></TD>
+<TD ROWSPAN="3"><TT>home agent</TT></TD>
+</TR>
+<TR>
+<TD><TT>link-local</TT></TD>
+<TD><TT>fe80::200:ff:fe00:a0a0</TT></TD>
+</TR>
+<TR>
+<TD><TT>ether</TT></TD>
+<TD><TT>00:00:00:00:a0:a0</TT></TD>
+</TR>
+<TR>
+<TD ROWSPAN="3"><TT>R1 (LinkX)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:102:200:ff:fe00:a4a4</TT></TD>
+<TD ROWSPAN="3"><TT>&nbsp;</TT></TD>
+</TR>
+<TR>
+<TD><TT>link-local</TT></TD>
+<TD><TT>fe80::200:ff:fe00:a4a4</TT></TD>
+</TR>
+<TR>
+<TD><TT>ether</TT></TD>
+<TD><TT>00:00:00:00:a4:a4</TT></TD>
+</TR>
+<TR>
+<TD ROWSPAN="3"><TT>R2 (LinkY)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:103:200:ff:fe00:a6a6</TT></TD>
+<TD ROWSPAN="3"><TT>&nbsp;</TT></TD>
+</TR>
+<TR>
+<TD><TT>link-local</TT></TD>
+<TD><TT>fe80::200:ff:fe00:a6a6</TT></TD>
+</TR>
+<TR>
+<TD><TT>ether</TT></TD>
+<TD><TT>00:00:00:00:a6:a6</TT></TD>
+</TR>
+<TR>
+<TD ROWSPAN="3"><TT>CN0 (LinkZ)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:104:200:ff:fe00:a8a8</TT></TD>
+<TD ROWSPAN="3"><TT>correspondent node</TT></TD>
+</TR>
+<TR>
+<TD><TT>link-local</TT></TD>
+<TD><TT>fe80::200:ff:fe00:a8a8</TT></TD>
+</TR>
+<TR>
+<TD><TT>ether</TT></TD>
+<TD><TT>00:00:00:00:a8:a8</TT></TD>
+</TR>
+<TR>
+<TD ROWSPAN="3"><TT>NUT0 (Link0)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:100::&lt;NutDef.Link0_addr&gt;</TT></TD>
+<TD ROWSPAN="3"><TT>home address</TT></TD>
+</TR>
+<TR>
+<TD><TT>link-local</TT></TD>
+<TD><TT>fe80::&lt;NutDef.Link0_addr&gt;</TT></TD>
+</TR>
+<TR>
+<TD><TT>ether</TT></TD>
+<TD><TT>&lt;NutDef.Link0_addr&gt;</TT></TD>
+</TR>
+<TR>
+<TD><TT>NUTX (LinkX)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:102::&lt;NutDef.Link0_addr&gt;</TT></TD>
+<TD><TT>care-of address</TT></TD>
+</TR>
+<TR>
+<TD><TT>NUTY (LinkY)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:103::&lt;NutDef.Link0_addr&gt;</TT></TD>
+<TD><TT>care-of address</TT></TD>
+</TR>
+</TABLE>
+</BLOCKQUOTE>
+
+=end html
+
+=head1 SETUP
+
+=begin html
+<PRE>
+<LI><B><FONT SIZE="+1">Common Setup-1</FONT></B>
+<UL>
+<LI>Reboot NUT
+<LI>Enable MN function
+<UL>
+<LI>Turn on MN functions
+</UL>
+<LI>Initialize IPsec configuration
+<LI>Set IPsec configuration
+<UL>
+<LI>This test requires following configurations.
+<UL>
+<LI><A HREF="SETUP_IPsec_HA0_SA1_SA2.html">MN-HA0 SA1/SA2, Transport mode, Binding Update/Binding Acknowledgement</A>
+<LI><A HREF="SETUP_IPsec_HA0_SA5_SA6.html">MN-HA0 SA5/SA6, Transport mode, Prefix Discovery</A>
+</UL>
+<LI>This test requires following configurations, If a related message is used.
+<UL>
+<LI><A HREF="SETUP_IPsec_HA0_SA3_SA4.html">MN-HA0 SA3/SA4, Tunnel mode, Return Routability Signaling</A>
+</UL>
+<LI>This test also allow to use following configurations.
+<UL>
+<LI><A HREF="SETUP_IPsec_HA0_SA7_SA8.html">MN-HA0 SA7/SA8, Tunnel mode, Payload Packets</A>
+<LI><A HREF="SETUP_IPsec_CN0_SA.html">MN-CN0, Transport mode, ICMP</A>
+</UL>
+</UL>
+<LI>Set IKEv1 configuration
+<UL>
+<LI>Not using the optional KE payload.
+<UL>
+<LI>w/o Perfect Forward Secrecy (PFS) in IKEv1 Phase 2
+</UL>
+<LI>MN must be the initiator of the Security Association.
+<LI>MN should establish required IPsecSA as an initiator after ISAKMP SA establishment.
+<UL>
+<LI>Be established within FUNC_DETAIL_IKE_TIME in config (default 30sec). 
+<LI>Since a test is not made when not establishing SA, it is ended by Initialization Fail.
+</UL>
+<LI>Interval when re-establishment of each SA recommended while testing begins.
+(It is necessary to be likely to adjust it more.)
+<UL>
+<LI>ISAKMP SA     : 480 sec
+<LI>IPsec SA1/SA2 : 240 sec
+<LI>IPsec SA3/SA4 : 120 sec
+<LI>IPsec SA5/SA6 : 120 sec
+<LI>IPsec SA7/SA8 : 120 sec
+</UL></UL></UL>
+</PRE>
+
+=end html
+
+=head1 INITIALIZATION
+
+=begin html
+<PRE>
+                    
+       HA0    NUT0      R1      R2     CN0
+        |       |       |       |       |
+        | ----> |       |       |       | 1.Router Advertisement
+        |       |       |       |       |
+        |     NUTX      |       |       |
+        |       |       |       |       |
+        |       | <---- |       |       | 2.Router Advertisement
+        |       |       |       |       |
+        | <---- |       |       |       | 3.Neighbor Solicitation (NUD)
+        |       |       |       |       | 4.(no reply)
+        |       |       |       |       |
+                    
+        1. Send Router Advertisement. (HA0 -> HA0_allnode_multi)
+        2. Send Router Advertisement. (R1 -> R1_allnode_multi)
+        3. Receive Neighbor Solicitation (NUD). (NUT0 -> HA0)
+        4. (no reply)
+                    
+</PRE>
+
+=end html
+
+=head1 TEST PROCEDURE
+
+=begin html
+<PRE>
+                    
+       HA0    NUTX      R1      R2     CN0
+        |       |       |       |       |
+        |       | <---- |       |       | 1.Router Advertisement
+        |       |       |       |       |
+        | <===> |       |       |       | a.IKEv1 Phase1 (ISAKMP SA)
+        | <===> |       |       |       | b.IKEv1 Phase2 (IPsec SA1/SA2)
+        |       |       |       |       |
+        | <---- |       |       |       | 2.Binding Update
+        | ----> |       |       |       | 3.Binding Acknowledgement
+        |       |       |       |       |
+        | <===> |       |       |       | c.IKEv1 Phase2 (IPsec SA5/SA6)
+        |       |       |       |       |
+        | <---- |       |       |       | 4.Mobile Prefix Solicitation
+        | ----> |       |       |       | 5.Mobile Prefix Advertisement
+        |       |       |       |       |
+        |     NUT0      |       |       |
+        |       |       |       |       |
+        | ----> |       |       |       | 6.Router Advertisement
+        |       |       |       |       |
+        | <---- |       |       |       | 7.Binding Update
+        | ----> |       |       |       | 8.Binding Acknowledgement
+        |       |       |       |       |
+        | <---- |       |       |       | 9.Neighbor Advertisement
+        |       |       |       |       |
+        |       |       |       |       | :
+        |       |       |       |       |
+        |       |       |       |       | d.(expire IPsec SA5/SA6)
+        |       |       |       |       |
+        |     NUTX      |       |       |
+        |       |       |       |       |
+        |       | <---- |       |       | 10.Router Advertisement
+        |       |       |       |       |
+        | <---- |       |       |       | 11.Binding Update
+        | ----> |       |       |       | 12.Binding Acknowledgement
+        |       |       |       |       |
+        | <===> |       |       |       | e.IKEv1 Phase2 (IPsec SA5/SA6) (*1)
+        |       |       |       |       |
+        | <---- |       |       |       | 13.Mobile Prefix Solicitation (*2)
+        | ----> |       |       |       | 14.Mobile Prefix Advertisement
+        |       |       |       |       |
+        | <---- |       |       |       | 15.Binding Update (*3)
+        | ----> |       |       |       | 16.Binding Acknowledgement
+        |       |       |       |       |
+                    
+        1. Send Router Advertisement. (R1 -> R1_allnode_multi)
+                    
+        a. IKEv1 Phase1 (ISAKMP SA)
+        b. IKEv1 Phase2 (IPsec SA1/SA2)
+                    
+        2. Receive Binding Update. (NUTX -> HA0)
+        3. Send Binding Acknowledgement. (HA0 -> NUTX)
+            # The Status field is set to 1 (accepted but prefix discovery necessary).
+                    
+        c. IKEv1 Phase2 (IPsec SA5/SA6)
+                    
+        4. Receive Mobile Prefix Solicitation. (NUTX -> HA0 with Home Address Option)
+        5. Send Mobile Prefix Advertisement. (HA0 -> NUTX with Type2 Routing Header)
+        6. Send Router Advertisement. (HA0 -> HA0_allnode_multi)
+        7. Receive Binding Update. (NUT0 -> HA0)
+            # (K)bit on
+        8. Send Binding Acknowledgement. (HA0 -> NUT0)
+            # (K)bit on
+        9. Receive Neighbor Advertisement. (NUT0(Unspecified) -> HA0_allnode_multi)
+                    
+        d. (expire IPsec SA5/SA6)
+                    
+       10. Send Router Advertisement. (R1 -> R1_allnode_multi)
+       11. Receive Binding Update. (NUTX -> HA0)
+            # (K)bit on
+       12. Send Binding Acknowledgement. (HA0 -> NUTX)
+            # (K)bit on
+            # The Status field is set to 1 (accepted but prefix discovery necessary).
+                    
+        e.  IKEv1 Phase2 (IPsec SA5/SA6)
+                    
+       13. Receive Mobile Prefix Solicitation. (NUTX -> HA0 with Home Address Option)
+       14. Send Mobile Prefix Advertisement. (HA0 -> NUTX with Type2 Routing Header)
+            # The Prefix Information option is included, and,
+            #   - The Valid Lifetime is set less than the remaining lifetime of the home registration.
+            #   - The Preferred Lifetime is set less than the remaining lifetime of the home registration.
+       15. Receive Binding Update. (NUTX -> HA0)
+       16. Send Binding Acknowledgement. (HA0 -> NUTX)
+                    
+    Focus Packet Format:
+       <A HREF="../images/ICMP_MPS_message_format_from_MN_to_HA_ESP.gif">13. Mobile Prefix Solicitation</A>
+       <A HREF="../images/Binding_Update_message_format_from_MN_to_HA_ESP.gif">15 . Binding Update</A>
+</PRE>
+
+=end html
+
+=head1 JUDGEMENT
+
+=begin html
+<PRE>
+ (*1) PASS: IPsec SA5/SA6 is re-established.
+ (*2) PASS: HA0 receives Mobile Prefix Solicitation.
+            Then, check whether this packet fills all of the following,
+            - using new IPsec SA5.
+ (*3) PASS: HA0 receives Binding Update.
+</PRE>
+
+=end html
+
+=head1 REFERENCE
+
+=begin html
+<PRE>
+RFC3775 Mobility Support in IPv6
+    See Section 11.7.1, 11.7.3, 11.3.2
+                    
+RFC3776 Using IPsec to Protect Mobile IPv6 Signaling Between Mobile Nodes and Home Agents)
+    See Section 4.2
+</PRE>
+
+=end html
+

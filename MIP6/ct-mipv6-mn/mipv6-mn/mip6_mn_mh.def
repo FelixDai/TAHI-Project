@@ -1,0 +1,3658 @@
+//
+// Copyright (C) IPv6 Promotion Council,
+// NIPPON TELEGRAPH AND TELEPHONE CORPORATION (NTT),
+// Yokogwa Electoric Corporation, YASKAWA INFORMATION SYSTEMS Corporation
+// and NTT Advanced Technology Corporation(NTT-AT) All rights reserved.
+// 
+// Technology Corporation.
+// 
+// Redistribution and use of this software in source and binary forms, with 
+// or without modification, are permitted provided that the following 
+// conditions and disclaimer are agreed and accepted by the user:
+// 
+// 1. Redistributions of source code must retain the above copyright 
+// notice, this list of conditions and the following disclaimer.
+// 
+// 2. Redistributions in binary form must reproduce the above copyright 
+// notice, this list of conditions and the following disclaimer in the 
+// documentation and/or other materials provided with the distribution.
+// 
+// 3. Neither the names of the copyrighters, the name of the project which 
+// is related to this software (hereinafter referred to as "project") nor 
+// the names of the contributors may be used to endorse or promote products 
+// derived from this software without specific prior written permission.
+// 
+// 4. No merchantable use may be permitted without prior written 
+// notification to the copyrighters. However, using this software for the 
+// purpose of testing or evaluating any products including merchantable 
+// products may be permitted without any notification to the copyrighters.
+// 
+// 
+// 
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND 
+// CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING 
+// BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS 
+// FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE 
+// COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+// INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
+// SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
+// HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+// CONTRACT,STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF 
+// THE POSSIBILITY OF SUCH DAMAGE.
+//
+
+/*----------------------------------------------------------------------------*
+ * Default Field Value
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Node Key: CN0 secret key KCN
+#ifndef KCN
+#define KCN "00112233445566778899aabbccddeeff00112233"
+#endif
+
+//=============================================================================
+// Routing Header
+#ifndef RH_LEN
+#define RH_LEN 2
+#endif
+
+#ifndef RH_TYPE2
+#define RH_TYPE2 2
+#endif
+
+#ifndef RH_LEFT
+#define RH_LEFT 1
+#endif
+
+//=============================================================================
+// Binding Refresh Request
+#ifndef BRR_IPv6_Hop
+#define BRR_IPv6_Hop 64
+#endif
+
+#ifndef BRR_Reserved1
+#define BRR_Reserved1 0
+#endif
+
+#ifndef BRR_Reserved2
+#define BRR_Reserved2 0
+#endif
+
+#ifndef BRR_AUTHENTICATOR_HA0_TO_NUTY
+#define BRR_AUTHENTICATOR_HA0_TO_NUTY bsa(kbm(HOCOOKIE, COCOOKIE), v6(NUTY_GLOBAL_UCAST), v6(HA0_GLOBAL_UCAST))
+#endif
+
+//=============================================================================
+// Home Test Init
+#ifndef HOTI_IPv6_Hop
+#define HOTI_IPv6_Hop 64
+#endif
+
+#ifndef HOTI_Reserved1
+#define HOTI_Reserved1 0
+#endif
+
+#ifndef HOTI_Reserved2
+#define HOTI_Reserved2 0
+#endif
+
+#ifndef HOTI_INITCOOKIE
+#define HOTI_INITCOOKIE any
+#endif
+
+//=============================================================================
+// Care-of Test Init
+#ifndef COTI_IPv6_Hop
+#define COTI_IPv6_Hop 64
+#endif
+
+#ifndef COTI_Reserved1
+#define COTI_Reserved1 0
+#endif
+
+#ifndef COTI_Reserved2
+#define COTI_Reserved2 0
+#endif
+
+//=============================================================================
+// Home Test
+#ifndef HOT_IPv6_Hop
+#define HOT_IPv6_Hop 64
+#endif
+
+#ifndef HOT_PAYLOADPROTO
+#define HOT_PAYLOADPROTO auto
+#endif
+
+#ifndef HOT_HEADERLEN
+#define HOT_HEADERLEN auto
+#endif
+
+#ifndef HOT_MHTYPE
+#define HOT_MHTYPE auto
+#endif
+
+#ifndef HOT_Reserved1
+#define HOT_Reserved1 0
+#endif
+
+#ifndef HOT_Checksum
+#define HOT_Checksum auto
+#endif
+
+#ifndef HOT_NONCE_INDEX
+#define HOT_NONCE_INDEX any
+#endif
+
+#ifndef HOT_NONCE
+#define HOT_NONCE "123456789abcdef0"
+#endif
+
+#ifndef HOT_HOTCOOKIE
+#define HOT_HOTCOOKIE "0123456789abcdef"
+#endif
+
+#ifndef HOT_INITCOOKIE
+#define HOT_INITCOOKIE hexstr(HOT_HOTCOOKIE, 8)
+#endif
+
+#ifndef HOCOOKIE
+#define HOCOOKIE keygentoken(hexstr(KCN), v6(NUTH_GLOBAL_UCAST), hexstr(HOT_NONCE), 0)
+#endif
+
+//=============================================================================
+// Care-of Test
+#ifndef COT_IPv6_Hop
+#define COT_IPv6_Hop 64
+#endif
+
+#ifndef COT_PAYLOADPROTO
+#define COT_PAYLOADPROTO auto
+#endif
+
+#ifndef COT_HEADERLEN
+#define COT_HEADERLEN auto
+#endif
+
+#ifndef COT_MHTYPE
+#define COT_MHTYPE auto
+#endif
+
+#ifndef COT_Reserved1
+#define COT_Reserved1 0
+#endif
+
+#ifndef COT_Checksum
+#define COT_Checksum auto
+#endif
+
+#ifndef COT_NONCE_INDEX
+#define COT_NONCE_INDEX any
+#endif
+
+#ifndef COT_NONCE
+#define COT_NONCE "bcdef1234567890a"
+#endif
+
+#ifndef COT_COTCOOKIE
+#define COT_COTCOOKIE "abcdef0123456789"
+#endif
+
+#ifndef COT_INITCOOKIE
+#define COT_INITCOOKIE hexstr(COT_COTCOOKIE, 8)
+#endif
+
+#ifndef COCOOKIE
+#define COCOOKIE keygentoken(hexstr(KCN), v6(NUTX_GLOBAL_UCAST), hexstr(COT_NONCE), 1)
+#endif
+
+//=============================================================================
+// Binding Update
+#ifndef BU_IPv6_Hop
+#define BU_IPv6_Hop 64
+#endif
+
+#ifndef BU_Reserved1
+#define BU_Reserved1 0
+#endif
+
+#ifndef BU_Reserved2
+#define BU_Reserved2 0
+#endif
+
+#ifndef BU_Seqence
+#define BU_Seqence any
+#endif
+
+#ifndef BU_Lifetime
+#define BU_Lifetime any
+#endif
+
+#ifndef BU_Aflag
+#define BU_Aflag any
+#endif
+
+#ifndef BU_Aflag1
+#define BU_Aflag1 1
+#endif
+
+#ifndef BU_Hflag
+#define BU_Hflag any
+#endif
+
+#ifndef BU_Lflag
+#define BU_Lflag any
+#endif
+
+#ifndef BU_Kflag
+#define BU_Kflag any
+#endif
+
+#ifndef BU_ALTER_ADDR_HOME
+#define BU_ALTER_ADDR_HOME  v6(NUTH_GLOBAL_UCAST)
+#endif
+
+#ifndef BU_ALTER_ADDR_LINK0
+#define BU_ALTER_ADDR_LINK0 v6(NUT0_GLOBAL_UCAST)
+#endif
+
+#ifndef BU_ALTER_ADDR_LINKX
+#define BU_ALTER_ADDR_LINKX v6(NUTX_GLOBAL_UCAST)
+#endif
+
+#ifndef BU_ALTER_ADDR_LINKY
+#define BU_ALTER_ADDR_LINKY v6(NUTY_GLOBAL_UCAST)
+#endif
+
+#ifndef BU_HO_NONCE_INDEX
+#define BU_HO_NONCE_INDEX HOT_NONCE_INDEX
+#endif
+
+#ifndef BU_CO_NONCE_INDEX
+#define BU_CO_NONCE_INDEX COT_NONCE_INDEX
+#endif
+
+#ifndef BU_TO_NUT_HOCOOKIE
+#define BU_TO_NUT_HOCOOKIE "0000000000000000"
+#endif
+
+#ifndef BU_TO_NUT_COCOOKIE
+#define BU_TO_NUT_COCOOKIE "0000000000000000"
+#endif
+
+#ifndef BU_AUTHDATA
+#define BU_AUTHDATA any
+#endif
+
+#ifndef BU_ALTER_ADDR_LINKZ
+#define BU_ALTER_ADDR_LINKZ v6(NUTZ_GLOBAL_UCAST)
+#endif
+
+#ifndef BU_ALTER_ADDR_CN0
+#define BU_ALTER_ADDR_CN0 v6(CN0_GLOBAL_UCAST)
+#endif
+
+#ifndef BU_ALTER_ADDR_LINKY_MN_TO_MN
+#define BU_ALTER_ADDR_LINKY_MN_TO_MN v6(CN0Y_GLOBAL_UCAST)
+#endif
+
+//=============================================================================
+// Binding Acknowledgement
+#ifndef BA_IPv6_Hop
+#define BA_IPv6_Hop 64
+#endif
+
+#ifndef BA_PAYLOADPROTO
+#define BA_PAYLOADPROTO auto
+#endif
+
+#ifndef BA_HEADERLEN
+#define BA_HEADERLEN auto
+#endif
+
+#ifndef BA_MHTYPE
+#define BA_MHTYPE auto
+#endif
+
+#ifndef BA_Reserved1
+#define BA_Reserved1 0
+#endif
+
+#ifndef BA_Checksum 
+#define BA_Checksum auto
+#endif
+
+#ifndef BA_Reserved2
+#define BA_Reserved2 0
+#endif
+
+#ifndef BA_Sequence
+#define BA_Sequence 1
+#endif
+
+#ifndef BA_Lifetime
+#define BA_Lifetime 7200
+#endif
+
+#ifndef BA_Kflag
+#define BA_Kflag 0
+#endif
+
+#ifndef BA_Status
+#define BA_Status 0
+#endif
+
+#ifndef BA_INTERVAL
+#define BA_INTERVAL BA_Lifetime
+#endif
+
+#ifndef BA_AUTHENTICATOR_R1_TO_NUTX
+#define BA_AUTHENTICATOR_R1_TO_NUTX bsa(kbm(HOCOOKIE, COCOOKIE), v6(NUTX_GLOBAL_UCAST), v6(R1_GLOBAL_UCAST))
+#endif
+
+#ifndef BA_AUTHENTICATOR_CN0_TO_NUTX
+#define BA_AUTHENTICATOR_CN0_TO_NUTX bsa(kbm(HOCOOKIE, COCOOKIE), v6(NUTX_GLOBAL_UCAST), v6(CN0_GLOBAL_UCAST))
+#endif
+
+#ifndef BA_AUTHENTICATOR_CN0_TO_NUTY
+#define BA_AUTHENTICATOR_CN0_TO_NUTY bsa(kbm(HOCOOKIE, COCOOKIE), v6(NUTY_GLOBAL_UCAST), v6(CN0_GLOBAL_UCAST))
+#endif
+
+#ifndef BA_AUTHENTICATOR_CN0_TO_NUT0
+#define BA_AUTHENTICATOR_CN0_TO_NUT0 bsa(kbm(HOCOOKIE), v6(NUTH_GLOBAL_UCAST), v6(CN0_GLOBAL_UCAST))
+#endif
+
+//=============================================================================
+// Binding Error
+#ifndef BE_IPv6_Hop
+#define BE_IPv6_Hop 64
+#endif
+
+#ifndef BE_Reserved1
+#define BE_Reserved1 0
+#endif
+
+#ifndef BE_Reserved2
+#define BE_Reserved2 0
+#endif
+
+#ifndef BE_Status
+#define BE_Status any
+#endif
+
+#ifndef BE_Addr
+#define BE_Addr "0::0"
+#endif
+
+/*----------------------------------------------------------------------------*
+ * Option Padding
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Padding
+Opt_MH_Pad1 opt_mh_pad1 { }
+
+Opt_MH_PadN opt_mh_pad2 {
+	pad = repeat(0x00, 0);
+}
+
+Opt_MH_PadN opt_mh_pad4 {
+	pad = repeat(0x00, 2);
+}
+
+Opt_MH_PadN opt_mh_pad6 {
+	pad = repeat(0x00, 4);
+}
+
+Opt_MH_PadN opt_mh_pad8 {
+	pad = repeat(0x00, 6);
+}
+
+Opt_Pad1 opt_pad1 { }
+
+Opt_PadN opt_pad2 {
+	pad = repeat(0x00, 0);
+}
+
+Opt_PadN opt_pad4 {
+	pad = repeat(0x00, 2);
+}
+
+Opt_PadN opt_pad6 {
+	pad = repeat(0x00, 4);
+}
+
+Opt_PadN opt_pad8 {
+	pad = repeat(0x00, 6);
+}
+
+/*----------------------------------------------------------------------------*
+ * Destination Option extension header 
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Home Address Option: NUT0
+Hdr_Destination ext_homeaddress_nuth {
+	option = opt_pad4;
+	option = opt_homeaddress_nuth;
+}
+
+Opt_HomeAddress opt_homeaddress_nuth {
+	HomeAddress = v6(NUTH_GLOBAL_UCAST);
+}
+
+//-----------------------------------------------------------------------------
+// Home Address Option: ANY
+Hdr_Destination ext_homeaddress_any {
+	option = opt_pad4;
+	option = opt_homeaddress_any;
+}
+
+Opt_HomeAddress opt_homeaddress_any {
+	HomeAddress = any;
+}
+
+//=============================================================================
+// Home Address Option: CN0
+Hdr_Destination ext_homeaddress_cn0 {
+	option = opt_pad4;
+	option = opt_homeaddress_cn0;
+}
+
+Opt_HomeAddress opt_homeaddress_cn0 {
+	HomeAddress = v6(CN0_GLOBAL_UCAST);
+}
+
+/*----------------------------------------------------------------------------*
+ * Routing header 
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Type2 Routing: NUT0
+Hdr_Routing ext_routing_type2_nuth {
+	HeaderExtLength = RH_LEN;
+	RoutingType     = RH_TYPE2;
+	SegmentsLeft    = RH_LEFT;
+	Address         = v6(NUTH_GLOBAL_UCAST);
+}
+
+//=============================================================================
+// Type2 Routing: NUT0
+Hdr_Routing ext_routing_type2_node0ga {
+	HeaderExtLength = RH_LEN;
+	RoutingType     = RH_TYPE2;
+	SegmentsLeft    = RH_LEFT;
+	Address         = v6(NODE0_GLOBAL_UCAST);
+}
+
+//=============================================================================
+// Type2 Routing: NUT0
+Hdr_Routing ext_routing_type2_nuth_ill_len4 {
+	HeaderExtLength = 4;
+	RoutingType     = RH_TYPE2;
+	SegmentsLeft    = RH_LEFT;
+	Address         = v6(NUTH_GLOBAL_UCAST);
+	Address         = v6(NUTH_GLOBAL_UCAST);
+}
+
+//=============================================================================
+// Type2 Routing: NUT0
+Hdr_Routing ext_routing_type2_nuth_ill_seg0 {
+	HeaderExtLength = RH_LEN;
+	RoutingType     = RH_TYPE2;
+	SegmentsLeft    = 0;
+	Address         = v6(NUTH_GLOBAL_UCAST);
+}
+
+//-----------------------------------------------------------------------------
+// Type2 Routing: CN0
+Hdr_Routing ext_routing_type2_cn0 {
+	RoutingType  = 2;
+	SegmentsLeft = 1;
+	Address      = v6(CN0_GLOBAL_UCAST);
+}
+
+//-----------------------------------------------------------------------------
+// Type2 Routing: CN0
+Hdr_Routing ext_routing_type2_any {
+	RoutingType  = 2;
+	SegmentsLeft = 1;
+	Address      = any;
+}
+
+/*----------------------------------------------------------------------------*
+ * Binding Refresh Request header
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Binding Refresh Request: 
+Hdr_MH_BRR ext_bindingrequest_tn {
+	Reserved1 = BRR_Reserved1;
+	Reserved2 = BRR_Reserved2;
+}
+
+//=============================================================================
+// Binding Refresh Request: 
+Hdr_MH_BRR ext_bindingrequest_nut {
+	Reserved1 = BRR_Reserved1;
+	Reserved2 = BRR_Reserved2;
+}
+
+/*----------------------------------------------------------------------------*
+ * Binding Refresh Request (CN0 -> NUT0)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Binding Refresh Request: CN0 -> NUT0
+FEM_upp_no_next_header_exth (
+	brr_cn0ga_nuthga,
+	_HETHER_ha0_to_nut0,
+	{
+		_SRC(v6(CN0_GLOBAL_UCAST));
+		_DST(v6(NUTH_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(brr_cn0ga_nuthga);
+		exthdr = ext_bindingrequest_tn;
+		upper  = _UPP_NONEXT_NAME(brr_cn0ga_nuthga);
+	},
+	{}
+)
+
+//=============================================================================
+// Binding Refresh Request: CN0 -> NUT0 (HA0 => NUTX)
+FEM_hdr_ipv6_exth (
+	brr_cn0ga_nuthga_tnl_ha0_nutx,
+	_HETHER_r1_to_nutx,
+	{
+		_SRC(v6(HA0_GLOBAL_UCAST));
+		_DST(v6(NUTX_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(brr_cn0ga_nuthga_tnl_ha0_nutx);
+#if defined(IPSEC_MANUAL_SA4_HA0_MN_PROTO_MH)
+		exthdr = ext_sa4_ha0_mn;
+#endif
+		upper  = _PACKET_IPV6_NAME(brr_cn0ga_nuthga);
+	}
+)
+
+/*----------------------------------------------------------------------------*
+ * Binding Refresh Request (NUT0 -> CN0)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Binding Refresh Request: NUT0 -> CN0
+FEM_upp_no_next_header_exth (
+	brr_nuthga_cn0ga,
+	_HETHER_nut0_to_ha0,
+	{
+		_SRC(v6(NUTH_GLOBAL_UCAST));
+		_DST(v6(CN0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(brr_nuthga_cn0ga);
+		exthdr = ext_bindingrequest_nut;
+		upper  = _UPP_NONEXT_NAME(brr_nuthga_cn0ga);
+	},
+	{}
+)
+
+//=============================================================================
+// Binding Refresh Request: NUT0 -> CN0 (NUTX => HA0)
+FEM_hdr_ipv6_exth (
+	brr_nuthga_cn0ga_tnl_nutx_ha0,
+	_HETHER_nutx_to_r1,
+	{
+		_SRC(v6(NUTX_GLOBAL_UCAST));
+		_DST(v6(HA0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(brr_nuthga_cn0ga_tnl_nutx_ha0);
+#if defined(IPSEC_MANUAL_SA3_MN_HA0_PROTO_MH)
+		exthdr = ext_sa3_mn_ha0;
+#endif
+		upper  = _PACKET_IPV6_NAME(brr_nuthga_cn0ga);
+	}
+)
+
+//=============================================================================
+// Binding Refresh Request: NUT0 -> CN0 (NUTY => HA0)
+FEM_hdr_ipv6_exth (
+	brr_nuthga_cn0ga_tnl_nuty_ha0,
+	_HETHER_nuty_to_r2,
+	{
+		_SRC(v6(NUTY_GLOBAL_UCAST));
+		_DST(v6(HA0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(brr_nuthga_cn0ga_tnl_nuty_ha0);
+#if defined(IPSEC_MANUAL_SA3_MN_HA0_PROTO_MH)
+		exthdr = ext_sa3_mn_ha0;
+#endif
+		upper  = _PACKET_IPV6_NAME(brr_nuthga_cn0ga);
+	}
+)
+
+/*----------------------------------------------------------------------------*
+ * Home Test Init header
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Home Test Init
+Hdr_MH_HoTI ext_hoti {
+	Reserved1  = HOTI_Reserved1;
+	Reserved2  = HOTI_Reserved2;
+#ifdef HOTI_HOTCOOKIE
+	InitCookie = hexstr(HOTI_HOTCOOKIE, 8);
+#else
+	InitCookie = any;
+#endif
+}
+
+/*----------------------------------------------------------------------------*
+ * Home Test Init (CN0 -> NUT0)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Home Test Init: CN0 -> NUT0
+FEM_upp_no_next_header_exth (
+	hoti_cn0ga_nuthga,
+	_HETHER_ha0_to_nut0,
+	{
+		_SRC(v6(CN0_GLOBAL_UCAST));
+		_DST(v6(NUTH_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(hoti_cn0ga_nuthga);
+		exthdr = ext_hoti;
+		upper  = _UPP_NONEXT_NAME(hoti_cn0ga_nuthga);
+	},
+	{}
+)
+
+//=============================================================================
+// Home Test Init: CN0 -> NUT0 (HA0 => NUTX)
+FEM_hdr_ipv6_exth (
+	hoti_cn0ga_nuthga_tnl_ha0_nutx,
+	_HETHER_r1_to_nutx,
+	{
+		_SRC(v6(HA0_GLOBAL_UCAST));
+		_DST(v6(NUTX_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(hoti_cn0ga_nuthga_tnl_ha0_nutx);
+#if defined(IPSEC_MANUAL_SA4_HA0_MN_PROTO_MH)
+		exthdr = ext_sa4_ha0_mn;
+#endif
+		upper  = _PACKET_IPV6_NAME(hoti_cn0ga_nuthga);
+	}
+)
+
+//=============================================================================
+// Home Test Init: CN0 -> NUT0 (HA0 => NUTY)
+FEM_hdr_ipv6_exth (
+	hoti_cn0ga_nuthga_tnl_ha0_nuty,
+	_HETHER_r2_to_nuty,
+	{
+		_SRC(v6(HA0_GLOBAL_UCAST));
+		_DST(v6(NUTY_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(hoti_cn0ga_nuthga_tnl_ha0_nuty);
+#if defined(IPSEC_MANUAL_SA4_HA0_MN_PROTO_MH)
+		exthdr = ext_sa4_ha0_mn;
+#endif
+		upper  = _PACKET_IPV6_NAME(hoti_cn0ga_nuthga);
+	}
+)
+
+/*----------------------------------------------------------------------------*
+ * Home Test Init (NUT0 -> HA0)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Home Test Init: NUT0 -> HA0
+FEM_upp_no_next_header_exth (
+	hoti_nuthga_ha0ga,
+	_HETHER_nut0_to_ha0,
+	{
+		_SRC(v6(NUTH_GLOBAL_UCAST));
+		_DST(v6(HA0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(hoti_nuthga_ha0ga);
+#if defined(IPSEC_MANUAL_SA1_MN_HA0_PROTO_MH)
+		exthdr = ext_sa1_mn_ha0;
+#endif
+		exthdr = ext_hoti;
+		upper  = _UPP_NONEXT_NAME(hoti_nuthga_ha0ga);
+	},
+	{}
+)
+
+//=============================================================================
+// Home Test Init: NUT0 -> HA0 (NUTX => HA0)
+FEM_hdr_ipv6_exth (
+	hoti_nuthga_ha0ga_tnl_nutx_ha0,
+	_HETHER_nutx_to_r1,
+	{
+		_SRC(v6(NUTX_GLOBAL_UCAST));
+		_DST(v6(HA0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(hoti_nuthga_ha0ga_tnl_nutx_ha0);
+#if defined(IPSEC_MANUAL_SA3_MN_HA0_PROTO_HOTI)
+		exthdr = ext_sa3_mn_ha0;
+#endif
+		upper  = _PACKET_IPV6_NAME(hoti_nuthga_ha0ga);
+	}
+)
+
+//=============================================================================
+// Home Test Init: NUT0 -> HA0 (NUTX => HA0 without IPsec)
+FEM_hdr_ipv6_exth (
+	hoti_nuthga_ha0ga_tnl_nutx_ha0_wo_ipsec,
+	_HETHER_nutx_to_r1,
+	{
+		_SRC(v6(NUTX_GLOBAL_UCAST));
+		_DST(v6(HA0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(hoti_nuthga_ha0ga_tnl_nutx_ha0_wo_ipsec);
+		upper  = _PACKET_IPV6_NAME(hoti_nuthga_ha0ga);
+	}
+)
+
+//=============================================================================
+// Home Test Init: NUT0 -> HA0 without IPsec
+FEM_upp_no_next_header_exth (
+	hoti_nuthga_ha0ga_wo_ipsec,
+	_HETHER_nut0_to_ha0,
+	{
+		_SRC(v6(NUTH_GLOBAL_UCAST));
+		_DST(v6(HA0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(hoti_nuthga_ha0ga_wo_ipsec);
+		exthdr = ext_hoti;
+		upper  = _UPP_NONEXT_NAME(hoti_nuthga_ha0ga_wo_ipsec);
+	},
+	{}
+)
+
+//=============================================================================
+// Home Test Init: NUT0 -> HA0 without IPsec (NUTX => HA0)
+FEM_hdr_ipv6_exth (
+	hoti_nuthga_ha0ga_wo_ipsec_tnl_nutx_ha0,
+	_HETHER_nutx_to_r1,
+	{
+		_SRC(v6(NUTX_GLOBAL_UCAST));
+		_DST(v6(HA0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(hoti_nuthga_ha0ga_wo_ipsec_tnl_nutx_ha0);
+#if defined(IPSEC_MANUAL_SA3_MN_HA0_PROTO_HOTI)
+		exthdr = ext_sa3_mn_ha0;
+#endif
+		upper  = _PACKET_IPV6_NAME(hoti_nuthga_ha0ga_wo_ipsec);
+	}
+)
+
+/*----------------------------------------------------------------------------*
+ * Home Test Init (NUT0 -> R1)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Home Test Init: NUT0 -> R1
+FEM_upp_no_next_header_exth (
+	hoti_nuthga_r1ga,
+	_HETHER_nut0_to_ha0,
+	{
+		_SRC(v6(NUTH_GLOBAL_UCAST));
+		_DST(v6(R1_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(hoti_nuthga_r1ga);
+		exthdr = ext_hoti;
+		upper  = _UPP_NONEXT_NAME(hoti_nuthga_r1ga);
+	},
+	{}
+)
+
+//=============================================================================
+// Home Test Init: NUT0 -> R1 (NUTX => HA0)
+FEM_hdr_ipv6_exth (
+	hoti_nuthga_r1ga_tnl_nutx_ha0,
+	_HETHER_nutx_to_r1,
+	{
+		_SRC(v6(NUTX_GLOBAL_UCAST));
+		_DST(v6(HA0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(hoti_nuthga_r1ga_tnl_nutx_ha0);
+#if defined(IPSEC_MANUAL_SA3_MN_HA0_PROTO_HOTI)
+		exthdr = ext_sa3_mn_ha0;
+#endif
+		upper  = _PACKET_IPV6_NAME(hoti_nuthga_r1ga);
+	}
+)
+
+/*----------------------------------------------------------------------------*
+ * Home Test Init (NUT0 -> R2)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Home Test Init: NUT0 -> R2
+FEM_upp_no_next_header_exth (
+	hoti_nuthga_r2ga,
+	_HETHER_nut0_to_ha0,
+	{
+		_SRC(v6(NUTH_GLOBAL_UCAST));
+		_DST(v6(R2_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(hoti_nuthga_r2ga);
+		exthdr = ext_hoti;
+		upper  = _UPP_NONEXT_NAME(hoti_nuthga_r2ga);
+	},
+	{}
+)
+
+//=============================================================================
+// Home Test Init: NUT0 -> R2 (NUTX => HA0)
+FEM_hdr_ipv6_exth (
+	hoti_nuthga_r2ga_tnl_nutx_ha0,
+	_HETHER_nutx_to_r1,
+	{
+		_SRC(v6(NUTX_GLOBAL_UCAST));
+		_DST(v6(HA0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(hoti_nuthga_r2ga_tnl_nutx_ha0);
+#if defined(IPSEC_MANUAL_SA3_MN_HA0_PROTO_HOTI)
+		exthdr = ext_sa3_mn_ha0;
+#endif
+		upper  = _PACKET_IPV6_NAME(hoti_nuthga_r2ga);
+	}
+)
+
+/*----------------------------------------------------------------------------*
+ * Home Test Init (NUT0 -> CN0)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Home Test Init: NUT0 -> CN0
+FEM_upp_no_next_header_exth (
+	hoti_nuthga_cn0ga,
+	_HETHER_nut0_to_ha0,
+	{
+		_SRC(v6(NUTH_GLOBAL_UCAST));
+		_DST(v6(CN0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(hoti_nuthga_cn0ga);
+		exthdr = ext_hoti;
+		upper  = _UPP_NONEXT_NAME(hoti_nuthga_cn0ga);
+	},
+	{}
+)
+
+//=============================================================================
+// Home Test Init: NUT0 -> CN0 (NUT0 => HA0)
+FEM_hdr_ipv6_exth (
+	hoti_nuthga_cn0ga_tnl_nuth_ha0,
+	_HETHER_nut0_to_ha0,
+	{
+		_SRC(v6(NUTH_GLOBAL_UCAST));
+		_DST(v6(HA0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(hoti_nuthga_cn0ga_tnl_nuth_ha0);
+#if defined(IPSEC_MANUAL_SA3_MN_HA0_PROTO_HOTI)
+		exthdr = ext_sa3_mn_ha0;
+#endif
+		upper  = _PACKET_IPV6_NAME(hoti_nuthga_cn0ga);
+	}
+)
+
+//=============================================================================
+// Home Test Init: NUT0 -> CN0 (NUTX => HA0)
+FEM_hdr_ipv6_exth (
+	hoti_nuthga_cn0ga_tnl_nutx_ha0,
+	_HETHER_nutx_to_r1,
+	{
+		_SRC(v6(NUTX_GLOBAL_UCAST));
+		_DST(v6(HA0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(hoti_nuthga_cn0ga_tnl_nutx_ha0);
+#if defined(IPSEC_MANUAL_SA3_MN_HA0_PROTO_HOTI)
+		exthdr = ext_sa3_mn_ha0;
+#endif
+		upper  = _PACKET_IPV6_NAME(hoti_nuthga_cn0ga);
+	}
+)
+
+//=============================================================================
+// Home Test Init: NUT0 -> CN0 (NUTY => HA0)
+FEM_hdr_ipv6_exth (
+	hoti_nuthga_cn0ga_tnl_nuty_ha0,
+	_HETHER_nuty_to_r2,
+	{
+		_SRC(v6(NUTY_GLOBAL_UCAST));
+		_DST(v6(HA0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(hoti_nuthga_cn0ga_tnl_nuty_ha0);
+#if defined(IPSEC_MANUAL_SA3_MN_HA0_PROTO_HOTI)
+		exthdr = ext_sa3_mn_ha0;
+#endif
+		upper  = _PACKET_IPV6_NAME(hoti_nuthga_cn0ga);
+	}
+)
+
+//=============================================================================
+// Home Test Init: NUT0 -> CN0Y
+FEM_upp_no_next_header_exth (
+	hoti_nuthga_cn0yga,
+	_HETHER_nut0_to_ha0,
+	{
+		_SRC(v6(NUTH_GLOBAL_UCAST));
+		_DST(v6(CN0Y_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(hoti_nuthga_cn0yga);
+		exthdr = ext_hoti;
+		upper  = _UPP_NONEXT_NAME(hoti_nuthga_cn0yga);
+	},
+	{}
+)
+
+//=============================================================================
+// Home Test Init: NUT0 -> CN0Y (NUTX => HA0)
+FEM_hdr_ipv6_exth (
+	hoti_nuthga_cn0yga_tnl_nutx_ha0,
+	_HETHER_nutx_to_r1,
+	{
+		_SRC(v6(NUTX_GLOBAL_UCAST));
+		_DST(v6(HA0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(hoti_nuthga_cn0yga_tnl_nutx_ha0);
+#if defined(IPSEC_MANUAL_SA3_MN_HA0_PROTO_HOTI)
+		exthdr = ext_sa3_mn_ha0;
+#endif
+		upper  = _PACKET_IPV6_NAME(hoti_nuthga_cn0yga);
+	}
+)
+
+//=============================================================================
+// Home Test Init: NUT0 -> CN0Y rh-type2 CN0
+FEM_upp_no_next_header_exth (
+	hoti_nuthga_cn0yga_rh2_cn0ga,
+	_HETHER_nut0_to_ha0,
+	{
+		_SRC(v6(NUTH_GLOBAL_UCAST));
+		_DST(v6(CN0Y_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(hoti_nuthga_cn0yga_rh2_cn0ga);
+		exthdr = ext_routing_type2_cn0;
+		exthdr = ext_hoti;
+		upper  = _UPP_NONEXT_NAME(hoti_nuthga_cn0yga_rh2_cn0ga);
+	},
+	{}
+)
+
+//=============================================================================
+// Home Test Init: NUT0 -> CN0Y rh-type2 CN0 (NUTX => HA0)
+FEM_hdr_ipv6_exth (
+	hoti_nuthga_cn0yga_rh2_cn0ga_tnl_nutx_ha0,
+	_HETHER_nutx_to_r1,
+	{
+		_SRC(v6(NUTX_GLOBAL_UCAST));
+		_DST(v6(HA0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(hoti_nuthga_cn0yga_rh2_cn0ga_tnl_nutx_ha0);
+#if defined(IPSEC_MANUAL_SA3_MN_HA0_PROTO_HOTI)
+		exthdr = ext_sa3_mn_ha0;
+#endif
+		upper  = _PACKET_IPV6_NAME(hoti_nuthga_cn0yga_rh2_cn0ga);
+	}
+)
+
+/*----------------------------------------------------------------------------*
+ * Home Test Init (NUT0 -> CN1)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Home Test Init: NUT0 -> CN1
+FEM_upp_no_next_header_exth (
+	hoti_nuthga_cn1ga,
+	_HETHER_nut0_to_ha0,
+	{
+		_SRC(v6(NUTH_GLOBAL_UCAST));
+		_DST(v6(CN1_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(hoti_nuthga_cn1ga);
+		exthdr = ext_hoti;
+		upper  = _UPP_NONEXT_NAME(hoti_nuthga_cn1ga);
+	},
+	{}
+)
+
+//=============================================================================
+// Home Test Init: NUT0 -> CN1 (NUTX => HA0)
+FEM_hdr_ipv6_exth (
+	hoti_nuthga_cn1ga_tnl_nutx_ha0,
+	_HETHER_nutx_to_r1,
+	{
+		_SRC(v6(NUTX_GLOBAL_UCAST));
+		_DST(v6(HA0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(hoti_nuthga_cn1ga_tnl_nutx_ha0);
+#if defined(IPSEC_MANUAL_SA3_MN_HA0_PROTO_HOTI)
+		exthdr = ext_sa3_mn_ha0;
+#endif
+		upper  = _PACKET_IPV6_NAME(hoti_nuthga_cn1ga);
+	}
+)
+
+/*----------------------------------------------------------------------------*
+ * Care-of Test Init header
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Care-of Test Init
+Hdr_MH_CoTI ext_coti {
+	Reserved1  = COTI_Reserved1;
+	Reserved2  = COTI_Reserved2;
+#ifdef COTI_COTCOOKIE
+	InitCookie = hexstr(COTI_COTCOOKIE, 8);
+#else
+	InitCookie = any;
+#endif
+}
+
+/*----------------------------------------------------------------------------*
+ * Care-of Test Init (CN0 -> NUT0)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Care-of Test Init: CN0Y -> NUT0
+FEM_upp_no_next_header_exth (
+	coti_cn0yga_nuthga,
+	_HETHER_ha0_to_nut0,
+	{
+		_SRC(v6(CN0Y_GLOBAL_UCAST));
+		_DST(v6(NUTH_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(coti_cn0yga_nuthga);
+		exthdr = ext_coti;
+		upper  = _UPP_NONEXT_NAME(coti_cn0yga_nuthga);
+	},
+	{}
+)
+
+//=============================================================================
+// Care-of Test Init: CN0Y -> NUT0 (HA0 => NUTX)
+FEM_hdr_ipv6_exth (
+	coti_cn0yga_nuthga_tnl_ha0_nutx,
+	_HETHER_r1_to_nutx,
+	{
+		_SRC(v6(HA0_GLOBAL_UCAST));
+		_DST(v6(NUTX_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(coti_cn0yga_nuthga_tnl_ha0_nutx);
+#if defined(IPSEC_MANUAL_SA4_HA0_MN_PROTO_MH)
+		exthdr = ext_sa4_ha0_mn;
+#endif
+		upper  = _PACKET_IPV6_NAME(coti_cn0yga_nuthga);
+	}
+)
+
+//=============================================================================
+// Care-of Test Init: CN0Y -> NUT0 (HA0 => NUTY)
+FEM_hdr_ipv6_exth (
+	coti_cn0yga_nuthga_tnl_ha0_nuty,
+	_HETHER_r2_to_nuty,
+	{
+		_SRC(v6(HA0_GLOBAL_UCAST));
+		_DST(v6(NUTY_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(coti_cn0yga_nuthga_tnl_ha0_nuty);
+#if defined(IPSEC_MANUAL_SA4_HA0_MN_PROTO_MH)
+		exthdr = ext_sa4_ha0_mn;
+#endif
+		upper  = _PACKET_IPV6_NAME(coti_cn0yga_nuthga);
+	}
+)
+
+/*----------------------------------------------------------------------------*
+ * Care-of Test Init (NUT0 -> HA0)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Care-of Test Init: NUTX -> HA0
+FEM_upp_no_next_header_exth (
+	coti_nutxga_ha0ga,
+	_HETHER_nutx_to_r1,
+	{
+		_SRC(v6(NUTX_GLOBAL_UCAST));
+		_DST(v6(HA0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(coti_nutxga_ha0ga);
+		exthdr = ext_coti;
+		upper  = _UPP_NONEXT_NAME(coti_nutxga_ha0ga);
+	},
+	{}
+)
+
+/*----------------------------------------------------------------------------*
+ * Care-of Test Init (NUT0 -> R1)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Care-of Test Init: NUTX -> R1
+FEM_upp_no_next_header_exth (
+	coti_nutxga_r1ga,
+	_HETHER_nutx_to_r1,
+	{
+		_SRC(v6(NUTX_GLOBAL_UCAST));
+		_DST(v6(R1_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(coti_nutxga_r1ga);
+		exthdr = ext_coti;
+		upper  = _UPP_NONEXT_NAME(coti_nutxga_r1ga);
+	},
+	{}
+)
+
+/*----------------------------------------------------------------------------*
+ * Care-of Test Init (NUT0 -> R2)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Care-of Test Init: NUTX -> R2
+FEM_upp_no_next_header_exth (
+	coti_nutxga_r2ga,
+	_HETHER_nutx_to_r1,
+	{
+		_SRC(v6(NUTX_GLOBAL_UCAST));
+		_DST(v6(R2_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(coti_nutxga_r2ga);
+		exthdr = ext_coti;
+		upper  = _UPP_NONEXT_NAME(coti_nutxga_r2ga);
+	},
+	{}
+)
+
+/*----------------------------------------------------------------------------*
+ * Care-of Test Init (NUT0 -> CN0)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Care-of Test Init: NUT0 -> CN0
+FEM_upp_no_next_header_exth (
+	coti_nuthga_cn0ga,
+	_HETHER_nut0_to_ha0,
+	{
+		_SRC(v6(NUTH_GLOBAL_UCAST));
+		_DST(v6(CN0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(coti_nuthga_cn0ga);
+		exthdr = ext_coti;
+		upper  = _UPP_NONEXT_NAME(coti_nuthga_cn0ga);
+	},
+	{}
+)
+
+//=============================================================================
+// Care-of Test Init: NUTX -> CN0
+FEM_upp_no_next_header_exth (
+	coti_nutxga_cn0ga,
+	_HETHER_nutx_to_r1,
+	{
+		_SRC(v6(NUTX_GLOBAL_UCAST));
+		_DST(v6(CN0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(coti_nutxga_cn0ga);
+		exthdr = ext_coti;
+		upper  = _UPP_NONEXT_NAME(coti_nutxga_cn0ga);
+	},
+	{}
+)
+
+//=============================================================================
+// Care-of Test Init: NUTY -> CN0
+FEM_upp_no_next_header_exth (
+	coti_nutyga_cn0ga,
+	_HETHER_nuty_to_r2,
+	{
+		_SRC(v6(NUTY_GLOBAL_UCAST));
+		_DST(v6(CN0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(coti_nutyga_cn0ga);
+		exthdr = ext_coti;
+		upper  = _UPP_NONEXT_NAME(coti_nutyga_cn0ga);
+	},
+	{}
+)
+
+//=============================================================================
+// Care-of Test Init: NUTX -> CN0Y
+FEM_upp_no_next_header_exth (
+	coti_nutxga_cn0yga,
+	_HETHER_nutx_to_r1,
+	{
+		_SRC(v6(NUTX_GLOBAL_UCAST));
+		_DST(v6(CN0Y_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(coti_nutxga_cn0yga);
+		exthdr = ext_coti;
+		upper  = _UPP_NONEXT_NAME(coti_nutxga_cn0yga);
+	},
+	{}
+)
+
+/*----------------------------------------------------------------------------*
+ * Care-of Test Init (NUT0 -> CN1)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Care-of Test Init: NUTX -> CN1
+FEM_upp_no_next_header_exth (
+	coti_nutxga_cn1ga,
+	_HETHER_nutx_to_r1,
+	{
+		_SRC(v6(NUTX_GLOBAL_UCAST));
+		_DST(v6(CN1_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(coti_nutxga_cn1ga);
+		exthdr = ext_coti;
+		upper  = _UPP_NONEXT_NAME(coti_nutxga_cn1ga);
+	},
+	{}
+)
+
+/*----------------------------------------------------------------------------*
+ * Home Test header
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Home Test:
+Hdr_MH_HoT ext_hot_cn0_to_nuth {
+	NextHeader      = HOT_PAYLOADPROTO;
+	HeaderExtLength = HOT_HEADERLEN;
+	Type            = HOT_MHTYPE;
+	Reserved1       = HOT_Reserved1;
+	Checksum        = HOT_Checksum;
+	Index           = HOT_NONCE_INDEX;
+	InitCookie      = HOT_INITCOOKIE;
+	KeygenToken     = HOCOOKIE;
+}
+
+//=============================================================================
+// Home Test: the Header Len field is invalid
+Hdr_MH_HoT ext_hot_cn0_to_nuth_inval_mh {
+	NextHeader      = HOT_PAYLOADPROTO;
+	HeaderExtLength = 3;
+	Type            = HOT_MHTYPE;
+	Reserved1       = HOT_Reserved1;
+	Checksum        = HOT_Checksum;
+	Index           = HOT_NONCE_INDEX;
+	InitCookie      = HOT_INITCOOKIE;
+	KeygenToken     = HOCOOKIE;
+	option          = opt_mh_pad4;
+	option          = opt_mh_pad4;
+}
+
+//=============================================================================
+// Home Test:
+Hdr_MH_HoT ext_hot_cn1_to_nuth {
+	NextHeader      = HOT_PAYLOADPROTO;
+	HeaderExtLength = HOT_HEADERLEN;
+	Type            = HOT_MHTYPE;
+	Reserved1       = HOT_Reserved1;
+	Checksum        = HOT_Checksum;
+	Index           = HOT_NONCE_INDEX;
+	InitCookie      = HOT_INITCOOKIE;
+	KeygenToken     = HOCOOKIE;
+}
+
+//=============================================================================
+// Home Test:
+Hdr_MH_HoT ext_hot_nuth_to_cn0 {
+	NextHeader      = HOT_PAYLOADPROTO;
+	HeaderExtLength = HOT_HEADERLEN;
+	Type            = HOT_MHTYPE;
+	Reserved1       = HOT_Reserved1;
+	Index           = any;
+#ifdef HOTI_HOTCOOKIE
+	InitCookie      = hexstr(HOTI_HOTCOOKIE, 8);
+#else
+	InitCookie      = any;
+#endif
+	KeygenToken     = any;
+}
+
+/*----------------------------------------------------------------------------*
+ * Home Test (R1 -> NUT0)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Home Test: R1 -> NUT0
+FEM_upp_no_next_header_exth (
+	hot_r1ga_nuthga,
+	_HETHER_ha0_to_nut0,
+	{
+		_SRC(v6(R1_GLOBAL_UCAST));
+		_DST(v6(NUTH_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(hot_r1ga_nuthga);
+		exthdr = ext_hot_cn0_to_nuth;
+		upper  = _UPP_NONEXT_NAME(hot_r1ga_nuthga);
+	},
+	{}
+)
+
+//=============================================================================
+// Home Test: R1 -> NUT0 (HA0 => NUTX)
+FEM_hdr_ipv6_exth (
+	hot_r1ga_nuthga_tnl_ha0_nutx,
+	_HETHER_r1_to_nutx,
+	{
+		_SRC(v6(HA0_GLOBAL_UCAST));
+		_DST(v6(NUTX_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(hot_r1ga_nuthga_tnl_ha0_nutx);
+#if defined(IPSEC_MANUAL_SA4_HA0_MN_PROTO_HOT)
+		exthdr = ext_sa4_ha0_mn;
+#endif
+		upper  = _PACKET_IPV6_NAME(hot_r1ga_nuthga);
+	}
+)
+
+/*----------------------------------------------------------------------------*
+ * Home Test (CN0 -> NUT0)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Home Test: CN0 -> NUT0
+FEM_upp_no_next_header_exth (
+	hot_cn0ga_nuthga,
+	_HETHER_ha0_to_nut0,
+	{
+		_SRC(v6(CN0_GLOBAL_UCAST));
+		_DST(v6(NUTH_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(hot_cn0ga_nuthga);
+		exthdr = ext_hot_cn0_to_nuth;
+		upper  = _UPP_NONEXT_NAME(hot_cn0ga_nuthga);
+	},
+	{}
+)
+
+//=============================================================================
+// Home Test: CN0 -> NUT0 (HA0 => NUTX)
+FEM_hdr_ipv6_exth (
+	hot_cn0ga_nuthga_tnl_ha0_nutx,
+	_HETHER_r1_to_nutx,
+	{
+		_SRC(v6(HA0_GLOBAL_UCAST));
+		_DST(v6(NUTX_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(hot_cn0ga_nuthga_tnl_ha0_nutx);
+#if defined(IPSEC_MANUAL_SA4_HA0_MN_PROTO_HOT)
+		exthdr = ext_sa4_ha0_mn;
+#endif
+		upper  = _PACKET_IPV6_NAME(hot_cn0ga_nuthga);
+	}
+)
+
+//=============================================================================
+// Home Test: CN0 -> NUT0 (HA0 => NUTY)
+FEM_hdr_ipv6_exth (
+	hot_cn0ga_nuthga_tnl_ha0_nuty,
+	_HETHER_r2_to_nuty,
+	{
+		_SRC(v6(HA0_GLOBAL_UCAST));
+		_DST(v6(NUTY_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(hot_cn0ga_nuthga_tnl_ha0_nuty);
+#if defined(IPSEC_MANUAL_SA4_HA0_MN_PROTO_HOT)
+		exthdr = ext_sa4_ha0_mn;
+#endif
+		upper  = _PACKET_IPV6_NAME(hot_cn0ga_nuthga);
+	}
+)
+
+//=============================================================================
+// Home Test: CN0 -> NUT0 (HA0 => NUTX)
+FEM_hdr_ipv6_exth (
+	hot_cn0ga_nuthga_il_mht_tnl_ha0_nutx,
+	_HETHER_r1_to_nutx,
+	{
+		_SRC(v6(HA0_GLOBAL_UCAST));
+		_DST(v6(NUTX_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(hot_cn0ga_nuthga_il_mht_tnl_ha0_nutx);
+#if defined(IPSEC_MANUAL_SA4_HA0_MN_PROTO_MH)
+		exthdr = ext_sa4_ha0_mn;
+#endif
+		upper  = _PACKET_IPV6_NAME(hot_cn0ga_nuthga);
+	}
+)
+
+//=============================================================================
+// Home Test: CN0 -> NUT0 (il-HeaderExtLength)
+FEM_upp_no_next_header_exth (
+	hot_cn0ga_nuthga_il_len,
+	_HETHER_ha0_to_nut0,
+	{
+		_SRC(v6(CN0_GLOBAL_UCAST));
+		_DST(v6(NUTH_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(hot_cn0ga_nuthga_il_len);
+		exthdr = ext_hot_cn0_to_nuth_inval_mh;
+		upper  = _UPP_NONEXT_NAME(hot_cn0ga_nuthga_il_len);
+	},
+	{}
+)
+
+//=============================================================================
+// Home Test: CN0 -> NUT0 (il-HeaderExtLength) (HA0 => NUTX)
+FEM_hdr_ipv6_exth (
+	hot_cn0ga_nuthga_il_len_tnl_ha0_nutx,
+	_HETHER_r1_to_nutx,
+	{
+		_SRC(v6(HA0_GLOBAL_UCAST));
+		_DST(v6(NUTX_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(hot_cn0ga_nuthga_il_len_tnl_ha0_nutx);
+#if defined(IPSEC_MANUAL_SA4_HA0_MN_PROTO_HOT)
+		exthdr = ext_sa4_ha0_mn;
+#endif
+		upper  = _PACKET_IPV6_NAME(hot_cn0ga_nuthga_il_len);
+	}
+)
+
+/*----------------------------------------------------------------------------*
+ * Home Test (CN1 -> NUT0)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Home Test: CN1 -> NUT0
+FEM_upp_no_next_header_exth (
+	hot_cn1ga_nuthga,
+	_HETHER_ha0_to_nut0,
+	{
+		_SRC(v6(CN1_GLOBAL_UCAST));
+		_DST(v6(NUTH_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(hot_cn1ga_nuthga);
+		exthdr = ext_hot_cn1_to_nuth;
+		upper  = _UPP_NONEXT_NAME(hot_cn1ga_nuthga);
+	},
+	{}
+)
+
+//=============================================================================
+// Home Test: CN1 -> NUT0 (HA0 => NUTX)
+FEM_hdr_ipv6_exth (
+	hot_cn1ga_nuthga_tnl_ha0_nutx,
+	_HETHER_r1_to_nutx,
+	{
+		_SRC(v6(HA0_GLOBAL_UCAST));
+		_DST(v6(NUTX_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(hot_cn1ga_nuthga_tnl_ha0_nutx);
+#if defined(IPSEC_MANUAL_SA4_HA0_MN_PROTO_HOT)
+		exthdr = ext_sa4_ha0_mn;
+#endif
+		upper  = _PACKET_IPV6_NAME(hot_cn1ga_nuthga);
+	}
+)
+
+/*----------------------------------------------------------------------------*
+ * Home Test (NUT0 -> CN0)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Home Test: NUT0 -> CN0
+FEM_upp_no_next_header_exth (
+	hot_nuthga_cn0ga,
+	_HETHER_nut0_to_ha0,
+	{
+		_SRC(v6(NUTH_GLOBAL_UCAST));
+		_DST(v6(CN0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(hot_nuthga_cn0ga);
+		exthdr = ext_hot_nuth_to_cn0;
+		upper  = _UPP_NONEXT_NAME(hot_nuthga_cn0ga);
+	},
+	{}
+)
+
+//=============================================================================
+// Home Test: NUT0 -> CN0 (NUTX => HA0)
+FEM_hdr_ipv6_exth (
+	hot_nuthga_cn0ga_tnl_nutx_ha0,
+	_HETHER_nutx_to_r1,
+	{
+		_SRC(v6(NUTX_GLOBAL_UCAST));
+		_DST(v6(HA0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(hot_nuthga_cn0ga_tnl_nutx_ha0);
+#if defined(IPSEC_MANUAL_SA3_MN_HA0_PROTO_MH)
+		exthdr = ext_sa3_mn_ha0;
+#endif
+		upper  = _PACKET_IPV6_NAME(hot_nuthga_cn0ga);
+	}
+)
+
+//=============================================================================
+// Home Test: NUT0 -> CN0 (NUTY => HA0)
+FEM_hdr_ipv6_exth (
+	hot_nuthga_cn0ga_tnl_nuty_ha0,
+	_HETHER_nuty_to_r2,
+	{
+		_SRC(v6(NUTY_GLOBAL_UCAST));
+		_DST(v6(HA0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(hot_nuthga_cn0ga_tnl_nuty_ha0);
+#if defined(IPSEC_MANUAL_SA3_MN_HA0_PROTO_MH)
+		exthdr = ext_sa3_mn_ha0;
+#endif
+		upper  = _PACKET_IPV6_NAME(hot_nuthga_cn0ga);
+	}
+)
+
+/*----------------------------------------------------------------------------*
+ * Home Test (NUTany -> CN0)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Home Test: NUTany -> CN0 dst-hoa NUT0
+FEM_upp_no_next_header_exth (
+	hot_nutany_cn0ga_hoa_nuthga,
+	_HETHER_any,
+	{
+		_SRC(oneof(v6(NUTH_GLOBAL_UCAST),
+		           v6(NUTX_GLOBAL_UCAST),
+		           v6(NUTY_GLOBAL_UCAST)));
+		_DST(v6(CN0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(hot_nutany_cn0ga_hoa_nuthga);
+		exthdr = ext_homeaddress_nuth;
+		exthdr = ext_hot_nuth_to_cn0;
+		upper  = _UPP_NONEXT_NAME(hot_nutany_cn0ga_hoa_nuthga);
+	},
+	{}
+)
+
+//=============================================================================
+// Home Test: NUTany -> CN0 dst-hoa NUT0 (NUTany => HA0)
+FEM_hdr_ipv6_exth (
+	hot_nutany_cn0ga_hoa_nuthga_tnl_nutany_ha0,
+	_HETHER_any,
+	{
+		_SRC(oneof(v6(NUTH_GLOBAL_UCAST),
+		           v6(NUTX_GLOBAL_UCAST),
+		           v6(NUTY_GLOBAL_UCAST)));
+		_DST(v6(HA0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(hot_nutany_cn0ga_hoa_nuthga_tnl_nutany_ha0);
+#if defined(IPSEC_MANUAL_SA3_MN_HA0_PROTO_MH)
+		exthdr = ext_sa3_mn_ha0;
+#endif
+		upper  = _PACKET_IPV6_NAME(hot_nutany_cn0ga_hoa_nuthga);
+	}
+)
+
+//=============================================================================
+// Home Test: NUTany -> CN0Y
+FEM_upp_no_next_header_exth (
+	hot_nutany_cn0yga,
+	_HETHER_any,
+	{
+		_SRC(oneof(v6(NUTH_GLOBAL_UCAST),
+		           v6(NUTX_GLOBAL_UCAST),
+		           v6(NUTY_GLOBAL_UCAST)));
+		_DST(v6(CN0Y_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(hot_nutany_cn0yga);
+		exthdr = ext_hot_nuth_to_cn0;
+		upper  = _UPP_NONEXT_NAME(hot_nutany_cn0yga);
+	},
+	{}
+)
+
+/*----------------------------------------------------------------------------*
+ * Care-of Test header
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Care-of Test:
+Hdr_MH_CoT ext_cot_cn0 {
+	NextHeader      = COT_PAYLOADPROTO;
+	HeaderExtLength = COT_HEADERLEN;
+	Type            = COT_MHTYPE;
+	Reserved1       = COT_Reserved1;
+	Checksum        = COT_Checksum;
+	Index           = COT_NONCE_INDEX;
+	InitCookie      = COT_INITCOOKIE;
+	KeygenToken     = COCOOKIE;
+}
+
+//=============================================================================
+// Care-of Test:
+Hdr_MH_CoT ext_cot_nuth {
+	NextHeader      = COT_PAYLOADPROTO;
+	HeaderExtLength = COT_HEADERLEN;
+	Type            = COT_MHTYPE;
+	Reserved1       = COT_Reserved1;
+	Index           = any;
+#ifdef COTI_COTCOOKIE
+	InitCookie      = hexstr(COTI_COTCOOKIE, 8);
+#else
+	InitCookie      = any;
+#endif
+	KeygenToken     = any;
+}
+
+/*----------------------------------------------------------------------------*
+ * Care-of Test (R1 -> NUT0)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Care-of Test: R1 -> NUTX
+FEM_upp_no_next_header_exth (
+	cot_r1ga_nutxga,
+	_HETHER_r1_to_nutx,
+	{
+		_SRC(v6(R1_GLOBAL_UCAST));
+		_DST(v6(NUTX_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(cot_r1ga_nutxga);
+		exthdr = ext_cot_cn0;
+		upper  = _UPP_NONEXT_NAME(cot_r1ga_nutxga);
+	},
+	{}
+)
+
+/*----------------------------------------------------------------------------*
+ * Care-of Test (CN0 -> NUT0)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Care-of Test: CN0 -> NUT0
+FEM_upp_no_next_header_exth (
+	cot_cn0ga_nuthga,
+	_HETHER_ha0_to_nut0,
+	{
+		_SRC(v6(CN0_GLOBAL_UCAST));
+		_DST(v6(NUTH_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(cot_cn0ga_nuthga);
+		exthdr = ext_cot_cn0;
+		upper  = _UPP_NONEXT_NAME(cot_cn0ga_nuthga);
+	},
+	{}
+)
+
+//=============================================================================
+// Care-of Test: CN0 -> NUTX
+FEM_upp_no_next_header_exth (
+	cot_cn0ga_nutxga,
+	_HETHER_r1_to_nutx,
+	{
+		_SRC(v6(CN0_GLOBAL_UCAST));
+		_DST(v6(NUTX_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(cot_cn0ga_nutxga);
+		exthdr = ext_cot_cn0;
+		upper  = _UPP_NONEXT_NAME(cot_cn0ga_nutxga);
+	},
+	{}
+)
+
+//=============================================================================
+// Care-of Test: CN0 -> NUTY
+FEM_upp_no_next_header_exth (
+	cot_cn0ga_nutyga,
+	_HETHER_r2_to_nuty,
+	{
+		_SRC(v6(CN0_GLOBAL_UCAST));
+		_DST(v6(NUTY_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(cot_cn0ga_nutyga);
+		exthdr = ext_cot_cn0;
+		upper  = _UPP_NONEXT_NAME(cot_cn0ga_nutyga);
+	},
+	{}
+)
+
+/*----------------------------------------------------------------------------*
+ * Care-of Test (CN1 -> NUT0)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Care-of Test: CN1 -> NUTX
+FEM_upp_no_next_header_exth (
+	cot_cn1ga_nutxga,
+	_HETHER_r1_to_nutx,
+	{
+		_SRC(v6(CN1_GLOBAL_UCAST));
+		_DST(v6(NUTX_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(cot_cn1ga_nutxga);
+		exthdr = ext_cot_cn0;
+		upper  = _UPP_NONEXT_NAME(cot_cn1ga_nutxga);
+	},
+	{}
+)
+
+/*----------------------------------------------------------------------------*
+ * Care-of Test (NUT0 -> CN0)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Care-of Test: NUT0 -> CN0Y
+FEM_upp_no_next_header_exth (
+	cot_nuthga_cn0yga,
+	_HETHER_nut0_to_ha0,
+	{
+		_SRC(v6(NUTH_GLOBAL_UCAST));
+		_DST(v6(CN0Y_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(cot_nuthga_cn0yga);
+		exthdr = ext_cot_nuth;
+		upper  = _UPP_NONEXT_NAME(cot_nuthga_cn0yga);
+	},
+	{}
+)
+
+//=============================================================================
+// Care-of Test: NUT0 -> CN0Y (NUTX => HA0)
+FEM_hdr_ipv6_exth (
+	cot_nuthga_cn0yga_tnl_nutx_ha0,
+	_HETHER_nutx_to_r1,
+	{
+		_SRC(v6(NUTX_GLOBAL_UCAST));
+		_DST(v6(HA0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(cot_nuthga_cn0yga_tnl_nutx_ha0);
+#if defined(IPSEC_MANUAL_SA3_MN_HA0_PROTO_MH)
+		exthdr = ext_sa3_mn_ha0;
+#endif
+		upper  = _PACKET_IPV6_NAME(cot_nuthga_cn0yga);
+	}
+)
+
+//=============================================================================
+// Care-of Test: NUT0 -> CN0Y (NUTY => HA0)
+FEM_hdr_ipv6_exth (
+	cot_nuthga_cn0yga_tnl_nuty_ha0,
+	_HETHER_nuty_to_r2,
+	{
+		_SRC(v6(NUTY_GLOBAL_UCAST));
+		_DST(v6(HA0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(cot_nuthga_cn0yga_tnl_nuty_ha0);
+#if defined(IPSEC_MANUAL_SA3_MN_HA0_PROTO_MH)
+		exthdr = ext_sa3_mn_ha0;
+#endif
+		upper  = _PACKET_IPV6_NAME(cot_nuthga_cn0yga);
+	}
+)
+
+/*----------------------------------------------------------------------------*
+ * Care-of Test (ANY -> HA0)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Care-of Test: NUTany -> CN0Y
+FEM_upp_no_next_header_exth (
+	cot_nutany_cn0yga,
+	_HETHER_any,
+	{
+		_SRC(oneof(v6(NUTH_GLOBAL_UCAST),
+		           v6(NUTX_GLOBAL_UCAST),
+		           v6(NUTY_GLOBAL_UCAST)));
+		_DST(v6(CN0Y_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(cot_nutany_cn0yga);
+		exthdr = ext_cot_nuth;
+		upper  = _UPP_NONEXT_NAME(cot_nutany_cn0yga);
+	},
+	{}
+)
+
+//=============================================================================
+// Care-of Test: NUTany -> CN0Y dst-hoa NUT0
+FEM_upp_no_next_header_exth (
+	cot_nutany_cn0yga_hoa_nuthga,
+	_HETHER_any,
+	{
+		_SRC(oneof(v6(NUTH_GLOBAL_UCAST),
+		           v6(NUTX_GLOBAL_UCAST),
+		           v6(NUTY_GLOBAL_UCAST)));
+		_DST(v6(CN0Y_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(cot_nutany_cn0yga_hoa_nuthga);
+		exthdr = ext_homeaddress_nuth;
+		exthdr = ext_cot_nuth;
+		upper  = _UPP_NONEXT_NAME(cot_nutany_cn0yga_hoa_nuthga);
+	},
+	{}
+)
+
+//=============================================================================
+// Care-of Test: NUTany -> CN0Y dst-hoa NUT0 (NUTany => HA0)
+FEM_hdr_ipv6_exth (
+	cot_nutany_cn0yga_hoa_nuthga_tnl_nutany_ha0,
+	_HETHER_any,
+	{
+		_SRC(oneof(v6(NUTH_GLOBAL_UCAST),
+		           v6(NUTX_GLOBAL_UCAST),
+		           v6(NUTY_GLOBAL_UCAST)));
+		_DST(v6(HA0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(cot_nutany_cn0yga_hoa_nuthga_tnl_nutany_ha0);
+#if defined(IPSEC_MANUAL_SA3_MN_HA0_PROTO_MH)
+		exthdr = ext_sa3_mn_ha0;
+#endif
+		upper  = _PACKET_IPV6_NAME(cot_nutany_cn0yga_hoa_nuthga);
+	}
+)
+
+/*----------------------------------------------------------------------------*
+ * Binding Update header (-> HA)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Binding Update:
+Hdr_MH_BU ext_bindingupdate_to_ha {
+	Reserved1      = BU_Reserved1;
+	SequenceNumber = BU_Seqence;
+	AFlag          = BU_Aflag;
+	HFlag          = BU_Hflag;
+	LFlag          = BU_Lflag;
+	KFlag          = BU_Kflag;
+	Reserved2      = BU_Reserved2;
+	Lifetime       = BU_Lifetime;
+	option         = stop;
+}
+
+//=============================================================================
+// Binding Update:
+Hdr_MH_BU ext_bindingupdate_to_ha_alt_nutx {
+	Reserved1      = BU_Reserved1;
+	SequenceNumber = BU_Seqence;
+	AFlag          = BU_Aflag;
+	HFlag          = BU_Hflag;
+	LFlag          = BU_Lflag;
+	KFlag          = BU_Kflag;
+	Reserved2      = BU_Reserved2;
+	Lifetime       = BU_Lifetime;
+#ifdef FUNC_DETAIL_BU_TO_HA_ALTCOA
+	option         = opt_mh_pad2;
+	option         = opt_bu_altercoa_nutx;
+#else
+	option         = opt_mh_pad4;
+#endif
+}
+
+//=============================================================================
+// Binding Update:
+Hdr_MH_BU ext_bindingupdate_to_ha_alt_nuty {
+	Reserved1      = BU_Reserved1;
+	SequenceNumber = BU_Seqence;
+	AFlag          = BU_Aflag;
+	HFlag          = BU_Hflag;
+	LFlag          = BU_Lflag;
+	KFlag          = BU_Kflag;
+	Reserved2      = BU_Reserved2;
+	Lifetime       = BU_Lifetime;
+#ifdef FUNC_DETAIL_BU_TO_HA_ALTCOA
+	option         = opt_mh_pad2;
+	option         = opt_bu_altercoa_nuty;
+#else
+	option         = opt_mh_pad4;
+#endif
+}
+
+//=============================================================================
+// Alternate Care-of Address
+Opt_MH_AlternateCoA opt_bu_altercoa_nuth {
+	Address = BU_ALTER_ADDR_HOME;
+}
+
+Opt_MH_AlternateCoA opt_bu_altercoa_nutx {
+	Address = BU_ALTER_ADDR_LINKX;
+}
+
+Opt_MH_AlternateCoA opt_bu_altercoa_nuty {
+	Address = BU_ALTER_ADDR_LINKY;
+}
+
+Opt_MH_AlternateCoA opt_bu_altercoa_cn0 {
+	Address = BU_ALTER_ADDR_CN0;
+}
+
+Opt_MH_AlternateCoA opt_bu_altercoa_cn0y {
+	Address = BU_ALTER_ADDR_LINKY_MN_TO_MN;
+}
+
+/*----------------------------------------------------------------------------*
+ * Binding Update (ANY -> HA0)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// BU: ANY -> HA0 dst-hoa ANY
+FEM_upp_no_next_header_exth (
+	bu_any_ha0ga_hoa_any,
+	_HETHER_nutx_to_r1,
+	{
+		_SRC(any);
+		_DST(v6(HA0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(bu_any_ha0ga_hoa_any);
+		exthdr = ext_homeaddress_any;
+#if defined(IPSEC_MANUAL_SA1_MN_HA0_PROTO_BU)
+		exthdr = ext_sa1_mn_ha0;
+#endif
+		exthdr = ext_bindingupdate_to_ha;
+		upper  = _UPP_NONEXT_NAME(bu_any_ha0ga_hoa_any);
+	},
+	{}
+)
+
+/*----------------------------------------------------------------------------*
+ * Binding Update (NUT0 -> HA0)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Binding Update: NUT0 -> HA0
+FEM_upp_no_next_header_exth (
+	bu_nuthga_ha0ga,
+	_HETHER_nut0_to_ha0,
+	{
+		_SRC(v6(NUTH_GLOBAL_UCAST));
+		_DST(v6(HA0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(bu_nuthga_ha0ga);
+#if defined(IPSEC_MANUAL_SA1_MN_HA0_PROTO_BU)
+		exthdr = ext_sa1_mn_ha0;
+#endif
+		exthdr = ext_bindingupdate_to_ha;
+		upper  = _UPP_NONEXT_NAME(bu_nuthga_ha0ga);
+	},
+	{}
+)
+
+//=============================================================================
+// Binding Update: NUT0 -> HA0 dst-hoa NUT0
+FEM_upp_no_next_header_exth (
+	bu_nuthga_ha0ga_hoa_nuthga,
+	_HETHER_nut0_to_ha0,
+	{
+		_SRC(v6(NUTH_GLOBAL_UCAST));
+		_DST(v6(HA0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(bu_nuthga_ha0ga_hoa_nuthga);
+		exthdr = ext_homeaddress_nuth;
+#if defined(IPSEC_MANUAL_SA1_MN_HA0_PROTO_BU)
+		exthdr = ext_sa1_mn_ha0;
+#endif
+		exthdr = ext_bindingupdate_to_ha;
+		upper  = _UPP_NONEXT_NAME(bu_nuthga_ha0ga_hoa_nuthga);
+	},
+	{}
+)
+
+//=============================================================================
+// Binding Update: NUTX -> HA0 dst-hoa NUT0
+FEM_upp_no_next_header_exth (
+	bu_nutxga_ha0ga_hoa_nuthga,
+	_HETHER_nutx_to_r1,
+	{
+		_SRC(v6(NUTX_GLOBAL_UCAST));
+		_DST(v6(HA0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(bu_nutxga_ha0ga_hoa_nuthga);
+		exthdr = ext_homeaddress_nuth;
+#if defined(IPSEC_MANUAL_SA1_MN_HA0_PROTO_BU)
+		exthdr = ext_sa1_mn_ha0;
+#endif
+		exthdr = ext_bindingupdate_to_ha_alt_nutx;
+		upper  = _UPP_NONEXT_NAME(bu_nutxga_ha0ga_hoa_nuthga);
+	},
+	{}
+)
+
+//=============================================================================
+// Binding Update: NUTY -> HA0 dst-hoa NUT0
+FEM_upp_no_next_header_exth (
+	bu_nutyga_ha0ga_hoa_nuthga,
+	_HETHER_nuty_to_r2,
+	{
+		_SRC(v6(NUTY_GLOBAL_UCAST));
+		_DST(v6(HA0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(bu_nutyga_ha0ga_hoa_nuthga);
+		exthdr = ext_homeaddress_nuth;
+#if defined(IPSEC_MANUAL_SA1_MN_HA0_PROTO_BU)
+		exthdr = ext_sa1_mn_ha0;
+#endif
+		exthdr = ext_bindingupdate_to_ha_alt_nuty;
+		upper  = _UPP_NONEXT_NAME(bu_nutyga_ha0ga_hoa_nuthga);
+	},
+	{}
+)
+
+/*----------------------------------------------------------------------------*
+ * Binding Update (NUT0 -> HA1)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Binding Update: NUTX -> HA1 dst-hoa NUT0
+FEM_upp_no_next_header_exth (
+	bu_nutxga_ha1ga_hoa_nuthga,
+	_HETHER_nutx_to_r1,
+	{
+		_SRC(v6(NUTX_GLOBAL_UCAST));
+		_DST(v6(HA1_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(bu_nutxga_ha1ga_hoa_nuthga);
+		exthdr = ext_homeaddress_nuth;
+#if defined(IPSEC_MANUAL_SA1_MN_HA1_PROTO_BU)
+		exthdr = ext_sa1_mn_ha1;
+#endif
+		exthdr = ext_bindingupdate_to_ha_alt_nutx;
+		upper  = _UPP_NONEXT_NAME(bu_nutxga_ha1ga_hoa_nuthga);
+	},
+	{}
+)
+
+//=============================================================================
+// Binding Update: NUTY -> HA1 dst-hoa NUT0
+FEM_upp_no_next_header_exth (
+	bu_nutyga_ha1ga_hoa_nuthga,
+	_HETHER_nuty_to_r2,
+	{
+		_SRC(v6(NUTY_GLOBAL_UCAST));
+		_DST(v6(HA1_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(bu_nutyga_ha1ga_hoa_nuthga);
+		exthdr = ext_homeaddress_nuth;
+#if defined(IPSEC_MANUAL_SA1_MN_HA1_PROTO_BU)
+		exthdr = ext_sa1_mn_ha1;
+#endif
+		exthdr = ext_bindingupdate_to_ha_alt_nuty;
+		upper  = _UPP_NONEXT_NAME(bu_nutyga_ha1ga_hoa_nuthga);
+	},
+	{}
+)
+
+/*----------------------------------------------------------------------------*
+ * Binding Update header (-> CN)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Binding Update:
+Hdr_MH_BU ext_bindingupdate_nutx_to_r1 {
+	Reserved1      = BU_Reserved1;
+	SequenceNumber = BU_Seqence;
+	AFlag          = BU_Aflag;
+	HFlag          = BU_Hflag;
+	LFlag          = BU_Lflag;
+	KFlag          = BU_Kflag;
+	Reserved2      = BU_Reserved2;
+	Lifetime       = BU_Lifetime;
+	option         = opt_bu_nonceindices;
+	option         = opt_bu_authdata_nutx_to_r1;
+}
+
+//=============================================================================
+// Binding Update:
+Hdr_MH_BU ext_bindingupdate_nutx_to_r1_alt_nutx {
+	Reserved1      = BU_Reserved1;
+	SequenceNumber = BU_Seqence;
+	AFlag          = BU_Aflag;
+	HFlag          = BU_Hflag;
+	LFlag          = BU_Lflag;
+	KFlag          = BU_Kflag;
+	Reserved2      = BU_Reserved2;
+	Lifetime       = BU_Lifetime;
+	option         = opt_mh_pad2;
+	option         = opt_bu_altercoa_nutx;
+	option         = opt_bu_nonceindices;
+	option         = opt_mh_pad4;
+	option         = opt_bu_authdata_nutx_to_r1;
+}
+
+//=============================================================================
+// Binding Update:
+Hdr_MH_BU ext_bindingupdate_nutx_to_cn0 {
+	Reserved1      = BU_Reserved1;
+	SequenceNumber = BU_Seqence;
+	AFlag          = BU_Aflag;
+	HFlag          = BU_Hflag;
+	LFlag          = BU_Lflag;
+	KFlag          = BU_Kflag;
+	Reserved2      = BU_Reserved2;
+	Lifetime       = BU_Lifetime;
+	option         = opt_bu_nonceindices;
+	option         = opt_bu_authdata_nutx_to_cn0;
+}
+
+//=============================================================================
+// Binding Update:
+Hdr_MH_BU ext_bindingupdate_nutx_to_cn0_alt_nutx {
+	Reserved1      = BU_Reserved1;
+	SequenceNumber = BU_Seqence;
+	AFlag          = BU_Aflag;
+	HFlag          = BU_Hflag;
+	LFlag          = BU_Lflag;
+	KFlag          = BU_Kflag;
+	Reserved2      = BU_Reserved2;
+	Lifetime       = BU_Lifetime;
+	option         = opt_mh_pad2;
+	option         = opt_bu_altercoa_nutx;
+	option         = opt_bu_nonceindices;
+	option         = opt_mh_pad4;
+	option         = opt_bu_authdata_nutx_to_cn0;
+}
+
+//=============================================================================
+// Binding Update:
+Hdr_MH_BU ext_bindingupdate_nuty_to_cn0 {
+	Reserved1      = BU_Reserved1;
+	SequenceNumber = BU_Seqence;
+	AFlag          = BU_Aflag;
+	HFlag          = BU_Hflag;
+	LFlag          = BU_Lflag;
+	KFlag          = BU_Kflag;
+	Reserved2      = BU_Reserved2;
+	Lifetime       = BU_Lifetime;
+	option         = opt_bu_nonceindices;
+	option         = opt_bu_authdata_nuty_to_cn0;
+}
+
+//=============================================================================
+// Binding Update:
+Hdr_MH_BU ext_bindingupdate_nuty_to_cn0_alt_nuty {
+	Reserved1      = BU_Reserved1;
+	SequenceNumber = BU_Seqence;
+	AFlag          = BU_Aflag;
+	HFlag          = BU_Hflag;
+	LFlag          = BU_Lflag;
+	KFlag          = BU_Kflag;
+	Reserved2      = BU_Reserved2;
+	Lifetime       = BU_Lifetime;
+	option         = opt_mh_pad2;
+	option         = opt_bu_altercoa_nuty;
+	option         = opt_bu_nonceindices;
+	option         = opt_mh_pad4;
+	option         = opt_bu_authdata_nuty_to_cn0;
+}
+
+//=============================================================================
+// Binding Update(delete):
+Hdr_MH_BU ext_bindingupdate_to_cn0_del {
+	Reserved1      = BU_Reserved1;
+	SequenceNumber = BU_Seqence;
+	AFlag          = BU_Aflag;
+	HFlag          = BU_Hflag;
+	LFlag          = BU_Lflag;
+	KFlag          = BU_Kflag;
+	Reserved2      = BU_Reserved2;
+	Lifetime       = BU_Lifetime;
+	option         = opt_bu_nonceindices_del;
+	option         = opt_bu_authdata_nuth_to_cn0_del;
+}
+
+//=============================================================================
+// Binding Update(delete):
+Hdr_MH_BU ext_bindingupdate_to_cn0_alt_nuth_del {
+	Reserved1      = BU_Reserved1;
+	SequenceNumber = BU_Seqence;
+	AFlag          = BU_Aflag;
+	HFlag          = BU_Hflag;
+	LFlag          = BU_Lflag;
+	KFlag          = BU_Kflag;
+	Reserved2      = BU_Reserved2;
+	Lifetime       = BU_Lifetime;
+	option         = opt_mh_pad2;
+	option         = opt_bu_altercoa_nuth;
+	option         = comb(opt_bu_nonceindices_del, opt_mh_pad4);
+	option         = opt_bu_authdata_nuth_to_cn0_del;
+}
+
+//=============================================================================
+// Binding Update:
+Hdr_MH_BU ext_bindingupdate_cn0y_to_nuth {
+	Reserved1      = BU_Reserved1;
+	SequenceNumber = BU_Seqence;
+	AFlag          = BU_Aflag1;
+	HFlag          = 0;
+	LFlag          = 0;
+	KFlag          = BU_Kflag;
+	Reserved2      = BU_Reserved2;
+	Lifetime       = BU_Lifetime;
+	option         = opt_bu_nonceindices;
+	option         = opt_bu_authdata_cn0_to_nuth;
+}
+
+//=============================================================================
+// Binding Update:
+Hdr_MH_BU ext_bindingupdate_cn0y_to_nuth_alt_cn0y {
+	Reserved1      = BU_Reserved1;
+	SequenceNumber = BU_Seqence;
+	AFlag          = BU_Aflag1;
+	HFlag          = BU_Hflag;
+	LFlag          = BU_Lflag;
+	KFlag          = BU_Kflag;
+	Reserved2      = BU_Reserved2;
+	Lifetime       = BU_Lifetime;
+	option         = opt_mh_pad2;
+	option         = opt_bu_altercoa_cn0y;
+	option         = opt_bu_nonceindices;
+	option         = opt_mh_pad4;
+	option         = opt_bu_authdata_cn0_to_nuth;
+}
+
+//=============================================================================
+// Binding Update(delete):
+Hdr_MH_BU ext_bindingupdate_cn0y_to_nuth_alt_cn0_del {
+	Reserved1      = BU_Reserved1;
+	SequenceNumber = BU_Seqence;
+	AFlag          = BU_Aflag1;
+	HFlag          = BU_Hflag;
+	LFlag          = BU_Lflag;
+	KFlag          = BU_Kflag;
+	Reserved2      = BU_Reserved2;
+	Lifetime       = BU_Lifetime;
+	option         = opt_mh_pad2;
+	option         = opt_bu_altercoa_cn0;
+	option         = opt_bu_nonceindices;
+	option         = opt_mh_pad4;
+	option         = opt_bu_authdata_cn0_to_nuth_del;
+}
+
+//=============================================================================
+// Nonce Indices
+Opt_MH_NonceIndices opt_bu_nonceindices {
+	HoNonceIndex = BU_HO_NONCE_INDEX;
+	CoNonceIndex = BU_CO_NONCE_INDEX;
+}
+
+//=============================================================================
+// Nonce Indices
+Opt_MH_NonceIndices opt_bu_nonceindices_del {
+	HoNonceIndex = BU_HO_NONCE_INDEX;
+	CoNonceIndex = any;
+}
+
+//=============================================================================
+// Binding Authorization Data
+#ifdef FUNC_DETAIL_BU_TO_CN_AUTHDATA
+Opt_MH_BindingAuthData opt_bu_authdata_nutx_to_r1 {
+	Authenticator = bsa(kbm(HOCOOKIE, COCOOKIE), v6(NUTX_GLOBAL_UCAST), v6(R1_GLOBAL_UCAST));
+}
+Opt_MH_BindingAuthData opt_bu_authdata_nutx_to_cn0 {
+	Authenticator = bsa(kbm(HOCOOKIE, COCOOKIE), v6(NUTX_GLOBAL_UCAST), v6(CN0_GLOBAL_UCAST));
+}
+Opt_MH_BindingAuthData opt_bu_authdata_nuty_to_cn0 {
+	Authenticator = bsa(kbm(HOCOOKIE, COCOOKIE), v6(NUTY_GLOBAL_UCAST), v6(CN0_GLOBAL_UCAST));
+}
+Opt_MH_BindingAuthData opt_bu_authdata_nuth_to_cn0_del {
+	Authenticator = bsa(kbm(HOCOOKIE), v6(NUTH_GLOBAL_UCAST), v6(CN0_GLOBAL_UCAST));
+}
+#else
+Opt_MH_BindingAuthData opt_bu_authdata_nutx_to_r1 {
+	Authenticator = BU_AUTHDATA;
+}
+Opt_MH_BindingAuthData opt_bu_authdata_nutx_to_cn0 {
+	Authenticator = BU_AUTHDATA;
+}
+Opt_MH_BindingAuthData opt_bu_authdata_nuty_to_cn0 {
+	Authenticator = BU_AUTHDATA;
+}
+Opt_MH_BindingAuthData opt_bu_authdata_nuth_to_cn0_del {
+	Authenticator = BU_AUTHDATA;
+}
+#endif
+
+//=============================================================================
+// Binding Authorization Data
+Opt_MH_BindingAuthData opt_bu_authdata_cn0_to_nuth {
+	Authenticator = bsa(kbm(hexstr(BU_TO_NUT_HOCOOKIE, 8), hexstr(BU_TO_NUT_COCOOKIE, 8)), v6(CN0Y_GLOBAL_UCAST), v6(NUTH_GLOBAL_UCAST));
+}
+
+//=============================================================================
+// Binding Authorization Data
+Opt_MH_BindingAuthData opt_bu_authdata_cn0_to_nuth_del {
+	Authenticator = bsa(kbm(hexstr(BU_TO_NUT_HOCOOKIE, 8)), v6(CN0_GLOBAL_UCAST), v6(NUTH_GLOBAL_UCAST));
+}
+
+/*----------------------------------------------------------------------------*
+ * Binding Update (NUT0 -> R1)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Binding Update: NUTX -> R1 dst-hoa NUT0
+FEM_upp_no_next_header_exth (
+	bu_nutxga_r1ga_hoa_nuthga,
+	_HETHER_nutx_to_r1,
+	{
+		_SRC(v6(NUTX_GLOBAL_UCAST));
+		_DST(v6(R1_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(bu_nutxga_r1ga_hoa_nuthga);
+		exthdr = ext_homeaddress_nuth;
+		exthdr = ext_bindingupdate_nutx_to_r1;
+		upper  = _UPP_NONEXT_NAME(bu_nutxga_r1ga_hoa_nuthga);
+	},
+	{}
+)
+
+//=============================================================================
+// Binding Update: NUTX -> R1 dst-hoa NUT0 alt-coa NUTX
+FEM_upp_no_next_header_exth (
+	bu_nutxga_r1ga_hoa_nuthga_coa_nutx,
+	_HETHER_nutx_to_r1,
+	{
+		_SRC(v6(NUTX_GLOBAL_UCAST));
+		_DST(v6(CN0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(bu_nutxga_r1ga_hoa_nuthga_coa_nutx);
+		exthdr = ext_homeaddress_nuth;
+		exthdr = ext_bindingupdate_nutx_to_r1_alt_nutx;
+		upper  = _UPP_NONEXT_NAME(bu_nutxga_r1ga_hoa_nuthga_coa_nutx);
+	},
+	{}
+)
+
+/*----------------------------------------------------------------------------*
+ * Binding Update (NUT0 -> CN0)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Binding Update: NUT0 -> CN0
+FEM_upp_no_next_header_exth (
+	bu_nuthga_cn0ga,
+	_HETHER_nut0_to_ha0,
+	{
+		_SRC(v6(NUTH_GLOBAL_UCAST));
+		_DST(v6(CN0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(bu_nuthga_cn0ga);
+		exthdr = ext_bindingupdate_to_cn0_del;
+		upper  = _UPP_NONEXT_NAME(bu_nuthga_cn0ga);
+	},
+	{}
+)
+
+//=============================================================================
+// Binding Update: NUT0 -> CN0 dst-hoa NUT0
+FEM_upp_no_next_header_exth (
+	bu_nuthga_cn0ga_hoa_nuthga,
+	_HETHER_nut0_to_ha0,
+	{
+		_SRC(v6(NUTH_GLOBAL_UCAST));
+		_DST(v6(CN0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(bu_nuthga_cn0ga_hoa_nuthga);
+		exthdr = ext_homeaddress_nuth;
+		exthdr = ext_bindingupdate_to_cn0_del;
+		upper  = _UPP_NONEXT_NAME(bu_nuthga_cn0ga_hoa_nuthga);
+	},
+	{}
+)
+
+//=============================================================================
+// Binding Update: NUTX -> CN0 dst-hoa NUT0
+FEM_upp_no_next_header_exth (
+	bu_nutxga_cn0ga_hoa_nuthga,
+	_HETHER_nutx_to_r1,
+	{
+		_SRC(v6(NUTX_GLOBAL_UCAST));
+		_DST(v6(CN0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(bu_nutxga_cn0ga_hoa_nuthga);
+		exthdr = ext_homeaddress_nuth;
+		exthdr = ext_bindingupdate_nutx_to_cn0;
+		upper  = _UPP_NONEXT_NAME(bu_nutxga_cn0ga_hoa_nuthga);
+	},
+	{}
+)
+
+//=============================================================================
+// Binding Update: NUTX -> CN0 dst-hoa NUT0 alt-coa NUTX
+FEM_upp_no_next_header_exth (
+	bu_nutxga_cn0ga_hoa_nuthga_coa_nutx,
+	_HETHER_nutx_to_r1,
+	{
+		_SRC(v6(NUTX_GLOBAL_UCAST));
+		_DST(v6(CN0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(bu_nutxga_cn0ga_hoa_nuthga_coa_nutx);
+		exthdr = ext_homeaddress_nuth;
+		exthdr = ext_bindingupdate_nutx_to_cn0_alt_nutx;
+		upper  = _UPP_NONEXT_NAME(bu_nutxga_cn0ga_hoa_nuthga_coa_nutx);
+	},
+	{}
+)
+
+//=============================================================================
+// Binding Update: NUTX -> CN0 dst-hoa NUT0 alt-coa NUTX (delete)
+FEM_upp_no_next_header_exth (
+	bu_nutxga_cn0ga_hoa_nuthga_coa_nuth_del,
+	_HETHER_nutx_to_r1,
+	{
+		_SRC(v6(NUTX_GLOBAL_UCAST));
+		_DST(v6(CN0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(bu_nutxga_cn0ga_hoa_nuthga_coa_nuth_del);
+		exthdr = ext_homeaddress_nuth;
+		exthdr = ext_bindingupdate_to_cn0_alt_nuth_del;
+		upper  = _UPP_NONEXT_NAME(bu_nutxga_cn0ga_hoa_nuthga_coa_nuth_del);
+	},
+	{}
+)
+
+//=============================================================================
+// Binding Update: NUTY -> CN0 dst-hoa NUT0
+FEM_upp_no_next_header_exth (
+	bu_nutyga_cn0ga_hoa_nuthga,
+	_HETHER_nuty_to_r2,
+	{
+		_SRC(v6(NUTY_GLOBAL_UCAST));
+		_DST(v6(CN0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(bu_nutyga_cn0ga_hoa_nuthga);
+		exthdr = ext_homeaddress_nuth;
+		exthdr = ext_bindingupdate_nuty_to_cn0;
+		upper  = _UPP_NONEXT_NAME(bu_nutyga_cn0ga_hoa_nuthga);
+	},
+	{}
+)
+
+//=============================================================================
+// Binding Update: NUTY -> CN0 dst-hoa alt-coa NUTY
+FEM_upp_no_next_header_exth (
+	bu_nutyga_cn0ga_hoa_nuthga_coa_nuty,
+	_HETHER_nuty_to_r2,
+	{
+		_SRC(v6(NUTY_GLOBAL_UCAST));
+		_DST(v6(CN0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(bu_nutyga_cn0ga_hoa_nuthga);
+		exthdr = ext_homeaddress_nuth;
+		exthdr = ext_bindingupdate_nuty_to_cn0_alt_nuty;
+		upper  = _UPP_NONEXT_NAME(bu_nutyga_cn0ga_hoa_nuthga);
+	},
+	{}
+)
+
+/*----------------------------------------------------------------------------*
+ * Binding Update (CN0 -> NUT0)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Binding Update: CN0Y -> NUT0 dst-hoa CN0
+FEM_upp_no_next_header_exth (
+	bu_cn0yga_nuthga_hoa_cn0ga,
+	_HETHER_ha0_to_nut0,
+	{
+		_SRC(v6(CN0Y_GLOBAL_UCAST));
+		_DST(v6(NUTH_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(bu_cn0yga_nuthga_hoa_cn0ga);
+		exthdr = ext_homeaddress_cn0;
+		exthdr = ext_bindingupdate_cn0y_to_nuth;
+		upper  = _UPP_NONEXT_NAME(bu_cn0yga_nuthga_hoa_cn0ga);
+	},
+	{}
+)
+
+//=============================================================================
+// Binding Update: CN0Y -> NUT0 dst-hoa CN0 (HA0 => NUTX)
+FEM_hdr_ipv6_exth (
+	bu_cn0yga_nuthga_hoa_cn0ga_tnl_ha0_nutx,
+	_HETHER_r1_to_nutx,
+	{
+		_SRC(v6(HA0_GLOBAL_UCAST));
+		_DST(v6(NUTX_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(bu_cn0yga_nuthga_hoa_cn0ga_tnl_ha0_nutx);
+#if defined(IPSEC_MANUAL_SA4_HA0_MN_PROTO_MH)
+		exthdr = ext_sa4_ha0_mn;
+#endif
+		upper  = _PACKET_IPV6_NAME(bu_cn0yga_nuthga_hoa_cn0ga);
+	}
+)
+
+//=============================================================================
+// Binding Update: CN0Y -> NUT0 dst-hoa CN0 (HA0 => NUTY)
+FEM_hdr_ipv6_exth (
+	bu_cn0yga_nuthga_hoa_cn0ga_tnl_ha0_nuty,
+	_HETHER_r2_to_nuty,
+	{
+		_SRC(v6(HA0_GLOBAL_UCAST));
+		_DST(v6(NUTY_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(bu_cn0yga_nuthga_hoa_cn0ga_tnl_ha0_nuty);
+#if defined(IPSEC_MANUAL_SA4_HA0_MN_PROTO_MH)
+		exthdr = ext_sa4_ha0_mn;
+#endif
+		upper  = _PACKET_IPV6_NAME(bu_cn0yga_nuthga_hoa_cn0ga);
+	}
+)
+
+//=============================================================================
+// Binding Update: CN0Y -> NUT0 dst-hoa CN0 alt-coa CN0Y
+FEM_upp_no_next_header_exth (
+	bu_cn0yga_nuthga_hoa_cn0ga_coa_cn0yga,
+	_HETHER_ha0_to_nut0,
+	{
+		_SRC(v6(CN0Y_GLOBAL_UCAST));
+		_DST(v6(NUTH_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(bu_cn0yga_nuthga_hoa_cn0ga_coa_cn0yga);
+		exthdr = ext_homeaddress_cn0;
+		exthdr = ext_bindingupdate_cn0y_to_nuth_alt_cn0y;
+		upper  = _UPP_NONEXT_NAME(bu_cn0yga_nuthga_hoa_cn0ga_coa_cn0yga);
+	},
+	{}
+)
+
+//=============================================================================
+// Binding Update: CN0Y -> NUT0 dst-hoa CN0 alt-coa CN0Y (HA0 => NUTX)
+FEM_hdr_ipv6_exth (
+	bu_cn0yga_nuthga_hoa_cn0ga_coa_cn0yga_tnl_ha0_nutx,
+	_HETHER_r1_to_nutx,
+	{
+		_SRC(v6(HA0_GLOBAL_UCAST));
+		_DST(v6(NUTX_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(bu_cn0yga_nuthga_hoa_cn0ga_coa_cn0yga_tnl_ha0_nutx);
+#if defined(IPSEC_MANUAL_SA4_HA0_MN_PROTO_MH)
+		exthdr = ext_sa4_ha0_mn;
+#endif
+		upper  = _PACKET_IPV6_NAME(bu_cn0yga_nuthga_hoa_cn0ga_coa_cn0yga);
+	}
+)
+
+//=============================================================================
+// Binding Update: CN0Y -> NUT0 dst-hoa CN0 alt-coa CN0Y (HA0 => NUTY)
+FEM_hdr_ipv6_exth (
+	 bu_cn0yga_nuthga_hoa_cn0ga_coa_cn0yga_tnl_ha0_nuty,
+	_HETHER_r2_to_nuty,
+	{
+		_SRC(v6(HA0_GLOBAL_UCAST));
+		_DST(v6(NUTY_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(bu_cn0yga_nuthga_hoa_cn0ga_coa_cn0yga_tnl_ha0_nuty);
+#if defined(IPSEC_MANUAL_SA4_HA0_MN_PROTO_MH)
+		exthdr = ext_sa4_ha0_mn;
+#endif
+		upper  = _PACKET_IPV6_NAME(bu_cn0yga_nuthga_hoa_cn0ga_coa_cn0yga);
+	}
+)
+
+//=============================================================================
+// Binding Update(delete): CN0Y -> NUT0 dst-hoa CN0 alt-coa CN0
+FEM_upp_no_next_header_exth (
+	bu_cn0yga_nuthga_hoa_cn0ga_coa_cn0ga_del,
+	_HETHER_ha0_to_nut0,
+	{
+		_SRC(v6(CN0Y_GLOBAL_UCAST));
+		_DST(v6(NUTH_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(bu_cn0yga_nuthga_hoa_cn0ga_coa_cn0ga_del);
+		exthdr = ext_homeaddress_cn0;
+		exthdr = ext_bindingupdate_cn0y_to_nuth_alt_cn0_del;
+		upper  = _UPP_NONEXT_NAME(bu_cn0yga_nuthga_hoa_cn0ga_coa_cn0ga_del);
+	},
+	{}
+)
+
+//=============================================================================
+// Binding Update(delete): CN0Y -> NUT0 dst-hoa CN0 alt-coa CN0 (HA0 => NUTX)
+FEM_hdr_ipv6_exth (
+	bu_cn0yga_nuthga_hoa_cn0ga_coa_cn0ga_del_tnl_ha0_nutx,
+	_HETHER_r1_to_nutx,
+	{
+		_SRC(v6(HA0_GLOBAL_UCAST));
+		_DST(v6(NUTX_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(bu_cn0yga_nuthga_hoa_cn0ga_coa_cn0ga_del_tnl_ha0_nutx);
+#if defined(IPSEC_MANUAL_SA4_HA0_MN_PROTO_MH)
+		exthdr = ext_sa4_ha0_mn;
+#endif
+		upper  = _PACKET_IPV6_NAME(bu_cn0yga_nuthga_hoa_cn0ga_coa_cn0ga_del);
+	}
+)
+
+//=============================================================================
+// Binding Update(delete): CN0Y -> NUT0 dst-hoa CN0 alt-coa CN0 (HA0 => NUTY)
+FEM_hdr_ipv6_exth (
+	bu_cn0yga_nuthga_hoa_cn0ga_coa_cn0ga_del_tnl_ha0_nuty,
+	_HETHER_r2_to_nuty,
+	{
+		_SRC(v6(HA0_GLOBAL_UCAST));
+		_DST(v6(NUTY_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(bu_cn0yga_nuthga_hoa_cn0ga_coa_cn0ga_del_tnl_ha0_nuty);
+#if defined(IPSEC_MANUAL_SA4_HA0_MN_PROTO_MH)
+		exthdr = ext_sa4_ha0_mn;
+#endif
+		upper  = _PACKET_IPV6_NAME(bu_cn0yga_nuthga_hoa_cn0ga_coa_cn0ga_del);
+	}
+)
+
+/*----------------------------------------------------------------------------*
+ * Binding Acknowlegement header (HA ->)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Binding Acknowlegement:
+Hdr_MH_BA ext_bindingacknowledgement {
+	NextHeader      = BA_PAYLOADPROTO;
+	HeaderExtLength = BA_HEADERLEN;
+	Type            = BA_MHTYPE;
+	Reserved1       = BA_Reserved1;
+	Checksum        = BA_Checksum;
+	Status          = BA_Status;
+	KFlag           = BA_Kflag;
+	Reserved2       = BA_Reserved2;
+	SequenceNumber  = BA_Sequence;
+	Lifetime        = BA_Lifetime;
+	option          = opt_mh_pad4;
+}
+
+//=============================================================================
+// Binding Acknowlegement:
+Hdr_MH_BA ext_bindingacknowledgement_bra {
+	NextHeader      = BA_PAYLOADPROTO;
+	HeaderExtLength = BA_HEADERLEN;
+	Type            = BA_MHTYPE;
+	Reserved1       = BA_Reserved1;
+	Checksum        = BA_Checksum;
+	Status          = BA_Status;
+	KFlag           = BA_Kflag;
+	Reserved2       = BA_Reserved2;
+	SequenceNumber  = BA_Sequence;
+	Lifetime        = BA_Lifetime;
+	option          = opt_ba_bindingrefreshadv;
+}
+
+//=============================================================================
+// Binding Acknowlegement:
+Hdr_MH_BA ext_bindingacknowledgement_inval_mh {
+	NextHeader      = BA_PAYLOADPROTO;
+	HeaderExtLength = 2;
+	Type            = BA_MHTYPE;
+	Reserved1       = BA_Reserved1;
+	Checksum        = BA_Checksum;
+	Status          = BA_Status;
+	KFlag           = BA_Kflag;
+	Reserved2       = BA_Reserved2;
+	SequenceNumber  = BA_Sequence;
+	Lifetime        = BA_Lifetime;
+	option          = opt_mh_pad6;
+	option          = opt_mh_pad6;
+}
+
+//=============================================================================
+// Binding Refresh Advice
+Opt_MH_BindingRefreshAdvice opt_ba_bindingrefreshadv {
+	Interval = BA_INTERVAL;
+}
+
+/*----------------------------------------------------------------------------*
+ * Binding Acknowlegement (HA0 -> NUT0)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Binding Acknowlegement: HA0 -> NUT0
+FEM_upp_no_next_header_exth (
+	ba_ha0ga_nuthga,
+	_HETHER_ha0_to_nut0,
+	{
+		_SRC(v6(HA0_GLOBAL_UCAST));
+		_DST(v6(NUTH_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(ba_ha0ga_nuthga);
+#if defined(IPSEC_MANUAL_SA2_HA0_MN_PROTO_BA)
+		exthdr = ext_sa2_ha0_mn;
+#endif
+		exthdr = ext_bindingacknowledgement;
+		upper  = _UPP_NONEXT_NAME(ba_ha0ga_nuthga);
+	},
+	{}
+)
+
+//=============================================================================
+// Binding Acknowlegement: HA0 -> NUTX rh-type2 NUT0
+FEM_upp_no_next_header_exth (
+	ba_ha0ga_nutxga_rh2_nuthga,
+	_HETHER_r1_to_nutx,
+	{
+		_SRC(v6(HA0_GLOBAL_UCAST));
+		_DST(v6(NUTX_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(ba_ha0ga_nutxga_rh2_nuthga);
+		exthdr = ext_routing_type2_nuth;
+#if defined(IPSEC_MANUAL_SA2_HA0_MN_PROTO_BA)
+		exthdr = ext_sa2_ha0_mn;
+#endif
+		exthdr = ext_bindingacknowledgement;
+		upper  = _UPP_NONEXT_NAME(ba_ha0ga_nutxga_rh2_nuthga);
+	},
+	{}
+)
+
+//=============================================================================
+// Binding Acknowlegement: HA0 -> NUTX rh-type2 NUT0 bra
+FEM_upp_no_next_header_exth (
+	ba_ha0ga_nutxga_rh2_nuthga_bra,
+	_HETHER_r1_to_nutx,
+	{
+		_SRC(v6(HA0_GLOBAL_UCAST));
+		_DST(v6(NUTX_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(ba_ha0ga_nutxga_rh2_nuthga_bra);
+		exthdr = ext_routing_type2_nuth;
+#if defined(IPSEC_MANUAL_SA2_HA0_MN_PROTO_BA)
+		exthdr = ext_sa2_ha0_mn;
+#endif
+		exthdr = ext_bindingacknowledgement_bra;
+		upper  = _UPP_NONEXT_NAME(ba_ha0ga_nutxga_rh2_nuthga_bra);
+	},
+	{}
+)
+
+//=============================================================================
+// Binding Acknowlegement: HA0 -> NUTX rh-type2 NUT0 (il-MessageType)
+FEM_upp_no_next_header_exth (
+	ba_ha0ga_nutxga_rh2_nuthga_il_mht,
+	_HETHER_r1_to_nutx,
+	{
+		_SRC(v6(HA0_GLOBAL_UCAST));
+		_DST(v6(NUTX_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(ba_ha0ga_nutxga_rh2_nuthga_il_mht);
+		exthdr = ext_routing_type2_nuth;
+#if defined(IPSEC_MANUAL_SA2_HA0_MN_PROTO_MH)
+		exthdr = ext_sa2_ha0_mn;
+#endif
+		exthdr = ext_bindingacknowledgement;
+		upper  = _UPP_NONEXT_NAME(ba_ha0ga_nutxga_rh2_nuthga_il_mht);
+	},
+	{}
+)
+
+//=============================================================================
+// Binding Acknowlegement: HA0 -> NUTX rh-type2 NUT0 (il-HeaderExtLength)
+FEM_upp_no_next_header_exth (
+	ba_ha0ga_nutxga_rh2_nuthga_il_mh,
+	_HETHER_r1_to_nutx,
+	{
+		_SRC(v6(HA0_GLOBAL_UCAST));
+		_DST(v6(NUTX_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(ba_ha0ga_nutxga_rh2_nuthga_il_mh);
+		exthdr = ext_routing_type2_nuth;
+#if defined(IPSEC_MANUAL_SA2_HA0_MN_PROTO_BA)
+		exthdr = ext_sa2_ha0_mn;
+#endif
+		exthdr = ext_bindingacknowledgement_inval_mh;
+		upper  = _UPP_NONEXT_NAME(ba_ha0ga_nutxga_rh2_nuthga_il_mh);
+	},
+	{}
+)
+
+//=============================================================================
+// Binding Acknowlegement: HA0 -> NUTX rh-type2 NUT0 without IPsec
+FEM_upp_no_next_header_exth (
+	ba_ha0ga_nutxga_rh2_nuthga_wo_ipsec,
+	_HETHER_r1_to_nutx,
+	{
+		_SRC(v6(HA0_GLOBAL_UCAST));
+		_DST(v6(NUTX_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(ba_ha0ga_nutxga_rh2_nuthga_wo_ipsec);
+		exthdr = ext_routing_type2_nuth;
+		exthdr = ext_bindingacknowledgement;
+		upper  = _UPP_NONEXT_NAME(ba_ha0ga_nutxga_rh2_nuthga_wo_ipsec);
+	},
+	{}
+)
+
+//=============================================================================
+// Binding Acknowlegement: HA0 -> NUTY rh-type2 NUT0
+FEM_upp_no_next_header_exth (
+	ba_ha0ga_nutyga_rh2_nuthga,
+	_HETHER_r2_to_nuty,
+	{
+		_SRC(v6(HA0_GLOBAL_UCAST));
+		_DST(v6(NUTY_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(ba_ha0ga_nutyga_rh2_nuthga);
+		exthdr = ext_routing_type2_nuth;
+#if defined(IPSEC_MANUAL_SA2_HA0_MN_PROTO_BA)
+		exthdr = ext_sa2_ha0_mn;
+#endif
+		exthdr = ext_bindingacknowledgement;
+		upper  = _UPP_NONEXT_NAME(ba_ha0ga_nutyga_rh2_nuthga);
+	},
+	{}
+)
+
+/*----------------------------------------------------------------------------*
+ * Binding Acknowlegement (HA1 -> NUT0)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Binding Acknowlegement: HA1 -> NUTX rh-type2 NUT0
+FEM_upp_no_next_header_exth (
+	ba_ha1ga_nutxga_rh2_nuthga,
+	_HETHER_r1_to_nutx,
+	{
+		_SRC(v6(HA1_GLOBAL_UCAST));
+		_DST(v6(NUTX_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(ba_ha1ga_nutxga_rh2_nuthga);
+		exthdr = ext_routing_type2_nuth;
+#if defined(IPSEC_MANUAL_SA2_HA1_MN_PROTO_BA)
+		exthdr = ext_sa2_ha1_mn;
+#endif
+		exthdr = ext_bindingacknowledgement;
+		upper  = _UPP_NONEXT_NAME(ba_ha1ga_nutxga_rh2_nuthga);
+	},
+	{}
+)
+
+//=============================================================================
+// Binding Acknowlegement: HA1 -> NUTY rh-type2 NUT0
+FEM_upp_no_next_header_exth (
+	ba_ha1ga_nutyga_rh2_nuthga,
+	_HETHER_r2_to_nuty,
+	{
+		_SRC(v6(HA1_GLOBAL_UCAST));
+		_DST(v6(NUTY_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(ba_ha1ga_nutyga_rh2_nuthga);
+		exthdr = ext_routing_type2_nuth;
+#if defined(IPSEC_MANUAL_SA2_HA1_MN_PROTO_BA)
+		exthdr = ext_sa2_ha1_mn;
+#endif
+		exthdr = ext_bindingacknowledgement;
+		upper  = _UPP_NONEXT_NAME(ba_ha1ga_nutyga_rh2_nuthga);
+	},
+	{}
+)
+
+/*----------------------------------------------------------------------------*
+ * Binding Acknowlegement header (CN ->)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Binding Acknowlegement:
+Hdr_MH_BA ext_bindingacknowledgement_r1_to_nutx {
+	NextHeader      = BA_PAYLOADPROTO;
+	HeaderExtLength = BA_HEADERLEN;
+	Type            = BA_MHTYPE;
+	Reserved1       = BA_Reserved1;
+	Checksum        = BA_Checksum;
+	Status          = BA_Status;
+	KFlag           = BA_Kflag;
+	Reserved2       = BA_Reserved2;
+	SequenceNumber  = BA_Sequence;
+	Lifetime        = BA_Lifetime;
+	option          = opt_mh_pad6;
+	option          = opt_ba_authdata_r1_to_nutx;
+}
+
+//=============================================================================
+// Binding Acknowlegement:
+Hdr_MH_BA ext_bindingacknowledgement_cn0_to_nutx {
+	NextHeader      = BA_PAYLOADPROTO;
+	HeaderExtLength = BA_HEADERLEN;
+	Type            = BA_MHTYPE;
+	Reserved1       = BA_Reserved1;
+	Checksum        = BA_Checksum;
+	Status          = BA_Status;
+	KFlag           = BA_Kflag;
+	Reserved2       = BA_Reserved2;
+	SequenceNumber  = BA_Sequence;
+	Lifetime        = BA_Lifetime;
+	option          = opt_mh_pad6;
+	option          = opt_ba_authdata_cn0_to_nutx;
+}
+
+//=============================================================================
+// Binding Acknowlegement:
+Hdr_MH_BA ext_bindingacknowledgement_cn0_to_nutx_noauth {
+	NextHeader      = BA_PAYLOADPROTO;
+	HeaderExtLength = BA_HEADERLEN;
+	Type            = BA_MHTYPE;
+	Reserved1       = BA_Reserved1;
+	Checksum        = BA_Checksum;
+	Status          = BA_Status;
+	KFlag           = BA_Kflag;
+	Reserved2       = BA_Reserved2;
+	SequenceNumber  = BA_Sequence;
+	Lifetime        = BA_Lifetime;
+	option          = opt_mh_pad4;
+}
+
+//=============================================================================
+// Binding Acknowlegement:
+Hdr_MH_BA ext_bindingacknowledgement_cn0_to_nutx_illoction {
+	NextHeader      = BA_PAYLOADPROTO;
+	HeaderExtLength = BA_HEADERLEN;
+	Type            = BA_MHTYPE;
+	Reserved1       = BA_Reserved1;
+	Checksum        = BA_Checksum;
+	Status          = BA_Status;
+	KFlag           = BA_Kflag;
+	Reserved2       = BA_Reserved2;
+	SequenceNumber  = BA_Sequence;
+	Lifetime        = BA_Lifetime;
+	option          = opt_ba_authdata_cn0_to_nutx;
+	option          = opt_mh_pad6;
+}
+
+//=============================================================================
+// Binding Acknowlegement:
+Hdr_MH_BA ext_bindingacknowledgement_cn0_to_nutx_bra {
+	NextHeader      = BA_PAYLOADPROTO;
+	HeaderExtLength = BA_HEADERLEN;
+	Type            = BA_MHTYPE;
+	Reserved1       = BA_Reserved1;
+	Checksum        = BA_Checksum;
+	Status          = BA_Status;
+	KFlag           = BA_Kflag;
+	Reserved2       = BA_Reserved2;
+	SequenceNumber  = BA_Sequence;
+	Lifetime        = BA_Lifetime;
+	option          = opt_mh_pad2;
+	option          = opt_ba_bindingrefreshadv;
+	option          = opt_ba_authdata_cn0_to_nutx;
+}
+
+//=============================================================================
+// Binding Acknowlegement:
+Hdr_MH_BA ext_bindingacknowledgement_cn0_to_nuty {
+	NextHeader      = BA_PAYLOADPROTO;
+	HeaderExtLength = BA_HEADERLEN;
+	Type            = BA_MHTYPE;
+	Reserved1       = BA_Reserved1;
+	Checksum        = BA_Checksum;
+	Status          = BA_Status;
+	KFlag           = BA_Kflag;
+	Reserved2       = BA_Reserved2;
+	SequenceNumber  = BA_Sequence;
+	Lifetime        = BA_Lifetime;
+	option          = opt_mh_pad6;
+	option          = opt_ba_authdata_cn0_to_nuty;
+}
+
+//=============================================================================
+// Binding Acknowlegement:
+Hdr_MH_BA ext_bindingacknowledgement_cn0_to_nuth {
+	NextHeader      = BA_PAYLOADPROTO;
+	HeaderExtLength = BA_HEADERLEN;
+	Type            = BA_MHTYPE;
+	Reserved1       = BA_Reserved1;
+	Checksum        = BA_Checksum;
+	Status          = BA_Status;
+	KFlag           = BA_Kflag;
+	Reserved2       = BA_Reserved2;
+	SequenceNumber  = BA_Sequence;
+	Lifetime        = BA_Lifetime;
+	option          = opt_mh_pad6;
+	option          = opt_ba_authdata_cn0_to_nuth;
+}
+
+//=============================================================================
+// Binding Acknowlegement:
+Hdr_MH_BA ext_bindingacknowledgement_nuth_to_cn0 {
+	NextHeader      = BA_PAYLOADPROTO;
+	HeaderExtLength = BA_HEADERLEN;
+	Type            = BA_MHTYPE;
+	Reserved1       = BA_Reserved1;
+	Checksum        = BA_Checksum;
+	Status          = BA_Status;
+	KFlag           = any;
+	Reserved2       = BA_Reserved2;
+	SequenceNumber  = any;
+	Lifetime        = any;
+	option          = opt_mh_pad6;
+	option          = opt_ba_authdata_nuth_to_cn0;
+}
+
+//=============================================================================
+// Binding Authorization Data
+Opt_MH_BindingAuthData opt_ba_authdata_r1_to_nutx {
+	Authenticator = BA_AUTHENTICATOR_R1_TO_NUTX;
+}
+
+Opt_MH_BindingAuthData opt_ba_authdata_cn0_to_nutx {
+	Authenticator = BA_AUTHENTICATOR_CN0_TO_NUTX;
+}
+
+Opt_MH_BindingAuthData opt_ba_authdata_cn0_to_nuty {
+	Authenticator = BA_AUTHENTICATOR_CN0_TO_NUTY;
+}
+
+Opt_MH_BindingAuthData opt_ba_authdata_cn0_to_nuth {
+	Authenticator = BA_AUTHENTICATOR_CN0_TO_NUT0;
+}
+
+Opt_MH_BindingAuthData opt_ba_authdata_nuth_to_cn0 {
+	Authenticator = any;
+}
+
+/*----------------------------------------------------------------------------*
+ * Binding Acknowlegement (R1 -> NUT0)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Binding Acknowlegement: R1 -> NUTX rh-type2 NUT0
+FEM_upp_no_next_header_exth (
+	ba_r1ga_nutxga_rh2_nuthga,
+	_HETHER_r1_to_nutx,
+	{
+		_SRC(v6(R1_GLOBAL_UCAST));
+		_DST(v6(NUTX_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(ba_r1ga_nutxga_rh2_nuthga);
+		exthdr = ext_routing_type2_nuth;
+		exthdr = ext_bindingacknowledgement_r1_to_nutx;
+		upper  = _UPP_NONEXT_NAME(ba_r1ga_nutxga_rh2_nuthga);
+	},
+	{}
+)
+
+/*----------------------------------------------------------------------------*
+ * Binding Acknowlegement (CN0 -> NUT0)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Binding Acknowlegement: CN0 -> NUT0
+FEM_upp_no_next_header_exth (
+	ba_cn0ga_nuthga,
+	_HETHER_ha0_to_nut0,
+	{
+		_SRC(v6(CN0_GLOBAL_UCAST));
+		_DST(v6(NUTH_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(ba_cn0ga_nuthga);
+		exthdr = ext_bindingacknowledgement_cn0_to_nuth;
+		upper  = _UPP_NONEXT_NAME(ba_cn0ga_nuthga);
+	},
+	{}
+)
+
+//=============================================================================
+// Binding Acknowlegement: CN0 -> NUTX rh-type2 NUT0
+FEM_upp_no_next_header_exth (
+	ba_cn0ga_nutxga_rh2_nuthga,
+	_HETHER_r1_to_nutx,
+	{
+		_SRC(v6(CN0_GLOBAL_UCAST));
+		_DST(v6(NUTX_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(ba_cn0ga_nutxga_rh2_nuthga);
+		exthdr = ext_routing_type2_nuth;
+		exthdr = ext_bindingacknowledgement_cn0_to_nutx;
+		upper  = _UPP_NONEXT_NAME(ba_cn0ga_nutxga_rh2_nuthga);
+	},
+	{}
+)
+
+//=============================================================================
+// Binding Acknowlegement: CN0 -> NUTX rh-type2 NUT0 bra
+FEM_upp_no_next_header_exth (
+	ba_cn0ga_nutxga_rh2_nuthga_bra,
+	_HETHER_r1_to_nutx,
+	{
+		_SRC(v6(CN0_GLOBAL_UCAST));
+		_DST(v6(NUTX_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(ba_cn0ga_nutxga_rh2_nuthga);
+		exthdr = ext_routing_type2_nuth;
+		exthdr = ext_bindingacknowledgement_cn0_to_nutx_bra;
+		upper  = _UPP_NONEXT_NAME(ba_cn0ga_nutxga_rh2_nuthga);
+	},
+	{}
+)
+
+//=============================================================================
+// Binding Acknowlegement: CN0 -> NUTX rh-type2 (il-auth location)
+FEM_upp_no_next_header_exth (
+	ba_cn0ga_nutxga_rh2_nuthga_il_loction_auth,
+	_HETHER_r1_to_nutx,
+	{
+		_SRC(v6(CN0_GLOBAL_UCAST));
+		_DST(v6(NUTX_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(ba_cn0ga_nutxga_rh2_nuthga_il_loction_auth);
+		exthdr = ext_routing_type2_nuth;
+		exthdr = ext_bindingacknowledgement_cn0_to_nutx_illoction;
+		upper  = _UPP_NONEXT_NAME(ba_cn0ga_nutxga_rh2_nuthga_il_loction_auth);
+	},
+	{}
+)
+
+//=============================================================================
+// Binding Acknowlegement: CN0 -> NUTX rh-type2 (without auth)
+FEM_upp_no_next_header_exth (
+	ba_cn0ga_nutxga_rh2_nuthga_wo_auth,
+	_HETHER_r1_to_nutx,
+	{
+		_SRC(v6(CN0_GLOBAL_UCAST));
+		_DST(v6(NUTX_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(ba_cn0ga_nutxga_rh2_nuthga_wo_auth);
+		exthdr = ext_routing_type2_nuth;
+		exthdr = ext_bindingacknowledgement_cn0_to_nutx_noauth;
+		upper  = _UPP_NONEXT_NAME(ba_cn0ga_nutxga_rh2_nuthga_wo_auth);
+	},
+	{}
+)
+
+//=============================================================================
+// Binding Acknowlegement: CN0 -> NUTY rh-type2 NUT0
+FEM_upp_no_next_header_exth (
+	ba_cn0ga_nutyga_rh2_nuthga,
+	_HETHER_r2_to_nuty,
+	{
+		_SRC(v6(CN0_GLOBAL_UCAST));
+		_DST(v6(NUTY_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(ba_cn0ga_nutyga_rh2_nuthga);
+		exthdr = ext_routing_type2_nuth;
+		exthdr = ext_bindingacknowledgement_cn0_to_nuty;
+		upper  = _UPP_NONEXT_NAME(ba_cn0ga_nutyga_rh2_nuthga);
+	},
+	{}
+)
+
+/*----------------------------------------------------------------------------*
+ * Binding Acknowlegement (NUT0 -> CN0)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Binding Acknowlegement: NUT0 -> CN0Y rh-type2 CN0
+FEM_upp_no_next_header_exth (
+	ba_nuthga_cn0yga_rh2_cn0ga,
+	_HETHER_nut0_to_ha0,
+	{
+		_SRC(v6(NUTH_GLOBAL_UCAST));
+		_DST(v6(CN0Y_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(ba_nuthga_cn0yga_rh2_cn0ga);
+		exthdr = ext_routing_type2_cn0;
+		exthdr = ext_bindingacknowledgement_nuth_to_cn0;
+		upper  = _UPP_NONEXT_NAME(ba_nuthga_cn0yga_rh2_cn0ga);
+	},
+	{}
+)
+
+//=============================================================================
+// Binding Acknowlegement: NUT0 -> CN0Y rh-type2 CN0 (NUTX => HA0)
+FEM_hdr_ipv6_exth (
+	ba_nuthga_cn0yga_rh2_cn0ga_tnl_nutx_ha0,
+	_HETHER_nutx_to_r1,
+	{
+		_SRC(v6(NUTX_GLOBAL_UCAST));
+		_DST(v6(HA0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(ba_nuthga_cn0yga_rh2_cn0ga_tnl_nutx_ha0);
+#if defined(IPSEC_MANUAL_SA3_MN_HA0_PROTO_MH)
+		exthdr = ext_sa3_mn_ha0;
+#endif
+		upper  = _PACKET_IPV6_NAME(ba_nuthga_cn0yga_rh2_cn0ga);
+	}
+)
+
+//=============================================================================
+// Binding Acknowlegement: NUT0 -> CN0Y rh-type2 CN0 (NUTY => HA0)
+FEM_hdr_ipv6_exth (
+	ba_nuthga_cn0yga_rh2_cn0ga_tnl_nuty_ha0,
+	_HETHER_nuty_to_r2,
+	{
+		_SRC(v6(NUTY_GLOBAL_UCAST));
+		_DST(v6(HA0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(ba_nuthga_cn0yga_rh2_cn0ga_tnl_nuty_ha0);
+#if defined(IPSEC_MANUAL_SA3_MN_HA0_PROTO_MH)
+		exthdr = ext_sa3_mn_ha0;
+#endif
+		upper  = _PACKET_IPV6_NAME(ba_nuthga_cn0yga_rh2_cn0ga);
+	}
+)
+
+//=============================================================================
+// Binding Acknowlegement: NUTany -> CN0Y rh-type2 CN0
+FEM_upp_no_next_header_exth (
+	ba_nutany_cn0yga_rh2_cn0ga,
+	_HETHER_any,
+	{
+		_SRC(oneof(v6(NUTX_GLOBAL_UCAST),
+		           v6(NUTY_GLOBAL_UCAST)));
+		_DST(v6(CN0Y_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(ba_nutany_cn0yga_rh2_cn0ga);
+		exthdr = ext_routing_type2_cn0;
+		exthdr = ext_bindingacknowledgement_nuth_to_cn0;
+		upper  = _UPP_NONEXT_NAME(ba_nutany_cn0yga_rh2_cn0ga);
+	},
+	{}
+)
+
+//=============================================================================
+// Binding Acknowlegement: NUTany -> CN0Y rh-type2 CN0 dst-hoa NUT0
+FEM_upp_no_next_header_exth (
+	ba_nutany_cn0yga_rh2_cn0ga_hoa_nuthga,
+	_HETHER_any,
+	{
+		_SRC(oneof(v6(NUTH_GLOBAL_UCAST),
+		           v6(NUTX_GLOBAL_UCAST),
+		           v6(NUTY_GLOBAL_UCAST)));
+		_DST(v6(CN0Y_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(ba_nutany_cn0yga_rh2_cn0ga_hoa_nuthga);
+		exthdr = ext_routing_type2_cn0;
+		exthdr = ext_homeaddress_nuth;
+		exthdr = ext_bindingacknowledgement_nuth_to_cn0;
+		upper  = _UPP_NONEXT_NAME(ba_nutany_cn0yga_rh2_cn0ga_hoa_nuthga);
+	},
+	{}
+)
+
+//=============================================================================
+// Binding Acknowlegement: NUTany -> CN0Y rh-type2 CN0 dst-hoa NUT0 (NUTany => HA0)
+FEM_hdr_ipv6_exth (
+	ba_nutany_cn0yga_rh2_cn0ga_hoa_nuthga_tnl_nutany_ha0,
+	_HETHER_any,
+	{
+		_SRC(oneof(v6(NUTH_GLOBAL_UCAST),
+		           v6(NUTX_GLOBAL_UCAST),
+		           v6(NUTY_GLOBAL_UCAST)));
+		_DST(v6(HA0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(ba_nutany_cn0yga_rh2_cn0ga_hoa_nuthga_tnl_nutany_ha0);
+#if defined(IPSEC_MANUAL_SA3_MN_HA0_PROTO_MH)
+		exthdr = ext_sa3_mn_ha0;
+#endif
+		upper  = _PACKET_IPV6_NAME(ba_nutany_cn0yga_rh2_cn0ga_hoa_nuthga);
+	}
+)
+
+/*----------------------------------------------------------------------------*
+ * Binding Error header
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Binding Error:
+Hdr_MH_BE ext_bindingerror {
+	Reserved1 = BE_Reserved1;
+	Status    = BE_Status;
+	Reserved2 = BE_Reserved2;
+	Address   = v6(BE_Addr);
+}
+
+//=============================================================================
+// Binding Error:
+Hdr_MH_BE ext_bindingerror_any {
+	Reserved1 = BE_Reserved1;
+	Status    = BE_Status;
+	Reserved2 = BE_Reserved2;
+	Address   = any;
+}
+
+//=============================================================================
+// Binding Error:
+Hdr_MH_BE ext_bindingerror_cn0y {
+	Reserved1 = BE_Reserved1;
+	Status    = BE_Status;
+	Reserved2 = BE_Reserved2;
+	Address   = v6(CN0_GLOBAL_UCAST);
+}
+
+/*----------------------------------------------------------------------------*
+ * Binding Error (HA0 -> NUT0)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Binding Error: HA0 -> NUTX
+FEM_upp_no_next_header_exth (
+	be_ha0ga_nutxga,
+	_HETHER_r1_to_nutx,
+	{
+		_SRC(v6(HA0_GLOBAL_UCAST));
+		_DST(v6(NUTX_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(be_ha0ga_nutxga);
+		exthdr = ext_bindingerror;
+		upper  = _UPP_NONEXT_NAME(be_ha0ga_nutxga);
+	},
+	{}
+)
+
+/*----------------------------------------------------------------------------*
+ * Binding Error (CN0 -> NUT0)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Binding Error: CN0 -> NUT0
+FEM_upp_no_next_header_exth (
+	be_cn0ga_nuthga,
+	_HETHER_ha0_to_nut0,
+	{
+		_SRC(v6(CN0_GLOBAL_UCAST));
+		_DST(v6(NUTH_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(be_cn0ga_nuthga);
+		exthdr = ext_bindingerror;
+		upper  = _UPP_NONEXT_NAME(be_cn0ga_nuthga);
+	},
+	{}
+)
+
+//=============================================================================
+// Binding Error: CN0 -> NUT0 (HA0 => NUTX)
+FEM_hdr_ipv6_exth (
+	be_cn0ga_nuthga_tnl_ha0_nutx,
+	_HETHER_r1_to_nutx,
+	{
+		_SRC(v6(HA0_GLOBAL_UCAST));
+		_DST(v6(NUTX_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(be_cn0ga_nuthga_tnl_ha0_nutx);
+#if defined(IPSEC_MANUAL_SA4_HA0_MN_PROTO_MH)
+		exthdr = ext_sa4_ha0_mn;
+#endif
+		upper  = _PACKET_IPV6_NAME(be_cn0ga_nuthga);
+	}
+)
+
+//=============================================================================
+// Binding Error: CN0 -> NUTX
+FEM_upp_no_next_header_exth (
+	be_cn0ga_nutxga,
+	_HETHER_r1_to_nutx,
+	{
+		_SRC(v6(CN0_GLOBAL_UCAST));
+		_DST(v6(NUTX_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(be_cn0ga_nutxga);
+		exthdr = ext_bindingerror;
+		upper  = _UPP_NONEXT_NAME(be_cn0ga_nutxga);
+	},
+	{}
+)
+
+/*----------------------------------------------------------------------------*
+ * Binding Error (NUT0 -> HA0)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Binding Error: NUT0 -> HA0
+FEM_upp_no_next_header_exth (
+	be_nuthga_ha0ga,
+	_HETHER_nut0_to_ha0,
+	{
+		_SRC(v6(NUTH_GLOBAL_UCAST));
+		_DST(v6(HA0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(be_nuthga_ha0ga);
+#if defined(IPSEC_MANUAL_SA1_MN_HA0_PROTO_MH)
+		exthdr = ext_sa1_mn_ha0;
+#endif
+		exthdr = ext_bindingerror_any;
+		upper  = _UPP_NONEXT_NAME(be_nuthga_ha0ga);
+	},
+	{}
+)
+
+//=============================================================================
+// Binding Error: NUT0 -> HA0 (NUTX => HA0)
+FEM_hdr_ipv6_exth (
+	be_nuthga_ha0ga_tnl_nutx_ha0,
+	_HETHER_nutx_to_r1,
+	{
+		_SRC(v6(NUTX_GLOBAL_UCAST));
+		_DST(v6(HA0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(be_nuthga_ha0ga_tnl_nutx_ha0);
+#if defined(IPSEC_MANUAL_SA3_MN_HA0_PROTO_MH)
+		exthdr = ext_sa3_mn_ha0;
+#endif
+		upper  = _PACKET_IPV6_NAME(be_nuthga_ha0ga);
+	}
+)
+
+//=============================================================================
+// Binding Error: NUTX -> HA0
+FEM_upp_no_next_header_exth (
+	be_nutxga_ha0ga,
+	_HETHER_nutx_to_r1,
+	{
+		_SRC(v6(NUTX_GLOBAL_UCAST));
+		_DST(v6(HA0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(be_nutxga_ha0ga);
+		exthdr = ext_bindingerror_any;
+		upper  = _UPP_NONEXT_NAME(be_nutxga_ha0ga);
+	},
+	{}
+)
+
+/*----------------------------------------------------------------------------*
+ * Binding Error (NUT0 -> CN0)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Binding Error: NUT0 -> CN0
+FEM_upp_no_next_header_exth (
+	be_nuthga_cn0ga,
+	_HETHER_nut0_to_ha0,
+	{
+		_SRC(v6(NUTH_GLOBAL_UCAST));
+		_DST(v6(CN0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(be_nuthga_cn0ga);
+		exthdr = ext_bindingerror_any;
+		upper  = _UPP_NONEXT_NAME(be_nuthga_cn0ga);
+	},
+	{}
+)
+
+//=============================================================================
+// Binding Error: NUT0 -> CN0 (NUTX => HA0)
+FEM_hdr_ipv6_exth (
+	be_nuthga_cn0ga_tnl_nutx_ha0,
+	_HETHER_nutx_to_r1,
+	{
+		_SRC(v6(NUTX_GLOBAL_UCAST));
+		_DST(v6(HA0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(be_nuthga_cn0ga_tnl_nutx_ha0);
+#if defined(IPSEC_MANUAL_SA3_MN_HA0_PROTO_MH)
+		exthdr = ext_sa3_mn_ha0;
+#endif
+		upper  = _PACKET_IPV6_NAME(be_nuthga_cn0ga);
+	}
+)
+
+//=============================================================================
+// Binding Error: NUTX -> CN0
+FEM_upp_no_next_header_exth (
+	be_nutxga_cn0ga,
+	_HETHER_nutx_to_r1,
+	{
+		_SRC(v6(NUTX_GLOBAL_UCAST));
+		_DST(v6(CN0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(be_nutxga_cn0ga);
+		exthdr = ext_bindingerror_any;
+		upper  = _UPP_NONEXT_NAME(be_nutxga_cn0ga);
+	},
+	{}
+)
+
+//=============================================================================
+// Binding Error: NUT0 -> CN0Y
+FEM_upp_no_next_header_exth (
+	be_nuthga_cn0yga,
+	_HETHER_nut0_to_ha0,
+	{
+		_SRC(v6(NUTH_GLOBAL_UCAST));
+		_DST(v6(CN0Y_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(be_nuthga_cn0yga);
+		exthdr = ext_bindingerror_cn0y;
+		upper  = _UPP_NONEXT_NAME(be_nuthga_cn0yga);
+	},
+	{}
+)
+
+//=============================================================================
+// Binding Error: NUT0 -> CN0Y (NUTX => HA0)
+FEM_hdr_ipv6_exth (
+	be_nuthga_cn0yga_tnl_nutx_ha0,
+	_HETHER_nutx_to_r1,
+	{
+		_SRC(v6(NUTX_GLOBAL_UCAST));
+		_DST(v6(HA0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(be_nuthga_cn0yga_tnl_nutx_ha0);
+#if defined(IPSEC_MANUAL_SA3_MN_HA0_PROTO_MH)
+		exthdr = ext_sa3_mn_ha0;
+#endif
+		upper  = _PACKET_IPV6_NAME(be_nuthga_cn0yga);
+	}
+)
+
+//=============================================================================
+// Binding Error: NUTany -> CN0Y
+FEM_upp_no_next_header_exth (
+	be_nutany_cn0yga,
+	_HETHER_any,
+	{
+		_SRC(oneof(v6(NUTH_GLOBAL_UCAST),
+		           v6(NUTX_GLOBAL_UCAST),
+		           v6(NUTY_GLOBAL_UCAST)));
+		_DST(v6(CN0Y_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(be_nutany_cn0yga);
+		exthdr = ext_bindingerror_cn0y;
+		upper  = _UPP_NONEXT_NAME(be_nutany_cn0yga);
+	},
+	{}
+)
+
+//=============================================================================
+// Binding Error: NUTany -> CN0Y dst-hoa NUT0
+FEM_upp_no_next_header_exth (
+	be_nutany_cn0yga_hoa_nuth,
+	_HETHER_any,
+	{
+		_SRC(oneof(v6(NUTH_GLOBAL_UCAST),
+		           v6(NUTX_GLOBAL_UCAST),
+		           v6(NUTY_GLOBAL_UCAST)));
+		_DST(v6(CN0Y_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(be_nutany_cn0yga_hoa_nuth);
+		exthdr = ext_homeaddress_nuth;
+		exthdr = ext_bindingerror_cn0y;
+		upper  = _UPP_NONEXT_NAME(be_nutany_cn0yga_hoa_nuth);
+	},
+	{}
+)
+
+//=============================================================================
+// Binding Error: NUTany -> CN0Y dst-hoa NUT0 (NUTany => HA0)
+FEM_hdr_ipv6_exth (
+	be_nutany_cn0yga_hoa_nuth_tnl_nutany_ha0,
+	_HETHER_any,
+	{
+		_SRC(oneof(v6(NUTH_GLOBAL_UCAST),
+		           v6(NUTX_GLOBAL_UCAST),
+		           v6(NUTY_GLOBAL_UCAST)));
+		_DST(v6(HA0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(be_nutany_cn0yga_hoa_nuth_tnl_nutany_ha0);
+#if defined(IPSEC_MANUAL_SA3_MN_HA0_PROTO_MH)
+		exthdr = ext_sa3_mn_ha0;
+#endif
+		upper  = _PACKET_IPV6_NAME(be_nutany_cn0yga_hoa_nuth);
+	}
+)
+
+// End of File

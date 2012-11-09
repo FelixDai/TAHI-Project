@@ -1,0 +1,1166 @@
+//
+// Copyright (C) IPv6 Promotion Council,
+// NIPPON TELEGRAPH AND TELEPHONE CORPORATION (NTT),
+// Yokogwa Electoric Corporation, YASKAWA INFORMATION SYSTEMS Corporation
+// and NTT Advanced Technology Corporation(NTT-AT) All rights reserved.
+// 
+// Technology Corporation.
+// 
+// Redistribution and use of this software in source and binary forms, with 
+// or without modification, are permitted provided that the following 
+// conditions and disclaimer are agreed and accepted by the user:
+// 
+// 1. Redistributions of source code must retain the above copyright 
+// notice, this list of conditions and the following disclaimer.
+// 
+// 2. Redistributions in binary form must reproduce the above copyright 
+// notice, this list of conditions and the following disclaimer in the 
+// documentation and/or other materials provided with the distribution.
+// 
+// 3. Neither the names of the copyrighters, the name of the project which 
+// is related to this software (hereinafter referred to as "project") nor 
+// the names of the contributors may be used to endorse or promote products 
+// derived from this software without specific prior written permission.
+// 
+// 4. No merchantable use may be permitted without prior written 
+// notification to the copyrighters. However, using this software for the 
+// purpose of testing or evaluating any products including merchantable 
+// products may be permitted without any notification to the copyrighters.
+// 
+// 
+// 
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND 
+// CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING 
+// BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS 
+// FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE 
+// COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+// INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
+// SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
+// HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+// CONTRACT,STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF 
+// THE POSSIBILITY OF SUCH DAMAGE.
+//
+
+/*----------------------------------------------------------------------------*
+ * Default Field Value
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// ICMPv6 Parameter Problem
+#ifndef ICMP_IPv6_Hop
+#define ICMP_IPv6_Hop       64
+#endif
+
+#ifndef ICMP_Code
+#define ICMP_Code           1
+#endif
+
+#ifndef PAR_PROB_POINTER
+#define PAR_PROB_POINTER    43
+#endif
+
+//=============================================================================
+// Home Agent Address Discovery Request
+#ifndef HAADReq_IPv6_Hop
+#define HAADReq_IPv6_Hop    64
+#endif
+
+#ifndef HAADReq_Identifier
+#define HAADReq_Identifier  any
+#endif
+
+#ifndef HAADReq_Reserved
+#define HAADReq_Reserved    0
+#endif
+
+//=============================================================================
+// Home Agent Address Discovery Reply
+#ifndef HAADRep_IPv6_Hop
+#define HAADRep_IPv6_Hop    64
+#endif
+
+#ifndef HAADRep_Identifier
+#define HAADRep_Identifier  1
+#endif
+
+#ifndef HAADRep_Reserved
+#define HAADRep_Reserved    0
+#endif
+
+//=============================================================================
+// Mobile Prefix Solicitation
+#ifndef MPS_IPv6_Hop
+#define MPS_IPv6_Hop    64
+#endif
+
+#ifndef MPS_Code
+#define MPS_Code        0
+#endif
+
+#ifndef MPS_Identifier
+#define MPS_Identifier  any
+#endif
+
+#ifndef MPS_Reserved
+#define MPS_Reserved    0
+#endif
+
+//=============================================================================
+// Mobile Prefix Advertisement
+#ifndef MPA_IPv6_Hop
+#define MPA_IPv6_Hop    64
+#endif
+
+#ifndef MPA_Code
+#define MPA_Code        0
+#endif
+
+#ifndef MPA_Mflag
+#define MPA_Mflag       0
+#endif
+
+#ifndef MPA_Oflag
+#define MPA_Oflag       0
+#endif
+
+#ifndef MPA_Identifier
+#define MPA_Identifier  1
+#endif
+
+#ifndef MPA_Reserved
+#define MPA_Reserved    0
+#endif
+
+//=============================================================================
+// Prefix Information Option
+#ifndef PREINFO_MPA_Lflag
+#define PREINFO_MPA_Lflag           1
+#endif
+
+#ifndef PREINFO_MPA_Aflag
+#define PREINFO_MPA_Aflag           1
+#endif
+
+#ifndef PREINFO_MPA_Rflag
+#define PREINFO_MPA_Rflag           1
+#endif
+
+#ifndef PREINFO_MPA_Reserved1
+#define PREINFO_MPA_Reserved1       0
+#endif
+
+#ifndef PREINFO_MPA_VLD_Lifetime
+#define PREINFO_MPA_VLD_Lifetime    7200
+#endif
+
+#ifndef PREINFO_MPA_PRE_Lifetime
+#define PREINFO_MPA_PRE_Lifetime    7200
+#endif
+
+#ifndef PREINFO_MPA_Reserved2
+#define PREINFO_MPA_Reserved2       0
+#endif
+
+/*----------------------------------------------------------------------------*
+ * Payload
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// PAYLOAD (BU NUTX -> HA0)
+Payload par_prob_bu_nutx_to_ha0 {
+#ifdef FUNC_DETAIL_BU_TO_HA_ALTCOA
+	data = substr(_PACKET_IPV6_NAME(bu_nutxga_ha0ga_hoa_nuthga), 0, 96);
+#else
+	data = substr(_PACKET_IPV6_NAME(bu_nutxga_ha0ga_hoa_nuthga), 0, 80);
+#endif
+}
+
+//=============================================================================
+// PAYLOAD (HoTI NUT0 -> CN0)
+Payload par_prob_hoti_nuth_to_cn0 {
+	data = substr(_PACKET_IPV6_NAME(hoti_nuthga_cn0ga), 0, 56);
+}
+
+//=============================================================================
+// PAYLOAD (CoTI NUT0 -> CN0)
+Payload par_prob_coti_nutx_to_cn0 {
+	data = substr(_PACKET_IPV6_NAME(coti_nutxga_cn0ga), 0, 56);
+}
+
+//=============================================================================
+// PAYLOAD (ECHO NUT0 -> CN0)
+Payload par_prob_echorequest_nuth_to_cn0 {
+	data = substr(_PACKET_IPV6_NAME(echorequest_nuthga_cn0ga), 0, 56);
+}
+
+//=============================================================================
+// PAYLOAD (BU NUT0 -> CN0)
+Payload par_prob_bu_nutx_to_cn0 {
+	data = substr(_PACKET_IPV6_NAME(bu_nutxga_cn0ga_hoa_nuthga), 0, 96);
+}
+
+//=============================================================================
+// PAYLOAD (BU NUT0 -> CN0)
+Payload par_prob_bu_nutx_to_cn0_coa {
+	data = substr(_PACKET_IPV6_NAME(bu_nutxga_cn0ga_hoa_nuthga_coa_nutx), 0, 120);
+}
+
+//=============================================================================
+// PAYLOAD (ECHO NUTX -> CN0 dst-hoa NUT0)
+Payload par_prob_echorequest_nutx_to_cn0_hoa_nuth {
+#if defined(IPSEC_MANUAL_SA5_MN_CN0_PROTO_ICMP)
+	data = substr(_PACKET_IPV6_NAME(echoreply_nutxga_cn0ga_hoa_nuthga), 0, 96);
+#else
+	data = substr(_PACKET_IPV6_NAME(echoreply_nutxga_cn0ga_hoa_nuthga), 0, 72);
+#endif
+}
+
+/*----------------------------------------------------------------------------*
+ * Option
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// for invalid option
+Opt_ICMPv6_SLL opt_unknown {
+	LinkLayerAddress = HA0_ETHER_ADDR;
+}
+
+/*----------------------------------------------------------------------------*
+ * Packet
+ *----------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------*
+ * ICMPv6 Destination Unreachable (R2 -> NUT0)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// ICMPv6 Destination Unreachable: NUTH -> CN0 pay(any)
+FEM_icmp6_destination_unreachable_exth (
+	icmp6_du_nuthga_cn0ga_pay_any,
+	_HETHER_nut0_to_ha0,
+	{
+		_SRC(v6(NUTH_GLOBAL_UCAST));
+		_DST(v6(CN0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(icmp6_pp_nuthga_cn0ga_pay_any);
+#if defined(IPSEC_MANUAL_SA5_MN_CN0_PROTO_ICMP)
+		exthdr = ext_sa5_mn_cn0;
+#endif
+		upper  = _ICMPV6_NAME(icmp6_pp_nuthga_cn0ga_pay_any);
+	},
+	{
+		Type    = 1;
+		Code    = 0;
+		payload = any;
+	}
+)
+
+//=============================================================================
+// ICMPv6 Destination Unreachable: NUTH -> CN0 pay(any) (NUTX => HA0)
+FEM_hdr_ipv6_exth (
+	icmp6_du_nuthga_cn0ga_pay_any_tnl_nutx_ha0,
+	_HETHER_nutx_to_r1,
+	{
+		_SRC(v6(NUTX_GLOBAL_UCAST));
+		_DST(v6(HA0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(icmp6_du_nuthga_cn0ga_pay_any_tnl_nutx_ha0);
+#if defined(IPSEC_MANUAL_SA7_HA0_MN_PROTO_X)
+		exthdr = ext_sa7_mn_ha0;
+#endif
+		upper  = _PACKET_IPV6_NAME(icmp6_du_nuthga_cn0ga_pay_any);
+	}
+)
+
+/*----------------------------------------------------------------------------*
+ * ICMPv6 Destination Unreachable (R2 -> NUT0)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// ICMPv6 Destination Unreachable: R2 -> NUT0 pay(hoti)
+FEM_icmp6_destination_unreachable (
+	icmp6_du_r2ga_nuthga_pay_hoti,
+	_HETHER_ha0_to_nut0,
+	{
+		_SRC(v6(R2_GLOBAL_UCAST));
+		_DST(v6(NUTH_GLOBAL_UCAST));
+	},
+	{
+		Type    = 1;
+		Code    = ICMP_Code;
+		payload = par_prob_hoti_nuth_to_cn0;
+	}
+)
+
+//=============================================================================
+// ICMPv6 Destination Unreachable: R2 -> NUT0 pay(hoti) (HA0 => NUTX)
+FEM_hdr_ipv6_exth (
+	icmp6_du_r2ga_nuthga_pay_hoti_tnl_ha0_nutx,
+	_HETHER_r1_to_nutx,
+	{
+		_SRC(v6(HA0_GLOBAL_UCAST));
+		_DST(v6(NUTX_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(icmp6_du_r2ga_nuthga_pay_hoti_tnl_ha0_nutx);
+#if defined(IPSEC_MANUAL_SA8_HA0_MN_PROTO_X)
+		exthdr = ext_sa8_ha0_mn;
+#endif
+		upper  = _PACKET_IPV6_NAME(icmp6_du_r2ga_nuthga_pay_hoti);
+	}
+)
+
+//=============================================================================
+// ICMPv6 Destination Unreachable: R2 -> NUTX pay(coti)
+FEM_icmp6_destination_unreachable (
+	icmp6_du_r2ga_nutxga_pay_coti,
+	_HETHER_r1_to_nutx,
+	{
+		_SRC(v6(R2_GLOBAL_UCAST));
+		_DST(v6(NUTX_GLOBAL_UCAST));
+	},
+	{
+		Type    = 1;
+		Code    = ICMP_Code;
+		payload = par_prob_coti_nutx_to_cn0;
+	}
+)
+
+/*----------------------------------------------------------------------------*
+ * ICMPv6 Parameter Problem (HA0 -> NUT0)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// ICMPv6 Parameter Problem: HA0 -> NUTX pay(bu)
+FEM_icmp6_parameter_problem (
+	icmp6_pp_ha0ga_nutxga_pay_bu,
+	_HETHER_r1_to_nutx,
+	{
+		_SRC(v6(HA0_GLOBAL_UCAST));
+		_DST(v6(NUTX_GLOBAL_UCAST));
+	},
+	{
+		Type    = 4;
+		Code    = ICMP_Code;
+		Pointer = PAR_PROB_POINTER;
+		payload = par_prob_bu_nutx_to_ha0;
+	}
+)
+
+/*----------------------------------------------------------------------------*
+ * ICMPv6 Parameter Problem (CN0 -> NUT0)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// ICMPv6 Parameter Problem: CN0 -> NUT0 pay(echo request)
+FEM_icmp6_parameter_problem_exth (
+	icmp6_pp_cn0ga_nuthga_pay_echorequest,
+	_HETHER_ha0_to_nut0,
+	{
+		_SRC(v6(CN0_GLOBAL_UCAST));
+		_DST(v6(NUTH_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(icmp6_pp_cn0ga_nuthga_pay_echorequest);
+#if defined(IPSEC_MANUAL_SA6_CN0_MN_PROTO_ICMP)
+		exthdr = ext_sa6_cn0_mn;
+#endif
+		upper  = _ICMPV6_NAME(icmp6_pp_cn0ga_nuthga_pay_echorequest);
+	},
+	{
+		Type    = 4;
+		Code    = ICMP_Code;
+		Pointer = PAR_PROB_POINTER;
+		payload = par_prob_echorequest_nuth_to_cn0;
+	}
+)
+
+//=============================================================================
+// ICMPv6 Parameter Problem: CN0 -> NUT0 pay(echo request) (HA0 => NUTX)
+FEM_hdr_ipv6_exth (
+	icmp6_pp_cn0ga_nuthga_pay_echorequest_tnl_ha0_nutx,
+	_HETHER_r1_to_nutx,
+	{
+		_SRC(v6(HA0_GLOBAL_UCAST));
+		_DST(v6(NUTX_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(icmp6_pp_cn0ga_nuthga_pay_echorequest_tnl_ha0_nutx);
+#if defined(IPSEC_MANUAL_SA8_HA0_MN_PROTO_X)
+		exthdr = ext_sa8_ha0_mn;
+#endif
+		upper  = _PACKET_IPV6_NAME(icmp6_pp_cn0ga_nuthga_pay_echorequest);
+	}
+)
+
+//=============================================================================
+// ICMPv6 Parameter Problem: CN0 -> NUT0 pay(hoti)
+FEM_icmp6_parameter_problem_exth (
+	icmp6_pp_cn0ga_nuthga_pay_hoti,
+	_HETHER_ha0_to_nut0,
+	{
+		_SRC(v6(CN0_GLOBAL_UCAST));
+		_DST(v6(NUTH_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(icmp6_pp_cn0ga_nuthga_pay_hoti);
+#if defined(IPSEC_MANUAL_SA6_CN0_MN_PROTO_ICMP)
+		exthdr = ext_sa6_cn0_mn;
+#endif
+		upper  = _ICMPV6_NAME(icmp6_pp_cn0ga_nuthga_pay_hoti);
+	},
+	{
+		Type    = 4;
+		Code    = ICMP_Code;
+		Pointer = PAR_PROB_POINTER;
+		payload = par_prob_hoti_nuth_to_cn0;
+	}
+)
+
+//=============================================================================
+// ICMPv6 Parameter Problem: CN0 -> NUT0 pay(hoti) (HA0 => NUTX)
+FEM_hdr_ipv6_exth (
+	icmp6_pp_cn0ga_nuthga_pay_hoti_tnl_ha0_nutx,
+	_HETHER_r1_to_nutx,
+	{
+		_SRC(v6(HA0_GLOBAL_UCAST));
+		_DST(v6(NUTX_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(icmp6_pp_cn0ga_nuthga_pay_hoti_tnl_ha0_nutx);
+#if defined(IPSEC_MANUAL_SA8_HA0_MN_PROTO_X)
+		exthdr = ext_sa8_ha0_mn;
+#endif
+		upper  = _PACKET_IPV6_NAME(icmp6_pp_cn0ga_nuthga_pay_hoti);
+	}
+)
+
+//=============================================================================
+// ICMPv6 Parameter Problem: CN0 -> NUTX pay(hoti)
+FEM_icmp6_parameter_problem (
+	icmp6_pp_cn0ga_nutxga_pay_hoti,
+	_HETHER_r1_to_nutx,
+	{
+		_SRC(v6(CN0_GLOBAL_UCAST));
+		_DST(v6(NUTX_GLOBAL_UCAST));
+	},
+	{
+		Type    = 4;
+		Code    = ICMP_Code;
+		Pointer = PAR_PROB_POINTER;
+		payload = par_prob_hoti_nuth_to_cn0;
+	}
+)
+
+//=============================================================================
+// ICMPv6 Parameter Problem: CN0 -> NUTX pay(coti)
+FEM_icmp6_parameter_problem (
+	icmp6_pp_cn0ga_nutxga_pay_coti,
+	_HETHER_r1_to_nutx,
+	{
+		_SRC(v6(CN0_GLOBAL_UCAST));
+		_DST(v6(NUTX_GLOBAL_UCAST));
+	},
+	{
+		Type    = 4;
+		Code    = ICMP_Code;
+		Pointer = PAR_PROB_POINTER;
+		payload = par_prob_coti_nutx_to_cn0;
+	}
+)
+
+//=============================================================================
+// ICMPv6 Parameter Problem: CN0 -> NUTX pay(bu)
+FEM_icmp6_parameter_problem (
+	icmp6_pp_cn0ga_nutxga_pay_bu,
+	_HETHER_r1_to_nutx,
+	{
+		_SRC(v6(CN0_GLOBAL_UCAST));
+		_DST(v6(NUTX_GLOBAL_UCAST));
+	},
+	{
+		Type    = 4;
+		Code    = ICMP_Code;
+		Pointer = PAR_PROB_POINTER;
+		payload = par_prob_bu_nutx_to_cn0;
+	}
+)
+
+//=============================================================================
+// ICMPv6 Parameter Problem: CN0 -> NUTX pay(bu)
+FEM_icmp6_parameter_problem (
+	icmp6_pp_cn0ga_nutxga_pay_bu_coa,
+	_HETHER_r1_to_nutx,
+	{
+		_SRC(v6(CN0_GLOBAL_UCAST));
+		_DST(v6(NUTX_GLOBAL_UCAST));
+	},
+	{
+		Type    = 4;
+		Code    = ICMP_Code;
+		Pointer = PAR_PROB_POINTER;
+		payload = par_prob_bu_nutx_to_cn0_coa;
+	}
+)
+
+//=============================================================================
+// ICMPv6 Parameter Problem: CN0 -> NUTX rh-type2 NUT0 pay(echo request)
+FEM_icmp6_parameter_problem_exth (
+	icmp6_pp_cn0ga_nutxga_rh2_nuthga_pay_echoreply,
+	_HETHER_r1_to_nutx,
+	{
+		_SRC(v6(CN0_GLOBAL_UCAST));
+		_DST(v6(NUTX_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(icmp6_pp_cn0ga_nutxga_rh2_nuthga_pay_echoreply);
+		exthdr = ext_routing_type2_nuth;
+#if defined(IPSEC_MANUAL_SA6_CN0_MN_PROTO_ICMP)
+		exthdr = ext_sa6_cn0_mn;
+#endif
+		upper  = _ICMPV6_NAME(icmp6_pp_cn0ga_nutxga_rh2_nuthga_pay_echoreply);
+	},
+	{
+		Type    = 4;
+		Code    = ICMP_Code;
+		Pointer = PAR_PROB_POINTER;
+		payload = par_prob_echorequest_nutx_to_cn0_hoa_nuth;
+	}
+)
+
+/*----------------------------------------------------------------------------*
+ * ICMPv6 Parameter Problem Packet (NUT0 -> HA0)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// ICMPv6 Parameter Problem: NUT0 -> HA0 pay(any)
+FEM_icmp6_parameter_problem_exth (
+	icmp6_pp_nuthga_ha0ga_pay_any,
+	_HETHER_any,
+	{
+		_SRC(v6(NUTH_GLOBAL_UCAST));
+		_DST(v6(HA0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(icmp6_pp_nuthga_ha0ga_pay_any);
+#if defined(IPSEC_MANUAL_SA5_MN_HA0_PROTO_ICMP)
+		exthdr = ext_sa5_mn_ha0;
+#endif
+		upper  = _ICMPV6_NAME(icmp6_pp_nuthga_ha0ga_pay_any);
+	},
+	{
+		Type    = 4;
+		Code    = any;
+		Pointer = any;
+		payload = any;
+	}
+)
+
+//=============================================================================
+// ICMPv6 Parameter Problem: NUT0 -> HA0 pay(any) (NUTX => HA0)
+FEM_hdr_ipv6_exth (
+	icmp6_pp_nuthga_ha0ga_pay_any_tnl_nutx_ha0,
+	_HETHER_any,
+	{
+		_SRC(v6(NUTX_GLOBAL_UCAST));
+		_DST(v6(HA0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(icmp6_pp_nuthga_ha0ga_pay_any_tnl_nutx_ha0);
+		upper  = _PACKET_IPV6_NAME(icmp6_pp_nuthga_ha0ga_pay_any);
+	}
+)
+
+//=============================================================================
+// ICMPv6 Parameter Problem: NUTX -> HA0 pay(any)
+FEM_icmp6_parameter_problem_exth (
+	icmp6_pp_nutxga_ha0ga_pay_any,
+	_HETHER_any,
+	{
+		_SRC(v6(NUTX_GLOBAL_UCAST));
+		_DST(v6(HA0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(icmp6_pp_nutxga_ha0ga_pay_any);
+		upper  = _ICMPV6_NAME(icmp6_pp_nutxga_ha0ga_pay_any);
+	},
+	{
+		Type    = 4;
+		Code    = any;
+		Pointer = any;
+		payload = any;
+	}
+)
+
+//=============================================================================
+// ICMPv6 Parameter Problem: NUTX -> HA0 dst-hoa NUT0 pay(any)
+FEM_icmp6_parameter_problem_exth (
+	icmp6_pp_nutxga_ha0ga_hoa_nuthga_pay_any,
+	_HETHER_any,
+	{
+		_SRC(v6(NUTX_GLOBAL_UCAST));
+		_DST(v6(HA0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(icmp6_pp_nutxga_ha0ga_hoa_nuthga_pay_any);
+		exthdr = ext_homeaddress_nuth;
+		upper  = _ICMPV6_NAME(icmp6_pp_nutxga_ha0ga_hoa_nuthga_pay_any);
+	},
+	{
+		Type    = 4;
+		Code    = any;
+		Pointer = any;
+		payload = any;
+	}
+)
+
+/*----------------------------------------------------------------------------*
+ * ICMPv6 Parameter Problem Packet (NUT0 -> CN0)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// ICMPv6 Parameter Problem: NUT0 -> CN0 pay(any)
+FEM_icmp6_parameter_problem_exth (
+	icmp6_pp_nuthga_cn0ga_pay_any,
+	_HETHER_nut0_to_ha0,
+	{
+		_SRC(v6(NUTH_GLOBAL_UCAST));
+		_DST(v6(CN0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(icmp6_pp_nuthga_cn0ga_pay_any);
+#if defined(IPSEC_MANUAL_SA5_MN_CN0_PROTO_ICMP)
+		exthdr = ext_sa5_mn_cn0;
+#endif
+		upper  = _ICMPV6_NAME(icmp6_pp_nuthga_cn0ga_pay_any);
+	},
+	{
+		Type    = 4;
+		Code    = any;
+		Pointer = any;
+		payload = any;
+	}
+)
+
+//=============================================================================
+// ICMPv6 Parameter Problem: NUT0 -> CN0 pay(any) (NUTX => HA0)
+FEM_hdr_ipv6_exth (
+	icmp6_pp_nuthga_cn0ga_pay_any_tnl_nutx_ha0,
+	_HETHER_any,
+	{
+		_SRC(v6(NUTX_GLOBAL_UCAST));
+		_DST(v6(HA0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(icmp6_pp_nuthga_cn0ga_pay_any_tnl_nutx_ha0);
+#if defined(IPSEC_MANUAL_SA7_MN_HA0_PROTO_X)
+		exthdr = ext_sa7_mn_ha0; 
+#endif
+		upper  = _PACKET_IPV6_NAME(icmp6_pp_nuthga_cn0ga_pay_any);
+	}
+)
+
+//=============================================================================
+// ICMPv6 Parameter Problem: NUT0 -> CN0 pay(any) (NUTany => HA0)
+FEM_hdr_ipv6_exth (
+	icmp6_pp_nuthga_cn0ga_pay_any_tnl_nutany_ha0,
+	_HETHER_any,
+	{
+		_SRC(oneof(v6(NUTH_GLOBAL_UCAST),
+		           v6(NUTX_GLOBAL_UCAST),
+		           v6(NUTY_GLOBAL_UCAST),
+		           v6(NUTZ_GLOBAL_UCAST)));
+		_DST(v6(HA0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(icmp6_pp_nuthga_cn0ga_pay_any_tnl_nutany_ha0);
+#if defined(IPSEC_MANUAL_SA7_MN_HA0_PROTO_X)
+		exthdr = ext_sa7_mn_ha0;
+#endif
+		upper  = _PACKET_IPV6_NAME(icmp6_pp_nuthga_cn0ga_pay_any);
+	}
+)
+
+//=============================================================================
+// ICMPv6 Parameter Problem: NUTany -> CN0 pay(any)
+FEM_icmp6_parameter_problem (
+	icmp6_pp_nutany_cn0ga_pay_any,
+	_HETHER_any,
+	{
+		_SRC(oneof(v6(NUTX_GLOBAL_UCAST),
+		           v6(NUTY_GLOBAL_UCAST),
+		           v6(NUTZ_GLOBAL_UCAST)));
+		_DST(v6(CN0_GLOBAL_UCAST));
+	},
+	{
+		Type    = 4;
+		Code    = any;
+		Pointer = any;
+		payload = any;
+	}
+)
+
+//=============================================================================
+// ICMPv6 Parameter Problem: NUTany -> CN0 dst-hoa NUT0 pay(any)
+FEM_icmp6_parameter_problem_exth (
+	icmp6_pp_nutany_cn0ga_hoa_nuthga_pay_any,
+	_HETHER_any,
+	{
+		_SRC(oneof(v6(NUTH_GLOBAL_UCAST),
+		           v6(NUTX_GLOBAL_UCAST),
+		           v6(NUTY_GLOBAL_UCAST),
+		           v6(NUTZ_GLOBAL_UCAST)));
+		_DST(v6(CN0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(icmp6_pp_nutany_cn0ga_hoa_nuthga_pay_any);
+		exthdr = ext_homeaddress_nuth;
+#if defined(IPSEC_MANUAL_SA5_MN_CN0_PROTO_ICMP)
+		exthdr = ext_sa5_mn_cn0;
+#endif
+		upper  = _ICMPV6_NAME(icmp6_pp_nutany_cn0ga_hoa_nuthga_pay_any);
+	},
+	{
+		Type    = 4;
+		Code    = any;
+		Pointer = any;
+		payload = any;
+	}
+)
+
+//=============================================================================
+// ICMPv6 Parameter Problem: NUTX -> CN1 pay(any)
+FEM_icmp6_parameter_problem (
+	icmp6_pp_nutxga_cn1ga_pay_any,
+	_HETHER_any,
+	{
+		_SRC(v6(NUTX_GLOBAL_UCAST));
+		_DST(v6(CN1_GLOBAL_UCAST));
+	},
+	{
+		Type    = 4;
+		Code    = any;
+		Pointer = any;
+		payload = any;
+	}
+)
+
+//=============================================================================
+// ICMPv6 Parameter Problem: NUTX -> CN1 dst-hoa(nut0) pay(any)
+FEM_icmp6_parameter_problem_exth (
+	icmp6_pp_nutxga_cn1ga_hoa_nuthga_pay_any,
+	_HETHER_any,
+	{
+		_SRC(v6(NUTX_GLOBAL_UCAST));
+		_DST(v6(CN1_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(icmp6_pp_nutxga_cn1ga_hoa_nuthga_pay_any);
+		exthdr = ext_homeaddress_nuth;
+		upper  = _ICMPV6_NAME(icmp6_pp_nutxga_cn1ga_hoa_nuthga_pay_any);
+	},
+	{
+		Type    = 4;
+		Code    = any;
+		Pointer = any;
+		payload = any;
+	}
+)
+
+/*----------------------------------------------------------------------------*
+ * Home Agent Address Discovery Request (NUT0 -> HAanycast)
+/*----------------------------------------------------------------------------*/
+//=============================================================================
+// Home Agent Address Discovery Request: NUT0(LLA) -> HAanycast
+FEM_icmp6_haadrequest (
+	haadrequest_nut0lla_link0haany,
+	_HETHER_nut0_to_ha0,
+	{
+		_SRC(v6(NUT0_LLOCAL_UCAST));
+		_DST(v6(HA_GLOBAL_ANYCAST));
+	},
+	{
+		Identifier = HAADReq_Identifier;
+		Reserved   = HAADReq_Reserved;
+	}
+)
+
+//=============================================================================
+// Home Agent Address Discovery Request: NUT0 -> HAanycast
+FEM_icmp6_haadrequest (
+	haadrequest_nuthga_link0haany,
+	_HETHER_nut0_to_ha0,
+	{
+		_SRC(v6(NUT0_GLOBAL_UCAST));
+		_DST(v6(HA_GLOBAL_ANYCAST));
+	},
+	{
+		Identifier = HAADReq_Identifier;
+		Reserved   = HAADReq_Reserved;
+	}
+)
+
+//=============================================================================
+// Home Agent Address Discovery Request: NUTX -> HAanycast
+FEM_icmp6_haadrequest (
+	haadrequest_nutxga_link0haany,
+	_HETHER_nutx_to_r1,
+	{
+		_SRC(v6(NUTX_GLOBAL_UCAST));
+		_DST(v6(HA_GLOBAL_ANYCAST));
+	},
+	{
+		Identifier = HAADReq_Identifier;
+		Reserved   = HAADReq_Reserved;
+	}
+)
+
+//=============================================================================
+// Home Agent Address Discovery Request: NUTY -> HAanycast
+FEM_icmp6_haadrequest (
+	haadrequest_nutyga_link0haany,
+	_HETHER_nuty_to_r2,
+	{
+		_SRC(v6(NUTY_GLOBAL_UCAST));
+		_DST(v6(HA_GLOBAL_ANYCAST));
+	},
+	{
+		Identifier = HAADReq_Identifier;
+		Reserved   = HAADReq_Reserved;
+	}
+)
+
+/*----------------------------------------------------------------------------*
+ * Home Agent Address Discovery Reply (HA0 -> NUT0)
+/*----------------------------------------------------------------------------*/
+//=============================================================================
+// Home Agent Address Discovery Reply: HA0(LLA) -> NUT0 list(ha0)
+FEM_icmp6_haadreply (
+	haadreply_ha0lla_nut0lla_list_ha0,
+	_HETHER_ha0_to_nut0,
+	{
+		_SRC(v6(HA0_LLOCAL_UCAST));
+		_DST(v6(NUT0_LLOCAL_UCAST));
+	},
+	{
+		Identifier = HAADRep_Identifier;
+		Reserved   = HAADRep_Reserved;
+		Address    = v6(HA0_GLOBAL_UCAST);
+	}
+)
+
+//=============================================================================
+// Home Agent Address Discovery Reply: HA0 -> NUT0 list(ha0)
+FEM_icmp6_haadreply_exth (
+	haadreply_ha0ga_nuthga_list_ha0,
+	_HETHER_ha0_to_nut0,
+	{
+		_SRC(v6(HA0_GLOBAL_UCAST));
+		_DST(v6(NUT0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(haadreply_ha0ga_nuthga_list_ha0);
+#if defined(IPSEC_MANUAL_SA6_HA0_MN_PROTO_ICMP)
+		exthdr = ext_sa6_ha0_mn;
+#endif
+		upper  = _ICMPV6_NAME(haadreply_ha0ga_nuthga_list_ha0);
+	},
+	{
+		Identifier = HAADRep_Identifier;
+		Reserved   = HAADRep_Reserved;
+		Address    = v6(HA0_GLOBAL_UCAST);
+	}
+)
+
+//=============================================================================
+// Home Agent Address Discovery Reply: HA0 -> NUTX list(ha0)
+FEM_icmp6_haadreply_exth (
+	haadreply_ha0ga_nutxga_list_ha0,
+	_HETHER_r1_to_nutx,
+	{
+		_SRC(v6(HA0_GLOBAL_UCAST));
+		_DST(v6(NUTX_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(haadreply_ha0ga_nutxga_list_ha0);
+		upper  = _ICMPV6_NAME(haadreply_ha0ga_nutxga_list_ha0);
+ 	},
+	{
+		Identifier = HAADRep_Identifier;
+		Reserved   = HAADRep_Reserved;
+		Address    = v6(HA0_GLOBAL_UCAST);
+	}
+)
+
+//=============================================================================
+// Home Agent Address Discovery Reply: HA0 -> NUTX list(ha0,ha1)
+FEM_icmp6_haadreply_exth (
+	haadreply_ha0ga_nutxga_list_ha0ha1,
+	_HETHER_r1_to_nutx,
+	{
+		_SRC(v6(HA0_GLOBAL_UCAST));
+		_DST(v6(NUTX_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(haadreply_ha0ga_nutxga_list_ha0ha1);
+		upper  = _ICMPV6_NAME(haadreply_ha0ga_nutxga_list_ha0ha1);
+ 	},
+	{
+		Identifier = HAADRep_Identifier;
+		Reserved   = HAADRep_Reserved;
+		Address    = v6(HA0_GLOBAL_UCAST);
+		Address    = v6(HA1_GLOBAL_UCAST);
+	}
+)
+
+//=============================================================================
+// Home Agent Address Discovery Reply: HA0 -> NUTX list(ha1,ha0)
+FEM_icmp6_haadreply_exth (
+	haadreply_ha0ga_nutxga_list_ha1ha0,
+	_HETHER_r1_to_nutx,
+	{
+		_SRC(v6(HA0_GLOBAL_UCAST));
+		_DST(v6(NUTX_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(haadreply_ha0ga_nutxga_list_ha1ha0);
+		upper  = _ICMPV6_NAME(haadreply_ha0ga_nutxga_list_ha1ha0);
+ 	},
+	{
+		Identifier = HAADRep_Identifier;
+		Reserved   = HAADRep_Reserved;
+		Address    = v6(HA1_GLOBAL_UCAST);
+		Address    = v6(HA0_GLOBAL_UCAST);
+	}
+)
+
+//=============================================================================
+// Home Agent Address Discovery Reply: HA0 -> NUTY list(ha0)
+FEM_icmp6_haadreply_exth (
+	haadreply_ha0ga_nutyga_list_ha0,
+	_HETHER_r2_to_nuty,
+	{
+		_SRC(v6(HA0_GLOBAL_UCAST));
+		_DST(v6(NUTY_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(haadreply_ha0ga_nutyga_list_ha0);
+		upper  = _ICMPV6_NAME(haadreply_ha0ga_nutyga_list_ha0);
+	},
+	{
+		Identifier = HAADRep_Identifier;
+		Reserved   = HAADRep_Reserved;
+		Address    = v6(HA0_GLOBAL_UCAST);
+	}
+)
+
+/*----------------------------------------------------------------------------*
+ * Mobile Prefix Solicitation (NUT0 -> HA0)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Mobile Prefix Solicitation: NUTX -> HA0 dst-hoa NUT0
+FEM_icmp6_mip6prefixsol_exth (
+	mps_nutxga_ha0ga_hoa_nuthga,
+	_HETHER_nutx_to_r1,
+	{
+		_SRC(v6(NUTX_GLOBAL_UCAST));
+		_DST(v6(HA0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(mps_nutxga_ha0ga_hoa_nuthga);
+		exthdr = ext_homeaddress_nuth;
+#if defined(IPSEC_MANUAL_SA5_MN_HA0_PROTO_MPS)
+		exthdr = ext_sa5_mn_ha0;
+#endif
+		upper  = _ICMPV6_NAME(mps_nutxga_ha0ga_hoa_nuthga);
+	},
+	{
+		Code       = MPS_Code;
+		Identifier = MPS_Identifier;
+		Reserved   = MPS_Reserved;
+	}
+)
+
+//=============================================================================
+// Mobile Prefix Solicitation: NUTY -> HA0 dst-hoa NUT0
+FEM_icmp6_mip6prefixsol_exth (
+	mps_nutyga_ha0ga_hoa_nuthga,
+	_HETHER_nuty_to_r2,
+	{
+		_SRC(v6(NUTY_GLOBAL_UCAST));
+		_DST(v6(HA0_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(mps_nutyga_ha0ga_hoa_nuthga);
+		exthdr = ext_homeaddress_nuth;
+#if defined(IPSEC_MANUAL_SA5_MN_HA0_PROTO_MPS)
+		exthdr = ext_sa5_mn_ha0;
+#endif
+		upper  = _ICMPV6_NAME(mps_nutyga_ha0ga_hoa_nuthga);
+	},
+	{
+		Code       = MPS_Code;
+		Identifier = MPS_Identifier;
+		Reserved   = MPS_Reserved;
+	}
+)
+
+/*----------------------------------------------------------------------------*
+ * Option Prefix Information
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+Opt_ICMPv6_Prefix opt_prefixinformation_mpa_ha0ga {
+	LFlag             = PREINFO_MPA_Lflag;
+	AFlag             = PREINFO_MPA_Aflag;
+	RFlag             = PREINFO_MPA_Rflag;
+	Reserved1         = PREINFO_MPA_Reserved1;
+	ValidLifetime     = PREINFO_MPA_VLD_Lifetime;
+	PreferredLifetime = PREINFO_MPA_PRE_Lifetime;
+	Reserved2         = PREINFO_MPA_Reserved2;
+	Prefix            = v6(HA0_GLOBAL_UCAST);
+}
+
+Opt_ICMPv6_Prefix opt_prefixinformation_mpa_ha1ga {
+	LFlag             = PREINFO_MPA_Lflag;
+	AFlag             = PREINFO_MPA_Aflag;
+	RFlag             = PREINFO_MPA_Rflag;
+	Reserved1         = PREINFO_MPA_Reserved1;
+	ValidLifetime     = PREINFO_MPA_VLD_Lifetime;
+	PreferredLifetime = PREINFO_MPA_PRE_Lifetime;
+	Reserved2         = PREINFO_MPA_Reserved2;
+	Prefix            = v6(HA1_GLOBAL_UCAST);
+}
+
+/*----------------------------------------------------------------------------*
+ * Mobile Prefix Advertisement (HA0 -> NUT0)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Mobile Prefix Advertisement: HA0 -> NUTX prefix(ha0)
+FEM_icmp6_mip6prefixadv_exth (
+	mpa_ha0ga_nutxga_pfx_ha0,
+	_HETHER_r1_to_nutx,
+	{
+		_SRC(v6(HA0_GLOBAL_UCAST));
+		_DST(v6(NUTX_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(mpa_ha0ga_nutxga_pfx_ha0);
+		upper  = _ICMPV6_NAME(mpa_ha0ga_nutxga_pfx_ha0);
+	},
+	{
+		Code       = MPA_Code;
+		Identifier = MPA_Identifier;
+		MFlag      = MPA_Mflag;
+		OFlag      = MPA_Oflag;
+		Reserved   = MPA_Reserved;
+		option     = opt_prefixinformation_mpa_ha0ga;
+	}
+)
+
+//=============================================================================
+// Mobile Prefix Advertisement: HA0 -> NUTX rh-type2 NUT0 prefix(ha0)
+FEM_icmp6_mip6prefixadv_exth (
+	mpa_ha0ga_nutxga_rh2_nuthga_pfx_ha0,
+	_HETHER_r1_to_nutx,
+	{
+		_SRC(v6(HA0_GLOBAL_UCAST));
+		_DST(v6(NUTX_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(mpa_ha0ga_nutxga_rh2_nuthga_pfx_ha0);
+		exthdr = ext_routing_type2_nuth;
+#if defined(IPSEC_MANUAL_SA6_HA0_MN_PROTO_MPA)
+		exthdr = ext_sa6_ha0_mn;
+#endif
+		upper  = _ICMPV6_NAME(mpa_ha0ga_nutxga_rh2_nuthga_pfx_ha0);
+	},
+	{
+		Code       = MPA_Code;
+		Identifier = MPA_Identifier;
+		MFlag      = MPA_Mflag;
+		OFlag      = MPA_Oflag;
+		Reserved   = MPA_Reserved;
+		option     = opt_prefixinformation_mpa_ha0ga;
+	}
+)
+
+//=============================================================================
+// Mobile Prefix Advertisement: HA0 -> NUTX rh-type2 NUT0 prefix(ha0) add unknown option
+FEM_icmp6_mip6prefixadv_exth (
+	mpa_ha0ga_nutxga_rh2_nuthga_pfx_ha0_opt_unk,
+	_HETHER_r1_to_nutx,
+	{
+		_SRC(v6(HA0_GLOBAL_UCAST));
+		_DST(v6(NUTX_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(mpa_ha0ga_nutxga_rh2_nuthga_pfx_ha0_opt_unk);
+		exthdr = ext_routing_type2_nuth;
+#if defined(IPSEC_MANUAL_SA6_HA0_MN_PROTO_MPA)
+		exthdr = ext_sa6_ha0_mn;
+#endif
+		upper  = _ICMPV6_NAME(mpa_ha0ga_nutxga_rh2_nuthga_pfx_ha0_opt_unk);
+	},
+	{
+		Code       = MPA_Code;
+		Identifier = MPA_Identifier;
+		MFlag      = MPA_Mflag;
+		OFlag      = MPA_Oflag;
+		Reserved   = MPA_Reserved;
+		option     = opt_prefixinformation_mpa_ha0ga;
+		option     = opt_unknown;
+	}
+)
+
+//=============================================================================
+// Mobile Prefix Advertisement: HA0 -> NUTY rh-type2 NUT0 prefix(ha0)
+FEM_icmp6_mip6prefixadv_exth (
+	mpa_ha0ga_nutyga_rh2_nuthga_pfx_ha0,
+	_HETHER_r2_to_nuty,
+	{
+		_SRC(v6(HA0_GLOBAL_UCAST));
+		_DST(v6(NUTY_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(mpa_ha0ga_nutyga_rh2_nuthga_pfx_ha0);
+		exthdr = ext_routing_type2_nuth;
+#if defined(IPSEC_MANUAL_SA6_HA0_MN_PROTO_MPA)
+		exthdr = ext_sa6_ha0_mn;
+#endif
+		upper  = _ICMPV6_NAME(mpa_ha0ga_nutyga_rh2_nuthga_pfx_ha0);
+	},
+	{
+		Code       = MPA_Code;
+		Identifier = MPA_Identifier;
+		MFlag      = MPA_Mflag;
+		OFlag      = MPA_Oflag;
+		Reserved   = MPA_Reserved;
+		option     = opt_prefixinformation_mpa_ha0ga;
+	}
+)
+
+/*----------------------------------------------------------------------------*
+ * Mobile Prefix Advertisement (HA0 -> NUT0)
+ *----------------------------------------------------------------------------*/
+//=============================================================================
+// Mobile Prefix Advertisement: HA1 -> NUTX rh-type2 NUT0 prefix(ha1)
+FEM_icmp6_mip6prefixadv_exth (
+	mpa_ha1ga_nutxga_rh2_nuthga_pfx_ha1,
+	_HETHER_r1_to_nutx,
+	{
+		_SRC(v6(HA1_GLOBAL_UCAST));
+		_DST(v6(NUTX_GLOBAL_UCAST));
+	},
+	{
+		header = _HDR_IPV6_NAME(mpa_ha1ga_nutxga_rh2_nuthga_pfx_ha1);
+		exthdr = ext_routing_type2_nuth;
+#if defined(IPSEC_MANUAL_SA6_HA1_MN_PROTO_MPA)
+		exthdr = ext_sa6_ha1_mn;
+#endif
+		upper  = _ICMPV6_NAME(mpa_ha1ga_nutxga_rh2_nuthga_pfx_ha1);
+	},
+	{
+		Code       = MPA_Code;
+		Identifier = MPA_Identifier;
+		MFlag      = MPA_Mflag;
+		OFlag      = MPA_Oflag;
+		Reserved   = MPA_Reserved;
+		option     = opt_prefixinformation_mpa_ha1ga;
+	}
+)
+
+// End of File

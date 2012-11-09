@@ -1,0 +1,409 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>MN-1-2-2-1-014 - Sending HoTI</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:root@jail-99255.freebsd.org" />
+</head>
+
+<body style="background-color: white">
+
+<p><a name="__index__"></a></p>
+<!-- INDEX BEGIN -->
+<!--
+
+<ul>
+
+	<li><a href="#name">NAME</a></li>
+	<li><a href="#target">TARGET</a></li>
+	<li><a href="#requirement_of_test">REQUIREMENT of TEST</a></li>
+	<li><a href="#topology">TOPOLOGY</a></li>
+	<li><a href="#setup">SETUP</a></li>
+	<li><a href="#initialization">INITIALIZATION</a></li>
+	<li><a href="#test_procedure">TEST PROCEDURE</a></li>
+	<li><a href="#judgement">JUDGEMENT</a></li>
+	<li><a href="#reference">REFERENCE</a></li>
+</ul>
+-->
+<!-- INDEX END -->
+
+<p>
+</p>
+<h1><a name="name">NAME</a></h1>
+MN-1-2-2-1-014 - Sending HoTI (Foreign -> home -> Foreign, ISAKMP SA exist, IPsec SA3/SA4 expired)<p>
+</p>
+<hr />
+<h1><a name="target">TARGET</a></h1>
+<PRE>
+Host
+</PRE><p>
+</p>
+<hr />
+<h1><a name="requirement_of_test">REQUIREMENT of TEST</a></h1>
+<PRE>
+    - Function of IKEv1: YES
+    - Function of Real Home Link: YES
+    - Function of Return Routability: YES
+
+    - NUT sets (K) bit in BU which is transmitted to HA: YES
+</PRE><p>
+</p>
+<hr />
+<h1><a name="topology">TOPOLOGY</a></h1>
+<PRE>
+<UL>
+<LI><B><FONT SIZE="+1">TOPOLOGY-1 In the case of Real Home Link</FONT></B>
+</UL>
+
+                            |
+                            R      CN0
+                            |       |
+                ----+-------+-------+----------------------- LinkZ
+                    |
+                    R2                            NUTY
+                    |                               |
+                ----+-------+-----------------------+------- LinkY
+                            |
+                            R1                    NUTX
+                            |                       |
+                ----+-------+-----------------------+------- LinkX
+                    |
+                   HA0                            NUT0
+                    |                               |
+        ------------+-------------------------------+------- Link0
+</PRE>
+<BLOCKQUOTE>
+<TABLE BORDER>
+<TR>
+<TD><TT>Link0</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:100::/64</TT></TD>
+<TD><TT>home link</TT></TD>
+</TR>
+<TR>
+<TD><TT>LinkX</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:102::/64</TT></TD>
+<TD><TT>foreign link</TT></TD>
+</TR>
+<TR>
+<TD><TT>LinkY</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:103::/64</TT></TD>
+<TD><TT>foreign link</TT></TD>
+</TR>
+<TR>
+<TD><TT>LinkZ</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:104::/64</TT></TD>
+<TD><TT>foreign link</TT></TD>
+</TR>
+<TR>
+<TD ROWSPAN="3"><TT>HA0 (Link0)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:100:200:ff:fe00:a0a0</TT></TD>
+<TD ROWSPAN="3"><TT>home agent</TT></TD>
+</TR>
+<TR>
+<TD><TT>link-local</TT></TD>
+<TD><TT>fe80::200:ff:fe00:a0a0</TT></TD>
+</TR>
+<TR>
+<TD><TT>ether</TT></TD>
+<TD><TT>00:00:00:00:a0:a0</TT></TD>
+</TR>
+<TR>
+<TD ROWSPAN="3"><TT>R1 (LinkX)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:102:200:ff:fe00:a4a4</TT></TD>
+<TD ROWSPAN="3"><TT>&nbsp;</TT></TD>
+</TR>
+<TR>
+<TD><TT>link-local</TT></TD>
+<TD><TT>fe80::200:ff:fe00:a4a4</TT></TD>
+</TR>
+<TR>
+<TD><TT>ether</TT></TD>
+<TD><TT>00:00:00:00:a4:a4</TT></TD>
+</TR>
+<TR>
+<TD ROWSPAN="3"><TT>R2 (LinkY)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:103:200:ff:fe00:a6a6</TT></TD>
+<TD ROWSPAN="3"><TT>&nbsp;</TT></TD>
+</TR>
+<TR>
+<TD><TT>link-local</TT></TD>
+<TD><TT>fe80::200:ff:fe00:a6a6</TT></TD>
+</TR>
+<TR>
+<TD><TT>ether</TT></TD>
+<TD><TT>00:00:00:00:a6:a6</TT></TD>
+</TR>
+<TR>
+<TD ROWSPAN="3"><TT>CN0 (LinkZ)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:104:200:ff:fe00:a8a8</TT></TD>
+<TD ROWSPAN="3"><TT>correspondent node</TT></TD>
+</TR>
+<TR>
+<TD><TT>link-local</TT></TD>
+<TD><TT>fe80::200:ff:fe00:a8a8</TT></TD>
+</TR>
+<TR>
+<TD><TT>ether</TT></TD>
+<TD><TT>00:00:00:00:a8:a8</TT></TD>
+</TR>
+<TR>
+<TD ROWSPAN="3"><TT>NUT0 (Link0)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:100::&lt;NutDef.Link0_addr&gt;</TT></TD>
+<TD ROWSPAN="3"><TT>home address</TT></TD>
+</TR>
+<TR>
+<TD><TT>link-local</TT></TD>
+<TD><TT>fe80::&lt;NutDef.Link0_addr&gt;</TT></TD>
+</TR>
+<TR>
+<TD><TT>ether</TT></TD>
+<TD><TT>&lt;NutDef.Link0_addr&gt;</TT></TD>
+</TR>
+<TR>
+<TD><TT>NUTX (LinkX)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:102::&lt;NutDef.Link0_addr&gt;</TT></TD>
+<TD><TT>care-of address</TT></TD>
+</TR>
+<TR>
+<TD><TT>NUTY (LinkY)</TT></TD>
+<TD><TT>global</TT></TD>
+<TD><TT>3ffe:501:ffff:103::&lt;NutDef.Link0_addr&gt;</TT></TD>
+<TD><TT>care-of address</TT></TD>
+</TR>
+</TABLE>
+</BLOCKQUOTE><p>
+</p>
+<hr />
+<h1><a name="setup">SETUP</a></h1>
+<PRE>
+<LI><B><FONT SIZE="+1">Common Setup-1</FONT></B>
+<UL>
+<LI>Reboot NUT
+<LI>Enable MN function
+<UL>
+<LI>Turn on MN functions
+</UL>
+<LI>Initialize IPsec configuration
+<LI>Set IPsec configuration
+<UL>
+<LI>This test requires following configurations.
+<UL>
+<LI><A HREF="SETUP_IPsec_HA0_SA1_SA2.html">MN-HA0 SA1/SA2, Transport mode, Binding Update/Binding Acknowledgement</A>
+<LI><A HREF="SETUP_IPsec_HA0_SA3_SA4.html">MN-HA0 SA3/SA4, Tunnel mode, Return Routability Signaling</A>
+</UL>
+<LI>This test requires following configurations, If a related message is used.
+<UL>
+<LI><A HREF="SETUP_IPsec_HA0_SA5_SA6.html">MN-HA0 SA5/SA6, Transport mode, Prefix Discovery</A>
+</UL>
+<LI>This test also allow to use following configurations.
+<UL>
+<LI><A HREF="SETUP_IPsec_HA0_SA7_SA8.html">MN-HA0 SA7/SA8, Tunnel mode, Payload Packets</A>
+<LI><A HREF="SETUP_IPsec_CN0_SA.html">MN-CN0, Transport mode, ICMP</A>
+</UL>
+</UL>
+<LI>Set IKEv1 configuration
+<UL>
+<LI>Not using the optional KE payload.
+<UL>
+<LI>w/o Perfect Forward Secrecy (PFS) in IKEv1 Phase 2
+</UL>
+<LI>MN must be the initiator of the Security Association.
+<LI>MN should establish required IPsecSA as an initiator after ISAKMP SA establishment.
+<UL>
+<LI>Be established within FUNC_DETAIL_IKE_TIME in config (default 30sec). 
+<LI>Since a test is not made when not establishing SA, it is ended by Initialization Fail.
+</UL>
+<LI>Interval when re-establishment of each SA recommended while testing begins.
+(It is necessary to be likely to adjust it more.)
+<UL>
+<LI>ISAKMP SA     : 480 sec
+<LI>IPsec SA1/SA2 : 240 sec
+<LI>IPsec SA3/SA4 : 120 sec
+<LI>IPsec SA5/SA6 : 120 sec
+<LI>IPsec SA7/SA8 : 120 sec
+</UL></UL></UL>
+</PRE><p>
+</p>
+<hr />
+<h1><a name="initialization">INITIALIZATION</a></h1>
+<PRE>
+
+       HA0    NUT0      R1      R2     CN0
+        |       |       |       |       |
+        | ----> |       |       |       | 1.Router Advertisement
+        |       |       |       |       |
+        |     NUTX      |       |       |
+        |       |       |       |       |
+        |       | <---- |       |       | 2.Router Advertisement
+        |       |       |       |       |
+        | <---- |       |       |       | 3.Neighbor Solicitation (NUD)
+        |       |       |       |       | 4.(no reply)
+        |       |       |       |       |
+        1. Send Router Advertisement. (HA0 -> HA0_allnode_multi)
+        2. Send Router Advertisement. (R1 -> R1_allnode_multi)
+        3. Receive Neighbor Solicitation (NUD). (NUT0 -> HA0)
+        4. (no reply)
+</PRE><p>
+</p>
+<hr />
+<h1><a name="test_procedure">TEST PROCEDURE</a></h1>
+<PRE>
+
+       HA0    NUTX      R1      R2     CN0
+        |       |       |       |       |
+        |       | <---- |       |       | 1.Router Advertisement
+        |       |       |       |       |
+        | <===> |       |       |       | a.IKEv1 Phase1 (ISAKMP SA)
+        | <===> |       |       |       | b.IKEv1 Phase2 (IPsec SA1/SA2)
+        |       |       |       |       |
+        | <---- |       |       |       | 2.Binding Update
+        | ----> |       |       |       | 3.Binding Acknowledgement
+        |       |       |       |       |
+        | <===> |       |       |       | c.IKEv1 Phase2 (IPsec SA3/SA4)
+        | <===> |       |       |       | d.IKEv1 Phase2 (IPsec SA7/SA8) (It is if required)
+        |       |       |       |       |
+        | ====> | <-------------------- | 4.ICMP Echo Request
+        |       |       |       |       |
+        | <==== | --------------------> | 5.Home Test Init
+        |       | --------------------> | 6.Care-of Test Init
+        |       | <-------------------- | 7.Care-of Test
+        | ====> | <-------------------- | 8.Home test
+        |       |       |       |       |
+        | <==== | --------------------> | 9.ICMP Echo Reply
+        |       | --------------------> | 10.Binding Update
+        |       | --------------------> | 11.ICMP Echo Reply
+        |       |       |       |       |
+        |     NUT0      |       |       |
+        |       |       |       |       |
+        | ----> |       |       |       | 12.Router Advertisement
+        |       |       |       |       |
+        | <---- |       |       |       | 13.Binding Update
+        | ----> |       |       |       | 14.Binding Acknowledgement
+        |       |       |       |       |
+        |       |       |       |       | e.(inactive IPsec SA3/SA4)
+        |       |       |       |       |
+        | <---- |       |       |       | 15.Neighbor Advertisement
+        |       |       |       |       |
+        |       | --------------------> | 16.Home Test Init
+        |       | <-------------------- | 17.Home Test
+        |       |       |       |       |
+        |       | --------------------> | 18.Binding Update
+        |       |       |       |       |
+        |       |       |       |       | :
+        |       |       |       |       |
+        |       |       |       |       | f.(expire IPsec SA3/SA4)
+        |       |       |       |       |
+        |     NUTX      |       |       |
+        |       |       |       |       |
+        |       | <---- |       |       | 19.Router Advertisement
+        |       |       |       |       |
+        | <---- |       |       |       | 20.Binding Update
+        | ----> |       |       |       | 21.Binding Acknowledgement
+        |       |       |       |       |
+        | <===> |       |       |       | g.IKEv1 Phase2 (IPsec SA3/SA4) (*1)
+        |       |       |       |       |
+        | ====> | <-------------------- | 22.ICMP Echo Request
+        |       |       |       |       |
+        | <==== | --------------------> | 23.Home Test Init (*2)
+        |       | --------------------> | 24.Care-of Test Init
+        |       | <-------------------- | 25.Care-of Test
+        | ====> | <-------------------- | 26.Home test
+        |       |       |       |       |
+        | <==== | --------------------> | 27.ICMP Echo Reply
+        |       | --------------------> | 28.Binding Update (*3)
+        |       | --------------------> | 29.ICMP Echo Reply
+        |       |       |       |       |
+
+        1. Send Router Advertisement. (R1 -> R1_allnode_multi)
+
+        a. IKEv1 Phase1 (ISAKMP SA)
+        b. IKEv1 Phase2 (IPsec SA1/SA2)
+
+        2. Receive Binding Update. (NUTX -> HA0)
+        3. Send Binding Acknowledgement. (HA0 -> NUTX)
+
+        c. IKEv1 Phase2 (IPsec SA3/SA4)
+        d. IKEv1 Phase2 (IPsec SA7/SA8) (It is if required)
+
+        4. Send ICMP Echo Request. (out: HA0 -> NUTX, in: CN0 -> NUT0)
+        5. Receive Home Test Init. (out: NUTX -> HA0, in: NUT0 -> CN0)
+        6. Receive Care-of Test Init. (NUTX -> CN0)
+        7. Send Care-of Test. (CN0 -> NUTX)
+        8. Send Home Test. (out: HA0 -> NUTX, in: CN0 -> NUT0)
+        9. Receive ICMP Echo Reply or [11]. (out: NUTX -> HA0, in: NUT0 -> CN0)
+       10. Receive Binding Update. (NUTX -> CN0)
+       11. [9] or Receive ICMP Echo Reply. (NUTX -> CN0 with Home Address Option)
+       12. Send Router Advertisement. (HA0 -> HA0_allnode_multi)
+       13. Receive Binding Update. (NUT0 -> HA0)
+            # (K)bit on
+       14. Send Binding Acknowledgement. (HA0 -> NUT0)
+            # (K)bit on
+
+        e. (inactive IPsec SA3/SA4)
+
+       15. Receive Neighbor Advertisement. (NUT0(Unspecified) -> HA0_allnode_multi)
+       16. Receive Home Test Init. (NUT0 -> CN0)
+       17. Send Home Test. (CN0 -> NUT0)
+       18. Receive Binding Update to CN0. (NUT0 -> CN0)
+
+        f. (expire IPsec SA3/SA4)
+
+       19. Send Router Advertisement. (R1 -> R1_allnode_multi)
+       20. Receive Binding Update. (NUTX -> HA0)
+            # (K)bit on
+       21. Send Binding Acknowledgement. (HA0 -> NUTX)
+            # (K)bit on
+
+        g.  IKEv1 Phase2 (IPsec SA3/SA4)
+
+       22. Send ICMP Echo Request. (out: HA0 -> NUTX, in: CN0 -> NUT0)
+       23. Receive Home Test Init. (out: NUTX -> HA0, in: NUT0 -> CN0)
+       24. Receive Care-of Test Init. (NUTX -> CN0)
+       25. Send Care-of Test. (CN0 -> NUTX)
+       26. Send Home Test. (out: HA0 -> NUTX, in: CN0 -> NUT0)
+       27. Receive ICMP Echo Reply or [29]. (out: NUTX -> HA0, in: NUT0 -> CN0)
+       28. Receive Binding Update. (NUTX -> CN0)
+       29. [27] or Receive ICMP Echo Reply. (NUTX -> CN0 with Home Address Option)
+
+    Focus Packet Format:
+       <A HREF="../images/Home_Test_Init_message_format_receiving_ESP.gif">23. Home Test Init</A>
+       <A HREF="../images/Binding_Update_message_format_from_MN_to_CN.gif">28. Binding Update</A>
+</PRE><p>
+</p>
+<hr />
+<h1><a name="judgement">JUDGEMENT</a></h1>
+<PRE>
+ (*1) PASS: IPsec SA3/SA4 is re-established.
+ (*2) PASS: CN0 receives Home Test Init.
+            Then, check whether this packet fills all of the following,
+            - using new IPsec SA3.
+ (*3) PASS: CN0 receives Binding Update.
+</PRE>
+
+<p>
+</p>
+<hr />
+<h1><a name="reference">REFERENCE</a></h1>
+<PRE>
+RFC3775 Mobility Support in IPv6
+    See Section 11.7.1, 11.7.3, 11.3.2
+                    
+RFC3776 Using IPsec to Protect Mobile IPv6 Signaling Between Mobile Nodes and Home Agents
+    See Section 4.2
+</PRE>
+
+
+</body>
+
+</html>
