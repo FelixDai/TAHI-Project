@@ -1,0 +1,2514 @@
+//
+// Copyright (C) IPv6 Promotion Council,
+// NIPPON TELEGRAPH AND TELEPHONE CORPORATION (NTT),
+// Yokogwa Electoric Corporation, YASKAWA INFORMATION SYSTEMS Corporation
+// and NTT Advanced Technology Corporation(NTT-AT) All rights reserved.
+// 
+// Technology Corporation.
+// 
+// Redistribution and use of this software in source and binary forms, with 
+// or without modification, are permitted provided that the following 
+// conditions and disclaimer are agreed and accepted by the user:
+// 
+// 1. Redistributions of source code must retain the above copyright 
+// notice, this list of conditions and the following disclaimer.
+// 
+// 2. Redistributions in binary form must reproduce the above copyright 
+// notice, this list of conditions and the following disclaimer in the 
+// documentation and/or other materials provided with the distribution.
+// 
+// 3. Neither the names of the copyrighters, the name of the project which 
+// is related to this software (hereinafter referred to as "project") nor 
+// the names of the contributors may be used to endorse or promote products 
+// derived from this software without specific prior written permission.
+// 
+// 4. No merchantable use may be permitted without prior written 
+// notification to the copyrighters. However, using this software for the 
+// purpose of testing or evaluating any products including merchantable 
+// products may be permitted without any notification to the copyrighters.
+// 
+// 
+// 
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND 
+// CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING 
+// BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS 
+// FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE 
+// COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+// INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
+// SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
+// HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+// CONTRACT,STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF 
+// THE POSSIBILITY OF SUCH DAMAGE.
+// 
+
+// -----------------------------------------------------------
+//
+//  Common Address Label Define
+//
+// -----------------------------------------------------------
+
+
+#ifndef L0_GLOBAL_UCAST_PRFX
+//#define L0_GLOBAL_UCAST_PRFX		_GLOBAL0_UCAST_PRFX
+#define L0_GLOBAL_UCAST_PRFX		"3ffe:501:ffff:100::"
+#endif
+
+#ifndef CN_MAC_ADDR
+#define CN_MAC_ADDR			nutether()
+#endif
+
+#include "mip6config.def"
+
+#ifndef CN_LOCAL_ADDR
+#define CN_LOCAL_ADDR			nutv6()
+#endif
+
+#ifndef CN_ANY_LOCAL_ADDR
+#define CN_ANY_LOCAL_ADDR		oneof(v6(_UNSPEC_ADDR), nutv6())
+#endif
+
+#ifndef TN_MAC_ADDR
+#define TN_MAC_ADDR			"00:00:00:00:00:01"
+#endif
+
+#ifndef SLL_MAC_ADDR
+//#define SLL_MAC_ADDR			tnether()
+#define SLL_MAC_ADDR			ether(TN_MAC_ADDR)
+#endif
+
+#ifndef RT0_MAC_ADDR
+#define RT0_MAC_ADDR			SLL_MAC_ADDR
+//#define RT0_MAC_ADDR			ether("00:06:5b:9e:b0:f7")
+#endif
+
+#ifndef RT0_GLOBAL_ADDR
+#define RT0_GLOBAL_ADDR 		v6("3ffe:501:ffff:100::1")
+#endif
+
+#ifndef RT0_LOCAL_ADDR
+//#define RT0_LOCAL_ADDR			v6ether(TN_MAC_ADDR)
+#define RT0_LOCAL_ADDR			v6("fe80::1")
+#endif
+
+#ifndef HOME_ADDR
+//#define HOME_ADDR			v6(_GLOBAL2A0N_UCAST_ADDR)
+#define HOME_ADDR			v6("3ffe:501:ffff:104::2")
+#endif
+
+#ifndef CAREOF_ADDR
+//#define CAREOF_ADDR			v6(_GLOBAL3A0N_UCAST_ADDR)
+#define CAREOF_ADDR			v6("3ffe:501:ffff:101::2")
+#endif
+
+#ifndef ALT_CAREOF_ADDR
+#define ALT_CAREOF_ADDR			CAREOF_ADDR
+#endif
+
+#ifndef HOME_ADDR_OPT
+#define HOME_ADDR_OPT			HOME_ADDR
+#endif
+
+// -----------------------------------------------------------
+//
+//  Address Label Define
+//
+// -----------------------------------------------------------
+#ifndef ECHO_SRC_HOME
+#define ECHO_SRC_HOME			HOME_ADDR
+#endif
+
+#ifndef ECHO_SRC_COA
+#define ECHO_SRC_COA			CAREOF_ADDR
+#endif
+
+#ifndef ECHO_DST_CN
+#define ECHO_DST_CN			CN_GLOBAL_ADDR
+#endif
+
+#ifndef EREP_SRC_CN
+#define EREP_SRC_CN			CN_GLOBAL_ADDR
+#endif
+
+#ifndef EREP_DST_HOME
+#define EREP_DST_HOME			HOME_ADDR
+#endif
+
+#ifndef EREP_DST_COA
+#define EREP_DST_COA			CAREOF_ADDR
+#endif
+
+#ifndef RA_SRC_RT
+#define RA_SRC_RT			RT0_LOCAL_ADDR
+#endif
+
+#ifndef RA_SRC_CN
+#define RA_SRC_CN			nutv6()
+#endif
+
+#ifndef RA_DST
+#define RA_DST				v6(_ALLNODES_MCAST_ADDR)
+#endif
+
+#ifndef RS_SRC_ANYCN
+#define RS_SRC_ANYCN			oneof(v6(_UNSPEC_ADDR),nutv6())
+#endif
+
+#ifndef RS_SRC_CN
+#define RS_SRC_CN			nutv6()
+#endif
+
+#ifndef RS_DST
+#define RS_DST				v6(_ALLROUTERS_MCAST_ADDR)
+#endif
+
+#ifndef NS_SRC_RT
+#define NS_SRC_RT			RT0_LOCAL_ADDR
+#endif
+
+#ifndef NS_SRC_CN
+#define NS_SRC_CN			CN_GLOBAL_ADDR
+#endif
+
+#ifndef NS_SRC_CNLO
+#define NS_SRC_CNLO			CN_LOCAL_ADDR
+#endif
+
+#ifndef NS_DST_CN
+#define NS_DST_CN			CN_GLOBAL_ADDR
+#endif
+
+#ifndef NS_DST_RT
+#define NS_DST_RT			RT0_GLOBAL_ADDR
+#endif
+
+#ifndef NS_DST_RTLO
+#define NS_DST_RTLO			RT0_LOCAL_ADDR
+#endif
+
+#ifndef NA_SRC_RT
+#define NA_SRC_RT			RT0_GLOBAL_ADDR
+#endif
+
+#ifndef NA_SRC_CN
+#define NA_SRC_CN			oneof(CN_GLOBAL_ADDR,CN_LOCAL_ADDR)
+#endif
+
+#ifndef NA_SRC_RTLO
+#define NA_SRC_RTLO			RT0_LOCAL_ADDR
+#endif
+
+#ifndef NA_DST_CN
+#define NA_DST_CN			CN_GLOBAL_ADDR
+#endif
+
+#ifndef NA_DST_RT
+#define NA_DST_RT			RT0_LOCAL_ADDR
+#endif
+
+#ifndef NA_DST_CNLO
+#define NA_DST_CNLO			CN_LOCAL_ADDR
+#endif
+
+#ifndef COTI_SRC_COA
+#define COTI_SRC_COA			CAREOF_ADDR
+#endif
+
+#ifndef COTI_DST_CN
+#define COTI_DST_CN			CN_GLOBAL_ADDR
+#endif
+
+#ifndef COT_SRC_CN
+#define COT_SRC_CN			CN_GLOBAL_ADDR
+#endif
+
+#ifndef COT_DST_COA
+#define COT_DST_COA			CAREOF_ADDR
+#endif
+
+#ifndef HOTI_SRC_HOME
+#define HOTI_SRC_HOME			HOME_ADDR
+#endif
+
+#ifndef HOTI_DST_CN
+#define HOTI_DST_CN			CN_GLOBAL_ADDR
+#endif
+
+#ifndef HOT_SRC_CN
+#define HOT_SRC_CN			CN_GLOBAL_ADDR
+#endif
+
+#ifndef HOT_DST_HOME
+#define HOT_DST_HOME			HOME_ADDR
+#endif
+
+#ifndef BU_SRC_COA
+#define BU_SRC_COA			CAREOF_ADDR
+#endif
+
+#ifndef BU_SRC_HOME
+#define BU_SRC_HOME			HOME_ADDR
+#endif
+
+#ifndef BU_DST_CN
+#define BU_DST_CN			CN_GLOBAL_ADDR
+#endif
+
+#ifndef BA_SRC_CN
+#define BA_SRC_CN			CN_GLOBAL_ADDR
+#endif
+
+#ifndef BA_DST_HOME
+#define BA_DST_HOME			HOME_ADDR
+#endif
+
+#ifndef BA_DST_COA
+#define BA_DST_COA			CAREOF_ADDR
+#endif
+
+#ifndef BE_SRC_CN
+#define BE_SRC_CN			CN_GLOBAL_ADDR
+#endif
+
+#ifndef BE_DST_HOME
+#define BE_DST_HOME			HOME_ADDR
+#endif
+
+#ifndef BE_DST_COA
+#define BE_DST_COA			CAREOF_ADDR
+#endif
+
+#ifndef ICMP_ERR_SRC_CN
+#define ICMP_ERR_SRC_CN			CN_GLOBAL_ADDR
+#endif
+
+#ifndef ICMP_ERR_DST_HOME
+#define ICMP_ERR_DST_HOME		HOME_ADDR
+#endif
+
+#ifndef ICMP_ERR_DST_COA
+#define ICMP_ERR_DST_COA		CAREOF_ADDR
+#endif
+
+#ifndef ICMP_ERR_SRC_R2
+#define ICMP_ERR_SRC_R2			v6("3ffe:501:ffff:101::1")
+#endif
+
+#ifndef ICMP_ERR_DST_CN
+#define ICMP_ERR_DST_CN			CN_GLOBAL_ADDR
+#endif
+
+
+// -----------------------------------------------------------
+//
+//  RR Parameter Label Define
+//
+// -----------------------------------------------------------
+#ifndef HOTCOOKIE
+#define HOTCOOKIE			"0000000000000000"
+#endif
+
+#ifndef COTCOOKIE
+#define COTCOOKIE			"ffffffffffffffff"
+#endif
+
+#ifndef HOKEYGENTOKEN
+#define HOKEYGENTOKEN			"0000000000000000"
+#endif
+
+#ifndef COKEYGENTOKEN
+#define COKEYGENTOKEN			"0000000000000000"
+#endif
+
+#ifndef HOINDEX
+#define HOINDEX				0
+#endif
+
+#ifndef COINDEX
+#define COINDEX				0
+#endif
+
+
+// -----------------------------------------------------------
+//
+//  BU Parameter Label Define
+//
+// -----------------------------------------------------------
+#ifndef BU_A_FLAG
+#define BU_A_FLAG			1
+#endif
+
+#ifndef BU_H_FLAG
+#define BU_H_FLAG			0
+#endif
+
+#ifndef BU_L_FLAG
+#define BU_L_FLAG			0
+#endif
+
+#ifndef BU_K_FLAG
+#define BU_K_FLAG			0
+#endif
+
+#ifndef BU_LIFETIME
+#define BU_LIFETIME			10
+#endif
+
+#ifndef BU_SEQNO
+#define BU_SEQNO			0
+#endif
+
+// -----------------------------------------------------------
+//
+//  BA Parameter Label Define
+//
+// -----------------------------------------------------------
+#ifndef BA_STATUS
+#define BA_STATUS			0
+#endif
+
+#ifndef BA_K_FLAG
+#define BA_K_FLAG			0
+#endif
+
+#ifndef BA_SEQNO
+#define BA_SEQNO			0
+#endif
+
+// -----------------------------------------------------------
+//
+//  ICMP Echo
+//
+// -----------------------------------------------------------
+#ifndef ECHO_TYPE
+#define ECHO_TYPE			auto
+#endif
+
+#ifndef ECHO_CODE
+#define ECHO_CODE			any
+#endif
+
+#ifndef ECHO_ID
+#define ECHO_ID				any
+#endif
+
+#ifndef ECHO_SEQNO
+#define ECHO_SEQNO			any
+#endif
+
+#ifndef ECHO_CHECKSUM
+#define ECHO_CHECKSUM			auto
+#endif
+
+// -----------------------------------------------------------
+//
+//  Mobile Header Parameter Label Define
+//
+// -----------------------------------------------------------
+#ifndef MH_NEXT_HEADER
+#define MH_NEXT_HEADER			auto
+#endif
+
+#ifndef MH_HEADER_LENGTH
+#define MH_HEADER_LENGTH		auto
+#endif
+
+#ifndef MH_TYPE
+#define MH_TYPE				auto
+#endif
+
+#ifndef MH_RESERVED1
+#define MH_RESERVED1			auto
+#endif
+
+#ifndef MH_RESERVED2
+#define MH_RESERVED2			auto
+#endif
+
+#ifndef MH_CHECKSUM
+#define MH_CHECKSUM			auto
+#endif
+
+// -----------------------------------------------------------
+//
+//  Routing Header Parameter Label Define
+//
+// -----------------------------------------------------------
+#ifndef RH_NEXT_HEADER
+#define RH_NEXT_HEADER			auto
+#endif
+
+#ifndef RH_HEADER_LENGTH
+#define RH_HEADER_LENGTH		auto
+#endif
+
+#ifndef RH_TYPE
+#define RH_TYPE				2
+#endif
+
+#ifndef RH_SEGMENT_LEFT
+#define RH_SEGMENT_LEFT			1
+#endif
+
+#ifndef RH_RESERVED
+#define RH_RESERVED			0
+#endif
+
+#ifndef RH_HOME_ADDR
+#define RH_HOME_ADDR			HOME_ADDR
+#endif
+
+// -----------------------------------------------------------
+//
+//  Mobile Header Option Parameter Label Define
+//
+// -----------------------------------------------------------
+#ifndef OP_PADN_TYPE
+#define OP_PADN_TYPE			auto
+#endif
+
+#ifndef OP_PADN_LENGTH
+#define OP_PADN_LENGTH			auto
+#endif
+
+#ifndef OP_AUTH_TYPE
+#define OP_AUTH_TYPE			auto
+#endif
+
+#ifndef OP_AUTH_LENGTH
+#define OP_AUTH_LENGTH			auto
+#endif
+
+#ifndef OP_AUTHENTICATOR
+#define OP_AUTHENTICATOR		bsa(kbm(hexstr(HOKEYGENTOKEN,8),hexstr(COKEYGENTOKEN,8)),CAREOF_ADDR,CN_GLOBAL_ADDR)
+#endif
+
+#ifndef OP_AUTHENTICATOR_HOME
+#define OP_AUTHENTICATOR_HOME		bsa(kbm(hexstr(HOKEYGENTOKEN,8)),HOME_ADDR,CN_GLOBAL_ADDR)
+#endif
+
+#ifndef OP_AUTHENTICATOR_FORG
+#define OP_AUTHENTICATOR_FORG		bsa(kbm(hexstr(HOKEYGENTOKEN,8)),CAREOF_ADDR,CN_GLOBAL_ADDR)
+#endif
+
+#ifndef OP_NONINDX_TYPE
+#define OP_NONINDX_TYPE			auto
+#endif
+
+#ifndef OP_NONINDX_LENGTH
+#define OP_NONINDX_LENGTH		auto
+#endif
+
+#ifndef OP_ALTCOA_TYPE
+#define OP_ALTCOA_TYPE			auto
+#endif
+
+#ifndef OP_ALTCOA_LENGTH
+#define OP_ALTCOA_LENGTH		auto
+#endif
+
+#ifndef OP_MHPADN_TYPE
+#define OP_MHPADN_TYPE			auto
+#endif
+
+#ifndef OP_MHPADN_LENGTH
+#define OP_MHPADN_LENGTH		auto
+#endif
+
+#ifndef OP_BRA_INTERVAL
+#define OP_BRA_INTERVAL			0
+#endif
+
+// -----------------------------------------------------------
+//
+//  Destination Header Option Parameter Label Define
+//
+// -----------------------------------------------------------
+#ifndef DH_NEXT_HEADER
+#define DH_NEXT_HEADER			auto
+#endif
+
+#ifndef DH_HEADER_LENGTH
+#define DH_HEADER_LENGTH		auto
+#endif
+
+#ifndef OP_HOMEADDR_TYPE
+#define OP_HOMEADDR_TYPE		auto
+#endif
+
+#ifndef OP_HOMEADDR_LENGTH
+#define OP_HOMEADDR_LENGTH		auto
+#endif
+
+// -----------------------------------------------------------
+//
+//  IPV6 Parameter Label Define
+//
+// -----------------------------------------------------------
+#ifndef V6HD_VERSION
+#define V6HD_VERSION		auto
+#endif
+
+#ifndef V6HD_TRAFFICCLASS
+#define V6HD_TRAFFICCLASS	auto
+#endif
+
+#ifndef V6HD_FLOWLABEL
+#define V6HD_FLOWLABEL		auto
+#endif
+
+#ifndef V6HD_PAYLOADLENGTH
+#define V6HD_PAYLOADLENGTH	auto
+#endif
+
+#ifndef V6HD_NEXTHEADER
+#define V6HD_NEXTHEADER		auto
+#endif
+
+#ifndef V6HD_HOPLIMIT
+#define V6HD_HOPLIMIT		255
+#endif
+
+// -----------------------------------------------------------
+//
+//  RA Parameter Label Define
+//
+// -----------------------------------------------------------
+#ifndef RA_CURHOPLIMIT
+#define RA_CURHOPLIMIT		64
+#endif
+
+#ifndef RA_MFLAG
+#define RA_MFLAG		0
+#endif
+
+#ifndef RA_OFLAG
+#define RA_OFLAG		0
+#endif
+
+#ifndef RA_LIFETIME
+#define RA_LIFETIME		1800
+#endif
+
+#ifndef RA_REACHABLETIME
+#define RA_REACHABLETIME	30000
+#endif
+
+#ifndef RA_RETRANSTIMER
+#define RA_RETRANSTIMER		1000
+#endif
+
+#ifndef RA_CURHOPLIMIT
+#define RA_CURHOPLIMIT		64
+#endif
+
+#ifndef RA_CURHOPLIMIT
+#define RA_CURHOPLIMIT		64
+#endif
+
+// -----------------------------------------------------------
+//
+//  SDP Define
+//
+// -----------------------------------------------------------
+
+#ifndef TRANSPORT_SPI_MNHOA_TO_CN
+#define TRANSPORT_SPI_MNHOA_TO_CN	0x1001
+#endif
+
+#ifndef TRANSPORT_SPI_CN_TO_MNHOA
+#define TRANSPORT_SPI_CN_TO_MNHOA	0x1002
+#endif
+
+// -----------------------------------------------------------
+//
+//  Ether Address Define
+//
+// -----------------------------------------------------------
+_HETHER_define(EH_R0ToCN,		RT0_MAC_ADDR,	CN_MAC_ADDR)
+_HETHER_define(EH_CNToR0,		CN_MAC_ADDR,	RT0_MAC_ADDR)
+_HETHER_define(EH_CNToSLL,		CN_MAC_ADDR,	SLL_MAC_ADDR)
+_HETHER_define(EH_SLLToCN,		SLL_MAC_ADDR,	CN_MAC_ADDR)
+_HETHER_define(EH_R0ToCNsol_gmcast,	RT0_MAC_ADDR,	_ETHER_SOLNODE_MCAST(CN_GLOBAL_ADDR))
+_HETHER_define(EH_CNToR0sol_lmcast,	CN_MAC_ADDR,	_ETHER_SOLNODE_MCAST(RT0_LOCAL_ADDR))
+_HETHER_define(EH_CNToR0sol_gmcast,	CN_MAC_ADDR,	_ETHER_SOLNODE_MCAST(RT0_GLOBAL_ADDR))
+_HETHER_define(EH_R0ToAll,		RT0_MAC_ADDR,	v62ethermulti(v6(_ALLNODES_MCAST_ADDR)))
+
+
+
+// -----------------------------------------------------------
+//
+//  Destnation Option Define
+//
+// -----------------------------------------------------------
+Opt_HomeAddress opt_hoa {
+	OptionType	= OP_HOMEADDR_TYPE;
+	OptDataLength	= OP_HOMEADDR_LENGTH;
+	HomeAddress     = HOME_ADDR_OPT;
+}
+
+Opt_PadN opt_pad4 {
+	OptionType	= OP_PADN_TYPE;
+	OptDataLength	= OP_PADN_LENGTH;
+	pad		= repeat(0x00, 2);
+}
+
+// -----------------------------------------------------------
+//
+//  MH Option Define
+//
+// -----------------------------------------------------------
+Opt_MH_NonceIndices opt_mh_nonce {
+	Type		= OP_NONINDX_TYPE;
+	Length		= OP_NONINDX_LENGTH;
+	HoNonceIndex	= HOINDEX;
+	CoNonceIndex	= COINDEX;
+}
+Opt_MH_BindingAuthData opt_mh_auth {
+	Type		= OP_AUTH_TYPE;
+	Length		= OP_AUTH_LENGTH;
+	Authenticator	= OP_AUTHENTICATOR;
+}
+Opt_MH_BindingAuthData opt_mh_auth_foreign {
+	Type		= OP_AUTH_TYPE;
+	Length		= OP_AUTH_LENGTH;
+	Authenticator	= OP_AUTHENTICATOR_FORG;
+}
+Opt_MH_BindingAuthData opt_mh_auth_home {
+	Type		= OP_AUTH_TYPE;
+	Length		= OP_AUTH_LENGTH;
+	Authenticator	= OP_AUTHENTICATOR_HOME;
+}
+Opt_MH_BindingAuthData opt_mh_auth_any {
+	Type		= OP_AUTH_TYPE;
+	Length		= OP_AUTH_LENGTH;
+	Authenticator	= any;
+}
+Opt_MH_AlternateCoA opt_mh_altcoa {
+	Type		= OP_ALTCOA_TYPE;
+	Length		= OP_ALTCOA_LENGTH;
+	Address		= ALT_CAREOF_ADDR;
+}
+Opt_MH_AlternateCoA opt_mh_altcoa_home {
+	Type		= OP_ALTCOA_TYPE;
+	Length		= OP_ALTCOA_LENGTH;
+	Address		= HOME_ADDR;
+}
+
+Opt_MH_Pad1 opt_mh_pad1 {}
+Opt_MH_PadN opt_mh_pad2 {
+	Type		= OP_MHPADN_TYPE;
+	Length		= OP_MHPADN_LENGTH;
+	pad		= repeat(0x00, 0);
+}
+Opt_MH_PadN opt_mh_pad4 {
+	Type		= OP_MHPADN_TYPE;
+	Length		= OP_MHPADN_LENGTH;
+	pad		= repeat(0x00, 2);
+}
+Opt_MH_PadN opt_mh_pad6 {
+	Type		= OP_MHPADN_TYPE;
+	Length		= OP_MHPADN_LENGTH;
+	pad		= repeat(0x00, 4);
+}
+Opt_MH_PadN opt_mh_pad8 {
+	Type		= OP_MHPADN_TYPE;
+	Length		= OP_MHPADN_LENGTH;
+	pad		= repeat(0x00, 6);
+}
+Opt_MH_PadN opt_mh_pad16 {
+	Type		= OP_MHPADN_TYPE;
+	Length		= OP_MHPADN_LENGTH;
+	pad		= repeat(0x00, 14);
+}
+Opt_MH_BindingRefreshAdvice opt_mh_refresh {
+	Type		= auto;
+	Length		= auto;
+	Interval	= OP_BRA_INTERVAL;
+}
+
+
+// -----------------------------------------------------------
+//
+//  ICMP Option Define
+//
+// -----------------------------------------------------------
+Opt_ICMPv6_SLL opt_sll {
+	LinkLayerAddress	= SLL_MAC_ADDR;
+}
+
+Opt_ICMPv6_MTU opt_mtu {
+	MTU			= 1500;
+}
+
+Opt_ICMPv6_Prefix opt_prefixinformation_r0 {
+	LFlag			= 1;
+	AFlag			= 1;
+	ValidLifetime		= 2592000;
+	PreferredLifetime	= 604800;
+	Prefix			= v6(L0_GLOBAL_UCAST_PRFX);
+}
+
+Opt_ICMPv6_SLL opt_sll_recv {
+	LinkLayerAddress	= any;
+}
+
+Opt_ICMPv6_TLL opt_tll {
+	LinkLayerAddress	= SLL_MAC_ADDR;
+}
+
+
+// -----------------------------------------------------------
+//
+//  ESP Header
+//
+// -----------------------------------------------------------
+
+#ifdef HAVE_IPSEC
+
+Hdr_ESP ext_esp_send_hoa {
+	SPI		= TRANSPORT_SPI_MNHOA_TO_CN;
+	SequenceNumber	= SEQ_ESP;
+	algorithm	= ealgo_cbc;
+}
+
+Hdr_ESP ext_esp_recv_hoa {
+	SPI		= TRANSPORT_SPI_CN_TO_MNHOA;
+	SequenceNumber	= any;
+	algorithm	= ealgo_cbc;
+}
+
+#endif
+
+// -----------------------------------------------------------
+//
+//  Echo Payload 
+//
+// -----------------------------------------------------------
+Payload echo_payload {
+	data	= 0x61; data	= 0x62; data	= 0x63; data	= 0x64;
+	data	= 0x65; data	= 0x66; data	= 0x67; data	= 0x68;
+	data	= 0x69; data	= 0x6a; data	= 0x6b; data	= 0x6c;
+	data	= 0x6d; data	= 0x6e; data	= 0x6f; data	= 0x70;
+	data	= 0x71; data	= 0x72; data	= 0x73; data	= 0x74;
+	data	= 0x75; data	= 0x76; data	= 0x77; data	= 0x61;
+	data	= 0x62; data	= 0x63; data	= 0x64; data	= 0x65;
+	data	= 0x66; data	= 0x67; data	= 0x68; data	= 0x69;
+}
+
+
+// -----------------------------------------------------------
+//
+//  Echo Request
+//
+// -----------------------------------------------------------
+
+//  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//  MN(from HA) -> NUT (global)
+//  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+FEM_icmp6_echo_request(
+	EchoRequest_Home,
+	EH_R0ToCN,
+	{
+		SourceAddress		= ECHO_SRC_HOME;
+		DestinationAddress	= ECHO_DST_CN;
+	},
+	{
+		SequenceNumber	= auto;
+		payload	= echo_payload;
+	}
+)
+
+//  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//  MN(with HOA) -> NUT (global)
+//   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+FEM_icmp6_echo_request_exth(
+	EchoRequestHoa_Forein,
+	EH_R0ToCN,
+	{
+		SourceAddress		= ECHO_SRC_COA;
+		DestinationAddress	= ECHO_DST_CN;
+	},
+	{
+		header	= _HDR_IPV6_NAME(EchoRequestHoa_Forein);
+		exthdr	= ext_homeaddress;
+		upper	= _ICMPV6_NAME(EchoRequestHoa_Forein);
+	},
+	{
+		Checksum	= ECHO_CHECKSUM;
+		SequenceNumber	= auto;
+		payload	= echo_payload;
+	}
+)
+
+#ifdef HAVE_IPSEC
+//  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//  MN(from HA) -> NUT (global) ESP
+//  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+FEM_icmp6_echo_request_exth(
+	EchoRequest_Home_ESP,
+	EH_R0ToCN,
+	{
+		SourceAddress		= ECHO_SRC_HOME;
+		DestinationAddress	= ECHO_DST_CN;
+	},
+	{
+		header	= _HDR_IPV6_NAME(EchoRequest_Home_ESP);
+		exthdr	= ext_esp_send_hoa;
+		upper	= _ICMPV6_NAME(EchoRequest_Home_ESP);
+	},
+	{
+		SequenceNumber	= auto;
+		payload	= echo_payload;
+	}
+)
+
+//  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//  MN(with HOA) -> NUT (global) ESP
+//   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+FEM_icmp6_echo_request_exth(
+	EchoRequestHoa_Forein_ESP,
+	EH_R0ToCN,
+	{
+		SourceAddress		= ECHO_SRC_COA;
+		DestinationAddress	= ECHO_DST_CN;
+	},
+	{
+		header	= _HDR_IPV6_NAME(EchoRequestHoa_Forein_ESP);
+		exthdr	= ext_homeaddress;
+		exthdr	= ext_esp_send_hoa;
+		upper	= _ICMPV6_NAME(EchoRequestHoa_Forein_ESP);
+	},
+	{
+		Checksum	= ECHO_CHECKSUM;
+		SequenceNumber	= auto;
+		payload	= echo_payload;
+	}
+)
+#endif
+
+// -----------------------------------------------------------
+//
+//  Echo Reply
+//
+// -----------------------------------------------------------
+
+//  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//  NUT -> MN (via HA)
+//  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+FEM_icmp6_echo_reply(
+	EchoReply_Home,
+	EH_CNToSLL,
+	{
+		SourceAddress		= EREP_SRC_CN;
+		DestinationAddress	= EREP_DST_HOME;
+	},
+	{
+		SequenceNumber	= any;
+		payload	= echo_payload;
+	}
+)
+
+//  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//  NUT -> MN(with routing header)
+//  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+FEM_icmp6_echo_reply_exth(
+	EchoReplyRh_Forein,
+	EH_CNToSLL,
+	{
+		SourceAddress		= EREP_SRC_CN;
+		DestinationAddress	= EREP_DST_COA;
+	},
+	{
+		header	= _HDR_IPV6_NAME(EchoReplyRh_Forein);
+		exthdr	= ext_TY2_Routing;
+		upper	= _ICMPV6_NAME(EchoReplyRh_Forein);
+	},
+	{
+		SequenceNumber	= ECHO_SEQNO;
+		payload	= echo_payload;
+	}
+)
+
+FEM_icmp6_echo_reply_exth(
+	EchoReplyRhAny_Forein,
+	EH_CNToSLL,
+	{
+		SourceAddress		= any;
+		DestinationAddress	= any;
+	},
+	{
+		header	= _HDR_IPV6_NAME(EchoReplyRhAny_Forein);
+		exthdr	= ext_TY2_Routing_any;
+		upper	= _ICMPV6_NAME(EchoReplyRhAny_Forein);
+	},
+	{
+		Type		= ECHO_TYPE;
+		Code		= ECHO_CODE;
+		Identifier	= ECHO_ID;
+		SequenceNumber	= ECHO_SEQNO;
+		payload	= echo_payload;
+	}
+)
+
+#ifdef HAVE_IPSEC
+//  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//  NUT -> MN (via HA) ESP
+//  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+FEM_icmp6_echo_reply_exth(
+	EchoReply_Home_ESP,
+	EH_CNToSLL,
+	{
+		SourceAddress		= EREP_SRC_CN;
+		DestinationAddress	= EREP_DST_HOME;
+	},
+	{
+		header	= _HDR_IPV6_NAME(EchoReply_Home_ESP);
+		exthdr	= ext_esp_recv_hoa;
+		upper	= _ICMPV6_NAME(EchoReply_Home_ESP);
+	},
+	{
+		SequenceNumber	= any;
+		payload	= echo_payload;
+	}
+)
+
+FEM_icmp6_echo_reply_exth(
+	EchoReplyRh_Forein_ESP,
+	EH_CNToSLL,
+	{
+		SourceAddress		= EREP_SRC_CN;
+		DestinationAddress	= EREP_DST_COA;
+	},
+	{
+		header	= _HDR_IPV6_NAME(EchoReplyRh_Forein_ESP);
+		exthdr	= ext_TY2_Routing;
+		exthdr	= ext_esp_recv_hoa;
+		upper	= _ICMPV6_NAME(EchoReplyRh_Forein_ESP);
+	},
+	{
+		SequenceNumber	= ECHO_SEQNO;
+		payload	= echo_payload;
+	}
+)
+
+#endif
+
+// -----------------------------------------------------------
+//
+// RA
+//
+// -----------------------------------------------------------
+
+//  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//  R0
+//  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+FEM_icmp6_ra(
+	Ra_R0_AllNd,
+	EH_R0ToAll,
+	{
+		Version			= V6HD_VERSION;
+		TrafficClass		= V6HD_TRAFFICCLASS;
+		FlowLabel		= V6HD_FLOWLABEL;
+		PayloadLength		= V6HD_PAYLOADLENGTH;
+		NextHeader		= V6HD_NEXTHEADER;
+		HopLimit		= V6HD_HOPLIMIT;
+		SourceAddress		= RA_SRC_RT;
+		DestinationAddress	= RA_DST;
+	},
+	{
+		CurHopLimit		= RA_CURHOPLIMIT;
+		MFlag			= RA_MFLAG;
+		OFlag			= RA_OFLAG;
+      		LifeTime		= RA_LIFETIME;
+		ReachableTime		= RA_REACHABLETIME;
+		RetransTimer		= RA_RETRANSTIMER;
+		option			= opt_sll;
+		option			= opt_mtu;
+		option			= opt_prefixinformation_r0;
+	}
+)
+
+
+//  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//  NUT
+//  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+FEM_icmp6_ra(
+	Ra_Cn_AllNd,
+	_HETHER_nut2allnodes,
+	{
+		Version			= V6HD_VERSION;
+		TrafficClass		= V6HD_TRAFFICCLASS;
+		FlowLabel		= V6HD_FLOWLABEL;
+		PayloadLength		= V6HD_PAYLOADLENGTH;
+		NextHeader		= V6HD_NEXTHEADER;
+		HopLimit		= V6HD_HOPLIMIT;
+		SourceAddress		= RA_SRC_CN;
+		DestinationAddress	= RA_DST;
+	},
+	{
+		CurHopLimit		= any;
+		MFlag			= any;
+		OFlag			= any;
+		HFlag			= any;
+		LifeTime		= any;
+		ReachableTime		= any;
+		RetransTimer		= any;
+		option			= stop;
+	}
+)
+
+
+
+// -----------------------------------------------------------
+//
+// RS
+//
+// -----------------------------------------------------------
+
+//  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//  w/o SLL
+//  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+FEM_icmp6_rs(
+	Rs_Any_AllRt,
+	_HETHER_nut2allrouters,
+	{
+		Version			= V6HD_VERSION;
+		TrafficClass		= V6HD_TRAFFICCLASS;
+		FlowLabel		= V6HD_FLOWLABEL;
+		PayloadLength		= V6HD_PAYLOADLENGTH;
+		NextHeader		= V6HD_NEXTHEADER;
+		HopLimit		= V6HD_HOPLIMIT;
+		SourceAddress		= RS_SRC_ANYCN;
+		DestinationAddress	= RS_DST;
+	},
+	{}
+)
+
+//  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//  w/ SLL
+//  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+FEM_icmp6_rs(
+	Rs_Cn_AllRt,
+	_HETHER_nut2allrouters,
+	{
+		Version			= V6HD_VERSION;
+		TrafficClass		= V6HD_TRAFFICCLASS;
+		FlowLabel		= V6HD_FLOWLABEL;
+		PayloadLength		= V6HD_PAYLOADLENGTH;
+		NextHeader		= V6HD_NEXTHEADER;
+		HopLimit		= V6HD_HOPLIMIT;
+		SourceAddress		= RS_SRC_CN;
+		DestinationAddress	= RS_DST;
+	},
+	{
+		option	= _SLLOPT_nut;
+	}
+)
+
+
+
+// -----------------------------------------------------------
+//
+//  Neighbor Solicitation
+//
+// -----------------------------------------------------------
+
+
+//  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//  R0 -> NUT (global)
+//  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+FEM_icmp6_ns(
+	Ns_R0_AllNd,
+	EH_R0ToCNsol_gmcast,
+	{
+		Version			= V6HD_VERSION;
+		TrafficClass		= V6HD_TRAFFICCLASS;
+		FlowLabel		= V6HD_FLOWLABEL;
+		PayloadLength		= V6HD_PAYLOADLENGTH;
+		NextHeader		= V6HD_NEXTHEADER;
+		HopLimit		= V6HD_HOPLIMIT;
+		SourceAddress		= NS_SRC_RT;
+		_DST(_IPV6_SOLNODE_MCAST(NS_DST_CN));
+	},
+	{
+		TargetAddress		= CN_GLOBAL_ADDR;
+		option			= opt_sll;
+	}
+)
+
+
+FEM_icmp6_ns(
+        Ns_Cn_R0_G_G_G_Sll,
+        EH_CNToSLL,
+        {
+                SourceAddress           = NS_SRC_CN;
+                DestinationAddress      = NS_DST_RT;
+        },
+        {
+                TargetAddress           = NS_DST_RT;
+                option                  = opt_sll_recv;
+        }
+)
+FEM_icmp6_ns(
+        Ns_Cn_R0_G_G_G,
+        EH_CNToSLL,
+        {
+                SourceAddress           = NS_SRC_CN;
+                DestinationAddress      = NS_DST_RT;
+        },
+        {
+                TargetAddress           = NS_DST_RT;
+        } 
+)
+
+FEM_icmp6_ns(
+        Ns_Cn_R0_G_G_L_Sll,
+        EH_CNToSLL,
+        {
+                SourceAddress           = NS_SRC_CN;
+                DestinationAddress      = NS_DST_RT;
+        },
+        {
+                TargetAddress           = NS_DST_RT;
+                option                  = opt_sll_recv;
+        }
+)
+FEM_icmp6_ns(
+        Ns_Cn_R0_G_G_L,
+        EH_CNToSLL,
+        {
+                SourceAddress           = NS_SRC_CN;
+                DestinationAddress      = NS_DST_RT;
+        },
+        {
+                TargetAddress           = NS_DST_RT;
+        }
+)
+FEM_icmp6_ns(
+        Ns_Cn_R0_G_M_G_Sll,
+        EH_CNToR0sol_gmcast,
+        {
+                HopLimit        = 255;
+                _SRC(NS_SRC_CN);
+                _DST(_IPV6_SOLNODE_MCAST(NS_DST_RTLO));
+        },
+        {
+                TargetAddress   = NS_DST_RT;
+                option          = _SLLOPT_nut;
+        }
+)
+FEM_icmp6_ns(
+        //Ns_Cn_R0MultiGlobal,
+        Ns_Cn_R0_G_M_L_Sll,
+        EH_CNToR0sol_gmcast,
+        {
+                HopLimit        = 255;
+                _SRC(NS_SRC_CN);
+                _DST(_IPV6_SOLNODE_MCAST(NS_DST_RTLO));
+        },
+        {
+                TargetAddress   = NS_DST_RTLO;
+                option          = _SLLOPT_nut;
+        }
+)
+FEM_icmp6_ns(
+        Ns_Cn_R0_G_L_G_Sll,
+        EH_CNToSLL,
+        {
+                SourceAddress           = NS_SRC_CN;
+                DestinationAddress      = NS_DST_RTLO;
+        },
+        {
+                TargetAddress           = NS_DST_RT;
+                option                  = opt_sll_recv;
+        }
+)
+FEM_icmp6_ns(
+        Ns_Cn_R0_G_L_G,
+        EH_CNToSLL,
+        {
+                SourceAddress           = NS_SRC_CN;
+                DestinationAddress      = NS_DST_RTLO;
+        },
+        {
+                TargetAddress           = NS_DST_RT;
+        }
+)
+FEM_icmp6_ns(
+        Ns_Cn_R0_G_L_L_Sll,
+	EH_CNToSLL,
+	{
+		SourceAddress		= NS_SRC_CN;
+		DestinationAddress	= NS_DST_RTLO;
+	},
+	{
+		TargetAddress		= NS_DST_RTLO;
+		option			= opt_sll_recv;
+	}
+)
+FEM_icmp6_ns(
+        Ns_Cn_R0_G_L_L,
+        EH_CNToSLL,
+        {
+                SourceAddress           = NS_SRC_CN;
+                DestinationAddress      = NS_DST_RTLO;
+        },
+        {
+                TargetAddress           = NS_DST_RTLO;
+        }
+)
+FEM_icmp6_ns(
+        Ns_Cn_R0_L_G_G_Sll,
+        EH_CNToSLL,
+        {
+                SourceAddress           = NS_SRC_CNLO;
+                DestinationAddress      = NS_DST_RT;
+        },
+        {
+                TargetAddress           = NS_DST_RT;
+                option                  = opt_sll_recv;
+        }
+)       
+FEM_icmp6_ns(
+        Ns_Cn_R0_L_G_G,
+        EH_CNToSLL,
+        {
+                SourceAddress           = NS_SRC_CNLO;
+                DestinationAddress      = NS_DST_RT;
+        },
+        {       
+                TargetAddress           = NS_DST_RT;
+        } 
+)        
+FEM_icmp6_ns(
+        Ns_Cn_R0_L_G_L_Sll,
+        EH_CNToSLL,
+        {
+                SourceAddress           = NS_SRC_CNLO;
+                DestinationAddress      = NS_DST_RT;
+        },
+        {
+                TargetAddress           = NS_DST_RTLO;
+                option                  = opt_sll_recv;
+        }
+)
+FEM_icmp6_ns(
+        Ns_Cn_R0_L_G_L,
+        EH_CNToSLL,
+        {
+                SourceAddress           = NS_SRC_CNLO;
+                DestinationAddress      = NS_DST_RT;
+        },
+        {
+                TargetAddress           = NS_DST_RTLO;
+        }
+)
+FEM_icmp6_ns(
+        Ns_Cn_R0_L_M_G_Sll,
+        EH_CNToR0sol_lmcast,
+        {
+                HopLimit        = 255;
+                _SRC(NS_SRC_CNLO);
+                _DST(_IPV6_SOLNODE_MCAST(NS_DST_RTLO));
+        },
+        {
+                TargetAddress   = NS_DST_RT;
+                option          = _SLLOPT_nut;
+        }
+)
+FEM_icmp6_ns(
+        Ns_Cn_R0_L_M_L_Sll,
+        EH_CNToR0sol_lmcast,
+        {
+                HopLimit        = 255;
+                _SRC(NS_SRC_CNLO);
+                _DST(_IPV6_SOLNODE_MCAST(NS_DST_RTLO));
+        },
+        {
+                TargetAddress   = NS_DST_RTLO;
+                option          = _SLLOPT_nut;
+        }
+)
+FEM_icmp6_ns(
+        Ns_Cn_R0_L_L_G_Sll,
+        EH_CNToSLL,
+        {
+                SourceAddress           = NS_SRC_CNLO;
+                DestinationAddress      = NS_DST_RTLO;
+        },
+        {
+                TargetAddress           = NS_DST_RT;
+                option                  = opt_sll_recv;
+        }
+)
+FEM_icmp6_ns(
+        Ns_Cn_R0_L_L_G,
+        EH_CNToSLL,
+        {
+                SourceAddress           = NS_SRC_CNLO;
+                DestinationAddress      = NS_DST_RTLO;
+        },
+        {
+                TargetAddress           = NS_DST_RT;
+        }
+)
+FEM_icmp6_ns(
+        Ns_Cn_R0_L_L_L_Sll, 
+	EH_CNToSLL,
+	{
+		SourceAddress		= NS_SRC_CNLO;
+		DestinationAddress	= NS_DST_RTLO;
+	},
+	{
+		TargetAddress		= NS_DST_RTLO;
+		option			= opt_sll_recv;
+	}
+)
+FEM_icmp6_ns(
+        Ns_Cn_R0_L_L_L,
+	EH_CNToSLL,
+	{
+		SourceAddress		= NS_SRC_CNLO;
+		DestinationAddress	= NS_DST_RTLO;
+	},
+	{
+		TargetAddress		= NS_DST_RTLO;
+	}
+)
+
+
+// -----------------------------------------------------------
+//
+//  Neighbor Advertisement
+//
+// -----------------------------------------------------------
+
+//  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//  NUT -> R0 (global)
+//  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//FEM_icmp6_na(
+//	Na_Cn_R0sllGlobal,
+//	EH_CNToSLL,
+//	{
+//		SourceAddress		= NA_SRC_CN;
+//		DestinationAddress	= NA_DST_RT;
+//	},
+//	{
+//		RFlag			= any;
+//		SFlag			= 1;
+//		OFlag			= any;
+//		TargetAddress		= CN_GLOBAL_ADDR;
+//	}
+//)
+
+FEM_icmp6_na(
+	Na_Cn_R0sllGlobal_opt,
+	EH_CNToSLL,
+	{
+		SourceAddress		= NA_SRC_CN;
+		DestinationAddress	= NA_DST_RT;
+	},
+	{
+		RFlag			= any;
+		SFlag			= 1;
+		OFlag			= any;
+		TargetAddress		= CN_GLOBAL_ADDR;
+		option			= any;
+	}
+)
+
+FEM_icmp6_na(
+        Na_Cn_R0_G_G_G_Tll,
+        EH_SLLToCN,
+        {
+                Version                 = V6HD_VERSION;
+                TrafficClass            = V6HD_TRAFFICCLASS;
+                FlowLabel               = V6HD_FLOWLABEL;
+                PayloadLength           = V6HD_PAYLOADLENGTH;
+                NextHeader              = V6HD_NEXTHEADER;
+                HopLimit                = V6HD_HOPLIMIT;
+                SourceAddress           = NA_SRC_RT;
+                DestinationAddress      = NA_DST_CN;
+        },
+        {
+                TargetAddress           = RT0_GLOBAL_ADDR;
+                RFlag                   = 1;
+                SFlag                   = 1;
+                OFlag                   = 1;
+                option                  = opt_tll;
+        }
+)
+
+FEM_icmp6_na(
+        Na_Cn_R0_G_L_G_Tll,
+        EH_SLLToCN,
+        {
+                Version                 = V6HD_VERSION;
+                TrafficClass            = V6HD_TRAFFICCLASS;
+                FlowLabel               = V6HD_FLOWLABEL;
+                PayloadLength           = V6HD_PAYLOADLENGTH;
+                NextHeader              = V6HD_NEXTHEADER;
+                HopLimit                = V6HD_HOPLIMIT;
+                SourceAddress           = NA_SRC_RT;
+                DestinationAddress      = NA_DST_CNLO;
+        },
+        {
+                TargetAddress           = RT0_GLOBAL_ADDR;
+                RFlag                   = 1;
+                SFlag                   = 1;
+                OFlag                   = 1;
+                option                  = opt_tll;
+        }
+)
+
+
+//FEM_icmp6_na(
+//	Na_R0SllGlobal_Cn,
+//	EH_SLLToCN,
+//	{
+//		Version			= V6HD_VERSION;
+//		TrafficClass		= V6HD_TRAFFICCLASS;
+//		FlowLabel		= V6HD_FLOWLABEL;
+//		PayloadLength		= V6HD_PAYLOADLENGTH;
+//		NextHeader		= V6HD_NEXTHEADER;
+//		HopLimit		= V6HD_HOPLIMIT;
+//		SourceAddress		= NA_SRC_RT;
+//		DestinationAddress	= NA_DST_CN;
+//	},
+//	{
+//		TargetAddress		= RT0_GLOBAL_ADDR;
+//		RFlag			= 1;
+//		SFlag			= 1;
+//		OFlag			= 1;
+//		option			= opt_tll;
+//	}
+//)
+
+FEM_icmp6_na(
+        Na_Cn_R0_L_G_L_Tll,
+	EH_SLLToCN,
+	{
+		Version			= V6HD_VERSION;
+		TrafficClass		= V6HD_TRAFFICCLASS;
+		FlowLabel		= V6HD_FLOWLABEL;
+		PayloadLength		= V6HD_PAYLOADLENGTH;
+		NextHeader		= V6HD_NEXTHEADER;
+		HopLimit		= V6HD_HOPLIMIT;
+		SourceAddress		= NA_SRC_RTLO;
+		DestinationAddress	= NA_DST_CN;
+	},
+	{
+		TargetAddress		= RT0_LOCAL_ADDR;
+		RFlag			= 1;
+		SFlag			= 1;
+		OFlag			= 1;
+		option			= opt_tll;
+	}
+)
+
+//FEM_icmp6_na(
+//	Na_R0SllLocal_Cn,
+//	EH_SLLToCN,
+//	{
+//		Version			= V6HD_VERSION;
+//		TrafficClass		= V6HD_TRAFFICCLASS;
+//		FlowLabel		= V6HD_FLOWLABEL;
+//		PayloadLength		= V6HD_PAYLOADLENGTH;
+//		NextHeader		= V6HD_NEXTHEADER;
+//		HopLimit		= V6HD_HOPLIMIT;
+//		SourceAddress		= NA_SRC_RTLO;
+//		DestinationAddress	= NA_DST_CNLO;
+//	},
+//	{
+//		TargetAddress		= RT0_LOCAL_ADDR;
+//		RFlag			= 1;
+//		SFlag			= 1;
+//		OFlag			= 1;
+//		option			= opt_tll;
+//	}
+//)
+
+FEM_icmp6_na(
+        Na_Cn_R0_L_L_L_Tll,
+	EH_SLLToCN,
+	{
+		Version			= V6HD_VERSION;
+		TrafficClass		= V6HD_TRAFFICCLASS;
+		FlowLabel		= V6HD_FLOWLABEL;
+		PayloadLength		= V6HD_PAYLOADLENGTH;
+		NextHeader		= V6HD_NEXTHEADER;
+		HopLimit		= V6HD_HOPLIMIT;
+		SourceAddress		= NA_SRC_RTLO;
+		DestinationAddress	= NA_DST_CNLO;
+	},
+	{
+		TargetAddress		= RT0_LOCAL_ADDR;
+		RFlag			= 1;
+		SFlag			= 1;
+		OFlag			= 1;
+		option			= opt_tll;
+	}
+)
+
+// -----------------------------------------------------------
+//
+//  CoTI
+//
+// -----------------------------------------------------------
+
+FEM_upp_no_next_header_exth(
+	CoTI_Forein,
+	EH_R0ToCN,
+	{
+		SourceAddress		= COTI_SRC_COA;
+		DestinationAddress	= COTI_DST_CN;
+	},
+	{
+		header  		= _HDR_IPV6_NAME(CoTI_Forein);
+		exthdr  		= ext_CoTI;
+		upper   		= _UPP_NONEXT_NAME(CoTI_Forein);
+	},
+	{}
+)
+
+Hdr_MH_CoTI ext_CoTI {
+	NextHeader	= MH_NEXT_HEADER;
+	HeaderExtLength	= MH_HEADER_LENGTH;
+	Type		= MH_TYPE;
+	Reserved1	= MH_RESERVED1;
+	Checksum	= MH_CHECKSUM;
+	Reserved2	= MH_RESERVED2;
+	InitCookie	= hexstr(COTCOOKIE, 8);
+}
+
+// -----------------------------------------------------------
+//
+//  CoT
+//
+// -----------------------------------------------------------
+
+FEM_upp_no_next_header_exth(
+	CoT_Forein,
+	EH_CNToSLL,
+	{
+		SourceAddress		= COT_SRC_CN;
+		DestinationAddress	= COT_DST_COA;
+	},
+	{
+		header			= _HDR_IPV6_NAME(CoT_Forein);
+		exthdr			= ext_CoT;
+		upper			= _UPP_NONEXT_NAME(CoT_Forein);
+	},
+	{}
+)
+
+Hdr_MH_CoT ext_CoT {
+	Index		= any;
+	InitCookie	= hexstr(COTCOOKIE, 8);
+	KeygenToken	= any;
+}
+
+
+
+// -----------------------------------------------------------
+//
+//  HoTI
+//
+// -----------------------------------------------------------
+
+FEM_upp_no_next_header_exth(
+	HoTI_Home,
+	EH_R0ToCN,
+	{
+		SourceAddress		= HOTI_SRC_HOME;
+		DestinationAddress	= HOTI_DST_CN;
+	},
+	{
+		header  		= _HDR_IPV6_NAME(HoTI_Home);
+		exthdr  		= ext_HoTI;
+		upper   		= _UPP_NONEXT_NAME(HoTI_Home);
+	},
+	{}
+)
+
+Hdr_MH_HoTI ext_HoTI {
+	NextHeader	= MH_NEXT_HEADER;
+	HeaderExtLength	= MH_HEADER_LENGTH;
+	Type		= MH_TYPE;
+	Reserved1	= MH_RESERVED1;
+	Checksum	= MH_CHECKSUM;
+	Reserved2	= MH_RESERVED2;
+	InitCookie	= hexstr(HOTCOOKIE, 8);
+}
+
+// -----------------------------------------------------------
+//
+//  HoT
+//
+// -----------------------------------------------------------
+
+FEM_upp_no_next_header_exth(
+	HoT_Home,
+	EH_CNToSLL,
+	{
+		SourceAddress		= HOT_SRC_CN;
+		DestinationAddress	= HOT_DST_HOME;
+	},
+	{
+		header			= _HDR_IPV6_NAME(HoT_Home);
+		exthdr			= ext_HoT;
+		upper			= _UPP_NONEXT_NAME(HoT_Home);
+	},
+	{}
+)
+
+Hdr_MH_HoT ext_HoT {
+	Index		= any;
+	InitCookie	= hexstr(HOTCOOKIE, 8);
+	KeygenToken	= any;
+}
+
+
+// -----------------------------------------------------------
+//
+//  BU
+//
+// -----------------------------------------------------------
+
+FEM_upp_no_next_header_exth(
+	BuRegHoa_Forein,
+	EH_R0ToCN,
+	{
+		SourceAddress		= BU_SRC_COA;
+		DestinationAddress	= BU_DST_CN;
+	},
+	{
+		header  = _HDR_IPV6_NAME(BuRegHoa_Forein);
+		exthdr  = ext_homeaddress;
+		exthdr  = ext_BU;
+		upper   = _UPP_NONEXT_NAME(BuRegHoa_Forein);
+	},
+	{}
+)
+
+FEM_upp_no_next_header_exth(
+	BuRegHoaAlt_Forein,
+	EH_R0ToCN,
+	{
+		SourceAddress		= BU_SRC_COA;
+		DestinationAddress	= BU_DST_CN;
+	},
+	{
+		header  = _HDR_IPV6_NAME(BuRegHoaAlt_Forein);
+		exthdr  = ext_homeaddress;
+		exthdr  = ext_BU_AltCoa;
+		upper   = _UPP_NONEXT_NAME(BuRegHoaAlt_Forein);
+	},
+	{}
+)
+
+#ifdef HAVE_IPSEC
+FEM_upp_no_next_header_exth(
+	BuHaRegHoa_Forein,
+	EH_R0ToCN,
+	{
+		SourceAddress		= BU_SRC_COA;
+		DestinationAddress	= BU_DST_CN;
+	},
+	{
+		header  = _HDR_IPV6_NAME(BuHaRegHoa_Forein);
+		exthdr  = ext_homeaddress;
+		exthdr  = ext_esp_send_hoa;
+		exthdr  = ext_BU_Ha;
+		upper   = _UPP_NONEXT_NAME(BuHaRegHoa_Forein);
+	},
+	{}
+)
+#else
+FEM_upp_no_next_header_exth(
+	BuHaRegHoa_Forein,
+	EH_R0ToCN,
+	{
+		SourceAddress		= BU_SRC_COA;
+		DestinationAddress	= BU_DST_CN;
+	},
+	{
+		header  = _HDR_IPV6_NAME(BuHaRegHoa_Forein);
+		exthdr  = ext_homeaddress;
+		exthdr  = ext_BU_Ha;
+		upper   = _UPP_NONEXT_NAME(BuHaRegHoa_Forein);
+	},
+	{}
+)
+#endif
+
+Hdr_Destination ext_homeaddress {
+	NextHeader	= DH_NEXT_HEADER;
+	HeaderExtLength	= DH_HEADER_LENGTH;
+	option		= opt_pad4;
+	option		= opt_hoa;
+}
+
+Hdr_MH_BU ext_BU {
+	NextHeader	= MH_NEXT_HEADER;
+	HeaderExtLength	= MH_HEADER_LENGTH;
+	Type		= MH_TYPE;
+	Reserved1	= MH_RESERVED1;
+	Checksum	= MH_CHECKSUM;
+	SequenceNumber	= BU_SEQNO;
+	AFlag		= BU_A_FLAG;
+	HFlag		= BU_H_FLAG;
+	LFlag		= BU_L_FLAG;
+	KFlag		= BU_K_FLAG;
+	Reserved2	= MH_RESERVED2;
+	Lifetime	= BU_LIFETIME;
+	option		= opt_mh_nonce;
+	option		= opt_mh_auth;
+}
+
+Hdr_MH_BU ext_BU_AltCoa {
+	NextHeader	= MH_NEXT_HEADER;
+	HeaderExtLength	= MH_HEADER_LENGTH;
+	Type		= MH_TYPE;
+	Reserved1	= MH_RESERVED1;
+	Checksum	= MH_CHECKSUM;
+	SequenceNumber	= BU_SEQNO;
+	AFlag		= BU_A_FLAG;
+	HFlag		= BU_H_FLAG;
+	LFlag		= BU_L_FLAG;
+	KFlag		= BU_K_FLAG;
+	Reserved2	= MH_RESERVED2;
+	Lifetime	= BU_LIFETIME;
+	option		= opt_mh_pad2;
+	option		= opt_mh_altcoa;
+	option		= opt_mh_pad4;
+	option		= opt_mh_nonce;
+	option		= opt_mh_auth;
+}
+
+#if HAVE_IPSEC
+Hdr_MH_BU ext_BU_Ha {
+	NextHeader	= MH_NEXT_HEADER;
+	HeaderExtLength	= MH_HEADER_LENGTH;
+	Type		= MH_TYPE;
+	Reserved1	= MH_RESERVED1;
+	Checksum	= MH_CHECKSUM;
+	SequenceNumber	= BU_SEQNO;
+	AFlag		= BU_A_FLAG;
+	HFlag		= 1;
+	LFlag		= BU_L_FLAG;
+	KFlag		= BU_K_FLAG;
+	Reserved2	= MH_RESERVED2;
+	Lifetime	= BU_LIFETIME;
+	option		= opt_mh_pad4;
+//	option		= opt_mh_pad2;
+//	option		= opt_mh_altcoa;
+}
+#else
+Hdr_MH_BU ext_BU_Ha {
+	NextHeader	= MH_NEXT_HEADER;
+	HeaderExtLength	= MH_HEADER_LENGTH;
+	Type		= MH_TYPE;
+	Reserved1	= MH_RESERVED1;
+	Checksum	= MH_CHECKSUM;
+	SequenceNumber	= BU_SEQNO;
+	AFlag		= BU_A_FLAG;
+	HFlag		= 1;
+	LFlag		= BU_L_FLAG;
+	KFlag		= BU_K_FLAG;
+	Reserved2	= MH_RESERVED2;
+	Lifetime	= BU_LIFETIME;
+	option		= opt_mh_pad4;
+//	option		= opt_mh_pad2;
+//	option		= opt_mh_altcoa;
+}
+#endif
+
+//  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//  Binding Update(De-Registration from Home) with HoA
+//  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+FEM_upp_no_next_header_exth(
+	BuDeregHoa_Home,
+	EH_R0ToCN,
+	{
+		SourceAddress		= BU_SRC_HOME;
+		DestinationAddress	= BU_DST_CN;
+	},
+	{
+		header  = _HDR_IPV6_NAME(BuDeregHoa_Home);
+		exthdr  = ext_homeaddress;
+		exthdr  = ext_BU_Home;
+		upper   = _UPP_NONEXT_NAME(BuDeregHoa_Home);
+	},
+	{}
+)
+
+FEM_upp_no_next_header_exth(
+	BuDeregHoaAlt_Home,
+	EH_R0ToCN,
+	{
+		SourceAddress		= BU_SRC_HOME;
+		DestinationAddress	= BU_DST_CN;
+	},
+	{
+		header  = _HDR_IPV6_NAME(BuDeregHoaAlt_Home);
+		exthdr  = ext_homeaddress;
+		exthdr  = ext_BU_Home_AltCoa;
+		upper   = _UPP_NONEXT_NAME(BuDeregHoaAlt_Home);
+	},
+	{}
+)
+
+//  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//  Binding Update(De-Registration from Home) without HoA
+//  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+FEM_upp_no_next_header_exth(
+	BuDereg_Home,
+	EH_R0ToCN,
+	{
+		SourceAddress		= BU_SRC_HOME;
+		DestinationAddress	= BU_DST_CN;
+	},
+	{
+		header  = _HDR_IPV6_NAME(BuDereg_Home);
+		exthdr  = ext_BU_Home;
+		upper   = _UPP_NONEXT_NAME(BuDereg_Home);
+	},
+	{}
+)
+
+FEM_upp_no_next_header_exth(
+	BuDeregAlt_Home,
+	EH_R0ToCN,
+	{
+		SourceAddress		= BU_SRC_HOME;
+		DestinationAddress	= BU_DST_CN;
+	},
+	{
+		header  = _HDR_IPV6_NAME(BuDeregAlt_Home);
+		exthdr  = ext_BU_Home_AltCoa;
+		upper   = _UPP_NONEXT_NAME(BuDeregAlt_Home);
+	},
+	{}
+)
+
+#ifdef HAVE_IPSEC
+FEM_upp_no_next_header_exth(
+	BuHaDereg_Home,
+	EH_R0ToCN,
+	{
+		SourceAddress		= BU_SRC_HOME;
+		DestinationAddress	= BU_DST_CN;
+	},
+	{
+		header  = _HDR_IPV6_NAME(BuHaDereg_Home);
+		exthdr  = ext_esp_send_hoa;
+		exthdr  = ext_BU_Home_Ha;
+		upper   = _UPP_NONEXT_NAME(BuHaDereg_Home);
+	},
+	{}
+)
+#else
+FEM_upp_no_next_header_exth(
+	BuHaDereg_Home,
+	EH_R0ToCN,
+	{
+		SourceAddress		= BU_SRC_HOME;
+		DestinationAddress	= BU_DST_CN;
+	},
+	{
+		header  = _HDR_IPV6_NAME(BuHaDereg_Home);
+		exthdr  = ext_BU_Home_Ha;
+		upper   = _UPP_NONEXT_NAME(BuHaDereg_Home);
+	},
+	{}
+)
+#endif
+
+Hdr_MH_BU ext_BU_Home {
+	NextHeader	= MH_NEXT_HEADER;
+	HeaderExtLength	= MH_HEADER_LENGTH;
+	Type		= MH_TYPE;
+	Reserved1	= MH_RESERVED1;
+	Checksum	= MH_CHECKSUM;
+	SequenceNumber	= BU_SEQNO;
+	AFlag		= BU_A_FLAG;
+	HFlag		= BU_H_FLAG;
+	LFlag		= BU_L_FLAG;
+	KFlag		= BU_K_FLAG;
+	Reserved2	= MH_RESERVED2;
+	Lifetime	= BU_LIFETIME;
+	option		= opt_mh_nonce;
+	option		= opt_mh_auth_home;
+}
+
+Hdr_MH_BU ext_BU_Home_AltCoa {
+	SequenceNumber	= BU_SEQNO;
+	AFlag		= BU_A_FLAG;
+	HFlag		= BU_H_FLAG;
+	LFlag		= BU_L_FLAG;
+	KFlag		= BU_K_FLAG;
+	Reserved2	= MH_RESERVED2;
+	Lifetime	= BU_LIFETIME;
+	option		= opt_mh_pad2;
+	option		= opt_mh_altcoa;
+	option		= opt_mh_pad4;
+	option		= opt_mh_nonce;
+	option		= opt_mh_auth_home;
+}
+
+Hdr_MH_BU ext_BU_Home_Ha {
+	NextHeader	= MH_NEXT_HEADER;
+	HeaderExtLength	= MH_HEADER_LENGTH;
+	Type		= MH_TYPE;
+	Reserved1	= MH_RESERVED1;
+	Checksum	= MH_CHECKSUM;
+	SequenceNumber	= BU_SEQNO;
+	AFlag		= BU_A_FLAG;
+//	HFlag		= BU_H_FLAG;
+	HFlag		= 1;
+	LFlag		= BU_L_FLAG;
+	KFlag		= BU_K_FLAG;
+	Reserved2	= MH_RESERVED2;
+	Lifetime	= BU_LIFETIME;
+	option 		= opt_mh_pad4;
+//	option		= opt_mh_nonce;
+//	option		= opt_mh_auth_home;
+}
+
+//  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//  Binding Update(De-Registration from Foreign)
+//  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+FEM_upp_no_next_header_exth(
+	BuDereg_Forein,
+	EH_R0ToCN,
+	{
+		SourceAddress		= BU_SRC_COA;
+		DestinationAddress	= BU_DST_CN;
+	},
+	{
+		header  = _HDR_IPV6_NAME(BuDereg_Forein);
+		exthdr  = ext_homeaddress;
+		exthdr  = ext_BU_Foreign;
+		upper   = _UPP_NONEXT_NAME(BuDereg_Forein);
+	},
+	{}
+)
+
+FEM_upp_no_next_header_exth(
+	BuDeregHoaAlt_Forein,
+	EH_R0ToCN,
+	{
+		SourceAddress		= BU_SRC_COA;
+		DestinationAddress	= BU_DST_CN;
+	},
+	{
+		header  = _HDR_IPV6_NAME(BuDeregHoaAlt_Forein);
+		exthdr  = ext_homeaddress;
+		exthdr  = ext_BU_AltCoa_Foreign;
+		upper   = _UPP_NONEXT_NAME(BuDeregHoaAlt_Forein);
+	},
+	{}
+)
+
+Hdr_MH_BU ext_BU_Foreign {
+	NextHeader	= MH_NEXT_HEADER;
+	HeaderExtLength	= MH_HEADER_LENGTH;
+	Type		= MH_TYPE;
+	Reserved1	= MH_RESERVED1;
+	Checksum	= MH_CHECKSUM;
+	SequenceNumber	= BU_SEQNO;
+	AFlag		= BU_A_FLAG;
+	HFlag		= BU_H_FLAG;
+	LFlag		= BU_L_FLAG;
+	KFlag		= BU_K_FLAG;
+	Reserved2	= MH_RESERVED2;
+	Lifetime	= BU_LIFETIME;
+	option		= opt_mh_nonce;
+	option		= opt_mh_auth_foreign;
+}
+
+Hdr_MH_BU ext_BU_AltCoa_Foreign {
+	NextHeader	= MH_NEXT_HEADER;
+	HeaderExtLength	= MH_HEADER_LENGTH;
+	Type		= MH_TYPE;
+	Reserved1	= MH_RESERVED1;
+	Checksum	= MH_CHECKSUM;
+	SequenceNumber	= BU_SEQNO;
+	AFlag		= BU_A_FLAG;
+	HFlag		= BU_H_FLAG;
+	LFlag		= BU_L_FLAG;
+	KFlag		= BU_K_FLAG;
+	Reserved2	= MH_RESERVED2;
+	Lifetime	= BU_LIFETIME;
+	option		= opt_mh_pad2;
+	option		= opt_mh_altcoa_home;
+	option		= opt_mh_pad4;
+	option		= opt_mh_nonce;
+	option		= opt_mh_auth_home;
+}
+
+
+
+// -----------------------------------------------------------
+//
+//  BA
+//
+// -----------------------------------------------------------
+
+//  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//  BA(Registration) to COA
+//  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+FEM_upp_no_next_header_exth(
+	BaRegRh_Forein,
+	EH_CNToSLL,
+	{
+		HopLimit = any;
+		SourceAddress		= BA_SRC_CN;
+		DestinationAddress	= BA_DST_COA;
+	},
+	{
+		header	= _HDR_IPV6_NAME(BaRegRh_Forein);
+		exthdr	= ext_TY2_Routing;
+		exthdr	= ext_BA;
+		upper	= _UPP_NONEXT_NAME(BaRegRh_Forein);
+	},
+	{}
+)
+
+FEM_upp_no_next_header_exth(
+	BaRegRhAny_Forein,
+	EH_CNToSLL,
+	{
+		HopLimit = any;
+		SourceAddress		= any;
+		DestinationAddress	= any;
+	},
+	{
+		header	= _HDR_IPV6_NAME(BaRegRhAny_Forein);
+		exthdr	= ext_TY2_Routing_any;
+		exthdr	= ext_BA_any;
+		upper	= _UPP_NONEXT_NAME(BaRegRhAny_Forein);
+	},
+	{}
+)
+
+FEM_upp_no_next_header_exth(
+	BaDeRegRhAny_Forein,
+	EH_CNToSLL,
+	{
+		HopLimit = any;
+		SourceAddress		= any;
+		DestinationAddress	= any;
+	},
+	{
+		header	= _HDR_IPV6_NAME(BaRegRhAny_Forein);
+		exthdr	= ext_TY2_Routing_any;
+		exthdr	= ext_dereg_BA_any;
+		upper	= _UPP_NONEXT_NAME(BaRegRhAny_Forein);
+	},
+	{}
+)
+
+#ifdef HAVE_IPSEC
+FEM_upp_no_next_header_exth(
+	BaRegRhNonAuth_Forein,
+	EH_CNToSLL,
+	{
+		HopLimit = any;
+		SourceAddress		= any;
+		DestinationAddress	= any;
+	},
+	{
+		header	= _HDR_IPV6_NAME(BaRegRhNonAuth_Forein);
+		exthdr	= ext_TY2_Routing_any;
+		exthdr	= ext_esp_recv_hoa;
+		exthdr	= ext_BA_NonAuth;
+		upper	= _UPP_NONEXT_NAME(BaRegRhNonAuth_Forein);
+	},
+	{}
+)
+#else
+FEM_upp_no_next_header_exth(
+	BaRegRhNonAuth_Forein,
+	EH_CNToSLL,
+	{
+		HopLimit = any;
+		SourceAddress		= any;
+		DestinationAddress	= any;
+	},
+	{
+		header	= _HDR_IPV6_NAME(BaRegRhNonAuth_Forein);
+		exthdr	= ext_TY2_Routing_any;
+		exthdr	= ext_BA_NonAuth;
+		upper	= _UPP_NONEXT_NAME(BaRegRhNonAuth_Forein);
+	},
+	{}
+)
+#endif
+
+Hdr_Routing ext_TY2_Routing {
+	RoutingType	= RH_TYPE;
+	SegmentsLeft	= RH_SEGMENT_LEFT;
+	Reserved	= RH_RESERVED;
+	Address		= RH_HOME_ADDR;
+}
+
+Hdr_Routing ext_TY2_Routing_any {
+	RoutingType	= any;
+	SegmentsLeft	= any;
+	Reserved	= any;
+	Address		= any;
+}
+
+Hdr_MH_BA ext_BA {
+	Status		= BA_STATUS;
+	KFlag		= BA_K_FLAG;
+	Reserved2	= MH_RESERVED2;
+	SequenceNumber	= BA_SEQNO;
+	Lifetime	= any;
+	option		= opt_mh_pad6;
+	option		= opt_mh_auth;
+}
+
+Hdr_MH_BA ext_BA_any {
+	Status		= any;
+	KFlag		= any;
+	Reserved2	= MH_RESERVED2;
+	SequenceNumber	= any;
+	Lifetime	= any;
+	option		= opt_mh_pad6;
+	option		= opt_mh_auth;
+}
+
+Hdr_MH_BA ext_dereg_BA_any {
+	Status		= any;
+	KFlag		= any;
+	Reserved2	= MH_RESERVED2;
+	SequenceNumber	= any;
+	Lifetime	= any;
+	option		= opt_mh_pad6;
+	option		= opt_mh_auth_home;
+}
+
+Hdr_MH_BA ext_BA_NonAuth {
+	Status		= any;
+	KFlag		= any;
+	Reserved2	= MH_RESERVED2;
+	SequenceNumber	= any;
+	Lifetime	= any;
+	option		= opt_mh_pad4;
+}
+
+//  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//  BA(De-Registration) to Home
+//  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+FEM_upp_no_next_header_exth(
+	BaDereg_Home,
+	EH_CNToSLL,
+	{
+		SourceAddress		= BA_SRC_CN;
+		DestinationAddress	= BA_DST_HOME;
+	},
+	{
+		header	= _HDR_IPV6_NAME(BaDereg_Home);
+		exthdr	= ext_BA_Home;
+		upper	= _UPP_NONEXT_NAME(BaDereg_Home);
+	},
+	{}
+)
+
+FEM_upp_no_next_header_exth(
+	BaDeregAny_Home,
+	EH_CNToSLL,
+	{
+		SourceAddress		= BA_SRC_CN;
+		DestinationAddress	= BA_DST_HOME;
+	},
+	{
+		header	= _HDR_IPV6_NAME(BaDeregAny_Home);
+		exthdr	= ext_BA_Home_any;
+		upper	= _UPP_NONEXT_NAME(BaDeregAny_Home);
+	},
+	{}
+)
+
+#ifdef HAVE_IPSEC
+FEM_upp_no_next_header_exth(
+	BaDeregNonAuth_Home,
+	EH_CNToSLL,
+	{
+		SourceAddress		= BA_SRC_CN;
+		DestinationAddress	= BA_DST_HOME;
+	},
+	{
+		header	= _HDR_IPV6_NAME(BaDeregNonAuth_Home);
+		exthdr	= ext_esp_recv_hoa;
+		exthdr	= ext_BA_NonAuth_Home;
+		upper	= _UPP_NONEXT_NAME(BaDeregNonAuth_Home);
+	},
+	{}
+)
+#else
+FEM_upp_no_next_header_exth(
+	BaDeregNonAuth_Home,
+	EH_CNToSLL,
+	{
+		SourceAddress		= BA_SRC_CN;
+		DestinationAddress	= BA_DST_HOME;
+	},
+	{
+		header	= _HDR_IPV6_NAME(BaDeregNonAuth_Home);
+		exthdr	= ext_BA_NonAuth_Home;
+		upper	= _UPP_NONEXT_NAME(BaDeregNonAuth_Home);
+	},
+	{}
+)
+#endif
+
+Hdr_MH_BA ext_BA_Home {
+	Status		= BA_STATUS;
+	SequenceNumber	= BA_SEQNO;
+	Lifetime	= any;
+	option		= opt_mh_pad6;
+	option		= opt_mh_auth_home;
+}
+
+Hdr_MH_BA ext_BA_Home_any {
+	Status		= any;
+	SequenceNumber	= any;
+	Lifetime	= any;
+	option		= opt_mh_pad6;
+	option		= opt_mh_auth_home;
+}
+
+Hdr_MH_BA ext_BA_NonAuth_Home {
+	Status		= any;
+	SequenceNumber	= any;
+	Lifetime	= any;
+	option		= opt_mh_pad4;
+}
+
+//  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//  BA(De-Registration) to COA
+//  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+FEM_upp_no_next_header_exth(
+	BaDeregRh_Forein,
+	EH_CNToSLL,
+	{
+		HopLimit = any;
+		SourceAddress		= BA_SRC_CN;
+		DestinationAddress	= BA_DST_COA;
+	},
+	{
+		header	= _HDR_IPV6_NAME(BaDeregRh_Forein);
+		exthdr	= ext_TY2_Routing;
+		exthdr	= ext_BA_Foreign;
+		upper	= _UPP_NONEXT_NAME(BaDeregRh_Forein);
+	},
+	{}
+)
+
+Hdr_MH_BA ext_BA_Foreign {
+	Status		= BA_STATUS;
+	KFlag		= BA_K_FLAG;
+	Reserved2	= MH_RESERVED2;
+	SequenceNumber	= BA_SEQNO;
+	Lifetime	= any;
+	option		= opt_mh_pad6;
+	option		= opt_mh_auth_home;
+}
+
+//  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//  BA(De-Registration) to COA with foreign anthenticator
+//  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+FEM_upp_no_next_header_exth(
+	BaDeregRh_Forein_authf,
+	EH_CNToSLL,
+	{
+		HopLimit = any;
+		SourceAddress		= BA_SRC_CN;
+		DestinationAddress	= BA_DST_COA;
+	},
+	{
+		header	= _HDR_IPV6_NAME(BaDeregRh_Forein);
+		exthdr	= ext_TY2_Routing;
+		exthdr	= ext_BA_Foreign_authf;
+		upper	= _UPP_NONEXT_NAME(BaDeregRh_Forein);
+	},
+	{}
+)
+
+Hdr_MH_BA ext_BA_Foreign_authf {
+	Status		= BA_STATUS;
+	KFlag		= BA_K_FLAG;
+	Reserved2	= MH_RESERVED2;
+	SequenceNumber	= BA_SEQNO;
+	Lifetime	= any;
+	option		= opt_mh_pad6;
+	option		= opt_mh_auth_foreign;
+}
+
+
+// -----------------------------------------------------------
+//
+//  BE
+//
+// -----------------------------------------------------------
+
+//  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//  Unknown binding for Home Address destination option
+//  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+FEM_upp_no_next_header_exth(
+	BeNoBinding,
+	EH_CNToSLL,
+	{
+		SourceAddress		= BE_SRC_CN;
+		DestinationAddress	= BE_DST_COA;
+	},
+	{
+		header  = _HDR_IPV6_NAME(BeNoBinding);
+		exthdr  = ext_BE_NoBinding;
+		upper   = _UPP_NONEXT_NAME(BeNoBinding);
+	},
+	{}
+)
+
+FEM_upp_no_next_header_exth(
+	BeAny,
+	EH_CNToSLL,
+	{
+		SourceAddress		= any;
+		DestinationAddress	= any;
+	},
+	{
+		header  = _HDR_IPV6_NAME(BeAny);
+		exthdr  = ext_BE_any;
+		upper   = _UPP_NONEXT_NAME(BeAny);
+	},
+	{}
+)
+
+Hdr_MH_BE ext_BE_NoBinding {
+	Status		= 1;
+	Reserved2	= MH_RESERVED2;
+	Address		= HOME_ADDR;
+}
+
+Hdr_MH_BE ext_BE_any {
+	Status		= any;
+	Reserved2	= any;
+	Address		= any;
+}
+
+//  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//  Unrecognized MH Type value
+//  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+FEM_upp_no_next_header_exth(
+	BeUnknownType,
+	EH_CNToR0,
+	{
+		SourceAddress		= BE_SRC_CN;
+		DestinationAddress	= BE_DST_HOME;
+	},
+	{
+		header	= _HDR_IPV6_NAME(BeUnknownType);
+		exthdr	= ext_BE_UnknownType;
+		upper	= _UPP_NONEXT_NAME(BeUnknownType);
+	},
+	{}
+)
+
+Hdr_MH_BE ext_BE_UnknownType {
+	Status		= 2;
+	Reserved2	= MH_RESERVED2;
+	Address		= v6(_UNSPEC_ADDR);
+}
+
+
+
+//  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//  MH_ANY
+//  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+FEM_upp_no_next_header_exth(
+	MhAny,
+	EH_CNToSLL,
+	{
+		SourceAddress		= COT_SRC_CN;
+		DestinationAddress	= COT_DST_COA;
+	},
+	{
+		header			= _HDR_IPV6_NAME(MhAny);
+		exthdr			= ext_MH_ANY;
+		upper			= _UPP_NONEXT_NAME(MhAny);
+	},
+	{}
+)
+
+//Hdr_MH_CoT ext_MH_ANY {
+Hdr_MH_BE ext_MH_ANY {
+	Type    = stop;
+}
+
+//----------------------------------------------------------------------
+//
+// ICMP Destination Unreachable
+//
+//----------------------------------------------------------------------
+FEM_icmp6_destination_unreachable_exth(
+	ICMPErrDestinationUnreachable,
+	EH_R0ToCN,
+	{
+		SourceAddress		= ICMP_ERR_SRC_R2;
+		DestinationAddress	= ICMP_ERR_DST_CN;
+	},
+	{
+		header = _HDR_IPV6_NAME(ICMPErrDestinationUnreachable);
+		upper = _ICMPV6_NAME(ICMPErrDestinationUnreachable);
+	},
+	{
+		Code = 3;
+		payload = unreach_payload;
+	}
+)
+
+Payload unreach_payload {
+	data = right(_PACKET_IPV6_NAME(EchoReplyRh_Forein), 0);
+}
+
+//----------------------------------------------------------------------
+//
+// Binding Refresh Request
+//
+//----------------------------------------------------------------------
+FEM_upp_no_next_header_exth(
+	BRR,
+	EH_CNToSLL,
+	{
+		SourceAddress		= BU_DST_CN;
+		DestinationAddress	= BU_SRC_HOME;
+//		DestinationAddress	= BU_SRC_COA;
+	},
+	{
+		header = _HDR_IPV6_NAME(BRR);
+//		exthdr = ext_TY2_Routing;
+		exthdr = ext_BRR_any;
+		upper  = _UPP_NONEXT_NAME(BRR);
+	},
+	{}
+)
+
+Hdr_MH_BRR ext_BRR_any {
+	NextHeader	= MH_NEXT_HEADER;
+	HeaderExtLength	= MH_HEADER_LENGTH;
+	Type		= MH_TYPE;
+	Reserved1	= MH_RESERVED1;
+	Checksum	= MH_CHECKSUM;
+	Reserved2	= MH_RESERVED2;
+}
+
+
+#include "mip6invalid.def"

@@ -1,0 +1,15 @@
+#
+# Makefile
+#
+# $TAHI: ct/Makefile.test,v 1.36 2003/05/06 12:02:13 ozoe Exp $
+#
+
+SUBDIR= mipv6-cn
+
+profile test tahi check document document2:
+	@for subdir in ${SUBDIR}; do \
+		echo "===> $$subdir"; \
+		(cd $$subdir; ${MAKE} $@); \
+	done
+
+.include <bsd.subdir.mk>

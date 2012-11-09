@@ -1,0 +1,288 @@
+<HTML>
+<HEAD>
+<TITLE>CN-5-4-3 - Multiple Binding Cache entries</TITLE>
+<LINK REV="made" HREF="mailto:hackers@FreeBSD.org">
+</HEAD>
+
+<BODY>
+
+<!-- INDEX BEGIN -->
+<!--
+
+<UL>
+
+	<LI><A HREF="#NAME">NAME</A>
+	<LI><A HREF="#TARGET">TARGET</A>
+	<LI><A HREF="#TOPOLOGY">TOPOLOGY</A>
+	<LI><A HREF="#INITIALIZATION">INITIALIZATION</A>
+	<LI><A HREF="#TEST_PROCEDURE">TEST PROCEDURE</A>
+	<LI><A HREF="#JUDGEMENT">JUDGEMENT</A>
+	<LI><A HREF="#REFERENCE">REFERENCE</A>
+</UL>
+-->
+<!-- INDEX END -->
+
+<P>
+<H1><A NAME="NAME">NAME</A></H1>
+<P>
+CN-5-4-3 - Multiple Binding Cache entries
+
+<P>
+<HR>
+<H1><A NAME="TARGET">TARGET</A></H1>
+<PRE>
+Host/Router
+</PRE>
+
+<P>
+<HR>
+<H1><A NAME="TOPOLOGY">TOPOLOGY</A></H1>
+<PRE>
+                           HA                     
+                           |                       
+                 ----------+----+----------------- Home 
+                                |                  
+                                R2      MN'        
+                                |       |          
+                 ----------+----+-------+--------- Link2 (Foreign)
+                           |                       
+                           R1           MN         
+                           |            |          
+                 ----------+----+-------+--------- Link1 (Foreign)
+                                |                  
+                                R0          NUT    
+                                |            |     
+       -------------------------+------------+---- Link0
+</PRE>
+<blockquote>
+<table border>
+<tbody>
+<blockquote><table border><tbody>
+<TR><TD><TT>Link0</TT></TD>
+<TD><TT>3ffe:501:ffff:100::/64</TT></TD>
+<TD><TT>&nbsp;</TT></TD></TR>
+<TR><TD><TT>Link1</TT></TD>
+<TD><TT>3ffe:501:ffff:101::/64</TT></TD>
+<TD><TT>Foreign Link</TT></TD></TR>
+<TR><TD><TT>Link2</TT></TD>
+<TD><TT>3ffe:501:ffff:102::/64</TT></TD>
+<TD><TT>Foreign Link 2</TT></TD></TR>
+<TR><TD><TT>Home Link</TT></TD>
+<TD><TT>3ffe:501:ffff:104::/64</TT></TD>
+<TD><TT>Home Link</TT></TD></TR>
+<TR><TD><TT>CN(NUT)</TT></TD>
+<TD><TT>3ffe:501:ffff:100::X<BR>Auto Configuration (InterfaceID)</TT></TD>
+<TD><TT>&nbsp;</TT></TD></TR>
+<TR><TD><TT>MN(in Link1)</TT></TD>
+<TD><TT>3ffe:501:ffff:101::Y<BR>Increased in each test</TT></TD>
+<TD><TT>MN care-of address</TT></TD></TR>
+<TR><TD><TT>MN'(in Link2)</TT></TD>
+<TD><TT>3ffe:501:ffff:102::Y<BR>Increased in each test</TT></TD>
+<TD><TT>MN' care-of address</TT></TD></TR>
+<TR><TD><TT>MN(in Home Link)</TT></TD>
+<TD><TT>3ffe:501:ffff:104::Y<BR>Increased in each test</TT></TD>
+<TD><TT>MN home address</TT></TD></TR>
+<TR><TD><TT>MN'(in Home Link)</TT></TD>
+<TD><TT>3ffe:501:ffff:104::Y+1</TT></TD>
+<TD><TT>MN' home address</TT></TD></TR>
+<TR><TD><TT>R0(Link0)</TT></TD>
+<TD><TT>3ffe:501:ffff:100::1</TT></TD>
+<TD><TT>&nbsp;</TT></TD></TR>
+<TR><TD><TT>R1(Link1)</TT></TD>
+<TD><TT>3ffe:501:ffff:101::1</TT></TD>
+<TD><TT>&nbsp;</TT></TD></TR>
+<TR><TD><TT>R2(Link2)</TT></TD>
+<TD><TT>3ffe:501:ffff:102::1</TT></TD>
+<TD><TT>&nbsp;</TT></TD></TR>
+<TR><TD><TT>HA(Home Link)</TT></TD>
+<TD><TT>3ffe:501:ffff:104::1</TT></TD>
+<TD><TT>&nbsp;</TT></TD></TR>
+</tbody></table></blockquote>
+</tbody></table>
+</blockquote>
+
+<P>
+<HR>
+<H1><A NAME="INITIALIZATION">INITIALIZATION</A></H1>
+<PRE>
+</PRE>
+<PRE>
+Reboot NUT
+</PRE>
+<PRE>
+       MN      MN'     R1      R2      HA       R0     CN(NUT) 
+        |       |       |       |       |       |       |
+        |       |       |       |       |       |------>| 1.RA
+        |       |       |       |       |       |       |
+        |       |       |       |       |       |------>| 2.NS
+        |       |       |       |       |       |       |
+        |       |       |       |       |       |<------| 3.NA
+        |               |               |       |       |
+        |------------------------------>|-------------->| 1-4.Echo Request
+        |               |               |       |       |
+        |<------------------------------|<--------------| 1-5.Echo Reply
+        |               |               |       |       |
+        |---------------------------------------------->| 1-6.Echo Request(Home Address option)
+        |               |               |       |       |
+        |<----------------------------------------------| 1-7.BE(Status=1)
+        |               |               |       |       |
+                |---------------------->|-------------->| 2-4.Echo Request
+                |               |       |       |       |
+                |<----------------------|<--------------| 2-5.Echo Reply
+                |               |       |       |       |
+                |-------------------------------------->| 2-6.Echo Request(Home Address option)
+                |               |       |       |       |
+                |<--------------------------------------| 2-7.BE(Status=1)
+                |               |       |       |       |
+</PRE>
+<PRE>
+1. Send Router Advertisement.
+2. Send Neighbor Solicitation.
+3. Receive Neighbor Advertisement.
+</PRE>
+<PRE>
+1-4. Send ICMP Echo Request.
+1-5. Receive ICMP Echo Reply.
+1-6. Send ICMP Echo Request(Home Address option).
+1-7. Receive Binding Error(Status=1).
+</PRE>
+<PRE>
+2-4. Send ICMP Echo Request.
+2-5. Receive ICMP Echo Reply.
+2-6. Send ICMP Echo Request(Home Address option).
+2-7. Receive Binding Error(Status=1).
+</PRE>
+<PRE>
+From 1-4 to 1-7 :User1(HoA1,CoA1)
+From 2-4 to 2-7 :User2(HoA2,CoA2)
+</PRE>
+<PRE>
+</PRE>
+
+<P>
+<HR>
+<H1><A NAME="TEST_PROCEDURE">TEST PROCEDURE</A></H1>
+<PRE>
+       MN      MN'     R1      R2      HA       R0     CN(NUT) 
+        |       |       |       |       |       |       |
+        |---------------------------------------------->| 1-1.CoTI
+        |               |               |       |       |
+        |------------------------------>|-------------->| 1-2.HoTI
+        |               |               |       |       |
+        |<----------------------------------------------| 1-3.CoT
+        |               |               |       |       |
+        |<------------------------------|<--------------| 1-4.HoT
+        |               |               |       |       |
+        |---------------------------------------------->| 1-5.BU(Source Address=Link1)
+        |               |               |       |       |
+        |<----------------------------------------------| 1-6.BA(Status=0) (*1)
+        |               |               |       |       |
+                |-------------------------------------->| 2-1.CoTI
+                |               |       |       |       |
+                |---------------------->|-------------->| 2-2.HoTI
+                |               |       |       |       |
+                |<--------------------------------------| 2-3.CoT
+                |               |       |       |       |
+                |<----------------------|<--------------| 2-4.HoT
+                |               |       |       |       |
+                |-------------------------------------->| 2-5.BU(Source Address=Link2)
+                |               |       |       |       |
+                |<--------------------------------------| 2-6.BA(Status=0) (*2)
+                |               |       |       |       |
+        |---------------------------------------------->| 1-7.Echo Request(Home Address option,Source Address=Link1)
+        |               |               |       |       |
+        |<----------------------------------------------| 1-8.Echo Reply(Type2 Routing Header) (*3)
+        |               |               |       |       |
+                |-------------------------------------->| 2-7.Echo Request(Home Address option,Source Address=Link2)
+                |               |       |       |       |
+                |<--------------------------------------| 2-8.Echo Reply(Type2 Routing Header) (*4)
+                |               |       |       |       |
+</PRE>
+<PRE>
+1-1. Send Care-of Test Init.
+1-2. Send Home Test Init.
+1-3. Receive Care-of Test.
+1-4. Receive Home Test.
+1-5. Send Binding Update(Source Address=Link1).
+1-6. Receive Binding Acknowledgement(Status=0).
+</PRE>
+<PRE>
+2-1. Send Care-of Test Init.
+2-2. Send Home Test Init.
+2-3. Receive Care-of Test.
+2-4. Receive Home Test.
+2-5. Send Binding Update(Source Address=Link2).
+2-6. Receive Binding Acknowledgement(Status=0).
+</PRE>
+<PRE>
+1-7. Send ICMP Echo Request(Home Address option,Source Address=Link1).
+1-8. Receive ICMP Echo Reply(Type2 Routing Header).
+2-7. Send ICMP Echo Request(Home Address option,Source Address=Link2).
+2-8. Receive ICMP Echo Reply(Type2 Routing Header).
+</PRE>
+<PRE>
+From 1-1 to 1-8 :User1(HoA1,CoA1)
+From 2-1 to 2-8 :User2(HoA2,CoA2)
+</PRE>
+<PRE>
+Packet Format
+1-5. <a href="../images/Binding_Update_message_format_from_MN_to_CN.gif">Binding Update</a>
+1-6. <a href="../images/Binding_Acknowledgement_message_format_from_CN_to_MN.gif">Binding Acknowledgement</a>
+2-5. <a href="../images/Binding_Update_message_format_from_MN_to_CN.gif">Binding Update</a>
+2-6. <a href="../images/Binding_Acknowledgement_message_format_from_CN_to_MN.gif">Binding Acknowledgement</a>
+1-7. <a href="../images/Payload_packet_format_from_MN_to_CN.gif">ICMP_Echo Request(Home Address option)</a>
+1-8. <a href="../images/Payload_packet_format_from_CN_to_MN.gif">ICMP Echo Reply(Type2 Routing Header)</a>
+2-7. <a href="../images/Payload_packet_format_from_MN_to_CN.gif">ICMP_Echo Request(Home Address option)</a>
+2-8. <a href="../images/Payload_packet_format_from_CN_to_MN.gif">ICMP Echo Reply(Type2 Routing Header)</a>
+</PRE>
+<PRE>
+</PRE>
+
+<P>
+<HR>
+<H1><A NAME="JUDGEMENT">JUDGEMENT</A></H1>
+<PRE>
+</PRE>
+<PRE>
+(*1) MN1 receives Binding Acknowledgement.
+  - The Destination Address is set to the Source Address of the Binding Update (MN care-of address 1).
+  - The Status field is set to 0.
+  - Binding Authorization Data option is included.
+  - Authenticator field of Binding Authorization Data option has the valid value.
+  - Type 2 Routing Header is included.
+  - The Home Address field of Type 2 Routing Header is set to MN home address 1.
+</PRE>
+<PRE>
+(*2) MN2 receives Binding Acknowledgement.
+  - The Destination Address is set to the Source Address of the Binding Update (MN care-of address 2).
+  - The Status field is set to 0.
+  - Binding Authorization Data option is included.
+  - Authenticator field of Binding Authorization Data option has the valid value.
+  - Type 2 Routing Header is included.
+  - The Home Address field of Type 2 Routing Header is set to MN home address 2.
+</PRE>
+<PRE>
+(*3) MN1 receives ICMP Echo Reply.
+  - The Destination Address is set to the Source Address of the Binding Update (MN care-of address 1).
+  - Type 2 Routing Header is included.
+  - The Home Address field of Type 2 Routing Header is set to MN home address 1.
+</PRE>
+<PRE>
+(*4) MN2 receives ICMP Echo Reply.
+  - The Destination Address is set to the Source Address of the Binding Update (MN care-of address 2).
+  - Type 2 Routing Header is included.
+  - The Home Address field of Type 2 Routing Header is set to MN home address 2.
+</PRE>
+<PRE>
+</PRE>
+
+<P>
+<HR>
+<H1><A NAME="REFERENCE">REFERENCE</A></H1>
+<PRE>
+RFC3775 Mobility Support in IPv6
+    See Section 9.1
+</PRE>
+</BODY>
+
+</HTML>

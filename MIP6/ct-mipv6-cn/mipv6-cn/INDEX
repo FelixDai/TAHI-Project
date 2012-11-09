@@ -1,0 +1,230 @@
+#//////////////////////////////////////////////////////////////////////
+#
+# Copyright (C) IPv6 Promotion Council,
+# NIPPON TELEGRAPH AND TELEPHONE CORPORATION (NTT),
+# Yokogwa Electoric Corporation, YASKAWA INFORMATION SYSTEMS Corporation
+# and NTT Advanced Technology Corporation(NTT-AT) All rights reserved.
+# 
+# Technology Corporation.
+# 
+# Redistribution and use of this software in source and binary forms, with 
+# or without modification, are permitted provided that the following 
+# conditions and disclaimer are agreed and accepted by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright 
+# notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright 
+# notice, this list of conditions and the following disclaimer in the 
+# documentation and/or other materials provided with the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project which 
+# is related to this software (hereinafter referred to as "project") nor 
+# the names of the contributors may be used to endorse or promote products 
+# derived from this software without specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written 
+# notification to the copyrighters. However, using this software for the 
+# purpose of testing or evaluating any products including merchantable 
+# products may be permitted without any notification to the copyrighters.
+# 
+# 
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND 
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING 
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS 
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE 
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+# CONTRACT,STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF 
+# THE POSSIBILITY OF SUCH DAMAGE.
+#
+# $Name: MIPv6_4_0_2 $
+#
+################################################################
+
+#
+&print:<B>1.&nbsp;Normal Operations - Registration</B>
+./CN-1-1.seq:./mip6cnt.def:::CN-1-1 - Normal Test - Return Routability:
+./CN-1-2.seq:./mip6cnt.def:::CN-1-2 - Normal Test - Binding Update:
+./CN-1-3.seq:./mip6cnt.def:::CN-1-3 - Normal Test - Route Optimization:
+#
+&print:<B>2.&nbsp;Processing Mobility Headers</B>
+&print:<B>2.1.&nbsp;Receiving HoTI</B>
+./CN-2-1-1.seq:./mip6cnt.def:::CN-2-1-1 - Receiving HoTI - Invalid Mobility Option (Nonce Indices option):
+./CN-2-1-2.seq:./mip6cnt.def:::CN-2-1-2 - Receiving HoTI - Home Address option:
+./CN-2-1-3.seq:./mip6cnt.def:::CN-2-1-3 - Receiving HoTI - Invalid Mobility Header Len:
+./CN-2-1-4.seq:./mip6cnt.def:::CN-2-1-4 - Receiving HoTI - Invalid Mobility Header Reserved:
+./CN-2-1-5.seq:./mip6cnt.def:::CN-2-1-5 - Receiving HoTI - Invalid Mobility Header Payload Proto:
+./CN-2-1-6.seq:./mip6cnt.def:::CN-2-1-6 - Receiving HoTI - Invalid Mobility Header Checksum:
+&print:<B>2.2.&nbsp;Receiving CoTI</B>
+./CN-2-2-1-1.seq:./mip6cnt.def:::CN-2-2-1-1 - Receiving CoTI - Invalid Mobility Option (Nonce Indices option):
+./CN-2-2-1-2.seq:./mip6cnt.def:::CN-2-2-1-2 - Receiving CoTI - Invalid Mobility Option (Alternate Care-of Address option):
+./CN-2-2-2.seq:./mip6cnt.def:::CN-2-2-2 - Receiving CoTI - Home Address option:
+./CN-2-2-3.seq:./mip6cnt.def:::CN-2-2-3 - Receiving CoTI - Invalid Mobility Header Len:
+./CN-2-2-4.seq:./mip6cnt.def:::CN-2-2-4 - Receiving CoTI - Invalid Mobility Header Reserved:
+./CN-2-2-5.seq:./mip6cnt.def:::CN-2-2-5 - Receiving CoTI - Invalid Mobility Header Payload Proto:
+./CN-2-2-6.seq:./mip6cnt.def:::CN-2-2-6 - Receiving CoTI - Invalid Mobility Header Checksum:
+&print:<B>2.3.&nbsp;Receiving BU</B>
+./CN-2-3-1-1.seq:./mip6cnt.def:::CN-2-3-1-1 - Receiving BU - Invalid Mobility Option (Binding Refresh Advice option):
+./CN-2-3-1-2.seq:./mip6cnt.def:::CN-2-3-1-2 - Receiving BU - Invalid Mobility Option (Invalid alignment of Mobility Options):
+#./CN-2-3-2.seq:./mip6cnt.def:::CN-2-3-2 - Receiving BU - Two Home Address options:
+./CN-2-3-3.seq:./mip6cnt.def:::CN-2-3-3 - Receiving BU - Invalid Mobility Header Len:
+./CN-2-3-4.seq:./mip6cnt.def:::CN-2-3-4 - Receiving BU - Invalid Mobility Header Reserved:
+./CN-2-3-5.seq:./mip6cnt.def:::CN-2-3-5 - Receiving BU - Invalid Mobility Header Payload Proto:
+./CN-2-3-6.seq:./mip6cnt.def:::CN-2-3-6 - Receiving BU - Invalid Mobility Header Checksum:
+./CN-2-3-7.seq:./mip6cnt.def:::CN-2-3-7 - Receiving BU - (L)bit is set:
+./CN-2-3-8.seq:./mip6cnt.def:::CN-2-3-8 - Receiving BU - (K)bit is set:
+./CN-2-3-9.seq:./mip6cnt.def:::CN-2-3-9 - Receiving BU - Invalid Reserved after (K)bit:
+./CN-2-3-10-1.seq:./mip6cnt.def:::CN-2-3-10-1 - Receiving BU - Not include Nonce Indices option (Registration):
+./CN-2-3-10-2.seq:./mip6cnt.def:::CN-2-3-10-2 - Receiving BU - Not include Nonce Indices option (De-Registration):
+./CN-2-3-11.seq:./mip6cnt.def:::CN-2-3-11 - Receiving BU - Invalid Binding Authorization Data option:
+&print:<B>2.4.&nbsp;Receiving mobility message</B>
+./CN-2-4-1.seq:./mip6cnt.def:::CN-2-4-1 - Receiving mobility message - Invalid MH Type:
+./CN-2-4-2.seq:./mip6cnt.def:::CN-2-4-2 - RR for two addresses:
+&print:<B>2.5.&nbsp;Receiving BU with (A)bit is cleared</B>
+./CN-2-5-1.seq:./mip6cnt.def:::CN-2-5-1 - Receiving BU with (A)bit is cleared - BU accepted:
+./CN-2-5-2.seq:./mip6cnt.def:::CN-2-5-2 - Receiving BU with (A)bit is cleared - Sequence number out of window:
+./CN-2-5-3.seq:./mip6cnt.def:::CN-2-5-3 - Receiving BU with (A)bit is cleared - Expired home nonce index:
+./CN-2-5-4.seq:./mip6cnt.def:::CN-2-5-4 - Receiving BU with (A)bit is cleared - Expired care-of nonce index:
+./CN-2-5-5.seq:./mip6cnt.def:::CN-2-5-5 - Receiving BU with (A)bit is cleared - Expired nonces:
+&print:<B>2.6.&nbsp;Receiving BU with invalid address</B>
+./CN-2-6-1.seq:./mip6cnt.def:::CN-2-6-1 - Receiving BU with invalid address - Source Address (Registration):
+./CN-2-6-2.seq:./mip6cnt.def:::CN-2-6-2 - Receiving BU with invalid address - Home Address (Registration):
+./CN-2-6-3.seq:./mip6cnt.def:::CN-2-6-3 - Receiving BU with invalid address - Alternate Care-of Address (Registration):
+./CN-2-6-4.seq:./mip6cnt.def:::CN-2-6-4 - Receiving BU with invalid address - Source Address (De-Registration):
+./CN-2-6-5.seq:./mip6cnt.def:::CN-2-6-5 - Receiving BU with invalid address - Alternate Care-of Address (De-Registration):
+#
+&print:<B>3.&nbsp;Normal Operations</B>
+&print:<B>3.1.&nbsp;Registration</B>
+./CN-3-1-1.seq:./mip6cnt.def:::CN-3-1-1 - Registration - Different Alternate Care-of Address from Source Address:
+./CN-3-1-2.seq:./mip6cnt.def:::CN-3-1-2 - Registration - Same Alternate Care-of Address as Source Address:
+&print:<B>3.2.&nbsp;Re-Registration</B>
+./CN-3-2-1.seq:./mip6cnt.def:::CN-3-2-1 - Re-Registration - After the return routability procedure:
+./CN-3-2-2.seq:./mip6cnt.def:::CN-3-2-2 - Re-Registration - Without the return routability procedure:
+./CN-3-2-3.seq:./mip6cnt.def:::CN-3-2-3 - Re-Registration - Binding Refresh Request:
+./CN-3-2-4.seq:./mip6cnt.def:::CN-3-2-4 - Re-Registration - In response to the Binding Refresh Request:
+&print:<B>3.3.&nbsp;De-Registration</B>
+&print:<B>(1)&nbsp;De-Registration from foreign link</B>
+./CN-3-3-1-1.seq:./mip6cnt.def:::CN-3-3-1-1 - De-Registration - From the foreign link, after the return routability procedure:
+./CN-3-3-1-2.seq:./mip6cnt.def:::CN-3-3-1-2 - De-Registration - From the foreign link, without the return routability procedure:
+./CN-3-3-1-3.seq:./mip6cnt.def:::CN-3-3-1-3 - De-Registration - From the foreign link, Alternate Care-of Address option included, after the return routability procedure:
+./CN-3-3-1-4.seq:./mip6cnt.def:::CN-3-3-1-4 - De-Registration - From the foreign link, Alternate Care-of Address option included, without the return routability procedure:
+./CN-3-3-1-5.seq:./mip6cnt.def:::CN-3-3-1-5 - De-Registration - From the foreign link, Alternate Care-of Address option included, Lifetime set to non-zero, after the return routability procedure:
+./CN-3-3-1-6.seq:./mip6cnt.def:::CN-3-3-1-6 - De-Registration - From the foreign link, Alternate Care-of Address option included, Lifetime set to non-zero, without the return routability procedure:
+&print:<B>(2)&nbsp;De-Registration from home link</B>
+./CN-3-3-2-1.seq:./mip6cnt.def:::CN-3-3-2-1 - De-Registration - From the home link, after the return routability procedure:
+./CN-3-3-2-2.seq:./mip6cnt.def:::CN-3-3-2-2 - De-Registration - From the home link, without the return routability procedure:
+./CN-3-3-2-3.seq:./mip6cnt.def:::CN-3-3-2-3 - De-Registration - From the home link, Home Address option included, after the return routability procedure:
+./CN-3-3-2-4.seq:./mip6cnt.def:::CN-3-3-2-4 - De-Registration - From the home link, Home Address option included, without the return routability procedure:
+./CN-3-3-2-5.seq:./mip6cnt.def:::CN-3-3-2-5 - De-Registration - From the home link, Alternate Care-of Address option included, after the return routability procedure:
+./CN-3-3-2-6.seq:./mip6cnt.def:::CN-3-3-2-6 - De-Registration - From the home link, Alternate Care-of Address option included, without the return routability procedure:
+./CN-3-3-2-7.seq:./mip6cnt.def:::CN-3-3-2-7 - De-Registration - From the home link, Home Address option and Alternate Care-of Address option included, after the return routability procedure:
+./CN-3-3-2-8.seq:./mip6cnt.def:::CN-3-3-2-8 - De-Registration - From the home link, Home Address option and Alternate Care-of Address option included, without the return routability procedure:
+./CN-3-3-2-9.seq:./mip6cnt.def:::CN-3-3-2-9 - De-Registration - From the home link, Lifetime set to non-zero, after the return routability procedure:
+./CN-3-3-2-10.seq:./mip6cnt.def:::CN-3-3-2-10 - De-Registration - From the home link, Lifetime set to non-zero, without the return routability procedure:
+./CN-3-3-2-11.seq:./mip6cnt.def:::CN-3-3-2-11 - De-Registration - From the home link, Home Address option included, Lifetime set to non-zero, after the return routability procedure:
+./CN-3-3-2-12.seq:./mip6cnt.def:::CN-3-3-2-12 - De-Registration - From the home link, Home Address option included, Lifetime set to non-zero, without the return routability procedure:
+./CN-3-3-2-13.seq:./mip6cnt.def:::CN-3-3-2-13 - De-Registration - From the home link, Alternate Care-of Address option included , Lifetime set to non-zero, after the return routability procedure:
+./CN-3-3-2-14.seq:./mip6cnt.def:::CN-3-3-2-14 - De-Registration - From the home link, Alternate Care-of Address option included , Lifetime set to non-zero, without the return routability procedure:
+./CN-3-3-2-15.seq:./mip6cnt.def:::CN-3-3-2-15 - De-Registration - From the home link, Home Address option and Alternate Care-of Address option included , Lifetime set to non-zero, after the return routability procedure:
+./CN-3-3-2-16.seq:./mip6cnt.def:::CN-3-3-2-16 - De-Registration - From the home link, Home Address option and Alternate Care-of Address option included , Lifetime set to non-zero, without the return routability procedure:
+./CN-3-3-3.seq:./mip6cnt.def:::CN-3-3-3 - De-Registration - Binding Updates that fail to satisfy tests:
+&print:<B>3.4.&nbsp;Handover</B>
+./CN-3-4-1.seq:./mip6cnt.def:::CN-3-4-1 - Handover - After the return routability procedure:
+./CN-3-4-2.seq:./mip6cnt.def:::CN-3-4-2 - Handover - After only Care-of Test is received:
+./CN-3-4-3.seq:./mip6cnt.def:::CN-3-4-3 - Handover - Binding Updates that fail to satisfy tests:
+#
+&print:<B>4.&nbsp;Authorizing Binding Management Messages</B>
+&print:<B>4.1.&nbsp;Nonce Indices timeout</B>
+&print:<B>(1)&nbsp;Home Nonce Index timeout</B>
+./CN-4-2-1.seq:./mip6cnt.def:::CN-4-2-1 - Home Nonce Index timeout - Registration from the foreign link:
+./CN-4-2-2.seq:./mip6cnt.def:::CN-4-2-2 - Home Nonce Index timeout - De-Registration from the foreign link:
+./CN-4-2-3.seq:./mip6cnt.def:::CN-4-2-3 - Home Nonce Index timeout - De-Registration from the home link:
+&print:<B>(2)&nbsp;Care-of Nonce Index timeout</B>
+./CN-4-3-1.seq:./mip6cnt.def:::CN-4-3-1 - Care-of Nonce Index timeout - Registration from the foreign link:
+./CN-4-3-2.seq:./mip6cnt.def:::CN-4-3-2 - Care-of Nonce Index timeout - De-Registration from the foreign link:
+./CN-4-3-3.seq:./mip6cnt.def:::CN-4-3-3 - Care-of Nonce Index timeout - De-Registration from the home link:
+&print:<B>(3)&nbsp;Home and Care-of Nonce Index timeout</B>
+./CN-4-8-1.seq:./mip6cnt.def:::CN-4-8-1 - Home and Care-of Nonce Index timeout - Registration from the foreign link:
+./CN-4-8-2.seq:./mip6cnt.def:::CN-4-8-2 - Home and Care-of Nonce Index timeout - De-Registration from the foreign link:
+./CN-4-8-3.seq:./mip6cnt.def:::CN-4-8-3 - Home and Care-of Nonce Index timeout - De-Registration from the home link:
+&print:<B>4.2.&nbsp;Nonce Indices error</B>
+&print:<B>(1)&nbsp;Home Nonce Index error</B>
+./CN-4-4-1.seq:./mip6cnt.def:::CN-4-4-1 - Home Nonce Index error - Registration from the foreign link:
+./CN-4-4-2.seq:./mip6cnt.def:::CN-4-4-2 - Home Nonce Index error - De-Registration from the foreign link:
+./CN-4-4-3.seq:./mip6cnt.def:::CN-4-4-3 - Home Nonce Index error - De-Registration from the home link:
+&print:<B>(2)&nbsp;Care-of Nonce Index error</B>
+./CN-4-5-1.seq:./mip6cnt.def:::CN-4-5-1 - Care-of Nonce Index error - Registration from the foreign link:
+./CN-4-5-2.seq:./mip6cnt.def:::CN-4-5-2 - Care-of Nonce Index error - De-Registration from the foreign link:
+./CN-4-5-3.seq:./mip6cnt.def:::CN-4-5-3 - Care-of Nonce Index error - De-Registration from the home link:
+&print:<B>(3)&nbsp;Home and Care-of Nonce Index error</B>
+./CN-4-9-1.seq:./mip6cnt.def:::CN-4-9-1 - Home and Care-of Nonce Indeices error - Registration from the foreign link:
+./CN-4-9-2.seq:./mip6cnt.def:::CN-4-9-2 - Home and Care-of Nonce Indeices error - De-Registration from the foreign link:
+./CN-4-9-3.seq:./mip6cnt.def:::CN-4-9-3 - Home and Care-of Nonce Indeices error - De-Registration from the home link:
+&print:<B>4.3.&nbsp;Keygen Tokens error</B>
+&print:<B>(1)&nbsp;Home Keygen Token error</B>
+./CN-4-6-1.seq:./mip6cnt.def:::CN-4-6-1 - Home Keygen Token error - Registration from the foreign link:
+./CN-4-6-2.seq:./mip6cnt.def:::CN-4-6-2 - Home Keygen Token error - De-Registration from the foreign link:
+./CN-4-6-3.seq:./mip6cnt.def:::CN-4-6-3 - Home Keygen Token error - De-Registration from the home link:
+&print:<B>(2)&nbsp;Care-of Keygen Token error</B>
+./CN-4-7-1.seq:./mip6cnt.def:::CN-4-7-1 - Care-of Keygen Token error - Registration from the foreign link:
+&print:<B>4.4.&nbsp;Indices not recent but valid</B>
+./CN-4-11.seq:./mip6cnt.def:::CN-4-11 - Generation of nonces:
+./CN-4-12-1.seq:./mip6cnt.def:::CN-4-12-1 - Indices not recent but valid - Registration from the foreign link:
+./CN-4-12-2.seq:./mip6cnt.def:::CN-4-12-2 - Indices not recent but valid - De-Registration from the foreign link:
+./CN-4-12-3.seq:./mip6cnt.def:::CN-4-12-3 - Indices not recent but valid - De-Registration from the home link:
+#
+&print:<B>5.&nbsp;Maintenance of Binding Cache Entries</B>
+&print:<B>5.1.&nbsp;Sequence #</B>
+&print:<B>(1)&nbsp;Valid</B>
+./CN-5-1-1-1.seq:./mip6cnt.def:::CN-5-1-1-1 - Sequence # - Greater than the value in the existing entry - 1st=10000, 2nd=10001:
+./CN-5-1-1-2.seq:./mip6cnt.def:::CN-5-1-1-2 - Sequence # - Greater than the value in the existing entry - 1st=10000, 2nd=42767:
+./CN-5-1-1-3.seq:./mip6cnt.def:::CN-5-1-1-3 - Sequence # - Greater than the value in the existing entry - 1st=42768, 2nd=0:
+./CN-5-1-1-4.seq:./mip6cnt.def:::CN-5-1-1-4 - Sequence # - Greater than the value in the existing entry - 1st=42768, 2nd=9999:
+&print:<B>(2)&nbsp;Invalid</B>
+./CN-5-1-2-1.seq:./mip6cnt.def:::CN-5-1-2-1 - Sequence # - Less than or equal to the value in the existing entry - 1st=10000,2nd=9999:
+./CN-5-1-2-2.seq:./mip6cnt.def:::CN-5-1-2-2 - Sequence # - Less than or equal to the value in the existing entry - 1st=10000,2nd=10000:
+./CN-5-1-2-3.seq:./mip6cnt.def:::CN-5-1-2-3 - Sequence # - Less than or equal to the value in the existing entry - 1st=10000,2nd=42768:
+./CN-5-1-2-4.seq:./mip6cnt.def:::CN-5-1-2-4 - Sequence # - Less than or equal to the value in the existing entry - 1st=10000,2nd=0:
+&print:<B>(3)&nbsp;No existing BCE</B>
+./CN-5-1-3-1.seq:./mip6cnt.def:::CN-5-1-3-1 - Sequence # - No existing entry - #=0:
+./CN-5-1-3-2.seq:./mip6cnt.def:::CN-5-1-3-2 - Sequence # - No existing entry - #=32768:
+./CN-5-1-3-3.seq:./mip6cnt.def:::CN-5-1-3-3 - Sequence # - No existing entry - #=65535:
+&print:<B>5.2.&nbsp;Lifetime</B>
+./CN-5-2-1.seq:./mip6cnt.def:::CN-5-2-1 - Lifetime - 0xFFFF, No existing entry:
+./CN-5-2-2.seq:./mip6cnt.def:::CN-5-2-2 - Lifetime - 1 to 105, No existing entry:
+./CN-5-2-3.seq:./mip6cnt.def:::CN-5-2-3 - Lifetime - Over 106, No existing entry:
+./CN-5-2-4.seq:./mip6cnt.def:::CN-5-2-4 - Lifetime - 0xFFFF, Remaining Lifetime is M:
+./CN-5-2-5.seq:./mip6cnt.def:::CN-5-2-5 - Lifetime - 1 to M, Remaining Lifetime is M:
+./CN-5-2-6.seq:./mip6cnt.def:::CN-5-2-6 - Lifetime - M to 105, Remaining Lifetime is M:
+./CN-5-2-7.seq:./mip6cnt.def:::CN-5-2-7 - Lifetime - Over 106, Remaining Lifetime is M:
+./CN-5-2-8.seq:./mip6cnt.def:::CN-5-2-8 - Lifetime - Binding Updates that fail to satisfy tests:
+&print:<B>5.3.&nbsp;Receiving BU with (H)bit is set</B>
+./CN-5-3-1.seq:./mip6cnt.def:::CN-5-3-1 - Receiving BU with (H)bit is set - Home Registration Not Supported (Registration):
+./CN-5-3-2.seq:./mip6cnt.def:::CN-5-3-2 - Receiving BU with (H)bit is set - Type Change Disallowd (Re-Registration):
+./CN-5-3-3.seq:./mip6cnt.def:::CN-5-3-3 - Receiving BU with (H)bit is set - Type Change Disallowed (De-Registration):
+./CN-5-3-4.seq:./mip6cnt.def:::CN-5-3-4 - Receiving BU with (H)bit is set - with Nonce (Registration):
+./CN-5-3-5.seq:./mip6cnt.def:::CN-5-3-5 - Receiving BU with (H)bit is set - with Nonce (Re-Registration):
+./CN-5-3-6.seq:./mip6cnt.def:::CN-5-3-6 - Receiving BU with (H)bit is set - with Nonce (De-Registration):
+&print:<B>5.4.&nbsp;Validating Binding Updates</B>
+./CN-5-4-1.seq:./mip6cnt.def:::CN-5-4-1 - Preventing Replay Attacks:
+./CN-5-4-2.seq:./mip6cnt.def:::CN-5-4-2 - BU Creating Circular Reference:
+./CN-5-4-3.seq:./mip6cnt.def:::CN-5-4-3 - Multiple Binding Cache entries:
+#
+&print:<B>6.&nbsp;Payload packets</B>
+./CN-6-1.seq:./mip6cnt.def:::CN-6-1 - ICMP Error - Persistent ICMP Destination Unreachable messages:
+./CN-6-2-1.seq:./mip6cnt.def:::CN-6-2-1 - Check of Home Address and Care-of Address against BCE - No entry exists:
+./CN-6-2-2.seq:./mip6cnt.def:::CN-6-2-2 - Check of Home Address and Care-of Address against BCE - The entry exists:
+./CN-6-2-3.seq:./mip6cnt.def:::CN-6-2-3 - Check of Home Address and Care-of Address against BCE - BCE is not changed:
+./CN-6-3-1.seq:./mip6cnt.def:::CN-6-3-1 - Receiving packets with multicast address - Source Address field:
+./CN-6-3-2.seq:./mip6cnt.def:::CN-6-3-2 - Receiving packets with multicast address - Home Address field:
+./CN-6-3-3.seq:./mip6cnt.def:::CN-6-3-3 - Receiving packets with multicast addresses - Source Address and Home Address fields:
+./CN-6-4-1.seq:./mip6cnt.def:::CN-6-4-1 - Processing in upper layer - Echo Checksum:
+./CN-6-4-2.seq:./mip6cnt.def:::CN-6-4-2 - Processing in upper layer - IPsec:
+./CN-6-5.seq:./mip6cnt.def:::CN-6-5 - Receiving packets with Type2 Routing Header:
+#

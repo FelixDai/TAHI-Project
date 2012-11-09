@@ -1,0 +1,442 @@
+#!/usr/bin/perl
+#
+# Copyright (C) IPv6 Promotion Council,
+# NIPPON TELEGRAPH AND TELEPHONE CORPORATION (NTT),
+# Yokogwa Electoric Corporation, YASKAWA INFORMATION SYSTEMS Corporation
+# and NTT Advanced Technology Corporation(NTT-AT) All rights reserved.
+# 
+# Technology Corporation.
+# 
+# Redistribution and use of this software in source and binary forms, with 
+# or without modification, are permitted provided that the following 
+# conditions and disclaimer are agreed and accepted by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright 
+# notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright 
+# notice, this list of conditions and the following disclaimer in the 
+# documentation and/or other materials provided with the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project which 
+# is related to this software (hereinafter referred to as "project") nor 
+# the names of the contributors may be used to endorse or promote products 
+# derived from this software without specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written 
+# notification to the copyrighters. However, using this software for the 
+# purpose of testing or evaluating any products including merchantable 
+# products may be permitted without any notification to the copyrighters.
+# 
+# 
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND 
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING 
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS 
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE 
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+# CONTRACT,STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF 
+# THE POSSIBILITY OF SUCH DAMAGE.
+#
+
+#--------------------------------------------------------------#
+# ENTRANCE
+#--------------------------------------------------------------#
+
+# Set the test version used for the display.
+BEGIN { $V6evalTool::TestVersion = '$Name: MIPv6_4_0_2 $';}
+
+# Import the package.
+use V6evalTool;
+use mip6cnt;
+
+#--------------------------------------------------------------#
+# INITIALIZATION
+#--------------------------------------------------------------#
+CNT_IsSupport(NORMAL);
+CNT_Initilize();
+SD_RA();
+SQ_NS();
+SQ_Echo();
+SQ_EchoHoa_BE();
+SQ_RR();
+
+#--------------------------------------------------------------#
+# TEST PROCEDURE
+#--------------------------------------------------------------#
+CNT_TEST_Start();
+
+#====================
+# BU->BA
+#====================
+LOG_Msg("BU LifeTime=106");
+$status=SQ_BU(BuRegHoa_Forein,"-DBU_LIFETIME=106");
+if($status eq 'TimeOut'){
+    LOG_Err("MN does not receive Binding Acknowledgement");
+    goto EXIT;
+}
+if($status eq 'UnKnown'){
+    LOG_Err("MN does not receive Binding Acknowledgement");
+    goto EXIT;
+}
+if( GetREV(BA,Status) != 0){
+    LOG_Err("BA - Status is not set to 0");
+    goto EXIT;
+}
+if( IsExistOpt('Auth') eq '' ){
+    LOG_Err("BA - Binding Authentication Data option is not included");
+    goto EXIT;
+}
+if( IsExistOpt('RH') eq '' ){
+    LOG_Err("BA - Type2 Routing Header is not included");
+    goto EXIT;
+}
+if(GetSND(IPv6,SourceAddress) ne GetREV(IPv6,DestinationAddress)){
+    LOG_Err("BA - The Destination Address is not set to the Source Address of the Bidning Update");
+    goto EXIT;
+}
+if(GetSND(DHhoa,HomeAddress) ne GetREV(RH,Address)){
+    LOG_Err("BA - The Home Address field of Type 2 Routing Header is not set to MN home address");
+    goto EXIT;
+}
+if(GetREV(BA,Lifetime) ne 105){
+    LOG_Err("BA - The Lifetime field is not set to 105");
+    goto EXIT;
+}
+if($status eq 'Replace'){
+    LOG_Err("BA - " . GetUnKnownInfoMsg() );
+    goto EXIT;
+}
+
+#====================
+# wait 410 sec
+#====================
+CNT_Wait(410);
+
+#====================
+# Echo Request -> Echo Reply
+#====================
+$status=SQ_EchoHoa();
+if($status eq 'TimeOut'){
+    LOG_Err("MN does not receive Echo Reply");
+    goto EXIT;
+}
+if($status eq 'UnKnown'){
+    LOG_Err("MN does not receive Echo Reply");
+    goto EXIT;
+}
+if( IsExistOpt('RH') eq '' ){
+    LOG_Err("Echo Reply - The Home Address field of Type2 Routing Header is not included");
+    goto EXIT;
+}
+if(GetCoAAddress() ne GetREV(IPv6,DestinationAddress)){
+    LOG_Err("Echo Reply - Destination Address is not set to the Binding Update Source Address");
+    goto EXIT;
+}
+if(GetSND(DHhoa,HomeAddress) ne GetREV(RH,Address)){
+    LOG_Err("Echo Reply - The Home Address field of Type2 Routing Header is not set to the MN Home Address");
+    goto EXIT;
+}
+if($status eq 'Replace'){
+    LOG_Err("Echo Reply - " . GetUnKnownInfoMsg() );
+    goto EXIT;
+}
+
+#====================
+# Total wait 422 sec
+#====================
+CNT_Wait(12);
+
+#====================
+# Echo Request -> BE
+#====================
+$status=SQ_EchoHoa_BE();
+if($status eq 'TimeOut'){
+    LOG_Err("MN does not receive Binding Error");
+    goto EXIT;
+}
+if($status eq 'UnKnown'){
+    LOG_Err("MN does not receive Binding Error");
+    goto EXIT;
+}
+if( GetREV(BE,Status) != 1){
+    LOG_Err("BE - Status is not set to 1");
+    goto EXIT;
+}
+if( GetSND(IPv6,SourceAddress) ne GetREV(IPv6,DestinationAddress) ){
+    LOG_Err("BE - The Destination Address is not set to the Source Address of ICMP Echo Request");
+    goto EXIT;
+}
+if( GetSND(DHhoa,HomeAddress) ne GetREV(BE,Address) ){
+    LOG_Err("BE - The Home Address field is not set to the value in the Home Address Option in the ICMP Echo Request");
+    goto EXIT;
+}
+if($status eq 'Replace'){
+    LOG_Err("BE - " . GetUnKnownInfoMsg() );
+    goto EXIT;
+}
+
+
+#--------------------------------------------------------------#
+# JUDGEMENT
+#--------------------------------------------------------------#
+LOG_OK("BA(*1) - MN receives Binding Acknowledgement");
+LOG_OK("BA(*1) - The Destination Address is set to the Source Address of the Bidning Update");
+LOG_OK("BA(*1) - The Status field is set to 0");
+LOG_OK("BA(*1) - The Lifetime field is less than or equal to the value in the Binding Update");
+
+LOG_OK("Echo Reply(*2) - MN receives ICMP Echo Reply");
+LOG_OK("Echo Reply(*2) - The Destination Address is set to the Source Address of the Bidning Update");
+LOG_OK("Echo Reply(*2) - Type2 Routing Header is included");
+LOG_OK("Echo Reply(*2) - The Home Address field of Type 2 Routing Header is set to MN home address");
+
+LOG_OK("BE(*3) - MN receives Binding Error");
+LOG_OK("BE(*3) - The Destination Address is set to the Source Address of ICMP Echo Request");
+LOG_OK("BE(*3) - The Status field is set to 1");
+LOG_OK("BE(*3) - The Home Address field is set to the value in the Home Address Option in the ICMP Echo Request");
+
+#--------------------------------------------------------------#
+# EXIT
+#--------------------------------------------------------------#
+if( $status eq 'OK' ){
+    if( CNT_InitCheck() eq 'Warn' ){
+        exit $V6evalTool::exitInitFail;
+    }
+    #    exit $V6evalTool::exitPass;
+
+#
+# 2006/11/15
+# check unexpected packets exist or not
+# exist     : $V6evalTool::exitWarn
+# not exist : $V6evalTool::exitPass
+#
+    exit IsUnExpectedPackets;
+}
+else {
+    EXIT:
+    exit $V6evalTool::exitFail;
+}
+
+
+
+
+
+
+
+
+
+
+
+=head1 NAME
+
+CN-5-2-3 - Lifetime - Over 106, No existing entry
+
+=head1 TARGET
+
+=begin html
+<PRE>
+Host/Router
+</PRE>
+
+=end html
+
+=head1 TOPOLOGY
+
+=begin html
+<PRE>
+                           HA                     
+                           |                       
+                 ----------+----+----------------- Home 
+                                |                  
+                                R2                 
+                                |                  
+                 ----------+----+----------------- Link2 (Foreign)
+                           |                       
+                           R1           MN         
+                           |            |          
+                 ----------+----+-------+--------- Link1 (Foreign)
+                                |                  
+                                R0          NUT    
+                                |            |     
+       -------------------------+------------+---- Link0
+</PRE>
+<blockquote>
+<table border>
+<tbody>
+<blockquote><table border><tbody>
+<TR><TD><TT>Link0</TT></TD>
+<TD><TT>3ffe:501:ffff:100::/64</TT></TD>
+<TD><TT>&nbsp;</TT></TD></TR>
+<TR><TD><TT>Link1</TT></TD>
+<TD><TT>3ffe:501:ffff:101::/64</TT></TD>
+<TD><TT>Foreign Link</TT></TD></TR>
+<TR><TD><TT>Link2</TT></TD>
+<TD><TT>3ffe:501:ffff:102::/64</TT></TD>
+<TD><TT>Foreign Link 2</TT></TD></TR>
+<TR><TD><TT>Home Link</TT></TD>
+<TD><TT>3ffe:501:ffff:104::/64</TT></TD>
+<TD><TT>Home Link</TT></TD></TR>
+<TR><TD><TT>CN(NUT)</TT></TD>
+<TD><TT>3ffe:501:ffff:100::X<BR>Auto Configuration (InterfaceID)</TT></TD>
+<TD><TT>&nbsp;</TT></TD></TR>
+<TR><TD><TT>MN(in Link1)</TT></TD>
+<TD><TT>3ffe:501:ffff:101::Y<BR>Increased in each test</TT></TD>
+<TD><TT>MN care-of address</TT></TD></TR>
+<TR><TD><TT>MN(in Home Link)</TT></TD>
+<TD><TT>3ffe:501:ffff:104::Y<BR>Increased in each test</TT></TD>
+<TD><TT>MN home address</TT></TD></TR>
+<TR><TD><TT>R0(Link0)</TT></TD>
+<TD><TT>3ffe:501:ffff:100::1</TT></TD>
+<TD><TT>&nbsp;</TT></TD></TR>
+<TR><TD><TT>R1(Link1)</TT></TD>
+<TD><TT>3ffe:501:ffff:101::1</TT></TD>
+<TD><TT>&nbsp;</TT></TD></TR>
+<TR><TD><TT>R2(Link2)</TT></TD>
+<TD><TT>3ffe:501:ffff:102::1</TT></TD>
+<TD><TT>&nbsp;</TT></TD></TR>
+<TR><TD><TT>HA(Home Link)</TT></TD>
+<TD><TT>3ffe:501:ffff:104::1</TT></TD>
+<TD><TT>&nbsp;</TT></TD></TR>
+</tbody></table></blockquote>
+</tbody></table>
+</blockquote>
+
+=end html
+
+=head1 INITIALIZATION
+
+=begin html
+<PRE>
+</PRE>
+<PRE>
+Reboot NUT
+</PRE>
+<PRE>
+       MN      R1      HA      R0     CN(NUT) 
+        |       |       |       |       |
+        |       |       |       |------>| 1.RA
+        |       |       |       |       |
+        |       |       |       |------>| 2.NS
+        |       |       |       |       |
+        |       |       |       |<------| 3.NA
+        |       |       |       |       |
+        |-------------->|-------------->| 4.Echo Request
+        |       |       |       |       |
+        |<--------------|<--------------| 5.Echo Reply
+        |       |       |       |       |
+        |------------------------------>| 6.Echo Request(Home Address option)
+        |       |       |       |       |
+        |<------------------------------| 7.BE(Status=1)
+        |       |       |       |       |
+</PRE>
+<PRE>
+1. Send Router Advertisement.
+2. Send Neighbor Solicitation.
+3. Receive Neighbor Advertisement.
+4. Send ICMP Echo Request.
+5. Receive ICMP Echo Reply.
+6. Send ICMP Echo Request(Home Address option).
+7. Receive Binding Error(Status=1).
+</PRE>
+<PRE>
+</PRE>
+
+=end html
+
+=head1 TEST PROCEDURE
+
+=begin html
+<PRE>
+       MN      R1      HA      R0     CN(NUT) 
+        |       |       |       |       |
+        |------------------------------>| 1.CoTI
+        |       |       |       |       |
+        |-------------->|-------------->| 2.HoTI
+        |       |       |       |       |
+        |<------------------------------| 3.CoT
+        |       |       |       |       |
+        |<--------------|<--------------| 4.HoT
+        |       |       |       |       |
+        |------------------------------>| 5.BU(Lifetime=106=424s)
+        |       |       |       |       |
+        |<------------------------------| 6.BA(Status=0,Lifetime=105=420s) (*1)
+        |       |       |       |       |
+        |       |       |       |       | Expire 410s
+        |       |       |       |       |
+        |------------------------------>| 7.Echo Request(Home Address option)
+        |       |       |       |       |
+        |<------------------------------| 8.Echo Reply(Type2 Routing Header) (*2)
+        |       |       |       |       |
+        |       |       |       |       | Expire 12s
+        |       |       |       |       |
+        |------------------------------>| 9.Echo Request(Home Address option)
+        |       |       |       |       |
+        |<------------------------------| 10.BE(Status=1) (*3)
+        |       |       |       |       |
+</PRE>
+<PRE>
+1. Send Care-of Test Init.
+2. Send Home Test Init.
+3. Receive Care-of Test.
+4. Receive Home Test.
+5. Send Binding Update(Lifetime=106=424s).
+6. Receive Binding Acknowledgement(Status=0,Lifetime=105=420s).
+   *Expire 410s
+7. Send ICMP Echo Request(Home Address option).
+8. Receive ICMP Echo Reply(Type2 Routing Header).
+   *Expire 12s
+9. Send ICMP Echo Request(Home Address option).
+10. Receive Binding Error(Status=1).
+</PRE>
+<PRE>
+Packet Format
+5. <a href="../images/Binding_Update_message_format_from_MN_to_CN.gif">Binding Update</a>
+6. <a href="../images/Binding_Acknowledgement_message_format_from_CN_to_MN.gif">Binding Acknowledgement</a>
+7. <a href="../images/Payload_packet_format_from_MN_to_CN.gif">ICMP_Echo Request(Home Address option)</a>
+8. <a href="../images/Payload_packet_format_from_CN_to_MN.gif">ICMP Echo Reply(Type2 Routing Header)</a>
+9. <a href="../images/Payload_packet_format_from_MN_to_CN.gif">ICMP_Echo Request(Home Address option)</a>
+10. <a href="../images/Binding_Error_message_format_from_CN_to_MN.gif">Binding Error</a>
+</PRE>
+<PRE>
+</PRE>
+
+=end html
+
+=head1 JUDGEMENT
+
+=begin html
+<PRE>
+</PRE>
+<PRE>
+(*1) MN receives Binding Acknowledgement.
+  - The Destination Address is set to the Source Address of the Binding Update (MN care-of address).
+  - The Status field is set to 0.
+  - The Lifetime field is set to 105.
+</PRE>
+<PRE>
+(*2) MN receives ICMP Echo Reply.
+  - The Destination Address is set to the Source Address of the Binding Update (MN care-of address).
+  - Type 2 Routing Header is included.
+</PRE>
+<PRE>
+(*3) MN receives Binding Error. (Lifetime expires.)
+  - The Destination Address is set to the Source Address of ICMP Echo Request (MN care-of address).
+  - The Status field is set to 1.
+</PRE>
+<PRE>
+</PRE>
+
+=end html
+
+=head1 REFERENCE
+
+=begin html
+<PRE>
+RFC3775 Mobility Support in IPv6
+    See Section 9.5.2, 5.2.6, 12, 6.1.8
+</PRE>

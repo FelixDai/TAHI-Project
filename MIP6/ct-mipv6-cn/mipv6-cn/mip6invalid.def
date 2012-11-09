@@ -1,0 +1,604 @@
+//
+// Copyright (C) IPv6 Promotion Council,
+// NIPPON TELEGRAPH AND TELEPHONE CORPORATION (NTT),
+// Yokogwa Electoric Corporation, YASKAWA INFORMATION SYSTEMS Corporation
+// and NTT Advanced Technology Corporation(NTT-AT) All rights reserved.
+// 
+// Technology Corporation.
+// 
+// Redistribution and use of this software in source and binary forms, with 
+// or without modification, are permitted provided that the following 
+// conditions and disclaimer are agreed and accepted by the user:
+// 
+// 1. Redistributions of source code must retain the above copyright 
+// notice, this list of conditions and the following disclaimer.
+// 
+// 2. Redistributions in binary form must reproduce the above copyright 
+// notice, this list of conditions and the following disclaimer in the 
+// documentation and/or other materials provided with the distribution.
+// 
+// 3. Neither the names of the copyrighters, the name of the project which 
+// is related to this software (hereinafter referred to as "project") nor 
+// the names of the contributors may be used to endorse or promote products 
+// derived from this software without specific prior written permission.
+// 
+// 4. No merchantable use may be permitted without prior written 
+// notification to the copyrighters. However, using this software for the 
+// purpose of testing or evaluating any products including merchantable 
+// products may be permitted without any notification to the copyrighters.
+// 
+// 
+// 
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND 
+// CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING 
+// BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS 
+// FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE 
+// COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+// INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
+// SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
+// HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+// CONTRACT,STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF 
+// THE POSSIBILITY OF SUCH DAMAGE.
+// 
+
+// -----------------------------------------------------------
+//
+//  Invalid Define
+//
+// -----------------------------------------------------------
+
+// -----------------------------------------------------------
+//
+//  HoTI
+//
+// -----------------------------------------------------------
+FEM_upp_no_next_header_exth(
+	HoTiHoa_Home,
+	EH_R0ToCN,
+	{
+		SourceAddress		= HOTI_SRC_HOME;
+		DestinationAddress	= HOTI_DST_CN;
+	},
+	{
+		header  		= _HDR_IPV6_NAME(HoTiHoa_Home);
+		exthdr 			= ext_homeaddress;
+		exthdr  		= ext_HoTI;
+		upper   		= _UPP_NONEXT_NAME(HoTiHoa_Home);
+	},
+	{}
+)	
+
+FEM_upp_no_next_header_exth(
+	HoTiMopt_Home,
+	EH_R0ToCN,
+	{
+		SourceAddress		= HOTI_SRC_HOME;
+		DestinationAddress	= HOTI_DST_CN;
+	},
+	{
+		header  		= _HDR_IPV6_NAME(HoTiMopt_Home);
+		exthdr  		= ext_HoTI_Opt;
+		upper   		= _UPP_NONEXT_NAME(HoTiMopt_Home);
+	},
+	{}
+)
+
+Hdr_MH_HoTI ext_HoTI_Opt {
+	NextHeader	= MH_NEXT_HEADER;
+	HeaderExtLength	= MH_HEADER_LENGTH;
+	Type		= MH_TYPE;
+	Reserved1	= MH_RESERVED1;
+	Checksum	= MH_CHECKSUM;
+	Reserved2	= MH_RESERVED2;
+	InitCookie	= hexstr(HOTCOOKIE, 8);
+	option		= opt_mh_pad2;
+	option		= opt_mh_nonce;
+}
+
+// -----------------------------------------------------------
+//
+//  CoTI
+//
+// -----------------------------------------------------------
+FEM_upp_no_next_header_exth(
+	CoTiHoa_Forein,
+	EH_R0ToCN,
+	{
+		SourceAddress		= COTI_SRC_COA;
+		DestinationAddress	= COTI_DST_CN;
+	},
+	{
+		header  		= _HDR_IPV6_NAME(CoTiHoa_Forein);
+		exthdr 			= ext_homeaddress;
+		exthdr  		= ext_CoTI;
+		upper   		= _UPP_NONEXT_NAME(CoTiHoa_Forein);
+	},
+	{}
+)
+
+FEM_upp_no_next_header_exth(
+	CoTiNonceOpt_Forein,
+	EH_R0ToCN,
+	{
+		SourceAddress		= COTI_SRC_COA;
+		DestinationAddress	= COTI_DST_CN;
+	},
+	{
+		header  		= _HDR_IPV6_NAME(CoTiNonceOpt_Forein);
+		exthdr  		= ext_CoTI_NonceOpt;
+		upper   		= _UPP_NONEXT_NAME(CoTiNonceOpt_Forein);
+	},
+	{}
+)
+
+Hdr_MH_CoTI ext_CoTI_NonceOpt {
+	NextHeader	= MH_NEXT_HEADER;
+	HeaderExtLength	= MH_HEADER_LENGTH;
+	Type		= MH_TYPE;
+	Reserved1	= MH_RESERVED1;
+	Checksum	= MH_CHECKSUM;
+	Reserved2	= MH_RESERVED2;
+	InitCookie	= hexstr(COTCOOKIE, 8);
+	option		= opt_mh_pad2;
+	option		= opt_mh_nonce;
+}
+
+FEM_upp_no_next_header_exth(
+	CoTiAltOpt_Forein,
+	EH_R0ToCN,
+	{
+		SourceAddress		= COTI_SRC_COA;
+		DestinationAddress	= COTI_DST_CN;
+	},
+	{
+		header  		= _HDR_IPV6_NAME(CoTiAltOpt_Forein);
+		exthdr  		= ext_CoTI_AltCoaOpt;
+		upper   		= _UPP_NONEXT_NAME(CoTiAltOpt_Forein);
+	},
+	{}
+)
+
+Hdr_MH_CoTI ext_CoTI_AltCoaOpt {
+	NextHeader	= MH_NEXT_HEADER;
+	HeaderExtLength	= MH_HEADER_LENGTH;
+	Type		= MH_TYPE;
+	Reserved1	= MH_RESERVED1;
+	Checksum	= MH_CHECKSUM;
+	Reserved2	= MH_RESERVED2;
+	InitCookie	= hexstr(COTCOOKIE, 8);
+	option		= opt_mh_pad6;
+	option		= opt_mh_altcoa;
+}
+
+// -----------------------------------------------------------
+//
+//  BU
+//
+// -----------------------------------------------------------
+FEM_upp_no_next_header_exth(
+	BuReg2Hoa_Forein,
+	EH_R0ToCN,
+	{
+		SourceAddress		= BU_SRC_COA;
+		DestinationAddress	= BU_DST_CN;
+	},
+	{
+		header  = _HDR_IPV6_NAME(BuReg2Hoa_Forein);
+		exthdr  = ext_homeaddress;
+		exthdr  = ext_homeaddress;
+		exthdr  = ext_BU;
+		upper   = _UPP_NONEXT_NAME(BuReg2Hoa_Forein);
+	},
+	{}
+)
+
+FEM_upp_no_next_header_exth(
+	BuRegHoa_Forein_LayoutErr,
+	EH_R0ToCN,
+	{
+		SourceAddress		= BU_SRC_COA;
+		DestinationAddress	= BU_DST_CN;
+	},
+	{
+		header  = _HDR_IPV6_NAME(BuRegHoa_Forein_LayoutErr);
+		exthdr  = ext_homeaddress;
+		exthdr  = ext_BU_OPLayoutErr;
+		upper   = _UPP_NONEXT_NAME(BuRegHoa_Forein_LayoutErr);
+	},
+	{}
+)
+
+FEM_upp_no_next_header_exth(
+	BuRegHoaAlt_Forein_LayoutErr,
+	EH_R0ToCN,
+	{
+		SourceAddress		= BU_SRC_COA;
+		DestinationAddress	= BU_DST_CN;
+	},
+	{
+		header  = _HDR_IPV6_NAME(BuRegHoaAlt_Forein_LayoutErr);
+		exthdr  = ext_homeaddress;
+		exthdr  = ext_BU_AltCoa_OPLayoutErr;
+		upper   = _UPP_NONEXT_NAME(BuRegHoaAlt_Forein_LayoutErr);
+	},
+	{}
+)
+
+
+FEM_upp_no_next_header_exth(
+	BuRegHoaNoAuth_Forein,
+	EH_R0ToCN,
+	{
+		SourceAddress		= BU_SRC_COA;
+		DestinationAddress	= BU_DST_CN;
+	},
+	{
+		header  = _HDR_IPV6_NAME(BuRegHoaNoAuth_Forein);
+		exthdr  = ext_homeaddress;
+		exthdr  = ext_BU_OPNoAuth;
+		upper   = _UPP_NONEXT_NAME(BuRegHoaNoAuth_Forein);
+	},
+	{}
+)
+
+FEM_upp_no_next_header_exth(
+	BuRegHoaNoNonce_Forein,
+	EH_R0ToCN,
+	{
+		SourceAddress		= BU_SRC_COA;
+		DestinationAddress	= BU_DST_CN;
+	},
+	{
+		header  = _HDR_IPV6_NAME(BuRegHoaNoNonce_Forein);
+		exthdr  = ext_homeaddress;
+		exthdr  = ext_BU_OPNoNonce;
+		upper   = _UPP_NONEXT_NAME(BuRegHoaNoNonce_Forein);
+	},
+	{}
+)
+
+FEM_upp_no_next_header_exth(
+	BuDeregNoNonce_Forein,
+	EH_R0ToCN,
+	{
+		SourceAddress		= BU_SRC_COA;
+		DestinationAddress	= BU_DST_CN;
+	},
+	{
+		header  = _HDR_IPV6_NAME(BuDeregNoNonce_Forein);
+		exthdr  = ext_homeaddress;
+		exthdr  = ext_BU_OPNoNonce_Foreign;
+		upper   = _UPP_NONEXT_NAME(BuDeregNoNonce_Forein);
+	},
+	{}
+)
+
+FEM_upp_no_next_header_exth(
+	BuDeregNoNonce_Home,
+	EH_R0ToCN,
+	{
+		SourceAddress		= BU_SRC_HOME;
+		DestinationAddress	= BU_DST_CN;
+	},
+	{
+		header  = _HDR_IPV6_NAME(BuDeregNoNonce_Home);
+		exthdr  = ext_BU_OPNoNonce_Home;
+		upper   = _UPP_NONEXT_NAME(BuDeregNoNonce_Home);
+	},
+	{}
+)
+
+FEM_upp_no_next_header_exth(
+	BuRegHoaPad8_Forein,
+	EH_R0ToCN,
+	{
+		SourceAddress		= BU_SRC_COA;
+		DestinationAddress	= BU_DST_CN;
+	},
+	{
+		header  = _HDR_IPV6_NAME(BuRegHoaPad8_Forein);
+		exthdr  = ext_homeaddress;
+		exthdr  = ext_BU_OPPad8;
+		upper   = _UPP_NONEXT_NAME(BuRegHoaPad8_Forein);
+	},
+	{}
+)
+
+FEM_upp_no_next_header_exth(
+	BuRegHoaBRAOpt_Forein,
+	EH_R0ToCN,
+	{
+		SourceAddress		= BU_SRC_COA;
+		DestinationAddress	= BU_DST_CN;
+	},
+	{
+		header  = _HDR_IPV6_NAME(BuRegHoaBRAOpt_Forein);
+		exthdr  = ext_homeaddress;
+		exthdr  = ext_BU_BRAOpt;
+		upper   = _UPP_NONEXT_NAME(BuRegHoaBRAOpt_Forein);
+	},
+	{}
+)
+
+FEM_upp_no_next_header_exth(
+	BuRegHoaInvalidAuth_Forein,
+	EH_R0ToCN,
+	{
+		SourceAddress		= BU_SRC_COA;
+		DestinationAddress	= BU_DST_CN;
+	},
+	{
+		header  = _HDR_IPV6_NAME(BuRegHoaInvalidAuth_Forein);
+		exthdr  = ext_homeaddress;
+		exthdr  = ext_BU_OPInvalidAuth;
+		upper   = _UPP_NONEXT_NAME(BuRegHoaInvalidAuth_Forein);
+	},
+	{}
+)
+
+
+Hdr_MH_BU ext_BU_OPNoAuth {
+	NextHeader	= MH_NEXT_HEADER;
+	HeaderExtLength	= MH_HEADER_LENGTH;
+	Type		= MH_TYPE;
+	Reserved1	= MH_RESERVED1;
+	Checksum	= MH_CHECKSUM;
+	SequenceNumber	= BU_SEQNO;
+	AFlag		= BU_A_FLAG;
+	HFlag		= BU_H_FLAG;
+	LFlag		= BU_L_FLAG;
+	Reserved2	= MH_RESERVED2;
+	Lifetime	= BU_LIFETIME;
+	option		= opt_mh_pad6;
+	option		= opt_mh_nonce;
+}
+
+Hdr_MH_BU ext_BU_OPNoNonce {
+	NextHeader	= MH_NEXT_HEADER;
+	HeaderExtLength	= MH_HEADER_LENGTH;
+	Type		= MH_TYPE;
+	Reserved1	= MH_RESERVED1;
+	Checksum	= MH_CHECKSUM;
+	SequenceNumber	= BU_SEQNO;
+	AFlag		= BU_A_FLAG;
+	HFlag		= BU_H_FLAG;
+	LFlag		= BU_L_FLAG;
+	Reserved2	= MH_RESERVED2;
+	Lifetime	= BU_LIFETIME;
+	option		= opt_mh_pad6;
+	option		= opt_mh_auth;
+}
+
+Hdr_MH_BU ext_BU_OPNoNonce_Foreign {
+	NextHeader	= MH_NEXT_HEADER;
+	HeaderExtLength	= MH_HEADER_LENGTH;
+	Type		= MH_TYPE;
+	Reserved1	= MH_RESERVED1;
+	Checksum	= MH_CHECKSUM;
+	SequenceNumber	= BU_SEQNO;
+	AFlag		= BU_A_FLAG;
+	HFlag		= BU_H_FLAG;
+	LFlag		= BU_L_FLAG;
+	KFlag		= BU_K_FLAG;
+	Reserved2	= MH_RESERVED2;
+	Lifetime	= BU_LIFETIME;
+	option		= opt_mh_pad6;
+	option		= opt_mh_auth_foreign;
+}
+
+Hdr_MH_BU ext_BU_OPNoNonce_Home {
+	NextHeader	= MH_NEXT_HEADER;
+	HeaderExtLength	= MH_HEADER_LENGTH;
+	Type		= MH_TYPE;
+	Reserved1	= MH_RESERVED1;
+	Checksum	= MH_CHECKSUM;
+	SequenceNumber	= BU_SEQNO;
+	AFlag		= BU_A_FLAG;
+	HFlag		= BU_H_FLAG;
+	LFlag		= BU_L_FLAG;
+	KFlag		= BU_K_FLAG;
+	Reserved2	= MH_RESERVED2;
+	Lifetime	= BU_LIFETIME;
+	option		= opt_mh_pad6;
+	option		= opt_mh_auth_home;
+}
+
+Hdr_MH_BU ext_BU_OPPad8 {
+	NextHeader	= MH_NEXT_HEADER;
+	HeaderExtLength	= MH_HEADER_LENGTH;
+	Type		= MH_TYPE;
+	Reserved1	= MH_RESERVED1;
+	Checksum	= MH_CHECKSUM;
+	SequenceNumber	= BU_SEQNO;
+	AFlag		= BU_A_FLAG;
+	HFlag		= BU_H_FLAG;
+	LFlag		= BU_L_FLAG;
+	KFlag		= BU_K_FLAG;
+	Reserved2	= MH_RESERVED2;
+	Lifetime	= BU_LIFETIME;
+	option		= opt_mh_nonce;
+	option		= opt_mh_auth;
+	option		= opt_mh_pad8;
+}
+
+Hdr_MH_BU ext_BU_OPLayoutErr {
+	NextHeader	= MH_NEXT_HEADER;
+	HeaderExtLength	= MH_HEADER_LENGTH;
+	Type		= MH_TYPE;
+	Reserved1	= MH_RESERVED1;
+	Checksum	= MH_CHECKSUM;
+	SequenceNumber	= BU_SEQNO;
+	AFlag		= BU_A_FLAG;
+	HFlag		= BU_H_FLAG;
+	LFlag		= BU_L_FLAG;
+	Reserved2	= MH_RESERVED2;
+	Lifetime	= BU_LIFETIME;
+	option		= opt_mh_pad6;
+	option		= opt_mh_auth;
+	option		= opt_mh_nonce;
+	option		= opt_mh_pad2;
+}
+
+Hdr_MH_BU ext_BU_AltCoa_OPLayoutErr {
+	NextHeader	= MH_NEXT_HEADER;
+	HeaderExtLength	= MH_HEADER_LENGTH;
+	Type		= MH_TYPE;
+	Reserved1	= MH_RESERVED1;
+	Checksum	= MH_CHECKSUM;
+	SequenceNumber	= BU_SEQNO;
+	AFlag		= BU_A_FLAG;
+	HFlag		= BU_H_FLAG;
+	LFlag		= BU_L_FLAG;
+	Reserved2	= MH_RESERVED2;
+	Lifetime	= BU_LIFETIME;
+	option		= opt_mh_nonce;
+	option		= opt_mh_auth;
+	option		= opt_mh_pad6;
+	option		= opt_mh_altcoa;
+}
+
+Hdr_MH_BU ext_BU_BRAOpt {
+	NextHeader	= MH_NEXT_HEADER;
+	HeaderExtLength	= MH_HEADER_LENGTH;
+	Type		= MH_TYPE;
+	Reserved1	= MH_RESERVED1;
+	Checksum	= MH_CHECKSUM;
+	SequenceNumber	= BU_SEQNO;
+	AFlag		= BU_A_FLAG;
+	HFlag		= BU_H_FLAG;
+	LFlag		= BU_L_FLAG;
+	Reserved2	= MH_RESERVED2;
+	Lifetime	= BU_LIFETIME;
+	option		= opt_mh_pad4;
+	option		= opt_mh_refresh;
+	option		= opt_mh_nonce;
+	option		= opt_mh_auth;
+}
+
+Hdr_MH_BU ext_BU_OPInvalidAuth {
+	NextHeader	= MH_NEXT_HEADER;
+	HeaderExtLength	= MH_HEADER_LENGTH;
+	Type		= MH_TYPE;
+	Reserved1	= MH_RESERVED1;
+	Checksum	= MH_CHECKSUM;
+	SequenceNumber	= BU_SEQNO;
+	AFlag		= BU_A_FLAG;
+	HFlag		= BU_H_FLAG;
+	LFlag		= BU_L_FLAG;
+	KFlag		= BU_K_FLAG;
+	Reserved2	= MH_RESERVED2;
+	Lifetime	= BU_LIFETIME;
+	option		= opt_mh_nonce;
+	option		= opt_mh_Invalidauth;
+}
+Opt_MH_BindingAuthData opt_mh_Invalidauth {
+	Type		= OP_AUTH_TYPE;
+	Length		= OP_AUTH_LENGTH;
+	Authenticator	= 0;
+}
+
+
+// -----------------------------------------------------------
+//
+//  ICMP Parameter Problem
+//
+// -----------------------------------------------------------
+FEM_icmp6_parameter_problem(
+	ICMPErrParameterProblemHoTI,
+	EH_CNToSLL,
+	{
+		SourceAddress		= ICMP_ERR_SRC_CN;
+		DestinationAddress	= ICMP_ERR_DST_HOME;
+	},
+	{
+		Code	= any;
+		Pointer	= any;
+		payload	= data_HoTI;
+	}
+)
+
+Payload data_HoTI {
+	data	= left(_PACKET_IPV6_NAME(HoTI_Home), 56);
+}
+
+
+FEM_icmp6_parameter_problem(
+	ICMPErrParameterProblemCoTI,
+	EH_CNToSLL,
+	{
+		SourceAddress		= ICMP_ERR_SRC_CN;
+		DestinationAddress	= ICMP_ERR_DST_COA;
+	},
+	{
+		Code	= any;
+		Pointer	= any;
+		payload	= data_CoTI;
+	}
+)
+
+Payload data_CoTI {
+	data	= left(_PACKET_IPV6_NAME(CoTI_Forein), 56);
+}
+
+FEM_icmp6_parameter_problem(
+	ICMPErrParameterProblemBUForein,
+	EH_CNToSLL,
+	{
+		SourceAddress		= ICMP_ERR_SRC_CN;
+		DestinationAddress	= ICMP_ERR_DST_COA;
+	},
+	{
+		Code	= any;
+		Pointer	= any;
+		payload	= data_BU_Forein;
+	}
+)
+
+Payload data_BU_Forein {
+	data	= left(_PACKET_IPV6_NAME(BuRegHoa_Forein), 96);
+}
+
+FEM_icmp6_parameter_problem(
+	ICMPErrParameterProblemBUHome,
+	EH_CNToSLL,
+	{
+		SourceAddress		= ICMP_ERR_SRC_CN;
+		DestinationAddress	= ICMP_ERR_DST_HOME;
+	},
+	{
+		Code	= any;
+		Pointer	= any;
+		payload	= data_BU_Home;
+	}
+)
+
+Payload data_BU_Home {
+	data	= left(_PACKET_IPV6_NAME(BuDeregHoa_Home), 96);
+}
+
+
+// -----------------------------------------------------------
+//
+//  Echo Request
+//
+// -----------------------------------------------------------
+FEM_icmp6_echo_request_exth(
+	EchoRequestRh_Forein,
+	EH_R0ToCN,
+	{
+		SourceAddress		= ECHO_SRC_COA;
+		DestinationAddress	= ECHO_DST_CN;
+	},
+	{
+		header	= _HDR_IPV6_NAME(EchoRequestRh_Forein);
+		exthdr	= ext_TY2_Routing;
+		upper	= _ICMPV6_NAME(EchoRequestRh_Forein);
+	},
+	{
+		Checksum	= ECHO_CHECKSUM;
+		SequenceNumber	= auto;
+		payload	= echo_payload;
+	}
+)
