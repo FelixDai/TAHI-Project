@@ -3,8 +3,17 @@
 
                 CHANGELOG for IPv6 Conformance Test Tool
 
-                      $Date: 2011/04/22 01:38:40 $
+                      $Date: 2013/08/06 06:53:20 $
 
+
+
+2013/08/06	Release 3.3.3
+	Official release
+
+
+2013/08/06	Satoshi Nagahama
+	M lib/Cm/CmMain.cc
+		- Added support for utmpx of FreeBSD 9.X
 
 
 2011/04/22	Release 3.3.2

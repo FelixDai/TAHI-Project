@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011
+ * Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013
  * Yokogawa Electric Corporation, YDC Corporation,
  * IPA (Information-technology Promotion Agency, Japan).
  * All rights reserved.
@@ -40,7 +40,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF 
  * THE POSSIBILITY OF SUCH DAMAGE.
  *
- * $TAHI: v6eval/lib/Cm/CmMain.cc,v 1.19 2009/08/27 00:10:04 akisada Exp $
+ * $TAHI: v6eval/lib/Cm/CmMain.cc,v 1.20 2013/08/06 02:41:50 nagahama Exp $
  */
 #include "CmMain.h"
 #include <signal.h>
@@ -48,13 +48,20 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <utmp.h>
 #include <time.h>
 #include <pwd.h>
 #include <sys/time.h>
 #include <sys/types.h>
 #include <sys/resource.h>
 #include <sys/param.h>
+#if (defined(__FreeBSD__) && (__FreeBSD__ >= 9))
+#define HAVE_UTMPX_H
+#endif
+#ifdef HAVE_UTMPX_H
+#include <utmpx.h>
+#else
+#include <utmp.h>
+#endif
 extern int causeStopSignals[];
 static int stopSingals[]={SIGINT,SIGQUIT,SIGTERM,0};
 extern void applicationMain(CmMain*);
@@ -129,6 +136,21 @@ void CmMain::setDbgFlags(CSTR s) {
 
 //----------------------------------------------------------------------
 // ¾ã³²²òÀÏ¾ðÊóºîÀ®
+#ifdef HAVE_UTMPX_H
+void CmMain::makeCatch2Eye(STR p) {
+static char catch2[]=" on %*.*s:%-*.*s from %*.*s";
+	char *tn;
+	struct utmpx ux[1], *u;
+	tn=ttyname(0);
+	if(!tn) {return;}
+	strcpy(ux->ut_line, (char *)(tn+5));
+	u=getutxline(ux);
+	if(!u) {return;}
+#define A(a)sizeof(a),sizeof(a),a
+	sprintf(p,catch2,A(u->ut_line),A(u->ut_user),A(u->ut_host));
+#undef A
+	return;}
+#else
 static struct utmp *myUtmpEnt(FILE *in,struct utmp *u) {
 	int s=ttyslot();
 	if(s<0||fseek(in,sizeof(struct utmp)*s,0)<0||
@@ -144,6 +166,7 @@ static char catch2[]=" on %*.*s:%-*.*s from %*.*s";
 	sprintf(p,catch2,A(u->ut_line),A(u->ut_name),A(u->ut_host));
 #undef A
 	return;}
+#endif
 void CmMain::makeCatchEye(const STR pgmName) {
 static char catch1[]="@(#) %02d/%02d/%02d %02d:%02d:%02d %s STARTED by %s@%s";
 	time_t now=time(0); struct tm *m=localtime(&now);

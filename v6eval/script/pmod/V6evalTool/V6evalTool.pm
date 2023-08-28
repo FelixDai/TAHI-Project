@@ -1,5 +1,5 @@
 #
-# Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011
+# Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013
 # Yokogawa Electric Corporation, YDC Corporation,
 # IPA (Information-technology Promotion Agency, Japan).
 # All rights reserved.
@@ -2205,7 +2205,7 @@ getVersion()
 {
 	my $dummy;
 
-	($dummy, $ToolVersion) = ('$Name: REL_3_3_2 $' =~ /\$(Name): (.*) \$/ );
+	($dummy, $ToolVersion) = ('$Name: REL_3_3_3 $' =~ /\$(Name): (.*) \$/ );
 	if(!$ToolVersion){
 		$ToolVersion=   'undefined';
 	}

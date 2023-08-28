@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011
+# Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013
 # Yokogawa Electric Corporation, YDC Corporation,
 # IPA (Information-technology Promotion Agency, Japan).
 # All rights reserved.
@@ -125,7 +125,7 @@ unless($Config{sig_name} && $Config{sig_num}) {
 
 # get tool & test version
 my $dummy;
-($dummy,$VERTOOLS) = ('$Name: REL_3_3_2 $' =~ /\$(Name): (.*) \$/ );
+($dummy,$VERTOOLS) = ('$Name: REL_3_3_3 $' =~ /\$(Name): (.*) \$/ );
 $VERTOOLS='undefined' if(!$VERTOOLS);
 
 $StartTime=getDateString();
