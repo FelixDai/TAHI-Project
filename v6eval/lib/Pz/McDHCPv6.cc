@@ -943,6 +943,13 @@ uint32_t McOpt_DHCPv6_NTP_Servers::HC_MLC(Address)(const ItPosition &at, OCTBUF 
 McOpt_DHCPv6_NTP_Timezone::McOpt_DHCPv6_NTP_Timezone(CSTR key): McOpt_DHCPv6(key) {}
 McOpt_DHCPv6_NTP_Timezone::~McOpt_DHCPv6_NTP_Timezone() {}
 
+#undef SOLMAXRTLEN
+#undef SOLMAXRTSET
+
+////////////////////////////////////////////////////////////////
+McOpt_DHCPv6_SOL_MAX_OPT::McOpt_DHCPv6_SOL_MAX_OPT(CSTR key): McOpt_DHCPv6(key) {}
+McOpt_DHCPv6_SOL_MAX_OPT::~McOpt_DHCPv6_SOL_MAX_OPT() {}
+
 ////////////////////////////////////////////////////////////////
 McDHCPv6_DUID::McDHCPv6_DUID(CSTR key): McUpper(key), type_(0) {}
 McDHCPv6_DUID::~McDHCPv6_DUID() {}

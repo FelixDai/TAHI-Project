@@ -125,7 +125,7 @@ unless($Config{sig_name} && $Config{sig_num}) {
 
 # get tool & test version
 my $dummy;
-($dummy,$VERTOOLS) = ('$Name: REL_3_3_3 $' =~ /\$(Name): (.*) \$/ );
+($dummy,$VERTOOLS) = ('$Name: REL_3_3_4 $' =~ /\$(Name): (.*) \$/ );
 $VERTOOLS='undefined' if(!$VERTOOLS);
 
 $StartTime=getDateString();

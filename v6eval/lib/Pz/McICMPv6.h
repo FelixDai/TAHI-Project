@@ -85,11 +85,23 @@ const int32_t TP_Opt_ICMPv6_MTU			=5;
 const int32_t TP_Opt_ICMPv6_AdvInterval		=7;
 const int32_t TP_Opt_ICMPv6_HomeAgentInfo	=8;
 
-#ifndef TBD_OPT_ROUTE_INFO
-#define TBD_OPT_ROUTE_INFO	200
-#endif	// TBD_OPT_ROUTE_INFO
-const int32_t TP_Opt_ICMPv6_RouteInfo		= TBD_OPT_ROUTE_INFO;
-#undef TBD_OPT_ROUTE_INFO
+#ifndef OPT_ROUTE_INFO
+#define OPT_ROUTE_INFO	24
+#endif	// OPT_ROUTE_INFO
+const int32_t TP_Opt_ICMPv6_RouteInfo		= OPT_ROUTE_INFO;
+#undef OPT_ROUTE_INFO
+
+#ifndef OPT_DNSSL
+#define OPT_DNSSL	25
+#endif	// OPT_DNSSL
+const int32_t TP_Opt_ICMPv6_RDNSS		= OPT_DNSSL;
+#undef OPT_DNSSL
+
+#ifndef OPT_DNSSL
+#define OPT_DNSSL	31
+#endif	// OPT_DNSSL
+const int32_t TP_Opt_ICMPv6_DNSSL		= OPT_DNSSL;
+#undef OPT_DNSSL
 
 // meta ICMPv6 only one (reverse upptype(one)->icmptype(any) McUpp_ICMPv6_*}
 class McUpp_ICMPv6_ONE :public McUpper{
@@ -449,6 +461,32 @@ class McOpt_ICMPv6_RouteInfo: public McOpt_ICMPv6 {
 
 		int32_t optionType() const {
 			return(TP_Opt_ICMPv6_RouteInfo);
+		}
+};
+
+class McOpt_ICMPv6_RDNSS: public McOpt_ICMPv6 {
+	public:
+		McOpt_ICMPv6_RDNSS(CSTR);
+		virtual	~McOpt_ICMPv6_RDNSS();
+
+		static McOpt_ICMPv6_RDNSS *create(CSTR);
+
+		int32_t optionType() const {
+			return(TP_Opt_ICMPv6_RDNSS);
+		}
+		
+		DEC_HC_MLC(Address);
+};
+
+class McOpt_ICMPv6_DNSSL: public McOpt_ICMPv6 {
+	public:
+		McOpt_ICMPv6_DNSSL(CSTR);
+		virtual	~McOpt_ICMPv6_DNSSL();
+
+		static McOpt_ICMPv6_DNSSL *create(CSTR);
+
+		int32_t optionType() const {
+			return(TP_Opt_ICMPv6_DNSSL);
 		}
 };
 

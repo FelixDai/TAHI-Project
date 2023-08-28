@@ -231,6 +231,8 @@ McObject::initialize()
 	LEXADD(McOpt_ICMPv6_AdvInterval,	"Opt_ICMPv6_AdvInterval");
 	LEXADD(McOpt_ICMPv6_HomeAgentInfo,	"Opt_ICMPv6_HomeAgentInfo");
 	LEXADD(McOpt_ICMPv6_RouteInfo,		"Opt_ICMPv6_RouteInfo");
+	LEXADD(McOpt_ICMPv6_RDNSS,		"Opt_ICMPv6_RDNSS");
+	LEXADD(McOpt_ICMPv6_DNSSL,		"Opt_ICMPv6_DNSSL");
 
 	// Mobility Header
 	LEXADD(McHdr_Ext_MH_ANY,	"Hdr_MH_ANY");
@@ -356,6 +358,7 @@ McObject::initialize()
 	LEXADD(McOpt_DHCPv6_VendorClass,	"Opt_DHCPv6_VendorClass");
 	LEXADD(McOpt_DHCPv6_VendorSpecificInfo,
 		"Opt_DHCPv6_VendorSpecificInfo");
+	LEXADD(McOpt_DHCPv6_SOL_MAX_OPT,		"Opt_DHCPv6_SOL_MAX_RT");
 
 	LEXADD(McOpt_DHCPv6_IID,		"Opt_DHCPv6_IID");
 	LEXADD(McOpt_DHCPv6_ReconfigureMessage,
@@ -1334,6 +1337,51 @@ McOpt_ICMPv6_RouteInfo *McOpt_ICMPv6_RouteInfo::create(CSTR key) {
 	mc->member(new MmUint("Reserved2",	3,	UN(0),	UN(0)));
 	mc->member(new MmUint("RouteLifetime",	32,	UN(0),	UN(0)));
 	mc->member(new MmV6Addr("Prefix",	MUST(),	MUST()));
+
+	MmOption_onICMPv6::add(mc);
+
+	return(mc);
+}
+
+
+
+//
+//  Recursive DNS Server Option
+//
+////////////////////////////////////////
+
+McOpt_ICMPv6_RDNSS *McOpt_ICMPv6_RDNSS::create(CSTR key) {
+	McOpt_ICMPv6_RDNSS *mc = new McOpt_ICMPv6_RDNSS(key);
+
+	mc->common_member();
+	mc->member(new MmUint("Reserved",	16,	UN(0),	UN(0)));
+	mc->member(new MmUint("Lifetime",	32,	UN(0),	UN(0)));	
+	mc->member(
+		new MmMultiple(
+			new MmV6Addr("Address", MUST(), MUST()),
+			(METH_HC_MLC)&McOpt_ICMPv6_RDNSS::HC_MLC(Address)
+		)
+	);
+
+	MmOption_onICMPv6::add(mc);
+
+	return(mc);
+}
+
+
+
+//
+//  Domain Name Search List Option
+//
+////////////////////////////////////////
+
+McOpt_ICMPv6_DNSSL *McOpt_ICMPv6_DNSSL::create(CSTR key) {
+	McOpt_ICMPv6_DNSSL *mc = new McOpt_ICMPv6_DNSSL(key);
+
+	mc->common_member();
+	mc->member(new MmUint("Reserved",	16,	UN(0),	UN(0)));
+	mc->member(new MmUint("Lifetime",	32,	UN(0),	UN(0)));	
+	mc->member(new MmDNSName("SearchString", MUST(), MUST()));
 
 	MmOption_onICMPv6::add(mc);
 
@@ -3156,6 +3204,23 @@ McOpt_DHCPv6_NTP_Servers *McOpt_DHCPv6_NTP_Servers::create(CSTR key) {
 			(METH_HC_MLC)&McOpt_DHCPv6_NTP_Servers::HC_MLC(Address)
 		)
 	);
+
+	MmOption_onDHCPv6::add(mc);
+
+	return(mc);
+}
+
+//
+// SOL_MAX_RT Option
+//
+////////////////////////////////
+
+McOpt_DHCPv6_SOL_MAX_OPT *McOpt_DHCPv6_SOL_MAX_OPT::create(CSTR key) {
+	McOpt_DHCPv6_SOL_MAX_OPT *mc = new McOpt_DHCPv6_SOL_MAX_OPT(key);
+
+	mc->common_member();
+
+	mc->member(new MmUint("SolMaxRt",	32,	UN(0),	UN(0)));
 
 	MmOption_onDHCPv6::add(mc);
 

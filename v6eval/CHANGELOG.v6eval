@@ -3,9 +3,14 @@
 
                 CHANGELOG for IPv6 Conformance Test Tool
 
-                      $Date: 2013/08/06 06:53:20 $
+                      $Date: 2017/05/17 17:45:20 $
 
 
+2017/5/17	 release 3.3.4
+	M copy McDHCPv6.cc, McDHCPv6.h, McICMPv6.h, McICMPv6.cc and McInit.cc modified 
+	  by CHT lab to lib/Pz to support CE-Router.
+	M script/pmod/V6evalTool/V6evalTool.pm 
+		- add vRecv_dad() to support privacy address. 
 
 2013/08/06	Release 3.3.3
 	Official release

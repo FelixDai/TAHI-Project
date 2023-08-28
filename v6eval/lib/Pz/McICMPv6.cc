@@ -271,6 +271,24 @@ McOpt_ICMPv6_RouteInfo::McOpt_ICMPv6_RouteInfo(CSTR key): McOpt_ICMPv6(key) {}
 McOpt_ICMPv6_RouteInfo::~McOpt_ICMPv6_RouteInfo() {}
 
 //////////////////////////////////////////////////////////////////////////////
+#define SERCHSTROFFSET	4
+#define SERCHSTRLEN	16
+
+McOpt_ICMPv6_RDNSS::McOpt_ICMPv6_RDNSS(CSTR key): McOpt_ICMPv6(key) {}
+McOpt_ICMPv6_RDNSS::~McOpt_ICMPv6_RDNSS() {}
+
+uint32_t McOpt_ICMPv6_RDNSS::HC_MLC(Address)(const ItPosition &at, OCTBUF &buf) const {
+	uint32_t length = (buf.remainLength(at.bytes()) - SERCHSTROFFSET) / SERCHSTRLEN;
+	return(length);
+} 
+
+#undef SERCHSTRLEN
+#undef SERCHSTROFFSET
+//////////////////////////////////////////////////////////////////////////////
+McOpt_ICMPv6_DNSSL::McOpt_ICMPv6_DNSSL(CSTR key): McOpt_ICMPv6(key) {}
+McOpt_ICMPv6_DNSSL::~McOpt_ICMPv6_DNSSL() {}
+
+//////////////////////////////////////////////////////////////////////////////
 MmOption_onICMPv6::MmOption_onICMPv6(CSTR key):MmReference_More0(key,true) {}
 MmOption_onICMPv6::~MmOption_onICMPv6() {}
 

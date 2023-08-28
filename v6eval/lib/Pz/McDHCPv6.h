@@ -104,6 +104,12 @@ const int32_t TP_Opt_DHCPv6_NTP_Servers		= TBD_OPT_NTP_SERVERS;
 const int32_t TP_Opt_DHCPv6_NTP_Timezone	= TBD_OPT_TIME_ZONE;
 #undef TBD_OPT_TIME_ZONE
 
+#ifndef OPT_SOL_MAX_RT
+#define OPT_SOL_MAX_RT	82
+#endif	// OPT_SOL_MAX_RT
+const int32_t TP_Opt_DHCPv6_SOL_MAX_OPT	= OPT_SOL_MAX_RT;
+#undef OPT_SOL_MAX_RT
+
 const int32_t TP_DHCPv6_DUID_LLT		= 1;
 const int32_t TP_DHCPv6_DUID_EN			= 2;
 const int32_t TP_DHCPv6_DUID_LL			= 3;
@@ -899,6 +905,18 @@ class McOpt_DHCPv6_NTP_Servers: public McOpt_DHCPv6 {
 		}
 
 		DEC_HC_MLC(Address);
+};
+
+////////////////////////////////////////////////////////////////
+class McOpt_DHCPv6_SOL_MAX_OPT: public McOpt_DHCPv6 {
+	public:
+		McOpt_DHCPv6_SOL_MAX_OPT(CSTR);
+		virtual ~McOpt_DHCPv6_SOL_MAX_OPT();
+		static McOpt_DHCPv6_SOL_MAX_OPT *create(CSTR);
+
+		int32_t optionCode() const {
+			return(TP_Opt_DHCPv6_SOL_MAX_OPT);
+		}
 };
 
 ////////////////////////////////////////////////////////////////

@@ -56,6 +56,7 @@ use File::Basename;
 	vSend2
 	vSend3
 	vRecv
+	vRecv_dad
 	vRecv2
 	vRecv3
 	vCapture
@@ -490,7 +491,113 @@ vRecv($$$$@)
 	%ret;
 }
 
+########################################################################
+###### Added by Tzj # start ######
+sub
+vRecv_dad($$$$@)
+{
+	my ($ifname,	# target interface name
+	$timeout,	# expire time(second)
+			#	-1: No limitation
+	$seektime,	# seek to the packet at the time(%ld.%06d)
+			#	0: seek from the beginning 
+			#	   of the captured buffer
+			#	You may use $retval{'sentTime(n)'}
+			#	returned by vSend().
+	$count,		# How many frames to wait 
+			#	0: No limitation
+	@frames		# frame names to send
+    ) = @_;
+	my $cmd= "$ToolDir/pktrecv $BaseArgs";
+	$cmd.=" -i $ifname"   if $ifname;
+	$cmd.=" -e $timeout"  if $timeout >= 0;
+	$cmd.=" -s $seektime" if $seektime;
+	$cmd.=" -c $count"    if $count;
+	$cmd.=" @frames";
 
+	my $timestr=getTimeStamp();
+	if($vLogStat==$vLogStatOpenRow){
+		prLog("</TD>\n</TR>");
+	}
+	prLog("<TR VALIGN=\"TOP\"><TD>$timestr</TD>");
+	prLog("<TD>vRecv_dad($ifname,@frames)". 
+	      " timeout:$timeout cntLimit:$count seektime:$seektime<BR>");
+	my @lines; my %ret; my $fCnt=0; my $status;
+	($status, @lines) = execCmd($cmd);
+	%ret = getField(@lines);
+	$ret{status}=$status;
+	undef @pktrevers;
+	foreach( @lines ){
+		if( /^\s*(\d+\.\d+)\s+(\S*)$/ ) {
+               		$fCnt++;
+               		$ret{"recvTime${fCnt}"}	= $1;
+               		$ret{recvFrame}		= $2;
+		} else {
+			$pktrevers[$fCnt+1] .= "$_\n";
+		}
+	}
+	undef($ret{recvFrame}) if ($ret{recvFrame} eq '-');
+	$ret{recvCount}=$fCnt;
+
+	my $Xpktrevers;
+
+	for($i=1;$i<=$fCnt;$i++){
+		my $recvtime=getTimeString($ret{"recvTime${i}"});
+
+		if($i!=$fCnt || $ret{status}!=0){
+			prLog("<A NAME=\"vRecv${vRecvPKT}\"></A>");
+			if(@frames){
+			    prLog("<A HREF=\"#vRecvPKT${vRecvPKT}\">recv unexpect packet at $recvtime</A>");
+			} else {
+			    prLog("<A HREF=\"#vRecvPKT${vRecvPKT}\">recv a packet at $recvtime</A>");
+			}
+			prLog("<BR>");
+		}
+		$pktrevlog .="<A NAME=\"vRecvPKT${vRecvPKT}\"></A>";
+		$pktrevlog .="<A HREF=\"#vRecv${vRecvPKT}\">Recv at $recvtime</A>\n";
+		$pktrevlog .="<PRE STYLE=\"line-height:70%\">";
+
+		$Xpktrevers = $pktrevers[$i];
+
+		$Xpktrevers =~ s/&/&amp;/g;
+		$Xpktrevers =~ s/"/&quot;/g;
+		$Xpktrevers =~ s/</&lt;/g;
+		$Xpktrevers =~ s/>/&gt;/g;
+
+		$pktrevlog .="$Xpktrevers";
+		$pktrevlog .="</PRE><HR>";
+
+		$vRecvPKT++;
+	}
+
+	if($ret{status}>=3){
+		$ret{pkt}="-";
+		prErrExit("vRecv_dad() return status=$ret{status}\n");
+	}
+	if($ret{status}==0){
+		$_= $ret{recvFrame};
+		$vRecvPKT--;
+		if($main::pktdesc{$_}){
+			$msg="$main::pktdesc{$_}";
+		} else {
+			$msg="recv $_";
+		}
+		$ret{pkt}=$Xpktrevers;
+		prOut(HTML2TXT($msg));
+		prLog("<A NAME=\"vRecv${vRecvPKT}\"></A>");
+		prLog("<A HREF=\"#vRecvPKT${vRecvPKT}\">$msg</A><BR>");
+		$vRecvPKT++;
+	} else {
+		$ret{pkt}="-";
+		prLog("vRecv_dad() return status=$ret{status}");
+	}
+	prLog("\n</TD>\n</TR>\n");
+	$vLogStat=$vLogStatCloseRow;
+	$ret{pkt}=$Xpktrevers;
+	%ret;
+}
+
+###### Added by Tzj # end ######
 
 ################################################################
 # vRecv2($ifname, $timeout, $seektime, $count, @frames)        #
@@ -2205,7 +2312,7 @@ getVersion()
 {
 	my $dummy;
 
-	($dummy, $ToolVersion) = ('$Name: REL_3_3_3 $' =~ /\$(Name): (.*) \$/ );
+	($dummy, $ToolVersion) = ('$Name: REL_3_3_4 $' =~ /\$(Name): (.*) \$/ );
 	if(!$ToolVersion){
 		$ToolVersion=   'undefined';
 	}
