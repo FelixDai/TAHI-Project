@@ -55,6 +55,8 @@ public:
 	IfName(CSTR,CSTR,CSTR);
 	~IfName();
 static	IfName* create(CSTR,CSTR,CSTR,CSTR,uint32_t);
+/* create ifname with specified link-local address and global address, by Tzj */
+static	IfName* createNew(CSTR,CSTR,CSTR,CSTR,CSTR,CSTR,uint32_t);
 inline	CSTR interface() const;
 inline	CSTR ether() const;
 	void print(void*,...) const;
@@ -66,6 +68,8 @@ inline CSTR IfName::ether() const {return ether_.string();}
 interfaceCmSet(IfNameSet,IfName);
 
 typedef IfName* (*IfNameCreator)(CSTR,CSTR,CSTR,CSTR,uint32_t);
+/* create ifname with specified link-local address and global address, by Tzj */
+typedef IfName* (*IfNameCreatorNew)(CSTR,CSTR,CSTR,CSTR,CSTR,CSTR,uint32_t);
 class CmMain;
 class RunEnv {
 public:
@@ -126,6 +130,10 @@ static	bool doTNline(STR,IfNameCreator,CSTR,uint32_t);
 static	bool doTNfile(IfNameCreator);
 static	bool doNUTline(STR,IfNameCreator,CSTR,uint32_t);
 static	bool doNUTfile(IfNameCreator);
+/* create ifname with specified link-local address and global address, by Tzj */
+static	bool doNUTlineNew(STR,IfNameCreatorNew,CSTR,uint32_t);
+static	bool doNUTfileNew(IfNameCreatorNew);
+
 static	bool doOption(STR*,StringList&);
 //----------------------------------------------------------------------
 // SETING MEMBER FUNCTIONS

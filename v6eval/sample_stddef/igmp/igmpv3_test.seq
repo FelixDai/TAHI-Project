@@ -48,7 +48,7 @@
 @title  = ();
 %result = ();
 
-BEGIN {	$V6evalTool::TestVersion = '$Name: REL_3_3_4 $';}
+BEGIN {	$V6evalTool::TestVersion = '$Name: REL_3_3_5 $';}
 
 use V6evalTool;
 

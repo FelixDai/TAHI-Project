@@ -52,6 +52,12 @@ PvIfName::PvIfName(CSTR n,PvEther* e):CmCString(n),ether_(e),v6addr_() {
 	const PvV6Addr& l=linkLocal();
 	l.merge(64,eui64,&v6addr_);}
 
+/* new construct function, for init link-local and global address */
+PvIfName::PvIfName(CSTR n,PvEther* e,PvV6Addr l,PvV6Addr g):CmCString(n),ether_(e),v6addr_(),v6addr_L(l),v6addr_G(g) {
+	PvEUI64 eui64(*e);
+	const PvV6Addr& ll=linkLocal();
+	ll.merge(64,eui64,&v6addr_);}
+
 const PvV6Addr& PvIfName::linkLocal() {
 	return PvV6Addr::linkLocal();}
 
@@ -60,6 +66,19 @@ void PvIfName::nut(CSTR n,CSTR e,CSTR f,uint32_t l) {
 	PvEther* ether=new PvEther(e,ok);
 	if(!ok) {CmLexer::eouts(f,l,'E',"invalid ether address %s for interface %s",e!=0?e:"",n);}
 	PvIfName* r=new PvIfName(n,ether);
+	PvIfName* o=(PvIfName*)nutSet_->filter(r);
+	if(r!=o) {CmLexer::eouts(f,l,'E',"duplicate NUT inteface name %s %s",n,e);}}
+
+/* new nut function, to add link-local and global address, by Tzj */
+void PvIfName::nutNew(CSTR n,CSTR e,CSTR laddr,CSTR gaddr,CSTR f,uint32_t l) {
+	bool ok=false;
+	PvEther* ether=new PvEther(e,ok);
+	if(!ok) {CmLexer::eouts(f,l,'E',"invalid ether address %s for interface %s",e!=0?e:"",n);}
+	PvV6Addr v6addr_l(laddr,ok);
+	if(!ok) {CmLexer::eouts(f,l,'E',"invalid link-local address %s for interface %s",laddr!=0?laddr:"",n);}
+	PvV6Addr v6addr_g(gaddr,ok);
+	if(!ok) {CmLexer::eouts(f,l,'E',"invalid global address %s for interface %s",gaddr!=0?gaddr:"",n);}
+	PvIfName* r=new PvIfName(n,ether,v6addr_l,v6addr_g);
 	PvIfName* o=(PvIfName*)nutSet_->filter(r);
 	if(r!=o) {CmLexer::eouts(f,l,'E',"duplicate NUT inteface name %s %s",n,e);}}
 

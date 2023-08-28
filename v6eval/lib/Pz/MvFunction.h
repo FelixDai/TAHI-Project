@@ -512,6 +512,9 @@ virtual	bool generateV6Addr(const PObjectList&,PvV6Addr&) const;
 virtual	bool evaluateV6Addr(const PObjectList&,PvV6Addr&) const;
 virtual	bool generateTN(const PObject*,PvV6Addr&) const;
 virtual	bool generateNUT(const PObject*,PvV6Addr&) const;
+/* generate link-local and global address, by Tzj */
+virtual	bool generateLNUT(const PObject*,PvV6Addr&) const;
+virtual	bool generateGNUT(const PObject*,PvV6Addr&) const;
 virtual	bool functionGenerate(WControl&,WObject*,OCTBUF&,const PObjectList&) const;
 virtual	PvObject* generateValue(WObject*,const PObjectList&) const;
 virtual	PvObject* evaluateValue(WObject*,const PObjectList&) const;
@@ -563,6 +566,26 @@ class MvV6PNUT:public MvV6 {
 public:
 	MvV6PNUT(CSTR);
 virtual	~MvV6PNUT();
+virtual	bool generateV6Addr(const PObjectList&,PvV6Addr&) const;
+virtual	bool checkArgument(const PFunction&,const PObjectList&) const;
+};
+
+//======================================================================
+/* new class for getting link-local address, by Tzj */
+class MvV6LNUT:public MvV6 {
+public:
+	MvV6LNUT(CSTR);
+virtual	~MvV6LNUT();
+virtual	bool generateV6Addr(const PObjectList&,PvV6Addr&) const;
+virtual	bool checkArgument(const PFunction&,const PObjectList&) const;
+};
+
+//======================================================================
+/* new class for getting global address, by Tzj */
+class MvV6GNUT:public MvV6 {
+public:
+	MvV6GNUT(CSTR);
+virtual	~MvV6GNUT();
 virtual	bool generateV6Addr(const PObjectList&,PvV6Addr&) const;
 virtual	bool checkArgument(const PFunction&,const PObjectList&) const;
 };

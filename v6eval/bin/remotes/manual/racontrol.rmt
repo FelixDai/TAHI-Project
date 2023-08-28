@@ -127,6 +127,11 @@ if($rOpt_mode eq 'stop') {
 		$bool ++;
 	}
 
+	if (defined($rOpt_preference)) {
+                print $prompt . "\tAdvDefaultPreference: $rOpt_preference\n";
+                $bool ++;
+        }
+
 	if (defined($rOpt_rltime)) {
 		print $prompt . "\tAdvDefaultLifetime: $rOpt_rltime\n";
 		$bool ++;
@@ -176,6 +181,46 @@ if($rOpt_mode eq 'stop') {
 		print $prompt . "\tAdvLinkMTU: $rOpt_mtu\n";
 		$bool ++;
 	}
+
+	if (defined($rOpt_rt_prefix)) {
+                print $prompt . "\tAdvRoutePrefix: $rOpt_rt_prefix\n";
+                $bool ++;
+        }
+
+        if (defined($rOpt_rt_plength)) {  
+                print $prompt . "\tAdvRoutePrefixLength: $rOpt_rt_plength\n";
+                $bool ++;
+      	} 
+
+        if (defined($rOpt_rt_ltime)) {
+                print $prompt . "\tAdvRouteLifetime: $rOpt_rt_ltime\n";
+                $bool ++;
+        }
+
+        if (defined($rOpt_PRF)) {
+                print $prompt . "\tAdvRoutePreference: $rOpt_PRF\n";
+                $bool ++;
+        }
+
+        if (defined($rOpt_rdnss_addr)) {
+                print $prompt . "\tAdvRDNSSAddress: $rOpt_rdnss_addr\n";
+                $bool ++; 
+        }
+
+        if (defined($rOpt_rdnss_ltime)) {
+                print $prompt . "\tAdvRDNSSLifetime: $rOpt_rdnss_ltime\n";
+                $bool ++; 
+        }
+
+        if (defined($rOpt_dnssl_string)) {
+                print $prompt . "\tAdvDNSSLString: $rOpt_dnssl_string\n";
+                $bool ++; 
+        }
+
+        if (defined($rOpt_dnssl_ltime)) {
+                print $prompt . "\tAdvDNSSLLifetime: $rOpt_dnssl_ltime\n";
+                $bool ++; 
+        }
 
 	print $prompt . "\n";
 

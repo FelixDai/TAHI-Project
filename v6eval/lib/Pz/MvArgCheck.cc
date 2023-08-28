@@ -878,6 +878,54 @@ bool MvV6NUT::checkArgument(const PFunction& o,const PObjectList& a) const {
 	return rc;}
 
 //======================================================================
+/* new link-local address checker, by Tzj */
+// nut3v6([ifname])
+bool MvV6LNUT::checkArgument(const PFunction& o,const PObjectList& a) const {
+	bool ok=true;
+	bool rc=true;
+	CSTR name=o.metaString();
+	uint32_t n=a.size();
+	if(n!=0&&n!=1) {
+		o.error("E %s must have 0 or 1 argument, not %d",name,n);
+		return false;}
+	if(n==0) {return rc;}
+	CSTR a0=a[0]->strValue(ok);
+	if(!ok) {
+		o.error("E %s first argument has to be ifname",name);
+		rc=false;}
+
+	else {
+		PvIfName* n0=PvIfName::findNut(a0);
+		if(n0==0) {
+			o.error("W %s(%s) interface not found",name,a0);
+			rc=false;}}
+	return rc;}
+
+//======================================================================
+/* new global address checker, by Tzj */
+// nut4v6([ifname])
+bool MvV6GNUT::checkArgument(const PFunction& o,const PObjectList& a) const {
+	bool ok=true;
+	bool rc=true;
+	CSTR name=o.metaString();
+	uint32_t n=a.size();
+	if(n!=0&&n!=1) {
+		o.error("E %s must have 0 or 1 argument, not %d",name,n);
+		return false;}
+	if(n==0) {return rc;}
+	CSTR a0=a[0]->strValue(ok);
+	if(!ok) {
+		o.error("E %s first argument has to be ifname",name);
+		rc=false;}
+
+	else {
+		PvIfName* n0=PvIfName::findNut(a0);
+		if(n0==0) {
+			o.error("W %s(%s) interface not found",name,a0);
+			rc=false;}}
+	return rc;}
+
+//======================================================================
 // tnv6([ifname])
 bool MvV6TN::checkArgument(const PFunction& o,const PObjectList& a) const {
 	bool ok=true;

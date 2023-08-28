@@ -88,6 +88,7 @@ use File::Basename;
 	vSigSign
 	vSigVrfy
 	vFile2Hex
+	vRenewConfFile
 );
 
 my %storedSIG = ();
@@ -2312,7 +2313,7 @@ getVersion()
 {
 	my $dummy;
 
-	($dummy, $ToolVersion) = ('$Name: REL_3_3_4 $' =~ /\$(Name): (.*) \$/ );
+	($dummy, $ToolVersion) = ('$Name: REL_3_3_5 $' =~ /\$(Name): (.*) \$/ );
 	if(!$ToolVersion){
 		$ToolVersion=   'undefined';
 	}
@@ -2788,6 +2789,18 @@ vMAC2LLAddr($)
 	sprintf "fe80::%02x%02x:%02xff:fe%02x:%02x%02x",@hex;
 }
 
+sub
+vRenewConfFile($$)
+{
+    my ($linkName, $newAddr) = @_;
+    $newAddr = lc($newAddr);
+    my $idx = index($newAddr, "fe80");
+    if($idx == 0){
+        system("sed -i '' -E 's/($linkName)(.*)(fe80:(:[0-9a-fA-F]{1,4}){1,4})/\\1\\2$newAddr/g' $NutDef");
+    } else {
+        system("sed -i '' -E 's/($linkName)(.*)(fe80:(:[0-9a-fA-F]{1,4}){1,4})([^\\S]*\$)/\\1\\2\\3\t$newAddr/g' $NutDef");
+    }
+}
 
 
 ########################################################################

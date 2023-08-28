@@ -185,6 +185,14 @@ sub readNutDef($) { my(
 			$NutDef{$1."_device"}=$2;
 			$NutDef{$1."_addr"}=$3;
 		}
+		elsif( /^(Link[0-9]+)\s+(\S+)\s+((fe80::)([0-9a-fA-F]{1,4}:){3}[0-9a-fA-F]{1,4})/){
+			$NutDef{$1."_device"}=$2;
+			$NutDef{$1."_lladdr"}=$3;
+		}
+		elsif( /^(Link[0-9]+)\s+(\S+)\s+((3ffe:501:ffff:)([0-9a-fA-F]{1,4}:)([0-9a-fA-F]{1,4}:){3}[0-9a-fA-F]{1,4})/){
+			$NutDef{$1."_device"}=$2;
+			$NutDef{$1."_gaddr"}=$3;
+		}
 		else{ $NutDef{'error'} .= "line $lines : unknown directive $_\n";}
 		prTrace("NUT: $_");
 	}

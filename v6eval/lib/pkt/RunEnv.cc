@@ -67,6 +67,30 @@ IfName* IfName::create(CSTR n,CSTR i,CSTR m,CSTR file,uint32_t line) {
 		return 0;}
 	return new IfName(n,i,m);}
 
+/* create ifname with specified link-local address and global address, by Tzj */
+IfName* IfName::createNew(CSTR n,CSTR i,CSTR m,CSTR laddr,CSTR gaddr,CSTR file,uint32_t line) {
+	if(n==0||i==0||m==0||laddr==0||gaddr==0) {
+		CmLexer::eouts(file,line,'E',"format error '%s %s %s %s %s'",
+			n!=0?n:"",i!=0?i:"",m!=0?m:"",laddr!=0?laddr:"",gaddr!=0?gaddr:"");
+		return 0;}
+	bool ok=false;
+	PvEther check(m,ok);
+	if(!ok) {
+		CmLexer::eouts(file,line,'E',
+			"invalid ether address %s for interface %s",m,n);
+		return 0;}
+	PvV6Addr checkLaddr(laddr,ok);
+    if(!ok) {
+		CmLexer::eouts(file,line,'E',
+			"invalid IPv6 link-local address %s for interface %s",laddr,n);
+		return 0;}
+    PvV6Addr checkGaddr(gaddr,ok);
+    if(!ok) {
+		CmLexer::eouts(file,line,'E',
+			"invalid IPv6 global-local address %s for interface %s",gaddr,n);
+		return 0;}
+	return new IfName(n,i,m);}
+
 CSTR RunEnv::searchPath(CSTR vpath, CSTR file,CmCString& spath) {
 	spath=file;
 	if(strchr(file,'/')) {return spath.string();}
@@ -152,6 +176,21 @@ bool RunEnv::doNUTline(STR s,IfNameCreator func,CSTR f,uint32_t l) {
 	if(n!=0) {nutSet_.add(n);}
 	return (n!=0);}
 
+bool RunEnv::doNUTlineNew(STR s,IfNameCreatorNew func,CSTR f,uint32_t l) {
+	if(*s=='#') return true;
+	STR p=strtok(s,delm);
+	if(p==0) return true;
+	if(strncmp(p,defaultInterfaceName_,interfaceMatchLen)!=0) return true;
+	STR ifn=strtok(0,delm);
+	STR mac=ifn!=0?strtok(0,delm):0;
+	/* create ifname with specified link-local address and global address, by Tzj */
+	STR laddr=mac!=0?strtok(0,delm):0;
+	STR gaddr=laddr!=0?strtok(0,delm):0;
+	//IfName* n=(*func)(p,ifn,mac,f,l);
+	IfName* n=(*func)(p,ifn,mac,laddr,gaddr,f,l);
+	if(n!=0) {nutSet_.add(n);}
+	return (n!=0);}
+
 bool RunEnv::doTNline(STR s,IfNameCreator func,CSTR f,uint32_t l) {
 	if(*s=='#') return true;
 	STR p=strtok(s,delm);
@@ -195,6 +234,23 @@ bool RunEnv::doNUTfile(IfNameCreator func) {
 	uint32_t line=0;
 	for(line=1;fgets(buf,sizeof(buf),iod);line++) {
 		if(!doNUTline(buf,func,path,line)) rc=false;}
+	fclose(iod);
+	if(target(0)==0) {
+		CmLexer::eouts(path,line,'E',"cannot find default interface %s",
+			defaultVirtualIF());
+		return false;}
+	return rc;}
+
+bool RunEnv::doNUTfileNew(IfNameCreatorNew func) {
+	CmCString file;
+	FILE* iod=configFile(nutFile_,defaultNUTfileName_,"NUT",file);
+	if(iod==0) return false;
+	CSTR path=file.string();
+	bool rc=true;
+	char buf[BUFSIZ];
+	uint32_t line=0;
+	for(line=1;fgets(buf,sizeof(buf),iod);line++) {
+		if(!doNUTlineNew(buf,func,path,line)) rc=false;}
 	fclose(iod);
 	if(target(0)==0) {
 		CmLexer::eouts(path,line,'E',"cannot find default interface %s",
@@ -303,12 +359,18 @@ static IfName* registerNUTIfName(CSTR n,CSTR i,CSTR m,CSTR f,uint32_t l) {
 	if(in!=0) {PvIfName::nut(n,m,f,l);}
 	return in;}
 
+/* new function to register ifname with specified link-local address and global address, by Tzj */
+static IfName* registerNUTIfNameNew(CSTR n,CSTR i,CSTR m,CSTR laddr,CSTR gaddr,CSTR f,uint32_t l) {
+	IfName* in=IfName::createNew(n,i,m,laddr,gaddr,f,l);
+	if(in!=0) {PvIfName::nutNew(n,m,laddr,gaddr,f,l);}
+	return in;}
+
 CSTR RunEnv::packetDefinition(CmMain& m,StringList& l,bool& b) {
 	b=false;
 	if(!doOption(m.argv(),l)) {return 0;}
 	bool rc=true;
 	if(!doTNfile(&registerTNIfName)) {rc=false;}
-	if(!doNUTfile(&registerNUTIfName)) {rc=false;}
+	if(!doNUTfileNew(&registerNUTIfNameNew)) {rc=false;}
 	if(!rc) return 0;
 	PvIfName::defaultIF(defaultVirtualIF());
 	if(DBGFLAGS('A')) {print(); PvIfName::prints();}

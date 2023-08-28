@@ -44,7 +44,7 @@
 # $TAHI: v6eval/sample_stddef/tcp_handshake/tcp_handshake.seq,v 1.5 2003/10/10 10:19:59 akisada Exp $
 #
 
-BEGIN {$V6evalTool::TestVersion = '$Name: REL_3_3_4 $';}
+BEGIN {$V6evalTool::TestVersion = '$Name: REL_3_3_5 $';}
 
 use V6evalTool;
 

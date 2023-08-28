@@ -5,6 +5,11 @@
 
                       $Date: 2017/05/17 17:45:20 $
 
+2019/9/3   release 3.3.5
+    M add new nut.def handle function to generate stable address.
+    M add nut3v6() and nut4v6() to support nut link-local address and global address.
+	M modify racontrol.rmt to support route info, rdnss, dnssl option.
+	  by BII lab.
 
 2017/5/17	 release 3.3.4
 	M copy McDHCPv6.cc, McDHCPv6.h, McICMPv6.h, McICMPv6.cc and McInit.cc modified 

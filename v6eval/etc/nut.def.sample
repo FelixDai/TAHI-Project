@@ -23,10 +23,10 @@ Type		host
 User		root
 Password	v6eval
 
-#linkname	interface	The EXACT ether source address
+#linkname	interface	The EXACT ether source address      link-local address      global address
 #		name		of the Interface Under Test
-Link0		fxp0		00:00:92:a7:6d:f5
-#Link1		fxp1		00:00:92:a7:6d:f6
-#Link2		de0		00:c0:f6:b0:aa:ef
-#Link3		de1		00:00:92:a7:6d:f8
-#Link4		de2		00:90:27:14:ce:e3
+Link0		fxp0		00:00:92:a7:6d:f5           fe80::7508:aaa8:e1d0:a425       3ffe:501:ffff:100:b003:5ce2:e51:aab
+#Link1		fxp1		00:00:92:a7:6d:f6           fe80::7508:aaa8:e1d0:a425       3ffe:501:ffff:100:b003:5ce2:e51:aac
+#Link2		de0		    00:c0:f6:b0:aa:ef           fe80::7508:aaa8:e1d0:a425       3ffe:501:ffff:100:b003:5ce2:e51:aac
+#Link3		de1		    00:00:92:a7:6d:f8           fe80::7508:aaa8:e1d0:a425       3ffe:501:ffff:100:b003:5ce2:e51:aac
+#Link4		de2		    00:90:27:14:ce:e3           fe80::7508:aaa8:e1d0:a425       3ffe:501:ffff:100:b003:5ce2:e51:aac

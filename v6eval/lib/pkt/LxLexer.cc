@@ -234,6 +234,9 @@ void LxLexer::initialize() {
 	function(new MvV6NUT("nutv6"));
 	function(new MvV6TN("tnv6"));
 	function(new MvV6PNUT("nut2v6"));
+	/* add new function to define link-local and global address, by Tzj */
+	function(new MvV6LNUT("nut3v6"));
+	function(new MvV6GNUT("nut4v6"));
 	function(new MvV6PTN("tn2v6"));
 	function(new MvV6V6("ipv62v6"));
 	function(new MvV6Merge("v6merge"));

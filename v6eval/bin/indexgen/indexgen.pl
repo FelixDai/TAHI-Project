@@ -220,7 +220,7 @@ sub initialize($)
 	}
 
 	my $dummy;
-	($dummy, $VERTOOLS) = ('$Name: REL_3_3_4 $' =~ /\$(Name): (.*) \$/ );
+	($dummy, $VERTOOLS) = ('$Name: REL_3_3_5 $' =~ /\$(Name): (.*) \$/ );
 	if (!$VERTOOLS) {
 		$VERTOOLS = 'undefined';
 	}

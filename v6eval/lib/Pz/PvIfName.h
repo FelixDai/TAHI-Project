@@ -51,6 +51,9 @@ class PvIfName:public CmCString {
 private:
 	PvEther* ether_;
 	PvV6Addr v6addr_;
+	/* add link-local address and global address, by Tzj */
+	PvV6Addr v6addr_L;
+	PvV6Addr v6addr_G;
 static	PvIfNameSet* tnSet_;
 static	PvIfNameSet* nutSet_;
 static	PvIfNameSet tnSetArea_;
@@ -59,11 +62,18 @@ static	CSTR defaultIF_;
 public:
 	PvIfName(CSTR);
 	PvIfName(CSTR,PvEther*);
+	/* add new construct function for init link-local and global address */
+	PvIfName(CSTR,PvEther*,PvV6Addr,PvV6Addr);
 virtual	~PvIfName();
 	const PvEther* ether() const;
 	const PvV6Addr* v6addr() const;
+	/* add link-local and global address get function, by Tzj */
+	const PvV6Addr* v6addrL() const;
+	const PvV6Addr* v6addrG() const;
 static	const PvV6Addr& linkLocal();
 static	void nut(CSTR,CSTR,CSTR=0,uint32_t=0);
+/* new function to add nut with link-local and global address, by Tzj */
+static	void nutNew(CSTR,CSTR,CSTR,CSTR,CSTR=0,uint32_t=0);
 static	void tn(CSTR,CSTR,CSTR=0,uint32_t=0);
 static	PvIfName* findNut(CSTR =0);
 static	PvIfName* findTn(CSTR =0);
@@ -75,6 +85,9 @@ static	void prints();
 };
 inline const PvEther* PvIfName::ether() const {return ether_;}
 inline const PvV6Addr* PvIfName::v6addr() const {return &v6addr_;}
+/* add link-local and global address get function, by Tzj */
+inline const PvV6Addr* PvIfName::v6addrL() const {return &v6addr_L;}
+inline const PvV6Addr* PvIfName::v6addrG() const {return &v6addr_G;}
 inline void PvIfName::defaultIF(CSTR s) {defaultIF_=s;}
 inline CSTR PvIfName::defaultIF() {return defaultIF_;}
 #include "CmCltn.h"

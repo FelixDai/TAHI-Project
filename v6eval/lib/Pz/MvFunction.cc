@@ -1405,6 +1405,22 @@ bool MvV6::generateNUT(const PObject* t,PvV6Addr& into) const {
 	if(pvif==0) 	{into.zero(); return false;}
 	else		{into=*pvif->v6addr(); return true;}}
 
+/* generate link-local address, by Tzj */
+bool MvV6::generateLNUT(const PObject* t,PvV6Addr& into) const {
+	bool ok=true;
+	CSTR ifn=(t!=0)?t->strValue(ok):0;
+	PvIfName* pvif=PvIfName::findNut(ifn);
+	if(pvif==0) 	{into.zero(); return false;}
+	else		{into=*pvif->v6addrL(); return true;}}
+
+/* generate global address, by Tzj */
+bool MvV6::generateGNUT(const PObject* t,PvV6Addr& into) const {
+	bool ok=true;
+	CSTR ifn=(t!=0)?t->strValue(ok):0;
+	PvIfName* pvif=PvIfName::findNut(ifn);
+	if(pvif==0) 	{into.zero(); return false;}
+	else		{into=*pvif->v6addrG(); return true;}}
+
 bool MvV6::functionGenerate(WControl& c,WObject* w,OCTBUF& b,const PObjectList& a) const {
 	PvV6Addr tmp;
 	if(!generateV6Addr(a,tmp)) {
@@ -1482,6 +1498,22 @@ bool MvV6PNUT::generateV6Addr(const PObjectList& a,PvV6Addr& into) const {
 	PvV6Addr tmp;
 	if(!generateNUT(n>2?a[2]:0,tmp)) {return false;}
 	return into.netMerge(net,len,tmp);}
+
+//======================================================================
+/* new class for getting link-local address, by Tzj */
+MvV6LNUT::MvV6LNUT(CSTR s):MvV6(s) {}
+MvV6LNUT::~MvV6LNUT() {}
+bool MvV6LNUT::generateV6Addr(const PObjectList& a,PvV6Addr& into) const {
+	uint32_t n=a.size();
+	return generateLNUT(n>0?a[0]:0,into);}
+
+//======================================================================
+/* new class for getting global address, by Tzj */
+MvV6GNUT::MvV6GNUT(CSTR s):MvV6(s) {}
+MvV6GNUT::~MvV6GNUT() {}
+bool MvV6GNUT::generateV6Addr(const PObjectList& a,PvV6Addr& into) const {
+	uint32_t n=a.size();
+	return generateGNUT(n>0?a[0]:0,into);}
 
 //======================================================================
 MvV6Merge::MvV6Merge(CSTR s):MvV6(s) {}
