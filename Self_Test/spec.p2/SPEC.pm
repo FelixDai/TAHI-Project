@@ -43,7 +43,7 @@
 #
 # Perl Module for IPv6 Specification Conformance Test
 #
-# $Name: V6LC_5_0_0 $
+# $Name: V6LC_5_0_3 $
 #
 # $TAHI: ct/spec.p2/SPEC.pm,v 1.3 2005/04/25 07:40:53 akisada Exp $
 #

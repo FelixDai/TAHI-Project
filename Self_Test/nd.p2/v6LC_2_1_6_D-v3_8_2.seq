@@ -45,11 +45,8 @@
 # $TAHI: ct/nd.p2/v6LC_2_1_6_D-v3_8_2.seq,v 1.9 2009/12/28 05:55:17 akisada Exp $
 #
 ########################################################################
-
+BEGIN {$V6evalTool::TestVersion = '$Name: V6LC_5_0_7 $';}
 use nd;
-
-BEGIN {}
-END   {}
 
 my $ereq = 'ndisc_ereq_GL';
 
@@ -250,8 +247,8 @@ __END__
 <TD>
         IPv6 Header<br>
         Next Header: 58<br>
-        Source Address: TN1's local Address<br>
-        Destination Address: NUT's Link-local Address
+        Source Address: TN1's Link-local Address<br>
+        Destination Address: NUT's Global Address
 </TD>
 </TR>
 <TR>
@@ -268,7 +265,7 @@ __END__
         IPv6 Header<br>
         Next Header: 58<br>
         Source Address: TN1's Global Address<br>
-        Destination Address: NUT's Global Address
+        Destination Address: NUT's Link-local Address
 </TD>
 </TR>
 <TR>
@@ -293,7 +290,7 @@ __END__
        receiving Neighbor Solicitations from the NUT.
    24. Wait REACHABLE_TIME * MAX_RANDOM_FACTOR seconds so that the NCE of TN1
        transit to state STALE.
-   25. TN1 transmits Packet A. The source address is TN1's global address and the destination address
+   25. TN1 transmits Packet D. The source address is TN1's global address and the destination address
        is the NUT's link-local address.
    26. Observe the packets transmitted by the NUT.
    27. Wait DELAY_FIRST_PROBE_TIME seconds so that NCE of TN1 transit to state PROBE.

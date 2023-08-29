@@ -54,6 +54,7 @@
 
 #
 # The support of transmitting Echo Requests and configuring packet size
+#     v6LC.2.2.25, v6LC.4.1.10, v6LC.4.1.11, v6LC.5.1.1
 #     zero     - NUT does not support 
 #     non-zero - NUT supports
 #
@@ -61,6 +62,9 @@ $TRANSMITTING_EREQ		= 1;
 
 #
 # The support of multicast routing
+#     v6LC.1.1.10 H, I, J, K
+#     v6LC.1.2.7 G, H
+#     v6LC.5.1.4 B
 #     zero     - NUT does not support 
 #     non-zero - NUT supports
 #
@@ -68,11 +72,71 @@ $MULTICAST_ROUTING		= 1;
 
 #
 # The support of link MTU configuration
+#     v6LC.5.1.4, v6LC.5.1.11 B, v6LC.5.1.12 B, v6LC.5.1.13 B
 #     zero     - NUT does not support 
 #     non-zero - NUT supports
 #
 $MTU_CONFIGURATION		= 1;
 
+#
+# The support of Hop-by-hop option process
+#     v6LC.1.2.6 & v6LC.1.2.7
+#     zero     - NUT does not support
+#     non-zero - NUT supports
+#
+$PROCESS_HBH                    = 1;
+
+#
+# The support of sending more than three RSs
+#     v6LC.2.2.1
+#     zero     - NUT does not support
+#     non-zero - NUT supports
+#
+$SENDING_MORE_RSs               = 1;
+
+#
+# The support of sending only one RS
+#     v6LC.2.2.2
+#     zero     - NUT does not support
+#     non-zero - NUT supports
+#
+$SENDING_ONE_RS                = 0;
+#
+# The support of Type C host
+#     v6LC.2.2.23
+#     zero     - NUT does not support
+#     non-zero - NUT supports
+#
+$TYPE_C_HOST                    = 1;
+#
+# support to process Beyond Scope of Source Address
+#     v6LC.5.1.3.E
+#     zero     - NUT does not support
+#     non-zero - NUT supports
+#
+$BEYOND_SCOPE_SADDR              = 1;
+# 
+# support to detect the duplicate fragments
+#     v6LC.1.2.5.C & G
+#     zero     - NUT does not support
+#     non-zero - NUT supports
+# 
+$DETECT_DUPLICATE_FRAGS         = 1;
+#
+# support to track the connection for ICMPv6
+#     v6LC.4.1.12
+#     zero     - NUT does not support
+#     non-zero - NUT supports
+#
+$PROCESS_RA_DNS			= 1;
+#
+# support to process RA DNS (host only)
+#     v6LC.2.2.25
+#     zero     - NUT does not support
+#     non-zero - NUT supports
+#
+
+$ICMPv6_CONNET_TRACKING           = 1;
 
 
 #----------------------------------------------------------------------#

@@ -52,7 +52,8 @@ use Exporter;
 @ISA = qw(Exporter);
 @EXPORT = qw(
 	seqOK 
-	seqNG 
+	seqNG
+	seqNG_dad 
 	seqERROR 
 	seqExitFATAL 
 	seqExitNS 
@@ -60,14 +61,20 @@ use Exporter;
 	seqWarnCheck 
 	seqTermination 
 	seqSendWait 
-	seqCheckNUTAddrConfigured 
+	seqCheckNUTAddrConfigured
+	seqCheckNUTAddrConfigured_DADFail 
 	seqCheckNUTAddrConfiguredUcast
+	seqCheckNUTAddrConfiguredUcast_DADFail
 	seqCheckNUTAddrConfiguredDAD
 	seqCheckNUTAddrConfiguredGA
 	seqCheckNUTAddrConfiguredGADAD
 	seqPrepareLLA 
         seqPingFromNUT
 	seqVrfyIpOperation
+    	captureLLAddr
+        captureAddr
+    	seqCompareAddr
+        seqMultiAddrDef
 );
 
 use V6evalTool;
@@ -171,6 +178,36 @@ sub seqCheckNUTAddrConfigured($) {
 #==============================================
 # check if NUT's address is configured
 #==============================================
+sub seqCheckNUTAddrConfigured_DADFail($) {
+    my ($IF) = @_;
+    my (%retsw1, $dad_ns, $dad_na);
+
+    vLog("Check if NUT's address is configured");
+    %retsw1 = seqSendWait($IF,
+        "NS from TN to NUT:", SOLNS_from_TN_SameTgt_from_NUT,
+        "NA from NUT:", $wait_solna,0, NA_from_NUT, NA_from_NUT_woTLL);
+    if ($retsw1{status}==0) {
+    vLog("NUT assigned the address to the interface.");
+    if ($retsw1{recvFrame} ne NA_from_NUT) {
+        vLogHTML("<FONT COLOR=\"#FF0000\">TN received irregular DAD NA.</FONT>");
+        $iregdadna = 1;
+    }
+    return TRUE;
+    }
+    elsif($retsw1{status}==1) { #timeout
+    vLog("NUT's address is not configured.");
+    return FALSE;
+    }
+    else {
+    seqERROR("seqCheckNUTAddrConfigured_DADFail: Cannot reach here!"); #exit
+    }
+
+}
+
+
+#==============================================
+# check if NUT's address is configured
+#==============================================
 sub seqCheckNUTAddrConfiguredUcast($) {
     my ($IF) = @_;
     my (%retsw1, $dad_ns, $dad_na);
@@ -189,6 +226,32 @@ sub seqCheckNUTAddrConfiguredUcast($) {
     }
     else {
 	seqERROR("seqCheckNUTAddrConfiguredUcast: Cannot reach here!"); #exit
+    }
+
+}
+
+
+#==============================================
+# check if NUT's address is configured
+#==============================================
+sub seqCheckNUTAddrConfiguredUcast_DADFail($) {
+    my ($IF) = @_;
+    my (%retsw1, $dad_ns, $dad_na);
+
+    vLog("Check if NUT's address is configured");
+    %retsw1 = seqSendWait($IF,
+        "NS from TN to NUT:", NS_from_TN_SrcDstUni_from_NUT,
+        "NA from NUT:", $wait_solna,0, NA_from_NUT, NA_from_NUT_woTLL);
+    if ($retsw1{status}==0) {
+    vLog("NUT assigned the address to the interface.");
+    return TRUE;
+    }
+    elsif($retsw1{status}==1) { #timeout
+    vLog("NUT's address is not configured.");
+    return FALSE;
+    }
+    else {
+    seqERROR("seqCheckNUTAddrConfiguredUcast_DADFail: Cannot reach here!"); #exit
     }
 
 }
@@ -393,6 +456,16 @@ sub seqNG() {
     vLog(NG);
     seqTermination();
     vLog("*** EOT ***");
+    exit $V6evalTool::exitFail;
+}
+
+sub seqNG_dad($) {
+    my ($def_file) = @_;
+    seqWarnCheck();
+    vLog(NG);
+    seqTermination();
+    vLog("*** EOT ***");
+    unlink($def_file);
     exit $V6evalTool::exitFail;
 }
 
@@ -619,6 +692,390 @@ seqVrfyIpOperation($$)
 	}
 
 	return(seqOK());
+}
+
+sub
+captureLLAddr($)
+{
+    my ($IF) = @_;
+    #----- initialize NUT
+    vLog("*** Target initialization phase ***");
+    if($V6evalTool::NutDef{System} ne "manual"){ vSleep($SAA::test_interval); }
+    $rret=vRemote("reboot_async.rmt","","timeout=$SAA::wait_rebootcmd");
+    vLog("reboot_async.rmt returned status $rret");
+
+    #----- start Capturing
+    vLog("*** Target testing phase ***");
+
+    #----- LLA PHASE
+    #----- Wait DAD NS from NUT or timeout
+    vLog("TN wait DAD NS(DADNS_from_NUT) from NUT for $SAA::wait_dadns{$SAA::howto_addrconf} [sec],");
+
+    $Recv_count = 0;
+    $LLA_recv = 0;
+    $GA_recv = 0;
+    while (1) {
+	    $Recv_count++;
+	    if($Recv_count > 2){
+		    last;
+	    }
+        %ret1 = vRecv($IF, $SAA::wait_dadns{$SAA::howto_addrconf}, 0, 0, Init_DADNS_from_NUT, Init_DADNS_from_NUT_anyopt);
+        if($ret1{'status'} == 0) {
+		    my $TargetAddress = $ret1{"Frame_Ether.Packet_IPv6.ICMPv6_NS.TargetAddress"};
+		    $TargetAddress = lc($TargetAddress);
+		    my $idx = index($TargetAddress, "fe80");
+		    if($idx == 0){
+			    vRenewConfFile($IF, $TargetAddress);
+			    $LLA_recv = 1;
+            }
+        }
+        if($LLA_recv) {
+		    last;
+	    }
+    }
+}
+
+sub
+captureAddr($)
+{
+    my ($IF) = @_;
+    #----- initialize NUT
+    vLog("*** Target initialization phase ***");
+    if($V6evalTool::NutDef{System} ne "manual"){ vSleep($SAA::test_interval); }
+    $rret=vRemote("reboot_async.rmt","","timeout=$SAA::wait_rebootcmd");
+    vLog("reboot_async.rmt returned status $rret");
+
+    #----- start Capturing
+    vLog("*** Target testing phase ***");
+
+    #----- LLA PHASE
+    #----- Wait DAD NS from NUT or timeout
+    vLog("TN wait DAD NS(DADNS_from_NUT) from NUT for $SAA::wait_dadns{$SAA::howto_addrconf} [sec],");
+
+    $Recv_count = 0;
+    $LLA_recv = 0;
+    $GA_recv = 0;
+    while (1) {
+	    $Recv_count++;
+	    if($Recv_count > 2){
+		    last;
+	    }
+        %ret1 = vRecv($IF, $SAA::wait_dadns{$SAA::howto_addrconf}, 0, 0, Init_DADNS_from_NUT, Init_DADNS_from_NUT_anyopt);
+        if($ret1{'status'} == 0) {
+		    my $TargetAddress = $ret1{"Frame_Ether.Packet_IPv6.ICMPv6_NS.TargetAddress"};
+		    $TargetAddress = lc($TargetAddress);
+		    my $idx = index($TargetAddress, "fe80");
+		    if($idx == 0){
+			    vRenewConfFile($IF, $TargetAddress);
+			    $LLA_recv = 1;
+            }
+        }
+        if($LLA_recv) {
+		    last;
+	    }
+    }
+    $Recv_count = 0;
+    $GA_recv = 0;
+    vSleep($SAA::wait_addrconf);
+    vClear($IF);
+    vSend($IF, RA_GA0_VLT30);
+    while (1) {
+	    $Recv_count++;
+	    if($Recv_count > 2){
+		    last;
+	    }
+        %ret1 = vRecv($IF, $SAA::wait_dadns{ra}, 0, 0, Init_DADNS_from_NUT, Init_DADNS_from_NUT_anyopt);
+        if($ret1{'status'} == 0) {
+		    my $TargetAddress = $ret1{"Frame_Ether.Packet_IPv6.ICMPv6_NS.TargetAddress"};
+		    $TargetAddress = lc($TargetAddress);
+		    my $idx = index($TargetAddress, "3ffe:501:ffff:100");
+		    if($idx == 0){
+			    vRenewConfFile($IF, $TargetAddress);
+			    $GA_recv = 1;
+            }
+        }
+        if($GA_recv) {
+		    last;
+	    }
+    }
+
+}
+
+sub
+seqCompareAddr($$) {
+    my ($addr, $addr1) = @_;
+    my @addr_sp = ();
+    my @addr1_sp = ();
+    my @addr_cm = ();
+    my @addr1_cm = ();
+    if(index($addr, "fe80") == 0) {   # $addr is a link-local addr
+        $addr =~ s/fe80:://g;   # delete prefix fe80::
+        if(index($addr1, "3ffe:501:ffff:100") == 0) { # $addr1 is a global addr
+            $addr1 =~ s/3ffe:501:ffff:100://g;  # delete prefix 3ffe:501:ffff:100
+        } elsif(index($addr1, "3ffe:501:ffff:101") == 0) {  # $addr1 is a global addr
+            $addr1 =~ s/3ffe:501:ffff:101://g;  # delete prefix 3ffe:501:ffff:101
+        } else {
+            return 0;     # $addr is a link-local addr but addr1 is not a global addr, return 0
+        }
+    } elsif(index($addr, "3ffe:501:ffff:100") == 0) {   # $addr is a global addr
+        $addr =~ s/3ffe:501:ffff:100://g;
+        if(index($addr1, "fe80") == 0) {   # $addr1 is a link-local addr
+            $addr1 =~ s/fe80:://g;   # delete prefix fe80::
+        } else {
+            return 0;     # $addr is a global addr bu addr1 is not a link-local addr, return 0
+        }
+    } elsif(index($addr, "3ffe:501:ffff:101") == 0) {   # $addr is a global addr
+        $addr =~ s/3ffe:501:ffff:101://g;
+        if(index($addr1, "fe80") == 0) {   # $addr1 is a link-local addr
+            $addr1 =~ s/fe80:://g;   # delete prefix fe80::
+        } else {
+            return 0;     # $addr is a global addr bu addr1 is not a link-local addr, return 0
+        }
+    } else {
+        return 0;         # $addr is not a valid addr, return 0
+    }
+    @addr_sp = split(/:/, $addr);
+    @addr1_sp = split(/:/, $addr1);
+    for($i=0; $i<@addr_sp; $i++){
+        my $a = @addr_sp[$i];
+        #print "$a\n";
+        if($a && $a ne "00" && $a ne "000" && $a ne "0000"){
+            push @addr_cm, $a;
+        }
+    }
+    for($i=0; $i<@addr1_sp; $i++){
+        my $a = @addr1_sp[$i];
+        #print "$a\n";
+        if($a && $a ne "00" && $a ne "000" && $a ne "0000"){
+            push @addr1_cm, $a;
+        }
+    }
+    my $res = @addr_cm ~~ @addr1_cm;
+    return $res;
+}
+
+sub
+seqMultiAddrDef($$$) {
+    my ($new_def, $addr, $addr1) = @_;
+    open(DEF_FILE, ">$new_def") or die "Open $new_def failed, $!";
+    print DEF_FILE "#include \"RA_SAA.def\"
+    \n_HETHER_define(hether_nut2tentsolnode_RA1,
+	       nutether(), _ETHER_SOLNODE_MCAST(v6(\"$addr1\")))\n
+    \n_HETHER_define(hether_tn2nutsolnode_RA1,
+	       tnether(), _ETHER_SOLNODE_MCAST(v6(\"$addr1\")))\n";
+    print DEF_FILE "\nFEM_icmp6_ns (
+        SOLNS_from_TN_GA0Tgt_RA,
+	    hether_tn2nutsolnode_RA,
+                {
+                _SRC(tnv6());
+                _DST(_IPV6_SOLNODE_MCAST(v6(\"$addr\")));
+                HopLimit=255;
+        },
+                {
+                TargetAddress=v6(\"$addr\");
+                option=_SLLOPT_tn;
+        }
+    )\n
+    \nFEM_icmp6_na (
+        NA_from_NUT_GA0Tgt_RA,
+        _HETHER_nut2tn,
+                {
+                _SRC(nut3v6());
+                _DST(tnv6());
+                HopLimit=255;
+        },
+                {
+                RFlag=0;
+                SFlag=1;
+                OFlag=1;
+                TargetAddress=v6(\"$addr\");
+                option=_TLLOPT_nut;
+        }
+    )\n
+    \nFEM_icmp6_na (
+        NA_from_NUT_GA0Tgt_woTLL_RA,
+        _HETHER_nut2tn,
+                {
+                _SRC(nut3v6());
+                _DST(tnv6());
+                HopLimit=255;
+        },
+                {
+                RFlag=0;
+                SFlag=1;
+                OFlag=1;
+                TargetAddress=v6(\"$addr\");
+        }
+    )\n
+    \nFEM_icmp6_na (
+        NA_from_GA0NUT_GA0Tgt_RA,
+        _HETHER_nut2tn,
+                {
+                _SRC(v6(\"$addr\"));
+                _DST(tnv6());
+                HopLimit=255;
+        },
+                {
+                RFlag=0;
+                SFlag=1;
+                OFlag=1;
+                TargetAddress=v6(\"$addr\");
+                option=_TLLOPT_nut;
+        }
+    )\n
+    \nFEM_icmp6_na (
+        NA_from_GA0NUT_GA0Tgt_woTLL_RA,
+        _HETHER_nut2tn,
+                {
+                _SRC(v6(\"$addr\"));
+                _DST(tnv6());
+                HopLimit=255;
+        },
+                {
+                RFlag=0;
+                SFlag=1;
+                OFlag=1;
+                TargetAddress=v6(\"$addr\");
+        }
+    )\n
+    \nFEM_icmp6_na (
+        NA_from_GA1NUT_GA0Tgt_RA,
+        _HETHER_nut2tn,
+                {
+                _SRC(v6(\"$addr1\"));
+                _DST(tnv6());
+                HopLimit=255;
+        },
+                {
+                RFlag=0;
+                SFlag=1;
+                OFlag=1;
+                TargetAddress=v6(\"$addr\");
+                option=_TLLOPT_nut;
+        }
+    )\n
+    \nFEM_icmp6_na (
+        NA_from_GA1NUT_GA0Tgt_woTLL_RA,
+        _HETHER_nut2tn,
+                {
+                _SRC(v6(\"$addr1\"));
+                _DST(tnv6());
+                HopLimit=255;
+        },
+                {
+                RFlag=0;
+                SFlag=1;
+                OFlag=1;
+                TargetAddress=v6(\"$addr1\");
+        }
+    )\n
+    \nFEM_icmp6_ns (
+        SOLNS_from_TN_GA1Tgt_RA,
+	 hether_tn2nutsolnode_RA1,
+                {
+                _SRC(tnv6());
+                _DST(_IPV6_SOLNODE_MCAST(v6(\"$addr1\")));
+                HopLimit=255;
+        },
+                {
+                TargetAddress=v6(\"$addr1\");
+                option=_SLLOPT_tn;
+        }
+    )\n
+    \nFEM_icmp6_na (
+        NA_from_GA0NUT_GA1Tgt_RA,
+        _HETHER_nut2tn,
+                {
+                _SRC(v6(\"$addr\"));
+                _DST(tnv6());
+                HopLimit=255;
+        },
+                {
+                RFlag=0;
+                SFlag=1;
+                OFlag=1;
+                TargetAddress=v6(\"$addr1\");
+                option=_TLLOPT_nut;
+        }
+    )\n
+    \nFEM_icmp6_na (
+        NA_from_GA0NUT_GA1Tgt_woTLL_RA,
+        _HETHER_nut2tn,
+                {
+                _SRC(v6(\"$addr\"));
+                _DST(tnv6());
+                HopLimit=255;
+        },
+                {
+                RFlag=0;
+                SFlag=1;
+                OFlag=1;
+                TargetAddress=v6(\"$addr1\");
+        }
+    )\n
+    \nFEM_icmp6_na (
+        NA_from_NUT_GA1Tgt_RA,
+        _HETHER_nut2tn,
+                {
+                _SRC(nut3v6());
+                _DST(tnv6());
+                HopLimit=255;
+        },
+                {
+                RFlag=0;
+                SFlag=1;
+                OFlag=1;
+                TargetAddress=v6(\"$addr1\");
+                option=_TLLOPT_nut;
+        }
+    )\n
+    \nFEM_icmp6_na (
+        NA_from_NUT_GA1Tgt_woTLL_RA,
+        _HETHER_nut2tn,
+                {
+                _SRC(nut3v6());
+                _DST(tnv6());
+                HopLimit=255;
+        },
+                {
+                RFlag=0;
+                SFlag=1;
+                OFlag=1;
+                TargetAddress=v6(\"$addr1\");
+        }
+    )\n
+    \nFEM_icmp6_na (
+        NA_from_GA1NUT_GA1Tgt_RA,
+        _HETHER_nut2tn,
+                {
+                _SRC(v6(\"$addr1\"));
+                _DST(tnv6());
+                HopLimit=255;
+        },
+                {
+                RFlag=0;
+                SFlag=1;
+                OFlag=1;
+                TargetAddress=v6(\"$addr1\");
+                option=_TLLOPT_nut;
+        }
+    )\n
+    \nFEM_icmp6_na (
+        NA_from_GA1NUT_GA1Tgt_woTLL_RA,
+        _HETHER_nut2tn,
+                {
+                _SRC(v6(\"$addr1\"));
+                _DST(tnv6());
+                HopLimit=255;
+        },
+                {
+                RFlag=0;
+                SFlag=1;
+                OFlag=1;
+                TargetAddress=v6(\"$addr1\");
+        }
+    )\n";		   
+    close(DEF_FILE);
 }
 
 1;

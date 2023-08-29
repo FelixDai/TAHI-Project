@@ -41,7 +41,7 @@
 # IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
-# $Name: V6LC_5_0_0 $
+# $Name: V6LC_5_0_7 $
 #
 # $TAHI: ct/nd.p2/INDEX_RD_p2_host,v 1.10 2007/11/08 10:40:18 akisada Exp $
 #
@@ -52,7 +52,7 @@
 
 #----------------------------------------------------------------------#
 &print:<U><B><FONT SIZE="+1" COLOR="#FF0000"><TT>Group 2: Router and Prefix Discovery</TT></FONT></B></U>
-./v6LC_2_0_0.seq:./v6LC_2_0_0.def:::<TT>Initialization</TT>:1
+./v6LC_2_0_0.seq:./Get_global_addr.def:::<TT>Initialization</TT>:1
 
 
 
@@ -75,6 +75,7 @@
 ./V6LC_2_2_2_D.seq:./V6LC_2_2_2_D.def:::<TT>Part D&#58; Invalid Router Advertisement, Bad Hop Limit</TT>:1
 ./V6LC_2_2_2_E.seq:./V6LC_2_2_2_E.def:::<TT>Part E&#58; Invalid Router Advertisement, Bad ICMP Checksum</TT>:1
 ./V6LC_2_2_2_F.seq:./V6LC_2_2_2_F.def:::<TT>Part F&#58; Invalid Router Advertisement, Bad ICMP Code</TT>:1
+./V6LC_2_2_2_G.seq:./V6LC_2_2_2_G.def:::<TT>Part G&#58; Valid Router Advertisement, Unicast Destination</TT>:1
 
 
 
@@ -175,10 +176,70 @@
 ./v6LC_2_2_18.seq:./v6LC_2_2_18.def:::<TT>Next-hop Determination (Hosts Only)</TT>:1
 
 
-
 #----------------------------------------------------------------------#
 # v6LC.2.2.19: Router Advertisement Processing, On-link determination  #
 #              (Hosts Only)                                            #
 #----------------------------------------------------------------------#
 &print:<TT>Test v6LC.2.2.19: Router Advertisement Processing, On-link determination (Hosts Only)</TT>
 ./v6LC_2_2_19.seq:./v6LC_2_2_19.def:::<TT>Router Advertisement Processing, On-link determination (Hosts Only)</TT>:1
+
+
+
+#----------------------------------------------------------------------#
+# v6LC.2.2.22 Processing Router Advertisements with Router Preference  #
+#             (Hosts Only)                                             #
+#----------------------------------------------------------------------#
+&print:<TT>Test v6LC.2.2.22: Processing Router Advertisements with Router Preference (Hosts Only)</TT>
+./v6LC_2_2_22_A.seq:./v6LC_2_2_22_A.def:::<TT>Part A&#58; High Route Preference</TT>:1
+./v6LC_2_2_22_B.seq:./v6LC_2_2_22_B.def:::<TT>Part B&#58; Low Route Preference</TT>:1
+./v6LC_2_2_22_C.seq:./v6LC_2_2_22_C.def:::<TT>Part C&#58; Reserved Route Preference</TT>:1
+./v6LC_2_2_22_D.seq:./v6LC_2_2_22_D.def:::<TT>Part D&#58; Change lower Route Preference</TT>:1                           
+./v6LC_2_2_22_E.seq:./v6LC_2_2_22_E.def:::<TT>Part E&#58; Change higher Route Preference</TT>:1
+
+
+
+#------------------------------------------------------------------------------#
+# v6LC.2.2.23 Processing Router Advertisment with Route Information Option     #
+#             (Hosts Only)                                                     #
+#------------------------------------------------------------------------------#
+&print:<TT>Test v6LC.2.2.23: Processing Router Advertisment with Route Information Option (Hosts Only)</TT>
+./v6LC_2_2_23_A.seq:./v6LC_2_2_23_A.def:::<TT>Part A&#58; Route Information Option High</TT>:1
+./v6LC_2_2_23_B.seq:./v6LC_2_2_23_B.def:::<TT>Part B&#58; Route Information Option Low</TT>:1
+./v6LC_2_2_23_C.seq:./v6LC_2_2_23_C.def:::<TT>Part C&#58; Route Information Option with PRF set to Reserved</TT>:1
+./v6LC_2_2_23_D.seq:./v6LC_2_2_23_D.def:::<TT>Part D&#58; Route Information Option with a Prefix Length of 96</TT>:1
+./v6LC_2_2_23_E.seq:./v6LC_2_2_23_E.def:::<TT>Part E&#58; Route Information Option with a Prefix Length of 32</TT>:1
+./v6LC_2_2_23_F.seq:./v6LC_2_2_23_F.def:::<TT>Part F&#58; PRF change in Route Information Option</TT>:1
+./v6LC_2_2_23_G.seq:./v6LC_2_2_23_G.def:::<TT>Part G&#58; Route Information Option with a Prefix Length of 0 and PRF of High</TT>:1
+./v6LC_2_2_23_H.seq:./v6LC_2_2_23_H.def:::<TT>Part H&#58; Route Information Option with a Prefix Length of 0 and PRF of Low</TT>:1
+./v6LC_2_2_23_I.seq:./v6LC_2_2_23_I.def:::<TT>Part I&#58; Expired Lifetime</TT>:1
+./v6LC_2_2_23_J.seq:./v6LC_2_2_23_J.def:::<TT>Part J&#58; Route Information Option with a Prefix Length of 0 and Lifetime set to 0</TT>:1
+
+
+#------------------------------------------------------------------------------#
+# v6LC.2.2.25 Processing Router Advertisement DNS                              #
+#             (Hosts Only)                                                     #
+#------------------------------------------------------------------------------#
+&print:<TT>Test v6LC.2.2.25: Processing Router Advertisement DNS (Hosts Only)</TT>
+./v6LC_2_2_25_A.seq:./v6LC_2_2_25_A.def:::<TT>Part A&#58; Recursive DNS Option</TT>:1
+./v6LC_2_2_25_B.seq:./v6LC_2_2_25_B.def:::<TT>Part B&#58; Recursive DNS Option lifetime 0</TT>:1
+./v6LC_2_2_25_C.seq:./v6LC_2_2_25_A.def:::<TT>Part C&#58; Recursive DNS Option Expired</TT>:1
+./v6LC_2_2_25_D.seq:./v6LC_2_2_25_D.def:::<TT>Part D&#58; Search List Option</TT>:1
+./v6LC_2_2_25_E.seq:./v6LC_2_2_25_E.def:::<TT>Part E&#58; Search List Option with a Lifetime of 0</TT>:1
+./v6LC_2_2_25_F.seq:./v6LC_2_2_25_D.def:::<TT>Part F&#58; Search List Option Expired</TT>:1 
+
+
+#------------------------------------------------------------------------------#
+# v6LC.2.2.26 Atomic Fragments in Router Soliciation and Router Advertisement  #
+#------------------------------------------------------------------------------#
+&print:<TT>Test v6LC.2.2.26: Atomic Fragments in Router Soliciation and Router Advertisement</TT>
+./v6LC_2_2_26_A.seq:./v6LC_2_2_26_A.def:::<TT>Part A&#58; Router Advertisment with Atomic Fragment (Host Only)</TT>:1
+
+
+
+#------------------------------------------------------------------------------#
+# v6LC.2.2.27 Fragments in Router Solitication and Router Advertisments        #
+#------------------------------------------------------------------------------#
+&print:<TT>Test v6LC.2.2.27: Fragments in Router Solitication and Router Advertisments</TT>
+./v6LC_2_2_27_A.seq:./v6LC_2_2_27_A.def:::<TT>Part A&#58; Router Advertisment with Fragment Header (Host Only)</TT>:1
+
+

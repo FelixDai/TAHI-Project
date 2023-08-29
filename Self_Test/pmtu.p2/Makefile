@@ -45,7 +45,7 @@
 #
 ########################################################################
 
-TITLE	= 'Section 4: RFC 1981 - Path MTU Discovery for IPv6'
+TITLE	= 'Section 4: RFC 8201 - Path MTU Discovery for IPv6'
 
 INDEX_P1_HOST		= INDEX_p1_host
 INDEX_P1_ROUTER		= INDEX_p1_router

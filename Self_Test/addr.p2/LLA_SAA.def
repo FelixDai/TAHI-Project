@@ -65,21 +65,30 @@ Opt_ICMPv6_TLL  _pNAME { \
 
 #define LLA_SIMILAR_ADDRESS v6merge(   _LLOCAL_UCAST_PRFX, \
                 88, \
-                nutv6())
+                nut3v6())
 
 
 //
 // Ethernet Part
 //
-
-_HETHER_define(hether_nut2tentsolnode,
+_HETHER_define(hether_nut2tentsolnode_eui,
 	       nutether(), _ETHER_SOLNODE_MCAST(nutv6()))
+_HETHER_define(hether_nut2tentsolnode,
+	       nutether(), _ETHER_SOLNODE_MCAST(nut3v6()))
+_HETHER_define(hether_nut2tentsolnode_RA,
+	       nutether(), _ETHER_SOLNODE_MCAST(nut4v6()))
 _HETHER_define(hether_tn2tentsolnode,
-	       tnether(), _ETHER_SOLNODE_MCAST(nutv6()))
+	       tnether(), _ETHER_SOLNODE_MCAST(nut3v6()))
+_HETHER_define(hether_tn2tentsolnode_RA,
+	       tnether(), _ETHER_SOLNODE_MCAST(nut4v6()))
 _HETHER_define(hether_tn2nutsolnode,
-	       tnether(), _ETHER_SOLNODE_MCAST(nutv6()))
+	       tnether(), _ETHER_SOLNODE_MCAST(nut3v6()))
+_HETHER_define(hether_tn2nutsolnode_RA,
+	       tnether(), _ETHER_SOLNODE_MCAST(nut4v6()))
 _HETHER_define(hether_tn2tnsolnode,
 	       tnether(), _ETHER_SOLNODE_MCAST(tnv6()))
+_HETHER_define(hether_nut2any,
+	       nutether(), any)
 
 //
 // IPv6 Part
@@ -93,9 +102,22 @@ _HETHER_define(hether_tn2tnsolnode,
 //    valid DAD NS
 
 FEM_ADDRCONF_dadns(DADNS_from_NUT, hether_nut2tentsolnode,
+		   DestinationAddress=_IPV6_SOLNODE_MCAST(nut3v6());
+		   ,
+		   TargetAddress=nut3v6(); // Tentative Address
+                   )
+
+FEM_ADDRCONF_dadns(DADNS_from_NUT_EUI, hether_nut2tentsolnode_eui,
 		   DestinationAddress=_IPV6_SOLNODE_MCAST(nutv6());
 		   ,
 		   TargetAddress=nutv6(); // Tentative Address
+                   )
+
+FEM_ADDRCONF_dadns(DADNS_from_NUT_EUI_anyopt, hether_nut2tentsolnode_eui,
+		   DestinationAddress=_IPV6_SOLNODE_MCAST(nutv6());
+		   ,
+		   TargetAddress=nutv6(); // Tentative Address
+		   option=any;
                    )
 
 
@@ -107,9 +129,9 @@ FEM_ADDRCONF_dadns(DADNS_from_NUT, hether_nut2tentsolnode,
 //    valid DAD NS
 
 FEM_ADDRCONF_dadns(DADNS_from_TN_SameDstSameTgt, hether_tn2tentsolnode,
-		   DestinationAddress=_IPV6_SOLNODE_MCAST(nutv6());
+		   DestinationAddress=_IPV6_SOLNODE_MCAST(nut3v6());
 		   ,
-		   TargetAddress=nutv6(); // Tentative Address
+		   TargetAddress=nut3v6(); // Tentative Address
                    )
 
 //
@@ -133,7 +155,7 @@ FEM_ADDRCONF_dadns(DADNS_from_TN_DiffDstDiffTgt, hether_tn2tnsolnode,
 //    valid DAD NS
 
 FEM_ADDRCONF_dadns(DADNS_from_TN_SameDstDiffTgt, hether_tn2nutsolnode,
-		   DestinationAddress=_IPV6_SOLNODE_MCAST(nutv6());
+		   DestinationAddress=_IPV6_SOLNODE_MCAST(nut3v6());
 		   ,
 		   TargetAddress=tnv6(); // Tentative Address
                    )
@@ -148,9 +170,9 @@ FEM_ADDRCONF_dadns(DADNS_from_TN_SameDstDiffTgt, hether_tn2nutsolnode,
 //    NUT is a host 
 
 FEM_ADDRCONF_dadna(DADNA_from_NUT, _HETHER_nut2allnodes,
-		   SourceAddress=nutv6();
+		   SourceAddress=nut3v6();
 		   ,
-	           TargetAddress=nutv6();
+	           TargetAddress=nut3v6();
 	           option=_TLLOPT_nut;
 		   )
 
@@ -163,9 +185,9 @@ FEM_ADDRCONF_dadna(DADNA_from_NUT, _HETHER_nut2allnodes,
 //    NUT is a host 
 
 FEM_ADDRCONF_dadna(DADNA_from_NUT_woTLL, _HETHER_nut2allnodes,
-		   SourceAddress=nutv6();
+		   SourceAddress=nut3v6();
 		   ,
-	           TargetAddress=nutv6();
+	           TargetAddress=nut3v6();
 		   )
 
 //
@@ -177,10 +199,10 @@ FEM_ADDRCONF_dadna(DADNA_from_NUT_woTLL, _HETHER_nut2allnodes,
 // 
 
 FEM_ADDRCONF_dadna(DADNA_from_TN_SameTgt, _HETHER_tn2allnodes,
-		   SourceAddress=nutv6();
+		   SourceAddress=nut3v6();
 		   ,
 	           RFlag=0;
-	           TargetAddress=nutv6();
+	           TargetAddress=nut3v6();
 	           //option=_TLLOPT_tn; //not need this option(specification)
 		   )
 
@@ -213,11 +235,11 @@ FEM_icmp6_ns (
         hether_tn2nutsolnode,
                 {
                 _SRC(tnv6());
-                _DST(_IPV6_SOLNODE_MCAST(nutv6()));
+                _DST(_IPV6_SOLNODE_MCAST(nut3v6()));
                 HopLimit=255;
         },
                 {
-                TargetAddress=nutv6();
+                TargetAddress=nut3v6();
                 option=_SLLOPT_tn;
         }
 )
@@ -235,7 +257,7 @@ FEM_icmp6_na (
         NA_from_NUT,
         _HETHER_nut2tn,
                 {
-                _SRC(nutv6());
+                _SRC(nut3v6());
                 _DST(tnv6());
                 HopLimit=255;
         },
@@ -243,7 +265,7 @@ FEM_icmp6_na (
                 RFlag=RFLAG;
                 SFlag=1;
                 OFlag=1;
-                TargetAddress=nutv6();
+                TargetAddress=nut3v6();
                 option=_TLLOPT_nut;
         }
 )
@@ -260,7 +282,7 @@ FEM_icmp6_na (
         NA_from_NUT_woTLL,
         _HETHER_nut2tn,
                 {
-                _SRC(nutv6());
+                _SRC(nut3v6());
                 _DST(tnv6());
                 HopLimit=255;
         },
@@ -268,7 +290,7 @@ FEM_icmp6_na (
                 RFlag=RFLAG;
                 SFlag=1;
                 OFlag=0;
-                TargetAddress=nutv6();
+                TargetAddress=nut3v6();
         }
 )
 
@@ -284,11 +306,11 @@ FEM_icmp6_ns (
         _HETHER_tn2nut,
                 {
                 _SRC(tnv6());
-                _DST(nutv6());
+                _DST(nut3v6());
                 HopLimit=255;
         },
                 {
-                TargetAddress=nutv6();
+                TargetAddress=nut3v6();
                 option=_SLLOPT_tn;
         }
 )
@@ -305,11 +327,11 @@ FEM_icmp6_ns (
         hether_tn2tentsolnode,
                 {
                 _SRC(v6(_UNSPEC_ADDR));
-                _DST(_IPV6_SOLNODE_MCAST(nutv6()));
+                _DST(_IPV6_SOLNODE_MCAST(nut3v6()));
                 HopLimit=254;
         },
                 {
-                TargetAddress=nutv6();
+                TargetAddress=nut3v6();
         }
 )
 
@@ -325,12 +347,12 @@ FEM_icmp6_ns (
         hether_tn2tentsolnode,
                 {
                 _SRC(v6(_UNSPEC_ADDR));
-                _DST(_IPV6_SOLNODE_MCAST(nutv6()));
+                _DST(_IPV6_SOLNODE_MCAST(nut3v6()));
                 HopLimit=255;
         },
                 {
                 Checksum=0xffff;
-                TargetAddress=nutv6();
+                TargetAddress=nut3v6();
         }
 )
 
@@ -346,12 +368,12 @@ FEM_icmp6_ns (
         hether_tn2tentsolnode,
                 {
                 _SRC(v6(_UNSPEC_ADDR));
-                _DST(_IPV6_SOLNODE_MCAST(nutv6()));
+                _DST(_IPV6_SOLNODE_MCAST(nut3v6()));
                 HopLimit=255;
         },
                 {
                 Code=0x01;
-                TargetAddress=nutv6();
+                TargetAddress=nut3v6();
         }
 )
 
@@ -367,12 +389,12 @@ FEM_icmp6_ns (
         hether_tn2tentsolnode,
                 {
                 _SRC(v6(_UNSPEC_ADDR));
-                _DST(_IPV6_SOLNODE_MCAST(nutv6()));
+                _DST(_IPV6_SOLNODE_MCAST(nut3v6()));
                 PayloadLength=0x10;
                 HopLimit=255;
         },
                 {
-                TargetAddress=nutv6();
+                TargetAddress=nut3v6();
         }
 )
 
@@ -388,11 +410,11 @@ FEM_icmp6_ns (
         hether_tn2tentsolnode,
                 {
                 _SRC(v6(_UNSPEC_ADDR));
-                _DST(_IPV6_SOLNODE_MCAST(nutv6()));
+                _DST(_IPV6_SOLNODE_MCAST(nut3v6()));
                 HopLimit=255;
         },
                 {
-                TargetAddress=_IPV6_SOLNODE_MCAST(nutv6());
+                TargetAddress=_IPV6_SOLNODE_MCAST(nut3v6());
         }
 )
 
@@ -408,12 +430,12 @@ FEM_icmp6_ns (
         hether_tn2tentsolnode,
                 {
                 _SRC(v6(_UNSPEC_ADDR));
-                _DST(_IPV6_SOLNODE_MCAST(nutv6()));
+                _DST(_IPV6_SOLNODE_MCAST(nut3v6()));
                 HopLimit=255;
         },
                 {
 		Reserved=0xffffffff;
-                TargetAddress=nutv6();
+                TargetAddress=nut3v6();
         }
 )
 
@@ -429,11 +451,11 @@ FEM_icmp6_ns (
         hether_tn2tentsolnode,
                 {
                 _SRC(v6(_UNSPEC_ADDR));
-                _DST(_IPV6_SOLNODE_MCAST(nutv6()));
+                _DST(_IPV6_SOLNODE_MCAST(nut3v6()));
                 HopLimit=255;
         },
                 {
-                TargetAddress=nutv6();
+                TargetAddress=nut3v6();
                 option=_TLLOPT_tn;
         }
 )
@@ -448,7 +470,7 @@ FEM_icmp6_ns (
 FEM_ADDRCONF_dadns(DADNS_from_TN_DstAll, _HETHER_tn2allnodes,
 		   DestinationAddress=v6(_ALLNODES_MCAST_ADDR);
 		   ,
-		   TargetAddress=nutv6(); // Tentative Address
+		   TargetAddress=nut3v6(); // Tentative Address
                    )
 
 
@@ -460,9 +482,9 @@ FEM_ADDRCONF_dadns(DADNS_from_TN_DstAll, _HETHER_tn2allnodes,
 //    invalid DAD NS
 
 FEM_ADDRCONF_dadns(DADNS_from_TN_DstTent, _HETHER_tn2nut,
-		   DestinationAddress=nutv6();
+		   DestinationAddress=nut3v6();
 		   ,
-		   TargetAddress=nutv6(); // Tentative Address
+		   TargetAddress=nut3v6(); // Tentative Address
                    )
 
 
@@ -486,7 +508,7 @@ FEM_icmp6_na (
                 RFlag=0;
                 SFlag=0;
                 OFlag=1;
-                TargetAddress=nutv6();
+                TargetAddress=nut3v6();
                 option=_TLLOPT_tn;
         }
 )
@@ -511,7 +533,7 @@ FEM_icmp6_na (
                 RFlag=0;
                 SFlag=1;
                 OFlag=1;
-                TargetAddress=nutv6();
+                TargetAddress=nut3v6();
                 option=_TLLOPT_tn;
         }
 )
@@ -529,11 +551,11 @@ FEM_icmp6_ns (
         hether_tn2tentsolnode,
                 {
                 _SRC(v6(_UNSPEC_ADDR));
-                _DST(_IPV6_SOLNODE_MCAST(nutv6()));
+                _DST(_IPV6_SOLNODE_MCAST(nut3v6()));
                 HopLimit=255;
         },
                 {
-                TargetAddress=nutv6();
+                TargetAddress=nut3v6();
                 option=_SLLOPT_tn;   //invalid
         }
 )
@@ -558,7 +580,7 @@ FEM_icmp6_na (
                 RFlag=0;
                 SFlag=0;
                 OFlag=1;
-                TargetAddress=nutv6();
+                TargetAddress=nut3v6();
                 //option=_TLLOPT_tn; //not need TTL option(specification of phase II)
                 option=_SLLOPT_tn;
         }
@@ -584,7 +606,7 @@ FEM_icmp6_na (
                 RFlag=0;
                 SFlag=0;
                 OFlag=1;
-                TargetAddress=nutv6();
+                TargetAddress=nut3v6();
         }
 )
 
@@ -592,7 +614,7 @@ FEM_upp_no_next_header(
         PreparationPkt,
         _HETHER_tn2tn,
         {
-                _SRC(nutv6());
+                _SRC(nut3v6());
                 _DST(tnv6());
         },
         {}
@@ -620,7 +642,7 @@ FEM_icmp6_na (
                 SFlag=0;
                 OFlag=1;
                 Checksum=0xffff;
-                TargetAddress=nutv6();
+                TargetAddress=nut3v6();
                 option=_TLLOPT_tn;
         }
 )
@@ -646,7 +668,7 @@ FEM_icmp6_na (
                 RFlag=0;
                 SFlag=0;
                 OFlag=1;
-                TargetAddress=nutv6();
+                TargetAddress=nut3v6();
                 option=_TLLOPT_tn;
         }
 )
@@ -672,7 +694,7 @@ FEM_icmp6_na (
                 RFlag=0;
                 SFlag=0;
                 OFlag=1;
-                TargetAddress=nutv6();
+                TargetAddress=nut3v6();
                 option=_TLLOPT_tn;
         }
 )
@@ -697,7 +719,7 @@ FEM_icmp6_na (
                 RFlag=0;
                 SFlag=0;
                 OFlag=1;
-                TargetAddress=_IPV6_SOLNODE_MCAST(nutv6());
+                TargetAddress=_IPV6_SOLNODE_MCAST(nut3v6());
                 option=_TLLOPT_tn;
         }
 )
@@ -723,7 +745,7 @@ FEM_icmp6_na (
                 SFlag=0;
                 OFlag=1;
 		Reserved=0x1fffffff;
-                TargetAddress=nutv6();
+                TargetAddress=nut3v6();
                 option=_TLLOPT_tn;
         }
 )
@@ -748,7 +770,7 @@ FEM_icmp6_na (
                 RFlag=0;
                 SFlag=0;
                 OFlag=1;
-                TargetAddress=nutv6();
+                TargetAddress=nut3v6();
                 option=TLL_invalidLen_tn;
         }
 )
@@ -774,7 +796,7 @@ FEM_icmp6_rs(
 	_HETHER_nut2allrouters,
 	{
 		HopLimit	= 255;
-		_SRC(nutv6());
+		_SRC(nut3v6());
 		_DST(v6(_ALLROUTERS_MCAST_ADDR));
 	},
 	{}
@@ -785,12 +807,41 @@ FEM_icmp6_rs(
 	_HETHER_nut2allrouters,
 	{
 		HopLimit	= 255;
-		_SRC(nutv6());
+		_SRC(nut3v6());
 		_DST(v6(_ALLROUTERS_MCAST_ADDR));
 	},
 	{
 		option	= _SLLOPT_nut;
 	}
+)
+
+FEM_ADDRCONF_dadns(
+                   DADNS_from_NUT_anyopt, hether_nut2tentsolnode,
+                   DestinationAddress=_IPV6_SOLNODE_MCAST(nut3v6());
+                   ,
+                   TargetAddress=nut3v6(); // Tentative Address
+                   option=any;
+                   )
+
+FEM_ADDRCONF_dadns(
+                   Init_DADNS_from_NUT,
+                   hether_nut2any,
+                   SourceAddress=v6("::");
+                   DestinationAddress=any;
+		   ,
+                   Type=135;
+		   TargetAddress=any; // Tentative Address
+)
+
+FEM_ADDRCONF_dadns(
+                   Init_DADNS_from_NUT_anyopt, 
+		   hether_nut2any,
+                   SourceAddress=v6("::");
+		   DestinationAddress=any;
+                   ,
+                   Type=135;
+                   TargetAddress=any; // Tentative Address
+                   option = any;
 )
 
 //end

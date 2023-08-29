@@ -58,6 +58,7 @@ END   {}
 
 @EXPORT = qw(
 	startToRtAdv
+	startToRtAdv_routeinfo
 	startToRtAdv_2_2_9_B
 	v6LC_2_2_1
 	v6LC_2_2_2_A
@@ -69,6 +70,7 @@ END   {}
 	v6LC_2_2_6_A
 	v6LC_2_2_6_B_Step_4
 	v6LC_2_2_6_B_Step_5_Advertising_Interface
+	v6LC_2_2_6_B_Step_7_Advertising_Interface
 	v6LC_2_2_6_B_Step_5_Non_Advertising_Interface
 	v6LC_2_2_7
 	v6LC_2_2_7_B
@@ -113,6 +115,38 @@ END   {}
 	v6LC_2_2_17_C
 	v6LC_2_2_18
 	v6LC_2_2_19
+	v6LC_2_2_20_A
+        v6LC_2_2_20_B
+        v6LC_2_2_20_C
+        v6LC_2_2_21_A
+        v6LC_2_2_21_B
+        v6LC_2_2_21_C
+        v6LC_2_2_21_D
+        v6LC_2_2_21_E
+	v6LC_2_2_22_A
+        v6LC_2_2_22_B
+        v6LC_2_2_22_C
+        v6LC_2_2_22_D
+        v6LC_2_2_22_E
+	v6LC_2_2_23
+        v6LC_2_2_23_C
+        v6LC_2_2_23_D
+        v6LC_2_2_23_F
+        v6LC_2_2_23_H
+	v6LC_2_2_23_I
+	v6LC_2_2_23_J
+        v6LC_2_2_24_A
+        v6LC_2_2_24_B
+	v6LC_2_2_25_A
+	v6LC_2_2_25_B
+	v6LC_2_2_25_C
+        v6LC_2_2_25_D
+	v6LC_2_2_25_E
+	v6LC_2_2_25_F
+	v6LC_2_2_26_A
+	v6LC_2_2_26_B
+        v6LC_2_2_27_A
+        v6LC_2_2_27_B
 );
 
 push(@EXPORT, sort(@common::EXPORT));
@@ -133,6 +167,18 @@ $pktdesc{'ra_mtu'} =
 $pktdesc{'ra_sll_mtu'} =
 	'    Recv RA w/ SLL w/ MTU: '.
 	'RUT (link-local) -&gt; all-nodes multicast address';
+$pktdesc{'unicast_ra'} =
+	'    Recv RA w/o SLL w/o MTU: '.
+	'RUT (link-local) -&gt; TN1 (link-local)';
+$pktdesc{'unicast_ra_sll'} =
+	'    Recv RA w/ SLL w/o MTU: '.
+	'RUT (link-local) -&gt; TN1 (link-local)';
+$pktdesc{'unicast_ra_mtu'} =
+	'    Recv RA w/o SLL w/ MTU: '.
+	'RUT (link-local) -&gt; TN1 (link-local)';
+$pktdesc{'unicast_ra_sll_mtu'} =
+	'    Recv RA w/ SLL w/ MTU: '.
+	'RUT (link-local) -&gt; TN1 (link-local)';
 $pktdesc{'ra_rltime_zero'} =
 	'    Recv RA w/o SLL w/o MTU: '.
 	'RUT (link-local) -&gt; all-nodes multicast address';
@@ -167,6 +213,18 @@ $pktdesc{'tn2_erep_offlink_via_tr2'} =
         '    Recv Echo Reply via TR2: HUT (global) -&gt; TN2 (global)';
 $pktdesc{'tn2_erep_offlink_via_tr3'} =
         '    Recv Echo Reply via TR3: HUT (global) -&gt; TN2 (global)';
+$pktdesc{'tn2_ereq_offlink_via_tr1_ex'} =
+        '    Send Echo Request via TR1: TN2 (global) -&gt; HUT (global)';
+$pktdesc{'tn2_ereq_offlink_via_tr2_ex'} =
+        '    Send Echo Request via TR1: TN2 (global) -&gt; HUT (global)';
+$pktdesc{'tn2_ereq_offlink_via_tr1_ex96'} =
+        '    Send Echo Request via TR1: TN2 (global) -&gt; HUT (global)';
+$pktdesc{'tn2_erep_offlink_via_tr1_ex'} =
+        '    Recv Echo Reply via TR1: HUT (global) -&gt; TN2 (global)';
+$pktdesc{'tn2_erep_offlink_via_tr2_ex'} =
+        '    Recv Echo Reply via TR2: HUT (global) -&gt; TN2 (global)';
+$pktdesc{'tn2_erep_offlink_via_tr2_ex96'} =
+        '    Recv Echo Reply via TR2: HUT (global) -&gt; TN2 (global)';
 $pktdesc{'ns_dad'} =
         '    Recv NS: HUT (unspecified) -&gt; HUT solicited-node multicast address (link-local)';
 
@@ -201,6 +259,37 @@ startToRtAdv($)
 	return($true);
 }
 
+
+#------------------------------#
+# startToRtAdv()               #
+#------------------------------#
+sub
+startToRtAdv_routeinfo($)
+{
+        my ($Link) = @_;
+
+        if(vRemote('racontrol.rmt', 'mode=start',
+		"rt_prefix=3ffe:501:ffff:102::",
+		'rt_ltime=600', 'rt_plength=64',
+                "link0=$V6evalTool::NutDef{'Link0_device'}")) {
+         
+                vLogHTML('<FONT COLOR="#FF0000"><B>racontrol.rmt: '.
+                        'Could\'t start to send RA</B></FONT><BR>');
+
+                exitFatal($Link);
+                #NOTREACHED
+        }
+
+        $rut_rtadvd     = $true;
+
+        vRecv($Link,
+                $MAX_INITIAL_RTR_ADVERT_INTERVAL *
+                $MAX_INITIAL_RTR_ADVERTISEMENTS +
+                $MIN_DELAY_BETWEEN_RAS + 1,
+                0, 0);
+
+        return($true);
+}
 
 
 #------------------------------#
@@ -604,6 +693,8 @@ v6LC_2_2_2_C_D_E_F($)
 	}
 
 	ignoreDAD($Link);
+        vRecv($Link,
+                $RTR_SOLICITATION_INTERVAL + $MAX_RTR_SOLICITATION_DELAY, 0, 0);
 
 	return($true);
 }
@@ -824,6 +915,44 @@ v6LC_2_2_6_B_Step_5_Advertising_Interface($$)
 	return($true);
 }
 
+sub
+v6LC_2_2_6_B_Step_7_Advertising_Interface($$)
+{
+	my ($master, $send) = @_;
+
+# 7.
+# 	Configure TR1 to transmit a RS to the RUT on Interface A
+ 
+	vClear($master);
+
+	vSend($master, $send);
+
+# 8.
+# 	Observe the packets transmitted by the RUT on Interface A
+
+	my %ret = vRecv($master, $MAX_RA_DELAY_TIME + 3, 0, 0,
+			'ra', 'ra_sll', 'ra_mtu', 'ra_sll_mtu', 'unicast_ra',
+			'unicast_ra_sll', 'unicast_ra_mtu', 'unicast_ra_sll_mtu');
+	if(
+	    ($ret{'recvFrame'} ne 'ra') &&
+	    ($ret{'recvFrame'} ne 'ra_sll') &&
+	    ($ret{'recvFrame'} ne 'ra_mtu') &&
+	    ($ret{'recvFrame'} ne 'ra_sll_mtu') &&
+	    ($ret{'recvFrame'} ne 'unicast_ra') &&
+	    ($ret{'recvFrame'} ne 'unicast_ra_sll') &&
+	    ($ret{'recvFrame'} ne 'unicast_ra_mtu') &&
+	    ($ret{'recvFrame'} ne 'unicast_ra_sll_mtu') 
+	) {
+	    vLogHTML('<FONT COLOR="#FF0000"><B>'.
+		'Could\'t observe RA'.
+		'</B></FONT><BR>');
+	    return($false);
+	}
+
+	vRecv($master, $MIN_DELAY_BETWEEN_RAS + 1, 0, 0);
+
+	return($true);
+}
 
 
 #------------------------------------------------------#
@@ -967,7 +1096,7 @@ v6LC_2_2_7($)
 			vLogHTML(sprintf("<TD ROWSPAN=\"2\">%.1f sec.</TD>",
 				$delta));
 
-			if($delta > $MAX_INITIAL_RTR_ADVERT_INTERVAL + 0.5) {
+			if($delta > 10 + 0.5) {
 				vLogHTML('<TD ROWSPAN="2">');
 				vLogHTML('<FONT COLOR="#FF0000">*</FONT>');
 				vLogHTML('</TD>');
@@ -2397,7 +2526,7 @@ v6LC_2_2_12_B($)
 {
 	my ($Link) = @_;
 
-	my $CurHopLimit = 15;
+	my $CurHopLimit = 100;
 
 #	return(v6LC_2_2_12($Link, $CurHopLimit));
 	return(v6LC_2_2_12_strict($Link, $CurHopLimit));
@@ -4113,21 +4242,14 @@ v6LC_2_2_18($)
 
 
 	#--------------#
-	$pktdesc{'local_tn2_ereq_offlink_via_tr1'} =
-		'    Send Echo Request via TR1: '.
-		'TN2 (global) -&gt; HUT (link-local)';
 
-	$pktdesc{'local_tn2_erep_offlink_via_tr1'} =
-		'    Recv Echo Reply via TR1: '.
-		'HUT (link-local) -&gt; TN2 (global)';
-
-	vSend($Link, 'local_tn2_ereq_offlink_via_tr1');
+	vSend($Link, 'tn2_ereq_offlink_via_tr1');
 
 
 
 	#--------------#
-	%ret = vRecv($Link, $TimeOut, 0, 0, 'local_tn2_erep_offlink_via_tr1');
-	unless($ret{'recvFrame'} eq 'local_tn2_erep_offlink_via_tr1') {
+	%ret = vRecv($Link, $TimeOut, 0, 0, 'tn2_erep_offlink_via_tr1');
+	unless($ret{'recvFrame'} eq 'tn2_erep_offlink_via_tr1') {
 		vLogHTML('<FONT COLOR="#FF0000"><B>'.
 			'Could\'t observe Echo Reply'.
 			'</B></FONT><BR>');
@@ -4189,6 +4311,1671 @@ v6LC_2_2_19($)
 	return($true);
 }
 
+
+#------------------------------#
+# v6LC_2_2_20_A()               #
+#------------------------------#
+sub
+v6LC_2_2_20_A($)
+{
+	my ($Link) = @_;
+
+	vLogHTML('<FONT COLOR="#FF0000" SIZE="5"><U><B>'.
+		'Test Procedure'.
+		'</B></U></FONT><BR>');
+
+# 1.
+# 	Configure Interface A on the RUT to be an advertising interface
+# 	with preference of 1
+
+	if(vRemote('racontrol.rmt', 'mode=start',
+		'preference=1',
+		"link0=$V6evalTool::NutDef{'Link0_device'}")) {
+
+		vLogHTML('<FONT COLOR="#FF0000"><B>racontrol.rmt: '.
+			'Could\'t start to send RA</B></FONT><BR>');
+
+		exitFatal($Link);
+		#NOTREACHED
+	}
+
+	$rut_rtadvd	= $true;
+
+# 2.
+# 	Observe the packets transmitted by the RUT on Interface A.
+
+	my %ret = vRecv($Link, 16 * 2, 0, 0,
+			'ra_local', 'ra_sll_local',
+			'ra_mtu_local', 'ra_mtu_sll_local');
+	if(
+			($ret{'recvFrame'} eq 'ra_local')	||
+			($ret{'recvFrame'} eq 'ra_sll_local')	||
+			($ret{'recvFrame'} eq 'ra_mtu_local')	||
+			($ret{'recvFrame'} eq 'ra_mtu_sll_local')
+	) {
+		return($true);
+	}
+
+	vLogHTML('<FONT COLOR="#FF0000"><B>Could\'t observe RA'.
+		'</B></FONT><BR>');
+
+	return($false);
+}
+
+
+#------------------------------#
+# v6LC_2_2_20_B()               #
+#------------------------------#
+sub
+v6LC_2_2_20_B($)
+{
+	my ($Link) = @_;
+
+	vLogHTML('<FONT COLOR="#FF0000" SIZE="5"><U><B>'.
+		'Test Procedure'.
+		'</B></U></FONT><BR>');
+
+# 1.
+# 	Configure Interface A on the RUT to be an advertising interface
+# 	with preference of 0
+
+	if(vRemote('racontrol.rmt', 'mode=start',
+		'preference=0',
+		"link0=$V6evalTool::NutDef{'Link0_device'}")) {
+
+		vLogHTML('<FONT COLOR="#FF0000"><B>racontrol.rmt: '.
+			'Could\'t start to send RA</B></FONT><BR>');
+
+		exitFatal($Link);
+		#NOTREACHED
+	}
+
+	$rut_rtadvd	= $true;
+
+# 2.
+# 	Observe the packets transmitted by the RUT on Interface A.
+
+	my %ret = vRecv($Link, 16 * 2, 0, 0,
+			'ra_local', 'ra_sll_local',
+			'ra_mtu_local', 'ra_mtu_sll_local');
+	if(
+			($ret{'recvFrame'} eq 'ra_local')	||
+			($ret{'recvFrame'} eq 'ra_sll_local')	||
+			($ret{'recvFrame'} eq 'ra_mtu_local')	||
+			($ret{'recvFrame'} eq 'ra_mtu_sll_local')
+	) {
+		return($true);
+	}
+
+	vLogHTML('<FONT COLOR="#FF0000"><B>Could\'t observe RA'.
+		'</B></FONT><BR>');
+
+	return($false);
+}
+
+
+#------------------------------#
+# v6LC_2_2_20_C()               #
+#------------------------------#
+sub
+v6LC_2_2_20_C($)
+{
+	my ($Link) = @_;
+
+	vLogHTML('<FONT COLOR="#FF0000" SIZE="5"><U><B>'.
+		'Test Procedure'.
+		'</B></U></FONT><BR>');
+
+# 1.
+# 	Configure Interface A on the RUT to be an advertising interface
+# 	with preference of 0
+
+	if(vRemote('racontrol.rmt', 'mode=start',
+		'preference=3',
+		"link0=$V6evalTool::NutDef{'Link0_device'}")) {
+
+		vLogHTML('<FONT COLOR="#FF0000"><B>racontrol.rmt: '.
+			'Could\'t start to send RA</B></FONT><BR>');
+
+		exitFatal($Link);
+		#NOTREACHED
+	}
+
+	$rut_rtadvd	= $true;
+
+# 2.
+# 	Observe the packets transmitted by the RUT on Interface A.
+
+	my %ret = vRecv($Link, 16 * 2, 0, 0,
+			'ra_local', 'ra_sll_local',
+			'ra_mtu_local', 'ra_mtu_sll_local');
+	if(
+			($ret{'recvFrame'} eq 'ra_local')	||
+			($ret{'recvFrame'} eq 'ra_sll_local')	||
+			($ret{'recvFrame'} eq 'ra_mtu_local')	||
+			($ret{'recvFrame'} eq 'ra_mtu_sll_local')
+	) {
+		return($true);
+	}
+
+	vLogHTML('<FONT COLOR="#FF0000"><B>Could\'t observe RA'.
+		'</B></FONT><BR>');
+
+	return($false);
+}
+
+
+#------------------------------#
+# v6LC_2_2_21_A()               #
+#------------------------------#
+sub
+v6LC_2_2_21_A($)
+{
+	my ($Link) = @_;
+
+	vLogHTML('<FONT COLOR="#FF0000" SIZE="5"><U><B>'.
+		'Test Procedure'.
+		'</B></U></FONT><BR>');
+
+# 1.
+# 	Configure Interface A on the RUT to be an advertising interface
+# 	with route prefix length of 64
+
+	if(vRemote('racontrol.rmt', 'mode=start',
+		'rt_prefix=3ffe:501:ffff:102::',
+		'PRF=1', 'rt_plength=64', 'rt_ltime=600',
+		"link0=$V6evalTool::NutDef{'Link0_device'}")) {
+
+		vLogHTML('<FONT COLOR="#FF0000"><B>racontrol.rmt: '.
+			'Could\'t start to send RA</B></FONT><BR>');
+
+		exitFatal($Link);
+		#NOTREACHED
+	}
+
+	$rut_rtadvd	= $true;
+
+# 2.
+# 	Observe the packets transmitted by the RUT on Interface A.
+
+	my %ret = vRecv($Link, 16 * 2, 0, 0,
+			'ra_local', 'ra_sll_local',
+			'ra_mtu_local', 'ra_mtu_sll_local');
+	if(
+			($ret{'recvFrame'} eq 'ra_local')	||
+			($ret{'recvFrame'} eq 'ra_sll_local')	||
+			($ret{'recvFrame'} eq 'ra_mtu_local')	||
+			($ret{'recvFrame'} eq 'ra_mtu_sll_local')
+	) {
+		return($true);
+	}
+
+	vLogHTML('<FONT COLOR="#FF0000"><B>Could\'t observe RA'.
+		'</B></FONT><BR>');
+
+	return($false);
+}
+
+
+#------------------------------#
+# v6LC_2_2_21_B()               #
+#------------------------------#
+sub
+v6LC_2_2_21_B($)
+{
+	my ($Link) = @_;
+
+	vLogHTML('<FONT COLOR="#FF0000" SIZE="5"><U><B>'.
+		'Test Procedure'.
+		'</B></U></FONT><BR>');
+
+# 1.
+# 	Configure Interface A on the RUT to be an advertising interface
+# 	with route prefix length of 64
+
+	if(vRemote('racontrol.rmt', 'mode=start',
+		'rt_prefix=3ffe:501:ffff:102::',
+		'PRF=0', 'rt_plength=32', 'rt_ltime=600',
+		"link0=$V6evalTool::NutDef{'Link0_device'}")) {
+
+		vLogHTML('<FONT COLOR="#FF0000"><B>racontrol.rmt: '.
+			'Could\'t start to send RA</B></FONT><BR>');
+
+		exitFatal($Link);
+		#NOTREACHED
+	}
+
+	$rut_rtadvd	= $true;
+
+# 2.
+# 	Observe the packets transmitted by the RUT on Interface A.
+
+	my %ret = vRecv($Link, 16 * 2, 0, 0,
+			'ra_local', 'ra_sll_local',
+			'ra_mtu_local', 'ra_mtu_sll_local');
+	if(
+			($ret{'recvFrame'} eq 'ra_local')	||
+			($ret{'recvFrame'} eq 'ra_sll_local')	||
+			($ret{'recvFrame'} eq 'ra_mtu_local')	||
+			($ret{'recvFrame'} eq 'ra_mtu_sll_local')
+	) {
+		return($true);
+	}
+
+	vLogHTML('<FONT COLOR="#FF0000"><B>Could\'t observe RA'.
+		'</B></FONT><BR>');
+
+	return($false);
+}
+
+
+#------------------------------#
+# v6LC_2_2_21_C()               #
+#------------------------------#
+sub
+v6LC_2_2_21_C($)
+{
+	my ($Link) = @_;
+
+	vLogHTML('<FONT COLOR="#FF0000" SIZE="5"><U><B>'.
+		'Test Procedure'.
+		'</B></U></FONT><BR>');
+
+# 1.
+# 	Configure Interface A on the RUT to be an advertising interface
+# 	with route prefix length of 64
+
+	if(vRemote('racontrol.rmt', 'mode=start',
+		'rt_prefix=3ffe:501:ffff:102:0:1::',
+		'PRF=3', 'rt_plength=96', 'rt_ltime=600',
+		"link0=$V6evalTool::NutDef{'Link0_device'}")) {
+
+		vLogHTML('<FONT COLOR="#FF0000"><B>racontrol.rmt: '.
+			'Could\'t start to send RA</B></FONT><BR>');
+
+		exitFatal($Link);
+		#NOTREACHED
+	}
+
+	$rut_rtadvd	= $true;
+
+# 2.
+# 	Observe the packets transmitted by the RUT on Interface A.
+
+	my %ret = vRecv($Link, 16 * 2, 0, 0,
+			'ra_local', 'ra_sll_local',
+			'ra_mtu_local', 'ra_mtu_sll_local');
+	if(
+			($ret{'recvFrame'} eq 'ra_local')	||
+			($ret{'recvFrame'} eq 'ra_sll_local')	||
+			($ret{'recvFrame'} eq 'ra_mtu_local')	||
+			($ret{'recvFrame'} eq 'ra_mtu_sll_local')
+	) {
+		return($true);
+	}
+
+	vLogHTML('<FONT COLOR="#FF0000"><B>Could\'t observe RA'.
+		'</B></FONT><BR>');
+
+	return($false);
+}
+
+#------------------------------#
+# v6LC_2_2_21_D()               #
+#------------------------------#
+sub
+v6LC_2_2_21_D($)
+{
+	my ($Link) = @_;
+
+	vLogHTML('<FONT COLOR="#FF0000" SIZE="5"><U><B>'.
+		'Test Procedure'.
+		'</B></U></FONT><BR>');
+
+# 1.
+# 	Configure Interface A on the RUT to be an advertising interface
+# 	with route prefix length of 64
+
+	if(vRemote('racontrol.rmt', 'mode=start',
+		'rt_prefix=::', 'rt_plength=0', 'rt_ltime=600',
+		"link0=$V6evalTool::NutDef{'Link0_device'}")) {
+
+		vLogHTML('<FONT COLOR="#FF0000"><B>racontrol.rmt: '.
+			'Could\'t start to send RA</B></FONT><BR>');
+
+		exitFatal($Link);
+		#NOTREACHED
+	}
+
+	$rut_rtadvd	= $true;
+
+# 2.
+# 	Observe the packets transmitted by the RUT on Interface A.
+
+	my %ret = vRecv($Link, 16 * 2, 0, 0,
+			'ra_local', 'ra_sll_local',
+			'ra_mtu_local', 'ra_mtu_sll_local');
+	if(
+			($ret{'recvFrame'} eq 'ra_local')	||
+			($ret{'recvFrame'} eq 'ra_sll_local')	||
+			($ret{'recvFrame'} eq 'ra_mtu_local')	||
+			($ret{'recvFrame'} eq 'ra_mtu_sll_local')
+	) {
+		return($true);
+	}
+
+	vLogHTML('<FONT COLOR="#FF0000"><B>Could\'t observe RA'.
+		'</B></FONT><BR>');
+
+	return($false);
+}
+
+
+#------------------------------#
+# v6LC_2_2_21_E()               #
+#------------------------------#
+sub
+v6LC_2_2_21_E($)
+{       
+        my ($Link) = @_;
+
+        vLogHTML('<FONT COLOR="#FF0000" SIZE="5"><U><B>'.
+                'Test Procedure'.
+                '</B></U></FONT><BR>');
+
+
+# 1.
+#       Configure Interface A on the RUT to be an advertising interface
+#       with route prefix length of 64
+
+        if(vRemote('racontrol.rmt', 'mode=start',
+                'rt_prefix=3ffe:501:ffff:102::',
+                'rt_plength=64', 'rt_ltime=600',
+                "link0=$V6evalTool::NutDef{'Link0_device'}")) {
+
+                vLogHTML('<FONT COLOR="#FF0000"><B>racontrol.rmt: '.
+                        'Could\'t start to send RA</B></FONT><BR>');
+
+                exitFatal($Link);
+                #NOTREACHED
+        }
+
+        $rut_rtadvd     = $true;
+
+# 2.
+#       Observe the packets transmitted by the RUT on Interface A.
+
+        my %ret = vRecv($Link, 16 * 2, 0, 0,
+                        'ra_local', 'ra_sll_local',
+                        'ra_mtu_local', 'ra_mtu_sll_local');
+        unless(
+                        ($ret{'recvFrame'} eq 'ra_local')       ||
+                        ($ret{'recvFrame'} eq 'ra_sll_local')   ||
+                        ($ret{'recvFrame'} eq 'ra_mtu_local')   ||
+                        ($ret{'recvFrame'} eq 'ra_mtu_sll_local')
+        ) {
+
+		vLogHTML('<FONT COLOR="#FF0000"><B>Could\'t observe RA'.
+                '</B></FONT><BR>');
+
+        	return($false); 
+        }
+
+        
+# 3.
+#       Configure Interface A on the RUT to discontinue
+#       be an advertising interface.
+        
+        if(vRemote('racontrol.rmt', 'mode=stop')) {  
+                vLogHTML('<FONT COLOR="#FF0000"><B>racontrol.rmt: '.
+                        'Could\'t stop to send RA</B></FONT><BR>');
+        
+                exitFatal($Link);
+                #NOTREACHED
+        }
+        
+        $rut_rtadvd     = $false;
+
+# 4.
+#       Observe the packets transmitted by the RUT on Interface A.
+
+        my $bool = $false;
+
+
+        my %ret = vRecv($Link, $MAX_INITIAL_RTR_ADVERT_INTERVAL + 1,
+                0, 0,
+                'ra_rltime_rt_zero',               'ra_rltime_rt_zero_sll',
+                'ra_rltime_rt_zero_mtu',           'ra_rltime_rt_zero_sll_mtu',
+                'ra_rltime_rt_zero_no_pi',         'ra_rltime_rt_zero_no_pi_sll',
+                'ra_rltime_rt_zero_no_pi_mtu',     'ra_rltime_rt_zero_no_pi_sll_mtu');
+        if(
+                ($ret{'recvFrame'} eq 'ra_rltime_rt_zero')         ||
+                ($ret{'recvFrame'} eq 'ra_rltime_rt_zero_sll')     ||
+                ($ret{'recvFrame'} eq 'ra_rltime_rt_zero_mtu')     ||
+                ($ret{'recvFrame'} eq 'ra_rltime_rt_zero_sll_mtu') ||
+                ($ret{'recvFrame'} eq 'ra_rltime_rt_zero_no_pi')   ||
+                ($ret{'recvFrame'} eq 'ra_rltime_rt_zero_no_pi_sll')       ||
+                ($ret{'recvFrame'} eq 'ra_rltime_rt_zero_no_pi_mtu')       ||
+                ($ret{'recvFrame'} eq 'ra_rltime_rt_zero_no_pi_sll_mtu')
+        ) {
+
+                $bool = $true;
+		return($true);
+        }
+
+        unless($bool) {
+                vLogHTML('<FONT COLOR="#FF0000"><B>Could\'t observe RA'.
+                        '</B></FONT><BR>');
+
+                return($false);
+        }
+
+        return($true);
+}
+
+
+sub
+v6LC_2_2_22_A($)
+{
+	my ($Link) = @_;
+
+	vLogHTML('<FONT COLOR="#FF0000" SIZE="5"><U><B>'.
+		'Test Procedure'.
+		'</B></U></FONT><BR>');
+
+# 1.
+# 	TR1 transmits Router Advertisement A.
+# 	TR2 transmits Router Advertisement B.
+# 	TR1 transmits Packet A,
+
+	vSend($Link, 'local_ra_tr1');
+	vSend($Link, 'local_ra_tr2');
+	
+	$tr1_cache = $true;
+	$tr1_default	= $true;
+	$tr1_prefix	= $true;
+	$tr1_force	= $true;
+	$tr2_cache = $true;
+	$tr2_default	= $true;
+	$tr2_prefix	= $true;
+	$tr2_force	= $true;
+	
+	ignoreDAD($Link);
+
+	my $bool	= $false;
+
+	vSend($Link, 'tn2_ereq_offlink_via_tr1');
+	%ret = vRecv($Link, $TimeOut, 0, 0, 'tn2_erep_offlink_via_tr1');
+	if($ret{'recvFrame'} eq 'tn2_erep_offlink_via_tr1') {
+		vLogHTML(' Observe Echo Reply to TR1<BR>');
+		vLogHTML('OK<BR>'); 
+		return($true);
+	}
+
+	vLogHTML('<FONT COLOR="#FF0000"><B>Could\'t observe Echo Reply</B></FONT><BR>');
+	return($false);
+}
+
+
+sub
+v6LC_2_2_22_B($)
+{
+	my ($Link) = @_;
+
+	vLogHTML('<FONT COLOR="#FF0000" SIZE="5"><U><B>'.
+		'Test Procedure'.
+		'</B></U></FONT><BR>');
+
+# 1.
+# 	TR1 transmits Router Advertisement A.
+# 	TR2 transmits Router Advertisement B.
+# 	TR1 transmits Packet A,
+
+	vSend($Link, 'local_ra_tr1');
+	vSend($Link, 'local_ra_tr2');
+	
+	$tr1_cache = $true;
+	$tr1_default	= $true;
+	$tr1_prefix	= $true;
+	$tr1_force	= $true;
+	$tr2_cache = $true;
+	$tr2_default	= $true;
+	$tr2_prefix	= $true;
+	$tr2_force	= $true;
+	
+	ignoreDAD($Link);
+
+	my $bool	= $false;
+
+	vSend($Link, 'tn2_ereq_offlink_via_tr1');
+	%ret = vRecv($Link, $TimeOut, 0, 0, 'tn2_erep_offlink_via_tr2');
+	if($ret{'recvFrame'} eq 'tn2_erep_offlink_via_tr2') {
+		vLogHTML(' Observe Echo Reply to TR2<BR>');
+		vLogHTML('OK<BR>'); 
+		return($true);
+	}
+
+	vLogHTML('<FONT COLOR="#FF0000"><B>Could\'t observe Echo Reply</B></FONT><BR>');
+	return($false);
+}
+
+
+sub
+v6LC_2_2_22_C($)
+{
+	my ($Link) = @_;
+
+	vLogHTML('<FONT COLOR="#FF0000" SIZE="5"><U><B>'.
+		'Test Procedure'.
+		'</B></U></FONT><BR>');
+
+# 1.
+# 	TR1 transmits Router Advertisement A.
+# 	TR2 transmits Router Advertisement B with low preference.
+# 	TR1 transmits Packet A,
+
+	vSend($Link, 'local_ra_tr1');
+	vSend($Link, 'local_ra_tr2');
+	
+	$tr1_cache = $true;
+	$tr1_default	= $true;
+	$tr1_prefix	= $true;
+	$tr1_force	= $true;
+	$tr2_cache = $true;
+	$tr2_default	= $true;
+	$tr2_prefix	= $true;
+	$tr2_force	= $true;
+	
+	ignoreDAD($Link);
+
+
+	vSend($Link, 'tn2_ereq_offlink_via_tr1');
+	%ret = vRecv($Link, $TimeOut, 0, 0, 'tn2_erep_offlink_via_tr1');
+	if($ret{'recvFrame'} eq 'tn2_erep_offlink_via_tr1') {
+		vLogHTML(' Observe Echo Reply to TR1<BR>');
+		vLogHTML('OK<BR>'); 
+				
+	vSend($Link, 'local_ra_tr2_ex');
+	vSend($Link, 'tn2_ereq_offlink_via_tr1');
+	%ret = vRecv($Link, $TimeOut, 0, 0, 'tn2_erep_offlink_via_tr2');
+	if($ret{'recvFrame'} eq 'tn2_erep_offlink_via_tr2') {
+		vLogHTML(' Observe Echo Reply to TR1<BR>');
+		vLogHTML('OK<BR>'); 
+		return($true);
+		}
+		vLogHTML('<FONT COLOR="#FF0000"><B> Could\'t observe Echo Reply to TR2 </B></FONT><BR>');
+		return($false);
+	}
+		
+	vLogHTML('<FONT COLOR="#FF0000"><B>Could\'t observe Echo Reply to TR1</B></FONT><BR>');
+	return($false);
+}
+
+
+sub
+v6LC_2_2_22_D($)
+{
+	my ($Link) = @_;
+
+	vLogHTML('<FONT COLOR="#FF0000" SIZE="5"><U><B>'.
+		'Test Procedure'.
+		'</B></U></FONT><BR>');
+
+# 1.
+# 	TR1 transmits Router Advertisement A.
+# 	TR2 transmits Router Advertisement B with low preference.
+# 	TR1 transmits Packet A,
+
+	vSend($Link, 'local_ra_tr1');
+	vSend($Link, 'local_ra_tr2');
+	
+	$tr1_cache = $true;
+	$tr1_default	= $true;
+	$tr1_prefix	= $true;
+	$tr1_force	= $true;
+	$tr2_cache = $true;
+	$tr2_default	= $true;
+	$tr2_prefix	= $true;
+	$tr2_force	= $true;
+	
+	ignoreDAD($Link);
+
+
+	vSend($Link, 'tn2_ereq_offlink_via_tr1');
+	%ret = vRecv($Link, $TimeOut, 0, 0, 'tn2_erep_offlink_via_tr1');
+	if($ret{'recvFrame'} eq 'tn2_erep_offlink_via_tr1') {
+		vLogHTML(' Observe Echo Reply to TR1<BR>');
+		vLogHTML('OK<BR>'); 
+			
+		vSend($Link, 'local_ra_tr1_ex');
+		vSend($Link, 'tn2_ereq_offlink_via_tr1');
+		%ret = vRecv($Link, $TimeOut, 0, 0, 'tn2_erep_offlink_via_tr2');
+		if($ret{'recvFrame'} eq 'tn2_erep_offlink_via_tr2') {
+			vLogHTML(' Observe Echo Reply to TR2<BR>');
+			vLogHTML('OK<BR>'); 
+			return($true);
+		}
+			vLogHTML('<FONT COLOR="#FF0000"><B> Could\'t observe Echo Reply  to TR2</B></FONT><BR>');
+			return($false);
+	}
+		
+	vLogHTML('<FONT COLOR="#FF0000"><B>Could\'t observe Echo Reply to TR1</B></FONT><BR>');
+	return($false);
+}
+
+
+sub
+v6LC_2_2_22_E($)
+{
+	my ($Link) = @_;
+
+	vLogHTML('<FONT COLOR="#FF0000" SIZE="5"><U><B>'.
+		'Test Procedure'.
+		'</B></U></FONT><BR>');
+
+# 1.
+# 	TR1 transmits Router Advertisement A.
+# 	TR2 transmits Router Advertisement B with low preference.
+# 	TR1 transmits Packet A,
+
+	vSend($Link, 'local_ra_tr1');
+	vSend($Link, 'local_ra_tr2');
+	
+	$tr1_cache = $true;
+	$tr1_default	= $true;
+	$tr1_prefix	= $true;
+	$tr1_force	= $true;
+	$tr2_cache = $true;
+	$tr2_default	= $true;
+	$tr2_prefix	= $true;
+	$tr2_force	= $true;
+	
+	ignoreDAD($Link);
+
+	vSend($Link, 'tn2_ereq_offlink_via_tr1');
+	%ret = vRecv($Link, $TimeOut, 0, 0, 'tn2_erep_offlink_via_tr2');
+	if($ret{'recvFrame'} eq 'tn2_erep_offlink_via_tr2') {
+		vLogHTML(' Observe Echo Reply to TR1<BR>');
+		vLogHTML('OK<BR>'); 
+				
+		vSend($Link, 'local_ra_tr1_ex');
+		vSend($Link, 'tn2_ereq_offlink_via_tr1');
+		%ret = vRecv($Link, $TimeOut, 0, 0, 'tn2_erep_offlink_via_tr1');
+		if($ret{'recvFrame'} eq 'tn2_erep_offlink_via_tr1') {
+			vLogHTML(' Observe Echo Reply to TR2<BR>');
+			vLogHTML('OK<BR>'); 
+			return($true);
+		}
+			vLogHTML('<FONT COLOR="#FF0000"><B> Could\'t observe Echo Reply  to TR1</B></FONT><BR>');
+			return($false);
+	}
+		
+	vLogHTML('<FONT COLOR="#FF0000"><B>Could\'t observe Echo Reply to TR2</B></FONT><BR>');
+	return($false);
+}
+
+
+sub
+v6LC_2_2_23 ($)
+{
+	my ($Link) = @_;
+
+	vLogHTML('<FONT COLOR="#FF0000" SIZE="5"><U><B>'.
+		'Test Procedure'.
+		'</B></U></FONT><BR>');
+
+# 1.
+# 	TR1 transmits Router Advertisement A.
+# 	TR2 transmits Router Advertisement B.
+# 	TR1 transmits Packet A,
+
+	vSend($Link, 'local_ra_tr1');
+	vSend($Link, 'local_ra_tr2');
+	
+	$tr1_cache = $true;
+	$tr1_default	= $true;
+	$tr1_prefix	= $true;
+	$tr1_force	= $true;
+	$tr2_cache = $true;
+	$tr2_default	= $true;
+	$tr2_prefix	= $true;
+	$tr2_routeinfo	= $true;
+	$tr2_force	= $true;
+	
+	ignoreDAD($Link);
+
+	vSend($Link, 'tn2_ereq_offlink_via_tr1_ex');
+	%ret = vRecv($Link, $TimeOut, 0, 0, 'tn2_erep_offlink_via_tr2_ex');
+	if($ret{'recvFrame'} eq 'tn2_erep_offlink_via_tr2_ex') {
+		vLogHTML(' Observe Echo Reply to TR2<BR>');
+		vLogHTML('OK<BR>'); 
+		return($true);
+	}
+
+	vLogHTML('<FONT COLOR="#FF0000"><B>Could\'t observe Echo Reply</B></FONT><BR>');
+	return($false);
+}
+
+
+sub
+v6LC_2_2_23_C($)
+{
+	my ($Link) = @_;
+
+	vLogHTML('<FONT COLOR="#FF0000" SIZE="5"><U><B>'.
+		'Test Procedure'.
+		'</B></U></FONT><BR>');
+
+# 1.
+# 	TR1 transmits Router Advertisement A.
+# 	TR2 transmits Router Advertisement B.
+# 	TR1 transmits Packet A,
+
+	vSend($Link, 'local_ra_tr1');
+	vSend($Link, 'local_ra_tr2');
+	
+	$tr1_cache = $true;
+	$tr1_default	= $true;
+	$tr1_prefix	= $true;
+	$tr1_routeinfo	= $true;
+	$tr1_force	= $true;
+	$tr2_cache = $true;
+	$tr2_default	= $true;
+	$tr2_prefix	= $true;
+	$tr2_routeinfo	= $true;
+	$tr2_force	= $true;
+	
+	ignoreDAD($Link);
+
+	my $bool	= $false;
+
+	vSend($Link, 'tn2_ereq_offlink_via_tr2_ex');
+	%ret = vRecv($Link, $TimeOut, 0, 0, 'tn2_erep_offlink_via_tr1_ex');
+	if($ret{'recvFrame'} eq 'tn2_erep_offlink_via_tr1_ex') {
+		vLogHTML(' Observe Echo Reply to TR1<BR>');
+		vLogHTML('OK<BR>'); 
+		return($true);
+	}
+
+	vLogHTML('<FONT COLOR="#FF0000"><B>Could\'t observe Echo Reply</B></FONT><BR>');
+	return($false);
+}
+
+sub
+v6LC_2_2_23_D($)
+{
+	my ($Link) = @_;
+
+	vLogHTML('<FONT COLOR="#FF0000" SIZE="5"><U><B>'.
+		'Test Procedure'.
+		'</B></U></FONT><BR>');
+
+# 1.
+# 	TR1 transmits Router Advertisement A.
+# 	TR2 transmits Router Advertisement B.
+# 	TR1 transmits Packet A,
+
+	vSend($Link, 'local_ra_tr1');
+	vSend($Link, 'local_ra_tr2');
+	
+	$tr1_cache = $true;
+	$tr1_default	= $true;
+	$tr1_prefix	= $true;
+	$tr1_force	= $true;
+	$tr2_cache = $true;
+	$tr2_default	= $true;
+	$tr2_prefix	= $true;
+	$tr2_routeinfo	= $true;
+	$tr2_force	= $true;
+	
+	ignoreDAD($Link);
+
+	my $bool	= $false;
+
+	vSend($Link, 'tn2_ereq_offlink_via_tr1_ex96');
+	%ret = vRecv($Link, $TimeOut, 0, 0, 'tn2_erep_offlink_via_tr2_ex96');
+	if($ret{'recvFrame'} eq 'tn2_erep_offlink_via_tr2_ex96') {
+		vLogHTML(' Observe Echo Reply to TR2<BR>');
+		vLogHTML('OK<BR>'); 
+		return($true);
+	}
+
+	vLogHTML('<FONT COLOR="#FF0000"><B>Could\'t observe Echo Reply</B></FONT><BR>');
+	return($false);
+}
+
+sub
+v6LC_2_2_23_F($)
+{
+	my ($Link) = @_;
+
+	vLogHTML('<FONT COLOR="#FF0000" SIZE="5"><U><B>'.
+		'Test Procedure'.
+		'</B></U></FONT><BR>');
+
+# 1.
+# 	TR1 transmits Router Advertisement A.
+# 	TR2 transmits Router Advertisement B.
+# 	TR1 transmits Packet A,
+
+	vSend($Link, 'local_ra_tr1');
+	vSend($Link, 'local_ra_tr2');
+	
+	$tr1_cache = $true;
+	$tr1_default	= $true;
+	$tr1_prefix	= $true;
+	$tr1_routeinfo	= $true;
+	$tr1_force	= $true;
+	$tr2_cache = $true;
+	$tr2_default	= $true;
+	$tr2_prefix	= $true;
+	$tr2_routeinfo	= $true;
+	$tr2_force	= $true;
+	
+	ignoreDAD($Link);
+
+	my $bool	= $false;
+	my @frames	= sort(keys(%tr2_ucast_nd_common));
+
+	vSend($Link, 'tn2_ereq_offlink_via_tr1_ex');
+	%ret = vRecv($Link, $TimeOut, 0, 0, 'tn2_erep_offlink_via_tr2_ex');
+	if($ret{'recvFrame'} eq 'tn2_erep_offlink_via_tr2_ex') {
+		vLogHTML(' Observe Echo Reply to TR2<BR>');
+		vLogHTML('OK<BR>'); 
+				
+		vSend($Link, 'local_ra_tr1_high');
+		vSend($Link, 'tn2_ereq_offlink_via_tr1_ex');
+		%ret = vRecv($Link, $TimeOut, 0, 0, 'tn2_erep_offlink_via_tr1_ex');
+		if($ret{'recvFrame'} eq 'tn2_erep_offlink_via_tr1_ex') {
+			vLogHTML(' Observe Echo Reply to TR2<BR>');
+			vLogHTML('OK<BR>'); 
+			return($true);
+		}
+			vLogHTML('<FONT COLOR="#FF0000"><B> Could\'t observe Echo Reply  to TR1</B></FONT><BR>');
+			return($false);
+	}
+		
+	vLogHTML('<FONT COLOR="#FF0000"><B>Could\'t observe Echo Reply to TR2</B></FONT><BR>');
+	return($false);
+}
+
+sub
+v6LC_2_2_23_H ($)
+{
+	my ($Link) = @_;
+
+	vLogHTML('<FONT COLOR="#FF0000" SIZE="5"><U><B>'.
+		'Test Procedure'.
+		'</B></U></FONT><BR>');
+
+# 1.
+# 	TR1 transmits Router Advertisement A.
+# 	TR2 transmits Router Advertisement B.
+# 	TR1 transmits Packet A,
+
+	vSend($Link, 'local_ra_tr1');
+	vSend($Link, 'local_ra_tr2');
+	
+	$tr1_cache = $true;
+	$tr1_default	= $true;
+	$tr1_prefix	= $true;
+	$tr1_force	= $true;
+	$tr2_cache = $true;
+	$tr2_default	= $true;
+	$tr2_prefix	= $true;
+	$tr2_routeinfo	= $true;
+	$tr2_force	= $true;
+	
+	ignoreDAD($Link);
+
+	my $bool	= $false;
+
+	vSend($Link, 'tn2_ereq_offlink_via_tr1_ex');
+	%ret = vRecv($Link, $TimeOut, 0, 0, 'tn2_erep_offlink_via_tr1_ex');
+	if($ret{'recvFrame'} eq 'tn2_erep_offlink_via_tr1_ex') {
+		vLogHTML(' Observe Echo Reply to TR2<BR>');
+		vLogHTML('OK<BR>'); 
+		return($true);
+	}
+
+	vLogHTML('<FONT COLOR="#FF0000"><B>Could\'t observe Echo Reply</B></FONT><BR>');
+	return($false);
+}
+
+		
+sub
+v6LC_2_2_23_I($)
+{
+	my ($Link) = @_;
+	
+	$wait_time=90;
+
+	vLogHTML('<FONT COLOR="#FF0000" SIZE="5"><U><B>'.
+		'Test Procedure'.
+		'</B></U></FONT><BR>');
+
+# 1.
+# 	TR1 transmits Router Advertisement A.
+# 	TR2 transmits Router Advertisement B.
+# 	TR1 transmits Packet A,
+
+	vSend($Link, 'local_ra_tr1');
+	vSend($Link, 'local_ra_tr2');
+	
+	$tr1_cache = $true;
+	$tr1_default	= $true;
+	$tr1_prefix	= $true;
+	$tr1_routeinfo	= $true;
+	$tr1_force	= $true;
+	$tr2_cache = $true;
+	$tr2_default	= $true;
+	$tr2_prefix	= $true;
+	$tr2_routeinfo	= $true;
+	$tr2_force	= $true;
+	
+	ignoreDAD($Link);
+
+	my $bool	= $false;
+
+	vSend($Link, 'tn2_ereq_offlink_via_tr1_ex');
+	%ret = vRecv($Link, $TimeOut, 0, 0, 'tn2_erep_offlink_via_tr2_ex');
+	if($ret{'recvFrame'} eq 'tn2_erep_offlink_via_tr2_ex') {
+		vLogHTML(' Observe Echo Reply to TR2<BR>');
+		vLogHTML('OK<BR>'); 
+				
+		vSleep($wait_time);
+		my @frames = sort(keys(%tr1_nd));
+
+		vSend($Link, 'tn2_ereq_offlink_via_tr1_ex');
+		%ret = vRecv($Link, $TimeOut, 0, 0, @frames, 'tn2_erep_offlink_via_tr1_ex');
+		foreach my $frame (@frames) {
+			if($ret{'recvFrame'} eq $frame) {
+				vSend($Link, $tr1_nd{$frame});
+				%ret = vRecv($Link, $TimeOut, 0, 0, 'tn2_erep_offlink_via_tr1_ex');
+				last;
+			}
+		}
+		if($ret{'recvFrame'} eq 'tn2_erep_offlink_via_tr1_ex') {
+			vLogHTML(' Observe Echo Reply to TR1<BR>');
+			vLogHTML('OK<BR>'); 
+			return($true); 
+		}
+		vLogHTML('<FONT COLOR="#FF0000"><B> Could\'t observe Echo Reply  to TR1</B></FONT><BR>');
+		return($false);
+	}
+		
+	vLogHTML('<FONT COLOR="#FF0000"><B>Could\'t observe Echo Reply to TR2</B></FONT><BR>');
+	return($false);
+}
+
+sub
+v6LC_2_2_23_J($)     
+{
+        my ($Link) = @_;
+        
+        vLogHTML('<FONT COLOR="#FF0000" SIZE="5"><U><B>'.
+                'Test Procedure'.
+                '</B></U></FONT><BR>');
+        
+# 1.
+#       TR1 transmits Router Advertisement A.
+#       TR2 transmits Router Advertisement B.
+#       TR1 transmits Packet A,
+        
+        vSend($Link, 'local_ra_tr1');
+        vSend($Link, 'local_ra_tr2');
+       
+        $tr1_cache = $true;
+        $tr1_default    = $true;
+        $tr1_prefix     = $true;
+        $tr1_routeinfo  = $true;
+        $tr1_force      = $true;
+        $tr2_cache = $true;
+        $tr2_default    = $true;
+        $tr2_prefix     = $true;
+        $tr2_routeinfo  = $true;
+        $tr2_force      = $true;
+       
+        ignoreDAD($Link);
+
+        my $bool        = $false;
+        my @frames      = sort(keys(%tr2_ucast_nd_common));
+
+        vSend($Link, 'tn2_ereq_offlink_via_tr1_ex');
+        %ret = vRecv($Link, $TimeOut, 0, 0, 'tn2_erep_offlink_via_tr2_ex');
+        if($ret{'recvFrame'} eq 'tn2_erep_offlink_via_tr2_ex') {
+                vLogHTML(' Observe Echo Reply to TR2<BR>');
+                vLogHTML('OK<BR>');
+                       
+                vSend($Link, 'local_ra_tr2_high_0');
+                vSleep(1);
+                vSend($Link, 'tn2_ereq_offlink_via_tr1_ex');
+                %ret = vRecv($Link, $TimeOut, 0, 0, 'tn2_erep_offlink_via_tr1_ex');
+                if($ret{'recvFrame'} eq 'tn2_erep_offlink_via_tr1_ex') {
+                        vLogHTML(' Observe Echo Reply to TR2<BR>');
+                        vLogHTML('OK<BR>');
+                        return($true);
+                }
+                        vLogHTML('<FONT COLOR="#FF0000"><B> Could\'t observe Echo Reply  to TR1</B></FONT><BR>');
+                        return($false);
+        }
+       
+        vLogHTML('<FONT COLOR="#FF0000"><B>Could\'t observe Echo Reply to TR2</B></FONT><BR>');
+        return($false);
+}
+
+
+sub
+v6LC_2_2_24_A($)
+{
+	my ($Link) = @_;
+
+        $NUTif = $V6evalTool::NutDef{Link0_device};
+        $TN_LINK0_MAC_ADDRESS = $V6evalTool::TnDef{Link0_addr};
+        $dns_address = vMAC2LLAddr($TN_LINK0_MAC_ADDRESS);	
+
+
+	vLogHTML('<FONT COLOR="#FF0000" SIZE="5"><U><B>'.
+		'Test Procedure</B></U></FONT><BR>');
+
+	if(vRemote('racontrol.rmt', 'mode=start',
+		"rdnss_addr=$dns_address",
+		"link0=$V6evalTool::NutDef{'Link0_device'}")) {
+
+		vLogHTML('<FONT COLOR="#FF0000"><B>racontrol.rmt: '.
+			'Could\'t start to send RA</B></FONT><BR>');
+
+		exitFatal($Link);
+		#NOTREACHED
+	}
+
+	$rut_rtadvd			= $true;
+	$rut_rtadvd_rdnss		=$true;
+
+	my %ret = vRecv($Link, 16 * 2, 0, 0,
+		'ra_local', 'ra_sll_local', 'ra_mtu_local', 'ra_mtu_sll_local');
+	if(
+		($ret{'recvFrame'} eq 'ra_local')	||
+		($ret{'recvFrame'} eq 'ra_sll_local')	||
+		($ret{'recvFrame'} eq 'ra_mtu_local')	||
+		($ret{'recvFrame'} eq 'ra_mtu_sll_local')
+	) {
+		return($true);
+	}
+
+	vLogHTML('<FONT COLOR="#FF0000"><B>Could\'t observe RA'.
+		'</B></FONT><BR>');
+
+	return($false);
+}
+
+sub
+v6LC_2_2_24_B($)
+{
+	my ($Link) = @_;
+	my $dns_name = "test.example.com";
+
+	vLogHTML('<FONT COLOR="#FF0000" SIZE="5"><U><B>'.
+		'Test Procedure</B></U></FONT><BR>');
+
+	if(vRemote('racontrol.rmt', 'mode=start',
+		"dnssl_string=$dns_name", 
+		"link0=$V6evalTool::NutDef{'Link0_device'}")) {
+
+		vLogHTML('<FONT COLOR="#FF0000"><B>racontrol.rmt: '.
+			'Could\'t start to send RA</B></FONT><BR>');
+
+		exitFatal($Link);
+		#NOTREACHED
+	}
+
+	$rut_rtadvd			= $true;
+	$rut_rtadvd_dnssl		=$true;
+
+	my %ret = vRecv($Link, 16 * 2, 0, 0,
+		'ra_local', 'ra_sll_local', 'ra_mtu_local', 'ra_mtu_sll_local');
+	if(
+		($ret{'recvFrame'} eq 'ra_local')	||
+		($ret{'recvFrame'} eq 'ra_sll_local')	||
+		($ret{'recvFrame'} eq 'ra_mtu_local')	||
+		($ret{'recvFrame'} eq 'ra_mtu_sll_local')
+	) {
+		return($true);
+	}
+
+	vLogHTML('<FONT COLOR="#FF0000"><B>Could\'t observe RA'.
+		'</B></FONT><BR>');
+
+	return($false);
+}
+
+
+sub
+v6LC_2_2_25_A($)
+{
+	my ($Link) = @_;
+
+        vLogHTML('<FONT COLOR="#FF0000" SIZE="5"><U><B>'.
+                'Test Procedure'.
+                '</B></U></FONT><BR>');
+
+
+
+# 1.
+# 	TR1 transmits a Router Advertisement to the all-nodes multicast address.
+
+		vSend($Link, 'local_ra');
+
+		$tr1_default	= $true;
+		$tr1_prefix	= $true;
+		$tr1_force	= $true;
+		$tr1_rdnss	= $true;
+
+		ignoreDAD($Link);
+
+
+# 2.
+# 	TR1 transmits an Echo Request to the NUT
+# 	and responds to Neighbor Solicitations from the NUT.
+# 	Wait for an Echo Reply from the NUT.
+# 	This should cause the NUT to resolve the address of TR1
+# 	and create a Neighbor Cache entry for TR1 in state REACHABLE.
+
+	my $bool	= $false;
+	my $dns_name = "node1.test.example.com";
+	
+	vLog("Remote Echo Requests of NUT. ");
+	$rvalue = vRemote("ping6.rmt","","if=$Link addr=$dns_name");
+	if ($rvalue != 0) {
+		vLogHTML('<FONT COLOR="#FF0000"><B>ping6.rmt: '.
+			'Could\'t ping6</B></FONT><BR>');
+
+		return($false);
+	}
+
+	my %ret = tn_nd_vRecv_EN($Link, 5, 0, 0, 'nut_dns_squery','nut_dns_squery_ad');
+	
+	$tn1_onlink_cache = $true;
+
+	if($ret{'status'} != 0){
+		vLogHTML('<FONT COLOR="#FF0000">Cannot get DNS Query message!</FONT><BR>');
+		return($false);
+	} 
+	return($true);
+}
+
+
+sub
+v6LC_2_2_25_B($)     
+{
+        my ($Link) = @_;
+        
+        vLogHTML('<FONT COLOR="#FF0000" SIZE="5"><U><B>'.
+                'Test Procedure'.
+                '</B></U></FONT><BR>');
+        
+  
+
+# 1.
+#       TR1 transmits a Router Advertisement to the all-nodes multicast address.
+
+                vSend($Link, 'local_ra');
+
+                $tr1_default    = $true;
+                $tr1_prefix     = $true;
+                $tr1_force      = $true;
+                $tr1_rdnss      = $true;
+
+                ignoreDAD($Link);      
+        
+
+# 2.
+#       configure HUT to ping6.rmt
+
+        my $dns_name = "node1.test.example.com";
+       
+        vLog("Remote Echo Requests of NUT. ");
+        $rvalue = vRemote("ping6.rmt","","if=$Link addr=$dns_name");
+        if ($rvalue != 0) {
+                vLogHTML('<FONT COLOR="#FF0000"><B>ping6.rmt: '.
+                        'Could\'t ping6</B></FONT><BR>');
+
+                return($false);
+        }
+
+        my %ret = tn_nd_vRecv_EN($Link, $TimeOut, 0, 0, 'nut_dns_squery','nut_dns_squery_ad');
+       
+	$tn1_onlink_cache = $true;
+	if($ret{'status'} == 0){
+                vLogHTML('<FONT COLOR="#FF0000">Observed DNS Query message!</FONT><BR>');
+                return($false);
+        }
+        return($true);
+}
+
+
+sub
+v6LC_2_2_25_C($)    
+{
+        my ($Link) = @_;
+       
+        vLogHTML('<FONT COLOR="#FF0000" SIZE="5"><U><B>'.
+                'Test Procedure'.
+                '</B></U></FONT><BR>');
+       
+ 
+
+# 1.
+#       TR1 transmits a Router Advertisement to the all-nodes multicast address.
+
+                vSend($Link, 'local_ra');
+
+                $tr1_default    = $true;
+                $tr1_prefix     = $true;
+                $tr1_force      = $true;
+                $tr1_rdnss      = $true;
+
+                ignoreDAD($Link);     
+       
+
+# 2.
+#       configure HUT ping6.rmt
+
+        my $bool        = $false;
+        my $dns_name = "node1.test.example.com";
+      
+        vLog("Remote Echo Requests of NUT. ");
+        $rvalue = vRemote("ping6.rmt","","if=$Link addr=$dns_name");
+        if ($rvalue != 0) {
+                vLogHTML('<FONT COLOR="#FF0000"><B>ping6.rmt: '.
+                        'Could\'t ping6</B></FONT><BR>');
+
+                return($false);
+        }
+      
+        my %ret = tn_nd_vRecv_EN($Link, 5, 0, 0, 'nut_dns_squery','nut_dns_squery_ad');
+        $tn1_onlink_cache = $true;
+        if($ret{'status'} != 0){
+                vLogHTML('<FONT COLOR="#FF0000">Cannot get DNS Query message!</FONT><BR>');
+                return($false);
+        }
+
+# 3.
+#       wait 65 seconds
+
+        my $rdnss_time = 65;
+        vSleep($rdnss_time);
+	vClear($Link);
+# 4.
+#       configure HUT ping6.rmt
+
+        vLog("Remote Echo Requests of NUT. ");
+        $rvalue1 = vRemote("ping6.rmt","","if=$Link addr=$dns_name");
+        if ($rvalue1 != 0) {
+                vLogHTML('<FONT COLOR="#FF0000"><B>ping6.rmt: '.
+                        'Could\'t ping6</B></FONT><BR>');
+
+                return($false);
+        }
+
+        my %ret = tn_nd_vRecv_EN($Link, $TimeOut, 0, 0, 'nut_dns_squery','nut_dns_squery_ad');
+      
+        if($ret{'status'} == 0){
+                vLogHTML('<FONT COLOR="#FF0000">Observed DNS Query message!</FONT><BR>');
+                return($false);
+        }
+        return($true);
+}
+
+sub
+v6LC_2_2_25_D($)     
+{
+        my ($Link) = @_;
+        
+        vLogHTML('<FONT COLOR="#FF0000" SIZE="5"><U><B>'.
+                'Test Procedure'.
+                '</B></U></FONT><BR>');
+  
+ 
+
+# 1.
+#       TR1 transmits a Router Advertisement to the all-nodes multicast address.
+
+                vSend($Link, 'local_ra');
+
+                $tr1_default    = $true;
+                $tr1_prefix     = $true;
+                $tr1_force      = $true;
+                $tr1_dnssl      = $true;
+        
+                ignoreDAD($Link);
+
+
+# 2.
+#       configure HUT to ping6.rmt
+
+        my $dns_name = "node1";
+     
+        vLog("Remote Echo Requests of NUT. ");
+        $rvalue = vRemote("ping6.rmt","","if=$Link addr=$dns_name");
+        if ($rvalue != 0) {
+                vLogHTML('<FONT COLOR="#FF0000"><B>ping6.rmt: '.
+                        'Could\'t ping6</B></FONT><BR>');
+
+                return($false);
+        }
+
+	my %ret = tn_nd_vRecv_EN($Link, 5, 0, 0, 'nut_dns_squery','nut_dns_squery_ad');
+
+        $tn1_onlink_cache = $true;
+        if($ret{'status'} != 0){
+                vLogHTML('<FONT COLOR="#FF0000">Cannot get DNS Query message!</FONT><BR>');
+                return($false);
+        }
+        return($true);
+}
+
+sub
+v6LC_2_2_25_E($)
+{
+        my ($Link) = @_;
+       
+        vLogHTML('<FONT COLOR="#FF0000" SIZE="5"><U><B>'.
+                'Test Procedure'.
+                '</B></U></FONT><BR>');
+ 
+
+
+# 1.
+#       TR1 transmits a Router Advertisement to the all-nodes multicast address.
+
+                vSend($Link, 'local_ra');
+
+                $tr1_default    = $true;
+                $tr1_prefix     = $true;
+                $tr1_force      = $true;
+                $tr1_dnssl      = $true;
+       
+                ignoreDAD($Link);
+
+
+# 2.
+#       configure HUT to ping6.rmt
+
+        my $dns_name = "node1";
+    
+        vLog("Remote Echo Requests of NUT. ");
+        $rvalue = vRemote("ping6.rmt","","if=$Link addr=$dns_name");
+        if ($rvalue != 0) {
+                vLogHTML('<FONT COLOR="#FF0000"><B>ping6.rmt: '.
+                        'Could\'t ping6</B></FONT><BR>');
+
+                return($false);
+        }
+
+        my %ret = tn_nd_vRecv_EN($Link, 5, 0, 0, 'nut_dns_squery','nut_dns_squery_ad');
+       	$tn1_onlink_cache = $true;
+
+        if($ret{'status'} == 0 ){
+                vLogHTML('<FONT COLOR="#FF0000">Observed DNS Query message!</FONT><BR>');
+                return($false);
+        }
+        return($true);
+}
+
+sub
+v6LC_2_2_25_F($)     
+{
+        my ($Link) = @_;
+        
+        vLogHTML('<FONT COLOR="#FF0000" SIZE="5"><U><B>'.
+                'Test Procedure'.
+                '</B></U></FONT><BR>');
+
+ 
+
+# 1.
+#       TR1 transmits a Router Advertisement to the all-nodes multicast address.
+
+                vSend($Link, 'local_ra');
+
+                $tr1_default    = $true;
+                $tr1_prefix     = $true;
+                $tr1_force      = $true;
+                $tr1_dnssl      = $true;
+        
+                ignoreDAD($Link);
+        
+
+# 2.
+#       configure HUT ping6.rmt
+
+        my $bool        = $false;
+        my $dns_name = "node1";
+     
+        vLog("Remote Echo Requests of NUT. ");
+        $rvalue = vRemote("ping6.rmt","","if=$Link addr=$dns_name");
+        if ($rvalue != 0) {
+                vLogHTML('<FONT COLOR="#FF0000"><B>ping6.rmt: '.
+                        'Could\'t ping6</B></FONT><BR>');
+
+                return($false);
+        }
+
+#        my %ret = vRecv($Link, $TimeOut, 0, 0, @frames, 'nut_dns_squery','nut_dns_squery_ad');
+#        if($ret{'status'} != 0 ){
+#                vLogHTML('<FONT COLOR="#FF0000">Cannot get DNS Query message!</FONT><BR>');
+#                return($false);
+#        }
+
+        my %ret = tn_nd_vRecv_EN($Link, 5, 0, 0, 'nut_dns_squery','nut_dns_squery_ad');
+        $tn1_onlink_cache = $true;     
+
+        if($ret{'status'} != 0){
+                vLogHTML('<FONT COLOR="#FF0000">Cannot get DNS Query message!</FONT><BR>');
+                return($false);
+        }
+
+# 3.
+#       wait 65 seconds
+       
+        my $dnssl_time = 65;
+        vSleep($dnssl_time);
+	vClear($Link);
+# 4.
+#       configure HUT ping6.rmt
+       
+        vLog("Remote Echo Requests of NUT. ");
+        $rvalue1 = vRemote("ping6.rmt","","if=$Link addr=$dns_name");
+        if ($rvalue1 != 0) {
+                vLogHTML('<FONT COLOR="#FF0000"><B>ping6.rmt: '.
+                        'Could\'t ping6</B></FONT><BR>');
+
+                return($false);
+        }
+
+        my %ret = tn_nd_vRecv_EN($Link, 5, 0, 0, 'nut_dns_squery','nut_dns_squery_ad');
+
+        if($ret{'status'} == 0){
+                vLogHTML('<FONT COLOR="#FF0000">Observed DNS Query message!</FONT><BR>');  
+                return($false);
+        }
+       
+        return($true);
+}
+
+
+#------------------------------#
+# v6LC_2_2_26_A()                 #
+#------------------------------#
+sub
+v6LC_2_2_26_A($)
+{
+	my ($Link) = @_;
+
+	vLogHTML('<FONT COLOR="#FF0000" SIZE="5"><U><B>'.
+		'Test Procedure'.
+		'</B></U></FONT><BR>');
+
+# 1.
+# 	TN1 transmits Router Adv A.
+# 	The Destination Address is nut link-local.
+
+	vSend($Link, 'local_ra_all');
+
+# 2.
+# 	Wait (RETRANS_TIMER * MAX_*CAST_SOLICIT).  (3 seconds)
+
+	vRecv($Link, $RETRANS_TIMER * $MAX_UNICAST_SOLICIT, 0, 0);
+
+# 3.
+# 	TN1 transmits a link-local Echo Request to the HUT.
+
+        vSend($Link, 'tr1_ereq_common');
+
+# 4.
+# 	Wait 2 seconds.
+
+# 5.
+# 	Observe the packets transmitted by the HUT.
+
+	return(is_tr1_incomplete($Link));
+}
+
+#------------------------------#
+# v6LC_2_2_26_B()              #
+#------------------------------#
+sub
+v6LC_2_2_26_B($)
+{
+	my ($Link) = @_;
+
+	vLogHTML('<FONT COLOR="#FF0000" SIZE="5"><U><B>'.
+		'Test Procedure'.
+		'</B></U></FONT><BR>');
+
+        unless(startToRtAdv($Link)) {
+                return($false);
+        }
+
+# 1.
+# 	TN1 transmits Router Adv A.
+# 	The Destination Address is nut link-local.
+
+	vSend($Link, 'rs_local_all');
+
+# 2.   
+#       Observe the packets transmitted by the RUT.
+
+        my %ret = vRecv($Link, $MAX_RA_DELAY_TIME + 1, 0, 0, 'ucast_ra_any');
+        if($ret{'recvFrame'} eq 'ucast_ra_any') {
+                vLogHTML('<FONT COLOR="#FF0000"><B>'.
+                        'Observe RA'.
+                        '</B></FONT><BR>');
+                return($false);
+        }
+
+# 3.
+# 	TN1 transmits a link-local Echo Request to the HUT.
+
+        vSend($Link, 'tn1_ereq_common');
+
+# 4.
+# 	Wait 2 seconds.
+
+# 5.
+# 	Observe the packets transmitted by the HUT.
+
+	return(is_tn1_incomplete($Link));
+}
+
+
+
+#------------------------------#
+# v6LC_2_2_27_A()              #
+#------------------------------#
+sub
+v6LC_2_2_27_A($)
+{
+        my ($Link) = @_;
+
+        vLogHTML('<FONT COLOR="#FF0000" SIZE="5"><U><B>'.
+                'Test Procedure'.
+                '</B></U></FONT><BR>');
+
+# 1.
+#       TN1 transmits Router Adv A.
+#       The Destination Address is nut link-local.
+
+        vSend($Link, 'local_ra_1st');
+        vSend($Link, 'local_ra_2nd');
+
+# 2.
+#       Wait (RETRANS_TIMER * MAX_*CAST_SOLICIT).  (3 seconds)
+
+        vRecv($Link, $RETRANS_TIMER * $MAX_UNICAST_SOLICIT, 0, 0);
+
+# 3.
+#       TN1 transmits a link-local Echo Request to the HUT.
+
+        vSend($Link, 'tr1_ereq_common');
+
+# 4.
+#       Wait 2 seconds.
+
+# 5.
+#       Observe the packets transmitted by the HUT.
+
+        return(is_tr1_incomplete($Link));
+}
+
+#------------------------------#
+# v6LC_2_2_27_B()              #
+#------------------------------#
+sub
+v6LC_2_2_27_B($)
+{
+        my ($Link) = @_;
+
+        vLogHTML('<FONT COLOR="#FF0000" SIZE="5"><U><B>'.
+                'Test Procedure'.
+                '</B></U></FONT><BR>');
+
+        unless(startToRtAdv($Link)) {
+                return($false);
+        }
+
+# 1.
+#       TN1 transmits Router Adv A.
+#       The Destination Address is nut link-local.
+
+        vSend($Link, 'rs_local_1st');
+        vSend($Link, 'rs_local_2nd');
+
+# 2.  
+#       Observe the packets transmitted by the RUT.
+
+        my %ret = vRecv($Link, $MAX_RA_DELAY_TIME + 1, 0, 0, 'ucast_ra_any');
+        if($ret{'recvFrame'} eq 'ucast_ra_any') {
+                vLogHTML('<FONT COLOR="#FF0000"><B>'.
+                        'Observe RA'.
+                        '</B></FONT><BR>');
+                return($false);
+        }
+
+# 3.
+#       TN1 transmits a link-local Echo Request to the HUT.
+
+        vSend($Link, 'tn1_ereq_common');
+
+# 4.
+#       Wait 2 seconds.
+
+# 5.
+#       Observe the packets transmitted by the HUT.
+
+        return(is_tn1_incomplete($Link));
+}
 
 
 #--------------------------------------------------------------#

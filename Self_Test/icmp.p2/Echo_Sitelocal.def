@@ -44,13 +44,25 @@
 // $TAHI: ct/icmp.p2/Echo_Sitelocal.def,v 1.2 2008/03/27 06:35:37 akisada Exp $
 //
 
-#ifdef _GLOBAL0_UCAST_PRFX
-#undef _GLOBAL0_UCAST_PRFX
-#endif	// _GLOBAL0_UCAST_PRFX
+//#ifdef _GLOBAL0_UCAST_PRFX
+//#undef _GLOBAL0_UCAST_PRFX
+//#endif	// _GLOBAL0_UCAST_PRFX
 
-#define _GLOBAL0_UCAST_PRFX "fec0::"
+#define _GLOBAL0_UCAST_PRFX_FEC0 "fec0::"
 
 #include "icmp.def"
+
+#ifdef NUT_GLOBAL
+#undef NUT_GLOBAL
+#endif	// NUT_GLOBAL
+
+#define NUT_GLOBAL v6merge( _GLOBAL0_UCAST_PRFX_FEC0, _GLOBAL0_UCAST_PRFXLEN, nut3v6())
+
+#ifdef TN_GLOBAL
+#undef TN_GLOBAL
+#endif	// TN_GLOBAL
+
+#define TN_GLOBAL v6merge( _GLOBAL0_UCAST_PRFX_FEC0, _GLOBAL0_UCAST_PRFXLEN, v6("::1"))
 
 FEM_icmp6_ns(
 	dummy,
@@ -60,19 +72,11 @@ FEM_icmp6_ns(
 		_SRC(v6(_UNSPEC_ADDR));
 		_DST(
 			_IPV6_SOLNODE_MCAST(
-				v6merge(
-					_GLOBAL0_UCAST_PRFX,
-					_GLOBAL0_UCAST_PRFXLEN,
-					nutv6()
-				)
+				NUT_GLOBAL
 			)
 		);
 	},
 	{
-		TargetAddress	= v6merge(
-							_GLOBAL0_UCAST_PRFX,
-							_GLOBAL0_UCAST_PRFXLEN,
-							nutv6()
-						);
+		TargetAddress	= NUT_GLOBAL;
 	}
 )

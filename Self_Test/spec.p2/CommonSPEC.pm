@@ -1,5 +1,5 @@
 #
-# $Name: V6LC_5_0_0 $
+# $Name: V6LC_5_0_3 $
 #
 # Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010
 # Yokogawa Electric Corporation.
@@ -56,6 +56,7 @@ use Exporter;
 	specReboot
 	nd_vRecv_EN
 	nd_vRecv_IN
+	tr_nd_vRecv_IN
 	nr_vRecv_EN
 	writefragdef
 	setup11
@@ -64,6 +65,9 @@ use Exporter;
 	cleanup
 	cleanup_v6LC_1_3_2
 	cleanup_v6LC_1_3_2_D
+	cleanup_v6LC_1_1_11_A
+	cleanup_v6LC_1_1_11_B
+	cleanup_v6LC_1_1_11_C
 	%pktdesc
 	);
 
@@ -143,9 +147,17 @@ $Failure = 1;
 	'na_l2l_tr1'     => 'Send Neighbor Advertisement (link-local to link-local) ',
 	'na_l2g_tr1'     => 'Send Neighbor Advertisement (link-local to global) ',
 
+        'ns_l2l_tr2'     => 'Recv Neighbor Solicitation (link-local to link-local) ',
+        'ns_g2l_tr2'     => 'Recv Neighbor Solicitation (global to link-local) ',
+        'na_l2l_tr2'     => 'Send Neighbor Advertisement (link-local to link-local) ',
+        'na_l2g_tr2'     => 'Send Neighbor Advertisement (link-local to global) ',
+
 	'cleanup_ra_tr1' => 'Send Router Advertisement (cleanup)',
 	'cleanup_echo_request_tr1' => 'Send Echo Request From TR1 (cleanup)',
 	'cleanup_na_tr1' => 'Send Neighbor Advertisement (cleanup) ',
+
+        'cleanup_echo_request_tr2' => 'Send Echo Request From TR2 (cleanup)',
+        'cleanup_na_tr2' => 'Send Neighbor Advertisement (cleanup) ',
 );
 
 #--- NS/NA correspondence
@@ -178,6 +190,14 @@ $Failure = 1;
 		'u_ns_g2g_link1'	=> 'na_g2g_link1',
 		'u_ns_g2g_wo_link1'	=> 'na_g2g_link1',
 	},
+);
+
+#--- NS/NA for TR1 and TR2 for 1.1.11
+%tr_nd=(
+        'ns_l2l_tr1'	=> 'na_l2l_tr1',
+        'ns_g2l_tr1'	=> 'na_l2g_tr1',
+	'ns_l2l_tr2'	=> 'na_l2l_tr2',
+        'ns_g2l_tr2'	=> 'na_l2g_tr2',
 );
 
 
@@ -285,6 +305,31 @@ sub nd_vRecv_IN {
 	return (%ret);
 }
 
+
+sub tr_nd_vRecv_IN {
+        my($IF, $timeout, $seektime, $count, @frames) = @_;
+        my(%ret, @recv);
+
+        while (1) {
+                %ret = desc_vRecv($IF, $timeout, $seektime, $count, $#frames + 1, @frames, sort(keys(%tr_nd)));
+
+                if ($ret{'status'} == 0) {
+                        @recv = grep {$ret{'recvFrame'} eq $_} @frames;
+                        if ($recv[0]) {
+                                last;
+                        }
+
+                        @recv = grep {$ret{'recvFrame'} eq $_} sort(keys(%tr_nd));
+                        if ($recv[0]) {
+                                desc_vSend($IF, $tr_nd{$recv[0]});
+                        }
+                } else {
+                        last;
+                }
+        }
+
+        return (%ret);
+}
 
 #===============================================================
 # nr_vRecv_EN(LinkN, timeout, frame...)
@@ -632,6 +677,215 @@ sub setup11_v6LC_1_3_2 {
 	return ($Success);
 }
 
+#=================================
+# cleanup_v6LC_1_1_11_A
+#=================================
+sub cleanup_v6LC_1_1_11_A {
+        my($IF) = @_;
+        my($ret);
+
+        vLogHTML('--- Cleanup NUT<BR>');
+
+        if ($cleanup eq 'normal') {
+
+                if($V6evalTool::NutDef{'Type'} eq 'router') {
+                        if(vRemote(
+                                           'route.rmt',
+                                           'cmd=delete',
+                                           'prefix=default',
+                                           "gateway=fe80::200:ff:fe00:a0a0",
+                                           "if=$V6evalTool::NutDef{'Link0_device'}"
+                                          )) {
+                                vLogHTML('<FONT COLOR="#FF0000"><B>'.
+                                                 'route.rmt: Could\'t '.
+                                                 'delete the route'.
+                                                 '</B></FONT><BR>');
+                                return($false);
+                        }
+						if(vRemote(
+                                           'route.rmt',
+                                           'cmd=delete',
+                                           'prefix=3ffe:501:ffff:0:8000::',
+					   'prefixlen=65',
+                                           "gateway=fe80::200:ff:fe00:a1a1",
+                                           "if=$V6evalTool::NutDef{'Link0_device'}"
+                                          )) {
+                                vLogHTML('<FONT COLOR="#FF0000"><B>'.
+                                                 'route.rmt: Could\'t '.
+                                                 'delete the route'.
+                                                 '</B></FONT><BR>');
+                                return($false);
+                        }
+                }
+
+                vSend($IF, 'cleanup_na_tr1');
+                vSend($IF, 'cleanup_echo_request_tr1');
+                vLogHTML("Wait for transit target Neighbor Cache Entry to INCOMPLETE/NONCE ($wait_incomplete sec.)<BR>");
+                vRecv($IF, $wait_incomplete, 0, 0);
+                vSend($IF, 'cleanup_na_tr2');
+                vSend($IF, 'cleanup_echo_request_tr2');
+                vLogHTML("Wait for transit target Neighbor Cache Entry to INCOMPLETE/NONCE ($wait_incomplete sec.)<BR>");
+                vRecv($IF, $wait_incomplete, 0, 0);
+        } elsif ($cleanup eq 'reboot') {
+                $ret = specReboot();
+                vSleep($sleep_after_reboot);
+                if ($ret) {
+                        $ret = $Failure;
+                } else {
+                        $ret = $Success;
+                }
+        } elsif ($cleanup eq 'nothing') {
+                vSleep($cleanup_interval);
+                $ret = $Success;
+        } else {
+                vLogHTML("unrecognized cleanup keyword ``$cleanup'' in config.pl<BR>");
+                $ret = $Failure;
+        }
+
+        return ($ret);
+}
+
+
+#=================================
+# cleanup_v6LC_1_1_11_B
+#=================================
+sub cleanup_v6LC_1_1_11_B {
+        my($IF) = @_;
+        my($ret);
+        
+        vLogHTML('--- Cleanup NUT<BR>');
+        
+        if ($cleanup eq 'normal') {
+                
+                if($V6evalTool::NutDef{'Type'} eq 'router') {
+                        if(vRemote(
+                                           'route.rmt',
+                                           'cmd=delete',
+                                           'prefix=default',
+                                           "gateway=fe80::200:ff:fe00:a0a0",
+                                           "if=$V6evalTool::NutDef{'Link0_device'}"
+                                          )) {
+                                vLogHTML('<FONT COLOR="#FF0000"><B>'.
+                                                 'route.rmt: Could\'t '.
+                                                 'delete the route'.
+                                                 '</B></FONT><BR>');
+                                return($false);
+                        }
+                                                if(vRemote(
+                                           'route.rmt',
+                                           'cmd=delete',
+                                           'prefix=3ffe:501:ffff:0:0:1::',
+                                           'prefixlen=96',
+                                           "gateway=fe80::200:ff:fe00:a1a1",
+                                           "if=$V6evalTool::NutDef{'Link0_device'}"
+                                          )) {
+                                vLogHTML('<FONT COLOR="#FF0000"><B>'.
+                                                 'route.rmt: Could\'t '.
+                                                 'delete the route'.
+                                                 '</B></FONT><BR>');
+                                return($false);
+                        }
+                }
+
+                vSend($IF, 'cleanup_na_tr1');
+                vSend($IF, 'cleanup_echo_request_tr1');
+                vLogHTML("Wait for transit target Neighbor Cache Entry to INCOMPLETE/NONCE ($wait_incomplete sec.)<BR
+>");
+                vRecv($IF, $wait_incomplete, 0, 0);
+                vSend($IF, 'cleanup_na_tr2');
+                vSend($IF, 'cleanup_echo_request_tr2');
+                vLogHTML("Wait for transit target Neighbor Cache Entry to INCOMPLETE/NONCE ($wait_incomplete sec.)<BR
+>");
+                vRecv($IF, $wait_incomplete, 0, 0);
+        } elsif ($cleanup eq 'reboot') {
+                $ret = specReboot();
+                vSleep($sleep_after_reboot);
+                if ($ret) {
+                        $ret = $Failure;
+                } else {
+                        $ret = $Success;
+                }
+        } elsif ($cleanup eq 'nothing') {
+                vSleep($cleanup_interval);
+                $ret = $Success;
+        } else {
+                vLogHTML("unrecognized cleanup keyword ``$cleanup'' in config.pl<BR>");
+                $ret = $Failure;
+        }
+
+        return ($ret);
+}
+
+
+#=================================
+# cleanup_v6LC_1_1_11_C
+#=================================
+sub cleanup_v6LC_1_1_11_C {
+        my($IF) = @_;
+        my($ret);
+
+        vLogHTML('--- Cleanup NUT<BR>');
+
+        if ($cleanup eq 'normal') {
+
+                if($V6evalTool::NutDef{'Type'} eq 'router') {
+                        if(vRemote(
+                                           'route.rmt',
+                                           'cmd=delete',
+                                           'prefix=default',
+                                           "gateway=fe80::200:ff:fe00:a0a0",
+                                           "if=$V6evalTool::NutDef{'Link0_device'}"
+                                          )) {
+                                vLogHTML('<FONT COLOR="#FF0000"><B>'.
+                                                 'route.rmt: Could\'t '.
+                                                 'delete the route'.
+                                                 '</B></FONT><BR>');
+                                return($false);
+                        }
+                                                if(vRemote(
+                                           'route.rmt',
+                                           'cmd=delete',
+                                           'prefix=3ffe:501:ffff:0:0:0:0:2',
+                                           'prefixlen=127',
+                                           "gateway=fe80::200:ff:fe00:a1a1",
+                                           "if=$V6evalTool::NutDef{'Link0_device'}"
+                                          )) {
+                                vLogHTML('<FONT COLOR="#FF0000"><B>'.
+                                                 'route.rmt: Could\'t '.
+                                                 'delete the route'.
+                                                 '</B></FONT><BR>');
+                                return($false);
+                        }
+                }
+
+                vSend($IF, 'cleanup_na_tr1');
+                vSend($IF, 'cleanup_echo_request_tr1');
+                vLogHTML("Wait for transit target Neighbor Cache Entry to INCOMPLETE/NONCE ($wait_incomplete sec.)<BR
+>");
+                vRecv($IF, $wait_incomplete, 0, 0);
+                vSend($IF, 'cleanup_na_tr2');
+                vSend($IF, 'cleanup_echo_request_tr2');
+                vLogHTML("Wait for transit target Neighbor Cache Entry to INCOMPLETE/NONCE ($wait_incomplete sec.)<BR
+>");
+                vRecv($IF, $wait_incomplete, 0, 0);
+        } elsif ($cleanup eq 'reboot') {
+                $ret = specReboot();
+                vSleep($sleep_after_reboot);
+                if ($ret) {
+                        $ret = $Failure;
+                } else {
+                        $ret = $Success;
+                }
+        } elsif ($cleanup eq 'nothing') {
+                vSleep($cleanup_interval);
+                $ret = $Success;
+        } else {
+                vLogHTML("unrecognized cleanup keyword ``$cleanup'' in config.pl<BR>");
+                $ret = $Failure;
+        }
+
+        return ($ret);
+}
 
 #=================================
 # cleanup_v6LC_1_3_2

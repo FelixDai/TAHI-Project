@@ -41,7 +41,7 @@
 // IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-// $Name: V6LC_5_0_0 $
+// $Name: V6LC_5_0_3 $
 //
 // $TAHI: ct/spec.p2/FH_BigPayload.def,v 1.2 2005/01/06 06:49:57 akisada Exp $
 //
@@ -54,7 +54,7 @@ FEM_icmp6_ns(
 	ns,
 	_HETHER_nut2tnsolnode,
 	{
-		_SRC(oneof(nutv6(),nut2v6(_GLOBAL0_UCAST_PRFX,_GLOBAL0_UCAST_PRFXLEN,"Link0")));
+		_SRC(oneof(nut3v6(),nut4v6("Link0")));
 		_DST(_IPV6_SOLNODE_MCAST(tnv6()));
 		HopLimit = 255;
 	},
@@ -69,7 +69,7 @@ FEM_icmp6_na(
 	_HETHER_tn2nut,
 	{
 		_SRC(tnv6());
-		_DST(nutv6());
+		_DST(nut3v6());
 		HopLimit = 255;
 	},
 	{
@@ -90,7 +90,7 @@ FEM_icmp6_echo_request(
 	_HETHER_tn2nut,
 	{
 		_SRC(tnv6());
-		_DST(nutv6());
+		_DST(nut3v6());
 	},
 	{
 		payload = echo_data;
@@ -105,7 +105,7 @@ FEM_icmp6_echo_reply(
 	echo_reply,
 	_HETHER_nut2tn,
 	{
-		_SRC(nutv6());
+		_SRC(nut3v6());
 		_DST(tnv6());
 	},
 	{
@@ -131,7 +131,7 @@ FEM_icmp6_echo_request(
 	_HETHER_tn2nut,
 	{
 		_SRC(tnv6());
-		_DST(nutv6());
+		_DST(nut3v6());
 	},
 	{
 		payload = echo_data_big;
@@ -146,7 +146,7 @@ FEM_icmp6_echo_reply(
 	echo_reply_big,
 	_HETHER_nut2tn,
 	{
-		_SRC(nutv6());
+		_SRC(nut3v6());
 		_DST(tnv6());
 	},
 	{
@@ -213,97 +213,97 @@ Payload echo_data_big {
 // ICMP echo request
 //
 
-FEM_hdr_ipv6_exth( echo_request_1, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nutv6()); },
+FEM_hdr_ipv6_exth( echo_request_1, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nut3v6()); },
 	{ header = _HDR_IPV6_NAME(echo_request_1); exthdr = frag_req_1; upper = request_1; })
-FEM_hdr_ipv6_exth( echo_request_2, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nutv6()); },
+FEM_hdr_ipv6_exth( echo_request_2, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nut3v6()); },
 	{ header = _HDR_IPV6_NAME(echo_request_2); exthdr = frag_req_2; upper = request_2; })
-FEM_hdr_ipv6_exth( echo_request_3, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nutv6()); },
+FEM_hdr_ipv6_exth( echo_request_3, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nut3v6()); },
 	{ header = _HDR_IPV6_NAME(echo_request_3); exthdr = frag_req_3; upper = request_3; })
-FEM_hdr_ipv6_exth( echo_request_4, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nutv6()); },
+FEM_hdr_ipv6_exth( echo_request_4, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nut3v6()); },
 	{ header = _HDR_IPV6_NAME(echo_request_4); exthdr = frag_req_4; upper = request_4; })
-FEM_hdr_ipv6_exth( echo_request_5, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nutv6()); },
+FEM_hdr_ipv6_exth( echo_request_5, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nut3v6()); },
 	{ header = _HDR_IPV6_NAME(echo_request_5); exthdr = frag_req_5; upper = request_5; })
-FEM_hdr_ipv6_exth( echo_request_6, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nutv6()); },
+FEM_hdr_ipv6_exth( echo_request_6, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nut3v6()); },
 	{ header = _HDR_IPV6_NAME(echo_request_6); exthdr = frag_req_6; upper = request_6; })
-FEM_hdr_ipv6_exth( echo_request_7, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nutv6()); },
+FEM_hdr_ipv6_exth( echo_request_7, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nut3v6()); },
 	{ header = _HDR_IPV6_NAME(echo_request_7); exthdr = frag_req_7; upper = request_7; })
-FEM_hdr_ipv6_exth( echo_request_8, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nutv6()); },
+FEM_hdr_ipv6_exth( echo_request_8, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nut3v6()); },
 	{ header = _HDR_IPV6_NAME(echo_request_8); exthdr = frag_req_8; upper = request_8; })
-FEM_hdr_ipv6_exth( echo_request_9, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nutv6()); },
+FEM_hdr_ipv6_exth( echo_request_9, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nut3v6()); },
 	{ header = _HDR_IPV6_NAME(echo_request_9); exthdr = frag_req_9; upper = request_9; })
-FEM_hdr_ipv6_exth( echo_request_10, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nutv6()); },
+FEM_hdr_ipv6_exth( echo_request_10, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nut3v6()); },
 	{ header = _HDR_IPV6_NAME(echo_request_10); exthdr = frag_req_10; upper = request_10; })
-FEM_hdr_ipv6_exth( echo_request_11, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nutv6()); },
+FEM_hdr_ipv6_exth( echo_request_11, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nut3v6()); },
 	{ header = _HDR_IPV6_NAME(echo_request_11); exthdr = frag_req_11; upper = request_11; })
-FEM_hdr_ipv6_exth( echo_request_12, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nutv6()); },
+FEM_hdr_ipv6_exth( echo_request_12, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nut3v6()); },
 	{ header = _HDR_IPV6_NAME(echo_request_12); exthdr = frag_req_12; upper = request_12; })
-FEM_hdr_ipv6_exth( echo_request_13, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nutv6()); },
+FEM_hdr_ipv6_exth( echo_request_13, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nut3v6()); },
 	{ header = _HDR_IPV6_NAME(echo_request_13); exthdr = frag_req_13; upper = request_13; })
-FEM_hdr_ipv6_exth( echo_request_14, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nutv6()); },
+FEM_hdr_ipv6_exth( echo_request_14, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nut3v6()); },
 	{ header = _HDR_IPV6_NAME(echo_request_14); exthdr = frag_req_14; upper = request_14; })
-FEM_hdr_ipv6_exth( echo_request_15, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nutv6()); },
+FEM_hdr_ipv6_exth( echo_request_15, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nut3v6()); },
 	{ header = _HDR_IPV6_NAME(echo_request_15); exthdr = frag_req_15; upper = request_15; })
-FEM_hdr_ipv6_exth( echo_request_16, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nutv6()); },
+FEM_hdr_ipv6_exth( echo_request_16, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nut3v6()); },
 	{ header = _HDR_IPV6_NAME(echo_request_16); exthdr = frag_req_16; upper = request_16; })
-FEM_hdr_ipv6_exth( echo_request_17, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nutv6()); },
+FEM_hdr_ipv6_exth( echo_request_17, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nut3v6()); },
 	{ header = _HDR_IPV6_NAME(echo_request_17); exthdr = frag_req_17; upper = request_17; })
-FEM_hdr_ipv6_exth( echo_request_18, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nutv6()); },
+FEM_hdr_ipv6_exth( echo_request_18, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nut3v6()); },
 	{ header = _HDR_IPV6_NAME(echo_request_18); exthdr = frag_req_18; upper = request_18; })
-FEM_hdr_ipv6_exth( echo_request_19, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nutv6()); },
+FEM_hdr_ipv6_exth( echo_request_19, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nut3v6()); },
 	{ header = _HDR_IPV6_NAME(echo_request_19); exthdr = frag_req_19; upper = request_19; })
-FEM_hdr_ipv6_exth( echo_request_20, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nutv6()); },
+FEM_hdr_ipv6_exth( echo_request_20, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nut3v6()); },
 	{ header = _HDR_IPV6_NAME(echo_request_20); exthdr = frag_req_20; upper = request_20; })
-FEM_hdr_ipv6_exth( echo_request_21, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nutv6()); },
+FEM_hdr_ipv6_exth( echo_request_21, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nut3v6()); },
 	{ header = _HDR_IPV6_NAME(echo_request_21); exthdr = frag_req_21; upper = request_21; })
-FEM_hdr_ipv6_exth( echo_request_22, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nutv6()); },
+FEM_hdr_ipv6_exth( echo_request_22, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nut3v6()); },
 	{ header = _HDR_IPV6_NAME(echo_request_22); exthdr = frag_req_22; upper = request_22; })
-FEM_hdr_ipv6_exth( echo_request_23, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nutv6()); },
+FEM_hdr_ipv6_exth( echo_request_23, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nut3v6()); },
 	{ header = _HDR_IPV6_NAME(echo_request_23); exthdr = frag_req_23; upper = request_23; })
-FEM_hdr_ipv6_exth( echo_request_24, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nutv6()); },
+FEM_hdr_ipv6_exth( echo_request_24, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nut3v6()); },
 	{ header = _HDR_IPV6_NAME(echo_request_24); exthdr = frag_req_24; upper = request_24; })
-FEM_hdr_ipv6_exth( echo_request_25, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nutv6()); },
+FEM_hdr_ipv6_exth( echo_request_25, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nut3v6()); },
 	{ header = _HDR_IPV6_NAME(echo_request_25); exthdr = frag_req_25; upper = request_25; })
-FEM_hdr_ipv6_exth( echo_request_26, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nutv6()); },
+FEM_hdr_ipv6_exth( echo_request_26, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nut3v6()); },
 	{ header = _HDR_IPV6_NAME(echo_request_26); exthdr = frag_req_26; upper = request_26; })
-FEM_hdr_ipv6_exth( echo_request_27, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nutv6()); },
+FEM_hdr_ipv6_exth( echo_request_27, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nut3v6()); },
 	{ header = _HDR_IPV6_NAME(echo_request_27); exthdr = frag_req_27; upper = request_27; })
-FEM_hdr_ipv6_exth( echo_request_28, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nutv6()); },
+FEM_hdr_ipv6_exth( echo_request_28, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nut3v6()); },
 	{ header = _HDR_IPV6_NAME(echo_request_28); exthdr = frag_req_28; upper = request_28; })
-FEM_hdr_ipv6_exth( echo_request_29, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nutv6()); },
+FEM_hdr_ipv6_exth( echo_request_29, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nut3v6()); },
 	{ header = _HDR_IPV6_NAME(echo_request_29); exthdr = frag_req_29; upper = request_29; })
-FEM_hdr_ipv6_exth( echo_request_30, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nutv6()); },
+FEM_hdr_ipv6_exth( echo_request_30, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nut3v6()); },
 	{ header = _HDR_IPV6_NAME(echo_request_30); exthdr = frag_req_30; upper = request_30; })
-FEM_hdr_ipv6_exth( echo_request_31, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nutv6()); },
+FEM_hdr_ipv6_exth( echo_request_31, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nut3v6()); },
 	{ header = _HDR_IPV6_NAME(echo_request_31); exthdr = frag_req_31; upper = request_31; })
-FEM_hdr_ipv6_exth( echo_request_32, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nutv6()); },
+FEM_hdr_ipv6_exth( echo_request_32, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nut3v6()); },
 	{ header = _HDR_IPV6_NAME(echo_request_32); exthdr = frag_req_32; upper = request_32; })
-FEM_hdr_ipv6_exth( echo_request_33, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nutv6()); },
+FEM_hdr_ipv6_exth( echo_request_33, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nut3v6()); },
 	{ header = _HDR_IPV6_NAME(echo_request_33); exthdr = frag_req_33; upper = request_33; })
-FEM_hdr_ipv6_exth( echo_request_34, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nutv6()); },
+FEM_hdr_ipv6_exth( echo_request_34, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nut3v6()); },
 	{ header = _HDR_IPV6_NAME(echo_request_34); exthdr = frag_req_34; upper = request_34; })
-FEM_hdr_ipv6_exth( echo_request_35, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nutv6()); },
+FEM_hdr_ipv6_exth( echo_request_35, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nut3v6()); },
 	{ header = _HDR_IPV6_NAME(echo_request_35); exthdr = frag_req_35; upper = request_35; })
-FEM_hdr_ipv6_exth( echo_request_36, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nutv6()); },
+FEM_hdr_ipv6_exth( echo_request_36, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nut3v6()); },
 	{ header = _HDR_IPV6_NAME(echo_request_36); exthdr = frag_req_36; upper = request_36; })
-FEM_hdr_ipv6_exth( echo_request_37, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nutv6()); },
+FEM_hdr_ipv6_exth( echo_request_37, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nut3v6()); },
 	{ header = _HDR_IPV6_NAME(echo_request_37); exthdr = frag_req_37; upper = request_37; })
-FEM_hdr_ipv6_exth( echo_request_38, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nutv6()); },
+FEM_hdr_ipv6_exth( echo_request_38, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nut3v6()); },
 	{ header = _HDR_IPV6_NAME(echo_request_38); exthdr = frag_req_38; upper = request_38; })
-FEM_hdr_ipv6_exth( echo_request_39, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nutv6()); },
+FEM_hdr_ipv6_exth( echo_request_39, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nut3v6()); },
 	{ header = _HDR_IPV6_NAME(echo_request_39); exthdr = frag_req_39; upper = request_39; })
-FEM_hdr_ipv6_exth( echo_request_40, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nutv6()); },
+FEM_hdr_ipv6_exth( echo_request_40, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nut3v6()); },
 	{ header = _HDR_IPV6_NAME(echo_request_40); exthdr = frag_req_40; upper = request_40; })
-FEM_hdr_ipv6_exth( echo_request_41, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nutv6()); },
+FEM_hdr_ipv6_exth( echo_request_41, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nut3v6()); },
 	{ header = _HDR_IPV6_NAME(echo_request_41); exthdr = frag_req_41; upper = request_41; })
-FEM_hdr_ipv6_exth( echo_request_42, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nutv6()); },
+FEM_hdr_ipv6_exth( echo_request_42, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nut3v6()); },
 	{ header = _HDR_IPV6_NAME(echo_request_42); exthdr = frag_req_42; upper = request_42; })
-FEM_hdr_ipv6_exth( echo_request_43, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nutv6()); },
+FEM_hdr_ipv6_exth( echo_request_43, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nut3v6()); },
 	{ header = _HDR_IPV6_NAME(echo_request_43); exthdr = frag_req_43; upper = request_43; })
-FEM_hdr_ipv6_exth( echo_request_44, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nutv6()); },
+FEM_hdr_ipv6_exth( echo_request_44, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nut3v6()); },
 	{ header = _HDR_IPV6_NAME(echo_request_44); exthdr = frag_req_44; upper = request_44; })
-FEM_hdr_ipv6_exth( echo_request_45, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nutv6()); },
+FEM_hdr_ipv6_exth( echo_request_45, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nut3v6()); },
 	{ header = _HDR_IPV6_NAME(echo_request_45); exthdr = frag_req_45; upper = request_45; })
-FEM_hdr_ipv6_exth( echo_request_46, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nutv6()); },
+FEM_hdr_ipv6_exth( echo_request_46, _HETHER_tn2nut, { _SRC(tnv6()); _DST(nut3v6()); },
 	{ header = _HDR_IPV6_NAME(echo_request_46); exthdr = frag_req_46; upper = request_46; })
 
 Hdr_Fragment frag_req_1 { NextHeader = 58; FragmentOffset = 0; MFlag = 1; Identification = FRAG_ID; }
@@ -404,97 +404,97 @@ Payload request_46 { data = substr(_PACKET_IPV6_NAME(echo_request_big), 65200, D
 //
 // ICMP echo reply
 //
-FEM_hdr_ipv6_exth( echo_reply_1, _HETHER_nut2tn, { _SRC(nutv6()); _DST(tnv6()); },
+FEM_hdr_ipv6_exth( echo_reply_1, _HETHER_nut2tn, { _SRC(nut3v6()); _DST(tnv6()); },
 	{ header = _HDR_IPV6_NAME(echo_reply_1); exthdr = frag_rep_1; upper = reply_1; })
-FEM_hdr_ipv6_exth( echo_reply_2, _HETHER_nut2tn, { _SRC(nutv6()); _DST(tnv6()); },
+FEM_hdr_ipv6_exth( echo_reply_2, _HETHER_nut2tn, { _SRC(nut3v6()); _DST(tnv6()); },
 	{ header = _HDR_IPV6_NAME(echo_reply_2); exthdr = frag_rep_2; upper = reply_2; })
-FEM_hdr_ipv6_exth( echo_reply_3, _HETHER_nut2tn, { _SRC(nutv6()); _DST(tnv6()); },
+FEM_hdr_ipv6_exth( echo_reply_3, _HETHER_nut2tn, { _SRC(nut3v6()); _DST(tnv6()); },
 	{ header = _HDR_IPV6_NAME(echo_reply_3); exthdr = frag_rep_3; upper = reply_3; })
-FEM_hdr_ipv6_exth( echo_reply_4, _HETHER_nut2tn, { _SRC(nutv6()); _DST(tnv6()); },
+FEM_hdr_ipv6_exth( echo_reply_4, _HETHER_nut2tn, { _SRC(nut3v6()); _DST(tnv6()); },
 	{ header = _HDR_IPV6_NAME(echo_reply_4); exthdr = frag_rep_4; upper = reply_4; })
-FEM_hdr_ipv6_exth( echo_reply_5, _HETHER_nut2tn, { _SRC(nutv6()); _DST(tnv6()); },
+FEM_hdr_ipv6_exth( echo_reply_5, _HETHER_nut2tn, { _SRC(nut3v6()); _DST(tnv6()); },
 	{ header = _HDR_IPV6_NAME(echo_reply_5); exthdr = frag_rep_5; upper = reply_5; })
-FEM_hdr_ipv6_exth( echo_reply_6, _HETHER_nut2tn, { _SRC(nutv6()); _DST(tnv6()); },
+FEM_hdr_ipv6_exth( echo_reply_6, _HETHER_nut2tn, { _SRC(nut3v6()); _DST(tnv6()); },
 	{ header = _HDR_IPV6_NAME(echo_reply_6); exthdr = frag_rep_6; upper = reply_6; })
-FEM_hdr_ipv6_exth( echo_reply_7, _HETHER_nut2tn, { _SRC(nutv6()); _DST(tnv6()); },
+FEM_hdr_ipv6_exth( echo_reply_7, _HETHER_nut2tn, { _SRC(nut3v6()); _DST(tnv6()); },
 	{ header = _HDR_IPV6_NAME(echo_reply_7); exthdr = frag_rep_7; upper = reply_7; })
-FEM_hdr_ipv6_exth( echo_reply_8, _HETHER_nut2tn, { _SRC(nutv6()); _DST(tnv6()); },
+FEM_hdr_ipv6_exth( echo_reply_8, _HETHER_nut2tn, { _SRC(nut3v6()); _DST(tnv6()); },
 	{ header = _HDR_IPV6_NAME(echo_reply_8); exthdr = frag_rep_8; upper = reply_8; })
-FEM_hdr_ipv6_exth( echo_reply_9, _HETHER_nut2tn, { _SRC(nutv6()); _DST(tnv6()); },
+FEM_hdr_ipv6_exth( echo_reply_9, _HETHER_nut2tn, { _SRC(nut3v6()); _DST(tnv6()); },
 	{ header = _HDR_IPV6_NAME(echo_reply_9); exthdr = frag_rep_9; upper = reply_9; })
-FEM_hdr_ipv6_exth( echo_reply_10, _HETHER_nut2tn, { _SRC(nutv6()); _DST(tnv6()); },
+FEM_hdr_ipv6_exth( echo_reply_10, _HETHER_nut2tn, { _SRC(nut3v6()); _DST(tnv6()); },
 	{ header = _HDR_IPV6_NAME(echo_reply_10); exthdr = frag_rep_10; upper = reply_10; })
-FEM_hdr_ipv6_exth( echo_reply_11, _HETHER_nut2tn, { _SRC(nutv6()); _DST(tnv6()); },
+FEM_hdr_ipv6_exth( echo_reply_11, _HETHER_nut2tn, { _SRC(nut3v6()); _DST(tnv6()); },
 	{ header = _HDR_IPV6_NAME(echo_reply_11); exthdr = frag_rep_11; upper = reply_11; })
-FEM_hdr_ipv6_exth( echo_reply_12, _HETHER_nut2tn, { _SRC(nutv6()); _DST(tnv6()); },
+FEM_hdr_ipv6_exth( echo_reply_12, _HETHER_nut2tn, { _SRC(nut3v6()); _DST(tnv6()); },
 	{ header = _HDR_IPV6_NAME(echo_reply_12); exthdr = frag_rep_12; upper = reply_12; })
-FEM_hdr_ipv6_exth( echo_reply_13, _HETHER_nut2tn, { _SRC(nutv6()); _DST(tnv6()); },
+FEM_hdr_ipv6_exth( echo_reply_13, _HETHER_nut2tn, { _SRC(nut3v6()); _DST(tnv6()); },
 	{ header = _HDR_IPV6_NAME(echo_reply_13); exthdr = frag_rep_13; upper = reply_13; })
-FEM_hdr_ipv6_exth( echo_reply_14, _HETHER_nut2tn, { _SRC(nutv6()); _DST(tnv6()); },
+FEM_hdr_ipv6_exth( echo_reply_14, _HETHER_nut2tn, { _SRC(nut3v6()); _DST(tnv6()); },
 	{ header = _HDR_IPV6_NAME(echo_reply_14); exthdr = frag_rep_14; upper = reply_14; })
-FEM_hdr_ipv6_exth( echo_reply_15, _HETHER_nut2tn, { _SRC(nutv6()); _DST(tnv6()); },
+FEM_hdr_ipv6_exth( echo_reply_15, _HETHER_nut2tn, { _SRC(nut3v6()); _DST(tnv6()); },
 	{ header = _HDR_IPV6_NAME(echo_reply_15); exthdr = frag_rep_15; upper = reply_15; })
-FEM_hdr_ipv6_exth( echo_reply_16, _HETHER_nut2tn, { _SRC(nutv6()); _DST(tnv6()); },
+FEM_hdr_ipv6_exth( echo_reply_16, _HETHER_nut2tn, { _SRC(nut3v6()); _DST(tnv6()); },
 	{ header = _HDR_IPV6_NAME(echo_reply_16); exthdr = frag_rep_16; upper = reply_16; })
-FEM_hdr_ipv6_exth( echo_reply_17, _HETHER_nut2tn, { _SRC(nutv6()); _DST(tnv6()); },
+FEM_hdr_ipv6_exth( echo_reply_17, _HETHER_nut2tn, { _SRC(nut3v6()); _DST(tnv6()); },
 	{ header = _HDR_IPV6_NAME(echo_reply_17); exthdr = frag_rep_17; upper = reply_17; })
-FEM_hdr_ipv6_exth( echo_reply_18, _HETHER_nut2tn, { _SRC(nutv6()); _DST(tnv6()); },
+FEM_hdr_ipv6_exth( echo_reply_18, _HETHER_nut2tn, { _SRC(nut3v6()); _DST(tnv6()); },
 	{ header = _HDR_IPV6_NAME(echo_reply_18); exthdr = frag_rep_18; upper = reply_18; })
-FEM_hdr_ipv6_exth( echo_reply_19, _HETHER_nut2tn, { _SRC(nutv6()); _DST(tnv6()); },
+FEM_hdr_ipv6_exth( echo_reply_19, _HETHER_nut2tn, { _SRC(nut3v6()); _DST(tnv6()); },
 	{ header = _HDR_IPV6_NAME(echo_reply_19); exthdr = frag_rep_19; upper = reply_19; })
-FEM_hdr_ipv6_exth( echo_reply_20, _HETHER_nut2tn, { _SRC(nutv6()); _DST(tnv6()); },
+FEM_hdr_ipv6_exth( echo_reply_20, _HETHER_nut2tn, { _SRC(nut3v6()); _DST(tnv6()); },
 	{ header = _HDR_IPV6_NAME(echo_reply_20); exthdr = frag_rep_20; upper = reply_20; })
-FEM_hdr_ipv6_exth( echo_reply_21, _HETHER_nut2tn, { _SRC(nutv6()); _DST(tnv6()); },
+FEM_hdr_ipv6_exth( echo_reply_21, _HETHER_nut2tn, { _SRC(nut3v6()); _DST(tnv6()); },
 	{ header = _HDR_IPV6_NAME(echo_reply_21); exthdr = frag_rep_21; upper = reply_21; })
-FEM_hdr_ipv6_exth( echo_reply_22, _HETHER_nut2tn, { _SRC(nutv6()); _DST(tnv6()); },
+FEM_hdr_ipv6_exth( echo_reply_22, _HETHER_nut2tn, { _SRC(nut3v6()); _DST(tnv6()); },
 	{ header = _HDR_IPV6_NAME(echo_reply_22); exthdr = frag_rep_22; upper = reply_22; })
-FEM_hdr_ipv6_exth( echo_reply_23, _HETHER_nut2tn, { _SRC(nutv6()); _DST(tnv6()); },
+FEM_hdr_ipv6_exth( echo_reply_23, _HETHER_nut2tn, { _SRC(nut3v6()); _DST(tnv6()); },
 	{ header = _HDR_IPV6_NAME(echo_reply_23); exthdr = frag_rep_23; upper = reply_23; })
-FEM_hdr_ipv6_exth( echo_reply_24, _HETHER_nut2tn, { _SRC(nutv6()); _DST(tnv6()); },
+FEM_hdr_ipv6_exth( echo_reply_24, _HETHER_nut2tn, { _SRC(nut3v6()); _DST(tnv6()); },
 	{ header = _HDR_IPV6_NAME(echo_reply_24); exthdr = frag_rep_24; upper = reply_24; })
-FEM_hdr_ipv6_exth( echo_reply_25, _HETHER_nut2tn, { _SRC(nutv6()); _DST(tnv6()); },
+FEM_hdr_ipv6_exth( echo_reply_25, _HETHER_nut2tn, { _SRC(nut3v6()); _DST(tnv6()); },
 	{ header = _HDR_IPV6_NAME(echo_reply_25); exthdr = frag_rep_25; upper = reply_25; })
-FEM_hdr_ipv6_exth( echo_reply_26, _HETHER_nut2tn, { _SRC(nutv6()); _DST(tnv6()); },
+FEM_hdr_ipv6_exth( echo_reply_26, _HETHER_nut2tn, { _SRC(nut3v6()); _DST(tnv6()); },
 	{ header = _HDR_IPV6_NAME(echo_reply_26); exthdr = frag_rep_26; upper = reply_26; })
-FEM_hdr_ipv6_exth( echo_reply_27, _HETHER_nut2tn, { _SRC(nutv6()); _DST(tnv6()); },
+FEM_hdr_ipv6_exth( echo_reply_27, _HETHER_nut2tn, { _SRC(nut3v6()); _DST(tnv6()); },
 	{ header = _HDR_IPV6_NAME(echo_reply_27); exthdr = frag_rep_27; upper = reply_27; })
-FEM_hdr_ipv6_exth( echo_reply_28, _HETHER_nut2tn, { _SRC(nutv6()); _DST(tnv6()); },
+FEM_hdr_ipv6_exth( echo_reply_28, _HETHER_nut2tn, { _SRC(nut3v6()); _DST(tnv6()); },
 	{ header = _HDR_IPV6_NAME(echo_reply_28); exthdr = frag_rep_28; upper = reply_28; })
-FEM_hdr_ipv6_exth( echo_reply_29, _HETHER_nut2tn, { _SRC(nutv6()); _DST(tnv6()); },
+FEM_hdr_ipv6_exth( echo_reply_29, _HETHER_nut2tn, { _SRC(nut3v6()); _DST(tnv6()); },
 	{ header = _HDR_IPV6_NAME(echo_reply_29); exthdr = frag_rep_29; upper = reply_29; })
-FEM_hdr_ipv6_exth( echo_reply_30, _HETHER_nut2tn, { _SRC(nutv6()); _DST(tnv6()); },
+FEM_hdr_ipv6_exth( echo_reply_30, _HETHER_nut2tn, { _SRC(nut3v6()); _DST(tnv6()); },
 	{ header = _HDR_IPV6_NAME(echo_reply_30); exthdr = frag_rep_30; upper = reply_30; })
-FEM_hdr_ipv6_exth( echo_reply_31, _HETHER_nut2tn, { _SRC(nutv6()); _DST(tnv6()); },
+FEM_hdr_ipv6_exth( echo_reply_31, _HETHER_nut2tn, { _SRC(nut3v6()); _DST(tnv6()); },
 	{ header = _HDR_IPV6_NAME(echo_reply_31); exthdr = frag_rep_31; upper = reply_31; })
-FEM_hdr_ipv6_exth( echo_reply_32, _HETHER_nut2tn, { _SRC(nutv6()); _DST(tnv6()); },
+FEM_hdr_ipv6_exth( echo_reply_32, _HETHER_nut2tn, { _SRC(nut3v6()); _DST(tnv6()); },
 	{ header = _HDR_IPV6_NAME(echo_reply_32); exthdr = frag_rep_32; upper = reply_32; })
-FEM_hdr_ipv6_exth( echo_reply_33, _HETHER_nut2tn, { _SRC(nutv6()); _DST(tnv6()); },
+FEM_hdr_ipv6_exth( echo_reply_33, _HETHER_nut2tn, { _SRC(nut3v6()); _DST(tnv6()); },
 	{ header = _HDR_IPV6_NAME(echo_reply_33); exthdr = frag_rep_33; upper = reply_33; })
-FEM_hdr_ipv6_exth( echo_reply_34, _HETHER_nut2tn, { _SRC(nutv6()); _DST(tnv6()); },
+FEM_hdr_ipv6_exth( echo_reply_34, _HETHER_nut2tn, { _SRC(nut3v6()); _DST(tnv6()); },
 	{ header = _HDR_IPV6_NAME(echo_reply_34); exthdr = frag_rep_34; upper = reply_34; })
-FEM_hdr_ipv6_exth( echo_reply_35, _HETHER_nut2tn, { _SRC(nutv6()); _DST(tnv6()); },
+FEM_hdr_ipv6_exth( echo_reply_35, _HETHER_nut2tn, { _SRC(nut3v6()); _DST(tnv6()); },
 	{ header = _HDR_IPV6_NAME(echo_reply_35); exthdr = frag_rep_35; upper = reply_35; })
-FEM_hdr_ipv6_exth( echo_reply_36, _HETHER_nut2tn, { _SRC(nutv6()); _DST(tnv6()); },
+FEM_hdr_ipv6_exth( echo_reply_36, _HETHER_nut2tn, { _SRC(nut3v6()); _DST(tnv6()); },
 	{ header = _HDR_IPV6_NAME(echo_reply_36); exthdr = frag_rep_36; upper = reply_36; })
-FEM_hdr_ipv6_exth( echo_reply_37, _HETHER_nut2tn, { _SRC(nutv6()); _DST(tnv6()); },
+FEM_hdr_ipv6_exth( echo_reply_37, _HETHER_nut2tn, { _SRC(nut3v6()); _DST(tnv6()); },
 	{ header = _HDR_IPV6_NAME(echo_reply_37); exthdr = frag_rep_37; upper = reply_37; })
-FEM_hdr_ipv6_exth( echo_reply_38, _HETHER_nut2tn, { _SRC(nutv6()); _DST(tnv6()); },
+FEM_hdr_ipv6_exth( echo_reply_38, _HETHER_nut2tn, { _SRC(nut3v6()); _DST(tnv6()); },
 	{ header = _HDR_IPV6_NAME(echo_reply_38); exthdr = frag_rep_38; upper = reply_38; })
-FEM_hdr_ipv6_exth( echo_reply_39, _HETHER_nut2tn, { _SRC(nutv6()); _DST(tnv6()); },
+FEM_hdr_ipv6_exth( echo_reply_39, _HETHER_nut2tn, { _SRC(nut3v6()); _DST(tnv6()); },
 	{ header = _HDR_IPV6_NAME(echo_reply_39); exthdr = frag_rep_39; upper = reply_39; })
-FEM_hdr_ipv6_exth( echo_reply_40, _HETHER_nut2tn, { _SRC(nutv6()); _DST(tnv6()); },
+FEM_hdr_ipv6_exth( echo_reply_40, _HETHER_nut2tn, { _SRC(nut3v6()); _DST(tnv6()); },
 	{ header = _HDR_IPV6_NAME(echo_reply_40); exthdr = frag_rep_40; upper = reply_40; })
-FEM_hdr_ipv6_exth( echo_reply_41, _HETHER_nut2tn, { _SRC(nutv6()); _DST(tnv6()); },
+FEM_hdr_ipv6_exth( echo_reply_41, _HETHER_nut2tn, { _SRC(nut3v6()); _DST(tnv6()); },
 	{ header = _HDR_IPV6_NAME(echo_reply_41); exthdr = frag_rep_41; upper = reply_41; })
-FEM_hdr_ipv6_exth( echo_reply_42, _HETHER_nut2tn, { _SRC(nutv6()); _DST(tnv6()); },
+FEM_hdr_ipv6_exth( echo_reply_42, _HETHER_nut2tn, { _SRC(nut3v6()); _DST(tnv6()); },
 	{ header = _HDR_IPV6_NAME(echo_reply_42); exthdr = frag_rep_42; upper = reply_42; })
-FEM_hdr_ipv6_exth( echo_reply_43, _HETHER_nut2tn, { _SRC(nutv6()); _DST(tnv6()); },
+FEM_hdr_ipv6_exth( echo_reply_43, _HETHER_nut2tn, { _SRC(nut3v6()); _DST(tnv6()); },
 	{ header = _HDR_IPV6_NAME(echo_reply_43); exthdr = frag_rep_43; upper = reply_43; })
-FEM_hdr_ipv6_exth( echo_reply_44, _HETHER_nut2tn, { _SRC(nutv6()); _DST(tnv6()); },
+FEM_hdr_ipv6_exth( echo_reply_44, _HETHER_nut2tn, { _SRC(nut3v6()); _DST(tnv6()); },
 	{ header = _HDR_IPV6_NAME(echo_reply_44); exthdr = frag_rep_44; upper = reply_44; })
-FEM_hdr_ipv6_exth( echo_reply_45, _HETHER_nut2tn, { _SRC(nutv6()); _DST(tnv6()); },
+FEM_hdr_ipv6_exth( echo_reply_45, _HETHER_nut2tn, { _SRC(nut3v6()); _DST(tnv6()); },
 	{ header = _HDR_IPV6_NAME(echo_reply_45); exthdr = frag_rep_45; upper = reply_45; })
-FEM_hdr_ipv6_exth( echo_reply_46, _HETHER_nut2tn, { _SRC(nutv6()); _DST(tnv6()); },
+FEM_hdr_ipv6_exth( echo_reply_46, _HETHER_nut2tn, { _SRC(nut3v6()); _DST(tnv6()); },
 	{ header = _HDR_IPV6_NAME(echo_reply_46); exthdr = frag_rep_46; upper = reply_46; })
 
 Hdr_Fragment frag_rep_1 { NextHeader = 58; FragmentOffset = 0; MFlag = 1; Identification = any; }

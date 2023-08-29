@@ -54,9 +54,9 @@ FEM_icmp6_ns(
 	{
 		HopLimit	= 255;
 		_SRC(v6(_UNSPEC_ADDR));
-		_DST(nutv6());
+		_DST(nut3v6());
 	},
 	{
-		TargetAddress	= nutv6();
+		TargetAddress	= nut3v6();
 	}
 )

@@ -45,7 +45,7 @@
 # $TAHI: ct/spec.p2/BEGIN.seq,v 1.3 2005/01/06 06:49:55 akisada Exp $
 
 ########################################################################
-BEGIN { $V6evalTool::TestVersion = '$Name: V6LC_5_0_0 $ '; }
+BEGIN { $V6evalTool::TestVersion = '$Name: V6LC_5_0_7 $ '; }
 
 use V6evalTool;
 use SPEC;

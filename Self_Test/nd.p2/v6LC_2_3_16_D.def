@@ -64,7 +64,7 @@ FEM_icmp6_redirect(
 	local_redirect,
 	_HETHER_nut2any,
 	{
-		_SRC(nutv6());
+		_SRC(nut3v6());
 		_DST(tn2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
 	},
 	{

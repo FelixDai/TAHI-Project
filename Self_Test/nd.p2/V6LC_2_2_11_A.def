@@ -73,7 +73,7 @@ FEM_icmp6_echo_request(
 	_HETHER_tr1_to_nut,
 	{
 		_SRC(v6(TR1_LINKLOCAL));
-		_DST(nutv6());
+		_DST(nut3v6());
 	},
 	{
 		payload	= payload8;
@@ -91,7 +91,7 @@ FEM_icmp6_ns(
 	_HETHER_nut_to_tr1solnode_local,
 	{
 		HopLimit	= 255;
-		_SRC(nutv6());
+		_SRC(nut3v6());
 		_DST(_IPV6_SOLNODE_MCAST(v6(TR1_GLOBAL)));
 	},
 	{

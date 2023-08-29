@@ -54,18 +54,22 @@ use Exporter;
 		mkNCE_Link
 		mkNCE_Global
 		sendRA
+		$prefix_fec0
 		createIdDef
 		checkNUT
 		icmp_vRecv
 		setup
 		setup_v6LC_5_1_4_A
 		cleanup
+		global_renew
 	    );
 
 use V6evalTool;
 require './config.pl';
 
-BEGIN { }
+BEGIN { 
+	$prefix_fec0 = 0;
+}
 END { }
 
 $type = $V6evalTool::NutDef{Type};
@@ -346,7 +350,12 @@ sub sendRA (;$) {
 		$RApaket = "ra_start";
 	}elsif ($IF eq "cleanup"){
 		$IF = "Link0";
-		$RApaket = "ra_end";
+		if ($prefix_fec0 == 0){
+			$RApaket = "ra_end";
+		}else{
+			$RApaket = "ra_end_fec0";
+		}
+		
 	}
 
 	$main::pktdesc{$RApaket} = 'Send Router Advertisement';
@@ -552,6 +561,7 @@ sub cleanup(;$) {
 #-----------send RA(Router Lifetime,Prefix Life time = 0)---------
 		if ($V6evalTool::NutDef{Type} eq 'host') {
 			sendRA("cleanup");
+			$prefix_fec0 = 0;
 		}
 
 #-----------send NA(fake mac address was set:link-local)---------------------
@@ -564,4 +574,27 @@ sub cleanup(;$) {
 		}
 		vClear('Link0');
 	}
+}
+
+sub global_renew(){
+	$Recv_count = 0;
+	while(1) {
+		$Recv_count++;
+		if($Recv_count > 2){
+		last;
+		}
+		vSend('Link0', ra_start);
+		%ret = vRecv('Link0', 5, 0, 0, Init_DADNS_from_NUT, Init_DADNS_from_NUT_anyopt);
+		if($ret{'status'} == 0) {
+			my $TargetAddress = $ret{"Frame_Ether.Packet_IPv6.ICMPv6_NS.TargetAddress"};
+			$TargetAddress = lc($TargetAddress);
+			my $idx = index($TargetAddress, "3ffe");
+			if($idx == 0){
+        		vLog("global addr received");
+				vRenewConfFile($IF, $TargetAddress);
+				break;
+			}
+		}
+	}
+        vSend('Link0', ra_end);
 }

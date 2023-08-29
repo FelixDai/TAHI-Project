@@ -44,7 +44,7 @@
 #
 # $TINY: setMTU1500.seq,v 1.4 2002/03/05 02:59:11 masaxmasa Exp $
 ########################################################################
-BEGIN { $V6evalTool::TestVersion = '$Name: V6LC_5_0_0 $ '; }
+BEGIN { $V6evalTool::TestVersion = '$Name: V6LC_5_0_7 $ '; }
 use V6evalTool;
 use PMTU;
 

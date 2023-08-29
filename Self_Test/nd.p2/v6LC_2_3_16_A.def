@@ -77,7 +77,8 @@ FEM_icmp6_redirect(
 	local_redirect,
 	_HETHER_nut2tn,
 	{
-		_SRC(nutv6());
+		HopLimit		= 255;
+		_SRC(nut3v6());
 		_DST(tn2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
 	},
 	{
@@ -90,7 +91,8 @@ FEM_icmp6_redirect(
 	local_redirect_tll,
 	_HETHER_nut2tn,
 	{
-		_SRC(nutv6());
+		HopLimit                = 255;
+		_SRC(nut3v6());
 		_DST(tn2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
 	},
 	{
@@ -104,7 +106,8 @@ FEM_icmp6_redirect(
 	local_redirect_redirected,
 	_HETHER_nut2tn,
 	{
-		_SRC(nutv6());
+		HopLimit                = 255;
+		_SRC(nut3v6());
 		_DST(tn2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
 	},
 	{
@@ -121,7 +124,8 @@ FEM_icmp6_redirect(
 	local_redirect_comb_64,
 	_HETHER_nut2tn,
 	{
-		_SRC(nutv6());
+		HopLimit                = 255;
+		_SRC(nut3v6());
 		_DST(tn2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
 	},
 	{
@@ -138,7 +142,8 @@ FEM_icmp6_redirect(
 	local_redirect_comb_63,
 	_HETHER_nut2tn,
 	{
-		_SRC(nutv6());
+		HopLimit                = 255;
+		_SRC(nut3v6());
 		_DST(tn2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
 	},
 	{

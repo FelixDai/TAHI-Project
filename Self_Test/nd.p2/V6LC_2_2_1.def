@@ -50,13 +50,13 @@
 
 FEM_icmp6_ns(
 	ns_dad,
-	_HETHER_nut2nutsolnode,
+	hether_nut2nutsolnode,
 	{
 		HopLimit	= 255;
 		_SRC(v6(_UNSPEC_ADDR));
-		_DST(_IPV6_SOLNODE_MCAST(nutv6()));
+		_DST(_IPV6_SOLNODE_MCAST(nut3v6()));
 	},
 	{
-		TargetAddress	= nutv6();
+		TargetAddress	= nut3v6();
 	}
 )

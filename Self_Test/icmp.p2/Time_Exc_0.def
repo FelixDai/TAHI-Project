@@ -46,8 +46,7 @@
 
 #include "icmp.def"
 
-#define NUT_GLOBAL_LINK1 v6merge(_GLOBAL1_UCAST_PRFX, \
-	_GLOBAL1_UCAST_PRFXLEN, nutv6("Link1"))
+#define NUT_GLOBAL_LINK1 nut4v6("Link1")
 
 //----------------------------------------------------------------------
 // Echo Requests
@@ -87,8 +86,8 @@ FEM_icmp6_time_exceeded(
 	time_exceeded0,
 	_HETHER_nut2tn,
 	{
-//		_SRC(oneof(nutv6(),NUT_GLOBAL, NUT_GLOBAL_LINK1));
-		_SRC(oneof(nutv6(),NUT_GLOBAL));
+//		_SRC(oneof(nut3v6(),NUT_GLOBAL, NUT_GLOBAL_LINK1));
+		_SRC(oneof(nut3v6(),NUT_GLOBAL));
 		_DST(TN_GLOBAL);
 	},
 	{
@@ -101,8 +100,8 @@ FEM_icmp6_time_exceeded(
 	time_exceeded1,
 	_HETHER_nut2tn,
 	{
-//		_SRC(oneof(nutv6(),NUT_GLOBAL, NUT_GLOBAL_LINK1));
-		_SRC(oneof(nutv6(),NUT_GLOBAL));
+//		_SRC(oneof(nut3v6(),NUT_GLOBAL, NUT_GLOBAL_LINK1));
+		_SRC(oneof(nut3v6(),NUT_GLOBAL));
 		_DST(TN_GLOBAL);
 	},
 	{
@@ -116,8 +115,8 @@ FEM_icmp6_time_exceeded(
 	time_exceeded_any,
 	_HETHER_nut2tn,
 	{
-//		_SRC(oneof(nutv6(),NUT_GLOBAL, NUT_GLOBAL_LINK1));
-		_SRC(oneof(nutv6(),NUT_GLOBAL));
+//		_SRC(oneof(nut3v6(),NUT_GLOBAL, NUT_GLOBAL_LINK1));
+		_SRC(oneof(nut3v6(),NUT_GLOBAL));
 		_DST(TN_GLOBAL);
 	},
 	{

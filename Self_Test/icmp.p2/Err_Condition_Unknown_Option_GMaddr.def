@@ -94,7 +94,7 @@ FEM_icmp6_parameter_problem(
 	parameter_problem,
 	_HETHER_nut2tn,
 	{
-		_SRC(oneof(NUT_GLOBAL, nutv6()));
+		_SRC(oneof(NUT_GLOBAL, nut3v6()));
 		_DST(oneof(TN_GLOBAL,tnv6(),MCAST_GLOBAL));
 		_DST(oneof(TN_GLOBAL,tnv6(),_IPV6_SOLNODE_MCAST(tnv6())));
 	},

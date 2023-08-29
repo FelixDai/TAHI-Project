@@ -1,5 +1,5 @@
 //
-// $Name: V6LC_5_0_0 $
+// $Name: V6LC_5_0_3 $
 //
 // Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010
 // Yokogawa Electric Corporation.
@@ -57,7 +57,7 @@ FEM_icmp6_echo_request(
 	_HETHER_tn2nut,
 	{
 		_SRC(tnv6());
-		_DST(nutv6());
+		_DST(nut3v6());
 		HopLimit = 0;
 	},
 	{
@@ -74,7 +74,7 @@ FEM_icmp6_echo_reply(
 	echo_reply,
 	_HETHER_nut2tn,
 	{
-		_SRC(nutv6());
+		_SRC(nut3v6());
 		_DST(tnv6());
 		HopLimit>=1;
 	},

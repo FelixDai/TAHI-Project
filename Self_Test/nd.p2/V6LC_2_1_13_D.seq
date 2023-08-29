@@ -45,11 +45,8 @@
 # $TAHI: ct/nd.p2/V6LC_2_1_13_D.seq,v 1.11 2009/12/28 05:55:16 akisada Exp $
 #
 ########################################################################
-
+BEGIN {$V6evalTool::TestVersion = '$Name: V6LC_5_0_7 $';}
 use nd;
-
-BEGIN {}
-END   {}
 
 my $ereq = 'ndisc_ereq_LL';
 
@@ -241,7 +238,7 @@ __END__
 
    Step 32:
    The NUT should update TN1's Link-layer address to its new link-layer address
-   from the received Neighbor Solicitation C and MUST update the state of TN1's NCE to
+   from the received Neighbor Solicitation D and MUST update the state of TN1's NCE to
    STALE. The NUT should reply to the Neighbor Solicitation by sending a Neighbor
    Advertisement using TN1's new Link-Layer address. After responding to the Neighbor
    Solicitation, the NUT should respond to the Echo Request by sending an Echo Reply and set

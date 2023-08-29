@@ -1,5 +1,5 @@
 //
-// $Name: V6LC_5_0_0 $
+// $Name: V6LC_5_0_3 $
 //
 // Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010
 // Yokogawa Electric Corporation.
@@ -47,7 +47,7 @@
 //
 
 #define TN_GL0_ADDR tn2v6(_GLOBAL0_UCAST_PRFX,_GLOBAL0_UCAST_PRFXLEN,"Link0")
-#define NUT_GL0_ADDR nut2v6(_GLOBAL0_UCAST_PRFX,_GLOBAL0_UCAST_PRFXLEN,"Link0")
+#define NUT_GL0_ADDR nut4v6("Link0")
 
 #define	PING_ID	0xffff
 #define	PING_SN	0x0001
@@ -67,7 +67,7 @@ FEM_icmp6_ns(
 	ns_l2l,
 	_HETHER_nut2tnsolnode,
 	{
-		_SRC(nutv6());
+		_SRC(nut3v6());
 		_DST(_IPV6_SOLNODE_MCAST(tnv6()));
 		HopLimit = 255;
 	},
@@ -81,7 +81,7 @@ FEM_icmp6_ns(
 	u_ns_l2l,
 	_HETHER_nut2tn,
 	{
-		_SRC(nutv6());
+		_SRC(nut3v6());
 		_DST(tnv6());
 		HopLimit = 255;
 	},
@@ -95,7 +95,7 @@ FEM_icmp6_ns(
 	u_ns_l2l_wo,
 	_HETHER_nut2tn,
 	{
-		_SRC(nutv6());
+		_SRC(nut3v6());
 		_DST(tnv6());
 		HopLimit = 255;
 	},
@@ -151,7 +151,7 @@ FEM_icmp6_ns(
 	ns_l2g,
 	_HETHER_nut2tnsolnode,
 	{
-		_SRC(nutv6());
+		_SRC(nut3v6());
 		_DST(_IPV6_SOLNODE_MCAST(TN_GL0_ADDR));
 		HopLimit = 255;
 	},
@@ -165,7 +165,7 @@ FEM_icmp6_ns(
 	u_ns_l2g,
 	_HETHER_nut2tn,
 	{
-		_SRC(nutv6());
+		_SRC(nut3v6());
 		_DST(TN_GL0_ADDR);
 		HopLimit = 255;
 	},
@@ -179,7 +179,7 @@ FEM_icmp6_ns(
 	u_ns_l2g_wo,
 	_HETHER_nut2tn,
 	{
-		_SRC(nutv6());
+		_SRC(nut3v6());
 		_DST(TN_GL0_ADDR);
 		HopLimit = 255;
 	},
@@ -240,7 +240,7 @@ FEM_icmp6_na(
 	_HETHER_tn2nut,
 	{
 		_SRC(tnv6());
-		_DST(nutv6());
+		_DST(nut3v6());
 		HopLimit = 255;
 	},
 	{
@@ -276,7 +276,7 @@ FEM_icmp6_na(
 	_HETHER_tn2nut,
 	{
 		_SRC(TN_GL0_ADDR);
-		_DST(nutv6());
+		_DST(nut3v6());
 		HopLimit = 255;
 	},
 	{
@@ -377,7 +377,7 @@ FEM_icmp6_echo_request(
 	_HETHER_tn2nut,
 	{
 		_SRC(tnv6());
-		_DST(nutv6());
+		_DST(nut3v6());
 		HopLimit = 255;
 	},
 	{
@@ -407,7 +407,7 @@ FEM_icmp6_echo_reply(
 	setup_echo_reply,
 	_HETHER_nut2tn,
 	{
-		_SRC(nutv6());
+		_SRC(nut3v6());
 		_DST(tnv6());
 	},
 	{
@@ -506,7 +506,7 @@ FEM_icmp6_echo_request(
 	_HETHER_tn2nut,
 	{
 		_SRC(tnv6());
-		_DST(nutv6());
+		_DST(nut3v6());
 		HopLimit = 255;
 	},
 	{
@@ -533,17 +533,35 @@ FEM_icmp6_echo_request(
 #define TR1_MAC         A0N_MAC_ADDR
 #endif  // TR1_MAC
 
+#ifndef TR2_MAC
+#define TR2_MAC         A1N_MAC_ADDR
+#endif  // TR2_MAC
+
 #ifndef TR1_LINKLOCAL
 #define TR1_LINKLOCAL   _LLOCAL0A0N_UCAST_ADDR
 #endif  // TR1_LINKLOCAL
+
+#ifndef TR2_LINKLOCAL
+#define TR2_LINKLOCAL   _LLOCAL0A1N_UCAST_ADDR
+#endif  // TR2_LINKLOCAL
 
 #ifndef TR1_GLOBAL
 #define TR1_GLOBAL      _GLOBAL0A0N_UCAST_ADDR
 #endif  // TR1_GLOBAL
 
+#ifndef TR2_GLOBAL
+#define TR2_GLOBAL      _GLOBAL0A1N_UCAST_ADDR
+#endif  // TR2_GLOBAL
+
 _HETHER_define(
         _HETHER_tr1_to_allnodes,
         ether(TR1_MAC),
+        v62ethermulti(v6(_ALLNODES_MCAST_ADDR))
+)
+
+_HETHER_define(
+        _HETHER_tr2_to_allnodes,
+        ether(TR2_MAC),   
         v62ethermulti(v6(_ALLNODES_MCAST_ADDR))
 )
 
@@ -554,8 +572,20 @@ _HETHER_define(
 )
 
 _HETHER_define(
+        _HETHER_nut_to_tr2solnode,
+        nutether(),
+        _ETHER_SOLNODE_MCAST(v6(TR2_LINKLOCAL))
+)
+
+_HETHER_define(
         _HETHER_tr1_to_nut,
         ether(TR1_MAC),
+        nutether()
+)
+
+_HETHER_define(
+        _HETHER_tr2_to_nut,
+        ether(TR2_MAC),
         nutether()
 )
 
@@ -565,12 +595,18 @@ _HETHER_define(
         ether(TR1_MAC)
 )
 
+_HETHER_define(
+        _HETHER_nut_to_tr2,
+        nutether(),
+        ether(TR2_MAC)
+)
+
 FEM_icmp6_echo_request(
 	setup_echo_request_tr1,
 	_HETHER_tr1_to_nut,
 	{
 		_SRC(v6(TR1_LINKLOCAL));
-		_DST(nutv6());
+		_DST(nut3v6());
 		HopLimit = 255;
 	},
 	{
@@ -582,7 +618,7 @@ FEM_icmp6_echo_reply(
 	setup_echo_reply_tr1,
 	_HETHER_nut_to_tr1,
 	{
-		_SRC(nutv6());
+		_SRC(nut3v6());
 		_DST(v6(TR1_LINKLOCAL));
 	},
 	{
@@ -611,7 +647,7 @@ FEM_icmp6_ns(
 	ns_l2l_tr1,
 	_HETHER_nut_to_tr1solnode,
 	{
-		_SRC(nutv6());
+		_SRC(nut3v6());
 		_DST(_IPV6_SOLNODE_MCAST(v6(TR1_LINKLOCAL)));
 		HopLimit = 255;
 	},
@@ -619,6 +655,20 @@ FEM_icmp6_ns(
 		TargetAddress = v6(TR1_LINKLOCAL);
 		option = _SLLOPT_nut;
 	}
+)
+
+FEM_icmp6_ns(
+        ns_l2l_tr2,
+        _HETHER_nut_to_tr2solnode,
+        {
+                _SRC(nut3v6());
+                _DST(_IPV6_SOLNODE_MCAST(v6(TR2_LINKLOCAL)));      
+                HopLimit = 255;
+        },
+        {
+                TargetAddress = v6(TR2_LINKLOCAL);
+                option = _SLLOPT_nut;
+        }
 )
 
 FEM_icmp6_ns(
@@ -635,13 +685,27 @@ FEM_icmp6_ns(
 	}
 )
 
+FEM_icmp6_ns(
+        ns_g2l_tr2,    
+        _HETHER_nut_to_tr2solnode,
+        {
+                _SRC(NUT_GL0_ADDR);
+                _DST(_IPV6_SOLNODE_MCAST(v6(TR2_LINKLOCAL)));
+                HopLimit = 255;
+        },
+        {
+                TargetAddress = v6(TR2_LINKLOCAL);
+                option = _SLLOPT_nut;
+        }
+)
+
 // NA; Link-Local to Link-Local
 FEM_icmp6_na(
 	na_l2l_tr1,
 	_HETHER_tr1_to_nut,
 	{
 		_SRC(v6(TR1_LINKLOCAL));
-		_DST(nutv6());
+		_DST(nut3v6());
 		HopLimit = 255;
 	},
 	{
@@ -651,6 +715,23 @@ FEM_icmp6_na(
 		TargetAddress = v6(TR1_LINKLOCAL);
 		option = TLLOPT_tr1;
 	}
+)
+
+FEM_icmp6_na(
+        na_l2l_tr2,
+        _HETHER_tr2_to_nut,
+        {
+                _SRC(v6(TR2_LINKLOCAL));
+                _DST(nut3v6());
+                HopLimit = 255;
+        },
+        {
+                RFlag = 1;
+                SFlag = 1;
+                OFlag = 1;
+                TargetAddress = v6(TR2_LINKLOCAL);
+                option = TLLOPT_tr2;
+        }
 )
 
 // NA; Link-Local to Global
@@ -671,8 +752,29 @@ FEM_icmp6_na(
 	}
 )
 
+FEM_icmp6_na(
+        na_l2g_tr2,
+        _HETHER_tr2_to_nut,
+        {
+                _SRC(v6(TR2_LINKLOCAL));
+                _DST(NUT_GL0_ADDR);
+                HopLimit = 255;
+        },
+        {
+                RFlag = 1;
+                SFlag = 1;
+                OFlag = 1;
+                TargetAddress = v6(TR2_LINKLOCAL);
+                option = TLLOPT_tr2;
+        }
+)
+
 Opt_ICMPv6_TLL TLLOPT_tr1 {
 	LinkLayerAddress = ether(TR1_MAC);
+}
+
+Opt_ICMPv6_TLL TLLOPT_tr2 {
+        LinkLayerAddress = ether(TR2_MAC);
 }
 
 FEM_icmp6_ra(
@@ -711,15 +813,47 @@ FEM_icmp6_na(
 	}
 )
 
+FEM_icmp6_na(
+        cleanup_na_tr2,
+        _HETHER_tr2_to_allnodes,
+        {
+                _SRC(v6(TR2_LINKLOCAL));
+                _DST(v6(_ALLNODES_MCAST_ADDR));
+                HopLimit = 255;
+        },
+        {
+                RFlag = 1;
+                SFlag = 0;
+                OFlag = 1;
+                TargetAddress = v6(TR2_LINKLOCAL);
+                option = DifferentLLA;
+        }
+)
+
 FEM_icmp6_echo_request(
 	cleanup_echo_request_tr1,
 	_HETHER_tr1_to_nut,
 	{
 		_SRC(v6(TR1_LINKLOCAL));
-		_DST(nutv6());
+		_DST(nut3v6());
 		HopLimit = 255;
 	},
 	{
 		payload = setup_echo_data8;
 	}
 )
+
+FEM_icmp6_echo_request(
+        cleanup_echo_request_tr2,
+        _HETHER_tr2_to_nut,
+        {
+                _SRC(v6(TR2_LINKLOCAL));
+                _DST(nut3v6());
+                HopLimit = 255;
+        },
+        {
+                payload = setup_echo_data8;
+        }
+)
+
+

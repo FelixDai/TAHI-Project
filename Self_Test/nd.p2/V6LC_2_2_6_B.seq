@@ -45,14 +45,12 @@
 # $TAHI: ct/nd.p2/V6LC_2_2_6_B.seq,v 1.11 2010/03/30 06:46:34 akisada Exp $
 #
 ########################################################################
-
+BEGIN {$V6evalTool::TestVersion = '$Name: V6LC_5_0_7 $';}
 use rdisc;
 
 use lib '../';
 use AdvancedFunctionality;
 
-BEGIN {}
-END   {}
 
 if($V6evalTool::NutDef{'Type'} ne 'router') {
 	exitRouterOnly($Link0);
@@ -102,7 +100,7 @@ unless(v6LC_2_2_6_B_Step_5_Advertising_Interface($Link0, $send)) {
 #----------------------------------------------------------------------#
 $send   = 'ucast_rs_local';
 $tn1_cache      = $true;
-unless(v6LC_2_2_6_B_Step_5_Advertising_Interface($Link0, $send)) {
+unless(v6LC_2_2_6_B_Step_7_Advertising_Interface($Link0, $send)) {
 	exitFail($Link0);
 	#NOTREACHED
 }
@@ -166,19 +164,103 @@ __END__
   Enable Interface A on Link B and Interface B on Link A. No Common Test Setup is
   performed. The Common Test Cleanup procedure is performed after each part.
 
+=begin html
+
+<BLOCKQUOTE>
+
+<TABLE>
+<TR>
+
+<TD>
+<TABLE BORDER>
+<Caption>Router Solicitation A</Caption>
+<TR>
+<TD>
+	IPv6 Header<br>
+	Next Header: 58<br>
+	Source Address: :: (Unspecified)<br>
+	Destination Address: FF02::2
+</TD>
+</TR>
+<TR>
+<TD>Router Solicitation</TD>
+</TR>
+</TABLE>
+</TD>
+
+<TD>
+<TABLE BORDER>
+<Caption>Router Solicitation B</Caption>
+<TR>
+<TD>
+	IPv6 Header<br>
+	Next Header: 58<br>
+	Source Address: TN1 link-local<br>
+	Destination Address: FF02::2
+</TD>
+</TR>
+<TR>
+<TD>Router Solicitation</TD>
+</TR>
+</TABLE>
+</TD>
+
+</TR>
+</TABLE>
+
+<br>
+
+<TABLE>
+<TR>
+
+<TD>
+<TABLE BORDER>
+<Caption>Router Solicitation C</Caption>
+<TR>
+<TD>
+	IPv6 Header<br>
+	Next Header: 58<br>
+	Source Address: TN2 link-local<br>
+	Destination Address: FF02::2
+</TD>
+</TR>
+<TR>
+<TD>Router Solicitation</TD>
+</TR>
+</TABLE>
+</TD>
+
+<TD>
+</TD>
+
+</TR>
+</TABLE>
+
+</BLOCKQUOTE>
+
+=end html
+
 =head1 Procedure
 
   Part B: Advertising interface
    4. If the RUT supports two physical network interfaces. Configure Interface A on the RUT to be an
       advertising interface and Interface B to be a non-advertising interface.
-   5. Configure TR1 to transmit a RS to the RUT on Interface A and on Interface B.
-   6. Observe the packets transmitted by the RUT on Interface A and Interface B.
+   5. Configure TN1 to transmit Router Solicitation A to the RUT on Interface A.
+   6. Observe the packets transmitted by the RUT on Interface A.
+   7. Configure TN1 to transmit a Router Solicitation B to the RUT on Interface A.
+   8. Observe the packets transmitted by the RUT on Interface A.
+   9. Configure TN2 to transmit Router Solicitation A to the RUT on Interface B.
+   10. Observe the packets transmitted by the RUT on Interface B.
+   11. Configure TN2 to transmit Router Solicitation C to the RUT on Interface B.
+   12. Observe the packets transmitted by the RUT on Interface B.
 
 =head1 Observable Results
 
   Part B
-   Step 4: The RUT must send Router Advertisements out on Interface A. The RUT must not
-   send Router Advertisements out on Interface B.
+   Step 6: The RUT must send Router Advertisements out on Interface A.
+   Step 8: The RUT must send Router Advertisements out on Interface A.
+   Step 10: The RUT must not send Router Advertisements out on Interface B.
+   Step 12: The RUT must not send Router Advertisements out on Interface B.
 
 =head1 Possible Problems
 

@@ -70,7 +70,7 @@ FEM_icmp6_echo_reply(
 	echo_reply,
 	_HETHER_nut2tn,
 	{
-		_SRC(oneof(NUT_GLOBAL, nutv6()));
+		_SRC(oneof(NUT_GLOBAL, nut3v6()));
 		_DST(tnv6());
 	},
 	{

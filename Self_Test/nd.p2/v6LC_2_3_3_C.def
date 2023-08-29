@@ -54,7 +54,7 @@ FEM_icmp6_redirect(
 	{
 		HopLimit	= 254;
 		_SRC(v6(TR1_LINKLOCAL));
-		_DST(nut2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
+		_DST(nut4v6("Link0"));
 	},
 	{
 		TargetAddress		= tn2v6(LINKX_PREFIX, LINKX_PREFIXLEN);

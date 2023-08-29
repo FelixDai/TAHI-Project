@@ -41,7 +41,7 @@
 # IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
-# $Name: V6LC_5_0_0 $
+# $Name: V6LC_5_0_7 $
 #
 # $TAHI: ct/nd.p2/INDEX_ND_p2_host,v 1.13 2007/11/07 09:39:46 akisada Exp $
 #
@@ -58,7 +58,7 @@
 #----------------------------------------------------------------------#
 # initialization                                                       #
 #----------------------------------------------------------------------#
-./v6LC_2_0_0.seq:./v6LC_2_0_0.def:::<TT>Initialization</TT>:1
+./v6LC_2_0_0.seq:./Get_global_addr.def:::<TT>Initialization</TT>:1
 
 
 
@@ -328,3 +328,22 @@
 ./V6LC_2_1_21_F.seq:./V6LC_2_1_21_F.def:::<TT>Part F&#58; Receiving NA with R = 0, S = 0 and O = 0 and TLLA</TT>:1
 ./V6LC_2_1_21_G.seq:./V6LC_2_1_21_G.def:::<TT>Part G&#58; Receiving NA with R = 0, S = 0 and O = 1 and TLLA</TT>:1
 ./V6LC_2_1_21_H.seq:./V6LC_2_1_21_H.def:::<TT>Part H&#58; Receiving NA with R = 0, S = 1 and O = 0 and TLLA</TT>:1
+
+
+
+#-----------------------------------------------------------------------------------------#
+# v6LC.2.1.22 Atomic Fragments in Neighbor Soliciation and Neighbor Advertisment          #
+#-----------------------------------------------------------------------------------------#
+&print:<TT>Test v6LC.2.1.22: Atomic Fragments in Neighbor Soliciation and Neighbor Advertisment</TT>
+./V6LC_2_1_22_A.seq:./V6LC_2_1_22_A.def:::<TT>Part A&#58; Neighbor Soliciation with Atomic Fragment</TT>:1    
+./V6LC_2_1_22_B.seq:./V6LC_2_1_22_B.def:::<TT>Part B&#58; Neighbor Advertisement with Atomic Fragment</TT>:1
+
+
+
+#-----------------------------------------------------------------------------------------#
+# v6LC.2.1.23 Fragment Header in Neighbor Solicitation and Neighbor Advertisement         #
+#-----------------------------------------------------------------------------------------#
+&print:<TT>Test v6LC.2.1.23: Fragment Header in Neighbor Solicitation and Neighbor Advertisement</TT>
+./V6LC_2_1_23_A.seq:./V6LC_2_1_23_A.def:::<TT>Part A&#58; Neighbor Soliciation with Fragment Header</TT>:1
+./V6LC_2_1_23_B.seq:./V6LC_2_1_23_B.def:::<TT>Part B&#58; Neighbor Advertisement with Fragment Header</TT>:1
+

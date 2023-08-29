@@ -55,7 +55,7 @@ FEM_hdr_ipv6_exth(
 	_HETHER_tn2nut,
 	{
 		_SRC(tnv6());
-		_DST(nutv6());
+		_DST(nut3v6());
 	},
 	{
 		header = _HDR_IPV6_NAME(udp_pkt);
@@ -93,7 +93,7 @@ FEM_icmp6_destination_unreachable(
 	dst_unreach,
 	_HETHER_nut2tn,
 	{
-		_SRC(oneof(nutv6(),NUT_GLOBAL));
+		_SRC(oneof(nut3v6(),NUT_GLOBAL));
 		_DST(tnv6());
 		PayloadLength <= MAX_PAYLOAD;
 	},
@@ -108,7 +108,7 @@ FEM_icmp6_destination_unreachable(
 	dst_unreach_any,
 	_HETHER_nut2tn,
 	{
-		_SRC(oneof(nutv6(),NUT_GLOBAL));
+		_SRC(oneof(nut3v6(),NUT_GLOBAL));
 		_DST(tnv6());
 		PayloadLength <= MAX_PAYLOAD;
 	},

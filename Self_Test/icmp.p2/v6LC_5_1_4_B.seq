@@ -50,7 +50,7 @@ use V6evalTool;
 
 BEGIN
 {
-	$V6evalTool::TestVersion	= '$Name: V6LC_5_0_0 $';
+	$V6evalTool::TestVersion	= '$Name: V6LC_5_0_7 $';
 }
 
 END   {}

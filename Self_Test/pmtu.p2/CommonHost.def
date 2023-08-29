@@ -1,5 +1,5 @@
 //
-// $Name: V6LC_5_0_0 $
+// $Name: V6LC_5_0_3 $
 //
 // Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010
 // Yokogawa Electric Corporation.
@@ -47,7 +47,7 @@
 //
 
 #define TR1_GL0_ADDR tn2v6(_GLOBAL0_UCAST_PRFX,_GLOBAL0_UCAST_PRFXLEN,"Link0")
-#define NUT_GL0_ADDR nut2v6(_GLOBAL0_UCAST_PRFX,_GLOBAL0_UCAST_PRFXLEN,"Link0")
+#define NUT_GL0_ADDR nut4v6("Link0")
 
 #define	TR2_GL0_ADDR v6(_GLOBAL0A2N_UCAST_ADDR)
 #define	TN1_GL0_ADDR v6(_GLOBAL0A1N_UCAST_ADDR)
@@ -60,6 +60,7 @@ _HETHER_define(_hether_onlinkTN1_to_nut, ether(A1N_MAC_ADDR), nutether())
 _HETHER_define(_hether_nut_to_onlinkTN1, nutether(), ether(A1N_MAC_ADDR))
 _HETHER_define(_hether_nut_to_onlinkTN1solnode, nutether(), _ETHER_SOLNODE_MCAST(v6(_GLOBAL0A1N_UCAST_ADDR)))
 _HETHER_define(_hether_onlinkTN1_to_allnodes, ether(A1N_MAC_ADDR), v62ethermulti(v6(_ALLNODES_MCAST_ADDR)))
+
 
 _TLLOPT_define(_TLLOPT_onlink_tn1, ether(A1N_MAC_ADDR))
 
@@ -97,7 +98,7 @@ FEM_icmp6_ns(
 	ns_l2l,
 	_HETHER_nut2tnsolnode,
 	{
-		_SRC(nutv6());
+		_SRC(nut3v6());
 		_DST(_IPV6_SOLNODE_MCAST(tnv6()));
 		HopLimit = 255;
 	},
@@ -111,7 +112,7 @@ FEM_icmp6_ns(
 	u_ns_l2l,
 	_HETHER_nut2tn,
 	{
-		_SRC(nutv6());
+		_SRC(nut3v6());
 		_DST(tnv6());
 		HopLimit = 255;
 	},
@@ -125,7 +126,7 @@ FEM_icmp6_ns(
 	u_ns_l2l_wo,
 	_HETHER_nut2tn,
 	{
-		_SRC(nutv6());
+		_SRC(nut3v6());
 		_DST(tnv6());
 		HopLimit = 255;
 	},
@@ -181,7 +182,7 @@ FEM_icmp6_ns(
 	ns_l2g,
 	_HETHER_nut2tnsolnode,
 	{
-		_SRC(nutv6());
+		_SRC(nut3v6());
 		_DST(_IPV6_SOLNODE_MCAST(TR1_GL0_ADDR));
 		HopLimit = 255;
 	},
@@ -195,7 +196,7 @@ FEM_icmp6_ns(
 	u_ns_l2g,
 	_HETHER_nut2tn,
 	{
-		_SRC(nutv6());
+		_SRC(nut3v6());
 		_DST(TR1_GL0_ADDR);
 		HopLimit = 255;
 	},
@@ -209,7 +210,7 @@ FEM_icmp6_ns(
 	u_ns_l2g_wo,
 	_HETHER_nut2tn,
 	{
-		_SRC(nutv6());
+		_SRC(nut3v6());
 		_DST(TR1_GL0_ADDR);
 		HopLimit = 255;
 	},
@@ -270,7 +271,7 @@ FEM_icmp6_na(
 	_HETHER_tn2nut,
 	{
 		_SRC(tnv6());
-		_DST(nutv6());
+		_DST(nut3v6());
 		HopLimit = 255;
 	},
 	{
@@ -306,7 +307,7 @@ FEM_icmp6_na(
 	_HETHER_tn2nut,
 	{
 		_SRC(TR1_GL0_ADDR);
-		_DST(nutv6());
+		_DST(nut3v6());
 		HopLimit = 255;
 	},
 	{
@@ -353,6 +354,25 @@ FEM_icmp6_ra(
 	},
 	{
 //		CurHopLimit = 64;
+		LifeTime = 120; //default is 20,but too short
+		ReachableTime = 30000;
+		RetransTimer = 1000;
+		option = _SLLOPT_src;
+		option = setup_mtuopt;
+		option = setup_prefixopt;
+	}
+)
+
+FEM_icmp6_ra(
+	setup_ra_hop255,
+	_HETHER_tn2allnodes,
+	{
+		_SRC(tnv6());
+		_DST(v6(_ALLNODES_MCAST_ADDR));
+		HopLimit = 255;
+	},
+	{
+		CurHopLimit = 255;
 		LifeTime = 120; //default is 20,but too short
 		ReachableTime = 30000;
 		RetransTimer = 1000;
@@ -433,7 +453,7 @@ FEM_icmp6_echo_request(
 	_HETHER_tn2nut,
 	{
 		_SRC(tnv6());
-		_DST(nutv6());
+		_DST(nut3v6());
 		HopLimit = 255;
 	},
 	{
@@ -463,7 +483,7 @@ FEM_icmp6_echo_reply(
 	setup_echo_reply,
 	_HETHER_nut2tn,
 	{
-		_SRC(nutv6());
+		_SRC(nut3v6());
 		_DST(tnv6());
 	},
 	{
@@ -563,7 +583,7 @@ FEM_icmp6_echo_request(
 	_HETHER_tn2nut,
 	{
 		_SRC(tnv6());
-		_DST(nutv6());
+		_DST(nut3v6());
 		HopLimit = 255;
 	},
 	{

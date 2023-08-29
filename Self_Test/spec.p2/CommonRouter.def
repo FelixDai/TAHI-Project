@@ -49,7 +49,7 @@
 
 #if HAS_MULTIPLE_INTERFACES != 0
 #define TN_GL1_ADDR tn2v6(_GLOBAL1_UCAST_PRFX,_GLOBAL1_UCAST_PRFXLEN,"Link1")
-#define NUT_GL1_ADDR nut2v6(_GLOBAL1_UCAST_PRFX,_GLOBAL1_UCAST_PRFXLEN,"Link1")
+#define NUT_GL1_ADDR nut4v6("Link1")
 
 #define	CLEANUP_ETHER_LINK1	"00:11:33:66:00:55"
 
@@ -108,7 +108,7 @@ FEM_icmp6_ns(
 	ns_l2g_link1,
 	_HETHER_nut2tnsolnode,
 	{
-		_SRC(nutv6());
+		_SRC(nut3v6());
 		_DST(_IPV6_SOLNODE_MCAST(TN_GL1_ADDR));
 		HopLimit = 255;
 	},
@@ -122,7 +122,7 @@ FEM_icmp6_ns(
 	u_ns_l2g_link1,
 	_HETHER_nut2tn,
 	{
-		_SRC(nutv6());
+		_SRC(nut3v6());
 		_DST(TN_GL1_ADDR);
 		HopLimit = 255;
 	},
@@ -136,7 +136,7 @@ FEM_icmp6_ns(
 	u_ns_l2g_wo_link1,
 	_HETHER_nut2tn,
 	{
-		_SRC(nutv6());
+		_SRC(nut3v6());
 		_DST(TN_GL1_ADDR);
 		HopLimit = 255;
 	},
@@ -196,7 +196,7 @@ FEM_icmp6_na(
 	_HETHER_tn2nut,
 	{
 		_SRC(tnv6());
-		_DST(nutv6());
+		_DST(nut3v6());
 		HopLimit = 255;
 	},
 	{
@@ -232,7 +232,7 @@ FEM_icmp6_na(
 	_HETHER_tn2nut,
 	{
 		_SRC(TN_GL1_ADDR);
-		_DST(nutv6());
+		_DST(nut3v6());
 		HopLimit = 255;
 	},
 	{
@@ -318,7 +318,7 @@ FEM_icmp6_echo_request(
 	_HETHER_tn2nut,
 	{
 		_SRC(tnv6());
-		_DST(nutv6());
+		_DST(nut3v6());
 		HopLimit = 255;
 	},
 	{
@@ -360,5 +360,5 @@ FEM_icmp6_echo_request(
 #endif	// XXX_HAS_ONE_INTERFACES
 
 #define TN_GL1_ADDR	tn2v6(_GLOBAL1_UCAST_PRFX, _GLOBAL1_UCAST_PRFXLEN)
-#define NUT_GL1_ADDR	nut2v6(_GLOBAL1_UCAST_PRFX, _GLOBAL1_UCAST_PRFXLEN)
+#define NUT_GL1_ADDR	nut4v6("Link1")
 #endif	// HAS_MULTIPLE_INTERFACES

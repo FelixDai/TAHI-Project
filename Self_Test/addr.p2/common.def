@@ -1,0 +1,21 @@
+
+#ifndef NUT_LLA_str
+#define NUT_LLA_str	"fe80::1269:9e29:4fc:229d"
+#endif 
+ 
+#ifndef NUT_GA0_str
+#define NUT_GA0_str	"3ffe:501:ffff:100:20c:29ff:fe59:519e"
+#endif 
+
+#ifndef NUT_GA1_str
+#define NUT_GA1_str	"8000::1"
+#endif
+ 
+#ifndef NUT_GA2_str
+#define NUT_GA2_str	"fec0::1"
+#endif
+
+#define NUT_LLA		v6(NUT_LLA_str)
+#define NUT_GA0         v6(NUT_GA0_str)
+#define NUT_GA1         v6(NUT_GA1_str)
+#define NUT_GA2         v6(NUT_GA2_str)

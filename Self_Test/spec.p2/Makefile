@@ -2,7 +2,7 @@
 # $Id: Makefile,v 1.7 2010/03/30 01:07:12 akisada Exp $
 #
 
-TITLE	= 'Section 1: RFC 2460 - IPv6 Specification'
+TITLE	= 'Section 1: RFC 8200 - IPv6 Specification'
 
 INDEX_P1_HOST		= INDEX_p1_host
 INDEX_P1_ROUTER		= INDEX_p1_router

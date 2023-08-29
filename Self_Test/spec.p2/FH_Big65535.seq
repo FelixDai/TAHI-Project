@@ -46,7 +46,7 @@
 #
 ######################################################################
 BEGIN {
-	$V6evalTool::TestVersion = '$Name: V6LC_5_0_0 $';
+	$V6evalTool::TestVersion = '$Name: V6LC_5_0_7 $';
 }
 
 use V6evalTool;

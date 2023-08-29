@@ -62,12 +62,28 @@ END   {}
 	$MTU_CONFIGURATION
 	$MULTICAST_ROUTING
 	$TRANSMITTING_EREQ
+	$PROCESS_HBH
+	$SENDING_MORE_RSs
+	$SENDING_ONE_RS
+	$TYPE_C_HOST
+        $DETECT_DUPLICATE_FRAGS
+	$BEYOND_SCOPE_SADDR
+        $ICMPv6_CONNET_TRACKING
+        $PROCESS_RA_DNS
 );
 
 $HAS_MULTIPLE_INTERFACES	= 0;
 $MTU_CONFIGURATION	= 0;
 $MULTICAST_ROUTING	= 0;
 $TRANSMITTING_EREQ	= 0;
+$PROCESS_HBH		= 0;
+$SENDING_MORE_RSs	= 0;
+$SENDING_ONE_RS		= 0;
+$TYPE_C_HOST		= 0;
+$BEYOND_SCOPE_SADDR	= 0;
+$DETECT_DUPLICATE_FRAGS = 0;
+$ICMPv6_CONNET_TRACKING = 0;
+$PROCESS_RA_DNS		= 0;
 
 sub read_configuration($$);
 sub overwrite_config_pm($);
@@ -77,6 +93,15 @@ my %values = (
 	'MULTICAST_ROUTING'		=> '0',
 	'MTU_CONFIGURATION'		=> '0',
 	'HAS_MULTIPLE_INTERFACES'	=> '0',
+	'PROCESS_HBH'			=> '0',
+	'SENDING_MORE_RSs'		=> '0',
+	'SENDING_ONE_RS'		=> '0',
+	'TYPE_C_HOST'			=> '0',
+	'BEYOND_SCOPE_SADDR'		=> '0',
+	'DETECT_DUPLICATE_FRAGS'	=> '0',
+        'ICMPv6_CONNET_TRACKING'        => '0',
+        'PROCESS_RA_DNS'		=> '0',
+
 );
 
 my $configuration	= dirname(__FILE__).'/config.txt';
@@ -107,10 +132,50 @@ unless(defined($HAS_MULTIPLE_INTERFACES)) {
 	$HAS_MULTIPLE_INTERFACES	= 0;
 }
 
+unless(defined($PROCESS_HBH)) {
+        $PROCESS_HBH      = 0;
+}
+
+unless(defined($SENDING_MORE_RSs)) {
+        $SENDING_MORE_RSs      = 0;
+}
+
+unless(defined($SENDING_ONE_RS)) {
+        $SENDING_ONE_RS      = 0;
+}
+
+unless(defined($TYPE_C_HOST)) {
+        $TYPE_C_HOST      = 0;
+}
+
+unless(defined($BEYOND_SCOPE_SADDR)) {
+        $BEYOND_SCOPE_SADDR      = 0;
+}
+
+unless(defined($DETECT_DUPLICATE_FRAGS)) {
+        $DETECT_DUPLICATE_FRAGS      = 0;
+}
+
+unless(defined($ICMPv6_CONNET_TRACKING)) {
+        $ICMPv6_CONNET_TRACKING      = 0;
+}
+
+unless(defined($PROCESS_RA_DNS)) {
+        $PROCESS_RA_DNS		= 0;
+}
+
 $values{'TRANSMITTING_EREQ'}	= $TRANSMITTING_EREQ;
 $values{'MULTICAST_ROUTING'}	= $MULTICAST_ROUTING;
 $values{'MTU_CONFIGURATION'}	= $MTU_CONFIGURATION;
 $values{'HAS_MULTIPLE_INTERFACES'}	= $HAS_MULTIPLE_INTERFACES;
+$values{'PROCESS_HBH'}    = $PROCESS_HBH;
+$values{'SENDING_MORE_RSs'}    = $SENDING_MORE_RSs;
+$values{'SENDING_ONE_RS'}    = $SENDING_ONE_RS;
+$values{'TYPE_C_HOST'}    = $TYPE_C_HOST;
+$values{'BEYOND_SCOPE_SADDR'}    = $BEYOND_SCOPE_SADDR;
+$values{'DETECT_DUPLICATE_FRAGS'}    = $DETECT_DUPLICATE_FRAGS;
+$values{'ICMPv6_CONNET_TRACKING'}    = $ICMPv6_CONNET_TRACKING;
+$values{'PROCESS_RA_DNS'}    = $PROCESS_RA_DNS;
 
 unless(overwrite_config_def(\@keys)) {
 	print(STDERR "$prog: $strerror\n");

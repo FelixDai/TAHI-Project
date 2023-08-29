@@ -1,5 +1,5 @@
 #
-# $Name: V6LC_5_0_0 $
+# $Name: V6LC_5_0_3 $
 #
 # Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010
 # Yokogawa Electric Corporation.
@@ -60,6 +60,7 @@ use Exporter;
 	writefragdef_req
 	setup11
 	setup11alt
+	setup11_v6lc_4_1_8
 	setup11_v6LC_4_1_2
 	cleanup
 	cleanupalt
@@ -113,6 +114,7 @@ $Failure = 1;
 	#--- Setup for Host
 	'setup_ra'		=> 'Send Router Advertisement',
 	'setup_ra_rltime_1800'	=> 'Send Router Advertisement',
+	'setup_ra_hop255'	=> 'Send Router Advertisement',
 	'setup_dadns'		=> 'Recv DADNS',
 
 	#--- Setup for Host/Router
@@ -528,6 +530,22 @@ sub setup11alt {
 	return ($status);
 }
 
+#===============================================================
+# setup11_v6lc_4_1_8(Link0) - Common Test Setup 1.1 for 4.1.8
+#===============================================================
+sub setup11_v6lc_4_1_8 {
+	my($status);
+
+	if ($V6evalTool::NutDef{'Type'} eq 'router') {
+		$status = _setup11_Router(@_);
+	} else {
+		$status = _setup11_Host_v6lc_4_1_8(@_);
+	}
+
+	return ($status);
+}
+
+
 sub _setup11_Host {
 	my($IF) = @_;
 	my(%ret);
@@ -585,6 +603,66 @@ sub _setup11_Host {
 	vLogHTML('--- end Common Test Setup 1.1 for Host<BR>');
 	return ($Success);
 }
+
+
+sub _setup11_Host_v6lc_4_1_8 {
+	my($IF) = @_;
+	my(%ret);
+
+	vLogHTML('--- start Common Test Setup 1.1 for Host<BR>');
+
+	vSend($IF, 'setup_echo_request');
+	%ret = vRecv3($IF, $wait_reply, 0, 0, 'setup_echo_reply', 'ns_l2l', 'ns_g2l');
+	if ($ret{'status'} == 0) {
+		if ($ret{'recvFrame'} eq 'ns_l2l') {
+			vSend($IF, 'na_l2l');
+			%ret = vRecv3($IF, $wait_reply, 0, 0, 'setup_echo_reply');
+		} elsif ($ret{'recvFrame'} eq 'ns_g2l') {
+			vSend($IF, 'na_l2g');
+			%ret = vRecv3($IF, $wait_reply, 0, 0, 'setup_echo_reply');
+		}
+	}
+
+	if ($ret{'status'} == 0 and $ret{'recvFrame'} eq 'setup_echo_reply') {
+		vLogHTML('OK<BR>');
+	} else {
+		vLogHTML('Cannot receive Echo Reply<BR>');
+		vLogHTML('<FONT COLOR="#FF0000">NG</FONT><BR>');
+		vLogHTML('<FONT COLOR="#FF0000">setup failure</FONT><BR>');
+		return ($Failure);
+	}
+
+	vSend($IF, 'setup_ra_hop255');
+	$useRA = 1;
+	vRecv3($IF, $wait_dadns, 0, 0, 'setup_dadns');
+	vSleep($wait_after_dadns);
+
+	vSend($IF, 'setup_echo_request_g');
+	%ret = vRecv3($IF, $wait_reply, 0, 0, 'setup_echo_reply_g', 'ns_g2g', 'ns_l2g');
+	if ($ret{'status'} == 0) {
+		if ($ret{'recvFrame'} eq 'ns_g2g') {
+			vSend($IF, 'na_g2g');
+			%ret = vRecv3($IF, $wait_reply, 0, 0, 'setup_echo_reply_g');
+		} elsif ($ret{'recvFrame'} eq 'ns_l2g') {
+			vSend($IF, 'na_g2l');
+			%ret = vRecv3($IF, $wait_reply, 0, 0, 'setup_echo_reply_g');
+		}
+	}
+
+	if ($ret{'status'} == 0 and $ret{'recvFrame'} eq 'setup_echo_reply_g') {
+		vLogHTML('OK<BR>');
+	} else {
+		vLogHTML('Cannot receive Echo Reply<BR>');
+		vLogHTML('<FONT COLOR="#FF0000">NG</FONT><BR>');
+		vLogHTML('<FONT COLOR="#FF0000">setup failure</FONT><BR>');
+		return ($Failure);
+	}
+
+	vClear($IF);
+	vLogHTML('--- end Common Test Setup 1.1 for Host<BR>');
+	return ($Success);
+}
+
 
 sub _setup11_Host_v6LC_4_1_2 {
 	my($IF) = @_;

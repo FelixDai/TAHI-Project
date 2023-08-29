@@ -1,5 +1,5 @@
 #
-# $Name: V6LC_5_0_0 $
+# $Name: V6LC_5_0_7 $
 #
 # Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010
 # Yokogawa Electric Corporation.
@@ -50,7 +50,7 @@
 
 
 
-./Reboot.seq:/dev/null:::Initialization:1
+./Reboot.seq:./Get_global_addr.def:::Initialization:1
 
 
 
@@ -143,3 +143,10 @@
 #----------------------------------------------------------------------#
 &print:Test v6LC.4.1.11: Multicast Destination - Two Routers
 ./mcastTwo.seq:./mcastTwo.def:::Multicast Destination - Two Routers:1
+
+#----------------------------------------------------------------------#
+# Test v6LC.4.1.12: Validate Packet Too Big                            #
+#----------------------------------------------------------------------#
+&print:Test v6LC.4.1.12: Validate Packet Too Big
+./Validate_PTB.seq:./Validate_PTB.def:::Validate Packet Too Big:1
+

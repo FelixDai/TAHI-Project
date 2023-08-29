@@ -45,7 +45,7 @@
 # 
 
 ########################################################################
-BEGIN { $V6evalTool::TestVersion = '$Name: V6LC_5_0_0 $ '; }
+BEGIN { $V6evalTool::TestVersion = '$Name: V6LC_5_0_2 $ '; }
 use V6evalTool;
 use SAA;
 
@@ -141,62 +141,116 @@ if($V6evalTool::NutDef{'Type'} ne 'host') {
 # 	- DADNS_from_NUT
 # 	- DADNS_from_NUT_GA0Tgt
 
-%ret1 = vRecv($IF, $SAA::wait_dadns{$SAA::howto_addrconf}, 0, 0, @frames);
-if($ret1{'recvFrame'} eq 'DADNS_from_NUT') {
-	vLog("TN received DAD NS from NUT.");
-	vLog("OK! Let's go ahead!");
-
-	if($V6evalTool::NutDef{'Type'} ne 'router') {
-		vSleep($SAA::wait_addrconf);
-		vClear($IF);
-		vSend($IF, RA_GA0_VLT40);
-	} else {
-		if(vRemote(
-			'manualaddrconf.rmt',
-			"if=$V6evalTool::NutDef{'Link0_device'}",
-			"addr=$ret0{$TargetAddress}",
-			'len=64',
-			'type=unicast'
-		)) {
-			vLogHTML('<FONT COLOR="#FF0000"><B>'.
-				'manualaddrconf.rmt: Could\'t set the address'.
-				'</B></FONT><BR>');
-			seqNG();
-		}
-	}
-
-	vLog("TN wait DAD NS for Global address from NUT for $SAA::wait_dadns{ra} [sec],");
-	%ret1 = vRecv($IF, $SAA::wait_dadns{ra}, 0, 0, 'DADNS_from_NUT_GA0Tgt');
+%ret1 = vRecv($IF, $SAA::wait_dadns{$SAA::howto_addrconf}, 0, 0, @frames, DADNS_from_NUT_anyopt, DADNS_from_NUT_GA0Tgt_anyopt);
+if(($ret1{'recvFrame'} eq 'DADNS_from_NUT') || ($ret1{'recvFrame'} eq 'DADNS_from_NUT_anyopt')) {
+        vLog("TN received DAD NS from NUT.");
+        if($ret1{recvFrame} eq DADNS_from_NUT_anyopt){
+            my $opt_type = $ret1{"Frame_Ether.Packet_IPv6.ICMPv6_NS.Opt_ICMPv6_ANY.Type"};
+            if($opt_type = 14){
+                vLog(" DAD NS with NONCE option.");
+            }
+        }
+} else {
+        vLog("TN cannot receive DAD NS from NUT.");
+        seqNG();
 }
 
-if($ret1{'recvFrame'} ne 'DADNS_from_NUT_GA0Tgt') {
-	vLog("NUT had not transmitted DAD NS for Global address.");
-	seqNG();
-}
+vLog("OK! Let's go ahead!");
 
-#----- check if NUT's address is configured
-vLog("NUT had transmitted DAD NS for its Global address.");
-
-vSleep($SAA::wait_addrconf_with_RA);
-
-if(seqCheckNUTAddrConfiguredGADAD($IF,
-	DADNS_from_TN_GA0Tgt, 
-	DADNA_from_NUT_GA0Tgt, 
-	DADNA_from_NUT_GA0Tgt_woTLL, 
-	DADNA_from_GA0NUT_GA0Tgt, 
-	DADNA_from_GA0NUT_GA0Tgt_woTLL) eq TRUE) {
-
-	vLog("NUT assigned Global address to the interface.");
-	if ($DAD_GA eq "NO") {
-		vLog("NUT transmit DAD NS though DADTransmitsGA == 0");
+if($V6evalTool::NutDef{'Type'} ne 'router') {
+	vSleep($SAA::wait_addrconf);
+	vClear($IF);
+	vSend($IF, RA_GA0_VLT40);
+} else {
+	if(vRemote(
+		'manualaddrconf.rmt',
+		"if=$V6evalTool::NutDef{'Link0_device'}",
+		"addr=$ret0{$TargetAddress}",
+		'len=64',
+		'type=unicast'
+	)) {
+		vLogHTML('<FONT COLOR="#FF0000"><B>'.
+			'manualaddrconf.rmt: Could\'t set the address'.
+			'</B></FONT><BR>');
 		seqNG();
-	}else{
-		seqOK();
 	}
 }
 
-vLog(" NUT had not assign Global address.");
-seqNG();
+vLog("TN wait DAD NS for Global address from NUT for $SAA::wait_dadns{ra} [sec],");
+
+if($V6evalTool::NutDef{'Type'} ne 'router') {
+        %ret1 = vRecv($IF, $SAA::wait_dadns{ra}, 0, 0, 'Init_DADNS_from_NUT','Init_DADNS_from_NUT_anyopt');
+        if($ret1{'status'} == 0) {
+                $TargetAddress_GA = $ret1{"Frame_Ether.Packet_IPv6.ICMPv6_NS.TargetAddress"};
+                $TargetAddress_GA = lc($TargetAddress_GA);
+                $idx = index($TargetAddress_GA, "fec0");
+                if($idx == 0) {
+                        vLog("NUT had transmitted DAD NS for its Global address.");
+                        vRenewConfFile($IF, $TargetAddress_GA);
+                        if($ret1{'recvFrame'} eq 'Init_DADNS_from_NUT_anyopt'){
+                                my $opt_type = $ret1{"Frame_Ether.Packet_IPv6.ICMPv6_NS.Opt_ICMPv6_ANY.Type"};
+                                if($opt_type = 14){
+                                        vLog(" DAD NS with NONCE option.");
+                                }
+                        }
+                #----- check if NUT's address is configured
+                        vSleep($SAA::wait_addrconf_with_RA);
+                        if(seqCheckNUTAddrConfiguredGADAD($IF,
+	                        DADNS_from_TN_GA0Tgt_RA, 
+	                        DADNA_from_NUT_GA0Tgt_RA, 
+	                        DADNA_from_NUT_GA0Tgt_woTLL_RA, 
+	                        DADNA_from_GA0NUT_GA0Tgt_RA, 
+	                        DADNA_from_GA0NUT_GA0Tgt_woTLL_RA) eq TRUE) {
+                                vLog("NUT assigned Global address to the interface.");
+	                        if ($DAD_GA eq "NO") {
+		                        vLog("NUT transmit DAD NS though DADTransmitsGA == 0");
+		                        seqNG();
+	                        }else{
+                                        captureAddr($IF);
+		                        seqOK();
+	                        }
+                        }
+                        vLog(" NUT had not assign Global address.");
+                        seqNG(); 
+                } else {
+                        vLog("NUT did not transmitte DAD NS for its Global address.");
+                        seqNG();
+                }
+        }
+} else {
+        %ret1 = vRecv($IF, $SAA::wait_dadns{ra}, 0, 0, 'DADNS_from_NUT_GA0Tgt','DADNS_from_NUT_GA0Tgt_anyopt');
+        if(($ret1{'recvFrame'} eq 'DADNS_from_NUT_GA0Tgt') || ($ret1{'recvFrame'} eq 'DADNS_from_NUT_GA0Tgt_anyopt')) {
+                vLog("NUT had transmitted DAD NS for its Global address.");
+                if($ret1{'recvFrame'} eq 'DADNS_from_NUT_GA0Tgt_anyopt'){
+                        my $opt_type = $ret1{"Frame_Ether.Packet_IPv6.ICMPv6_NS.Opt_ICMPv6_ANY.Type"};
+                        if($opt_type = 14){
+                                vLog(" DAD NS with NONCE option.");
+                        }
+                }
+                #----- check if NUT's address is configured
+                vSleep($SAA::wait_addrconf_with_RA);
+                if(seqCheckNUTAddrConfiguredGADAD($IF,
+	                DADNS_from_TN_GA0Tgt, 
+	                DADNA_from_NUT_GA0Tgt, 
+	                DADNA_from_NUT_GA0Tgt_woTLL, 
+	                DADNA_from_GA0NUT_GA0Tgt, 
+	                DADNA_from_GA0NUT_GA0Tgt_woTLL) eq TRUE) {
+                                vLog("NUT assigned Global address to the interface.");
+	                        if ($DAD_GA eq "NO") {
+		                        vLog("NUT transmit DAD NS though DADTransmitsGA == 0");
+		                        seqNG();
+	                        }else{
+		                        seqOK();
+	                        }
+                        }
+                vLog(" NUT had not assign Global address.");
+                seqNG(); 
+        } else {
+               vLog(" NUT had not transmit Global DAD NS.");
+                seqNG(); 
+        }
+
+}
 
 
 

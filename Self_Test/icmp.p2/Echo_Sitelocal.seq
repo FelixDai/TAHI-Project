@@ -45,7 +45,7 @@
 # $TAHI: ct/icmp.p2/Echo_Sitelocal.seq,v 1.7 2008/07/31 02:48:19 hide Exp $
 #----------------------------------------------------------------------
 
-BEGIN { $V6evalTool::TestVersion = '$Name: V6LC_5_0_0 $'; }
+BEGIN { $V6evalTool::TestVersion = '$Name: V6LC_5_0_7 $'; }
 use V6evalTool;
 use icmp;
 
@@ -62,9 +62,9 @@ vCapture($IF);
 
 
 if ($V6evalTool::NutDef{Type} eq 'router') {
-	$TargetAddress = 'Frame_Ether.Packet_IPv6.ICMPv6_NS.TargetAddress';
+	$Tar_Address = 'Frame_Ether.Packet_IPv6.ICMPv6_NS.TargetAddress';
 	%ret0 = vSend($IF, 'dummy');
-	unless(defined($ret0{$TargetAddress})) {
+	unless(defined($ret0{$Tar_Address})) {
 		vLogHTML('<FONT COLOR="#FF0000"><B>Can\'t get TargetAddress.</B></FONT><BR>');
 		exit($V6evalTool::exitFatal);
 		#NOTREACHED
@@ -73,7 +73,7 @@ if ($V6evalTool::NutDef{Type} eq 'router') {
 	if(vRemote(
 		'manualaddrconf.rmt',
 		"if=$V6evalTool::NutDef{'Link0_device'}",
-		"addr=$ret0{$TargetAddress}",
+		"addr=$ret0{$Tar_Address}",
 		'len=64',
 		'type=unicast'
 	)) {
@@ -105,7 +105,23 @@ else {
 
 if (($V6evalTool::NutDef{Type} eq 'host') ||
 	($V6evalTool::NutDef{Type} eq 'special')) {
-	sendRA("setup");
+	vSend($IF, ra_start_fec0);
+	%ret1 = vRecv($IF, 5, 0, 0, Init_DADNS_from_NUT, Init_DADNS_from_NUT_anyopt);
+	if($ret1{'status'} == 0) {
+		my $TargetAddress = $ret1{"Frame_Ether.Packet_IPv6.ICMPv6_NS.TargetAddress"};
+		$TargetAddress = lc($TargetAddress);
+		my $idx = index($TargetAddress, "fec0");
+		if($idx == 0){
+        	vLog("global addr with prefix fec0:: received");
+			$prefix_fec0 = 1;
+			vRenewConfFile($IF, $TargetAddress);
+                vSleep(5);
+		}
+		else{
+        	vLog("DAD NS with Global addr not received");
+			goto error;
+		}
+	}
 };
 
 
@@ -122,7 +138,7 @@ else {
 	if(($V6evalTool::NutDef{Type} eq 'router') && (vRemote(
 		'manualaddrconf.rmt',
 		"if=$V6evalTool::NutDef{'Link0_device'}",
-		"addr=$ret0{$TargetAddress}",
+		"addr=$ret0{$Tar_Address}",
 		'len=64',
 		'type=delete'
 	))) {
@@ -133,7 +149,7 @@ else {
 		exit($V6evalTool::exitFatal);
 		#NOTREACHED
 	}
-
+	
 	vStop($IF);
 	exit($V6evalTool::exitPass);
 };
@@ -142,13 +158,13 @@ error:
 vLogHTML('<FONT COLOR="#FF0000">FAIL</FONT><BR>');
 cleanup();
 
-if(vRemote(
-	'manualaddrconf.rmt',
-	"if=$V6evalTool::NutDef{'Link0_device'}",
-	"addr=$ret0{$TargetAddress}",
-	'len=64',
-	'type=delete'
-)) {
+if(($V6evalTool::NutDef{Type} eq 'router') && (vRemote(
+		'manualaddrconf.rmt',
+		"if=$V6evalTool::NutDef{'Link0_device'}",
+		"addr=$ret0{$Tar_Address}",
+		'len=64',
+		'type=delete'
+	))) {
 	vLogHTML('<FONT COLOR="#FF0000"><B>'.
 		'manualaddrconf.rmt: Could\'t remove the address'.
 		'</B></FONT><BR>');

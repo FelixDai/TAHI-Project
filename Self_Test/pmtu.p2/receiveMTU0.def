@@ -1,5 +1,5 @@
 //
-// $Name: V6LC_5_0_0 $
+// $Name: V6LC_5_0_5 $
 //
 // Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010
 // Yokogawa Electric Corporation.
@@ -65,7 +65,7 @@
 //
 
 FEM_icmp6_echo_request(
-	echo_request1280,
+	echo_request1400,
 	_HETHER_tn2nut,
 	{
 		_SRC(TN2_GL2_ADDR);
@@ -75,7 +75,7 @@ FEM_icmp6_echo_request(
 	{
 		Identifier = PING_ID;
 		SequenceNumber = PING_SN;
-		payload = echo_data_1232;
+		payload = echo_data_1352;
 	}
 )
 
@@ -85,7 +85,7 @@ FEM_icmp6_echo_request(
 //
 
 FEM_icmp6_echo_reply(
-	echo_reply1280,
+	echo_reply1400,
 	_HETHER_nut2tn,
 	{
 		_SRC(NUT_GL0_ADDR);
@@ -94,7 +94,7 @@ FEM_icmp6_echo_reply(
 	{
 		Identifier = PING_ID;
 		SequenceNumber = PING_SN;
-		payload = echo_data_1232;
+		payload = echo_data_1352;
 	}
 )
 
@@ -103,12 +103,13 @@ FEM_icmp6_echo_reply(
 // Payload Data
 //
 
-Payload echo_data_1232 {
+Payload echo_data_1352 {
 	data = repeat(0x01, 256);
 	data = repeat(0x02, 256);
 	data = repeat(0x03, 256);
 	data = repeat(0x04, 256);
-	data = repeat(0x05, 208);
+	data = repeat(0x05, 256);
+	data = repeat(0x06, 72);
 }
 
 
@@ -130,7 +131,7 @@ FEM_icmp6_packet_too_big(
 ) 
 
 Payload TooBigData1280 {
-	data=substr(_PACKET_IPV6_NAME(echo_reply1280), 0, 1232);
+	data=substr(_PACKET_IPV6_NAME(echo_reply1400), 0, 1232);
 }
 
 

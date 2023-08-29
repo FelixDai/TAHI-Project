@@ -1,0 +1,307 @@
+#!/usr/bin/perl
+#
+# $Name: V6LC_5_0_7 $
+#
+# Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010
+# Yokogawa Electric Corporation.
+# All rights reserved.
+# 
+# Redistribution and use of this software in source and binary
+# forms, with or without modification, are permitted provided that
+# the following conditions and disclaimer are agreed and accepted
+# by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in
+#    the documentation and/or other materials provided with
+#    the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project
+#    which is related to this software (hereinafter referred to as
+#    "project") nor the names of the contributors may be used to
+#    endorse or promote products derived from this software without
+#    specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written
+#    notification to the copyrighters.
+# 
+# 5. The copyrighters, the project and the contributors may prohibit
+#    the use of this software at any time.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+# STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+# IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+# $Id: F_Reassembly_Valid.seq,v 1.8 2010/03/30 01:19:01 akisada Exp $
+#
+######################################################################
+BEGIN {
+	$V6evalTool::TestVersion = '$Name: V6LC_5_0_7 $';
+}
+
+use V6evalTool;
+use CommonSPEC;
+
+$discard_te = $CommonSPEC::exceed_max;
+
+$pktdesc{'echo_request_1st'}	= 'Send Echo Request (1st fragment)';
+$pktdesc{'echo_request_2nd'}	= 'Send Echo Request (2nd fragment)';
+$pktdesc{'echo_request_3rd'}	= 'Send Echo Request (3rd fragment)';
+#$pktdesc{'echo_reply'}		= 'Recv Echo Reply';
+#$pktdesc{'time_exceeded'}	= 'Recv ICMPv6 Time Exceeded Message';
+
+$endStatus = $V6evalTool::exitPass;
+
+#----- create Fragment ID
+$id = time & 0x00000fff;
+$fid = sprintf("0x0%07x", $id);
+$rid = sprintf("0x0%03x", $id);
+$sno = 0;
+
+vCPP("-DFRAG_ID=$fid -DREQ_ID=$rid -DSEQ_NO=$sno");
+################################################################
+$IF = 'Link0';
+
+vCapture($IF);
+
+#======================================================================
+if (setup11($IF) != $CommonSPEC::Success) {
+	$ret = cleanup($IF);
+	if ($ret == $CommonSPEC::Success) {
+		exit($V6evalTool::exitFail);
+	} else {
+		exit($V6evalTool::exitFatal);
+	}
+}
+#======================================================================
+
+#----- test
+vSend($IF, 'echo_request_1st');
+vSend($IF, 'echo_request_2nd');
+vSend($IF, 'echo_request_3rd');
+
+%ret = nd_vRecv_EN($IF,$discard_te, 0, 0, 'echo_reply', 'time_exceeded', 'icmperr'); 
+
+if ($ret{'status'} != 0) {
+	vLogHTML('OK<BR>');
+} else {
+	if ($ret{'recvFrame'} eq 'echo_reply') {
+		vLogHTML('Received Echo Reply<BR>');
+		vLogHTML('<FONT COLOR="#FF0000">NG</FONT><BR>');
+		$endStatus = $V6evalTool::exitFail;
+	}
+	if ($ret{'recvFrame'} eq 'time_exceeded') {
+        	vLogHTML('Received ICMPv6 Time Exceeded<BR>');
+        	vLogHTML('<FONT COLOR="#FF0000">NG</FONT><BR>');
+        	$endStatus = $V6evalTool::exitFail;
+	}
+        if ($ret{'recvFrame'} eq 'icmperr') {
+                vLogHTML('Received ICMPv6 Parameter Problem<BR>');
+                vLogHTML('<FONT COLOR="#FF0000">NG</FONT><BR>');
+                $endStatus = $V6evalTool::exitFail;
+        }
+}
+
+
+#-----end test
+
+$ret = cleanup($IF);
+vStop($IF);
+if ($ret == $CommonSPEC::Success) {
+	exit($endStatus);
+} else {
+	exit($V6evalTool::exitFatal);
+}
+
+
+######################################################################
+__END__
+
+=head1 NAME
+
+  Reassembly_Overlap - Overlapping Fragments
+  Part A - Overlapping fragments (Link-Local)  
+
+=head1 TARGET
+
+  Host and Router
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./Reassembly_Overlap.seq">Reassembly_Overlap.seq</A> [-tooloption ...] -pkt <A HREF="./Reassembly_Overlap.def">Reassembly_Overlap.def</A>
+    -tooloption : v6eval tool option
+</PRE>
+
+=end html
+
+=head1 INITIALIZATION
+
+  None
+
+=head1 TEST PROCEDURE
+
+Verify that a node correctly reassembles fragmented packets and distinguishes between packet fragments using the Source Address, Destination Address and Fragment ID.
+
+    TN                         NUT
+    |                           |
+    |-------------------------->|
+    |   Echo Request (1st)      |
+    |                           |
+    |-------------------------->|
+    |   Echo Request (2nd)      |
+    |                           |
+    |-------------------------->|
+    |   Echo Request (3rd)      |
+    |                           |
+    |<--------------------------|
+    |      None                 |
+    |                           |
+    |                           |
+    v                           v
+
+
+  1. TN1 transmits Fragments A.1, A.2, and A.3 in that order.   A2. and A.3 have overlapping payloads.. 
+  
+  2. Observe the packets transmitted by the NUT.
+
+  Echo Request Data (original) is:
+
+        IPv6 Header
+            Version            = 6
+            Traffic Class      = 0
+            FlowLabel          = 0
+            PayloadLength      = 88
+            NextHeader         = 58 (ICMPv6)
+            SourceAddress      = TN Link Local Address
+            DestinationAddress = NUT Link Local Address
+
+        ICMP Echo Request
+            Type           = 128 (Echo Request)
+            Code           = 0
+            Checksum       = (auto)
+            Identifier     = (auto)
+            SequenceNumber = 0
+            PayloadData    = data repeat{0x1, 40}
+                             data repeat{0x2, 40}
+
+  Echo Request Data (1st fragment) is:
+
+        IPv6 Header
+            Version            = 6
+            Traffic Class      = 0
+            FlowLabel          = 0
+            PayloadLength      = 40
+            NextHeader         = 44 (Fragment Header)
+            SourceAddress      = TN Link Local Address
+            DestinationAddress = NUT Link Local Address
+
+        Fragment Header
+            NextHeader         = 58 (ICMPv6)
+            FragmentOffset     = 0
+            MFlag              = 1
+            Identification     = 32bit (Automatic generation)
+
+        Payload
+            data               = 32 octets from the head of ICMP Echo request
+
+  Echo Request Data (2nd fragment) is:
+
+        IPv6 Header
+            Version            = 6
+            Traffic Class      = 0
+            FlowLabel          = 0
+            PayloadLength      = 40
+            NextHeader         = 44 (Fragment Header)
+            SourceAddress      = TN Link Local Address
+            DestinationAddress = NUT Link Local Address
+
+        Fragment Header
+            NextHeader         = 58 (ICMPv6)
+            FragmentOffset     = 4
+            MFlag              = 1
+            Identification     = 32bit (Automatic generation)
+
+        Payload
+            data               = 32 octets from the back of ICMP Echo request
+
+  Echo Request Data (3rd fragment) is:
+
+        IPv6 Header
+            Version            = 6
+            Traffic Class      = 0
+            FlowLabel          = 0
+            PayloadLength      = 32
+            NextHeader         = 44 (Fragment Header)
+            SourceAddress      = TN Link Local Address
+            DestinationAddress = NUT Link Local Address
+
+        Fragment Header
+            NextHeader         = 58 (ICMPv6)
+            FragmentOffset     = 6
+            MFlag              = 0
+            Identification     = 32bit (Automatic generation)
+
+        Payload
+            data               = 24 octets from the back of ICMP Echo request
+
+=head1 JUDGEMENT
+
+  PASS: The NUT must discard the fragments and must not transmit an Echo Reply or Error message.
+
+=head1 CLEANUP
+
+Common Test Cleanup
+
+=cut
+
+# =head1 REFERENCE
+# 
+# RFC8200
+# 
+# 4.5  Fragment Header
+# 
+#   o If any of the fragments being reassembled overlap with any
+#     other fragments being reassembled for the same packet,
+#     reassembly of that packet must be abandoned and all the
+#     fragments that have been received for that packet must be
+#     discarded, and no ICMP error messages should be sent.
+#     It should be noted that fragments may be duplicated in the
+#     network. Instead of treating these exact duplicate fragments
+#     as overlapping fragments, an implementation may choose to
+#     detect this case and drop exact duplicate fragments while
+#     keeping the other fragments belonging to the same packet.
+ 
+
+=pod
+
+=head1 REFERENCE
+
+=begin html
+<BLOCKQUOTE>
+<PRE>
+RFC 8200 - IPv6 Specification
+</PRE>
+</BLOCKQUOTE>
+
+=end html
+
+=head1 SEE ALSO
+
+  perldoc V6evalTool
+
+=cut
+

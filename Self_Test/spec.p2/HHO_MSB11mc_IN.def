@@ -1,5 +1,5 @@
 //
-// $Name: V6LC_5_0_0 $
+// $Name: V6LC_5_0_3 $
 //
 // Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010
 // Yokogawa Electric Corporation.
@@ -117,7 +117,7 @@ FEM_hdr_ipv6_exth(
         _HETHER_tn2nut,
         {
                 _SRC(tn2v6(_GLOBAL10_UCAST_PRFX, _GLOBAL10_UCAST_PRFXLEN));
-                _DST(nut2v6(_GLOBAL0_UCAST_PRFX, _GLOBAL0_UCAST_PRFXLEN));
+                _DST(nut4v6("Link0"));
         },
         {
                 header  = _HDR_IPV6_NAME(mld_report_to_link1);
@@ -217,7 +217,7 @@ FEM_hdr_ipv6_exth(
         echo_request_ex_from_link1,
         _HETHER_nut2tn,
         {
-                _SRC(nut2v6(_GLOBAL0_UCAST_PRFX, _GLOBAL0_UCAST_PRFXLEN));
+                _SRC(nut4v6("Link0"));
                 _DST(tn2v6(_GLOBAL10_UCAST_PRFX, _GLOBAL10_UCAST_PRFXLEN));
         },
         {

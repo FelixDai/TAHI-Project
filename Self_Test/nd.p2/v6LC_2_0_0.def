@@ -47,3 +47,47 @@
 
 #include "./common.def"
 #include "./redirect.def"
+
+FEM_icmp6_ra(
+	get_addr_ra,
+	_HETHER_tn2allnodes,
+	{
+		_SRC(tnv6());
+		_DST(v6(_ALLNODES_MCAST_ADDR));
+		HopLimit = 255;
+	},
+	{
+		CurHopLimit = 64;
+		LifeTime = 1805;
+		ReachableTime = 30005;
+		RetransTimer = 1005;
+		option = _SLLOPT_src;
+		option = setup_prefixopt;
+	}
+)
+
+Opt_ICMPv6_Prefix setup_prefixopt {
+	PrefixLength = 64;
+	LFlag = 1;
+	AFlag = 1;
+	ValidLifetime = 10000;
+	PreferredLifetime = 10000;
+	Prefix = v6(_GLOBAL0_UCAST_PRFX);
+}
+
+FEM_ADDRCONF_dadns(
+                   Init_DADNS_from_NUT,
+                   hether_nut2any,
+                   DestinationAddress=any;
+		   ,
+                   TargetAddress=any; // Tentative Address
+)
+
+FEM_ADDRCONF_dadns(
+                   Init_DADNS_from_NUT_anyopt, 
+		   hether_nut2any,
+		   DestinationAddress=any;
+                   ,
+                   TargetAddress=any; // Tentative Address
+                   option = any;
+)

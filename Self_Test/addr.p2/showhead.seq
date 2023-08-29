@@ -59,7 +59,7 @@ showhead.seq
 
 
 ########################################################################
-BEGIN { $V6evalTool::TestVersion = '$Name: V6LC_5_0_0 $'; }
+BEGIN { $V6evalTool::TestVersion = '$Name: V6LC_5_0_7 $'; }
 use V6evalTool;
 
 $type = $V6evalTool::NutDef{Type};

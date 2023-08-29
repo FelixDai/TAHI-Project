@@ -1,5 +1,5 @@
 #
-# $Name: V6LC_5_0_0 $
+# $Name: V6LC_5_0_7 $
 #
 # Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010
 # Yokogawa Electric Corporation.
@@ -50,7 +50,7 @@
 
 
 
-./Reboot.seq:/dev/null:::Initialization:1
+./Reboot.seq:./Get_global_addr.def:::Initialization:1
 
 
 
@@ -196,5 +196,24 @@
 
 
 
-&print:Test v6LC.1.3.4: Stub Fragment Header
-./F_Stub.seq:./F_Stub.def:::Stub Fragment Header:1
+&print:Test v6LC.1.3.4: Atomic Fragment
+./F_Stub.seq:./F_Stub.def:::Part A&#58; Link-Local:1
+./F_Stub_g.seq:./F_Stub_g.def:::Part B&#58; Global:1
+
+
+&print:Test v6LC.1.3.5: Overlapping Fragments
+./Reassembly_Overlap.seq:./Reassembly_Overlap.def:::Part A&#58; Overlapping fragments (Link-Local):1
+./Reassembly_Overlap_R.seq:./Reassembly_Overlap_R.def:::Part B&#58; Reverse Order Fragments (Link-Local):1
+./Reassembly_Dupli.seq:./Reassembly_Dupli.def:::Part C&#58; Duplicate Fragments (Link-Local):1
+./Reassembly_Extra.seq:./Reassembly_Extra.def:::Part D&#58; Extra Fragments (Link-Local):1
+./Reassembly_Overlap_G.seq:./Reassembly_Overlap_G.def:::Part E&#58; Overlapping fragments (Global):1
+./Reassembly_Overlap_R_G.seq:./Reassembly_Overlap_R_G.def:::Part F&#58; Reverse Order Fragments (Global):1
+./Reassembly_Dupli_G.seq:./Reassembly_Dupli_G.def:::Part G&#58; Duplicate Fragments (Global):1
+./Reassembly_Extra_G.seq:./Reassembly_Extra_G.def:::Part H&#58; Extra Fragments (Global):1
+
+
+&print:Test v6LC.1.3.6: First Fragment Doesn't Contain All Headers
+./v6LC_1_3_6_A.seq:./v6LC_1_3_6_A.def:::Part A&#58; Destination Options (Link-Local):1     
+./v6LC_1_3_6_B.seq:./v6LC_1_3_6_B.def:::Part B&#58; Routing Options (Link-Local):1
+./v6LC_1_3_6_C.seq:./v6LC_1_3_6_C.def:::Part C&#58; Destination Options (Global):1
+./v6LC_1_3_6_D.seq:./v6LC_1_3_6_D.def:::Part D&#58; Routing Options (Global):1

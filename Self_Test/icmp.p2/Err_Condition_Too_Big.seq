@@ -45,7 +45,7 @@
 # $TAHI: ct/icmp.p2/Err_Condition_Too_Big.seq,v 1.18 2010/03/24 10:16:55 akisada Exp $
 
 ########################################################################
-BEGIN { $V6evalTool::TestVersion = '$Name: V6LC_5_0_0 $'; }
+BEGIN { $V6evalTool::TestVersion = '$Name: V6LC_5_0_7 $'; }
 use V6evalTool;
 use icmp;
 use Pkt_Too_Big;

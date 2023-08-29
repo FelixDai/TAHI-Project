@@ -45,11 +45,8 @@
 # $TAHI: ct/nd.p2/V6LC_2_1_17_B.seq,v 1.11 2010/03/29 00:30:45 akisada Exp $
 #
 ########################################################################
-
+BEGIN {$V6evalTool::TestVersion = '$Name: V6LC_5_0_7 $';}
 use nd;
-
-BEGIN {}
-END   {}
 
 my $ereq = 'ndisc_ereq_LL';
 my $erep = 'ndisc_erep_LL';

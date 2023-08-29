@@ -46,7 +46,7 @@
 #
 ######################################################################
 BEGIN {
-	$V6evalTool::TestVersion = '$Name: V6LC_5_0_0 $';
+	$V6evalTool::TestVersion = '$Name: V6LC_5_0_7 $';
 }
 
 use V6evalTool;
@@ -397,7 +397,7 @@ __END__
 
 # =head1 REFERENCE
 # 
-# RFC2460
+# RFC8200
 # 
 # 4.5  Fragment Header
 # 
@@ -464,7 +464,7 @@ __END__
 =begin html
 <BLOCKQUOTE>
 <PRE>
-RFC 2460 - IPv6 Specification
+RFC 8200 - IPv6 Specification
 </PRE>
 </BLOCKQUOTE>
 

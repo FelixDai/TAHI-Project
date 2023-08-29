@@ -45,9 +45,42 @@
 # $TAHI: ct/icmp.p2/BEGIN.seq,v 1.3 2005/04/25 08:06:49 akisada Exp $
 
 ########################################################################
-BEGIN { $V6evalTool::TestVersion = '$Name: V6LC_5_0_0 $ '; }
+BEGIN { $V6evalTool::TestVersion = '$Name: V6LC_5_0_7 $ '; }
 use V6evalTool;
 require './config.pl';
+
+if($V6evalTool::NutDef{'Type'} ne 'router') {
+	vLog("Remote boot NUT. ");
+	$ret = vRemote("reboot.rmt", "", "timeout=$wait_rebootcmd");
+	vLog("reboot.rmt returned status $ret") if $debug > 0;
+
+	if ($ret > 0) {
+		vLog("vRemote reboot.rmt exit $ret");
+		exit($V6evalTool::exitFatal);
+	}
+	$IF=Link0;
+	vCapture($IF);
+	$Recv_count = 0;
+	while (1) {
+		vClear($IF);
+		$Recv_count++;
+		if($Recv_count > 2){
+			last;
+		}
+		vSend($IF, get_addr_ra);
+		%ret = vRecv($IF, 5, 0, 0, Init_DADNS_from_NUT, Init_DADNS_from_NUT_anyopt);
+		if($ret{'status'} == 0) {
+			my $TargetAddress = $ret{"Frame_Ether.Packet_IPv6.ICMPv6_NS.TargetAddress"};
+			$TargetAddress = lc($TargetAddress);
+			my $idx = index($TargetAddress, "3ffe");
+			if($idx == 0) {
+				vLog("global addr received");
+				vRenewConfFile($IF, $TargetAddress);
+				last;
+			}
+		}
+	}	
+}
 
 vLog("Remote boot NUT. ");
 $ret = vRemote("reboot.rmt", "", "timeout=$wait_rebootcmd");

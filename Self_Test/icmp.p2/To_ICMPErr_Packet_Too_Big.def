@@ -75,7 +75,7 @@ FEM_icmp6_destination_unreachable(
 	dst_unreach_from_nut,
 	_HETHER_nut2tn,
 	{
-		_SRC(oneof(nutv6(),NUT_GLOBAL,NUT_GLOBAL_LINK1));
+		_SRC(oneof(nut3v6(),NUT_GLOBAL,NUT_GLOBAL_LINK1));
 		_DST(oneof(tnv6(),TN_GLOBAL));
 	},
 	{

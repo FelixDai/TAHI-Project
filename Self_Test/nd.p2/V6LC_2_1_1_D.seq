@@ -45,23 +45,30 @@
 # $TAHI: ct/nd.p2/V6LC_2_1_1_D.seq,v 1.11 2009/12/28 05:55:16 akisada Exp $
 #
 ########################################################################
-
+BEGIN {$V6evalTool::TestVersion = '$Name: V6LC_5_0_7 $';}
 use rdisc;
-
-BEGIN {}
-END   {}
 
 vCapture($Link0);
 
 vLogHTML('<FONT COLOR="#FF0000" SIZE="5"><U><B>Test Procedure</B></U></FONT><BR>');
 
 if($V6evalTool::NutDef{'Type'} eq 'host') {
+#test type is host
 	vSend($Link0, 'tr1_ra_common');
 	$tr1_default	= 1;
 	$tr1_prefix	= 1;
 
 	ignoreDAD($Link0);
+
+	unless(v6LC_2_1_1_D($Link0)) {
+		exitFail($Link0);
+		#NOTREACHED
+		}
 } else {
+#test type is router,when a default route is configured Neighbor Solicitations are 
+#sent to populate the Neighbor Cache,TN should response to the initial NS, and receive
+#an echo reply to the first hop
+
 	if(vRemote(
 		'route.rmt',
 		'cmd=add',
@@ -76,12 +83,29 @@ if($V6evalTool::NutDef{'Type'} eq 'host') {
 		exitFatal($Link0);
 	}
 
-	$tr1_default	= 1;
-}
+	$tr1_default = 1;
 
-unless(v6LC_2_1_1_D($Link0)) {
-	exitFail($Link0);
-	#NOTREACHED
+	$pktdesc{tr1_mcast_ns_nosll_linklocal_common} = '    Receive Neighbor Solicitation without SLLOPT';
+	$pktdesc{tr1_na_linklocal_common} = '    send Neighbor Advertisement';
+
+	%ret = vRecv($Link0, 3, 0, 0, tr1_mcast_ns_nosll_linklocal_common,
+		    tr1_mcast_ns_linklocal_common);
+	if ($ret{status} == 0) {
+		vSend($Link0, 'tr1_na_linklocal_common');
+		$tr1_cache = 1;
+		unless(v6LC_2_1_1_D_1($Link0)) {
+			exitFail($Link0);
+			#NOTREACHED
+		}
+	}
+
+	else{
+		unless(v6LC_2_1_1_D($Link0)) {
+			exitFail($Link0);
+			#NOTREACHED
+		}
+	}
+
 }
 
 exitPass($Link0);
@@ -140,7 +164,45 @@ is_tr1_incomplete($)
 	return(1);
 }
 
+#------------------------------#
+# v6LC_2_1_1_D_1()             #
+#------------------------------#
+sub
+v6LC_2_1_1_D_1($)
+{
+	my ($Link) = @_;
 
+	vClear($Link);
+	vSend($Link, 'tn2_ereq_offlink_via_tr1');
+	return(is_tr1_complete($Link));
+}
+
+#------------------------------#
+# is_tr1_complete()            #
+#------------------------------#
+sub
+is_tr1_complete($)
+{
+	my ($Link) = @_;
+
+	my $bool	= 0;
+
+	%ret = vRecv($IF, 3, 0, 0, tn2_erep_offlink_via_tr1);
+	if ($ret{status} == 0) {
+		
+		$bool = 1;
+
+	}
+	unless($bool) {
+		vLogHTML('<FONT COLOR="#FF0000"><B>'.
+			'Could\'t observe echo reply'.
+			'</B></FONT><BR>');
+		return(0);
+	}
+
+
+	return(1);
+}
 
 #
 # perldoc
@@ -277,7 +339,11 @@ __END__
 
 =head1 Possible Problems
 
-  * None. 
+   Part C, there are core routers that when a default route is configured Neighbor Solicitations 
+   are sent to populate the Neighbor Cache, when no response is given they may follow 7048. Which 
+   allows a backing off mechanism for transmitting Neighbor Solicitations when there is no answer. 
+   The test case may be run answering the initial NS when the route is installed and then observe 
+   the packet being transmitted to the first hop 
 
 =cut
 

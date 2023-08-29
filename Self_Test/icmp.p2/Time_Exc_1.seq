@@ -45,7 +45,7 @@
 # $TAHI: ct/icmp.p2/Time_Exc_1.seq,v 1.13 2010/03/24 08:25:47 akisada Exp $
 #----------------------------------------------------------------------
 
-BEGIN { $V6evalTool::TestVersion = '$Name: V6LC_5_0_0 $'; }
+BEGIN { $V6evalTool::TestVersion = '$Name: V6LC_5_0_7 $'; }
 use V6evalTool;
 use icmp;
 use lib '../';
@@ -287,7 +287,6 @@ Verify that a router properly generates Time Exceeded Messages the Hop Limit was
     The RUT should decrement the Hop Limit to 0 and 
     send a Time Exceeded Message to TN 
     with a code field valude of 0 (Hop Limit Exceeded in transit).
-         - The unused field must be initialized to zero.
          - The Source Address of the Packet should be one of the 
            RUT's unicast address used for packet forwarding.
          - The Destination Address should be the same as TN's Source Address.

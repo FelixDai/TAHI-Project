@@ -45,7 +45,7 @@
 # 
 
 ########################################################################
-BEGIN { $V6evalTool::TestVersion = '$Name: V6LC_5_0_0 $ '; }
+BEGIN { $V6evalTool::TestVersion = '$Name: V6LC_5_0_7 $ '; }
 use V6evalTool;
 use SAA;
 
@@ -117,7 +117,7 @@ vCapture($IF);
 #----- Wait DAD NS from NUT or timeout
 vLog("TN wait DAD NS(DADNS_from_NUT) from NUT for $SAA::wait_dadns{$SAA::howto_addrconf} [sec],");
 
-%ret1=vRecv($IF,$SAA::wait_dadns{$SAA::howto_addrconf},0,0,DADNS_from_NUT);
+%ret1=vRecv($IF,$SAA::wait_dadns{$SAA::howto_addrconf},0,0,DADNS_from_NUT,DADNS_from_NUT_anyopt);
 
 if ($ret1{status} != 0){
     vLog("TN wait DAD NS from NUT for $SAA::wait_dadns{$SAA::howto_addrconf}, but NUT had not transmit DAD NS");

@@ -66,6 +66,7 @@ FEM_icmp6_ra(
 		ReachableTime	= 0;
 		RetransTimer	= 0;
 		option		= opt_sll_tr1;
+		option		= opt_prefix_link0_default;
 	}
 )
 
@@ -76,7 +77,7 @@ FEM_icmp6_echo_request(
 	_HETHER_tr1_to_nut,
 	{
 		_SRC(tn2v6(LINKX_PREFIX, LINKX_PREFIXLEN));
-		_DST(nutv6());
+		_DST(nut4v6("Link0"));
 	},
 	{
 		payload	= payload8;
@@ -89,7 +90,7 @@ FEM_icmp6_echo_reply(
 	local_tn2_erep_offlink_via_tr1,
 	_HETHER_nut_to_tr1,
 	{
-		_SRC(nutv6());
+		_SRC(nut4v6("Link0"));
 		_DST(tn2v6(LINKX_PREFIX, LINKX_PREFIXLEN));
 	},
 	{

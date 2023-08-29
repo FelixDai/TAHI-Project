@@ -57,7 +57,7 @@ FEM_icmp6_echo_request_exth(
 	_HETHER_tn2nut,
 	{
 		_SRC(tnv6());
-		_DST(nutv6());
+		_DST(nut3v6());
 	},
 	{
 		header = _HDR_IPV6_NAME(echo_request_badex);
@@ -86,7 +86,7 @@ FEM_icmp6_echo_request_exth(
 	_HETHER_tn2nut,
 	{
 		_SRC(tnv6());
-		_DST(nutv6());
+		_DST(nut3v6());
 	},
 	{
 		header = _HDR_IPV6_NAME(echo_request_ex);
@@ -123,7 +123,7 @@ FEM_icmp6_echo_request(
 	_HETHER_tn2nut,
 	{
 		_SRC(tnv6());
-		_DST(nutv6());
+		_DST(nut3v6());
 	},
 	{
 		payload = echo_data8;
@@ -141,7 +141,7 @@ FEM_icmp6_echo_reply(
 	echo_reply,
 	_HETHER_nut2tn,
 	{
-		_SRC(nutv6());
+		_SRC(nut3v6());
 		_DST(tnv6());
 	},
 	{
@@ -160,7 +160,7 @@ FEM_icmp6_echo_reply_exth(
 	echo_reply_badex,
 	_HETHER_nut2tn,
 	{
-		_SRC(nutv6());
+		_SRC(nut3v6());
 		_DST(tnv6());
 	},
 	{
@@ -184,7 +184,7 @@ FEM_icmp6_echo_reply_exth(
 	echo_reply_ex,
 	_HETHER_nut2tn,
 	{
-		_SRC(nutv6());
+		_SRC(nut3v6());
 		_DST(tnv6());
 	},
 	{
@@ -208,7 +208,7 @@ FEM_icmp6_ns(
 	multicast_ns,
 	_HETHER_nut2tnsolnode,
 	{
-		_SRC(oneof(nutv6(), nut2v6(_GLOBAL0_UCAST_PRFX, _GLOBAL0_UCAST_PRFXLEN, "Link0")));
+		_SRC(oneof(nut3v6(), nut4v6("Link0")));
 		_DST(_IPV6_SOLNODE_MCAST(tnv6()));
 		HopLimit = 255;
 	},
@@ -229,7 +229,7 @@ FEM_icmp6_ns(
 	unicast_ns,
 	_HETHER_nut2tn,
 	{
-		_SRC(oneof(nutv6(), nut2v6(_GLOBAL0_UCAST_PRFX, _GLOBAL0_UCAST_PRFXLEN, "Link0")));
+		_SRC(oneof(nut3v6(), nut4v6("Link0")));
 		_DST(tnv6());
 		HopLimit = 255;
 	},
@@ -251,7 +251,7 @@ FEM_icmp6_na(
 	_HETHER_tn2nut,
 	{
 		_SRC(tnv6());
-		_DST(nutv6());
+		_DST(nut3v6());
 		HopLimit = 255;
 	},
 	{

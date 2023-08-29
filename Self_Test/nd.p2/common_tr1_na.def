@@ -54,7 +54,7 @@ FEM_icmp6_na(
 	{
 		HopLimit	= 255;
 		_SRC(v6(TR1_LINKLOCAL));
-		_DST(nutv6());
+		_DST(nut3v6());
 	},
 	{
 		RFlag		= 1;
@@ -71,7 +71,7 @@ FEM_icmp6_na(
 	{
 		HopLimit	= 255;
 		_SRC(v6(TR1_LINKLOCAL));
-		_DST(nut2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
+		_DST(nut4v6("Link0"));
 	},
 	{
 		RFlag		= 1;
@@ -105,7 +105,7 @@ FEM_icmp6_na(
 	{
 		HopLimit	= 255;
 		_SRC(v6(TR1_LINKLOCAL));
-		_DST(nutv6());
+		_DST(nut3v6());
 	},
 	{
 		RFlag		= 1;
@@ -122,7 +122,7 @@ FEM_icmp6_na(
 	{
 		HopLimit	= 255;
 		_SRC(v6(TR1_LINKLOCAL));
-		_DST(nut2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
+		_DST(nut4v6("Link0"));
 	},
 	{
 		RFlag		= 1;

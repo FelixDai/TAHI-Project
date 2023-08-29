@@ -62,7 +62,7 @@ FEM_icmp6_echo_request(
 	_HETHER_r02nut,
 	{
 		_SRC(tn2v6(LINK1_PREFIX, LINK1_PREFIXLEN));
-		_DST(nut2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
+		_DST(nut4v6("Link0"));
 	},
 	{
 		payload	= payload8;
@@ -74,7 +74,7 @@ FEM_icmp6_echo_request(
 	_HETHER_h02nut,
 	{
 		_SRC(v6(H0_GLOBAL_LINK1));
-		_DST(nut2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
+		_DST(nut4v6("Link0"));
 	},
 	{
 		payload	= payload8;
@@ -119,7 +119,7 @@ FEM_icmp6_echo_reply(
 	ndisc_erep_offlink,
 	_HETHER_nut2r0,
 	{
-		_SRC(nut2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
+		_SRC(nut4v6("Link0"));
 		_DST(tn2v6(LINK1_PREFIX, LINK1_PREFIXLEN));
 	},
 	{
@@ -131,7 +131,7 @@ FEM_icmp6_echo_reply(
 	ndisc_erep_offlink_diff,
 	_HETHER_nut2h0,
 	{
-		_SRC(nut2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
+		_SRC(nut4v6("Link0"));
 		_DST(v6(H0_GLOBAL_LINK1));
 	},
 	{
@@ -149,7 +149,7 @@ FEM_icmp6_echo_request(
 	_HETHER_tn2nut,
 	{
 		_SRC(tnv6());
-		_DST(nutv6());
+		_DST(nut3v6());
 	},
 	{
 		payload	= payload8;
@@ -161,7 +161,7 @@ FEM_icmp6_echo_request(
 	_HETHER_tn2nut,
 	{
 		_SRC(tn2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
-		_DST(nut2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
+		_DST(nut4v6("Link0"));
 	},
 	{
 		payload	= payload8;
@@ -173,7 +173,7 @@ FEM_icmp6_echo_request(
 	_HETHER_tn2nut,
 	{
 		_SRC(tnv6());
-		_DST(nut2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
+		_DST(nut4v6("Link0"));
 	},
 	{
 		payload	= payload8;
@@ -185,7 +185,7 @@ FEM_icmp6_echo_request(
 	_HETHER_tn2nut,
 	{
 		_SRC(tn2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
-		_DST(nutv6());
+		_DST(nut3v6());
 	},
 	{
 		payload	= payload8;
@@ -197,7 +197,7 @@ FEM_icmp6_echo_request(
 	_HETHER_r02nut,
 	{
 		_SRC(v6(R0_GLOBAL));
-		_DST(nutv6());
+		_DST(nut3v6());
 	},
 	{
 		payload	= payload8;
@@ -213,7 +213,7 @@ FEM_icmp6_echo_reply(
 	ndisc_erep_LL,
 	_HETHER_nut2tn,
 	{
-		_SRC(nutv6());
+		_SRC(nut3v6());
 		_DST(tnv6());
 	},
 	{
@@ -225,7 +225,7 @@ FEM_icmp6_echo_reply(
 	ndisc_erep_GG,
 	_HETHER_nut2tn,
 	{
-		_SRC(nut2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
+		_SRC(nut4v6("Link0"));
 		_DST(tn2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
 	},
 	{
@@ -237,7 +237,7 @@ FEM_icmp6_echo_reply(
 	ndisc_erep_GL,
 	_HETHER_nut2tn,
 	{
-		_SRC(nut2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
+		_SRC(nut4v6("Link0"));
 		_DST(tnv6());
 	},
 	{
@@ -249,7 +249,7 @@ FEM_icmp6_echo_reply(
 	ndisc_erep_LG,
 	_HETHER_nut2tn,
 	{
-		_SRC(nutv6());
+		_SRC(nut3v6());
 		_DST(tn2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
 	},
 	{
@@ -267,7 +267,7 @@ FEM_icmp6_echo_request(
 	_HETHER_h02nut,
 	{
 		_SRC(v6(H0_LINKLOCAL));
-		_DST(nutv6());
+		_DST(nut3v6());
 	},
 	{
 		payload	= payload8;
@@ -279,7 +279,7 @@ FEM_icmp6_echo_request(
 	_HETHER_h02nut,
 	{
 		_SRC(v6(H0_GLOBAL));
-		_DST(nut2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
+		_DST(nut4v6("Link0"));
 	},
 	{
 		payload	= payload8;
@@ -291,7 +291,7 @@ FEM_icmp6_echo_request(
 	_HETHER_h02nut,
 	{
 		_SRC(v6(H0_LINKLOCAL));
-		_DST(nut2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
+		_DST(nut4v6("Link0"));
 	},
 	{
 		payload	= payload8;
@@ -303,7 +303,7 @@ FEM_icmp6_echo_request(
 	_HETHER_h02nut,
 	{
 		_SRC(v6(H0_GLOBAL));
-		_DST(nutv6());
+		_DST(nut3v6());
 	},
 	{
 		payload	= payload8;
@@ -319,7 +319,7 @@ FEM_icmp6_echo_reply(
 	ndisc_erep_LL_x,
 	_HETHER_nut2h0,
 	{
-		_SRC(nutv6());
+		_SRC(nut3v6());
 		_DST(v6(H0_LINKLOCAL));
 	},
 	{
@@ -331,7 +331,7 @@ FEM_icmp6_echo_reply(
 	ndisc_erep_GG_x,
 	_HETHER_nut2h0,
 	{
-		_SRC(nut2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
+		_SRC(nut4v6("Link0"));
 		_DST(v6(H0_GLOBAL));
 	},
 	{
@@ -343,7 +343,7 @@ FEM_icmp6_echo_reply(
 	ndisc_erep_GL_x,
 	_HETHER_nut2h0,
 	{
-		_SRC(nut2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
+		_SRC(nut4v6("Link0"));
 		_DST(v6(H0_LINKLOCAL));
 	},
 	{
@@ -355,7 +355,7 @@ FEM_icmp6_echo_reply(
 	ndisc_erep_LG_x,
 	_HETHER_nut2h0,
 	{
-		_SRC(nutv6());
+		_SRC(nut3v6());
 		_DST(v6(H0_GLOBAL));
 	},
 	{
@@ -373,7 +373,7 @@ FEM_icmp6_echo_request(
 	_HETHER_h02nut,
 	{
 		_SRC(tnv6());
-		_DST(nutv6());
+		_DST(nut3v6());
 	},
 	{
 		payload	= payload8;
@@ -385,7 +385,7 @@ FEM_icmp6_echo_request(
 	_HETHER_h02nut,
 	{
 		_SRC(tn2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
-		_DST(nut2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
+		_DST(nut4v6("Link0"));
 	},
 	{
 		payload	= payload8;
@@ -397,7 +397,7 @@ FEM_icmp6_echo_request(
 	_HETHER_h02nut,
 	{
 		_SRC(tnv6());
-		_DST(nut2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
+		_DST(nut4v6("Link0"));
 	},
 	{
 		payload	= payload8;
@@ -409,7 +409,7 @@ FEM_icmp6_echo_request(
 	_HETHER_h02nut,
 	{
 		_SRC(tn2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
-		_DST(nutv6());
+		_DST(nut3v6());
 	},
 	{
 		payload	= payload8;
@@ -425,7 +425,7 @@ FEM_icmp6_echo_reply(
 	ndisc_erep_LL_diff,
 	_HETHER_nut2h0,
 	{
-		_SRC(nutv6());
+		_SRC(nut3v6());
 		_DST(tnv6());
 	},
 	{
@@ -437,7 +437,7 @@ FEM_icmp6_echo_reply(
 	ndisc_erep_GG_diff,
 	_HETHER_nut2h0,
 	{
-		_SRC(nut2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
+		_SRC(nut4v6("Link0"));
 		_DST(tn2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
 	},
 	{
@@ -449,7 +449,7 @@ FEM_icmp6_echo_reply(
 	ndisc_erep_GL_diff,
 	_HETHER_nut2h0,
 	{
-		_SRC(nut2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
+		_SRC(nut4v6("Link0"));
 		_DST(tnv6());
 	},
 	{
@@ -461,7 +461,7 @@ FEM_icmp6_echo_reply(
 	ndisc_erep_LG_diff,
 	_HETHER_nut2h0,
 	{
-		_SRC(nutv6());
+		_SRC(nut3v6());
 		_DST(tn2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
 	},
 	{
@@ -481,7 +481,7 @@ FEM_icmp6_echo_request(
 	_HETHER_r02nut,
 	{
 		_SRC(v6(R0_LINKLOCAL));
-		_DST(nutv6());
+		_DST(nut3v6());
 	},
 	{
 		payload	= payload8;
@@ -492,7 +492,7 @@ FEM_icmp6_echo_reply(
 	tr1_erep_linklocal,
 	_HETHER_nut2r0,
 	{
-		_SRC(nutv6());
+		_SRC(nut3v6());
 		_DST(v6(R0_LINKLOCAL));
 	},
 	{

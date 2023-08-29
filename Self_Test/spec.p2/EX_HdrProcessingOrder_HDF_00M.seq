@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Name: V6LC_5_0_0 $
+# $Name: V6LC_5_0_7 $
 #
 # Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010
 # Yokogawa Electric Corporation.
@@ -48,7 +48,7 @@
 #
 ######################################################################
 BEGIN {
-	$V6evalTool::TestVersion = '$Name: V6LC_5_0_0 $';
+	$V6evalTool::TestVersion = '$Name: V6LC_5_0_7 $';
 }
 
 use V6evalTool;
@@ -128,7 +128,7 @@ Verify that a node properly processes the headers of an IPv6 packet in the corre
 
   1. TN transmits Test Packet, an Echo Request that has a Hop-by-Hop Options header, 
      Destination Options header, and Fragment header, in that order.
-     The Destination Options header has an unknown Option Type 7.
+     The Destination Options header has an unknown Option Type 17.
      The IPv6 header has a Payload Length that is not a multiple of 8 octets, 
      and the Fragment header has the M-bit set.
   2. Observe the packets transmitted by the NUT.
@@ -154,7 +154,7 @@ Verify that a node properly processes the headers of an IPv6 packet in the corre
         Destination Options Header
             NextHeader         = 44 (Fragment Header)
             HeaderExtLength    = 0
-            OptionType         = 0x07 (unknown, msb: 00)
+            OptionType         = 0x11 (unknown, msb: 00)
             OptDataLength      = 4 (for 8 octets alignment)
             data               = {0, 0, 0, 0}
 
@@ -203,7 +203,7 @@ Common Test Cleanup
 
 # =head1 REFERENCE
 # 
-# RFC2460
+# RFC8200
 # 
 # 4.1  Extension Header Order
 # 
@@ -317,7 +317,7 @@ Common Test Cleanup
 =begin html
 <BLOCKQUOTE>
 <PRE>
-RFC 2460 - IPv6 Specification
+RFC 8200 - IPv6 Specification
 </PRE>
 </BLOCKQUOTE>
 

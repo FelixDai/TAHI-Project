@@ -41,7 +41,7 @@
 # IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
-# $Name: V6LC_5_0_0 $
+# $Name: V6LC_5_0_7 $
 #
 # $TAHI: ct/nd.p2/INDEX_REDIRECT_p2_host,v 1.5 2007/09/27 07:24:44 akisada Exp $
 #
@@ -52,7 +52,7 @@
 
 #----------------------------------------------------------------------#
 &print:<U><B><FONT SIZE="+1" COLOR="#FF0000"><TT>Group 3: Redirect Function</TT></FONT></B></U>
-./v6LC_2_0_0.seq:./v6LC_2_0_0.def:::<TT>Initialization</TT>:1
+./v6LC_2_0_0.seq:./Get_global_addr.def:::<TT>Initialization</TT>:1
 
 
 
@@ -196,3 +196,11 @@
 ./v6LC_2_3_15_G.seq:./v6LC_2_3_15_G.def:::<TT>Part G&#58; Target Address is Multicast</TT>:1
 ./v6LC_2_3_15_H.seq:./v6LC_2_3_15_H.def:::<TT>Part H&#58; ICMPv6 length is less than 40 Octets</TT>:1
 ./v6LC_2_3_15_I.seq:./v6LC_2_3_15_I.def:::<TT>Part I&#58; Option has Length Zero</TT>:1
+
+
+&print:<TT>Test v6LC.2.3.18: Atomic Fragments in Redirect (Host Only)</TT>  
+./v6LC_2_3_18.seq:./v6LC_2_3_18.def:::<TT>Atomic Fragments in Redirect (Host Only)</TT>:1
+
+&print:<TT>Test v6LC.2.3.19: Fragment Header in Redirect (Host Only)</TT>  
+./v6LC_2_3_19.seq:./v6LC_2_3_19.def:::<TT>Fragment Header in Redirect (Host Only)</TT>:1
+

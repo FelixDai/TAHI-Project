@@ -92,7 +92,7 @@ FEM_icmp6_echo_reply(
 	echo_reply_MCaddr,
 	_HETHER_nut2tn,
 	{
-		_SRC(oneof(nutv6(),NUT_GLOBAL));
+		_SRC(oneof(nut3v6(),NUT_GLOBAL));
 		_DST(tnv6());
 	},
 	{
@@ -108,7 +108,7 @@ FEM_icmp6_parameter_problem(
 	parameter_problem,
 	_HETHER_nut2tn,
 	{
-		_SRC(nutv6());
+		_SRC(nut3v6());
 		_DST(tnv6());
 	},
 	{
@@ -123,7 +123,7 @@ FEM_icmp6_parameter_problem(
 	parameter_problem_any,
 	_HETHER_nut2tn,
 	{
-		_SRC(nutv6());
+		_SRC(nut3v6());
 		_DST(tnv6());
 	},
 	{

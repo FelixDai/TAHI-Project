@@ -45,9 +45,8 @@
 
 #include "icmp.def"
 
-#define NUT_GLOBAL_LINK1 v6merge(_GLOBAL1_UCAST_PRFX, \
-	_GLOBAL1_UCAST_PRFXLEN, nutv6("Link1"))
-#define NUT_ONEOF_ADDR oneof(NUT_GLOBAL, nutv6(), NUT_GLOBAL_LINK1)
+#define NUT_GLOBAL_LINK1 nut4v6("Link1")
+#define NUT_ONEOF_ADDR oneof(NUT_GLOBAL, nut3v6(), NUT_GLOBAL_LINK1)
 
 
 #define UNKNOWN_ADDR v6merge(_GLOBAL1_UCAST_PRFX, 64, v6("::777"))

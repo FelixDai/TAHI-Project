@@ -43,11 +43,11 @@
 ### INDEX_BEGIN
 ###   autorun INDEX for BEGIN.seq
 ###
-### $Name: V6LC_5_0_0 $
+### $Name: V6LC_5_0_7 $
 
 ######################################################################
 
 &print:<b>Initializing the NUT</b>
-./BEGIN.seq:/dev/null::: Initialization (please ignore):1
+./BEGIN.seq:./Get_global_addr.def::: Initialization (please ignore):1
 
 #end

@@ -62,9 +62,7 @@ FEM_icmp6_packet_too_big(
 	_HETHER_tn2nut,
         	{
 		_SRC(v6("3ffe:501:ffff:105::1"));
-                _DST(v6merge(   NUT_GLOBAL_UCAST_PRFX, 
-                                GLOBAL_UCAST_PRFXLEN, 
-                                nutv6())); 
+                _DST(nut4v6("Link0")); 
 	},
 		{
 		MTU=1280;

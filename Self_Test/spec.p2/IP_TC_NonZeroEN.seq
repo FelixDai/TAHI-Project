@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Name: V6LC_5_0_0 $
+# $Name: V6LC_5_0_7 $
 #
 # Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010
 # Yokogawa Electric Corporation.
@@ -48,7 +48,7 @@
 #
 ######################################################################
 BEGIN {
-	$V6evalTool::TestVersion = '$Name: V6LC_5_0_0 $';
+	$V6evalTool::TestVersion = '$Name: V6LC_5_0_7 $';
 }
 
 use V6evalTool;
@@ -210,7 +210,7 @@ Common Test Cleanup
 
 # =head1 REFERENCE
 # 
-# RFC2460
+# RFC8200
 # 
 # 3.  IPv6 Header Format
 # 
@@ -261,7 +261,7 @@ Common Test Cleanup
 =begin html
 <BLOCKQUOTE>
 <PRE>
-RFC 2460 - IPv6 Specification
+RFC 8200 - IPv6 Specification
 </PRE>
 </BLOCKQUOTE>
 

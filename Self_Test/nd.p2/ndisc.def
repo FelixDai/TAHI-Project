@@ -114,11 +114,13 @@ _HETHER_define(_HETHER_r02allnodes, ether(R0_MAC),
 	v62ethermulti(v6(_ALLNODES_MCAST_ADDR)))
 
 _HETHER_define(_HETHER_any2any,	any,	any)
+_HETHER_define(hether_tn2nutsolnode,  tnether(),  _ETHER_SOLNODE_MCAST(nut3v6()))
+_HETHER_define(hether_nut2nutsolnode, nutether(), _ETHER_SOLNODE_MCAST(nut3v6()))
 _HETHER_define(_HETHER_h02nut,	ether(H0_MAC),	nutether())
 _HETHER_define(_HETHER_r02nut,	ether(R0_MAC),	nutether())
 _HETHER_define(_HETHER_nut2r0,	nutether(),	ether(R0_MAC))
 _HETHER_define(_HETHER_h02nutsolnode, ether(H0_MAC),
-	_ETHER_SOLNODE_MCAST(nutv6()))
+	_ETHER_SOLNODE_MCAST(nut3v6()))
 _HETHER_define(_HETHER_nut2h0,        nutether(),    ether(H0_MAC))
 _HETHER_define(_HETHER_nut2h0solnode, nutether(),
 	_ETHER_SOLNODE_MCAST(v6(H0_LINKLOCAL)))
@@ -129,7 +131,7 @@ _HETHER_define(_HETHER_h02allrouters, ether(H0_MAC),
 
 _HETHER_define(_HETHER_h12nut,        ether(H1_MAC), nutether())
 _HETHER_define(_HETHER_h12nutsolnode, ether(H1_MAC),
-	_ETHER_SOLNODE_MCAST(nutv6()))
+	_ETHER_SOLNODE_MCAST(nut3v6()))
 _HETHER_define(_HETHER_nut2h1, nutether(),    ether(H1_MAC))
 _HETHER_define(_HETHER_nut2h1solnode, nutether(),
 	_ETHER_SOLNODE_MCAST(v6(H1_LINKLOCAL)))
@@ -171,10 +173,10 @@ FEM_icmp6_ns(
 	{
 		HopLimit	= 255;
 		_SRC(tnv6());
-		_DST(nutv6());
+		_DST(nut3v6());
 	},
 	{
-		TargetAddress	= nutv6();
+		TargetAddress	= nut3v6();
 		option		= _SLLOPT_tn;
 	}
 )
@@ -206,7 +208,7 @@ FEM_icmp6_echo_request(
 	_HETHER_h02nut,
 	{
 		_SRC(tnv6());
-		_DST(nutv6());
+		_DST(nut3v6());
 	},
 	{
 		payload	= payload8_alt;
@@ -223,10 +225,10 @@ FEM_icmp6_ns(
 	{
 		HopLimit	= 255;
 		_SRC(tnv6());
-		_DST(nutv6());
+		_DST(nut3v6());
 	},
 	{
-		TargetAddress	= nutv6();
+		TargetAddress	= nut3v6();
 		option		= opt_sll_h0;
 	}
 )
@@ -237,10 +239,10 @@ FEM_icmp6_ns(
 	{
 		HopLimit	= 255;
 		_SRC(tn2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
-		_DST(nut2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
+		_DST(nut4v6("Link0"));
 	},
 	{
-		TargetAddress	= nut2v6(LINK0_PREFIX, LINK0_PREFIXLEN);
+		TargetAddress	= nut4v6("Link0");
 		option		= opt_sll_h0;
 	}
 )
@@ -258,10 +260,10 @@ FEM_icmp6_ns(
 	{
 		HopLimit	= 255;
 		_SRC(v6(H0_LINKLOCAL));
-		_DST(nutv6());
+		_DST(nut3v6());
 	},
 	{
-		TargetAddress	= nutv6();
+		TargetAddress	= nut3v6();
 		option		= opt_sll_h1;
 	}
 )

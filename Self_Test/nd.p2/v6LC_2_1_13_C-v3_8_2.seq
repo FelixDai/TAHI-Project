@@ -45,11 +45,11 @@
 # $TAHI: ct/nd.p2/v6LC_2_1_13_C-v3_8_2.seq,v 1.7 2009/12/28 05:55:17 akisada Exp $
 #
 ########################################################################
-
+BEGIN {$V6evalTool::TestVersion = '$Name: V6LC_5_0_7 $';}
 use nd;
 
-BEGIN {}
-END   {}
+#BEGIN {}
+#END   {}
 
 startNdiscWorld($Link0);
 

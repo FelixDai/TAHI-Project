@@ -59,7 +59,7 @@ FEM_icmp6_na(
 	{
 		HopLimit	= 255;
 		_SRC(tnv6());
-		_DST(nutv6());
+		_DST(nut3v6());
 	},
 	{
 		RFlag		= 0;
@@ -76,7 +76,7 @@ FEM_icmp6_na(
 	{
 		HopLimit	= 255;
 		_SRC(tn2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
-		_DST(nut2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
+		_DST(nut4v6("Link0"));
 	},
 	{
 		RFlag		= 0;
@@ -93,7 +93,7 @@ FEM_icmp6_na(
 	{
 		HopLimit	= 255;
 		_SRC(tnv6());
-		_DST(nut2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
+		_DST(nut4v6("Link0"));
 	},
 	{
 		RFlag		= 0;
@@ -110,7 +110,7 @@ FEM_icmp6_na(
 	{
 		HopLimit	= 255;
 		_SRC(tn2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
-		_DST(nutv6());
+		_DST(nut3v6());
 	},
 	{
 		RFlag		= 0;
@@ -127,7 +127,7 @@ FEM_icmp6_na(
 	{
 		HopLimit	= 255;
 		_SRC(tnv6());
-		_DST(nutv6());
+		_DST(nut3v6());
 	},
 	{
 		RFlag		= 0;
@@ -144,7 +144,7 @@ FEM_icmp6_na(
 	{
 		HopLimit	= 255;
 		_SRC(tnv6());
-		_DST(nutv6());
+		_DST(nut3v6());
 	},
 	{
 		RFlag		= 1;
@@ -161,7 +161,7 @@ FEM_icmp6_na(
 	{
 		HopLimit	= 255;
 		_SRC(tn2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
-		_DST(nut2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
+		_DST(nut4v6("Link0"));
 	},
 	{
 		RFlag		= 1;
@@ -178,7 +178,7 @@ FEM_icmp6_na(
 	{
 		HopLimit	= 255;
 		_SRC(tnv6());
-		_DST(nut2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
+		_DST(nut4v6("Link0"));
 	},
 	{
 		RFlag		= 1;
@@ -195,7 +195,7 @@ FEM_icmp6_na(
 	{
 		HopLimit	= 255;
 		_SRC(tn2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
-		_DST(nutv6());
+		_DST(nut3v6());
 	},
 	{
 		RFlag		= 1;
@@ -217,7 +217,7 @@ FEM_icmp6_na(
 	{
 		HopLimit	= 255;
 		_SRC(v6(H0_LINKLOCAL));
-		_DST(nutv6());
+		_DST(nut3v6());
 	},
 	{
 		RFlag		= 0;
@@ -234,7 +234,7 @@ FEM_icmp6_na(
 	{
 		HopLimit	= 255;
 		_SRC(v6(H0_GLOBAL));
-		_DST(nut2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
+		_DST(nut4v6("Link0"));
 	},
 	{
 		RFlag		= 0;
@@ -251,7 +251,7 @@ FEM_icmp6_na(
 	{
 		HopLimit	= 255;
 		_SRC(v6(H0_LINKLOCAL));
-		_DST(nut2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
+		_DST(nut4v6("Link0"));
 	},
 	{
 		RFlag		= 0;
@@ -268,7 +268,7 @@ FEM_icmp6_na(
 	{
 		HopLimit	= 255;
 		_SRC(v6(H0_GLOBAL));
-		_DST(nutv6());
+		_DST(nut3v6());
 	},
 	{
 		RFlag		= 0;
@@ -285,7 +285,7 @@ FEM_icmp6_na(
 	{
 		HopLimit	= 255;
 		_SRC(v6(H0_LINKLOCAL));
-		_DST(nutv6());
+		_DST(nut3v6());
 	},
 	{
 		RFlag		= 1;
@@ -302,7 +302,7 @@ FEM_icmp6_na(
 	{
 		HopLimit	= 255;
 		_SRC(v6(H0_GLOBAL));
-		_DST(nut2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
+		_DST(nut4v6("Link0"));
 	},
 	{
 		RFlag		= 1;
@@ -319,7 +319,7 @@ FEM_icmp6_na(
 	{
 		HopLimit	= 255;
 		_SRC(v6(H0_LINKLOCAL));
-		_DST(nut2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
+		_DST(nut4v6("Link0"));
 	},
 	{
 		RFlag		= 1;
@@ -336,7 +336,7 @@ FEM_icmp6_na(
 	{
 		HopLimit	= 255;
 		_SRC(v6(H0_GLOBAL));
-		_DST(nutv6());
+		_DST(nut3v6());
 	},
 	{
 		RFlag		= 1;
@@ -358,7 +358,7 @@ FEM_icmp6_na(
 	{
 		HopLimit	= 255;
 		_SRC(tnv6());
-		_DST(nutv6());
+		_DST(nut3v6());
 	},
 	{
 		RFlag		= 0;
@@ -375,7 +375,7 @@ FEM_icmp6_na(
 	{
 		HopLimit	= 255;
 		_SRC(tn2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
-		_DST(nut2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
+		_DST(nut4v6("Link0"));
 	},
 	{
 		RFlag		= 0;
@@ -392,7 +392,7 @@ FEM_icmp6_na(
 	{
 		HopLimit	= 255;
 		_SRC(tnv6());
-		_DST(nut2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
+		_DST(nut4v6("Link0"));
 	},
 	{
 		RFlag		= 0;
@@ -409,7 +409,7 @@ FEM_icmp6_na(
 	{
 		HopLimit	= 255;
 		_SRC(tn2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
-		_DST(nutv6());
+		_DST(nut3v6());
 	},
 	{
 		RFlag		= 0;
@@ -426,7 +426,7 @@ FEM_icmp6_na(
 	{
 		HopLimit	= 255;
 		_SRC(tnv6());
-		_DST(nutv6());
+		_DST(nut3v6());
 	},
 	{
 		RFlag		= 1;
@@ -443,7 +443,7 @@ FEM_icmp6_na(
 	{
 		HopLimit	= 255;
 		_SRC(tn2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
-		_DST(nut2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
+		_DST(nut4v6("Link0"));
 	},
 	{
 		RFlag		= 1;
@@ -460,7 +460,7 @@ FEM_icmp6_na(
 	{
 		HopLimit	= 255;
 		_SRC(tnv6());
-		_DST(nut2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
+		_DST(nut4v6("Link0"));
 	},
 	{
 		RFlag		= 1;
@@ -477,7 +477,7 @@ FEM_icmp6_na(
 	{
 		HopLimit	= 255;
 		_SRC(tn2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
-		_DST(nutv6());
+		_DST(nut3v6());
 	},
 	{
 		RFlag		= 1;
@@ -516,7 +516,7 @@ FEM_icmp6_na(
 	{
 		HopLimit	= 255;
 		_SRC(tnv6());
-		_DST(nutv6());
+		_DST(nut3v6());
 	},
 	{
 		RFlag		= 0;
@@ -934,7 +934,7 @@ FEM_icmp6_na(
 	{
 		HopLimit	= 255;
 		_SRC(v6(R0_LINKLOCAL));
-		_DST(nutv6());
+		_DST(nut3v6());
 	},
 	{
 		RFlag		= 1;
@@ -951,7 +951,7 @@ FEM_icmp6_na(
 	{
 		HopLimit	= 255;
 		_SRC(v6(R0_LINKLOCAL));
-		_DST(nut2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
+		_DST(nut4v6("Link0"));
 	},
 	{
 		RFlag		= 1;

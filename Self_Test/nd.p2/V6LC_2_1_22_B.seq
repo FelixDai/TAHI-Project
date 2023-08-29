@@ -1,0 +1,181 @@
+#!/usr/bin/perl
+#
+# Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010
+# Yokogawa Electric Corporation.
+# All rights reserved.
+# 
+# Redistribution and use of this software in source and binary
+# forms, with or without modification, are permitted provided that
+# the following conditions and disclaimer are agreed and accepted
+# by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in
+#    the documentation and/or other materials provided with
+#    the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project
+#    which is related to this software (hereinafter referred to as
+#    "project") nor the names of the contributors may be used to
+#    endorse or promote products derived from this software without
+#    specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written
+#    notification to the copyrighters.
+# 
+# 5. The copyrighters, the project and the contributors may prohibit
+#    the use of this software at any time.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+# STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+# IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+# $TAHI: ct/nd.p2/V6LC_2_1_1_A.seq,v 1.9 2009/12/28 05:55:16 akisada Exp $
+#
+########################################################################
+BEGIN {$V6evalTool::TestVersion = '$Name: V6LC_5_0_7 $';}
+use nd;
+
+#----- create Fragment ID
+$id = time & 0x00000fff;
+$fid = sprintf("0x0%07x", $id);
+$rid = sprintf("0x0%03x", $id);
+$sno = 0;
+
+vCPP("-DFRAG_ID=$fid -DREQ_ID=$rid -DSEQ_NO=$sno");
+
+%pktdesc	= (
+	'ndisc_na_rSO_tll_LL_all'
+	=> '    Send NA (link-local) w/ tLL w/ atomic fragment: '.
+		'TN (link-local) -&gt; NUT (Link-local)',
+);
+
+
+my $ereq = 'ndisc_ereq_LL';
+
+startNdiscWorld($Link0);
+
+vLogHTML('<FONT COLOR="#FF0000" SIZE="5"><U><B>Procedure</B></U></FONT><BR>');
+
+if(ndiscNone2Incomplete($Link0, $ereq) < 0) {
+	exitInitFail();
+	#NOTREACHED
+}
+
+if(ndSendNaIncomplete2Incomplete($Link0, $ereq, 'ndisc_na_rSO_tll_LL_all') < 0) {
+	$NEED_COMMON_CLEANUP = 1;
+	$tn1_cache = 1;
+	exitFail();
+	#NOTREACHED
+}
+
+exitPass();
+
+#NOTREACHED
+
+#
+# perldoc
+#
+########################################################################
+__END__
+
+=head1 NAME
+
+  Test v6LC.2.1.22 - Atomic Fragments in Neighbor Soliciation and Neighbor Advertisment
+  Part B: Neighbor Advertisement with Atomic Fragment
+
+=head1 Purpose
+
+   Verify that the NUT doesn't process Neighbor Solicitations or Neighbor Advertisements messages with atomic fragments.
+
+=head1 References
+
+  * [RFC-6980] - Section 5
+
+=head1 Resource Requirements
+
+  * Packet generator
+  * Monitor to capture packets
+
+=head1 Test Setup
+
+  No Common Test Setup is performed. If the NUT is a router, configure a default route
+  with TR1 as next hop. The Common Test Cleanup is performed after each part.
+
+=begin html
+
+<BLOCKQUOTE>
+
+<TABLE>
+<TR>
+
+<TD>
+<TABLE BORDER>
+<Caption>Neighbor Adertisement</Caption>
+<TR>
+<TD>
+	IPv6 Header<br>
+	Next Header: 44<br>
+	Source Address: TN1's Link-local Address
+        Destination Address: NUT's Link-Local Address or Global address
+</TD>
+</TR>
+<TR>
+<TD>
+	Fragment Header<br>
+	Next Header: 58<br>
+	Fragment Offset: 0<br>
+	More Fragments flag: 0
+</TD>
+</TR>
+<TR> 
+<TD>ICMPv6 Neighbor Advertisement 
+</TD>
+</TR>
+<TR>
+<TD>Target Link-Layer Option</TD>
+</TR>
+</TABLE>
+</TD>
+</TR>
+<TABLE>
+
+<br>
+
+</BLOCKQUOTE>
+
+=end html
+
+
+=head1 Procedure
+
+  Part B: Neighbor Advertisement with Atomic Fragment 
+   3. TN1 transmits an Echo Request to the DUT.
+   4. TN1 transmits Neighbor Advertisment.
+
+=head1 Observable Results
+
+  Part B
+   Step 3:
+    Observe the NUT transmitting a Neighbor Solicitation for TN1.
+   Step 4:
+    The NUT should not transmit an Echo Reply indicating that it did not process the fragmented Neighbor Advertisement.
+
+=head1 Possible Problems
+
+  * None. 
+
+=cut
+

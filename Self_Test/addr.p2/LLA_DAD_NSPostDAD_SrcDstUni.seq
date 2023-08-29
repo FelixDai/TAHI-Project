@@ -45,7 +45,7 @@
 # 
 
 ########################################################################
-BEGIN { $V6evalTool::TestVersion = '$Name: V6LC_5_0_0 $ '; }
+BEGIN { $V6evalTool::TestVersion = '$Name: V6LC_5_0_7 $ '; }
 use V6evalTool;
 use SAA;
 
@@ -117,9 +117,20 @@ vClear($IF);
 #----- Wait DAD NS from NUT or timeout
 vLog("TN wait DAD NS(DADNS_from_NUT) from NUT for $SAA::wait_dadns{$SAA::howto_addrconf} [sec],");
 
-%ret=vRecv($IF,$SAA::wait_dadns{$SAA::howto_addrconf},0,$count,DADNS_from_NUT);
+%ret=vRecv($IF,$SAA::wait_dadns{$SAA::howto_addrconf},0,$count,DADNS_from_NUT,DADNS_from_NUT_anyopt);
 
 if ($ret{status} == 0){
+
+    if($ret{recvFrame} eq DADNS_from_NUT_anyopt){
+        my $opt_type = $ret{"Frame_Ether.Packet_IPv6.ICMPv6_NS.Opt_ICMPv6_ANY.Type"};
+        if($opt_type = 14){
+                vLog("DAD NS with NONCE option.");
+        }else{
+
+                seqNG();
+        }
+    }
+
     %retSend=vSend($IF, NS_from_TN_SrcDstUni);
 
     #----- check if NUT's address is configured

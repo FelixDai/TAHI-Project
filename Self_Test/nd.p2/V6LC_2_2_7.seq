@@ -45,11 +45,9 @@
 # $TAHI: ct/nd.p2/V6LC_2_2_7.seq,v 1.8 2009/12/28 05:55:17 akisada Exp $
 #
 ########################################################################
-
+BEGIN {$V6evalTool::TestVersion = '$Name: V6LC_5_0_7 $';}
 use rdisc;
 
-BEGIN {}
-END   {}
 
 if($V6evalTool::NutDef{'Type'} ne 'router') {
 	exitRouterOnly($Link0);
@@ -128,10 +126,7 @@ __END__
 
   Part A
     Step 2:
-    The RUT should transmit the first MAX_INITIAL_RTR_ADVERTISEMENTS (3)
-    at randomly chosen intervals of no greater than
-    MAX_INITIAL_RTR_ADVERT_INTERVAL (16) seconds. The RUT should transmit the
-    following consecutive Router Advertisements at randomly chosen intervals between the
+    The RUT transmits the consecutive Router Advertisements at randomly chosen intervals between the
     interface's configured MinRtrAdvInterval (5) and MaxRtrAdvInterval (10) seconds, and it
     MUST NOT transmit Router Advertisements more frequently than indicated by
     MinRtrAdvInterval (5) seconds.

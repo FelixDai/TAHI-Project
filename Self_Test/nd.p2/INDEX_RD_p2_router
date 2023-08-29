@@ -41,7 +41,7 @@
 # IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
-# $Name: V6LC_5_0_0 $
+# $Name: V6LC_5_0_7 $
 #
 # $TAHI: ct/nd.p2/INDEX_RD_p2_router,v 1.10 2008/04/10 07:32:32 akisada Exp $
 #
@@ -149,3 +149,51 @@
 #----------------------------------------------------------------------#
 &print:<TT>Test v6LC.2.2.15: Router Advertisement Processing, Reachable Time</TT>
 ./V6LC_2_2_14_C.seq:./V6LC_2_2_14_C.def:::<TT>Part B&#58; Reachable Time Configuration (Routers Only)</TT>:2
+
+
+#----------------------------------------------------------------------#
+# v6LC.2.2.20: Sending Router Advertisement with Route Preference      #
+#              (Routers Only)                                          #
+#----------------------------------------------------------------------#
+&print:<TT>Test v6LC.2.2.20&#58; Sending Router Advertisement with Route Preference (Routers Only)</TT>
+./v6LC_2_2_20_A.seq:./v6LC_2_2_20_A.def:::<TT>Part A&#58; High Router Preference</TT>:2
+./v6LC_2_2_20_B.seq:./v6LC_2_2_20_B.def:::<TT>Part B&#58; Medium Router Preference</TT>:2
+./v6LC_2_2_20_C.seq:./v6LC_2_2_20_C.def:::<TT>Part C&#58; Low Router Preference</TT>:2
+
+
+#----------------------------------------------------------------------#     
+# v6LC.2.2.21: Transmitting Route Information Option                   #
+#              (Routers Only)                                          #
+#----------------------------------------------------------------------#
+&print:<TT>Test v6LC.2.2.21&#58; Transmitting Route Information Option (Routers Only)</TT>
+./v6LC_2_2_21_A.seq:./v6LC_2_2_21_A.def:::<TT>Part A&#58; Route Information Option with Prefix Length of 64</TT>:2
+./v6LC_2_2_21_B.seq:./v6LC_2_2_21_B.def:::<TT>Part B&#58; Route Information Option with Prefix Length less than 64</TT>:2
+./v6LC_2_2_21_C.seq:./v6LC_2_2_21_C.def:::<TT>Part C&#58; Route Information Option with Prefix Length greater than 64</TT>:2
+./v6LC_2_2_21_D.seq:./v6LC_2_2_21_D.def:::<TT>Part D&#58; Route Information Option with Prefix Length of 0</TT>:2     
+./v6LC_2_2_21_E.seq:./v6LC_2_2_21_E.def:::<TT>Part E&#58; Non-advestising Interface</TT>:2
+
+#----------------------------------------------------------------------#
+# v6LC.2.2.24: Router Advertisement DNS                                #
+#              (Routers Only)                                          #
+#----------------------------------------------------------------------#
+&print:<TT>Test v6LC.2.2.24&#58; Router Advertisement DNS (Routers Only)</TT>
+./v6LC_2_2_24_A.seq:./v6LC_2_2_24_A.def:::<TT>Part A&#58; Recursive DNS Option</TT>:2
+./v6LC_2_2_24_B.seq:./v6LC_2_2_24_B.def:::<TT>Part B&#58; Search List Option</TT>:2
+
+
+
+#------------------------------------------------------------------------------#
+# v6LC.2.2.26 Atomic Fragments in Router Soliciation and Router Advertisement  #
+#------------------------------------------------------------------------------#
+&print:<TT>Test v6LC.2.2.26: Atomic Fragments in Router Soliciation and Router Advertisement</TT>
+./v6LC_2_2_26_B.seq:./v6LC_2_2_26_B.def:::<TT>Part B&#58; Router Solicitation with Atomic Fragment (Router Only)</TT>:2
+
+
+
+#------------------------------------------------------------------------------#
+# v6LC.2.2.27 Fragments in Router Solitication and Router Advertisments        #
+#------------------------------------------------------------------------------#
+&print:<TT>Test v6LC.2.2.27: Fragments in Router Solitication and Router Advertisments</TT>
+./v6LC_2_2_27_B.seq:./v6LC_2_2_27_B.def:::<TT>Part B&#58; Router Solicitation with Fragment Header (Router Only)</TT>:2
+
+

@@ -47,13 +47,12 @@
 #include "icmp.def"
 #include "../AdvancedFunctionality.def"
 
-#define NUT_GLOBAL_LINK1 v6merge(_GLOBAL1_UCAST_PRFX, \
-	_GLOBAL1_UCAST_PRFXLEN, nutv6("Link1"))
+#define NUT_GLOBAL_LINK1 nut4v6("Link1")
 //#define NUT_ONEOF_ADDR oneof(NUT_GLOBAL_LINK1)
 #if HAS_MULTIPLE_INTERFACES != 0
-#define NUT_ONEOF_ADDR oneof(NUT_GLOBAL, nutv6(), NUT_GLOBAL_LINK1)
+#define NUT_ONEOF_ADDR oneof(NUT_GLOBAL, nut3v6(), NUT_GLOBAL_LINK1)
 #else	// HAS_MULTIPLE_INTERFACES
-#define NUT_ONEOF_ADDR oneof(NUT_GLOBAL, nutv6())
+#define NUT_ONEOF_ADDR oneof(NUT_GLOBAL, nut3v6())
 #endif	// HAS_MULTIPLE_INTERFACES
 
 //----------------------------------------------------------------------
@@ -102,7 +101,7 @@ FEM_icmp6_time_exceeded(
 	time_exceeded0,
 	_HETHER_nut2tn,
 	{
-//		_SRC(oneof(nutv6(),NUT_GLOBAL, NUT_GLOBAL_LINK1));
+//		_SRC(oneof(nut3v6(),NUT_GLOBAL, NUT_GLOBAL_LINK1));
 		_SRC(NUT_ONEOF_ADDR);
 		_DST(TN_GLOBAL);
 		PayloadLength <= MAX_PAYLOAD;
@@ -118,7 +117,7 @@ FEM_icmp6_time_exceeded(
 	time_exceeded1,
 	_HETHER_nut2tn,
 	{
-//		_SRC(oneof(nutv6(),NUT_GLOBAL, NUT_GLOBAL_LINK1));
+//		_SRC(oneof(nut3v6(),NUT_GLOBAL, NUT_GLOBAL_LINK1));
 		_SRC(NUT_ONEOF_ADDR);
 		_DST(TN_GLOBAL);
 		PayloadLength <= MAX_PAYLOAD;
@@ -134,7 +133,7 @@ FEM_icmp6_time_exceeded(
 	time_exceeded_any,
 	_HETHER_nut2tn,
 	{
-//		_SRC(oneof(nutv6()NUT_GLOBAL, NUT_GLOBAL_LINK1));
+//		_SRC(oneof(nut3v6()NUT_GLOBAL, NUT_GLOBAL_LINK1));
 		_SRC(NUT_ONEOF_ADDR);
 		_DST(TN_GLOBAL);
 		PayloadLength <= MAX_PAYLOAD;

@@ -59,9 +59,7 @@
 #define TN_GLOBAL_ADDRESS v6merge(   TN_GLOBAL_UCAST_PRFX, \
                 GLOBAL_UCAST_PRFXLEN, \
                 v6("::1"))
-#define NUT_GLOBAL_ADDRESS v6merge(   NUT_GLOBAL_UCAST_PRFX, \
-                GLOBAL_UCAST_PRFXLEN, \
-                nutv6())
+#define NUT_GLOBAL_ADDRESS nut4v6("Link0")
 //
 // define Packets
 //
@@ -224,7 +222,7 @@ FEM_icmp6_ns (
 	ns,
 	HETHER_nut2tn_oneof,
 		{
-		_SRC(nutv6());
+		_SRC(nut3v6());
 		_DST(oneof(_IPV6_SOLNODE_MCAST(tnv6()),_IPV6_SOLNODE_MCAST(TN_GLOBAL_ADDRESS),tnv6(),TN_GLOBAL_ADDRESS));
 		HopLimit=255;
 	},
@@ -264,7 +262,7 @@ FEM_icmp6_ns (
 	ns_global,
 	HETHER_nut2tn_oneof,
 		{
-		_SRC(nutv6());
+		_SRC(nut3v6());
 		_DST(oneof(_IPV6_SOLNODE_MCAST(tnv6()),_IPV6_SOLNODE_MCAST(TN_GLOBAL_ADDRESS),tnv6(),TN_GLOBAL_ADDRESS));
 		HopLimit=255;
 	},
@@ -303,7 +301,7 @@ FEM_icmp6_ns (
 	ns_nosol,
 	_HETHER_nut2tn,
 		{
-		_SRC(oneof(nutv6(),NUT_GLOBAL_ADDRESS));
+		_SRC(oneof(nut3v6(),NUT_GLOBAL_ADDRESS));
 		_DST(tnv6());
 		HopLimit=255;
 	},
@@ -323,7 +321,7 @@ FEM_icmp6_ns (
 	ns2tn_global_nosol,
 	HETHER_nut2onlinksolnode,
 		{
-		_SRC(oneof(nutv6(),NUT_GLOBAL_ADDRESS));
+		_SRC(oneof(nut3v6(),NUT_GLOBAL_ADDRESS));
 		_DST(TN_GLOBAL_ADDRESS);
 		HopLimit=255;
 	},
@@ -346,7 +344,7 @@ FEM_icmp6_na (
 	_HETHER_tn2nut,
 		{
 		_SRC(tnv6());
-		_DST(nutv6());
+		_DST(nut3v6());
 		HopLimit=255;
         },
 		{
@@ -415,7 +413,7 @@ FEM_icmp6_na (
 	_HETHER_tn2nut,
 		{
 		_SRC(tnv6());
-		_DST(nutv6());
+		_DST(nut3v6());
 		HopLimit=255;
         },
 		{
@@ -461,7 +459,7 @@ FEM_icmp6_na (
 	_HETHER_tn2nut,
 		{
 		_SRC(tnv6());
-		_DST(nutv6());
+		_DST(nut3v6());
 		HopLimit=255;
         },
 		{
@@ -484,7 +482,7 @@ FEM_icmp6_na (
 	_HETHER_tn2nut,
 		{
 		_SRC(tnv6());
-		_DST(nutv6());
+		_DST(nut3v6());
 		HopLimit=255;
         },
 		{
@@ -529,7 +527,7 @@ FEM_icmp6_echo_request (
 	_HETHER_tn2nut,
 		{
 		_SRC(tnv6());
-		_DST(nutv6());
+		_DST(nut3v6());
        	},
 		{
 		payload=ping_data;
@@ -547,7 +545,7 @@ FEM_icmp6_echo_reply (
 	EchoReply,
 	_HETHER_nut2tn,
 		{
-		_SRC(nutv6());
+		_SRC(nut3v6());
 		_DST(tnv6());
 	},
 		{
@@ -570,7 +568,7 @@ _HETHER_define(pmtu_hether_nut2z, nutether(), ether(A9N_MAC_ADDR))
 FEM_icmp6_echo_request(pmtu_echo_request, _HETHER_tn2nut,
         {
          _SRC(tnv6());
-         _DST(nutv6());},
+         _DST(nut3v6());},
         {
          payload=pmtu_echo_data;
         }
@@ -593,7 +591,7 @@ FEM_icmp6_echo_request(pmtu_global_echo_request, _HETHER_tn2nut,
 //----------------------------------------------------------------------
 FEM_icmp6_echo_reply(pmtu_echo_reply, _HETHER_nut2tn,
         {
-         _SRC(nutv6());
+         _SRC(nut3v6());
          _DST(tnv6());
         },
         {
@@ -626,7 +624,7 @@ Payload pmtu_echo_data {
 //----------------------------------------------------------------------
 FEM_icmp6_ns(pmtu_multicast_ns, _HETHER_nut2tnsolnode,
         {
-		_SRC(oneof(nutv6(),nut2v6(NUT_GLOBAL_UCAST_PRFX,GLOBAL_UCAST_PRFXLEN)));
+		_SRC(oneof(nut3v6(),nut4v6("Link0")));
          _DST(_IPV6_SOLNODE_MCAST(tnv6()));
          HopLimit=255;
         },
@@ -643,7 +641,7 @@ FEM_icmp6_ns(pmtu_multicast_ns, _HETHER_nut2tnsolnode,
 //----------------------------------------------------------------------
 FEM_icmp6_ns(pmtu_multicast_global_ns, HETHER_nut2tn_oneof,
         {
-         _SRC(oneof(nutv6(),NUT_GLOBAL_ADDRESS));
+         _SRC(oneof(nut3v6(),NUT_GLOBAL_ADDRESS));
          _DST(_IPV6_SOLNODE_MCAST(TN_GLOBAL_ADDRESS));
          HopLimit=255;
         },
@@ -659,7 +657,7 @@ FEM_icmp6_ns(pmtu_multicast_global_ns, HETHER_nut2tn_oneof,
 //----------------------------------------------------------------------
 FEM_icmp6_ns(pmtu_unicast_ns, _HETHER_nut2tn,
         {
-		_SRC(oneof(nutv6(),nut2v6(NUT_GLOBAL_UCAST_PRFX,GLOBAL_UCAST_PRFXLEN)));
+		_SRC(oneof(nut3v6(),nut4v6("Link0")));
          _DST(tnv6());
          HopLimit=255;
         },
@@ -674,7 +672,7 @@ FEM_icmp6_ns(pmtu_unicast_ns, _HETHER_nut2tn,
 //----------------------------------------------------------------------
 FEM_icmp6_ns(pmtu_unicast_global_ns, _HETHER_nut2tn,
         {
-         _SRC(oneof(nutv6(),NUT_GLOBAL_ADDRESS));
+         _SRC(oneof(nut3v6(),NUT_GLOBAL_ADDRESS));
          _DST(TN_GLOBAL_ADDRESS);
          HopLimit=255;
         },
@@ -690,7 +688,7 @@ FEM_icmp6_ns(pmtu_unicast_global_ns, _HETHER_nut2tn,
 //----------------------------------------------------------------------
 FEM_icmp6_ns(pmtu_unicast_ns_sll, _HETHER_nut2tn,
         {
-		_SRC(oneof(nutv6(),nut2v6(NUT_GLOBAL_UCAST_PRFX,GLOBAL_UCAST_PRFXLEN)));
+		_SRC(oneof(nut3v6(),nut4v6("Link0")));
          _DST(tnv6());
          HopLimit=255;
         },
@@ -707,7 +705,7 @@ FEM_icmp6_ns(pmtu_unicast_ns_sll, _HETHER_nut2tn,
 //----------------------------------------------------------------------
 FEM_icmp6_ns(pmtu_unicast_global_ns_sll, _HETHER_nut2tn,
         {
-         _SRC(oneof(nutv6(),NUT_GLOBAL_ADDRESS));
+         _SRC(oneof(nut3v6(),NUT_GLOBAL_ADDRESS));
          _DST(TN_GLOBAL_ADDRESS);
          HopLimit=255;
         },
@@ -723,7 +721,7 @@ FEM_icmp6_ns(pmtu_unicast_global_ns_sll, _HETHER_nut2tn,
 //----------------------------------------------------------------------
 FEM_icmp6_echo_reply(pmtu_echo_reply_to_z2, pmtu_hether_nut2z,
         {
-         _SRC(nutv6());
+         _SRC(nut3v6());
          _DST(tnv6());
         },
         {
@@ -749,7 +747,7 @@ FEM_icmp6_echo_reply(pmtu_global_echo_reply_to_z2, pmtu_hether_nut2z,
 //----------------------------------------------------------------------
 FEM_icmp6_ns(pmtu_unicast_ns_to_z, pmtu_hether_nut2z,
         {
-		_SRC(oneof(nutv6(),nut2v6(NUT_GLOBAL_UCAST_PRFX,GLOBAL_UCAST_PRFXLEN)));
+		_SRC(oneof(nut3v6(),nut4v6("Link0")));
          _DST(tnv6());
          HopLimit=255;
         },
@@ -763,7 +761,7 @@ FEM_icmp6_ns(pmtu_unicast_ns_to_z, pmtu_hether_nut2z,
 //----------------------------------------------------------------------
 FEM_icmp6_ns(pmtu_unicast_global_ns_to_z, pmtu_hether_nut2z,
         {
-         _SRC(oneof(nutv6(),NUT_GLOBAL_ADDRESS));
+         _SRC(oneof(nut3v6(),NUT_GLOBAL_ADDRESS));
          _DST(TN_GLOBAL_ADDRESS);
          HopLimit=255;
         },
@@ -779,7 +777,7 @@ FEM_icmp6_ns(pmtu_unicast_global_ns_to_z, pmtu_hether_nut2z,
 //----------------------------------------------------------------------
 FEM_icmp6_ns(pmtu_unicast_ns_sll_to_z, pmtu_hether_nut2z,
         {
-		_SRC(oneof(nutv6(),nut2v6(NUT_GLOBAL_UCAST_PRFX,GLOBAL_UCAST_PRFXLEN)));
+		_SRC(oneof(nut3v6(),nut4v6("Link0")));
          _DST(tnv6());
          HopLimit=255;
         },
@@ -796,7 +794,7 @@ FEM_icmp6_ns(pmtu_unicast_ns_sll_to_z, pmtu_hether_nut2z,
 //----------------------------------------------------------------------
 FEM_icmp6_ns(pmtu_unicast_global_ns_sll_to_z, pmtu_hether_nut2z,
         {
-         _SRC(oneof(nutv6(),NUT_GLOBAL_ADDRESS));
+         _SRC(oneof(nut3v6(),NUT_GLOBAL_ADDRESS));
          _DST(TN_GLOBAL_ADDRESS);
          HopLimit=255;
         },

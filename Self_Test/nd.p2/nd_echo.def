@@ -55,7 +55,7 @@ FEM_icmp6_echo_request(
 	_HETHER_tn2nut,
 	{
 		_SRC(v6(_GLOBAL2A3N_UCAST_ADDR));
-		_DST(nut2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
+		_DST(nut4v6("Link0"));
 	},
 	{
 		payload	= payload8;
@@ -66,7 +66,7 @@ FEM_icmp6_echo_reply(
 	global_erep,
 	_HETHER_nut2tn,
 	{
-		_SRC(nut2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
+		_SRC(nut4v6("Link0"));
 		_DST(v6(_GLOBAL2A3N_UCAST_ADDR));
 	},
 	{
@@ -79,7 +79,7 @@ FEM_icmp6_echo_request(
 	_HETHER_h02nut,
 	{
 		_SRC(v6(_GLOBAL2A3N_UCAST_ADDR));
-		_DST(nut2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
+		_DST(nut4v6("Link0"));
 	},
 	{
 		payload	= payload8;
@@ -90,7 +90,7 @@ FEM_icmp6_echo_reply(
 	global_erep_x,
 	_HETHER_nut2h0,
 	{
-		_SRC(nut2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
+		_SRC(nut4v6("Link0"));
 		_DST(v6(_GLOBAL2A3N_UCAST_ADDR));
 	},
 	{

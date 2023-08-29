@@ -111,6 +111,9 @@ END   {}
 	ndSendNsRecvNa
 	ndOfflinkEchoDelay
 	ndOfflinkEchoDelayX
+	V6LC_2_1_22_A
+	V6LC_2_1_23_A
+	V6LC_2_1_23_B
 );
 
 push(@EXPORT, sort(@ndisc::EXPORT));
@@ -1720,7 +1723,7 @@ ndResolutionWaitQueueSingleWriteEcho(*$$$$$$)
 	print(OUTPUT "\t$reqHeaderEther,\n");
 	print(OUTPUT "\t{\n");
 	print(OUTPUT "\t\t_SRC($addr);\n");
-	print(OUTPUT "\t\t_DST(nutv6());\n");
+	print(OUTPUT "\t\t_DST(nut3v6());\n");
 	print(OUTPUT "\t},\n");
 	print(OUTPUT "\t{\n");
 	print(OUTPUT "\t\tSequenceNumber\t= $sequence;\n");
@@ -1733,7 +1736,7 @@ ndResolutionWaitQueueSingleWriteEcho(*$$$$$$)
 	print(OUTPUT "\t$erep,\n");
 	print(OUTPUT "\t$repHeaderEther,\n");
 	print(OUTPUT "\t{\n");
-	print(OUTPUT "\t\t_SRC(nutv6());\n");
+	print(OUTPUT "\t\t_SRC(nut3v6());\n");
 	print(OUTPUT "\t\t_DST($addr);\n");
 	print(OUTPUT "\t},\n");
 	print(OUTPUT "\t{\n");
@@ -4097,5 +4100,98 @@ ndOfflinkEchoDelayX($)
 
 	return($returnv);
 }
+
+#------------------------------#
+# V6LC_2_1_22_A()              #
+#------------------------------#
+sub
+V6LC_2_1_22_A($$)
+{
+	my ($Link, $frag) = @_;
+
+	my $ereq = 'ndisc_ereq_LL';
+
+	vLogHTML('<FONT COLOR="#FF0000" SIZE="5"><U><B>Procedure</B></U></FONT><BR>');
+
+	my @frames = mcastNS($ereq);
+
+	vSend($Link, $frag);
+
+	vSend($Link, $ereq);
+
+	my %ret = vRecvWrapper($Link, $TimeOut, 0, 0, @frames);
+
+	if($ret{'recvCount'}) {
+		foreach my $frame (@frames) {
+			if($ret{'recvFrame'} eq $frame) {
+				return(flushBuffer($Link, $TimeOut, $TimeOut));
+			}
+		}
+	}
+
+	vLogHTML('<FONT COLOR="#FF0000"><B>Could\'t observe NS</B></FONT><BR>');
+	return(-1);
+}
+
+
+#------------------------------#
+# V6LC_2_1_23_A()              #
+#------------------------------#
+sub
+V6LC_2_1_23_A($$$)
+{
+	my ($Link, $frag1, $frag2) = @_;
+
+	my $ereq = 'ndisc_ereq_LL';
+
+	vLogHTML('<FONT COLOR="#FF0000" SIZE="5"><U><B>Procedure</B></U></FONT><BR>');
+
+	my @frames = mcastNS($ereq);
+
+	vSend($Link, $frag1);
+	vSend($Link, $frag2);
+	vSend($Link, $ereq);
+
+	my %ret = vRecvWrapper($Link, $TimeOut, 0, 0, @frames);
+
+	if($ret{'recvCount'}) {
+		foreach my $frame (@frames) {
+			if($ret{'recvFrame'} eq $frame) {
+				return(flushBuffer($Link, $TimeOut, $TimeOut));
+			}
+		}
+	}
+
+	vLogHTML('<FONT COLOR="#FF0000"><B>Could\'t observe NS</B></FONT><BR>');
+	return(-1);
+}
+
+#--------------------------------------#
+# V6LC_2_1_23_B()                      #
+#--------------------------------------#
+sub
+V6LC_2_1_23_B($$$$)
+{
+	my ($Link, $ereq, $na_frag1, $na_frag2) = @_;
+
+	my @frames = mcastNS($ereq);
+
+	vSend($Link, $na_frag1);
+	vSend($Link, $na_frag2);
+
+	my %ret = vRecvWrapper($Link, $TimeOut, $SeekTime, 0, @frames);
+
+	if($ret{'recvCount'}) {
+		foreach my $frame (@frames) {
+			if($ret{'recvFrame'} eq $frame) {
+				return(flushBuffer($Link, $TimeOut, $TimeOut));
+			}
+		}
+	}
+
+	vLogHTML('<FONT COLOR="#FF0000"><B>Could\'t observe NS</B></FONT><BR>');
+	return(-1);
+}
+
 
 1;

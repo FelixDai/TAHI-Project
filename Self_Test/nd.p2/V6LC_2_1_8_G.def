@@ -55,10 +55,10 @@ FEM_icmp6_ns(
 		HopLimit	= 255;
 		PayloadLength	= 16;
 		_SRC(tnv6());
-		_DST(nutv6());
+		_DST(nut3v6());
 	},
 	{
-		TargetAddress	= nutv6();
+		TargetAddress	= nut3v6();
 		option		= _SLLOPT_tn;
 	}
 )

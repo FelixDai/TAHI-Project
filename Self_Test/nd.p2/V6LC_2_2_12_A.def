@@ -71,7 +71,7 @@ FEM_icmp6_echo_reply(
 	local_erep,
 	_HETHER_nut2tn,
 	{
-		_SRC(nutv6());
+		_SRC(nut3v6());
 		_DST(tnv6());
 	},
 	{
@@ -95,7 +95,7 @@ FEM_icmp6_ra(
 	_HETHER_nut2allnodes,
 	{
 		HopLimit	= 255;
-		_SRC(nutv6());
+		_SRC(nut3v6());
 		_DST(v6(_ALLNODES_MCAST_ADDR));
 	},
 	{

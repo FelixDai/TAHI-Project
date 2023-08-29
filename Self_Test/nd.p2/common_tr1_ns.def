@@ -53,7 +53,7 @@ FEM_icmp6_ns(
 	_HETHER_nut_to_tr1solnode,
 	{
 		HopLimit	= 255;
-		_SRC(nutv6());
+		_SRC(nut3v6());
 		_DST(_IPV6_SOLNODE_MCAST(v6(TR1_LINKLOCAL)));
 	},
 	{
@@ -67,7 +67,7 @@ FEM_icmp6_ns(
 	_HETHER_nut_to_tr1solnode,
 	{
 		HopLimit	= 255;
-		_SRC(nut2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
+		_SRC(nut4v6("Link0"));
 		_DST(_IPV6_SOLNODE_MCAST(v6(TR1_LINKLOCAL)));
 	},
 	{
@@ -81,7 +81,7 @@ FEM_icmp6_ns(
 	_HETHER_nut_to_tr1,
 	{
 		HopLimit	= 255;
-		_SRC(nutv6());
+		_SRC(nut3v6());
 		_DST(v6(TR1_LINKLOCAL));
 	},
 	{
@@ -94,7 +94,7 @@ FEM_icmp6_ns(
 	_HETHER_nut_to_tr1,
 	{
 		HopLimit	= 255;
-		_SRC(nutv6());
+		_SRC(nut3v6());
 		_DST(v6(TR1_LINKLOCAL));
 	},
 	{
@@ -108,7 +108,7 @@ FEM_icmp6_ns(
 	_HETHER_nut_to_tr1,
 	{
 		HopLimit	= 255;
-		_SRC(nut2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
+		_SRC(nut4v6("Link0"));
 		_DST(v6(TR1_LINKLOCAL));
 	},
 	{
@@ -121,7 +121,7 @@ FEM_icmp6_ns(
 	_HETHER_nut_to_tr1,
 	{
 		HopLimit	= 255;
-		_SRC(nut2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
+		_SRC(nut4v6("Link0"));
 		_DST(v6(TR1_LINKLOCAL));
 	},
 	{
@@ -135,7 +135,7 @@ FEM_icmp6_ns(
 	_HETHER_nut_to_trY,
 	{
 		HopLimit	= 255;
-		_SRC(nutv6());
+		_SRC(nut3v6());
 		_DST(v6(TR1_LINKLOCAL));
 	},
 	{
@@ -148,7 +148,7 @@ FEM_icmp6_ns(
 	_HETHER_nut_to_trY,
 	{
 		HopLimit	= 255;
-		_SRC(nut2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
+		_SRC(nut4v6("Link0"));
 		_DST(v6(TR1_LINKLOCAL));
 	},
 	{
@@ -161,7 +161,7 @@ FEM_icmp6_ns(
 	_HETHER_nut_to_trY,
 	{
 		HopLimit	= 255;
-		_SRC(nutv6());
+		_SRC(nut3v6());
 		_DST(v6(TR1_LINKLOCAL));
 	},
 	{
@@ -175,7 +175,7 @@ FEM_icmp6_ns(
 	_HETHER_nut_to_trY,
 	{
 		HopLimit	= 255;
-		_SRC(nut2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
+		_SRC(nut4v6("Link0"));
 		_DST(v6(TR1_LINKLOCAL));
 	},
 	{
@@ -183,4 +183,18 @@ FEM_icmp6_ns(
 		option		= _SLLOPT_nut;
 	}
 )
+
+FEM_icmp6_ns(
+	tr1_mcast_ns_nosll_linklocal_common,
+	_HETHER_nut_to_tr1solnode,
+	{
+		HopLimit = 255;
+		_SRC(nut3v6());
+		_DST(_IPV6_SOLNODE_MCAST(v6(TR1_LINKLOCAL)));
+	},
+	{
+		TargetAddress = v6(TR1_LINKLOCAL);
+	}
+)
+
 #endif	// HAVE_COMMON_TR1_NS_DEF

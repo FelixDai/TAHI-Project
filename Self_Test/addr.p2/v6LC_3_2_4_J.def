@@ -57,7 +57,7 @@
 #include "LLA_SAA.def"
 
 
-#define GA0  v6merge( _GLOBAL0_UCAST_PRFX, _GLOBAL0_UCAST_PRFXLEN, nutv6())
+#define GA0  nut4v6()
 #define GA1  v6merge( _GLOBAL1_UCAST_PRFX, _GLOBAL1_UCAST_PRFXLEN, nutv6())
 #define GA2  v6merge( _GLOBAL2_UCAST_PRFX, _GLOBAL2_UCAST_PRFXLEN, nutv6())
 #define SLA0 v6merge( _SLOCAL0_UCAST_PRFX, _SLOCAL0_UCAST_PRFXLEN, nutv6())
@@ -507,8 +507,8 @@ _PRFXOPT_define(PrefixOptGA1_VLT60, v6(_GLOBAL1_UCAST_PRFX), _GLOBAL1_UCAST_PRFX
 
 //--- NS from NUT
 
-FEM_ADDRCONF_dadns(DADNS_from_NUT_GA0Tgt, hether_nut2tentsolnode,
-                   DestinationAddress=_IPV6_SOLNODE_MCAST(nutv6());
+FEM_ADDRCONF_dadns(DADNS_from_NUT_GA0Tgt, hether_nut2tentsolnode_RA,
+                   DestinationAddress=_IPV6_SOLNODE_MCAST(GA0);
                    ,
                    TargetAddress=GA0; // Tentative Address
                    )
@@ -525,12 +525,17 @@ FEM_ADDRCONF_dadns(DADNS_from_NUT_GA2Tgt, hether_nut2tentsolnode,
                    TargetAddress=GA2; // Tentative Address
                    )
 
-
+FEM_ADDRCONF_dadns(DADNS_from_NUT_GA0Tgt_anyopt, hether_nut2tentsolnode_RA,
+                   DestinationAddress=_IPV6_SOLNODE_MCAST(GA0);
+                   ,
+                   TargetAddress=GA0; // Tentative Address
+		   option=any;
+                   )
 
 //--- NS from TN
 
-FEM_ADDRCONF_dadns(DADNS_from_TN_GA0Tgt, hether_tn2tentsolnode,
-                   DestinationAddress=_IPV6_SOLNODE_MCAST(nutv6());
+FEM_ADDRCONF_dadns(DADNS_from_TN_GA0Tgt, hether_tn2tentsolnode_RA,
+                   DestinationAddress=_IPV6_SOLNODE_MCAST(GA0);
                    ,
                    TargetAddress=GA0; // Tentative Address
                    )
@@ -550,14 +555,14 @@ FEM_ADDRCONF_dadns(DADNS_from_TN_GA2Tgt, hether_tn2tentsolnode,
 //--- NA from NUT
 
 FEM_ADDRCONF_dadna(DADNA_from_NUT_GA0Tgt, _HETHER_nut2allnodes,
-                   SourceAddress=nutv6();
+                   SourceAddress=nut3v6();
                    ,
                    TargetAddress=GA0;
                    option=_TLLOPT_nut;
                    )
 
 FEM_ADDRCONF_dadna(DADNA_from_NUT_GA0Tgt_woTLL, _HETHER_nut2allnodes,
-                   SourceAddress=nutv6();
+                   SourceAddress=nut3v6();
                    ,
                    TargetAddress=GA0;
                    )

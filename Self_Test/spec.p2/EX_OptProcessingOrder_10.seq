@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Name: V6LC_5_0_0 $
+# $Name: V6LC_5_0_7 $
 #
 # Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010
 # Yokogawa Electric Corporation.
@@ -48,7 +48,7 @@
 #
 ######################################################################
 BEGIN {
-	$V6evalTool::TestVersion = '$Name: V6LC_5_0_0 $';
+	$V6evalTool::TestVersion = '$Name: V6LC_5_0_7 $';
 }
 
 use V6evalTool;
@@ -133,7 +133,7 @@ Verify that a node properly procesesthe options in a single hheader in the order
     v                           v
 
   1. TN transmits an Echo Request that has a Destination options header with four unknown Options.
-     The Optins Types are 7, 135, 199, and 71.
+     The Optins Types are 17, 135, 199, and 71.
   2. Observe the packets transmitted by the NUT.
 
   Echo Request Data is:
@@ -151,7 +151,7 @@ Verify that a node properly procesesthe options in a single hheader in the order
             NextHeader         = 58 (ICMPv6)
             HeaderExtLength    = 3
 
-            OptionType         = 0x07 (Unrecognized Option, Type 00)
+            OptionType         = 0x11 (Unrecognized Option, Type 00)
             OptDataLength      = 4
             data               = {0, 0, 0, 0}
 
@@ -207,7 +207,7 @@ Common Test Cleanup
 
 # =head1 REFERENCE
 # 
-# RFC2460
+# RFC8200
 # 
 # 4.2  Options
 # 
@@ -302,7 +302,7 @@ Common Test Cleanup
 =begin html
 <BLOCKQUOTE>
 <PRE>
-RFC 2460 - IPv6 Specification
+RFC 8200 - IPv6 Specification
 </PRE>
 </BLOCKQUOTE>
 

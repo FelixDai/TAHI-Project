@@ -55,7 +55,7 @@ FEM_icmp6_echo_request(
 	_HETHER_tn2nut,
 	{
 		_SRC(tnv6());
-		_DST(nutv6());
+		_DST(nut3v6());
 	},
 	{
 		payload = ping_data1232;
@@ -77,7 +77,7 @@ FEM_icmp6_echo_reply(
 	echo_reply,
 	_HETHER_nut2tn,
 	{
-		_SRC(nutv6());
+		_SRC(nut3v6());
 		_DST(tnv6());
 	},
 	{
@@ -113,7 +113,7 @@ FEM_icmp6_destination_unreachable(
 	dst_unreach_from_nut,
 	_HETHER_nut2tn,
 	{
-		_SRC(oneof(nutv6(),NUT_GLOBAL,NUT_GLOBAL_LINK1));
+		_SRC(oneof(nut3v6(),NUT_GLOBAL,NUT_GLOBAL_LINK1));
 		_DST(oneof(tnv6(),TN_GLOBAL));
 	},
 	{
@@ -135,7 +135,7 @@ FEM_icmp6_parameter_problem(
 	parameter_problem,
 	_HETHER_nut2tn,
 	{
-		_SRC(nutv6());
+		_SRC(nut3v6());
 		_DST(tnv6());
 	},
 	{
@@ -153,7 +153,7 @@ FEM_icmp6_ns(
 	ns,
 	_HETHER_nut2tnsolnode,
 	{
-		_SRC(oneof(nutv6(), NUT_GLOBAL));
+		_SRC(oneof(nut3v6(), NUT_GLOBAL));
 		_DST(oneof(tnv6(), _IPV6_SOLNODE_MCAST(tnv6())));
 		HopLimit = 255;
 	},
@@ -168,7 +168,7 @@ FEM_icmp6_na(
 	_HETHER_tn2nut,
 	{
 		_SRC(tnv6());
-		_DST(nutv6());
+		_DST(nut3v6());
 		HopLimit = 255;
 	},
 	{

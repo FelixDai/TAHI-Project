@@ -45,11 +45,9 @@
 # $TAHI: ct/nd.p2/V6LC_2_1_7.seq,v 1.17 2009/12/28 05:55:17 akisada Exp $
 #
 ########################################################################
-
+BEGIN {$V6evalTool::TestVersion = '$Name: V6LC_5_0_7 $';}
 use nd;
 
-BEGIN {}
-END   {}
 
 my $ereq = 'ndisc_ereq_LL';
 
@@ -250,8 +248,8 @@ __END__
 <TD>
         IPv6 Header<br>
         Next Header: 58<br>
-        Source Address: TN1's local Address<br>
-        Destination Address: NUT's Link-local Address
+        Source Address: TN1's Link-local Address<br>
+        Destination Address: NUT's Global Address
 </TD>
 </TR>
 <TR>
@@ -268,7 +266,7 @@ __END__
         IPv6 Header<br>
         Next Header: 58<br>
         Source Address: TN1's Global Address<br>
-        Destination Address: NUT's Global Address
+        Destination Address: NUT's Link-local Address
 </TD>
 </TR>
 <TR>

@@ -89,8 +89,8 @@
 
 #define TN_GL0_ADDR tn2v6(_GLOBAL0_UCAST_PRFX, _GLOBAL0_UCAST_PRFXLEN, "Link0")
 #define TN_GL1_ADDR tn2v6(_GLOBAL1_UCAST_PRFX, _GLOBAL1_UCAST_PRFXLEN, "Link1")
-#define NUT_GL0_ADDR nut2v6(_GLOBAL0_UCAST_PRFX, _GLOBAL0_UCAST_PRFXLEN, "Link0")
-#define NUT_GL1_ADDR nut2v6(_GLOBAL1_UCAST_PRFX, _GLOBAL1_UCAST_PRFXLEN, "Link1")
+#define NUT_GL0_ADDR nut4v6("Link0")
+#define NUT_GL1_ADDR nut4v6("Link1")
 
 //
 // echo_request_ex_to_link0
@@ -214,7 +214,7 @@ FEM_icmp6_ns(
 	multicast_ns_linklocal_link0,
 	_HETHER_nut2tnsolnode,
 	{
-		_SRC(nutv6());
+		_SRC(nut3v6());
 		_DST(_IPV6_SOLNODE_MCAST(tnv6()));
 		HopLimit = 255;
 	},
@@ -236,7 +236,7 @@ FEM_icmp6_ns(
 	multicast_ns_linklocal_link1,
 	_HETHER_nut2tnsolnode,
 	{
-		_SRC(nutv6());
+		_SRC(nut3v6());
 		_DST(_IPV6_SOLNODE_MCAST(tnv6()));
 		HopLimit = 255;
 	},
@@ -259,7 +259,7 @@ FEM_icmp6_na(
 	_HETHER_tn2nut,
 	{
 		_SRC(tnv6());
-		_DST(nutv6());
+		_DST(nut3v6());
 		HopLimit = 255;
 	},
 	{

@@ -58,7 +58,7 @@ FEM_icmp6_rs(
 	_HETHER_nut2allrouters,
 	{
 		HopLimit	= 255;
-		_SRC(nutv6());
+		_SRC(nut3v6());
 		_DST(v6(_ALLROUTERS_MCAST_ADDR));
 	},
 	{}
@@ -69,7 +69,7 @@ FEM_icmp6_rs(
 	_HETHER_nut2allrouters,
 	{
 		HopLimit	= 255;
-		_SRC(nutv6());
+		_SRC(nut3v6());
 		_DST(v6(_ALLROUTERS_MCAST_ADDR));
 	},
 	{

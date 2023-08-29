@@ -75,7 +75,7 @@ BEGIN
 
 	$alrm_expired	= 0;
 
-	$V6evalTool::TestVersion = '$Name: V6LC_5_0_0 $';
+	$V6evalTool::TestVersion = '$Name: V6LC_5_0_3 $';
 
 	$tr1_default = 0;
 	$tr1_cache = 0;

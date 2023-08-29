@@ -45,13 +45,45 @@
 # $TAHI: ct/nd.p2/v6LC_2_0_0.seq,v 1.5 2008/07/31 04:41:30 hide Exp $
 #
 ########################################################################
-
+BEGIN {$V6evalTool::TestVersion = '$Name: V6LC_5_0_7 $';}
 use redirect;
 
-BEGIN {}
-END   {}
+
+if(vRemote('reboot.rmt', "timeout=$wait_rebootcmd")) {
+        vLogHTML('<FONT COLOR="#FF0000"><B>reboot.rmt: '.
+                'Could\'t reboot</B></FONT><BR>');
+
+        exitFatal($Link0);
+}
+
+if($sleep_after_reboot) {
+        vSleep($sleep_after_reboot);
+}
 
 vCapture($Link0);
+if($V6evalTool::NutDef{'Type'} ne 'router') {
+	$IF=Link0;
+	$Recv_count = 0;
+	while (1) {
+		vClear($IF);
+		$Recv_count++;
+		if($Recv_count > 2){
+			last;
+		}
+		vSend($IF, get_addr_ra);
+		%ret = vRecv($IF, 5, 0, 0, Init_DADNS_from_NUT, Init_DADNS_from_NUT_anyopt);
+		if($ret{'status'} == 0) {
+			my $TargetAddress = $ret{"Frame_Ether.Packet_IPv6.ICMPv6_NS.TargetAddress"};
+			$TargetAddress = lc($TargetAddress);
+			my $idx = index($TargetAddress, "3ffe");
+			if($idx == 0) {
+				vLog("global addr received");
+				vRenewConfFile($IF, $TargetAddress);
+				last;
+			}
+		}
+	}	
+}
 
 if(vRemote('reboot.rmt', "timeout=$wait_rebootcmd")) {
 	vLogHTML('<FONT COLOR="#FF0000"><B>reboot.rmt: '.

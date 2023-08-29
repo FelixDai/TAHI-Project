@@ -93,7 +93,7 @@ FEM_icmp6_destination_unreachable(
 	dst_unreach,
 	_HETHER_nut2tn,
 	{
-		_SRC(oneof(nutv6(),NUT_GLOBAL));
+		_SRC(oneof(nut3v6(),NUT_GLOBAL));
 		_DST(TN_GLOBAL);
 		PayloadLength <= MAX_PAYLOAD;
 	},
@@ -108,7 +108,7 @@ FEM_icmp6_destination_unreachable(
 	dst_unreach_any,
 	_HETHER_nut2tn,
 	{
-		_SRC(oneof(nutv6(),NUT_GLOBAL));
+		_SRC(oneof(nut3v6(),NUT_GLOBAL));
 		_DST(TN_GLOBAL);
 		PayloadLength <= MAX_PAYLOAD;
 	},

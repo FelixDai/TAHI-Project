@@ -50,9 +50,9 @@
 // addresses
 //----------------------------------------------------------------------
 #define PTB_OFFLINK_ADDR v6merge(_GLOBAL1_UCAST_PRFX, _GLOBAL1_UCAST_PRFXLEN, v6("::1"))
-#define NUT_GLOBAL_LINK1 v6merge(_GLOBAL1_UCAST_PRFX, _GLOBAL1_UCAST_PRFXLEN, nutv6("Link1"))
+#define NUT_GLOBAL_LINK1 nut4v6("Link1")
 #define NUT_ONEOF_ADDR oneof(NUT_GLOBAL_LINK1)
-//#define NUT_ONEOF_ADDR oneof(NUT_GLOBAL, nutv6(), NUT_GLOBAL_LINK1)
+//#define NUT_ONEOF_ADDR oneof(NUT_GLOBAL, nut3v6(), NUT_GLOBAL_LINK1)
 
 //-------mac addr define //for clean cash
 #if HAS_MULTIPLE_INTERFACES != 0
@@ -87,7 +87,7 @@ FEM_icmp6_echo_request (
 	HETHER_tn2nut_link1,
 	{
 		_SRC(tnv6("Link1"));
-		_DST(nutv6("Link1"));
+		_DST(nut3v6("Link1"));
 	},
 	{
 		payload = ping_data;
@@ -99,7 +99,7 @@ FEM_icmp6_echo_request (
 	HETHER_tn2nut_link1,
 	{
 		_SRC(tnv6("Link0"));
-		_DST(nutv6("Link0"));
+		_DST(nut3v6("Link0"));
 	},
 	{
 		payload = ping_data;
@@ -117,7 +117,7 @@ FEM_icmp6_echo_reply (
 	echo_reply_local_link1,
 	HETHER_nut2tn_link1,
 	{
-		_SRC(nutv6("Link1"));
+		_SRC(nut3v6("Link1"));
 		_DST(tnv6("Link1"));
 	},
 	{
@@ -129,7 +129,7 @@ FEM_icmp6_echo_reply (
 	echo_reply_local_link1,
 	HETHER_nut2tn_link1,
 	{
-		_SRC(nutv6("Link0"));
+		_SRC(nut3v6("Link0"));
 		_DST(tnv6("Link0"));
 	},
 	{
@@ -148,7 +148,7 @@ FEM_icmp6_echo_reply(
 	clean_echo_reply_link_local_link1,
 	CLEAN_HETHER1,
 	{
-		_SRC(nutv6("Link1"));
+		_SRC(nut3v6("Link1"));
 		_DST(tnv6("Link1"));
 	},
 	{
@@ -160,7 +160,7 @@ FEM_icmp6_echo_reply(
 	clean_echo_reply_link_local_link1,
 	CLEAN_HETHER1,
 	{
-		_SRC(nutv6("Link0"));
+		_SRC(nut3v6("Link0"));
 		_DST(tnv6("Link0"));
 	},
 	{
@@ -316,7 +316,7 @@ FEM_icmp6_packet_too_big (
 	pkt_too_big_link1,
 	_HETHER_nut2tn,
 	{
-		_SRC(oneof(nutv6("Link1"),NUT_GLOBAL));
+		_SRC(oneof(nut3v6("Link1"),NUT_GLOBAL));
 		_DST(TN_GLOBAL);
 		PayloadLength <= MAX_PAYLOAD;
 	},
@@ -331,7 +331,7 @@ FEM_icmp6_packet_too_big (
 	_HETHER_nut2tn,
 	{
 		PayloadLength	<= MAX_PAYLOAD;
-		_SRC(oneof(nutv6("Link0"),NUT_GLOBAL));
+		_SRC(oneof(nut3v6("Link0"),NUT_GLOBAL));
 		_DST(TN_GLOBAL);
 	},
 	{
@@ -348,7 +348,7 @@ FEM_icmp6_packet_too_big (
 	{
 		_SRC(
 			oneof(
-				nutv6(),
+				nut3v6(),
 				NUT_GLOBAL,
 				NUT_GLOBAL_LINK1
 			)
@@ -368,7 +368,7 @@ FEM_icmp6_packet_too_big (
 	{
 		_SRC(
 			oneof(
-				nutv6(),
+				nut3v6(),
 				NUT_GLOBAL,
 			)
 		);
@@ -411,7 +411,7 @@ FEM_icmp6_ns (
 	ns_local_sll_link1,
 	HETHER_nut2tn_oneof,
 	{
-		_SRC(oneof(nutv6("Link1"), NUT_GLOBAL_LINK1));
+		_SRC(oneof(nut3v6("Link1"), NUT_GLOBAL_LINK1));
 		_DST(oneof(_IPV6_SOLNODE_MCAST(tnv6("Link1")), tnv6("Link1")));
 		HopLimit = 255;
 	},
@@ -435,7 +435,7 @@ FEM_icmp6_ns (
 	ns_local_link1,
 	HETHER_nut2tn_oneof,
 	{
-		_SRC(oneof(nutv6("Link1"), NUT_GLOBAL_LINK1));
+		_SRC(oneof(nut3v6("Link1"), NUT_GLOBAL_LINK1));
 		_DST(oneof(_IPV6_SOLNODE_MCAST(tnv6("Link1")), tnv6("Link1")));
 		HopLimit = 255;
 	},
@@ -460,7 +460,7 @@ FEM_icmp6_ns(
 	clean_ns_local_sll_link1,
 	CLEAN_HETHER1,
 	{
-		_SRC(nutv6("Link1"));
+		_SRC(nut3v6("Link1"));
 		_DST(tnv6("Link1"));
 		HopLimit = 255;
 	},
@@ -494,7 +494,7 @@ FEM_icmp6_na (
 	HETHER_tn2nut_link1,
 	{
 		_SRC(tnv6("Link1"));
-		_DST(nutv6("Link1"));
+		_DST(nut3v6("Link1"));
 		HopLimit = 255;
 	},
 	{
@@ -523,7 +523,7 @@ FEM_icmp6_na (
 	HETHER_tn2nut_link1,
 	{
 		_SRC(tnv6("Link1"));
-		_DST(nutv6("Link1"));
+		_DST(nut3v6("Link1"));
 		HopLimit = 255;
 	},
 	{
@@ -543,9 +543,7 @@ FEM_icmp6_na (
 	_GLOBAL1_UCAST_PRFXLEN, \
 	v6("::1"))
 
-#define NUT_GLOBAL_LINK1 v6merge( _GLOBAL1_UCAST_PRFX, \
-	_GLOBAL1_UCAST_PRFXLEN, \
-	nutv6())
+#define NUT_GLOBAL_LINK1 nut4v6("Link1")
 
 #if HAS_MULTIPLE_INTERFACES != 0
 _HETHER_define(
@@ -574,7 +572,7 @@ FEM_icmp6_ns(
 	ns_global_link1,
 	HETHER_nut2tn_oneof_link1_alt,
 	{
-		_SRC(oneof(nutv6(), NUT_GLOBAL_LINK1));
+		_SRC(oneof(nut3v6(), NUT_GLOBAL_LINK1));
 		_DST(oneof(_IPV6_SOLNODE_MCAST(TN_GLOBAL_LINK1),
 			TN_GLOBAL_LINK1));
 		HopLimit = 255;
@@ -588,7 +586,7 @@ FEM_icmp6_ns(
 	ns_global_sll_link1,
 	HETHER_nut2tn_oneof_link1_alt,
 	{
-		_SRC(oneof(nutv6(), NUT_GLOBAL_LINK1));
+		_SRC(oneof(nut3v6(), NUT_GLOBAL_LINK1));
 		_DST(oneof(
 			_IPV6_SOLNODE_MCAST(TN_GLOBAL_LINK1), TN_GLOBAL_LINK1));
 
@@ -655,7 +653,7 @@ FEM_hdr_ipv6_exth(
 	_HETHER_tn2nut,
 	{
 		_SRC(tn2v6(_GLOBAL10_UCAST_PRFX, _GLOBAL10_UCAST_PRFXLEN));
-		_DST(nut2v6(_GLOBAL0_UCAST_PRFX, _GLOBAL0_UCAST_PRFXLEN));
+		_DST(nut4v6("Link0"));
 	},
 	{
 		header	= _HDR_IPV6_NAME(echo_request_global_link1);
@@ -679,7 +677,7 @@ FEM_hdr_ipv6_exth(
 	echo_reply_global_link1,
 	_HETHER_nut2tn,
 	{
-		_SRC(nut2v6(_GLOBAL0_UCAST_PRFX, _GLOBAL0_UCAST_PRFXLEN));
+		_SRC(nut4v6("Link0"));
 		_DST(tn2v6(_GLOBAL10_UCAST_PRFX, _GLOBAL10_UCAST_PRFXLEN));
 	},
 	{
@@ -705,7 +703,7 @@ FEM_hdr_ipv6_exth(
 	_HETHER_nut2tn,
 	{
 		_SRC(tn2v6(_GLOBAL10_UCAST_PRFX, _GLOBAL10_UCAST_PRFXLEN));
-		_DST(nut2v6(_GLOBAL0_UCAST_PRFX, _GLOBAL0_UCAST_PRFXLEN));
+		_DST(nut4v6("Link0"));
 	},
 	{
 		header	= _HDR_IPV6_NAME(ns_global_link1);
@@ -717,7 +715,7 @@ FEM_icmp6_ns(
 	ns_global_link1_inner,
 	HETHER_nut2tn_oneof_link1_alt,
 	{
-		_SRC(oneof(nutv6(), NUT_GLOBAL));
+		_SRC(oneof(nut3v6(), NUT_GLOBAL));
 		_DST(oneof(_IPV6_SOLNODE_MCAST(TN_GLOBAL_LINK1),
 			TN_GLOBAL_LINK1));
 		HopLimit = 255;
@@ -732,7 +730,7 @@ FEM_hdr_ipv6_exth(
 	_HETHER_nut2tn,
 	{
 		_SRC(tn2v6(_GLOBAL10_UCAST_PRFX, _GLOBAL10_UCAST_PRFXLEN));
-		_DST(nut2v6(_GLOBAL0_UCAST_PRFX, _GLOBAL0_UCAST_PRFXLEN));
+		_DST(nut4v6("Link0"));
 	},
 	{
 		header	= _HDR_IPV6_NAME(ns_global_sll_link1);
@@ -744,7 +742,7 @@ FEM_icmp6_ns(
 	ns_global_sll_link1_inner,
 	HETHER_nut2tn_oneof_link1_alt,
 	{
-		_SRC(oneof(nutv6(), NUT_GLOBAL));
+		_SRC(oneof(nut3v6(), NUT_GLOBAL));
 		_DST(oneof(
 			_IPV6_SOLNODE_MCAST(TN_GLOBAL_LINK1), TN_GLOBAL_LINK1));
 
@@ -761,7 +759,7 @@ FEM_hdr_ipv6_exth(
 	_HETHER_tn2nut,
 	{
 		_SRC(tn2v6(_GLOBAL10_UCAST_PRFX, _GLOBAL10_UCAST_PRFXLEN));
-		_DST(nut2v6(_GLOBAL0_UCAST_PRFX, _GLOBAL0_UCAST_PRFXLEN));
+		_DST(nut4v6("Link0"));
 	},
 	{
 		header	= _HDR_IPV6_NAME(na_global_link1);
@@ -791,7 +789,7 @@ FEM_hdr_ipv6_exth(
 	_HETHER_tn2nut,
 	{
 		_SRC(tn2v6(_GLOBAL10_UCAST_PRFX, _GLOBAL10_UCAST_PRFXLEN));
-		_DST(nut2v6(_GLOBAL0_UCAST_PRFX, _GLOBAL0_UCAST_PRFXLEN));
+		_DST(nut4v6("Link0"));
 	},
 	{
 		header	= _HDR_IPV6_NAME(clean_na_global_link1);

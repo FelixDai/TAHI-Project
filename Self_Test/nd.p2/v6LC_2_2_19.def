@@ -82,7 +82,7 @@ FEM_icmp6_echo_request(
 	_HETHER_tr1_to_nut,
 	{
 		_SRC(tn2v6(LINKX_PREFIX, LINKX_PREFIXLEN));
-		_DST(nut2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
+		_DST(nut4v6("Link0"));
 	},
 	{
 		payload	= payload8;
@@ -94,7 +94,7 @@ FEM_icmp6_echo_reply(
 	local_erep,
 	_HETHER_nut2tn,
 	{
-		_SRC(nut2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
+		_SRC(nut4v6("Link0"));
 		_DST(tn2v6(LINKX_PREFIX, LINKX_PREFIXLEN));
 	},
 	{
@@ -107,7 +107,7 @@ FEM_icmp6_ns(
 	_HETHER_nut2tnsolnode,
 	{
 		HopLimit	= 255;
-		_SRC(nut2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
+		_SRC(nut4v6("Link0"));
 		_DST(_IPV6_SOLNODE_MCAST(tn2v6(LINKX_PREFIX, LINKX_PREFIXLEN)));
 	},
 	{
@@ -122,7 +122,7 @@ FEM_icmp6_na(
 	{
 		HopLimit	= 255;
 		_SRC(tn2v6(LINKX_PREFIX, LINKX_PREFIXLEN));
-		_DST(nut2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
+		_DST(nut4v6("Link0"));
 	},
 	{
 		RFlag		= 0;

@@ -88,7 +88,7 @@ FEM_icmp6_ns(
 	_HETHER_nut2solnode_for_udp_pkt,
 	{
 		HopLimit	= 255;
-		_SRC(nutv6());
+		_SRC(nut3v6());
 		_DST(_IPV6_SOLNODE_MCAST(_IPV6_SOLNODE_MCAST(tnv6())));
 	},
 	{
@@ -120,7 +120,7 @@ FEM_icmp6_na(
 	{
 		HopLimit	= 255;
 		_SRC(TN_GLOBAL);
-		_DST(nutv6());
+		_DST(nut3v6());
 	},
 	{
 		RFlag	= 1;
@@ -161,7 +161,7 @@ FEM_icmp6_destination_unreachable(
 	dst_unreach,
 	_HETHER_nut2tn,
 	{
-		_SRC(oneof(NUT_GLOBAL, nutv6()));
+		_SRC(oneof(NUT_GLOBAL, nut3v6()));
 //		_DST(oneof(TN_GLOBAL,tnv6(),MCAST_GLOBAL));
 		_DST(oneof(TN_GLOBAL,tnv6(),_IPV6_SOLNODE_MCAST(tnv6())));
 	},
@@ -176,7 +176,7 @@ FEM_icmp6_destination_unreachable(
 	dst_unreach_any,
 	_HETHER_nut2tn,
 	{
-		_SRC(oneof(NUT_GLOBAL, nutv6()));
+		_SRC(oneof(NUT_GLOBAL, nut3v6()));
 		_DST(oneof(TN_GLOBAL,tnv6(),MCAST_GLOBAL));
 		_DST(oneof(TN_GLOBAL,tnv6(),_IPV6_SOLNODE_MCAST(tnv6())));
 	},

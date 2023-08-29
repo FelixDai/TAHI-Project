@@ -45,11 +45,8 @@
 # $TAHI: ct/nd.p2/V6LC_2_2_12_B.seq,v 1.10 2009/12/28 05:55:17 akisada Exp $
 #
 ########################################################################
-
+BEGIN {$V6evalTool::TestVersion = '$Name: V6LC_5_0_7 $';}
 use rdisc;
-
-BEGIN {}
-END   {}
 
 vCapture($Link0);
 
@@ -59,7 +56,7 @@ unless(commonSetup_1_1($Link0)) {
 }
 
 $pktdesc{'local_ra'} =
-	'    Send RA w/ SLL (chlim=15): '.
+	'    Send RA w/ SLL (chlim=100): '.
 		'TR1 (link-local) -&gt; all-nodes multicast address';
 
 $pktdesc{'local_erep'} =
@@ -116,8 +113,8 @@ __END__
   Part B: Non-Zero
    6. TN1 transmits an Echo Request to the NUT.
    7. Observe the packets transmitted by the NUT.
-   8. If the NUT is a host, TR1 transmits a Router Advertisement with a Cur Hop Limit value of 15. If
-      the NUT is a router, configure the Cur Hop Limit to a value of 15 and observe the Router
+   8. If the NUT is a host, TR1 transmits a Router Advertisement with a Cur Hop Limit value of 100. If
+      the NUT is a router, configure the Cur Hop Limit to a value of 100 and observe the Router
       Advertisement from the NUT.
    9. TN1 transmits an Echo Request to the NUT.
   10. Observe the packets transmitted by the NUT.
@@ -131,11 +128,11 @@ __END__
 
     Step 8:
     If the NUT is a router, the NUT should transmit a Router Advertisement with a
-    curHopLimit value set to 15.
+    curHopLimit value set to 100.
 
     Step 10:
     The NUT should respond to the Request from TN1. The Hop Limit value in the
-    Echo Reply should be 15.
+    Echo Reply should be 100.
 
 =head1 Possible Problems
 

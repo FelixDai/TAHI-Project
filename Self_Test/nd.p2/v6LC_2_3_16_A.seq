@@ -45,11 +45,9 @@
 # $TAHI: ct/nd.p2/v6LC_2_3_16_A.seq,v 1.8 2009/12/28 05:55:17 akisada Exp $
 #
 ########################################################################
-
+BEGIN {$V6evalTool::TestVersion = '$Name: V6LC_5_0_7 $';}
 use redirect;
 
-BEGIN {}
-END   {}
 
 if($V6evalTool::NutDef{'Type'} ne 'router') {
 	exitRouterOnly($Link0);
@@ -149,6 +147,7 @@ __END__
    Step 2: The RUT should transmit a Redirect message with the following values:
        IPv6 Source             Link-Local address of RUT
        IPv6 Destination        TN1's address (used in Echo Request's Source Address)
+       IPv6 Hop Limit          255
        Target                  TN2's unicast global address with prefix X
        Destination             TN2's unicast global address with prefix X
        TLL Option              TN2's link-layer address if known

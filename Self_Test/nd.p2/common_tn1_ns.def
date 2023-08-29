@@ -53,7 +53,7 @@ FEM_icmp6_ns(
 	_HETHER_nut_to_tnY,
 	{
 		HopLimit	= 255;
-		_SRC(nutv6());
+		_SRC(nut3v6());
 		_DST(tnv6());
 	},
 	{
@@ -66,7 +66,7 @@ FEM_icmp6_ns(
 	_HETHER_nut_to_tnY,
 	{
 		HopLimit	= 255;
-		_SRC(nut2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
+		_SRC(nut4v6("Link0"));
 		_DST(tnv6());
 	},
 	{
@@ -79,7 +79,7 @@ FEM_icmp6_ns(
 	_HETHER_nut_to_tnY,
 	{
 		HopLimit	= 255;
-		_SRC(nutv6());
+		_SRC(nut3v6());
 		_DST(tnv6());
 	},
 	{
@@ -93,7 +93,7 @@ FEM_icmp6_ns(
 	_HETHER_nut_to_tnY,
 	{
 		HopLimit	= 255;
-		_SRC(nut2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
+		_SRC(nut4v6("Link0"));
 		_DST(tnv6());
 	},
 	{

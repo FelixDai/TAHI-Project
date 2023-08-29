@@ -80,6 +80,39 @@
 #define	LINKY_PREFIXLEN	64
 #endif	// LINKY_PREFIXLEN
 
+#ifndef	LINKZ_PREFIX
+#define	LINKZ_PREFIX	"3ffe:501:ffff:102:0:1::"
+#endif	// LINKZ_PREFIX
+
+#ifndef	LINKZ_PREFIXLEN
+#define	LINKZ_PREFIXLEN	96
+#endif	// LINKZ_PREFIXLEN
+
+#ifndef	LINKZ64_PREFIX
+#define	LINKZ64_PREFIX	"3ffe:501:ffff:102::"
+#endif	// LINKZ64_PREFIX
+
+#ifndef	LINKZ64_PREFIXLEN
+#define	LINKZ64_PREFIXLEN	64
+#endif	// LINKZ64_PREFIXLEN
+
+#ifndef	LINKZ32_PREFIX
+#define	LINKZ32_PREFIX	"3ffe:501::"
+#endif	// LINKZ32_PREFIX
+
+#ifndef	LINKZ32_PREFIXLEN
+#define	LINKZ32_PREFIXLEN	32
+#endif	// LINKZ32_PREFIXLEN
+
+#ifndef	TN2_GLOBAL_EX
+#define	TN2_GLOBAL_EX	"3ffe:501:ffff:102::2"
+#endif	// LINK1_PREFIXLEN
+
+#ifndef	TN2_GLOBAL_EX96
+#define	TN2_GLOBAL_EX96		"3ffe:501:ffff:102:0:1::2"
+#endif	// LINK1_PREFIXLEN
+
+
 #ifndef	TR1_MAC
 #define	TR1_MAC		A0N_MAC_ADDR
 #endif	// TR1_MAC
@@ -275,6 +308,13 @@ _HETHER_define(
 	nutether(),
 	ether(TNY_MAC)
 )
+
+_HETHER_define(
+        hether_nut2nutsolnode, 
+        nutether(), 
+        _ETHER_SOLNODE_MCAST(nut3v6())
+)
+
 
 _HETHER_define(_HETHER_nut2any,  nutether(), any)
 

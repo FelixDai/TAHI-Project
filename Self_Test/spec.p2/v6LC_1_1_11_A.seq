@@ -1,0 +1,218 @@
+#!/usr/bin/perl
+#
+# Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010
+# Yokogawa Electric Corporation.
+# All rights reserved.
+# 
+# Redistribution and use of this software in source and binary
+# forms, with or without modification, are permitted provided that
+# the following conditions and disclaimer are agreed and accepted
+# by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in
+#    the documentation and/or other materials provided with
+#    the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project
+#    which is related to this software (hereinafter referred to as
+#    "project") nor the names of the contributors may be used to
+#    endorse or promote products derived from this software without
+#    specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written
+#    notification to the copyrighters.
+# 
+# 5. The copyrighters, the project and the contributors may prohibit
+#    the use of this software at any time.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+# STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+# IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+# $TAHI: ct/spec.p2/v6LC_1_1_11.seq,v 1.8 2021/06/17 13:30:17 jiangwch Exp $
+#
+########################################################################
+BEGIN {
+	$V6evalTool::TestVersion = '$Name: V6LC_5_0_7 $';
+}
+
+use V6evalTool;
+use CommonSPEC;
+use lib '../';
+use AdvancedFunctionality;
+
+if ($V6evalTool::NutDef{'Type'} ne 'router') {
+	vLogHTML("This test is for the router only<BR>");
+	exit($V6evalTool::exitRouterOnly);
+}
+
+$pktdesc{'tn2_ereq_offlink_via_rut_to_tn4_64'}      = 'Send Echo Request from TN2 to TN4 '.
+					'with a first hop through the RUT';
+$pktdesc{'tn2_ereq_offlink_via_rut_to_tn4_64_f'} = 'Recv forwarded Echo Request to TR1';
+
+$pktdesc{'tn2_ereq_offlink_via_rut_to_tn4_65'}      = 'Send Echo Request from TN2 to TN4 '.
+                                        'with a first hop through the RUT';
+$pktdesc{'tn2_ereq_offlink_via_rut_to_tn4_65_f'} = 'Recv forwarded Echo Request to TR2';
+
+$pktdesc{'tn2_ereq_offlink_via_rut_to_tn4_66'}      = 'Send Echo Request from TN2 to TN4 '.
+                                        'with a first hop through the RUT';
+$pktdesc{'tn2_ereq_offlink_via_rut_to_tn4_66_f'} = 'Recv forwarded Echo Request to TR2';
+
+$IF0 = 'Link0';
+$IF1 = 'Link1';
+
+vCapture($IF0);
+
+if($AdvancedFunctionality::HAS_MULTIPLE_INTERFACES) {
+	vCapture($IF1);
+}
+
+$retv = vRemote('route.rmt',    
+                'cmd=add ' .
+                'prefix=default ' .
+                "gateway=fe80::200:ff:fe00:a0a0 ",
+                "if=$V6evalTool::NutDef{'Link0_device'}");
+if ($retv != 0) {
+                vLogHTML('Cannot set default router<BR>');
+                vLogHTML('<FONT COLOR="#FF0000">NG</FONT><BR>');
+                vLogHTML('<FONT COLOR="#FF0000">setup failure.</FONT><BR>');
+                return ($Failure);
+                }
+
+
+$retv = vRemote('route.rmt',    
+                'cmd=add ' .
+                'prefix=3ffe:501:ffff:0:8000:: ' .
+		'prefixlen=65',
+                "gateway=fe80::200:ff:fe00:a1a1 ",
+                "if=$V6evalTool::NutDef{'Link0_device'}");
+if ($retv != 0) {
+                vLogHTML('Cannot set default router<BR>');
+                vLogHTML('<FONT COLOR="#FF0000">NG</FONT><BR>');
+                vLogHTML('<FONT COLOR="#FF0000">setup failure.</FONT><BR>');
+                return ($Failure);
+                }
+
+vSend($IF1, 'tn2_ereq_offlink_via_rut_to_tn4_64');
+
+%ret = tr_nd_vRecv_IN($IF0, $CommonSPEC::wait_reply, 0, 0, 'tn2_ereq_offlink_via_rut_to_tn4_64_f');
+
+if ($ret{'recvFrame'} eq 'tn2_ereq_offlink_via_rut_to_tn4_64_f') {
+		vLogHTML('OK<BR>');
+}else {	# FAIL
+	vLogHTML('Cannot receive forwarded Echo Request to TR1<BR>');
+	vLogHTML('<FONT COLOR="#FF0000">NG</FONT><BR>');
+	$endStatus = $V6evalTool::exitFail;
+}
+
+vSend($IF1, 'tn2_ereq_offlink_via_rut_to_tn4_65');
+
+%ret = tr_nd_vRecv_IN($IF0, $CommonSPEC::wait_reply, 0, 0, 'tn2_ereq_offlink_via_rut_to_tn4_65_f');
+
+if ($ret{'recvFrame'} eq 'tn2_ereq_offlink_via_rut_to_tn4_65_f') {
+		vLogHTML('OK<BR>');
+}else {	# FAIL
+	vLogHTML('Cannot receive forwarded Echo Request to TR2<BR>');
+	vLogHTML('<FONT COLOR="#FF0000">NG</FONT><BR>');
+	$endStatus = $V6evalTool::exitFail;
+}
+
+vSend($IF1, 'tn2_ereq_offlink_via_rut_to_tn4_66');
+
+%ret = tr_nd_vRecv_IN($IF0, $CommonSPEC::wait_reply, 0, 0, 'tn2_ereq_offlink_via_rut_to_tn4_66_f');
+
+if ($ret{'recvFrame'} eq 'tn2_ereq_offlink_via_rut_to_tn4_66_f') {
+		vLogHTML('OK<BR>');
+}else {	# FAIL
+	vLogHTML('Cannot receive forwarded Echo Request to TR2<BR>');
+	vLogHTML('<FONT COLOR="#FF0000">NG</FONT><BR>');
+	$endStatus = $V6evalTool::exitFail;
+}
+
+
+#----- end test
+$ret = cleanup_v6LC_1_1_11_A($IF0);
+
+vStop($IF0);
+vStop($IF1);
+
+if ($ret == $CommonSPEC::Success) {
+	exit($endStatus);
+} else {
+	exit($V6evalTool::exitFatal);
+}
+
+
+#
+# perldoc
+#
+########################################################################
+__END__
+
+=head1 NAME
+
+  Test v6LC.1.1.11 -  IP Forwarding - Routing prefixes greater than 64 bits (Routers Only)
+  Part A - Prefix Route /65
+
+=head1 Purpose
+
+  Verify that a router properly routes prefixes greater than 64-bits.
+
+=head1 References
+
+  * [RFC-7608]  Sections 2
+
+=head1 Resource Requirements
+
+  * Packet generator
+  * Monitor to capture packets
+
+=head1 Test Setup
+
+  The Common Test Cleanup Procedure is performed after each part.
+
+=head1 Procedure
+   
+   1. Configure the RUT to have a route with a prefix length of /65 for Link C with a next-hop 
+      router of TR2. A default route should be configured to TR1.
+   2. TN4 has an address which matches the /65 prefix for Link C for the first 64 bits.
+   3. TN2 transmits an ICMPv6 Echo Request to TN4's address with a first hop through the RUT. 
+      The source address is TN2's Global address. 
+   4. TN4 has an address in the /65 prefix for Link C.
+   5. TN2 transmits an ICMPv6 Echo Request to TN4's address with a first hop through the RUT. 
+      The source address is TN2's Global address. 
+   6. TN4 has an address in the /65 prefix for Link C and has the 66th bit set to 1.
+   7. TN2 transmits an ICMPv6 Echo Request to TN4's address with a first hop through the RUT. 
+      The source address is TN2's Global address. 
+
+=head1 Observable Results
+
+  Step 3:
+  The RUT must forward the Echo Request to TR1. The destination MAC address must be TR1's MAC address.
+
+  Step 5:
+  The RUT must forward the Echo Request to TR1. The destination MAC address must be TR2's MAC address.
+
+  Step 7:
+  The RUT must forward the Echo Request to TR1. The destination MAC address must be TR2's MAC address.
+
+
+=head1 Possible Problems
+
+  * None.
+
+=cut
+

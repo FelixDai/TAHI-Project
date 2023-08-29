@@ -1,5 +1,5 @@
 #
-# $Name: V6LC_5_0_0 $
+# $Name: V6LC_5_0_2 $
 # $TINY: Makefile.test,v 1.11 2002/03/05 17:13:54 miyata Exp $
 # 
 #

@@ -57,10 +57,10 @@ FEM_icmp6_ns(
 	{
 		HopLimit	= 255;
 		_SRC(v6(R0_LINKLOCAL));
-		_DST(nutv6());
+		_DST(nut3v6());
 	},
 	{
-		TargetAddress	= nutv6();
+		TargetAddress	= nut3v6();
 		option		= _SLLOPT_r0;
 	}
 )
@@ -74,14 +74,14 @@ FEM_icmp6_na(
 	_HETHER_nut2r0,
 	{
 		HopLimit	= 255;
-		_SRC(nutv6());
+		_SRC(nut3v6());
 		_DST(v6(R0_LINKLOCAL));
 	},
 	{
 		RFlag		= 0;
 		SFlag		= 1;
 		OFlag		= 1;
-		TargetAddress	= nutv6();
+		TargetAddress	= nut3v6();
 		option		= _TLLOPT_nut;
 	}
 )
@@ -91,14 +91,14 @@ FEM_icmp6_na(
 	_HETHER_nut2r0,
 	{
 		HopLimit	= 255;
-		_SRC(nutv6());
+		_SRC(nut3v6());
 		_DST(v6(R0_LINKLOCAL));
 	},
 	{
 		RFlag		= 0;
 		SFlag		= 1;
 		OFlag		= 0;
-		TargetAddress	= nutv6();
+		TargetAddress	= nut3v6();
 	}
 )
 
@@ -107,7 +107,7 @@ FEM_icmp6_echo_request(
 	_HETHER_r02nut,
 	{
 		_SRC(v6(_GLOBAL2A3N_UCAST_ADDR));
-		_DST(nut2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
+		_DST(nut4v6("Link0"));
 	},
 	{
 		payload = payload8;
@@ -118,7 +118,7 @@ FEM_icmp6_echo_reply(
 	global_erep,
 	_HETHER_nut2r0,
 	{
-		_SRC(nut2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
+		_SRC(nut4v6("Link0"));
 		_DST(v6(_GLOBAL2A3N_UCAST_ADDR));
 	},
 	{
@@ -154,7 +154,7 @@ FEM_icmp6_echo_request(
 	_HETHER_r02nut,
 	{
 		_SRC(v6(R0_LINKLOCAL));
-		_DST(nutv6());
+		_DST(nut3v6());
 	},
 	{
 		payload	= setup_echo_data8;
@@ -165,7 +165,7 @@ FEM_icmp6_echo_reply(
 	setup_echo_reply,
 	_HETHER_nut2r0,
 	{
-		_SRC(nutv6());
+		_SRC(nut3v6());
 		_DST(v6(R0_LINKLOCAL));
 	},
 	{
@@ -182,7 +182,7 @@ FEM_icmp6_ns(
 	_HETHER_nut2r0solnode,
 	{
 		HopLimit	= 255;
-		_SRC(nutv6());
+		_SRC(nut3v6());
 		_DST(_IPV6_SOLNODE_MCAST(v6(R0_LINKLOCAL)));
 	},
 	{
@@ -197,7 +197,7 @@ FEM_icmp6_na(
 	{
 		HopLimit	= 255;
 		_SRC(v6(R0_LINKLOCAL));
-		_DST(nutv6());
+		_DST(nut3v6());
 	},
 	{
 		RFlag	= 1;
@@ -213,7 +213,7 @@ FEM_icmp6_ns(
 	_HETHER_nut2r0solnode,
 	{
 		HopLimit	= 255;
-		_SRC(nut2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
+		_SRC(nut4v6("Link0"));
 		_DST(_IPV6_SOLNODE_MCAST(v6(R0_LINKLOCAL)));
 	},
 	{
@@ -228,7 +228,7 @@ FEM_icmp6_na(
 	{
 		HopLimit	= 255;
 		_SRC(v6(R0_LINKLOCAL));
-		_DST(nut2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
+		_DST(nut4v6("Link0"));
 	},
 	{
 		RFlag	= 1;
@@ -248,7 +248,7 @@ FEM_icmp6_ns(
 	_HETHER_nut2r0solnode,
 	{
 		HopLimit	= 255;
-		_SRC(nutv6());
+		_SRC(nut3v6());
 		_DST(v6(R0_LINKLOCAL));
 	},
 	{
@@ -261,7 +261,7 @@ FEM_icmp6_ns(
 	_HETHER_nut2r0solnode,
 	{
 		HopLimit	= 255;
-		_SRC(nut2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
+		_SRC(nut4v6("Link0"));
 		_DST(v6(R0_LINKLOCAL));
 	},
 	{
@@ -274,7 +274,7 @@ FEM_icmp6_ns(
 	_HETHER_nut2r0solnode,
 	{
 		HopLimit	= 255;
-		_SRC(nutv6());
+		_SRC(nut3v6());
 		_DST(v6(R0_LINKLOCAL));
 	},
 	{
@@ -288,7 +288,7 @@ FEM_icmp6_ns(
 	_HETHER_nut2r0solnode,
 	{
 		HopLimit	= 255;
-		_SRC(nut2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
+		_SRC(nut4v6("Link0"));
 		_DST(v6(R0_LINKLOCAL));
 	},
 	{

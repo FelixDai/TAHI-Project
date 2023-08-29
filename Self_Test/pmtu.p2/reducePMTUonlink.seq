@@ -42,13 +42,13 @@
 # IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
-# $Name: V6LC_5_0_0 $
+# $Name: V6LC_5_0_7 $
 #
 # $Id: reducePMTUonlink.seq,v 1.16 2008/07/31 03:02:06 hide Exp $
 #
 ######################################################################
 BEGIN {
-	$V6evalTool::TestVersion = '$Name: V6LC_5_0_0 $';
+	$V6evalTool::TestVersion = '$Name: V6LC_5_0_7 $';
 }
 
 use V6evalTool;
@@ -105,8 +105,8 @@ my $bool	= $false;
 );
 
 %ip_srcs = (
-	$echo_request[0] => 'nutv6()',
-	$echo_request[1] => 'nut2v6(_GLOBAL0_UCAST_PRFX, _GLOBAL0_UCAST_PRFXLEN)'
+	$echo_request[0] => 'nut3v6()',
+	$echo_request[1] => 'nut4v6("Link0")'
 );
 
 %ip_dsts = (
@@ -443,7 +443,7 @@ Common Test Cleanup
 
 # =head1 REFERENCE
 # 
-# RFC1981
+# RFC8201
 # 
 # 3. Protocol overview
 # 
@@ -538,7 +538,7 @@ Common Test Cleanup
 =begin html
 <BLOCKQUOTE>
 <PRE>
-RFC 1981 - Path MTU Discovery for IPv6
+RFC 8201 - Path MTU Discovery for IPv6
 </PRE>
 </BLOCKQUOTE>
 

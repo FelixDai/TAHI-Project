@@ -78,7 +78,7 @@ FEM_icmp6_na(
 	{
 		HopLimit        = 255;
 		_SRC(v6(TR1_LINKLOCAL));
-		_DST(nutv6());
+		_DST(nut3v6());
 	},
 	{
 		RFlag		= 0;
@@ -96,7 +96,7 @@ FEM_icmp6_echo_request(
 	_HETHER_trY_to_nut,
 	{
 		_SRC(tn2v6(LINKX_PREFIX, LINKX_PREFIXLEN));
-		_DST(nut2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
+		_DST(nut4v6("Link0"));
 	},
 	{
 		payload	= payload8;
@@ -109,7 +109,7 @@ FEM_icmp6_echo_reply(
 	local_tn2_erep_offlink_via_tr1,
 	_HETHER_nut_to_trY,
 	{
-		_SRC(nut2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
+		_SRC(nut4v6("Link0"));
 		_DST(tn2v6(LINKX_PREFIX, LINKX_PREFIXLEN));
 	},
 	{

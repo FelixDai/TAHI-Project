@@ -45,15 +45,18 @@
 # $TAHI: ct/nd.p2/V6LC_2_2_2_F.seq,v 1.7 2009/12/28 05:55:17 akisada Exp $
 #
 ########################################################################
-
+BEGIN {$V6evalTool::TestVersion = '$Name: V6LC_5_0_7 $';}
 use rdisc;
-
-BEGIN {}
-END   {}
+use lib '../';
+use AdvancedFunctionality;
 
 if($V6evalTool::NutDef{'Type'} ne 'host') {
 	exitRouterOnly($Link0);
 	#NOTREACHED
+}
+
+if ($AdvancedFunctionality::SENDING_ONE_RS) {
+	exit($V6evalTool::exitSkip);
 }
 
 vCapture($Link0);

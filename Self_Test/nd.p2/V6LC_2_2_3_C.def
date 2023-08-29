@@ -54,7 +54,7 @@ FEM_icmp6_rs(
 	{
 		HopLimit	= 255;
 		_SRC(tnv6());
-		_DST(nutv6());
+		_DST(nut3v6());
 	},
 	{
 		option	= _SLLOPT_tn;

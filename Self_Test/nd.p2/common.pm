@@ -53,7 +53,7 @@ use V6evalTool;
 require './config.pl';
 
 BEGIN {
-	$V6evalTool::TestVersion	= '$Name: V6LC_5_0_0 $';
+	$V6evalTool::TestVersion	= '$Name: V6LC_5_0_3 $';
 }
 
 END   {}
@@ -68,12 +68,14 @@ END   {}
 	%tn1_mcast_nd_onlink
 	%tn1_mcast_nd_onlinkX
 	%tn1_mcast_nd_common
+	%tn1_nd_common
 	%tr1_mcast_nd_common
 	%tr2_mcast_nd_common
 	%tr3_mcast_nd_common
 	%tn1_ucast_nd_common
 	%tr1_ucast_nd_common
 	%tr2_ucast_nd_common
+	%tr1_nd
 	%tn1_ucast_nd_diff
 	%tr1_ucast_nd_diff
 	%tr2_ucast_nd_diff
@@ -127,6 +129,7 @@ END   {}
 	exitRouterOnly
 	exitTypeMismatch
 	ignoreDAD
+	tn_nd_vRecv_EN
 	$nut_rtime
 	$nut_chlim
 	$tr1_default
@@ -136,6 +139,10 @@ END   {}
 	$tr3_change_param
 	$tr1_force
 	$tr2_force
+	$tr1_routeinfo
+	$tr2_routeinfo
+	$tr1_rdnss
+	$tr1_dnssl
 	$tr3_force
 	$force_reboot
 	$tr1_cache
@@ -153,6 +160,8 @@ END   {}
 	$tr1_route_2_3_17
 	$rut_addr_v6LC_2_3_16_A
 	$rut_rtadvd
+	$rut_rtadvd_rdnss
+	$rut_rtadvd_dnssl
 	$rut_ipv6_forwarding_disable
 	$rut_rtadvd_param_change
 	$use_slave_interface
@@ -168,6 +177,7 @@ END   {}
 	tn1_none_to_probe
 	tr1_none_to_probe
 	is_tn1_incomplete
+	is_tr1_incomplete
 	is_tr2_incomplete
 	is_tn1_stale
 	is_tr1_stale
@@ -265,6 +275,15 @@ $MAX_RANDOM_FACTOR			= 1.5;
 	'tr1_ucast_ns_global_sll_diff'		=> 'tr1_na_global_diff',
 );
 
+%tr1_nd			= (
+	'tr1_mcast_ns_linklocal_common' => 'tr1_na_linklocal_common',
+        'tr1_mcast_ns_global_common'    => 'tr1_na_global_common',
+        'tr1_ucast_ns_linklocal'        => 'tr1_na_linklocal_common',
+        'tr1_ucast_ns_linklocal_sll'    => 'tr1_na_linklocal_common',
+        'tr1_ucast_ns_global'           => 'tr1_na_global_common',
+        'tr1_ucast_ns_global_sll'       => 'tr1_na_global_common',
+);
+
 %tr2_ucast_nd_diff	= (
 	'tr2_ucast_ns_linklocal_diff'		=> 'tr2_na_linklocal_diff',
 	'tr2_ucast_ns_linklocal_sll_diff'	=> 'tr2_na_linklocal_diff',
@@ -287,6 +306,17 @@ $MAX_RANDOM_FACTOR			= 1.5;
 	'tn1_mcast_ns_global_onlinkX'		=> 'tn1_na_global_onlinkX',
 );
 
+%tn1_nd_common	= (
+	'tn1_mcast_ns_linklocal_common'	=> 'tn1_na_linklocal_common',
+	'tn1_mcast_ns_global_common'	=> 'tn1_na_global_common',
+	'tn1_mcast_ns_linklocal_onlink'	=> 'tn1_na_linklocal_onlink',
+	'tn1_mcast_ns_global_onlink'	=> 'tn1_na_global_onlink',
+	'tn1_ucast_ns_linklocal'	=> 'tn1_na_linklocal_common',
+	'tn1_ucast_ns_linklocal_sll'	=> 'tn1_na_linklocal_common',
+	'tn1_ucast_ns_global'		=> 'tn1_na_global_common',
+	'tn1_ucast_ns_global_sll'	=> 'tn1_na_global_common',
+);
+
 
 #------------------------------#
 # global variables             #
@@ -305,6 +335,10 @@ $tr3_change_param		= $false;
 $tr1_force			= $false;
 $tr2_force			= $false;
 $tr3_force			= $false;
+$tr1_routeinfo			= $false;
+$tr2_routeinfo			= $false;
+$tr1_rdnss			= $false;
+$tr1_dnssl			= $false;
 $force_reboot			= $false;
 $tr1_cache			= $false;
 $tn1_cache			= $false;
@@ -321,6 +355,8 @@ $tr3_cache			= $false;
 $tr1_route_2_3_17		= $false;
 $rut_addr_v6LC_2_3_16_A		= $false;
 $rut_rtadvd			= $false;
+$rut_rtadvd_rdnss		= $false;
+$rut_rtadvd_dnssl               = $false;
 $rut_ipv6_forwarding_disable	= $false;
 $rut_rtadvd_param_change	= $false;
 $use_slave_interface		= $false;
@@ -1463,6 +1499,56 @@ commonCleanup($)
 		stopToRtAdv($Link);
 	}
 
+	if($rut_rtadvd_rdnss) {
+
+                $NUTif = $V6evalTool::NutDef{Link0_device};
+                $TN_LINK0_MAC_ADDRESS = $V6evalTool::TnDef{Link0_addr};
+                $dns_address = vMAC2LLAddr($TN_LINK0_MAC_ADDRESS);
+
+		if(vRemote('racontrol.rmt',
+			'mode=start',
+			'rdnss_ltime=0',
+			"rdnss_addr=fe80::200:ff:fe00:100",
+			"link0=$V6evalTool::NutDef{'Link0_device'}")) {
+
+			vLogHTML('<FONT COLOR="#FF0000">racontrol.rmt: '.
+				'Can\'t enable RA function</FONT><BR>');
+
+			exitFatal($Link);
+		}
+
+		$rut_rtadvd_rdnss = $false;
+		$rut_rtadvd = $true;
+	}
+	
+	if($rut_rtadvd) {
+		stopToRtAdv($Link);
+	}
+	
+	my $dns_name = "test.example.com";
+	
+	if($rut_rtadvd_dnssl) {
+		if(vRemote('racontrol.rmt',
+			'mode=start',
+			'dnssl_ltime=0',
+			"dnssl_string=$dns_name",
+			"link0=$V6evalTool::NutDef{'Link0_device'}")) {
+
+			vLogHTML('<FONT COLOR="#FF0000">racontrol.rmt: '.
+				'Can\'t enable RA function</FONT><BR>');
+
+			exitFatal($Link);
+		}
+
+		$rut_rtadvd_dnssl = $false;
+		$rut_rtadvd = $true;
+	}
+	
+	if($rut_rtadvd) {
+		stopToRtAdv($Link);
+	}
+
+
 	if($tn1_offlink_cache &&
 		!cache_clean(
 			$Link,
@@ -1567,21 +1653,40 @@ commonCleanup($)
 
 			if((($tr2_default) && ($tr2_prefix)) ||
 				$tr2_change_param) {
-
-				if($tr2_force) {
-					vSend($Link, 'tr2_ra_force_cleanup');
+				if($tr2_routeinfo) {
+					if($tr2_force) {
+						vSend($Link, 'tr2_ra_routeinfo_force_cleanup');
+					}
 				} else {
-					vSend($Link, 'tr2_ra_cleanup');
+					if($tr2_force) {
+						vSend($Link, 'tr2_ra_force_cleanup');
+					} else {
+						vSend($Link, 'tr2_ra_cleanup');
+					}
 				}
 			}
 
 			if((($tr1_default) && ($tr1_prefix)) ||
 				$tr1_change_param) {
 
-				if($tr1_force) {
-					vSend($Link, 'tr1_ra_force_cleanup');
+				if($tr1_routeinfo) {
+					if($tr1_force) {
+						vSend($Link, 'tr1_ra_routeinfo_force_cleanup');
+					} 
+				} elsif($tr1_rdnss)  {
+					if($tr1_force) {
+						vSend($Link, 'tr1_ra_rdnss_force_cleanup');
+					} 
+				} elsif($tr1_dnssl)  {
+					if($tr1_force) {
+						vSend($Link, 'tr1_ra_dnssl_force_cleanup');
+					} 
 				} else {
-					vSend($Link, 'tr1_ra_cleanup');
+					if($tr1_force) {
+						vSend($Link, 'tr1_ra_force_cleanup');
+					} else {
+						vSend($Link, 'tr1_ra_cleanup');
+					}
 				}
 			}
 
@@ -1870,7 +1975,36 @@ ignoreDAD($)
 	return;
 }
 
+#------------------------------#
+# tn_nd_vRecv_EN()             #
+#------------------------------#
+sub tn_nd_vRecv_EN {
+	my($IF, $timeout, $seektime, $count, @frames) = @_;
+	my(%ret, @recv);
 
+	my @ndList = keys(%tn1_mcast_nd_onlink);
+
+	while (1) {
+		%ret = vRecv($IF, $timeout, $seektime, $count, @ndList, @frames);
+
+		if ($ret{'status'} == 0) {
+			@recv = grep {$ret{'recvFrame'} eq $_} @ndList;
+			if ($recv[0]) {
+				vSend($IF, $tn1_mcast_nd_onlink{$recv[0]});
+				next;
+			}
+
+			@recv = grep {$ret{'recvFrame'} eq $_} @frames;
+			if ($recv[0]) {
+				last;
+			}
+		} else {
+			last;
+		}
+	}
+
+	return (%ret);
+}
 
 #------------------------------#
 # cache_clean()                #
@@ -2436,6 +2570,41 @@ is_tn1_incomplete($)
 	return($true);
 }
 
+
+#------------------------------#
+# is_tr1_incomplete()          #
+#------------------------------#
+sub
+is_tr1_incomplete($)
+{
+	my ($Link) = @_;
+
+	my $bool	= $false;
+	my @frames	= sort(keys(%tr1_mcast_nd_common));
+
+	%ret = vRecv($Link, $TimeOut, 0, 0, @frames);
+	foreach my $frame (@frames) {
+		if($ret{'recvFrame'} eq $frame) {
+			$bool = $true;
+			last;
+		}
+	}
+
+	unless($bool) {
+		vLogHTML('<FONT COLOR="#FF0000"><B>'.
+			'Could\'t observe NS'.
+			'</B></FONT><BR>');
+		return($false);
+	}
+
+	vRecv($Link,
+		$TimeOut * ($MAX_MULTICAST_SOLICIT - 1),
+		0, 0);
+
+	$tr1_cache = $false;
+
+	return($true);
+}
 
 
 #------------------------------#

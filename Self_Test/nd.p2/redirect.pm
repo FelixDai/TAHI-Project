@@ -88,6 +88,8 @@ END   {}
 	v6LC_2_3_16_C
 	v6LC_2_3_16_D
 	v6LC_2_3_17
+	v6LC_2_3_18
+	v6LC_2_3_19
 );
 
 push(@EXPORT, sort(@common::EXPORT));
@@ -2240,5 +2242,137 @@ v6LC_2_3_17($$)
 }
 
 
+#------------------------------#
+# v6LC_2_3_18()                #
+#------------------------------#
+sub
+v6LC_2_3_18($)
+{
+        my ($Link) = @_;
+
+        vLogHTML('<FONT COLOR="#FF0000" SIZE="5"><U><B>'.
+                'Test Procedure'.
+                '</B></U></FONT><BR>');
+
+# 1.
+#       TR1 forwards an Echo Request to the HUT.
+#       The Source Address is the off-link global address of TN1.
+#       The Destination Address is the global address of the HUT.
+        
+        vSend($Link, 'tn1_ereq_offlink_via_tr1');
+
+# 2.
+#       Observe the packets transmitted by the HUT.
+
+        my %ret = vRecv($Link, $TimeOut, 0, 0, 'tn1_erep_offlink_via_tr1');
+        unless($ret{'recvFrame'} eq 'tn1_erep_offlink_via_tr1') {
+                vLogHTML('<FONT COLOR="#FF0000"><B>'.
+                        'Could\'t observe Echo Reply'.
+                        '</B></FONT><BR>');
+                return($false);
+        }
+
+# 3.
+#       TR1 transmits a Redirect message to the HUT.
+#       The ICMPv6 Destination Address is the global address of TN1.
+#       The Target Address is the link-local address of TN1.
+#       The Redirect message contains a Target Link-layer Address option
+#       or Redirected Packet option according to the table above.
+
+        vSend($Link, 'local_redirect_all');
+
+# 4.
+#       TN1 forwards an Echo Request to the HUT.
+#       The Source Address is the off-link global address of TN1.
+#       The Destination Address is the global address of the HUT.
+
+        vSend($Link, 'tn1_ereq_offlink_via_tr1');
+
+# 5.
+#       Observe the packets transmitted by the HUT.
+
+        %ret = vRecv($Link, $TimeOut, 0, 0, 'tn1_erep_offlink_via_tr1');
+        unless($ret{'recvFrame'} eq 'tn1_erep_offlink_via_tr1') {
+                vLogHTML('<FONT COLOR="#FF0000"><B>'.
+                        'Could\'t observe Echo Reply'.
+                        '</B></FONT><BR>');
+                return($false);
+        }
+
+        vRecv($Link,
+                $DELAY_FIRST_PROBE_TIME + $TimeOut * $MAX_UNICAST_SOLICIT,
+                0, 0);
+
+        $tn1_offlink_cache = $false;
+
+        return($true);
+}
+
+#------------------------------#
+# v6LC_2_3_19()                #
+#------------------------------#
+sub
+v6LC_2_3_19($)
+{
+        my ($Link) = @_;
+
+        vLogHTML('<FONT COLOR="#FF0000" SIZE="5"><U><B>'.
+                'Test Procedure'.
+                '</B></U></FONT><BR>');
+
+# 1.
+#       TR1 forwards an Echo Request to the HUT.
+#       The Source Address is the off-link global address of TN1.
+#       The Destination Address is the global address of the HUT.
+        
+        vSend($Link, 'tn1_ereq_offlink_via_tr1');
+
+# 2.
+#       Observe the packets transmitted by the HUT.
+
+        my %ret = vRecv($Link, $TimeOut, 0, 0, 'tn1_erep_offlink_via_tr1');
+        unless($ret{'recvFrame'} eq 'tn1_erep_offlink_via_tr1') {
+                vLogHTML('<FONT COLOR="#FF0000"><B>'.
+                        'Could\'t observe Echo Reply'.
+                        '</B></FONT><BR>');
+                return($false);
+        }
+
+# 3.
+#       TR1 transmits a Redirect message to the HUT.
+#       The ICMPv6 Destination Address is the global address of TN1.
+#       The Target Address is the link-local address of TN1.
+#       The Redirect message contains a Target Link-layer Address option
+#       or Redirected Packet option according to the table above.
+
+        vSend($Link, 'local_redirect_1st');
+		vSend($Link, 'local_redirect_2nd');
+
+# 4.
+#       TN1 forwards an Echo Request to the HUT.
+#       The Source Address is the off-link global address of TN1.
+#       The Destination Address is the global address of the HUT.
+
+        vSend($Link, 'tn1_ereq_offlink_via_tr1');
+
+# 5.
+#       Observe the packets transmitted by the HUT.
+
+        %ret = vRecv($Link, $TimeOut, 0, 0, 'tn1_erep_offlink_via_tr1');
+        unless($ret{'recvFrame'} eq 'tn1_erep_offlink_via_tr1') {
+                vLogHTML('<FONT COLOR="#FF0000"><B>'.
+                        'Could\'t observe Echo Reply'.
+                        '</B></FONT><BR>');
+                return($false);
+        }
+
+        vRecv($Link,
+                $DELAY_FIRST_PROBE_TIME + $TimeOut * $MAX_UNICAST_SOLICIT,
+                0, 0);
+
+        $tn1_offlink_cache = $false;
+
+        return($true);
+}
 
 1;

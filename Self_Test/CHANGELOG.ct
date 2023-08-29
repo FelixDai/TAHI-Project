@@ -8,8 +8,331 @@
                          IPv6 Ready Logo Program
                    Phase-1/Phase-2 IPv6 Core Protocols
                         Conformance Test Package
+2021/9/1
+    M fixed a bug in v6LC2.2.25 
+    - Update the version to 5.0.7
+
+2021/6/25	Jiangwch
+    M spec.p2/EX_NH_UnrecognizedEN.seq  (v6LC.1.1.7.a)
+            IP_NH_Unrecognized.seq     (v6LC.1.2.3.a)
+    - Removed unknown next header 143 from 1.1.7a & 1.2.3a
+   
+    Add spec.p2/v6lc_1_1_11_A.seq & v6lc_1_1_11_A.def
+               v6lc_1_1_11_B.seq\v6lc_1_1_11_B.def
+               v6lc_1_1_11_C.seq\v6lc_1_1_11_C.def
+    - Added test 1.1.11 for RFC 7608 to test RUT supports routes of any length.
+
+2021/6/28       Jiangwch
+    Add nd.p2/v6LC_2_2_23_J.seq
+    - Added test 2.2.23J for Hosts processing an RIO for ::/0 with the lifetime 
+      set to 0 
+
+    M nd.p2/v6LC_2_2_25_D.def
+    - Updated RDNSS Option lifetime in 2.2.25F to last the entire test.
+
+    M nd.p2/V6LC_2_2_2_G.seq & V6LC_2_2_2_G.def
+    - Updated expected behavior of 2.2.2G to indicate a valid RA.
+    
+    M nd.p2/v6LC_2_2_26_B.seq & v6LC_2_2_27_B.seq
+    - Added a check to 2.2.26B & 2.2.27B that the RUT does not send a unicast RA 
+      in response to the fragmented RS
+
+2020/11/06      Jiangwch
+    M spec.p2/Reassembly_Overlap_R.seq  (v6LC.1.3.5.B)     
+           Reassembly_Overlap_R.def
+           Reassembly_Overlap_R_G.seq  (v6LC.1.3.5.F)
+           Reassembly_Overlap_R_G.def
+    - updated 1.3.5B and F to use two fragmented packets to avoid Time Exceeded.
+
+    - Added 1.3.5C and G to advanced functionality.
+
+    - fixed a little bugs.
+
+2020/4/13	Liu Yun
+		- Modify the size of packets to 1400B in v6LC 4.1.6.
+		- Modify source addresses for DAD NS from any to '::' in RA_SAA.def.
+
+2019/12/1       Liu Yun
+		- Modified the description from rfc2460 to rfc8200.
+		- Modified the description from rfc1981 to rfc8201.
+		- Update the version to 5.0.4
+
+2019/11/25       Liu Yun
+        - Modified all packet defination files and scripts in icmp.p2 and pmtu.p2.
+		- Add scripts for v6LC 2.2.2 Part G.
+		
+2019/11/20       Liu Yun
+        - Modified all packet defination files and scripts in spec.p2 and nd.p2.
+
+2019/10/30       Jiangwch
+        - Change v6LC.2.2.2 and v6LC.5.1.3.E to be optional.
+
+2019/10/15       Jiangwch
+        - Fix v6LC 2.2.20 PART B and C as the scripts can¡¯t receive router preference 0 and 3.
+        - Fix v6LC 2.2.24 PART A and B as the script can¡¯t process rdnss and dnssl option.
+
+2019/9/5	 Jiangwch
+	- Change the version from 5.0.2 to 5.0.3 for all script
+
+2019/9/2    Jiangwch
+    M addr.p2/v6LC_3_2_6_A.seq  (v6LC.3.2.6.A)
+           v6LC_3_2_6_A.def
+           v6LC_3_2_6_B.seq   (v6LC.3.2.6.B)
+           v6LC_3_2_6_B.def
+           v6LC_3_2_7_A.seq  (v6LC.3.2.7.A)
+           v6LC_3_2_7_A.def
+           v6LC_3_2_7_B.seq   (v6LC.3.2.7.B)
+           v6LC_3_2_7_B.def
+    - Add test case for stable address designed in RFC7217.
+
+2019/8/30   Jiangwch
+    M addr.p2/LLA_DAD_NSPostDAD_SameDstSameTgt.seq
+           DAD_Failure_Host.def
+           LLA_DAD_NAPostDAD_SameTgt.seq
+           LLA_DAD_NSPostDAD_Reserved.seq
+           LLA_DAD_NSPostDAD_wTLL.seq
+           LLA_DAD_NAPostDAD_Reserved.seq
+           LLA_DAD_NAPostDAD_wSLL.seq
+    - Remove the part contains EUI-64.
+
+    M addr.p2/SAA.pm, LLA_SAA.def, RA_SAA.def
+           RA_GA_MultiRenumber.seq
+           RA_mGA_sRAmPXsRTdVLT.seq
+    - Change link-local and global address to stable address designed in RFC7217.
+
+2019/8/26   Jiangwch
+    M nd.p2/v6LC_2_2_26_A.seq~v6LC_2_2_26_B.seq  (v6LC.2.2.26.A~B)
+           v6LC_2_2_26_A.def~v6LC_2_2_26_B.def
+    - Add test cases for atomic fragment in RS and RA
+
+    M nd.p2/v6LC_2_2_27_A.seq~v6LC_2_2_27_B.seq  (v6LC.2.2.27.A~B)
+           v6LC_2_2_27_A.def~v6LC_2_2_27_B.def
+    - Add test cases for fragments in RS and RA
+
+    M nd.p2/v6LC_2_3_18.seq  (v6LC.2.3.18)
+           v6LC_2_3_18.def
+           v6LC_2_3_19.seq   (v6LC.2.3.19)
+           v6LC_2_3_19.def
+    - Add test case for atomic fragment and fragments in Redirect
+
+    M pmtu.p2/receiveMTU0.seq  (v6LC.4.1.6.A)
+            receiveMTU0.def
+            receiveMTU512.seq  (v6LC.4.1.6.B)
+            receiveMTU512.def
+    - Modify the action to process PTB with smaller mtu.
+
+    M pmtu.p2/Validate_PTB.seq  (v6LC.4.1.12)
+            Validate_PTB.def
+    - Add test case for valideted PTB.
+
+2019/8/23   Jiangwch
+    M nd.p2/rdisc.pm, common.pm
+           v6LC_2_2_24_A.seq~v6LC_2_2_24_B.seq  (v6LC.2.2.24.A~B)
+           v6LC_2_2_24_A.def~v6LC_2_2_24_B.def
+    - Add test case for transmitting rdnss and dnssl option in RA.
+
+    M nd.p2/rdisc.pm, common.pm
+           v6LC_2_2_25_A.seq~v6LC_2_2_25_F.seq  (v6LC.2.2.25.A~F)
+           v6LC_2_2_25_A.def~v6LC_2_2_25_F.def
+    - Add test cases for processing rdnss and dnssl option in RA.
+
+2019/8/20   Jiangwch
+    M nd.p2/rdisc.pm, common.pm
+           v6LC_2_2_21_A.seq~v6LC_2_2_21_E.seq  (v6LC.2.2.21.A~E)
+           v6LC_2_2_21_A.def~v6LC_2_2_21_E.def
+    - Add test case for transmitting route info option in RA.
+
+    M nd.p2/rdisc.pm, common.pm
+           v6LC_2_2_23_A.seq~v6LC_2_2_23_I.seq  (v6LC.2.2.23.A~I)
+           v6LC_2_2_23_A.def~v6LC_2_2_23_I.def
+    - Add test cases for processing route info option in RA.
+
+2019/8/15   Jiangwch
+    M nd.p2/rdisc.pm
+           V6LC_2_2_20_A.seq  (v6LC.2.2.20.A) 
+           V6LC_2_2_20_A.def
+           V6LC_2_2_20_B.seq  (v6LC.2.2.20.B)
+           V6LC_2_2_20_B.def
+           V6LC_2_2_20_C.seq  (v6LC.2.2.20.C)
+           V6LC_2_2_20_C.def
+           V6LC_2_2_20_D.seq  (v6LC.2.2.20.D)
+           V6LC_2_2_20_D.def
+           V6LC_2_2_20_E.seq  (v6LC.2.2.20.E)
+           V6LC_2_2_20_E.def
+    - Add test cases for transmitting router preference in RA.
+
+    M nd.p2/rdisc.pm
+           V6LC_2_2_22_A.seq  (v6LC.2.2.22.A) 
+           V6LC_2_2_22_A.def
+           V6LC_2_2_22_B.seq  (v6LC.2.2.22.B)
+           V6LC_2_2_22_B.def
+           V6LC_2_2_22_C.seq  (v6LC.2.2.22.C)
+           V6LC_2_2_22_C.def
+           V6LC_2_2_22_D.seq  (v6LC.2.2.22.D)
+           V6LC_2_2_22_D.def
+           V6LC_2_2_22_E.seq  (v6LC.2.2.22.E)
+           V6LC_2_2_22_E.def
+    - Add test cases for processing router preference in RA.
+
+2019/8/12   Jiangwch
+    M spec.p2/v6LC_1_3_6_A.seq  (v6LC.1.3.6.A) 
+          v6LC_1_3_6_A.def
+          v6LC_1_3_6_B.seq  (v6LC.1.3.6.B)
+          v6LC_1_3_6_B.def
+          v6LC_1_3_6_C.seq  (v6LC.1.3.6.C)
+          v6LC_1_3_6_C.def
+          v6LC_1_3_6_D.seq  (v6LC.1.3.6.D)
+          v6LC_1_3_6_D.def
+    - Add test cases for first fragment doesn't contain all headers.
+
+    M nd.p2/V6LC_2_1_22_A.seq  (v6LC.2.1.22.A) 
+           V6LC_2_1_22_A.def
+           V6LC_2_1_22_B.seq  (v6LC.2.1.22.B)
+           V6LC_2_1_22_B.def
+    - Add test cases for amotic fragment in NS and NA.
+
+    M nd.p2/V6LC_2_1_23_A.seq  (v6LC.2.1.23.A) 
+           V6LC_2_1_23_A.def
+           V6LC_2_1_23_B.seq  (v6LC.2.1.23.B)
+           V6LC_2_1_23_B.def
+    - Add test cases for fragments in NS and NA.
+
+2019/8/8	Jiangwch
+    M spec.p2/F_Stub_g.seq 		(v6LC.1.3.4.B) 
+	      F_Stub_g.def
+	- Add Atomic Fragment for Global address.
+
+    M spec.p2/Reassembly_Overlap.seq	(v6LC.1.3.5.A)
+	      Reassembly_Overlap.def
+	      Reassembly_Overlap_R.seq	(v6LC.1.3.5.B)
+	      Reassembly_Overlap_R.def
+	      Reassembly_Dupli.seq	(v6LC.1.3.5.C)
+	      Reassembly_Dupli.def
+	      Reassembly_Extra.seq	(v6LC.1.3.5.D)
+	      Reassembly_Extra.def
+	      Reassembly_Overlap_G.seq	(v6LC.1.3.5.E)
+	      Reassembly_Overlap_G.def
+          Reassembly_Overlap_R_G.seq  (v6LC.1.3.5.F)
+          Reassembly_Overlap_R_G.def
+          Reassembly_Dupli_G.seq  (v6LC.1.3.5.G)
+          Reassembly_Dupli_G.def
+          Reassembly_Extra_G.seq  (v6LC.1.3.5.H)
+          Reassembly_Extra_G.def
+	- Add overlap and duplicate Fragments for link-local and global
 
 
+2018/11/5       Jiangwch
+        - Add a possible for NUT not processing HBH option in v6LC1.2.7.
+        - Add a possible for nut supporting RFC8021 in v6LC.4.1.6.
+        - add a possible for nut sending more initial RSsi in V6LC.2.2.1.
+        - add a possible for nut supporting RFC7527 in all test of Section 3.
+
+
+2017/6/8	Jiangwch
+    M nd.p2/v6LC_2_2_18.def	(v6LC 2.2.18),
+	- Updated to use the global address as the source
+
+2017/5/17	 Jiangwch
+	- Change the version from 5.0.0 to 5.0.1 for all script
+
+
+2017/4/28	  Liu Yun
+    M spec.p2/F_TX_expire.seq	(v6LC 1.3.2.B),
+	      F_TX_only1st.seq	(v6LC 1.3.2.C),
+	      v6LC_1_3_2_D.seq	(v6LC 1.3.2.D),
+    M icmp.p2/Time_Exc_0.seq	(v6LC 5.1.5.A),
+	      Time_Exc_1.seq    (v6LC 5.1.5.A),	
+	- Removed requirement for the unused field in a Time Exceeded 
+	  message to be zero due to RFC 4884.
+	
+    M nd.p2/v6LC_2_3_16_A.seq	(v6LC.2.3.16.A),
+	    v6LC_2_3_16_A.def	(v6LC.2.3.16.A),	 
+	    v6LC_2_3_16_B.seq	(v6LC.2.3.16.B),
+	    v6LC_2_3_16_B.def	(v6LC.2.3.16.B),
+	- Added a requirement to check the Hop Limit of 255 in IPv6 
+	  Header of Redirect
+	
+    M addr.p2/LLA_DAD_NSPostDAD_SameDstSameTgt.seq	(v6LC.3.1.2.B),
+	      LLA_DAD_NAPostDAD_SameTgt.seq		(v6LC.3.1.2.D),
+	      LLA_DAD_NSPostDAD_Reserved.seq		(v6LC.3.1.3.I),
+	      LLA_DAD_NSPostDAD_wTLL.seq		(v6LC.3.1.3.J),
+	      LLA_DAD_NAPostDAD_Reserved.seq		(v6LC.3.1.4.H),
+	      LLA_DAD_NAPostDAD_wSLL.seq		(v6LC.3.1.4.I),
+	      DAD_Failure.def
+	      LLA_SAA.def
+	      SAA.pm
+	- Added a possible problem to 3.1.2B,D, 3.1.3 I-J, 3.1.4 H-I for 
+	  devices that don't support EUI-64 address due to privacy concerns.
+
+    M pmtu.p2/RAwithMTUreduce.seq	(v6LC.4.1.8),
+	      RAwithMTUreduce.def	(v6LC.4.1.8),
+	      CommonOMTU.pm		(v6LC.4.1.8),
+	      CommonHost.def	(v6LC.4.1.8),
+	- Updated 4.1.8 to increase the hop limit due to attack vector if 
+	  the device is forced to lower the hop limit
+
+    M nd.p2/rdisc.pm		(v6LC.2.2.7.A),
+	- Updated 2.2.7A to not allow devices to send RAs at 16 intervals, 
+	  since the values are smaller.
+	
+    M nd.p2/rdisc.pm		(v6LC.2.2.18),
+	- Updated 2.2.18 to use the global address as the source.
+	
+    M nd.p2/V6LC_2_1_7.seq			(v6LC.2.1.6.A),
+	    v6LC_2_1_6_B-v3_8_2.seq		(v6LC.2.1.6.B),
+	    v6LC_2_1_6_C-v3_8_2.seq		(v6LC.2.1.6.C),
+	    v6LC_2_1_6_D-v3_8_2.seq		(v6LC.2.1.6.D),
+	- Updated 2.1.6.B-D to modify the Seconds packet to packet B, C, and D 
+	  respectively.
+	
+    M nd.p2/V6LC_2_1_1_D.seq			(v6LC.2.1.1.C),
+	- Added a possible problem to 2.1.1.C for RFC 7048 support
+		
+    M spec.p2/v6LC_1_1_10_C.seq			(v6LC.1.1.10.C),
+	- Change the Destination of ICMPv6 Echo Request from TN2 to TN1.
+		
+    M spec.p2/v6LC_1_3_2_D.seq			(v6LC.1.3.2.D),
+	- Removed Global address from the Observable results
+		
+    M nd.p2/V6LC_2_1_11_D.seq			(v6LC.2.1.10.D),
+	    V6LC_2_1_13_D.seq			(v6LC.2.1.12.D),
+	- Uses Neighbor Solicitation D in Observable results.
+		
+    M spec.p2/HHO_PadN_EN.seq			(v6LC.1.2.6.B),
+	- Clarified 1.2.6B PadN option has 4 bytes of Option data.
+	
+    M spec.p2/EX_HdrProcessingOrder_HDF_00M.seq	(v6LC.1.2.4.B),
+	      EX_HdrProcessingOrder_HDF_00M.def	(v6LC.1.2.4.B),
+    M spec.p2/EX_OptProcessingOrder_01.seq	(v6LC.1.2.5.A),
+	      EX_OptProcessingOrder_01.def	(v6LC.1.2.5.A),	
+    M spec.p2/EX_OptProcessingOrder_10.seq	(v6LC.1.2.5.B),
+	      EX_OptProcessingOrder_10.def	(v6LC.1.2.5.B),
+    M spec.p2/EX_OptProcessingOrder_11.seq	(v6LC.1.2.5.C),
+	      EX_OptProcessingOrder_11.def	(v6LC.1.2.5.C),
+    M spec.p2/HHO_MSB00_EN.seq		(v6LC.1.2.6.C),
+	      HHO_MSB00_EN.def		(v6LC.1.2.6.C),
+    M spec.p2/HHO_MSB00_IN.seq		(v6LC.1.2.7.C),
+	      HHO_MSB00_IN.def		(v6LC.1.2.7.C), 
+    M spec.p2/DO_MSB00.seq		(v6LC.1.2.8.C),
+	      DO_MSB00.def	(v6LC.1.2.8.C),
+	- Updated Unknown Destination Header from 7 to 17 since 7 has been allocated	
+	
+    M nd.p2/V6LC_2_2_12_B.seq		(v6LC.2.2.13.B),
+	    V6LC_2_2_12_B.def		(v6LC.2.2.13.B),
+	    rdisc.pm			(v6LC.2.2.13.B),
+	- Modify the Cur Hop Limit value of RA from 15 to 100
+
+
+
+2015/11/24    Liu Yun
+    M nd.p2/V6LC_2_2_6_B.seq	(v6LC 2.2.6.B),
+	    rdisc.def		(v6LC 2.2.6.B),
+	    rdisc.pm		(v6LC 2.2.6.B)
+	- Accepted unicast Router Advertisement in response to RS(with a 
+	  unicast source address).
+	
+    M addr.p2/RA_GA_Success.seq	(v6LC 3.2.2)
+	- Modified "DAD NS/DAD NA" to "NS/NA" in PROCEDURE 2.
 
 2010/05/19    Release 5.0.0
     Official release

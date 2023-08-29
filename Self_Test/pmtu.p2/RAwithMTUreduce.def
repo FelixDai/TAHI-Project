@@ -1,5 +1,5 @@
 //
-// $Name: V6LC_5_0_0 $
+// $Name: V6LC_5_0_3 $
 //
 // Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010
 // Yokogawa Electric Corporation.
@@ -135,6 +135,26 @@ FEM_icmp6_ra(
 		option = mtuopt1280;
 	}
 )
+
+
+FEM_icmp6_ra(
+	ra1280_hop255,
+	_HETHER_tn2allnodes,
+	{
+		_SRC(tnv6());
+		_DST(v6(_ALLNODES_MCAST_ADDR));
+		HopLimit = 255;
+	},
+	{
+		CurHopLimit = 255;
+		LifeTime = 20;
+		ReachableTime = 10000;
+		RetransTimer = 1000;
+//		option = _SLLOPT_src;
+		option = mtuopt1280;
+	}
+)
+
 
 Opt_ICMPv6_MTU mtuopt1280 {
 	MTU = 1280;

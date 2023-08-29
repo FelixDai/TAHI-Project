@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Name: V6LC_5_0_0 $
+# $Name: V6LC_5_0_7 $
 #
 # Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010
 # Yokogawa Electric Corporation.
@@ -48,7 +48,7 @@
 #
 ######################################################################
 BEGIN {
-	$V6evalTool::TestVersion = '$Name: V6LC_5_0_0 $';
+	$V6evalTool::TestVersion = '$Name: V6LC_5_0_7 $';
 }
 
 use V6evalTool;
@@ -61,7 +61,7 @@ if ($V6evalTool::NutDef{'Type'} ne 'host') {
 
 $pktdesc{'echo_request1500'}	= 'Send Echo Request (Packet size is 1500)';
 $pktdesc{'echo_reply1500'}	= 'Recv Echo Reply (Packet size is 1500)';
-$pktdesc{'ra1280'}		= 'Send Router Advertisement with MTU option (1280 octets)';
+$pktdesc{'ra1280_hop255'}		= 'Send Router Advertisement with MTU option (1280 octets)';
 $pktdesc{'echo_request1280_1'}	= 'Send Echo Request (Packet size is 1280, 1st fragment)';
 $pktdesc{'echo_request1280_2'}	= 'Send Echo Request (Packet size is 1280, 2nd fragment)';
 
@@ -80,7 +80,7 @@ vCPP("-DSFRAG_ID=$fid");
 
 vCapture($IF);
 #======================================================================
-if (setup11($IF) != $CommonPMTU::Success) {
+if (setup11_v6lc_4_1_8($IF) != $CommonPMTU::Success) {
 	$ret = cleanup($IF);
 	if ($ret == $CommonPMTU::Success) {
 		exit($V6evalTool::exitFail);
@@ -158,7 +158,7 @@ unlink($def_file);
 
 
 
-vSend($IF, 'ra1280');
+vSend($IF, 'ra1280_hop255');
 
 
 #----- create fragment pkt.def
@@ -533,7 +533,7 @@ Common Test Cleanup
 =begin html
 <BLOCKQUOTE>
 <PRE>
-RFC 1981 - Path MTU Discovery for IPv6
+RFC 8201 - Path MTU Discovery for IPv6
 </PRE>
 </BLOCKQUOTE>
 

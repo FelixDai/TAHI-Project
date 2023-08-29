@@ -41,7 +41,7 @@
 // IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-// $Name: V6LC_5_0_0 $
+// $Name: V6LC_5_0_3 $
 //
 // $TAHI: ct/spec.p2/FH_Big65536.def,v 1.2 2005/01/06 06:49:57 akisada Exp $
 //
@@ -57,7 +57,7 @@ FEM_icmp6_parameter_problem(
 	icmp_type4_code0,
 	_HETHER_nut2tn,
 	{
-		_SRC(nutv6());
+		_SRC(nut3v6());
 		_DST(tnv6());
 	},
 	{

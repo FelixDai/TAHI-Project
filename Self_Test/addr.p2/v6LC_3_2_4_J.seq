@@ -45,7 +45,7 @@
 # 
 
 ########################################################################
-BEGIN { $V6evalTool::TestVersion = '$Name: V6LC_5_0_0 $ '; }
+BEGIN { $V6evalTool::TestVersion = '$Name: V6LC_5_0_7 $ '; }
 use V6evalTool;
 use SAA;
 
@@ -128,9 +128,16 @@ if($V6evalTool::NutDef{'Type'} ne 'host') {
 # 	- DADNS_from_NUT
 # 	- DADNS_from_NUT_GA0Tgt
 
-%ret1 = vRecv($IF, $SAA::wait_dadns{$SAA::howto_addrconf}, 0, 0, @frames);
-if($ret1{'recvFrame'} eq 'DADNS_from_NUT') {
-	vLog("TN received DAD NS from NUT.");
+%ret1 = vRecv($IF, $SAA::wait_dadns{$SAA::howto_addrconf}, 0, 0, @frames, DADNS_from_NUT_anyopt);
+if(($ret1{'recvFrame'} eq 'DADNS_from_NUT') || ($ret1{'recvFrame'} eq 'DADNS_from_NUT_anyopt')) {
+        vLog("TN received DAD NS from NUT.");
+        if($ret1{recvFrame} eq DADNS_from_NUT_anyopt){
+            my $opt_type = $ret1{"Frame_Ether.Packet_IPv6.ICMPv6_NS.Opt_ICMPv6_ANY.Type"};
+            if($opt_type = 14){
+                vLog(" DAD NS with NONCE option.");
+            }
+        }
+
 	vLog("OK! Let's go ahead!");
 
 	if($V6evalTool::NutDef{'Type'} ne 'router') {
@@ -140,16 +147,16 @@ if($ret1{'recvFrame'} eq 'DADNS_from_NUT') {
 	}
 
 	vLog("TN wait DAD NS for Global address from NUT for $SAA::wait_dadns{ra} [sec],");
-	%ret1 = vRecv($IF, $SAA::wait_dadns{ra}, 0, 0, 'DADNS_from_NUT_GA0Tgt');
+	%ret1 = vRecv($IF, $SAA::wait_dadns{ra}, 0, 0, 'DADNS_from_NUT_GA0Tgt', 'DADNS_from_NUT_GA0Tgt_anyopt');
 }
 
-if($ret1{'recvFrame'} ne 'DADNS_from_NUT_GA0Tgt') {
+if(($ret1{'recvFrame'} eq 'DADNS_from_NUT_GA0Tgt') || ($ret1{'recvFrame'} eq 'DADNS_from_NUT_GA0Tgt_anyopt')) {
+	vLog("NUT had transmitted DAD NS for Global address.");
+}else{
 	vLog("NUT had not transmitted DAD NS for Global address.");
 	seqNG();
 }
-
 #----- check if NUT's address is configured
-vLog("NUT had transmitted DAD NS for its Global address.");
 
 vSleep($SAA::wait_addrconf_with_RA);
 

@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Name: V6LC_5_0_0 $
+# $Name: V6LC_5_0_7 $
 #
 # Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010
 # Yokogawa Electric Corporation.
@@ -48,7 +48,7 @@
 #
 ######################################################################
 BEGIN {
-	$V6evalTool::TestVersion = '$Name: V6LC_5_0_0 $';
+	$V6evalTool::TestVersion = '$Name: V6LC_5_0_7 $';
 }
 
 use V6evalTool;
@@ -294,19 +294,19 @@ Verify that a node properly forwards the ICMPv6 Echo Requests.
    TN1                         RUT                         TN2
               (Link0)                     (Link1)
     |                           |                           |
-    |-------------------------->|                           |
-    |   Echo Request            |                           |
+    |                           |<--------------------------|
+    |                           |      Echo Request         |
     |                           |                           |
-    |                           |-------------------------->|
-    |                           |        no packet          |
+    |                           |                           |
+    |<--------------------------|                           |
+    |       no packet           |                           |
     |                           |                           |
     |                           |                           |
     v                           v                           v
 
-
-  1. TN1 transmits an Echo Request to TN2 with a first hop through the RUT.
+  1. TN2 transmits an Echo Request to TN1 with a first hop through the RUT.
      The source address is the unspecified address (::). 
-  2. Observe the packets transmitted by the RUT on Link1.
+  2. Observe the packets transmitted by the RUT on Link0.
 
   Echo Request Data is:
 
@@ -316,8 +316,8 @@ Verify that a node properly forwards the ICMPv6 Echo Requests.
             FlowLabel          = 0
             PayloadLength      = 16
             NextHeader         = 58 (ICMPv6)
-            SourceAddress      = Unspecified Address (::) (Link0)
-            DestinationAddress = TN2 Global Address (Link1)
+            SourceAddress      = Unspecified Address (::) (Link1)
+            DestinationAddress = TN1 Global Address (Link0)
 
         ICMP Echo Request
             Type           = 128 (Echo Request)
@@ -330,7 +330,7 @@ Verify that a node properly forwards the ICMPv6 Echo Requests.
 
 =head1 JUDGEMENT
 
-  PASS: The NUT must not forward the Echo Request from TN1.
+  PASS: The NUT must not forward the Echo Request from TN2.
 
 =head1 CLEANUP
 
@@ -340,7 +340,7 @@ Common Test Cleanup
 
 # =head1 REFERENCE
 # 
-# RFC2460
+# RFC8200
 # 
 # 3.  IPv6 Header Format
 # 
@@ -391,7 +391,7 @@ Common Test Cleanup
 =begin html
 <BLOCKQUOTE>
 <PRE>
-RFC 2460 - IPv6 Specification
+RFC 8200 - IPv6 Specification
 </PRE>
 </BLOCKQUOTE>
 

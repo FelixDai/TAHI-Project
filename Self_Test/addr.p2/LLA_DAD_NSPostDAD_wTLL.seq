@@ -45,7 +45,7 @@
 # 
 
 ########################################################################
-BEGIN { $V6evalTool::TestVersion = '$Name: V6LC_5_0_0 $ '; }
+BEGIN { $V6evalTool::TestVersion = '$Name: V6LC_5_0_7 $ '; }
 use V6evalTool;
 use SAA;
 
@@ -118,10 +118,21 @@ vClear($IF);
 #----- Wait DAD NS from NUT or timeout
 vLog("TN wait DAD NS(dadns_from_NUT) from NUT for $SAA::wait_dadns{$SAA::howto_addrconf} [sec],");
 
-%ret=vRecv($IF,$SAA::wait_dadns{$SAA::howto_addrconf},0,$count,DADNS_from_NUT);
+%ret=vRecv_dad($IF,$SAA::wait_dadns{$SAA::howto_addrconf},0,$count,DADNS_from_NUT,DADNS_from_NUT_anyopt);
 
 if ($ret{status} == 0){
-	vClear($IF);
+
+    if($ret{recvFrame} eq DADNS_from_NUT_anyopt){
+        my $opt_type = $ret{"Frame_Ether.Packet_IPv6.ICMPv6_NS.Opt_ICMPv6_ANY.Type"};
+        if($opt_type = 14){
+                vLog("DAD NS with NONCE option.");
+        }else{
+
+                seqNG();
+        }
+    }
+
+    vClear($IF);
     %retSend=vSend($IF, DADNS_from_TN_wTLL);
 
     #----- check if NUT's address is configured
@@ -178,13 +189,17 @@ if ($ret{status} == 0){
 	}
     }else{
 	vLog("NUT seems to detect Address Duplication");
-#	seqOK();
-	seqVrfyIpOperation($IF, $IF1);
     }
+    if($type ne 'router'){
+        captureLLAddr($IF);
+    }
+	seqOK();
 } else{
     vLog("TN wait DAD NS from NUT for $SAA::wait_dadns{$SAA::howto_addrconf}, but NUT had not transmit DAD NS");
     seqNG();
 }
+
+
 ##########################################################
 
 
@@ -231,40 +246,24 @@ Verify taht a node can properly ignore invalid neigbor solicitations while perfo
 
 =over 1
 
-=item Test for Unicast address configuration
-
-The following tests are prepared in this test package. See INDEX file.
-
-B<Test for all node>
-
-   When NUT performs DAD for its Link-local unicast address made by stateless
-   address autoconfiguration, NUT receives DAD NS which contains same target as
-   NUT's tentative Link-local address and TLL option after transimitting DAD NS.
-
-B<Test sequence>
-
-  TN                            NUT
-  ---------------------------------
-  Initialize NUT
-
-  Configure address of NUT (reboot or interface initialization etc...)
-
-  TN wait the DAD NS sent from NUT
-  <=== Judgement #1: DAD NS =======
-        name: DADNS_from_NUT
-
-  ==== Action #1: DAD NS =========>
-        name: DADNS_from_TN_wTLL
-
-  Wait for 5+DupAddrDetectTransmits*(RetransTimer/1000)[sec]
-
-  Check if NUT's address is configured
-  ==== Action #2: SOL NS =========>
-        name: SOLNS_from_TN_SameTgt
-
-  X<== Judgement #2: SOL NA =======
-        name: NA_from_NUT, NA_from_NUT_woTLL
-
+   70. Initialize the devices on Link B.
+   71. After TN1 receives a DAD NS message from the NUT, configure TN1 to transmit Neighbor Solicitation A 
+       containing a TLL Option set to TN1's MAC address.
+   72. Allow time for all devices on Link B to perform stateless address autoconfiguration and Duplicate Address 
+       Detection.
+   73. Transmit a NS from TN1 to the solicited-node multicast address of the NUT's link-local address with the 
+       Target Address set to the NUT's link-local address.
+   74. Observe packet captures on Link B.
+   75. Transmit a NS from TN1 to the link-local address of the NUT with the Target Address set to the NUT's 
+       link-local address.
+   76. Observe packet captures on Link B.
+   77. (Steps 77-82 are performed for EUI-64) If the NUT is a Host, TR1 transmits a Router Advertisement with a 
+       prefix option.
+   78. TN1 transmits DAD NS from the unspecified address with a target address set to NUT's Global Address.
+   79. Observe packet captures on Link B.
+   80. If the NUT is a Router, enable interface on Link A.
+   81. If the NUT is a Router, TN1 transmits an Echo Request to TN2's Global Address with a first hop through the NUT.
+   82. If the NUT is a Router, observe packet captures on Link A and Link B.
 
 =back 1
 
@@ -272,40 +271,21 @@ B<Test sequence>
 
 =over 1
 
-=item Test for Link-local Unicast address autoconfiguration
+   Step 72: The NUT should ignore any options they do not recognize and continue processing the message. The NUT 
+   should not assign the tentative address to its interface and must disable IP operation. The NUT must not 
+   transmit any Router Solicitations if the NUT is a Host.
+   Step 74: The NUT must NOT transmit a Solicited NA for its autoconfigured link-local address.
+   Step 76: The NUT must NOT transmit a Solicited NA for its autoconfigured link-local address.
+   Step 79: The NUT must NOT transmit a DAD NA for its global address.
+   Step 82: If the NUT is a Router, the NUT must NOT forward the Echo Request to TN2 on Link A.
 
-B<Test for all NODE>
+=back 1
 
-B<NUT performs Stateless Address Autoconfiguration(Link-local) on its interface>
+=head1 Possible Problems
 
-   Judgement #1. NUT MUST transmit DAD NS for its autoconfigured Link-local address.
-        name: DADNS_from_NUT
-	src: ::0
-	dst: solnode[NUT's tentative Link-local]
-        TargetAddress: NUT's tentative Link-local
+=over 1
 
-   Action #1. TN transmits DAD NS which contains TTL option.
-        name: DADNS_from_TN_SameTgt
-	src: ::0
-	dst: solnode[NUT's tentative Link-local]
-        TargetAddress: NUT's tentative Link-local
-	TLLOPT: TN's MAC address
-
-   Action #2. TN transmits SOL NS to check if NUT's address is configured.
-        name: SOLNS_from_TN_SameTgt
-        src: TN's Link-local
-	dst: solnode[NUT's Link-local]
-        TargetAddress: NUT's Link-local
-
-   Judgement #2. NUT MUST NOT transmit SOL NA for its autoconfigured  Link-local address.
-        name: NA_from_NUT, NA_from_NUT_woTLL
-	src: NUT's Link-local
-	dst: TN's Link-local
-        TargetAddress: NUT's Link-local
-        RFlag: 0 ( if NUT is a Router then 1)
-        SFlag: 1
-        OFlag: 1
-	TLLOPT: NUT's MAC address
+  * If the device doesn't support EUI-64 for privacy address concerns the EUI-64 based steps may be omitted.
 
 =back 1
 

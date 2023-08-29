@@ -62,7 +62,7 @@ FEM_icmp6_ra(
 	_HETHER_nut2allnodes,
 	{
 		HopLimit	= 255;
-		_SRC(nutv6());
+		_SRC(nut3v6());
 		_DST(v6(_ALLNODES_MCAST_ADDR));
 	},
 	{
@@ -84,7 +84,7 @@ FEM_icmp6_ra(
 	_HETHER_nut2allnodes,
 	{
 		HopLimit	= 255;
-		_SRC(nutv6());
+		_SRC(nut3v6());
 		_DST(v6(_ALLNODES_MCAST_ADDR));
 	},
 	{
@@ -105,7 +105,7 @@ FEM_icmp6_ra(
 	_HETHER_nut2allnodes,
 	{
 		HopLimit	= 255;
-		_SRC(nutv6());
+		_SRC(nut3v6());
 		_DST(v6(_ALLNODES_MCAST_ADDR));
 	},
 	{
@@ -127,7 +127,7 @@ FEM_icmp6_ra(
 	_HETHER_nut2allnodes,
 	{
 		HopLimit	= 255;
-		_SRC(nutv6());
+		_SRC(nut3v6());
 		_DST(v6(_ALLNODES_MCAST_ADDR));
 	},
 	{

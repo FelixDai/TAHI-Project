@@ -161,7 +161,7 @@ FEM_icmp6_echo_request(
         _HETHER_trX_to_nut,
         {
                 _SRC(v6(R0_LINKLOCAL));
-                _DST(nutv6());
+                _DST(nut3v6());
         },
         {
                 payload = payload8;
@@ -172,7 +172,7 @@ FEM_icmp6_echo_reply(
         erep_cleanup_r0,
         _HETHER_nut_to_trX,
         {
-                _SRC(nutv6());
+                _SRC(nut3v6());
                 _DST(v6(R0_LINKLOCAL));
         },
         {
@@ -241,7 +241,7 @@ FEM_icmp6_echo_request(
         _HETHER_trX_to_nut,
         {
                 _SRC(v6(R1_LINKLOCAL));
-                _DST(nutv6());
+                _DST(nut3v6());
         },
         {
                 payload = payload8;
@@ -252,7 +252,7 @@ FEM_icmp6_echo_reply(
         erep_cleanup_r1,
         _HETHER_nut_to_trX,
         {
-                _SRC(nutv6());
+                _SRC(nut3v6());
                 _DST(v6(R1_LINKLOCAL));
         },
         {
@@ -302,7 +302,7 @@ FEM_icmp6_echo_request(
         _HETHER_trX_to_nut,
         {
                 _SRC(v6(R2_LINKLOCAL));
-                _DST(nutv6());
+                _DST(nut3v6());
         },
         {
                 payload = payload8;
@@ -313,7 +313,7 @@ FEM_icmp6_echo_reply(
         erep_cleanup_r2,
         _HETHER_nut_to_trX,
         {
-                _SRC(nutv6());
+                _SRC(nut3v6());
                 _DST(v6(R2_LINKLOCAL));
         },
         {
@@ -364,7 +364,7 @@ FEM_icmp6_echo_request(
 	_HETHER_tnX_to_nut,
 	{
 		_SRC(tnv6());
-		_DST(nutv6());
+		_DST(nut3v6());
 	},
 	{
 		payload	= payload8;
@@ -375,7 +375,7 @@ FEM_icmp6_echo_reply(
 	erep_cleanup_tn1,
 	_HETHER_nut_to_tnX,
 	{
-		_SRC(nutv6());
+		_SRC(nut3v6());
 		_DST(tnv6());
 	},
 	{
@@ -405,7 +405,7 @@ FEM_icmp6_echo_request(
 	_HETHER_tnX_to_nut,
 	{
 		_SRC(tn2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
-		_DST(nutv6());
+		_DST(nut3v6());
 	},
 	{
 		payload	= payload8;
@@ -416,7 +416,7 @@ FEM_icmp6_echo_reply(
 	erep_cleanup_tn1_global,
 	_HETHER_nut_to_tnX,
 	{
-		_SRC(nutv6());
+		_SRC(nut3v6());
 		_DST(tn2v6(LINK0_PREFIX, LINK0_PREFIXLEN));
 	},
 	{
@@ -448,7 +448,7 @@ FEM_icmp6_echo_request(
 	_HETHER_tnX_to_nut,
 	{
 		_SRC(v6(R0_LINKLOCAL));
-		_DST(nutv6());
+		_DST(nut3v6());
 	},
 	{
 		payload	= payload8;
@@ -459,7 +459,7 @@ FEM_icmp6_echo_reply(
 	erep_cleanup_tr1,
 	_HETHER_nut_to_tnX,
 	{
-		_SRC(nutv6());
+		_SRC(nut3v6());
 		_DST(v6(R0_LINKLOCAL));
 	},
 	{
@@ -491,7 +491,7 @@ FEM_icmp6_echo_request(
 	_HETHER_tnX_to_nut,
 	{
 		_SRC(v6(H0_LINKLOCAL));
-		_DST(nutv6());
+		_DST(nut3v6());
 	},
 	{
 		payload	= payload8;
@@ -502,7 +502,7 @@ FEM_icmp6_echo_reply(
 	erep_cleanup_tn2,
 	_HETHER_nut_to_tnX,
 	{
-		_SRC(nutv6());
+		_SRC(nut3v6());
 		_DST(v6(H0_LINKLOCAL));
 	},
 	{

@@ -45,11 +45,9 @@
 # $TAHI: ct/nd.p2/v6LC_2_2_7_E.seq,v 1.6 2010/05/07 04:30:16 akisada Exp $
 #
 ########################################################################
-
+BEGIN {$V6evalTool::TestVersion = '$Name: V6LC_5_0_7 $';}
 use rdisc;
 
-BEGIN {}
-END   {}
 
 if($V6evalTool::NutDef{'Type'} ne 'router') {
 	exitRouterOnly($Link0);

@@ -56,7 +56,7 @@ FEM_hdr_ipv6_exth(
 	_HETHER_tn2nut,
 	{
 		_SRC(UNSPEC_ADDR);
-		_DST(nutv6());
+		_DST(nut3v6());
 	},
 	{
 		header = _HDR_IPV6_NAME(echo_request_1st);
@@ -89,7 +89,7 @@ FEM_icmp6_echo_request(
 	_HETHER_tn2nut,
 	{
 		_SRC(tnv6());
-		_DST(nutv6());
+		_DST(nut3v6());
 	},
 	{
 		payload = data_size_1452;
@@ -104,7 +104,7 @@ FEM_icmp6_time_exceeded(
 	time_exceeded,
 	_HETHER_nut2tn,
 	{
-		_SRC(oneof(NUT_GLOBAL,nutv6()));
+		_SRC(oneof(NUT_GLOBAL,nut3v6()));
 		_DST(oneof(TN_GLOBAL,tnv6(),UNSPEC_ADDR));
 	},
 	{
@@ -118,7 +118,7 @@ FEM_icmp6_time_exceeded(
 	time_exceeded_any,
 	_HETHER_nut2tn,
 	{
-		_SRC(oneof(NUT_GLOBAl,nutv6()));
+		_SRC(oneof(NUT_GLOBAl,nut3v6()));
 		_DST(oneof(TN_GLOBAL,tnv6(),UNSPEC_ADDR));
 	},
 	{

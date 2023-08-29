@@ -47,7 +47,7 @@
 #----------------------------------------------------------------------
 
 BEGIN {
-	$V6evalTool::TestVersion = '$Name: V6LC_5_0_0 $';
+	$V6evalTool::TestVersion = '$Name: V6LC_5_0_7 $';
 }
 
 use V6evalTool;
@@ -100,7 +100,7 @@ elsif ($ret{recvFrame} eq 'time_exceeded') {
 	vLogHTML('<FONT COLOR="#FF0000">NG</FONT>');
 	cleanup();
 	vStop($IF);
-	exit($V6evalTool::exitWarn);
+	exit($V6evalTool::exitFail);
 };
 
 error:

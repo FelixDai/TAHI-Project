@@ -45,7 +45,7 @@
 # 
 
 ########################################################################
-BEGIN { $V6evalTool::TestVersion = '$Name: V6LC_5_0_0 $ '; }
+BEGIN { $V6evalTool::TestVersion = '$Name: V6LC_5_0_7 $ '; }
 use V6evalTool;
 use SAA;
 
@@ -119,7 +119,7 @@ vCapture($IF);
 #----- Wait DAD NS from NUT or timeout
 vLog("TN wait DAD NS(DADNS_from_NUT) from NUT for $SAA::wait_dadns{$SAA::howto_addrconf} [sec],");
 
-%ret1=vRecv($IF,$SAA::wait_dadns{$SAA::howto_addrconf},0,0,DADNS_from_NUT);
+%ret1=vRecv($IF,$SAA::wait_dadns{$SAA::howto_addrconf},0,0,DADNS_from_NUT,DADNS_from_NUT_anyopt);
 
 if ($ret1{status} != 0){
     vLog("TN wait DAD NS from NUT for $SAA::wait_dadns{$SAA::howto_addrconf}, but NUT had not transmit DAD NS");
@@ -128,6 +128,17 @@ if ($ret1{status} != 0){
 
 #----- RA PHASE
 vLog("TN received DAD NS from NUT.");
+
+if($ret1{recvFrame} eq DADNS_from_NUT_anyopt){
+        my $opt_type = $ret1{"Frame_Ether.Packet_IPv6.ICMPv6_NS.Opt_ICMPv6_ANY.Type"};
+        if($opt_type = 14){
+                vLog("DAD NS with NONCE option.");
+        }else{
+                vLog("The option in DAD NS isn't NONCE option.");
+                seqNG();
+        }
+}
+
 vLog("OK! Let's go ahead!");
 %ret2=vRecv($IF,$SAA::wait_rs,0,0,RS_from_NUT,RS_from_NUT_wSLL);
 
@@ -152,7 +163,7 @@ $t0 = time();
 #----- Wait DAD NS from NUT or timeout
 vLog("TN wait DAD NS for Global address from NUT for $SAA::wait_dadns{ra} [sec],");
 
-%ret3=vRecv($IF,$SAA::wait_dadns{ra},0,0,DADNS_from_NUT_GA0Tgt);
+%ret3=vRecv($IF,$SAA::wait_dadns{ra},0,0,DADNS_from_NUT_GA0Tgt,DADNS_from_NUT_GA0Tgt_anyopt);
 
 if ($ret3{status} == 0){
 #----- check if NUT's address is configured
@@ -217,7 +228,7 @@ $t2 = time();
 #----- Wait DAD NS from NUT or timeout
 vLog("TN wait DAD NS for Global address from NUT for $SAA::wait_dadns{ra} [sec],");
 
-%ret4=vRecv($IF,$SAA::wait_dadns{ra},0,0,DADNS_from_NUT_GA0Tgt,DADNS_any, DADNS_any_wSLL);
+%ret4=vRecv($IF,$SAA::wait_dadns{ra},0,0,DADNS_from_NUT_GA0Tgt,DADNS_any, DADNS_anyopt);
 
 if ($ret4{status} == 0){
 #----- check if NUT's address is configured
