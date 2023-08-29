@@ -1,0 +1,417 @@
+#!/usr/bin/perl
+#
+#Copyright (C) 2013, 2014, 2015, 2016, 2017
+#Chunghwa Telecommunication Labratories (CHT-TL)
+#All rights reserved.
+#
+#Redistribution and use of this software in source and binary
+#forms, with or without modification, are permitted provided that
+#the following conditions and disclaimer are agreed and accepted
+#by the user:
+#
+#1. Redistributions of source code must retain the above copyright
+#   notice, this list of conditions and the following disclaimer.
+#
+#2. Redistributions in binary form must reproduce the above copyright
+#   notice, this list of conditions and the following disclaimer in
+#   the documentation and/or other materials provided with
+#   the distribution.
+#
+#3. Neither the names of the copyrighters, the name of the project
+#   which is related to this software (hereinafter referred to as
+#   "project") nor the names of the contributors may be used to
+#   endorse or promote products derived from this software without
+#   specific prior written permission.
+#
+#4. No merchantable use may be permitted without prior written
+#   notification to the copyrighters.
+#
+#5. The copyrighters, the project and the contributors may prohibit
+#   the use of this software at any time.
+#
+#THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+#CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+#BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+#FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+#COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+#INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+#(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+#SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+#HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+#STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+#IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+#POSSIBILITY OF SUCH DAMAGE.
+#
+#$CHT-TL: C_RFC3315_18_1_4_RetransReb.seq,v 1.2 2017/10/26 weifen Exp $
+###############################################################################
+BEGIN{
+	$V6evalTool::TestVersion = '$Name: CE-Router_Self_Test_1_0_5 $';
+}
+use strict;
+use V6evalTool;
+
+use lib '../.';
+use CPE6_config;
+use DHCPv6_common;
+use Client_pktdesc;
+
+#--------------------------------------------------------------#
+# Initialization variables
+#--------------------------------------------------------------#
+my $IF0 = "Link0";
+my ($plifetime, $vlifetime) = (100, 300);
+my ($time1, $time2) = (50, 80);
+my ($start, $rd, $MRD) = (0, 0, $vlifetime);
+my $IRT = $REB_TIMEOUT;
+my $MRT = $REB_MAX_RT;
+my $acceptablerange = 0;
+my $mrdflag = 0;
+my $min_rt = 0;
+my $startVLT = 0;
+my $timeout = $time2 + 100;
+my $interval = 0;
+my $nextime = 0;
+my $pretime = 0;
+my $ret = 1;
+vCapture($IF0);
+#--------------------------------------------------------------#
+# Initialize DHCPv6 Client
+#--------------------------------------------------------------#
+vSend($IF0,'ra_server2_to_all_MO_1');
+#--------------------------------------------------------------#
+#1.  Wait until Solicit arrives 
+#--------------------------------------------------------------#
+my ($retsol,%sol) = wait_for_solicit($IF0,30);
+if($retsol != 0){
+	dhcpExitFail;
+}
+#vClear($IF0);
+#--------------------------------------------------------------#
+#2. Send Advertise to reply to Solicit
+#--------------------------------------------------------------#
+$SID_OPTION = "opt_SID_LLT_server1";
+$IA_NA_OPTION = "opt_IA_NA_Addr_woStatus";
+$IA_PD_OPTION = "opt_IA_PD_PF1";
+$DNS_SVR_OPTION = "opt_DNS_Name_Server1";
+$DNS_LST_OPTION = "opt_DNS_ServerSearchList";
+my ($retadv, %adv) = send_advertise($IF0, "advertise_server1_to_nut", \%sol, "-DIA_ADDR_PLTIME=$plifetime -DIA_ADDR_VLTIME=$vlifetime ");
+if($retadv != 0){
+	dhcpExitFail;
+}
+#--------------------------------------------------------------#
+#3.  Wait until Request arrives 
+#--------------------------------------------------------------#
+my ($retreq, %req) = wait_for_request($IF0,30);
+if($retreq != 0){
+	dhcpExitFail;
+}
+vClear($IF0);
+#--------------------------------------------------------------#
+#4. send Reply message
+#--------------------------------------------------------------#
+$IA_NA_OPTION = "opt_IA_NA_Addr";
+$StatusCode_OPTION = "opt_StatusCode";
+my ($retrep, %rep) = send_reply($IF0, "reply_server1_to_nut", \%req, "-DIA_NA_TIME1=$time1 -DIA_NA_TIME2=$time2 -DIA_ADDR_PLTIME=$plifetime -DIA_ADDR_VLTIME=$vlifetime -DIA_PD_TIME3=$time1 -DIA_PD_TIME4=$time2 -DIA_PREFIX_PLTIME=$plifetime -DIA_PREFIX_VLTIME=$vlifetime");
+if($retrep !=0){
+	dhcpExitFail;
+}
+
+
+# wait for DAD completion
+$ret = undef;
+my %dad = vRecv($IF0, 3, 0, 0, 'dadns_nutga');
+
+#
+#----------- get T2 start time
+#
+if ($dad{status} == 0){
+        $startVLT = getReceivedtime(\%dad);
+}else{
+        $startVLT = time() - 3;
+}
+
+
+vClear($IF0);
+
+#--------------------------------------------------------------#
+#5. Wait until Rebind arrives 
+#--------------------------------------------------------------#
+my ($retreb1,%reb1) = wait_for_rebind($IF0, $timeout,1);
+if($retreb1 != 0){
+	dhcpExitFail;
+}
+
+$ret = options_exist(\%reb1,$CMP_ETIME);
+if($ret != 0){
+	dhcpExitFail;
+}
+
+$pretime = getReceivedtime(\%reb1);
+$start = $pretime;
+$MRD = $vlifetime - ($start - $startVLT);
+
+#--------------------------------------------------------------#
+#6. Wait until retransmitted message arrives 
+#--------------------------------------------------------------#
+my ($retreb2,%reb2) = (1, ());
+my $initflag = 0;
+
+vLogHTML("The allowed buffer time for the retransmitted packet is $Buff_time.<BR>");
+vLogHTML('<PRE>');
+vLogHTML("<FONT COLOR=\"#FF0000\">IRT is $IRT, MRT is $MRT, MRD is $MRD sec, VLT is $vlifetime</FONT><BR>");
+vLogHTML('<FONT COLOR="#FF0000">Retransmitted Maximum Renew RT.</FONT><BR>');
+vLogHTML('<FONT COLOR="#FF0000">1st 2nd  3rd   4th     5th      </FONT><BR>');
+vLogHTML('<FONT COLOR="#FF0000">11  23.1 48.51 101.871 213.9291 </FONT><BR>');
+vLogHTML("<FONT COLOR=\"#FF0000\">Capable Maximum RD is VLT - T2 = $MRD sec</FONT><BR>");
+vLogHTML('</PRE>');
+
+while(1){
+	if($initflag != 0){
+		$timeout = (2 + $RAND) * $interval;
+	}else{
+		$timeout = (1 + $RAND) * $IRT;
+	}
+	$initflag=1;
+
+# 
+#----------- Wait for next retransmission
+#
+	($retreb2,%reb2) = wait_for_rebind($IF0, $timeout,1);
+
+#----------- Massege is NOT received and rd is expired
+#----------- Correct case
+	if($retreb2 == 1 && $mrdflag == 1) {
+		$nextime = time();
+		$rd = $nextime - $start;
+#		vLogHTML("<FONT COLOR=\"#FF0000\">Current RD is $rd sec, MRD is $MRD</FONT><BR>");
+#		vLogHTML("<FONT COLOR=\"#FF0000\">No retransmission was observed</FONT><BR>");
+		last;
+	}
+
+#----------- Massege is received and rd is not expired
+#----------- Correct case
+	if($retreb2 == 0 && $mrdflag == 0){
+		$nextime = getReceivedtime(\%reb2); 
+		$ret = compare_message(\%reb1,\%reb2);
+		if($ret != 0){
+			vLogHTML('<FONT COLOR="#FF0000">Message has been changed!</FONT><BR>');
+			dhcpExitFail;
+		}
+	}
+
+#----------- Massege is received and rd might be expired
+#----------- Incorrect case
+	if($retreb2 == 0 && $mrdflag == 1) {
+		$nextime = getReceivedtime(\%reb2); 
+		$rd = $nextime - $start;
+		$interval = $nextime - $pretime;	
+		vLogHTML("<FONT COLOR=\"#FF0000\">RT is shorter than expected.</FONT><BR>");
+		vLogHTML("<FONT COLOR=\"#FF0000\">Actual RT is $interval, expected RT is $timeout</FONT><BR>");
+		dhcpExitFail;
+	}
+
+#----------- Massege is NOT received and rd is NOT expired
+#----------- Incorrect case
+	if($retreb2 == 1 && $mrdflag == 0) {
+		$nextime = time();
+		$rd = $nextime - $start;
+		vLogHTML("<FONT COLOR=\"#FF0000\">Current RD is $rd sec, MRD is $$MRD</FONT><BR>");
+		vLogHTML("<FONT COLOR=\"#FF0000\">No retransmission was observed within MRD</FONT><BR>");
+		dhcpExitFail;
+	}
+# 
+#----------- Calcurate current RT
+#
+	$rd = $nextime - $start;
+	$interval = $nextime - $pretime;	
+	$pretime = $nextime;
+
+	vLogHTML("<FONT COLOR=\"#FF0000\">Actual RT is $interval sec, RD is $rd</FONT><BR>");
+	if ($interval > ($timeout + $Buff_time)) {
+		vLogHTML("<FONT COLOR=\"#FF0000\">Actual RT is bigger than the expected maximum value<FONT><BR>");
+		dhcpExitFail;
+	}
+
+# 
+#----------- MRD Expiration, but it must not happen
+#
+	if($rd > $MRD){
+		vLogHTML('<FONT COLOR="#FF0000">MRD expired! </FONT><BR>');
+		dhcpExitFail;
+	}
+	$min_rt = (2 - $RAND) * $interval;
+	if ($min_rt > $MRT) {
+		$min_rt = (1 - $RAND) * $MRT;
+	}
+	if($rd + $min_rt > $MRD){
+		vLogHTML('<FONT COLOR="#FF0000">Next message must not be observed</FONT><BR>');
+		$mrdflag += 1;
+	}
+# 
+#----------- Check if RT satisfies RT = MRT(1+RAND)
+#
+	if(!check_equal($interval,$MRT,$RAND)){
+		vLogHTML('<FONT COLOR="#FF0000">RT = MRT(1+RAND) observed</FONT><BR>');
+	}
+}
+
+vLogHTML('<FONT COLOR="#FF0000">No Retransmission is observed after MRD</FONT><BR>');
+
+vClear($IF0);
+vStop($IF0);
+dhcpExitPass;
+###############################################################################
+__END__
+
+=head1 NAME 
+
+  Transmission of Rebind Messages
+  Part C: Maximum Retransmission Duration of Rebind message, T1 and T2 non-zero
+
+=head1 TARGET
+
+  CE-Router
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./C_RFC3315_18_1_4_RetransReb.seq"> C_RFC3315_18_1_4_RetransReb.seq</A> [-tooloption...] <BR>  -pkt  <A HREF="./C_RFC3315_18_1_4_RetransReb.def"> C_RFC3315_18_1_4_RetransReb.def</A> <BR>  -tooloption : v6eval tool option
+<BR>
+  See Also <A HREF="./DHCPv6.def"> DHCPv6.def </A> 
+</PRE>
+
+=end html
+
+=head1 INITIALIZATION
+
+=begin html
+  <ul>
+  <li><STRONG>Network Topology</STRONG></li> 
+   <PRE>
+          CE-Router(Client)
+          |           
+          |                        
+Link0   --+--------+------------------------ 3ffe:501:ffff:100::/64
+                   |
+                   |          
+                   TN(Server) 
+   </PRE>
+  </ul>
+  <ul>  
+  <li><STRONG>Verification Points</STRONG></li><br>
+   <PRE>
+   The client transmits the message according to section 14, using the
+   following parameters:<BR>
+      IRT   REB_TIMEOUT  <BR>
+      MRT   REB_MAX_RT   <BR>
+      MRC   0            <BR>
+      MRD   Remaining time until valid lifetimes of all addresses have
+            expired      <BR>
+   When duration of retransmission reaches to MRD, the client stops 
+   retransmission of Rebind.  
+   </PRE>
+  </ul>
+  <ul>
+  <li><STRONG>Configurations</STRONG></li><br>
+   <BR>
+    <TABLE BORDER="1">
+    <TR>
+    <TD><TT>Device Name</TT></TD>
+    <TD><TT>Device Type</TT></TD>
+    <TD><TT>Interface</TT></TD>
+    <TD><TT>Assigned Prefix</TT></TD>
+    <TD><TT>Link Local Addr</TT></TD>
+    <TD><TT>MAC Addr</TT></TD>
+    </TR>
+    <TR>
+    <TD><TT>Client</TT></TD>
+    <TD><TT>CE-Router</TT></TD>
+    <TD><TT>Link0</TT></TD>
+    <TD><TT>3ffe:501:ffff:100::/64</TT></TD>
+    <TD><TT>CE-Router's Linklocal address</TT></TD>
+    <TD><TT>CE-Router's MAC address</TT></TD>
+    </TR>
+    <TR>
+    <TD><TT>Server</TT></TD>
+    <TD><TT>TN</TT></TD>
+    <TD><TT>Link0</TT></TD>
+    <TD><TT>3ffe:501:ffff:100::/64</TT></TD>
+    <TD><TT>fe80::200:ff:fe00:a1a1</TT></TD>
+    <TD><TT>00:00:00:00:a1:a1</TT></TD>
+    </TR>
+    </TABLE>
+  </ul>
+
+=end html
+
+=head1 TEST PROCEDURE
+
+=begin html
+<PRE>
+<BR>
+       CE-Router      TN
+        |       |
+        |       |Initialize CE-Router(as a DHCPv6 client)
+        |       |
+        | ----> |<B>Solicit</B> 
+        | <---- |<B>Advertise</B> 
+        | ----> |<B>Request</B> 
+        | <---- |<B>Reply</B> w/IA_NA option(T2=80,valid-lifetime=300)
+        |       |
+        | <---- |<B>Echo Request</B>
+        | ----> |<B>Echo Reply</B>
+        |       |
+        |       |Wait T2 time expires
+        |       |
+        | ----> |<B>Rebind</B> 
+        |       |	
+        .       .Repeat until evaluating retransmission time is more than MRD(valid lifetime)
+        |       |
+        | ----> |<B>Rebind</B> (8*)
+        |       |
+<BR>
+</PRE>
+
+=end html
+
+=head1 JUDGEMENT
+
+=begin html
+<PRE>
+<BR>  
+  (8*)PASS: CE-Router does not transmit Rebind. 
+</PRE>
+
+=end html
+
+=head1 TERMINATION
+
+=begin html
+<PRE>
+  N/A
+</PRE>
+
+=end html
+
+=head1 REFERENCE
+
+=begin html
+<PRE>
+[RFC 7084],W-1
+[RFC 3315],Section 5.5, 14 and 18.1.4
+[RFC 3646],Section 3, 4 and 5
+</PRE>
+
+=end html
+
+=head1 SEE ALSO
+
+=begin html
+<PRE>
+<BR>
+  perldoc  V6evalTool
+<BR>
+</PRE>
+
+=end html

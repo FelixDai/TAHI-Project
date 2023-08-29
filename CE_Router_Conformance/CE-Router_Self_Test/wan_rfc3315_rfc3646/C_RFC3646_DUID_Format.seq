@@ -1,0 +1,287 @@
+#!/usr/bin/perl
+#
+#Copyright (C) 2013
+#Chunghwa Telecommunication Labratories (CHT-TL)
+#All rights reserved.
+#
+#Redistribution and use of this software in source and binary
+#forms, with or without modification, are permitted provided that
+#the following conditions and disclaimer are agreed and accepted
+#by the user:
+#
+#1. Redistributions of source code must retain the above copyright
+#   notice, this list of conditions and the following disclaimer.
+#
+#2. Redistributions in binary form must reproduce the above copyright
+#   notice, this list of conditions and the following disclaimer in
+#   the documentation and/or other materials provided with
+#   the distribution.
+#
+#3. Neither the names of the copyrighters, the name of the project
+#   which is related to this software (hereinafter referred to as
+#   "project") nor the names of the contributors may be used to
+#   endorse or promote products derived from this software without
+#   specific prior written permission.
+#
+#4. No merchantable use may be permitted without prior written
+#   notification to the copyrighters.
+#
+#5. The copyrighters, the project and the contributors may prohibit
+#   the use of this software at any time.
+#
+#THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+#CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+#BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+#FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+#COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+#INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+#(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+#SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+#HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+#STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+#IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+#POSSIBILITY OF SUCH DAMAGE.
+#
+#$CHT-TL: C_RFC3646_DUID_Format.seq,v 1.0 2014/03/14 weifen Exp $
+###############################################################################
+BEGIN{
+	$V6evalTool::TestVersion = '$Name: CE-Router_Self_Test_1_0_5 $';
+}
+use strict;
+use V6evalTool;
+
+use lib '../.';
+use DHCPv6_common;
+use CPE6_config;
+use Client_pktdesc;
+
+#--------------------------------------------------------------#
+# Initialization variables
+#--------------------------------------------------------------#
+my $IF0_NUT = $V6evalTool::NutDef{"Link0_device"};
+my $IF0 = "Link0";
+vCapture($IF0);
+
+my $duidtype;
+if ($DUID_LLT) {
+	$duidtype = 1;
+} elsif ($DUID_EN) {
+	$duidtype = 2;
+} elsif ($DUID_LL) {
+	$duidtype = 3;
+} else {
+	vLogHTML('<FONT COLOR="#FF0000">No matched DUID type!</FONT>');
+	dhcpExitFail;
+}
+
+#--------------------------------------------------------------#
+# Initialize DHCPv6 Client
+#--------------------------------------------------------------#
+vSend($IF0,'ra_server2_to_all_MO_1');
+#--------------------------------------------------------------#
+#1.  Wait until Solicit arrives 
+#--------------------------------------------------------------#
+my ($retsol,%sol) = wait_for_solicit($IF0,30) ;
+if($retsol != 0){
+	dhcpExitFail;
+}
+# check DUID 
+my $optype = $CMP_CID;
+my $ret = check_DUID(\%sol,$optype,$duidtype);
+if($ret != 0){
+	dhcpExitFail;
+}
+vStop($IF0);
+dhcpExitPass;
+###############################################################################
+__END__
+
+=head1 NAME 
+
+  Client DHCP Unique Identifier Contents
+  Part A: DUID format
+
+=head1 TARGET
+
+  CE-Router
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./C_RFC3646_DUID-Format.seq"> C_RFC3646_DUID-Format.seq</A> [-tooloption...] <BR>  -pkt <A HREF="./C_RFC3646_DUID-Format.def"> C_RFC3646_DUID-Format.def</A> <BR>  -tooloption : v6eval tool option
+  See Also <A HREF="../DHCPv6.def"> DHCPv6.def </A> 
+</PRE>
+
+=end html
+
+=head1 INITIALIZATION
+
+=begin html
+  <ul>
+  <li><STRONG>Network Topology</STRONG></li> 
+   <PRE>
+          CE-Router(Client)
+          |           
+          |                        
+Link0   --+--------+------------------------ 3ffe:501:ffff:100::/64
+                   |
+                   |          
+                   TN(Server) 
+   </PRE>
+  </ul>  
+  <ul>
+  <li><STRONG>Verification Points</STRONG></li><br>
+   <PRE>DUID Format in the Client ID option<BR>
+    <BR>
+   The following diagram illustrates the format of a DUID-LLT:
+     0                   1                   2                   3
+     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |               1               |    hardware type (16 bits)    |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |                        time (32 bits)                         |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    .                                                               .
+    .             link-layer address (variable length)              .
+    .                                                               .
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      <LI>DUID type</LI>
+          <B>1</B>
+      <LI>hardware type</LI>
+          <B>Hardware type of DUID is IANA-assgined value in RFC826</B>
+      <LI>time</LI>
+          <B>time value of DUID</B>
+      <LI>link-layer address</LI>
+          <B>link-layer address of DUID</B>
+    <BR>
+   		<BR>
+   The following diagram summarizes the structure of a DUID-EN:    
+     0                   1                   2                   3
+     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |               2               |       enterprise-number       |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |   enterprise-number (contd)   |                               |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+                               |
+    .                           identifier                          .
+    .                       (variable length)                       .
+    .                                                               .
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      <LI>DUID type</LI>
+          <B>2</B>
+      <LI>enterprise-number</LI>
+          <B>IANA-maintaiied value</B>
+      <LI>identifier</LI>
+          <B>ANY Non-zero number</B>
+    <BR>  
+   The following diagram illustrates the format of a DUID-LL:
+     0                   1                   2                   3
+     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |               3               |    hardware type (16 bits)    |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    .                                                               .
+    .             link-layer address (variable length)              .
+    .                                                               .
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      <LI>DUID type</LI>
+          <B>3</B>
+      <LI>enterprise-number</LI>
+          <B>IANA-assigned value in RFC826</B>
+      <LI>link-layer address</LI>
+	  <B>link-layer address of DUID</B>
+          </PRE>
+          </UL>
+      </LI>
+  </UL>
+  </ul>  
+  <ul>
+  <li><STRONG>Configurations</STRONG></li><br>
+  <BR>  
+  <TABLE BORDER="1">
+    <TR>
+    <TD><TT>Device Name</TT></TD>
+    <TD><TT>Device Type</TT></TD>
+    <TD><TT>Interface</TT></TD>
+    <TD><TT>Assigned Prefix</TT></TD>
+    <TD><TT>Link Local Addr</TT></TD>
+    <TD><TT>MAC Addr</TT></TD>
+    </TR>
+    <TR>
+    <TD><TT>Client</TT></TD>
+    <TD><TT>CE-Router</TT></TD>
+    <TD><TT>Link0</TT></TD>
+    <TD><TT>3ffe:501:ffff:100::/64</TT></TD>
+    <TD><TT>CE-Router's Linklocal address</TT></TD>
+    <TD><TT>CE-Router's MAC address</TT></TD>
+    </TR>
+    <TR>
+    <TD><TT>Server</TT></TD>
+    <TD><TT>TN</TT></TD>
+    <TD><TT>Link0</TT></TD>
+    <TD><TT>3ffe:501:ffff:100::/64</TT></TD>
+    <TD><TT>fe80::200:ff:fe00:a1a1</TT></TD>
+    <TD><TT>00:00:00:00:a1:a1</TT></TD>
+    </TR>
+  </TABLE>
+  </ul>
+
+=end html
+
+=head1 TEST PROCEDURE
+
+=begin html
+<PRE>
+<BR>
+       CE-Router      TN
+        |       | 
+        |       |Initialize CE-Router(as a DHCPv6 Client)
+        |       | 
+        | ----> |<B>Solicit</B> (1*)
+        |       | 
+        |       | 
+  (1*)TN Captures Solicit from CE-Router.
+</PRE>
+
+=end html
+
+=head1 JUDGEMENT
+
+=begin html
+<PRE>
+  (1*)PASS: Verification points should be satisified.
+</PRE>
+
+=end html
+
+=head1 TERMINATION
+
+=begin html
+<PRE>
+  N/A
+</PRE>
+
+=end html
+
+=head1 REFERENCE
+
+=begin html
+<PRE>
+[RFC 7084],W-1
+[RFC 3315],Sections 9.2, 9.3 and 9.4
+</PRE>
+
+=end html
+
+=head1 SEE ALSO
+
+=begin html
+<PRE>
+<BR>
+  perldoc  V6evalTool
+<BR>
+</PRE>
+
+=end html
+

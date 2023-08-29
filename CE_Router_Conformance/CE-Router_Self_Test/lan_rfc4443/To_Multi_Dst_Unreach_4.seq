@@ -1,0 +1,230 @@
+#!/usr/bin/perl
+#
+# Copyright (C) 2013
+# Chunghwa Telecommunication Labratories (CHT-TL)
+# All rights reserved.
+# 
+# Redistribution and use of this software in source and binary
+# forms, with or without modification, are permitted provided that
+# the following conditions and disclaimer are agreed and accepted
+# by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in
+#    the documentation and/or other materials provided with
+#    the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project
+#    which is related to this software (hereinafter referred to as
+#    "project") nor the names of the contributors may be used to
+#    endorse or promote products derived from this software without
+#    specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written
+#    notification to the copyrighters.
+# 
+# 5. The copyrighters, the project and the contributors may prohibit
+#    the use of this software at any time.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+# STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+# IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+# $CHT-TL: To_Multi_Dst_Unreach_4.seq,v 1.0 2013/08/19 weifen Exp $
+#----------------------------------------------------------------------
+
+BEGIN { $V6evalTool::TestVersion = '$Name: CE-Router_Self_Test_1_0_5 $'; }
+use V6evalTool;
+use icmp;
+
+my $IF0 = "Link0";
+my $IF1 = "Link1";
+
+%pktdesc = (
+    udp_pkt	=> 'Send UDP packet dst port = 9000 (Multicast address)',
+    dst_unreach	=> 'Receive Destination Unreachable (Port Unreachable)'
+);
+
+#----------------------------------------------------------------------
+# Initialization
+#----------------------------------------------------------------------
+
+vLogHTML("<FONT SIZE=\"+1\">Initialization</FONT><BR>");
+
+vCapture($IF0);
+vCapture($IF1);
+
+my $ret = setup();
+if ($ret == $icmp::subFail){
+	goto error;
+}
+
+#----------------------------------------------------------------------
+# Test
+#----------------------------------------------------------------------
+
+
+vLogHTML("<FONT SIZE=\"+1\">Test</FONT><BR>");
+
+vSend($IF1, udp_pkt);
+
+%ret = icmp_vRecv($IF1, $icmp::wait_reply, 0, 0, dst_unreach);
+
+
+if ($ret{status} != 0) {
+	vLog("TN do not receive ICMPv6 error message from NUT");
+	vLog("OK");
+	vStop($IF0);
+	vStop($IF1);
+	vRemote('reboot.rmt','');
+	exit($V6evalTool::exitPass);
+}
+elsif ($ret{recvFrame} eq 'dst_unreach') {
+	vLogHTML('<FONT COLOR="#FF0000">TN receive ICMPv6 error message from NUT</FONT><BR>');
+	goto error;
+}
+else {
+	vLogHTML('<FONT COLOR="#FF0000">TN receive unexpected packets from NUT</FONT><BR>');
+	goto error;
+}   
+
+
+error:
+
+vLogHTML('<FONT COLOR="#FF0000">FAIL</FONT><BR>');
+vStop($IF0);
+vStop($IF1);
+vRemote('reboot.rmt','');
+exit($V6evalTool::exitFail);
+
+
+#----------------------------------------------------------------------
+
+__END__
+
+=head1 NAME
+
+	Error Condition with Multicast Destination
+	Part A: UDP Port Unreachable
+
+=head1 TARGET
+
+	CE-Router
+
+=head1 SYNOPSIS
+
+	To_Multi_Dst_Unreach_4.seq [-tooloption ...] -p To_Multi_Dst_Unreach_4.def
+
+=head1 INITIALIZATION
+
+	Common Test Setup is performed at the beginning of this test part.
+
+=head1 TEST PROCEDURE
+
+Verify that a node properly handles the reception of an error condition caused by a packet with a Multicast Destination Address.
+
+	This test verifies that the message processing rule,
+	
+	An ICMPv6 error message MUST NOT be sent as a result of
+	receiving:
+
+	a packet destined to an IPv6 multicast address (there are
+	two exceptions to this rule: (1) the Packet Too Big
+	Message - Section 3.2 - to allow Path MTU discovery to
+	work for IPv6 multicast, and (2) the Parameter Problem
+	Message, Code 2 - Section 3.4 - reporting an unrecognized
+	IPv6 option that has the Option Type highest-order two
+	bits set to 10).
+
+
+	TN			NUT
+
+	---------------------------
+
+	1.
+	 === UDP packet  ===>
+		src address : TN link local address
+		dst address : all node link localbmulticast address
+             port number is not used in NUT (9000)
+	2.
+	<< JUDGEMENT >>
+
+	 <=== No pakcet ===
+			
+
+=head1 JUDGEMENT
+
+    << PASS >>
+    The NUT must not send a Destination Unreachable Error Message to TN2 
+    when it receives a UDP packet for an unreachable port.
+
+=head1 CLEANUP
+
+Common Test Cleanup
+
+=cut
+
+# =head1 REFERENCE
+# 
+# RFC2463
+# 2.4 Message Processing Rules
+# 
+#    Implementations MUST observe the following rules when processing
+#    ICMPv6 messages (from [RFC-1122]):
+# 
+# =begin html
+# <pre>
+#     <b>(e) An ICMPv6 error message MUST NOT be sent as a result of
+#         receiving:</b><br>
+#          (e.1) an ICMPv6 error message, or<br>
+#          <b>(e.2) a packet destined to an IPv6 multicast address (there are
+#                two exceptions to this rule: (1) the Packet Too Big
+#                Message - Section 3.2 - to allow Path MTU discovery to
+#                work for IPv6 multicast, and (2) the Parameter Problem
+#                Message, Code 2 - Section 3.4 - reporting an unrecognized
+#                IPv6 option that has the Option Type highest-order two
+#                bits set to 10)</b>, or<br>
+#          (e.3) a packet sent as a link-layer multicast, (the exception
+#                from e.2 applies to this case too), or<br>
+#          (e.4) a packet sent as a link-layer broadcast, (the exception
+#                from e.2 applies to this case too), or<br>
+#          (e.5) a packet whose source address does not uniquely identify
+#                a single node -- e.g., the IPv6 Unspecified Address, an
+#                IPv6 multicast address, or an address known by the ICMP
+#                message sender to be an IPv6 anycast address.
+# </pre>
+# 
+# =end html
+# 
+
+=pod
+
+=head1 REFERENCE
+
+=begin html
+<BLOCKQUOTE>
+<PRE>
+[RFC 7084],G-1
+[RFC 4443],Section 2.4
+</PRE>
+</BLOCKQUOTE>
+
+=end html
+
+=head1 SEE ALSO
+
+	  perldoc V6evalTool
+
+=cut

@@ -1,0 +1,381 @@
+#!/usr/bin/perl
+#
+# Copyright (C) 2013, 2014, 2015, 2016, 2017
+# Chunghwa Telecommunication Labratories (CHT-TL)
+# All rights reserved.
+# 
+# Redistribution and use of this software in source and binary
+# forms, with or without modification, are permitted provided that
+# the following conditions and disclaimer are agreed and accepted
+# by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in
+#    the documentation and/or other materials provided with
+#    the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project
+#    which is related to this software (hereinafter referred to as
+#    "project") nor the names of the contributors may be used to
+#    endorse or promote products derived from this software without
+#    specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written
+#    notification to the copyrighters.
+# 
+# 5. The copyrighters, the project and the contributors may prohibit
+#    the use of this software at any time.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+# STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+# IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+# $CHT-TL: C_RFC3633_MaxRetransTimeSolMsg_10_2_1_D.seq,v 1.3 2017/10/26 weifen Exp $
+#
+########################################################################
+
+BEGIN{
+	$V6evalTool::TestVersion = '$Name: CE-Router_Self_Test_1_0_5 $';
+}
+use strict;
+use V6evalTool;
+
+use lib '../.';
+use CPE6_config;
+use DHCPv6_common;
+use Client_pktdesc;
+
+my $type=$V6evalTool::NutDef{Type};
+if($type ne 'router') {
+	vLogHTML('<FONT COLOR="#FF0000">This test does not support Host!</FONT>');
+	exit $V6evalTool::exitRouterOnly;
+}
+
+#--------------------------------------------------------------#
+# Initialization variables
+#--------------------------------------------------------------#
+my $IF0 = "Link0";
+my ($pretime, $nextime) = (0, 0);
+my $interval = 0;
+my $acceptablerange = 0;
+my $init_timeout = 30;
+my $mrtflag = 0;
+my $MAXCOUNT = 16;
+my $IRT = $SOL_TIMEOUT;
+my $MRT = $SOL_MAX_RT;
+my $ret = 1;
+my $Solicit_count = 0;
+vCapture($IF0);
+
+#--------------------------------------------------------------#
+# Initialize DHCPv6 Client
+#--------------------------------------------------------------#
+my $wait_sol;
+if(vRemote('reboot_async.rmt')) {
+	vLogHTML('<FONT COLOR="#FF0000"><B>reboot_async.rmt: '.
+		'Could\'t reboot</B></FONT><BR>');
+}
+if (!$RA_TRIGGER_DHCPv6) {
+	$wait_sol = 300;
+	vClear($IF0);
+	vSend($IF0,'ra_server2_to_all');
+} else {
+	my %ret = vRecv($IF0, 300, 0, 0, 'rs_nut_to_server1');
+	if($ret{'status'} != 0){
+		dhcpExitFail;
+	} else {
+		vSend($IF0,'ra_server2_to_all');
+	}
+	$wait_sol = 30;
+}
+#--------------------------------------------------------------#
+#1.  Wait until Solicit arrives 
+#--------------------------------------------------------------#
+my $retrans     = allocate_retransmission_instance($SOL_TIMEOUT, $SOL_MAX_RT, 0, 0);
+
+my ($retsol1,%sol1) = wait_for_solicit($IF0,$wait_sol) ;
+if($retsol1 != 0){
+	dhcpExitFail;
+}
+
+my ($firstarrival) = $sol1{'recvTime'. $sol1{'recvCount'}};
+$ret = options_exist(\%sol1,($CMP_CID|$CMP_IA_PD|$CMP_ETIME));
+if($ret != 0){
+	dhcpExitFail;
+}
+
+my $base        = 'Frame_Ether.Packet_IPv6.Upp_UDP.Udp_DHCPv6_Solicit.Opt_DHCPv6_ElapsedTime.';
+
+unless(defined($sol1{$base . 'Time'})) {
+        vLogHTML('<FONT COLOR="#FF0000">Elapsed Time option is missing</FONT><BR>');
+        dhcpExitFail;
+}
+
+my $time        = $sol1{$base . 'Time'};
+vLogHTML("<B> Time of Elapsed Time Option is $time </B><BR>");
+
+if($time != 0){
+	vLogHTML('<FONT COLOR="#FF0000">Elapsed Time is not a proper time.</FONT><BR>');
+	dhcpExitFail;
+}
+
+$pretime = getReceivedtime(\%sol1);
+my $start = $pretime;
+$Solicit_count++;
+register_retransmission($retrans, $pretime, $time);
+
+#----------------------------------------------------------------------------#
+#2. Capture the retransmitted message until RTprev = MRT + RAND*MRT
+#----------------------------------------------------------------------------#
+my $timeout = 0;
+my $initflag = 0;
+my ($retsol2, %sol2) = (1, ());
+
+vLogHTML("The allowed buffer time for the retransmitted packet is $Buff_time.<BR>");
+vLogHTML('<PRE>');
+vLogHTML("<FONT COLOR=\"#FF0000\">IRT is $IRT sec, MRT is $MRT sec</FONT><BR>");
+vLogHTML('<FONT COLOR="#FF0000">Retransmitted Maximum Solicitation RT.</FONT><BR>');
+vLogHTML('<FONT COLOR="#FF0000">1st 2nd  3rd   4th     5th      6th       7th        8th</FONT><BR>');
+vLogHTML('<FONT COLOR="#FF0000">1.1 2.31 4.851 10.1871 21.39291 44.925111 94.3427331 132</FONT><BR>');
+vLogHTML('<FONT COLOR="#FF0000">9th        10th        11th        12th</FONT><BR>');
+vLogHTML('<FONT COLOR="#FF0000">416.051453 873.7080512 1834.786908 3960</FONT><BR>');
+vLogHTML('</PRE>');
+
+# repeat until [RT = MRT + RAND*MRT] happen
+
+while (($mrtflag < 2) && ($Solicit_count <= $MAXCOUNT)){
+	if($initflag != 0){
+		$timeout = (2 + $RAND) * $interval;  
+	}else{
+		$timeout = (1 + $RAND) * $IRT;
+	}
+	$initflag=1;
+
+	# If $timeout is bigger than MRT, expected RT is MRT + RAND * MRT
+	if($timeout > $MRT){
+		$timeout = (1 + $RAND) * $MRT;
+	}
+#
+#----------- Wait for next retransmission
+#
+	($retsol2,%sol2) = wait_for_solicit($IF0, $timeout + 1);
+	if($retsol2 != 0){
+		dhcpExitFail;
+	}
+
+	$ret = compare_message(\%sol1,\%sol2);
+	if($ret != 0){
+		vLogHTML('<FONT COLOR="#FF0000">Message has been changed !</FONT><BR>');
+		dhcpExitFail;
+	}
+	$Solicit_count++;
+  unless(defined($sol2{$base . 'Time'})) {
+          vLogHTML('<FONT COLOR="#FF0000">Elapsed Time option is missing</FONT><BR>');
+          dhcpExitFail;
+  }
+
+  register_retransmission($retrans,
+          getReceivedtime(\%sol2), $sol2{$base . 'Time'});
+
+#----------- Calcurate current RT
+#
+	$nextime = getReceivedtime(\%sol2);
+	$interval = $nextime - $pretime;
+	$pretime = $nextime;
+
+	vLogHTML("<FONT COLOR=\"#FF0000\">Actual RT is $interval sec</FONT><BR>");	
+	if ($interval > ($timeout + $Buff_time)) {
+		vLogHTML("<FONT COLOR=\"#FF0000\">Actual RT is bigger than the expected maximum value<FONT><BR>");
+		dhcpExitFail;
+	}	
+
+#
+#----------- Check if RT satisfies RT = MRT(1+RAND)
+#
+	if(!check_equal($interval,$SOL_MAX_RT,$RAND)){
+		$mrtflag += 1;
+	}
+
+}
+
+
+if ($Solicit_count > $MAXCOUNT) {
+	vLogHTML("<FONT COLOR=\"#FF0000\">Error!! The RT of $SOL_MAX_RT Solicit packet must be MRT(1+RAND).<FONT><BR>");
+	dhcpExitFail; 
+} else {
+	vLogHTML('<FONT COLOR="#FF0000">RT = MRT(1+RAND) observed</FONT><BR>');
+	vLogHTML("<FONT COLOR=\"#FF0000\">SOL_MAX_RT is $SOL_MAX_RT</FONT><BR>");
+	
+	vStop($IF0);
+	
+	if(evaluate_retransmission($retrans)) {
+		dhcpExitFail;
+	}
+	
+	dhcpExitPass;
+}
+
+dhcpExitPass;
+###############################################################################
+__END__
+
+=head1 NAME 
+
+  Transmission of Solicit Messages for Prefix Delegation
+  Part B: Maximum Retransmission Time of solicit message
+
+=head1 TARGET
+
+  CE-Router
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./C_RFC3633_MaxRetransTimeSolMsg_10_2_1_D.seq"> C_RFC3633_MaxRetransTimeSolMsg_10_2_1_D.seq</A> [-tooloption...] <BR>  -pkt  <A HREF="./C_RFC3633_MaxRetransTimeSolMsg_10_2_1_D.def"> C_RFC3633_MaxRetransTimeSolMsg_10_2_1_D.def</A> <BR>  -tooloption : v6eval tool option
+<BR>
+  See Also <A HREF="../DHCPv6.def"> DHCPv6.def </A> 
+</PRE>
+
+=end html
+
+=head1 INITIALIZATION
+
+=begin html
+  <ul>
+  <li><STRONG>Network Topology</STRONG></li> 
+   <PRE>
+          CE-Router(Client)
+          |           
+          |                        
+Link0   --+--------+------------------------ 3ffe:501:ffff:100::/64
+                   |
+                   |          
+                   TN(Server) 
+   </PRE>
+  </ul>
+  <ul>
+  <li><STRONG>Verification Points</STRONG></li><br>
+   <PRE> 
+   RT for each subsequent message transmission is based on the previous 
+   value of RT:
+     <BR>
+     RT = 2*RTprev + RAND*RTprev
+     <BR>
+   MRT specifies an upper bound on the value of RT (disregarding the
+   randomization added by the use of RAND).  
+    <BR>
+     if (RT > MRT)
+       RT = MRT + RAND*MRT
+    <BR>
+   <PRE>	 
+  </ul>   
+  <ul>
+  <li><STRONG>Configurations</STRONG></li><br>
+  <BR>
+  <TABLE BORDER="1">
+    <TR>
+    <TD><TT>Device Name</TT></TD>
+    <TD><TT>Device Type</TT></TD>
+    <TD><TT>Interface</TT></TD>
+    <TD><TT>Assigned Prefix</TT></TD>
+    <TD><TT>Link Local Addr</TT></TD>
+    <TD><TT>MAC Addr</TT></TD>
+    </TR>
+    <TR>
+    <TD><TT>Client</TT></TD>
+    <TD><TT>CE-Router</TT></TD>
+    <TD><TT>Link0</TT></TD>
+    <TD><TT>3ffe:501:ffff:100::/64</TT></TD>
+    <TD><TT>CE-Router's Linklocal address</TT></TD>
+    <TD><TT>CE-Router's MAC address</TT></TD>
+    </TR>
+    <TR>
+    <TD><TT>Server</TT></TD>
+    <TD><TT>TN</TT></TD>
+    <TD><TT>Link0</TT></TD>
+    <TD><TT>3ffe:501:ffff:100::/64</TT></TD>
+    <TD><TT>fe80::200:ff:fe00:a1a1</TT></TD>
+    <TD><TT>00:00:00:00:a1:a1</TT></TD>
+    </TR>
+  </TABLE>
+  </ul>
+
+=end html
+
+=head1 TEST PROCEDURE
+
+=begin html
+<PRE>
+<BR>
+        CE-Router      TN
+        |       | 
+        |       |Initialize CE-Router(as a DHCPv6 client)
+        |       |
+        | ----> |<B>Solicit</B> (1*)
+        |       |
+        | ----> |<B>Solicit</B> (2*)
+        .       .
+        .       .until RTprev = MRT + MRT*RAND 
+        |       |
+        | ----> |<B>Solicit</B> (3*)
+        |       |
+        |       |	
+<BR>  
+</PRE>
+
+=end html
+
+=head1 JUDGEMENT
+
+=begin html
+<PRE>
+  (3*)PASS: The RT must reach MRT. 
+</PRE>
+
+=end html
+
+=head1 TERMINATION
+
+=begin html
+<PRE>
+  N/A
+</PRE>
+
+=end html
+
+=head1 REFERENCE
+
+=begin html
+<PRE>
+[RFC 7084],WPD-1
+[RFC 3315],Sections 5.5, 14, 15.1, 16, 17.1, 17.1.1, 17.1.2, and 22.9
+[RFC 3646],Sections 3 and 4
+[RFC 3633],Section 6,7 and 11.1
+</PRE>
+
+=end html
+
+=head1 SEE ALSO
+
+=begin html
+<PRE>
+<BR>
+  perldoc  V6evalTool
+<BR>
+</PRE>
+
+=end html
+

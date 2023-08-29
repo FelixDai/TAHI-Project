@@ -1,0 +1,3843 @@
+/*
+ * Copyright (C) 2013, 2014, 2015, 2016
+ * Chunghwa Telecommunication Labratories (CHT-TL)
+ * All rights reserved.
+ * 
+ * Redistribution and use of this software in source and binary
+ * forms, with or without modification, are permitted provided that
+ * the following conditions and disclaimer are agreed and accepted
+ * by the user:
+ * 
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in
+ *    the documentation and/or other materials provided with
+ *    the distribution.
+ * 
+ * 3. Neither the names of the copyrighters, the name of the project
+ *    which is related to this software (hereinafter referred to as
+ *    "project") nor the names of the contributors may be used to
+ *    endorse or promote products derived from this software without
+ *    specific prior written permission.
+ * 
+ * 4. No merchantable use may be permitted without prior written
+ *    notification to the copyrighters.
+ * 
+ * 5. The copyrighters, the project and the contributors may prohibit
+ *    the use of this software at any time.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+ * CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+ * BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ * FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+ * COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+ * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+ * IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ * $CHT-TL: DHCPv6.def,v 1.1 2016/09/01 weifen Exp $
+ *
+ */
+
+#include "DHCPv6_options.def"
+//#include "DHCPv6_test.def"
+
+#ifdef _GLOBAL0_UCAST_PRFX
+#undef _GLOBAL0_UCAST_PRFX
+#endif  // _GLOBAL0_UCAST_PRFX
+
+#define _GLOBAL0_UCAST_PRFX "3ffe:501:ffff:100::"
+#define TN_GL0_ADDR tn2v6(_GLOBAL0_UCAST_PRFX,_GLOBAL0_UCAST_PRFXLEN,"Link0")
+#define NUT_GL0_ADDR nut2v6(_GLOBAL0_UCAST_PRFX,_GLOBAL0_UCAST_PRFXLEN,"Link0")
+
+#define PING_ID 0xffff
+#define PING_SN 0x0001
+
+#define CLEANUP_ETHER_LINK0     "00:11:33:77:55:11"
+
+#ifndef IS_ROUTER_LINK0
+#define IS_ROUTER_LINK0         0
+#endif
+
+ /*-----------------------------------------------------------------------------------*
+  *                             For Server Test
+  *-----------------------------------------------------------------------------------*/
+//================================================================
+//  NS : NUT(server)  to any address
+//================================================================
+//  For check;
+//  Neighbor Solicitation
+//  NS : NUT to any (Link_local address)
+FEM_icmp6_ns(
+	ns_nutlla_to_any_client1_lla,
+	_HETHER_any,
+	{
+		HopLimit = 255;
+		_SRC(NUT_LLOCAL_UCAST);
+		_DST(any);
+	},
+	{
+		TargetAddress = CLIENT1_LLOCAL_UCAST;
+		option=_SLLOPT_nut;
+	}
+)
+
+//================================================================
+// For send;
+//  Neighbor Advertisement
+//  NA: CLIENT1 (TN) ----> NUT0(Link_local address)
+FEM_icmp6_na(
+	na_client1_to_nut_local,
+	_HETHER_client1_to_nut,
+	{
+		HopLimit = 255;
+		_SRC(CLIENT1_LLOCAL_UCAST);
+		_DST(NUT_LLOCAL_UCAST);
+	},
+	{
+		RFlag         = 1;
+		SFlag         = 1;
+		OFlag         = 1;
+		TargetAddress = CLIENT1_LLOCAL_UCAST;
+		option        = opt_tll_client1;
+	}
+)
+
+//================================================================
+//  For check;
+//  Neighbor Solicitation
+//  NS : NUT to any (Link_local address)
+FEM_icmp6_ns(
+	ns_nutlla_to_any_client2_lla,
+	_HETHER_any,
+	{
+		HopLimit = 255;
+		_SRC(NUT_LLOCAL_UCAST);
+		_DST(any);
+	},
+	{
+		TargetAddress = CLIENT2_LLOCAL_UCAST;
+		option=_SLLOPT_nut;
+	}
+)
+
+//================================================================
+// For send;
+//  Neighbor Advertisement
+//  NA: CLIENT2 (TN) ----> NUT0(Link_local address)
+FEM_icmp6_na(
+	na_client2_to_nut_local,
+	_HETHER_client2_to_nut,
+	{
+		HopLimit = 255;
+		_SRC(CLIENT2_LLOCAL_UCAST);
+		_DST(NUT_LLOCAL_UCAST);
+	},
+	{
+		RFlag         = 1;
+		SFlag         = 1;
+		OFlag         = 1;
+		TargetAddress = CLIENT2_LLOCAL_UCAST;
+		option        = opt_tll_client2;
+	}
+)
+
+//================================================================
+//  For Check;
+//  Neighbor Solicitation
+//  NS : NUT to any(Global address)
+FEM_icmp6_ns(
+	ns_nut_to_any_client1_global,
+	_HETHER_any,
+	{
+		HopLimit = 255;
+		_SRC(NUT_GLOBAL_UCAST);
+		_DST(any);
+	},
+	{
+		TargetAddress = CLIENT1_GLOBAL_UCAST;
+		option=_SLLOPT_nut;
+	}
+)
+
+//================================================================
+//  Neighbor Advertisement
+//  NA: CLIENT1 (TN) ----> NUT0(Global address)
+FEM_icmp6_na(
+	na_client1_to_nut_global,
+	_HETHER_client1_to_nut,
+	{
+		HopLimit = 255;
+		_SRC(CLIENT1_GLOBAL_UCAST);
+		_DST(NUT_GLOBAL_UCAST);
+	},
+	{
+		RFlag         = 1;
+		SFlag         = 1;
+		OFlag         = 1;
+		TargetAddress = CLIENT1_GLOBAL_UCAST;
+		option        = opt_tll_client1;
+	}
+)
+
+
+
+
+//================================================================
+//  NS : NUT(server)  to relay agent
+//================================================================
+//  For check;
+//  Neighbor Solicitation
+//  NS : NUT --> RELAY1(Link0)
+FEM_icmp6_ns(
+	ns_nut_to_relay1_0,
+	_HETHER_any,
+	{
+		HopLimit = 255;
+		_SRC(NUT_LLOCAL_UCAST);
+		_DST(any);
+	},
+	{
+		TargetAddress = RELAY1_0_LLOCAL_UCAST;
+		option=_SLLOPT_nut;
+
+	}
+)
+
+//================================================================
+//  Neighbor Advertisement
+//  NA: RELAY1(Link0) ----> NUT
+FEM_icmp6_na(
+	na_relay1_0_to_nut,
+	_HETHER_relay1_0_to_nut,
+	{
+		HopLimit = 255;
+		_SRC(RELAY1_0_LLOCAL_UCAST);
+		_DST(NUT_LLOCAL_UCAST);
+	},
+	{
+		RFlag         = 1;
+		SFlag         = 1;
+		OFlag         = 1;
+		TargetAddress = RELAY1_0_LLOCAL_UCAST;
+		option        = opt_tll_relay1_0;
+	}
+)
+
+//  Neighbor Solicitation
+//  NS : NUT --> RELAY1(Link0)
+FEM_icmp6_ns(
+	ns_nut_to_relay1_0_global,
+	_HETHER_any,
+	{
+		HopLimit = 255;
+		_SRC(NUT_LLOCAL_UCAST);
+		_DST(any);
+	},
+	{
+		TargetAddress = RELAY1_0_GLOBAL_UCAST;
+		option=_SLLOPT_nut;
+
+	}
+)
+
+FEM_icmp6_ns(
+	ns_nut_global_to_relay1_0_global,
+	_HETHER_any,
+	{
+		HopLimit = 255;
+		_SRC(NUT_GLOBAL_UCAST);
+		_DST(any);
+	},
+	{
+		TargetAddress = RELAY1_0_GLOBAL_UCAST;
+		option=_SLLOPT_nut;
+
+	}
+)
+
+//================================================================
+//  Neighbor Advertisement
+//  NA: RELAY1(Link0) ----> NUT...Global address
+FEM_icmp6_na(
+	na_relay1_0_to_nut_global,
+	_HETHER_relay1_0_to_nut,
+	{
+		HopLimit = 255;
+		_SRC(RELAY1_0_GLOBAL_UCAST);
+		_DST(NUT_LLOCAL_UCAST);
+	},
+	{
+		RFlag         = 1;
+		SFlag         = 1;
+		OFlag         = 1;
+		TargetAddress = RELAY1_0_GLOBAL_UCAST;
+		option        = opt_tll_relay1_0;
+	}
+)
+
+FEM_icmp6_na(
+	na_relay1_0_global_to_nut_global,
+	_HETHER_relay1_0_to_nut,
+	{
+		HopLimit = 255;
+		_SRC(RELAY1_0_GLOBAL_UCAST);
+		_DST(NUT_GLOBAL_UCAST);
+	},
+	{
+		RFlag         = 1;
+		SFlag         = 1;
+		OFlag         = 1;
+		TargetAddress = RELAY1_0_GLOBAL_UCAST;
+		option        = opt_tll_relay1_0;
+	}
+)
+
+
+	
+//================================================================
+//  NS : NUT(server)  to relay agent
+//================================================================
+//  For check;
+//  Neighbor Solicitation
+//  NS : NUT--> RELAY AGENT 2 (LINK0)
+FEM_icmp6_ns(
+	ns_nut_to_relay2_0,
+	_HETHER_any,
+	{
+		HopLimit = 255;
+		_SRC(NUT_LLOCAL_UCAST);
+		_DST(any);
+	},
+	{
+		TargetAddress = RELAY2_0_LLOCAL_UCAST;
+		option=_SLLOPT_nut;
+
+	}
+)
+
+//================================================================
+//  Neighbor Advertisement
+//  NA: RELAY2(Link0) ----> NUT
+FEM_icmp6_na(
+	na_relay2_0_to_nut,
+	_HETHER_relay2_0_to_nut,
+	{
+		HopLimit = 255;
+		_SRC(RELAY2_0_LLOCAL_UCAST);
+		_DST(NUT_LLOCAL_UCAST);
+	},
+	{
+		RFlag         = 1;
+		SFlag         = 1;
+		OFlag         = 1;
+		TargetAddress = RELAY2_0_LLOCAL_UCAST;
+		option        = opt_tll_relay2_0;
+	}
+)	
+	
+//  For check;
+//  Neighbor Solicitation
+//  NS : NUT--> RELAY AGENT 2 (LINK0)
+FEM_icmp6_ns(
+	ns_nut_to_relay2_0_global,
+	_HETHER_any,
+	{
+		HopLimit = 255;
+		_SRC(NUT_LLOCAL_UCAST);
+		_DST(any);
+	},
+	{
+		TargetAddress = RELAY2_0_GLOBAL_UCAST;
+		option=_SLLOPT_nut;
+
+	}
+)
+
+FEM_icmp6_ns(
+	ns_nut_global_to_relay2_0_global,
+	_HETHER_any,
+	{
+		HopLimit = 255;
+		_SRC(NUT_GLOBAL_UCAST);
+		_DST(any);
+	},
+	{
+		TargetAddress = RELAY2_0_GLOBAL_UCAST;
+		option=_SLLOPT_nut;
+
+	}
+)
+
+//================================================================
+//  Neighbor Advertisement
+//  NA: RELAY2(Link0) ----> NUT
+FEM_icmp6_na(
+	na_relay2_0_to_nut_global,
+	_HETHER_relay2_0_to_nut,
+	{
+		HopLimit = 255;
+		_SRC(RELAY2_0_GLOBAL_UCAST);
+		_DST(NUT_LLOCAL_UCAST);
+	},
+	{
+		RFlag         = 1;
+		SFlag         = 1;
+		OFlag         = 1;
+		TargetAddress = RELAY2_0_GLOBAL_UCAST;
+		option        = opt_tll_relay2_0;
+	}
+)	
+
+
+FEM_icmp6_na(
+	na_relay2_0_global_to_nut_global,
+	_HETHER_relay2_0_to_nut,
+	{
+		HopLimit = 255;
+		_SRC(RELAY2_0_GLOBAL_UCAST);
+		_DST(NUT_GLOBAL_UCAST);
+	},
+	{
+		RFlag         = 1;
+		SFlag         = 1;
+		OFlag         = 1;
+		TargetAddress = RELAY2_0_GLOBAL_UCAST;
+		option        = opt_tll_relay2_0;
+	}
+)
+
+
+//================================================================
+//  Neighbor Solicitation
+//  NS : NUT(Relay)  to server    NA: na_server1_to_nut
+FEM_icmp6_ns(
+	ns_nutrelay_to_server,
+	_HETHER_any,
+	{
+		HopLimit = 255;
+		_SRC(NUTRELAY1_LINK0_LLOCAL_UCAST);
+		_DST(SERVER1_LLOCAL_UCAST);
+	},
+	{
+		TargetAddress = SERVER1_LLOCAL_UCAST;
+		option=_SLLOPT_nut;
+
+	}
+)
+	
+//================================================================
+//  Neighbor Solicitation
+//  NS : NUT(Relay)  to server   NA:na_client1_to_nut_local
+FEM_icmp6_ns(
+	ns_nutrelay_to_client_local,
+	_HETHER_any,
+	{
+		HopLimit = 255;
+		_SRC(NUTRELAY1_LINK1_LLOCAL_UCAST);
+		_DST(CLIENT1_LLOCAL_UCAST);
+	},
+	{
+		TargetAddress = CLIENT1_LLOCAL_UCAST;
+		option=_SLLOPT_nut;
+
+	}
+)
+
+//  NS : NUT(Relay)  to server   NA:na_client1_to_nut_global
+FEM_icmp6_ns(
+	ns_nutrelay_to_client_global,
+	_HETHER_any,
+	{
+		HopLimit = 255;
+		_SRC(NUTRELAY1_LINK1_GLOBAL_UCAST);
+		_DST(CLIENT1_GLOBAL_UCAST);
+	},
+	{
+		TargetAddress = CLIENT1_GLOBAL_UCAST;
+		option=_SLLOPT_nut;
+
+	}
+)
+
+//================================================================
+//  Neighbor Solicitation
+//  NS : NUT(Relay)  to Relay2  NA: na_relay2_to_nut
+FEM_icmp6_ns(
+	ns_nutrelay_to_relay,
+	_HETHER_any,
+	{
+		HopLimit = 255;
+		_SRC(NUTRELAY1_LINK1_GLOBAL_UCAST);
+		_DST(any);
+		//_DST(RELAY2_1_LLOCAL_UCAST);
+	},
+	{
+		TargetAddress = RELAY2_1_GLOBAL_UCAST;
+		option=_SLLOPT_nut;
+
+	}
+)
+
+//================================================================
+//  Neighbor Advertisement
+//  NA: RELAY2 ----> NUT0
+FEM_icmp6_na(
+	na_relay2_to_nut,
+	_HETHER_relay2_1_to_nut,
+	{
+		HopLimit = 255;
+		_SRC(RELAY2_1_LLOCAL_UCAST);
+//		_DST(NUTRELAY1_LINK1_LLOCAL_UCAST);
+		_DST(NUTRELAY1_LINK1_GLOBAL_UCAST);
+	},
+	{
+		RFlag         = 1;
+		SFlag         = 1;
+		OFlag         = 1;
+		TargetAddress = RELAY2_1_GLOBAL_UCAST;
+		option        = opt_tll_relay2_1;
+	}
+)
+
+
+/*-----------------------------------------------------------------------------------*
+ *  DHCPv6 Messages
+ *-----------------------------------------------------------------------------------*/
+
+//================================================================
+//  DHCPv6 any packet
+Frame_Ether nut_to_dhcp_any {
+	header=_HETHER_nut_to_any;
+	packet=ip_udpany;
+}
+Packet_IPv6 ip_udpany {
+	header=any2any;
+	upper=udp_dhcp_any;
+}
+Hdr_IPv6 any2any {
+	SourceAddress=any;
+	DestinationAddress=any;
+}
+Upp_UDP udp_dhcp_any {
+	header=dhcpany;
+	payload=any;
+}
+Hdr_UDP dhcpany {
+	SourcePort=oneof(546,547);
+	DestinationPort=any;
+}
+
+//================================================================
+//  DHCPv6 Solicit
+FEM_dhcp6_solicit(
+	dhcp6_solicit,
+	_HETHER_any,
+	{
+	_SRC(any);
+	_DST(any);
+	},
+	{
+		_SPORT(any);
+		_DPORT(any);
+	},
+	{
+		Identifier = any;
+		option = stop;
+	}
+)
+//================================================================
+//  DHCPv6 Solicit
+FEM_dhcp6_solicit(
+	dhcp6_solicit_nut_to_alldhcp,
+	_HETHER_nut_to_alldhcp,
+	{
+	_SRC(NUT_LLOCAL_UCAST);
+	_DST(ALLDHCPAGENTS_MCAST_ADDR);
+	},
+	{
+		_SPORT(any);
+		_DPORT(any);
+	},
+	{
+		Identifier = any;
+		option = stop;
+	}
+)
+//================================================================
+//  DHCPv6 Solicit
+#define DHCP_SOLICIT 1
+FEM_dhcp6_solicit(
+	dhcp6_solicit_auth,
+	_HETHER_any,
+	{
+	_SRC(any);
+	_DST(any);
+	},
+	{
+		_SPORT(any);
+		_DPORT(any);
+	},
+	{
+		Type = DHCP_SOLICIT; 
+		Identifier = any;
+		option = oneof(opt_Auth);
+	}
+)
+//================================================================
+//  DHCPv6 Advertise
+FEM_dhcp6_advertise(
+	dhcp6_advertise,
+	_HETHER_any,
+	{
+	_SRC(any);
+	_DST(any);
+	},
+	{
+		_SPORT(any);
+		_DPORT(any);
+	},
+	{
+		Identifier = any;
+		option = stop;
+	}
+)
+//================================================================
+//  DHCPv6 Advertise
+//  DHCPv6 Advertise: NUT ----> CLIENT1
+FEM_dhcp6_advertise(
+	advertise_nut_to_client1,
+	_HETHER_nut_to_client1,
+	{
+		_SRC(NUT_LLOCAL_UCAST);
+		_DST(CLIENT1_LLOCAL_UCAST);
+	},
+	{
+		_SPORT(any);
+		_DPORT(546);
+	},
+	{
+		Identifier = ID_ADV;
+		option = stop;
+	}
+)
+//================================================================
+//  DHCPv6 Advertise
+#define DHCP_ADVERTISE 2
+FEM_dhcp6_advertise(
+	dhcp6_advertise_auth,
+	_HETHER_any,
+	{
+	_SRC(any);
+	_DST(any);
+	},
+	{
+		_SPORT(any);
+		_DPORT(any);
+	},
+	{
+		Type = DHCP_ADVERTISE; 
+		Identifier = any;
+		option = oneof(opt_Auth);
+		option = stop;
+	}
+)
+//================================================================
+//  DHCPv6 Request
+FEM_dhcp6_request(
+	dhcp6_request,
+	_HETHER_any,
+	{
+	_SRC(any);
+	_DST(any);
+	},
+	{
+		_SPORT(any);
+		_DPORT(any);
+	},
+	{
+		Identifier = any;
+		option = stop;
+	}
+)
+//================================================================
+//  DHCPv6 Request
+FEM_dhcp6_request(
+	dhcp6_request_nut_to_alldhcp,
+	_HETHER_nut_to_alldhcp,
+	{
+	_SRC(NUT_LLOCAL_UCAST);
+	_DST(ALLDHCPAGENTS_MCAST_ADDR);
+	},
+	{
+		_SPORT(any);
+		_DPORT(547);
+	},
+	{
+		Identifier = any;
+		option = stop;
+	}
+)
+//================================================================
+//  DHCPv6 Request
+#define DHCP_REQUEST 3
+FEM_dhcp6_request(
+	dhcp6_request_auth,
+	_HETHER_any,
+	{
+	_SRC(any);
+	_DST(any);
+	},
+	{
+		_SPORT(any);
+		_DPORT(any);
+	},
+	{
+		Type = DHCP_REQUEST; 
+		Identifier = any;
+		option = oneof(opt_Auth);
+	}
+)
+//================================================================
+//  DHCPv6 Request
+FEM_dhcp6_request(
+	dhcp6_request_nut_to_server1,
+	_HETHER_nut_to_server1,
+	{
+	_SRC(NUT_LLOCAL_UCAST);
+	_DST(SERVER1_LLOCAL_UCAST);
+	},
+	{
+		_SPORT(any);
+		_DPORT(547);
+	},
+	{
+		Identifier = any;
+		option = stop;
+	}
+)
+
+//================================================================
+//  DHCPv6 Confirm
+FEM_dhcp6_confirm(
+	dhcp6_confirm,
+	_HETHER_any,
+	{
+	_SRC(any);
+	_DST(any);
+	},
+	{
+		_SPORT(any);
+		_DPORT(any);
+	},
+	{
+		Identifier = any;
+		option = stop;
+	}
+)
+//================================================================
+//  DHCPv6 Confirm
+FEM_dhcp6_confirm(
+	dhcp6_confirm_nut_to_alldhcp,
+	_HETHER_nut_to_alldhcp,
+	{
+	_SRC(NUT_LLOCAL_UCAST);
+	_DST(ALLDHCPAGENTS_MCAST_ADDR);
+	},
+	{
+		_SPORT(any);
+		_DPORT(547);
+	},
+	{
+		Identifier = any;
+		option = stop;
+	}
+)
+//================================================================
+//  DHCPv6 Confirm
+FEM_dhcp6_confirm(
+	dhcp6_confirm_nut_to_server1,
+	_HETHER_nut_to_server1,
+	{
+	_SRC(NUT_LLOCAL_UCAST);
+	_DST(SERVER1_LLOCAL_UCAST);
+	},
+	{
+		_SPORT(any);
+		_DPORT(547);
+	},
+	{
+		Identifier = any;
+		option = stop;
+	}
+)
+//================================================================
+//  DHCPv6 Confirm
+#define DHCP_CONFIRM 4
+FEM_dhcp6_confirm(
+	dhcp6_confirm_auth,
+	_HETHER_any,
+	{
+	_SRC(any);
+	_DST(any);
+	},
+	{
+		_SPORT(any);
+		_DPORT(any);
+	},
+	{
+		Type = DHCP_CONFIRM; 
+		Identifier = any;
+		option = oneof(opt_Auth);
+	}
+)
+//================================================================
+//  DHCPv6 Renew
+FEM_dhcp6_renew(
+	dhcp6_renew,
+	_HETHER_any,
+	{
+	_SRC(any);
+	_DST(any);
+	},
+	{
+		_SPORT(any);
+		_DPORT(any);
+	},
+	{
+		Identifier = any;
+		option = stop;
+	}
+)
+
+
+//================================================================
+//  DHCPv6 Renew
+FEM_dhcp6_renew(
+	dhcp6_renew_nut_to_alldhcp,
+	_HETHER_nut_to_alldhcp,
+	{
+	_SRC(NUT_LLOCAL_UCAST);
+	_DST(ALLDHCPAGENTS_MCAST_ADDR);
+	},
+	{
+		_SPORT(any);
+		_DPORT(547);
+	},
+	{
+		Identifier = any;
+		option = stop;
+	}
+)
+//================================================================
+//  DHCPv6 Renew
+FEM_dhcp6_renew(
+	dhcp6_renew_nut_to_server1,
+	_HETHER_nut_to_server1,
+	{
+	_SRC(NUT_LLOCAL_UCAST);
+	_DST(SERVER1_LLOCAL_UCAST);
+	},
+	{
+		_SPORT(any);
+		_DPORT(547);
+	},
+	{
+		Identifier = any;
+		option = stop;
+	}
+)
+//================================================================
+//  DHCPv6 Renew
+#define DHCP_RENEW 5
+FEM_dhcp6_renew(
+	dhcp6_renew_auth,
+	_HETHER_any,
+	{
+	_SRC(any);
+	_DST(any);
+	},
+	{
+		_SPORT(any);
+		_DPORT(any);
+	},
+	{
+		Type = DHCP_RENEW; 
+		Identifier = any;
+		option = oneof(opt_Auth);
+	}
+)
+//================================================================
+//  DHCPv6 Rebind
+FEM_dhcp6_rebind(
+	dhcp6_rebind,
+	_HETHER_any,
+	{
+	_SRC(any);
+	_DST(any);
+	},
+	{
+		_SPORT(any);
+		_DPORT(any);
+	},
+	{
+		Identifier = any;
+		option = stop;
+	}
+)
+//================================================================
+//  DHCPv6 Rebind
+FEM_dhcp6_rebind(
+	dhcp6_rebind_nut_to_server1,
+	_HETHER_nut_to_server1,
+	{
+	_SRC(NUT_LLOCAL_UCAST);
+	_DST(SERVER1_LLOCAL_UCAST);
+	},
+	{
+		_SPORT(any);
+		_DPORT(547);
+	},
+	{
+		Identifier = any;
+		option = stop;
+	}
+)
+//================================================================
+//  DHCPv6 Rebind
+#define DHCP_REBIND 6
+FEM_dhcp6_rebind(
+	dhcp6_rebind_auth,
+	_HETHER_any,
+	{
+	_SRC(any);
+	_DST(any);
+	},
+	{
+		_SPORT(any);
+		_DPORT(any);
+	},
+	{
+		Type = DHCP_REBIND; 
+		Identifier = any;
+		option = oneof(opt_Auth);
+	}
+)
+//================================================================
+//  DHCPv6 Reply
+FEM_dhcp6_reply(
+	dhcp6_reply,
+	_HETHER_any,
+	{
+	_SRC(any);
+	_DST(any);
+	},
+	{
+		_SPORT(any);
+		_DPORT(any);
+	},
+	{
+		Identifier = any;
+		option = stop;
+	}
+)
+//================================================================
+//  DHCPv6 Reply
+//  DHCPv6 Reply: NUT ----> CLIENT1
+FEM_dhcp6_reply(
+	dhcp6_reply_nut_to_alldhcp,
+	_HETHER_nut_to_alldhcp,
+	{
+		_SRC(NUT_LLOCAL_UCAST);
+		_DST(ALLDHCPAGENTS_MCAST_ADDR);
+	},
+	{
+		_SPORT(any);
+		_DPORT(546);
+	},
+	{
+		Identifier = any;
+		option = stop;
+	}
+)
+//================================================================
+//  DHCPv6 Reply
+//  DHCPv6 Reply: NUT ----> CLIENT1
+FEM_dhcp6_reply(
+	dhcp6_reply_nut_to_client1,
+	_HETHER_nut_to_client1,
+	{
+		_SRC(NUT_LLOCAL_UCAST);
+		_DST(CLIENT1_LLOCAL_UCAST);
+	},
+	{
+		_SPORT(any);
+		_DPORT(546);
+	},
+	{
+		Identifier = any;
+		option = stop;
+	}
+)
+//================================================================
+//  DHCPv6 Reply
+#define DHCP_REPLY 7
+FEM_dhcp6_reply(
+	dhcp6_reply_auth,
+	_HETHER_any,
+	{
+	_SRC(any);
+	_DST(any);
+	},
+	{
+		_SPORT(any);
+		_DPORT(any);
+	},
+	{
+		Type = DHCP_REPLY; 
+		Identifier = any;
+		option = oneof(opt_Auth);
+	}
+)
+//================================================================
+//  DHCPv6 Release
+FEM_dhcp6_release(
+	dhcp6_release,
+	_HETHER_any,
+	{
+	_SRC(any);
+	_DST(any);
+	},
+	{
+		_SPORT(any);
+		_DPORT(any);
+	},
+	{
+		Identifier = any;
+		option = stop;
+	}
+)
+
+//================================================================
+//  DHCPv6 Release
+FEM_dhcp6_release(
+	dhcp6_release_PD,
+	_HETHER_any,
+	{
+	_SRC(any);
+	_DST(any);
+	},
+	{
+		_SPORT(any);
+		_DPORT(any);
+	},
+	{
+		Identifier = any;
+		option = opt_IA_PD_Prefix2;
+	}
+)
+//================================================================
+//  DHCPv6 Release
+FEM_dhcp6_release(
+	dhcp6_release_nut_to_server1,
+	_HETHER_nut_to_server1,
+	{
+	_SRC(NUT_LLOCAL_UCAST);
+	_DST(SERVER1_LLOCAL_UCAST);
+	},
+	{
+		_SPORT(any);
+		_DPORT(547);
+	},
+	{
+		Identifier = any;
+		option = stop;
+	}
+)
+//================================================================
+//  DHCPv6 Release
+#define DHCP_RELEASE 8 
+FEM_dhcp6_release(
+	dhcp6_release_auth,
+	_HETHER_any,
+	{
+	_SRC(any);
+	_DST(any);
+	},
+	{
+		_SPORT(any);
+		_DPORT(any);
+	},
+	{
+		Type = DHCP_RELEASE; 
+		Identifier = any;
+		option = oneof(opt_Auth);
+	}
+)
+//================================================================
+//  DHCPv6 Decline
+FEM_dhcp6_decline(
+	dhcp6_decline,
+	_HETHER_any,
+	{
+	_SRC(any);
+	_DST(any);
+	},
+	{
+		_SPORT(any);
+		_DPORT(any);
+	},
+	{
+		Identifier = any;
+		option = stop;
+	}
+)
+//================================================================
+//  DHCPv6 Reconfigure
+FEM_dhcp6_reconfigure(
+	dhcp6_reconfigure,
+	_HETHER_any,
+	{
+	_SRC(any);
+	_DST(any);
+	},
+	{
+		_SPORT(any);
+		_DPORT(any);
+	},
+	{
+		Identifier = any;
+		option = stop;
+	}
+)
+//================================================================
+//  DHCPv6 Reconfigure
+//  DHCPv6 Reconfigure: NUT ----> CLIENT1
+FEM_dhcp6_reconfigure(
+	dhcp6_reconfigure_nut_to_client1,
+	_HETHER_nut_to_client1,
+	{
+		_SRC(NUT_LLOCAL_UCAST);
+		_DST(CLIENT1_LLOCAL_UCAST);
+	},
+	{
+		_SPORT(547);
+		_DPORT(546);
+	},
+	{
+		Identifier = 000000;
+		option = stop;
+	}
+)
+//================================================================
+//  DHCPv6 Reconfigure
+#define DHCP_RECONFIGURE 10
+FEM_dhcp6_reconfigure(
+	dhcp6_reconfigure_auth,
+	_HETHER_any,
+	{
+	_SRC(any);
+	_DST(any);
+	},
+	{
+		_SPORT(any);
+		_DPORT(any);
+	},
+	{
+		Type = DHCP_RECONFIGURE;
+		Identifier = any;
+		option = oneof(opt_Auth);
+	}
+)
+//================================================================
+//  DHCPv6 Information Request
+FEM_dhcp6_information_request(
+	dhcp6_information_request,
+	_HETHER_any,
+	{
+	_SRC(any);
+	_DST(any);
+	},
+	{
+		_SPORT(any);
+		_DPORT(any);
+	},
+	{
+		Identifier = any;
+		option = stop;
+	}
+)
+//================================================================
+//  DHCPv6 Information Request
+//  DHCPv6 Information Request: NUT ----> CLIENT1
+FEM_dhcp6_information_request(
+	dhcp6_information_request_nut_to_client1,
+	_HETHER_nut_to_client1,
+	{
+		_SRC(NUT_LLOCAL_UCAST);
+		_DST(CLIENT1_LLOCAL_UCAST);
+	},
+	{
+		_SPORT(any);
+		_DPORT(546);
+	},
+	{
+		Identifier = any;
+		option = stop;
+	}
+)
+//================================================================
+//  DHCPv6 Information Request
+#define DHCP_INFORMATION_REQUEST 11
+FEM_dhcp6_information_request(
+	dhcp6_information_request_auth,
+	_HETHER_any,
+	{
+	_SRC(any);
+	_DST(any);
+	},
+	{
+		_SPORT(any);
+		_DPORT(any);
+	},
+	{
+		Type = DHCP_INFORMATION_REQUEST;
+		Identifier = any;
+		option = oneof(opt_Auth);
+	}
+)
+
+//================================================================
+//  Neighbor Advertisement
+//  DAD NA:  ----> NUT(GA)
+//===============================================================
+FEM_icmp6_na(
+	dadna_to_nutga,
+	_HETHER_server1_to_all,
+	{
+		HopLimit = 255;
+		_SRC(SERVER1_LLOCAL_UCAST);
+		_DST(v6(_LLOCAL_ALLNODES_MCAST_ADDR));
+	},
+	{
+		RFlag         = 0;
+		SFlag         = 0;
+		OFlag         = 1;
+		TargetAddress = NUT_GLOBAL_UCAST;
+//		option        = opt_tll_nut;
+		option        = opt_tll_tn1;
+	}
+) 
+
+/*-------------------------------------------------------------------------*
+ *		for Client test
+ *-------------------------------------------------------------------------*/
+
+//================================================================
+//  Neighbor Solicitation
+//  NS : NUT to any
+
+FEM_icmp6_ns(
+	ns_nutga_to_any_server1ga,
+	_HETHER_any,
+	{
+		HopLimit = 255;
+		_SRC(any);
+		_DST(any);
+	},
+	{
+                TargetAddress = SERVER1_GLOBAL_UCAST;
+                option = any;
+	}
+)
+
+FEM_icmp6_ns(
+	ns_nutga_byra_to_any_server1ga,
+	_HETHER_any,
+	{
+		HopLimit = 255;
+		_SRC(NUT_GLOBAL_UCAST_ADDR1);
+		_DST(any);
+	},
+	{
+                TargetAddress = SERVER1_GLOBAL_UCAST;
+                option = any;
+	}
+)
+
+FEM_icmp6_ns(
+	ns_nutga_addr2_to_any_server1ga,
+	_HETHER_any,
+	{
+		HopLimit = 255;
+		_SRC(NUT_GLOBAL_UCAST_ADDR2);
+		_DST(any);
+	},
+	{
+                TargetAddress = SERVER1_GLOBAL_UCAST;
+                option = any;
+	}
+)
+
+FEM_icmp6_ns(
+	ns_nutga_to_any_server2ga,
+	_HETHER_any,
+	{
+		HopLimit = 255;
+		_SRC(NUT_GLOBAL_UCAST);
+		_DST(any);
+	},
+	{
+                TargetAddress = SERVER2_GLOBAL_UCAST;
+                option = any;
+	}
+)
+
+FEM_icmp6_ns(
+	ns_nut1ga_to_any_server1ga,
+	_HETHER_any,
+	{
+		HopLimit = 255;
+		_SRC(NUTRELAY1_LINK1_GLOBAL_UCAST);
+		_DST(any);
+	},
+	{
+                TargetAddress = SERVER1_GLOBAL_UCAST;
+                option = any;
+	}
+)
+
+FEM_icmp6_ns(
+	ns_nut1ga_to_any_server2ga,
+	_HETHER_any,
+	{
+		HopLimit = 255;
+		_SRC(NUTRELAY1_LINK1_GLOBAL_UCAST);
+		_DST(any);
+	},
+	{
+                TargetAddress = SERVER2_GLOBAL_UCAST;
+                option = any;
+	}
+)
+
+FEM_icmp6_ns(
+	ns_nut2ga_to_any_server1ga,
+	_HETHER_any,
+	{
+		HopLimit = 255;
+		_SRC(NUT_GLOBAL_UCAST2);
+		_DST(any);
+	},
+	{
+                TargetAddress = SERVER1_GLOBAL_UCAST;
+                option = any;
+	}
+)
+
+/*------*/
+
+FEM_icmp6_ns(
+	ns_nutga_to_any_server1lla,
+	_HETHER_any,
+	{
+		HopLimit = 255;
+		_SRC(any);
+		_DST(any);
+	},
+	{
+                TargetAddress = SERVER1_LLOCAL_UCAST;
+                option = any;
+	}
+)
+
+FEM_icmp6_ns(
+	ns_nutga_byra_to_any_server1lla,
+	_HETHER_any,
+	{
+		HopLimit = 255;
+		_SRC(NUT_GLOBAL_UCAST_ADDR1);
+		_DST(any);
+	},
+	{
+                TargetAddress = SERVER1_LLOCAL_UCAST;
+                option = any;
+	}
+)
+
+FEM_icmp6_ns(
+	ns_nutga_addr2_to_any_server1lla,
+	_HETHER_any,
+	{
+		HopLimit = 255;
+		_SRC(NUT_GLOBAL_UCAST_ADDR2);
+		_DST(any);
+	},
+	{
+                TargetAddress = SERVER1_LLOCAL_UCAST;
+                option = any;
+	}
+)
+
+FEM_icmp6_ns(
+	ns_nutga_to_any_server2lla,
+	_HETHER_any,
+	{
+		HopLimit = 255;
+		_SRC(NUT_GLOBAL_UCAST);
+		_DST(any);
+	},
+	{
+                TargetAddress = SERVER2_LLOCAL_UCAST;
+                option = any;
+	}
+)
+
+FEM_icmp6_ns(
+	ns_nut1ga_to_any_server1lla,
+	_HETHER_any,
+	{
+		HopLimit = 255;
+		_SRC(NUTRELAY1_LINK1_GLOBAL_UCAST);
+		_DST(any);
+	},
+	{
+                TargetAddress = SERVER1_LLOCAL_UCAST;
+                option = any;
+	}
+)
+
+FEM_icmp6_ns(
+	ns_nut2ga_to_any_server1lla,
+	_HETHER_any,
+	{
+		HopLimit = 255;
+		_SRC(NUT_GLOBAL_UCAST2);
+		_DST(any);
+	},
+	{
+                TargetAddress = SERVER1_LLOCAL_UCAST;
+                option = any;
+	}
+)
+
+FEM_icmp6_ns(
+	ns_nut1ga_to_any_server2lla,
+	_HETHER_any,
+	{
+		HopLimit = 255;
+		_SRC(NUTRELAY1_LINK1_GLOBAL_UCAST);
+		_DST(any);
+	},
+	{
+                TargetAddress = SERVER2_LLOCAL_UCAST;
+                option = any;
+	}
+)
+
+/*------*/
+
+FEM_icmp6_ns(
+	ns_nutlla_to_any_server1lla,
+	_HETHER_any,
+	{
+		HopLimit = 255;
+		_SRC(NUT_LLOCAL_UCAST);
+		_DST(any);
+	},
+	{
+                TargetAddress = SERVER1_LLOCAL_UCAST;
+                option = any;
+	}
+)
+
+FEM_icmp6_ns(
+	ns_nutlla_to_any_sever2lla,
+	_HETHER_any,
+	{
+		HopLimit = 255;
+		_SRC(NUT_LLOCAL_UCAST1);
+		_DST(any);
+	},
+	{
+                TargetAddress = SERVER2_LLOCAL_UCAST;
+                option = any;
+	}
+)
+
+
+//================================================================
+//  Neighbor Solicitation
+//  NS : NUT global Address 1 to any
+FEM_icmp6_ns(
+	ns_nutga_to_any,
+	_HETHER_any,
+	{
+		HopLimit = 255;
+		_SRC(NUT_GLOBAL_UCAST);
+		_DST(any);
+	},
+	{
+                TargetAddress = any;
+                option = any;
+	}
+)
+
+//================================================================
+//  Neighbor Solicitation
+//  NS : NUT global Address 2 to any
+FEM_icmp6_ns(
+	ns_nut1ga_to_any,
+	_HETHER_any,
+	{
+		HopLimit = 255;
+		_SRC(NUT_GLOBAL_UCAST2);
+		_DST(any);
+	},
+	{
+                TargetAddress = any;
+                option = any;
+	}
+)
+
+
+//================================================================
+//  Neighbor Solicitation (DAD)
+//  DAD NS : DAD NS from NUT
+FEM_icmp6_ns(
+        dadns_nutga,
+        _HETHER_nut_dad,
+        {
+                HopLimit = 255;
+                _SRC(v6(_UNSPEC_ADDR));
+                _DST(_IPV6_SOLNODE_MCAST(NUT_GLOBAL_UCAST));
+        },
+        {
+                TargetAddress = NUT_GLOBAL_UCAST;
+        }
+)
+
+FEM_icmp6_ns(
+        dadns_nut2ga,
+        _HETHER_nut2_dad,
+        {
+                HopLimit = 255;
+                _SRC(v6(_UNSPEC_ADDR));
+                _DST(_IPV6_SOLNODE_MCAST(NUT_GLOBAL_UCAST2));
+        },
+        {
+                TargetAddress = NUT_GLOBAL_UCAST2;
+        }
+)
+
+//================================================================
+//  Neighbor Solicitation
+//  NS : NUT to Server
+FEM_icmp6_ns(
+	ns_nutlla_to_server1ga,
+	_HETHER_nut_to_server1,
+	{
+		HopLimit = 255;
+		_SRC(NUT_LLOCAL_UCAST);
+		_DST(SERVER1_GLOBAL_UCAST);
+	},
+	{
+		TargetAddress = SERVER1_GLOBAL_UCAST;
+		option = any;
+	}
+)
+
+//================================================================
+// Neighbor Solicitation to DNS Servers
+//   NUT  -----> DNS Name Server
+FEM_icmp6_ns(
+	ns_nut_to_DNS,
+	_HETHER_nut_to_dns_server,
+	{
+		HopLimit = 255;
+		_SRC(NUT_GLOBAL_UCAST_ADDR1);
+		_DST(any);
+	},
+	{
+		TargetAddress = DNS_SVR1_GLOBAL_UCAST;
+                option = any;
+	}
+)
+
+//   NUT (address assigned by DHCP)  -----> DNS Name Server
+FEM_icmp6_ns(
+	ns_nut_dhcp_to_dns,
+	_HETHER_nut_to_dns_server,
+	{
+		HopLimit = 255;
+		_SRC(NUT_GLOBAL_UCAST);
+		_DST(any);
+	},
+	{
+		TargetAddress = DNS_SVR1_GLOBAL_UCAST;
+                option = any;
+	}
+)
+
+//   NUT (address assigned by DHCP)  -----> DNS Name Server
+FEM_icmp6_ns(
+        ns_nut_dhcp_to_dns_2,
+        _HETHER_nut_to_dns_server,
+        {
+                HopLimit = 255;
+                _SRC(NUT_GLOBAL_UCAST);
+                _DST(any);
+        },
+        {
+                TargetAddress = DNS_SVR2_GLOBAL_UCAST;
+                option = any;
+        }
+)
+
+//================================================================
+//  Router Solicitation 
+//  RS :   NUT -----> ALL LINK LOCAL ROUTER
+FEM_icmp6_rs(
+        rs_nut_to_server1,
+        _HETHER_nut_to_linkallrouter,
+        {
+                HopLimit = 255;
+                _SRC(NUT_LLOCAL_UCAST);
+                _DST(v6(_LLOCAL_ALLROUTERS_MCAST_ADDR));
+        },
+        {
+		option =opt_sll_nut;                 
+        }
+)
+
+//================================================================
+//  Router Advertise  
+//  RA :   SERVER1 -----> NUT
+FEM_icmp6_ra(
+        ra_server1_to_nut,
+        _HETHER_server1_to_nut,
+        {
+                HopLimit = 255;
+                _SRC(SERVER1_LLOCAL_UCAST);
+                //_DST(v6(_LLOCAL_ALLNODES_MCAST_ADDR));
+		_DST(NUT_LLOCAL_UCAST);
+        },
+	{
+		MFlag = 1;
+		LifeTime = 3000;
+		option = opt_sll_server1;
+		option = opt_prefix_server1_to_nut;
+	}
+)
+FEM_icmp6_ra(
+        ra_server2_to_all,
+//        _HETHER_tn2allnodes,
+        _HETHER_server2_to_all,
+        {
+                HopLimit = 255;
+                _SRC(SERVER2_LLOCAL_UCAST);
+                _DST(v6(_LLOCAL_ALLNODES_MCAST_ADDR));
+		//_DST(NUT_LLOCAL_UCAST);
+        },
+	{
+		MFlag = 1;
+		LifeTime = 3000;
+		option = opt_sll_server2;
+		option = opt_prefix_server2_to_nut;
+	}
+)
+FEM_icmp6_ra(
+        ra_server2_to_all_M_1_addr_assig,
+//        _HETHER_tn2allnodes,
+        _HETHER_server2_to_all,
+        {
+                HopLimit = 255;
+                _SRC(SERVER2_LLOCAL_UCAST);
+                _DST(v6(_LLOCAL_ALLNODES_MCAST_ADDR));
+		//_DST(NUT_LLOCAL_UCAST);
+        },
+	{
+		MFlag = 1;
+		LifeTime = 3000;
+		option = opt_sll_server2;
+		option = opt_prefix_server2_to_nut;
+		option = opt_prefix_server2_to_nut_addr2_assig;
+	}
+)
+FEM_icmp6_ra(
+        ra_server2_to_all_MO_1,
+//        _HETHER_tn2allnodes,
+        _HETHER_server2_to_all,
+        {
+                HopLimit = 255;
+                _SRC(SERVER2_LLOCAL_UCAST);
+                _DST(v6(_LLOCAL_ALLNODES_MCAST_ADDR));
+		//_DST(NUT_LLOCAL_UCAST);
+        },
+	{
+		MFlag = 1;
+		OFlag = 1;
+		LifeTime = 3000;
+//		option = opt_sll_server2;
+		option = opt_prefix_server2_to_nut;
+	}
+)
+
+FEM_icmp6_ra(
+        ra_server2_to_all_M_0,
+//        _HETHER_tn2allnodes,
+        _HETHER_server2_to_all,
+        {
+                HopLimit = 255;
+                _SRC(SERVER2_LLOCAL_UCAST);
+                _DST(v6(_LLOCAL_ALLNODES_MCAST_ADDR));
+		//_DST(NUT_LLOCAL_UCAST);
+        },
+	{
+		MFlag = 0;
+		LifeTime = 3000;
+		option = opt_sll_server2;
+		option = opt_prefix_server2_to_nut;
+	}
+)
+
+FEM_icmp6_ra(
+        ra_server2_to_all_MO_0,
+//        _HETHER_tn2allnodes,
+        _HETHER_server2_to_all,
+        {
+                HopLimit = 255;
+                _SRC(SERVER2_LLOCAL_UCAST);
+                _DST(v6(_LLOCAL_ALLNODES_MCAST_ADDR));
+		//_DST(NUT_LLOCAL_UCAST);
+        },
+	{
+		MFlag = 0;
+		OFlag = 0;
+		LifeTime = 3000;
+		option = opt_sll_server2;
+		option = opt_prefix_server2_to_nut;
+	}
+)
+
+FEM_icmp6_ra(
+        ra_server2_to_all_MO_0_all_addr_assign,
+//        _HETHER_tn2allnodes,
+        _HETHER_server2_to_all,
+        {
+                HopLimit = 255;
+                _SRC(SERVER2_LLOCAL_UCAST);
+                _DST(v6(_LLOCAL_ALLNODES_MCAST_ADDR));
+                //_DST(NUT_LLOCAL_UCAST);
+        },
+        {
+                MFlag = 0;
+                OFlag = 0;
+                LifeTime = 3000;
+                option = opt_sll_server2;
+		option = opt_prefix_server2_to_nut_addr_assign;
+        }
+)
+
+FEM_icmp6_ra(
+        ra_server2_to_all_addr_assign,
+        _HETHER_server2_to_all,
+        {
+                HopLimit = 255;
+                _SRC(SERVER2_LLOCAL_UCAST);
+                _DST(v6(_LLOCAL_ALLNODES_MCAST_ADDR));
+		//_DST(NUT_LLOCAL_UCAST);
+        },
+	{
+		OFlag = 1;
+		LifeTime = 10;
+		option = opt_sll_server2;
+		option = opt_prefix_server2_to_nut_addr_assign;
+	}
+)
+
+FEM_icmp6_ra(
+        ra_server2_to_all_addr_assign_vltime100,
+        _HETHER_server2_to_all,
+        {
+                HopLimit = 255;
+                _SRC(SERVER2_LLOCAL_UCAST);
+                _DST(v6(_LLOCAL_ALLNODES_MCAST_ADDR));
+                //_DST(NUT_LLOCAL_UCAST);
+        },
+        {
+                OFlag = 1;
+                LifeTime = 3000;
+                option = opt_sll_server2;
+                option = opt_prefix_server2_to_nut_addr_assign_vltime100;
+        }
+)
+
+FEM_icmp6_ra(
+        ra_server2_to_all_addr_assign_O_0,
+        _HETHER_server2_to_all,
+        {
+                HopLimit = 255;
+                _SRC(SERVER2_LLOCAL_UCAST);
+                _DST(v6(_LLOCAL_ALLNODES_MCAST_ADDR));
+		//_DST(NUT_LLOCAL_UCAST);
+        },
+	{
+		OFlag = 0;
+		LifeTime = 3000;
+		option = opt_sll_server2;
+		option = opt_prefix_server2_to_nut_addr_assign;
+	}
+)
+
+FEM_icmp6_ra(
+        ra_server1ga_to_nut,
+        _HETHER_server1_to_nut,
+        {
+                HopLimit = 255;
+                _SRC(SERVER1_GLOBAL_UCAST);
+                //_DST(v6(_LLOCAL_ALLNODES_MCAST_ADDR));
+		_DST(NUT_LLOCAL_UCAST);
+        },
+	{
+		MFlag = 1;
+		LifeTime = 3000;
+		option = opt_sll_server1;
+		option = opt_prefix_server1_to_nut;
+	}
+)
+
+//================================================================
+//  Neighbor Advertisement
+//  NA: SERVER1 ----> NUT
+FEM_icmp6_na(
+	na_server1_to_nut,
+	_HETHER_server1_to_nut,
+	{
+		HopLimit = 255;
+		_SRC(SERVER1_LLOCAL_UCAST);
+		_DST(NUT_LLOCAL_UCAST);
+	},
+	{
+		RFlag         = 1;
+		SFlag         = 1;
+		OFlag         = 1;
+		TargetAddress = SERVER1_LLOCAL_UCAST;
+		option        = opt_tll_server1;
+	}
+)
+
+//  NA: SERVER1 global ----> NUT
+FEM_icmp6_na(
+	na_server1_global_to_nut,
+	_HETHER_server1_to_nut,
+	{
+		HopLimit = 255;
+		_SRC(SERVER1_GLOBAL_UCAST);
+		_DST(NUT_LLOCAL_UCAST);
+	},
+	{
+		RFlag         = 1;
+		SFlag         = 1;
+		OFlag         = 1;
+		TargetAddress = SERVER1_GLOBAL_UCAST;
+		option        = opt_tll_server1;
+	}
+)
+
+//================================================================
+//  Neighbor Advertisement
+//  NA: DNS ----> NUT  
+FEM_icmp6_na(
+	na_dns_to_nut,
+	_HETHER_dns_to_nut,
+	{
+		HopLimit = 255;
+		_SRC(DNS_SVR1_GLOBAL_UCAST);
+		_DST(NUT_GLOBAL_UCAST_ADDR1);
+	},
+	{
+		RFlag         = 1;
+		SFlag         = 1;
+		OFlag         = 1;
+		TargetAddress = DNS_SVR1_GLOBAL_UCAST;
+		option        = opt_tll_dns;
+	}
+)
+
+//  NA: DNS ----> NUT (Address assigned by DHCP)
+FEM_icmp6_na(
+	na_dns_to_nut_dhcp,
+	_HETHER_dns_to_nut,
+	{
+		HopLimit = 255;
+		_SRC(DNS_SVR1_GLOBAL_UCAST);
+		_DST(NUT_GLOBAL_UCAST);
+	},
+	{
+		RFlag         = 1;
+		SFlag         = 1;
+		OFlag         = 1;
+		TargetAddress = DNS_SVR1_GLOBAL_UCAST;
+		option        = opt_tll_dns;
+	}
+)
+
+//  NA: DNS2 ----> NUT (Address assigned by DHCP)
+FEM_icmp6_na(
+        na_dns_to_nut_dhcp_2,
+        _HETHER_dns_to_nut,
+        {
+                HopLimit = 255;
+                _SRC(DNS_SVR2_GLOBAL_UCAST);
+                _DST(NUT_GLOBAL_UCAST);
+        },
+        {
+                RFlag         = 1;
+                SFlag         = 1;
+                OFlag         = 1;
+                TargetAddress = DNS_SVR2_GLOBAL_UCAST;
+                option        = opt_tll_dns;
+        }
+)
+
+//================================================================
+
+Payload data8 {
+	data = repeat(0x00, 8);
+}
+
+//================================================================
+//  Echo Request
+//  Echo Request: SERVER1 ----> NUT (Managed address by DHCP) 
+FEM_icmp6_echo_request(
+	echorequest_server1_to_nut,
+	_HETHER_tn1_to_nut,
+	{
+		_SRC(v6merge(_GLOBAL0_UCAST_PRFX,64,v6(_LLOCAL0A1N_UCAST_ADDR)));
+		_DST(NUT_GLOBAL_UCAST);
+	},
+	{
+		payload = data8;
+	}
+)
+//================================================================
+//  Echo Request
+//  Echo Request: SERVER1 ----> NUT (EUI64-based Address by RA, Prefix 3ffe:501:ffff:100)
+FEM_icmp6_echo_request(
+        echorequest_server1_to_nut_byra,
+        _HETHER_server1_to_nut,
+        {
+                _SRC(SERVER1_GLOBAL_UCAST);
+                _DST(NUT_GLOBAL_UCAST_ADDR1);
+        },
+        {
+                payload = data8;
+        }
+)
+
+//================================================================
+//  Echo Request
+//  Echo Request: SERVER1 ----> NUT (EUI64-based Address by RA, Prefix 3ffe:501:ffff:101) 
+FEM_icmp6_echo_request(
+	echorequest_server1_to_nut_addr2,
+	_HETHER_server1_to_nut,
+	{
+		_SRC(SERVER1_GLOBAL_UCAST);
+		_DST(NUT_GLOBAL_UCAST_ADDR2);
+	},
+	{
+		payload = data8;
+	}
+)
+
+//================================================================
+//  Echo Request
+//  Echo Request: SERVER1 ----> NUT (Link1) 
+FEM_icmp6_echo_request(
+	echorequest_server1_to_nut1,
+	_HETHER_server1_to_nut1,
+	{
+		_SRC(SERVER1_GLOBAL_UCAST);
+		_DST(NUTRELAY1_LINK1_GLOBAL_UCAST);
+	},
+	{
+		payload = data8;
+	}
+)
+
+//================================================================
+//  Echo Request
+//  Echo Request: SERVER2 ----> NUT (Link1)
+FEM_icmp6_echo_request(
+	echorequest_server2_to_nut1,
+	_HETHER_server2_to_nut,
+	{
+		_SRC(SERVER2_GLOBAL_UCAST);
+		_DST(NUTRELAY1_LINK1_GLOBAL_UCAST);
+	},
+	{
+		payload = data8;
+	}
+)
+
+//================================================================
+//  Echo Request
+//  Echo Request: SERVER1 ----> NUT Address 2 (Managed address by DHCP) 
+FEM_icmp6_echo_request(
+	echorequest_server1_to_nut2,
+	_HETHER_server1_to_nut,
+	{
+		_SRC(SERVER1_GLOBAL_UCAST);
+		_DST(NUT_GLOBAL_UCAST2);
+	},
+	{
+		payload = data8;
+	}
+)
+
+//================================================================
+//  Echo Request
+//  Echo Request: SERVER2 ----> NUT Address 2 (Managed address by DHCP)
+FEM_icmp6_echo_request(
+	echorequest_server2_to_nut2,
+	_HETHER_server2_to_nut,
+	{
+		_SRC(SERVER2_GLOBAL_UCAST);
+		_DST(NUT_GLOBAL_UCAST2);
+	},
+	{
+		payload = data8;
+	}
+)
+
+//================================================================
+//  Echo Reply
+//  Echo Reply: NUT ----> SERVER1 
+FEM_icmp6_echo_reply(
+	echoreply_nut_to_server1,
+	_HETHER_nut_to_server1,
+	{
+		_SRC(NUT_GLOBAL_UCAST);
+		_DST(SERVER1_GLOBAL_UCAST);
+	},
+	{
+		payload = data8;
+	}
+)
+
+//================================================================
+//  Echo Reply
+//  Echo Reply: NUT ----> SERVER1 
+FEM_icmp6_echo_reply(
+	echoreply_nut_byra_to_server1,
+	_HETHER_nut_to_server1,
+	{
+		_SRC(NUT_GLOBAL_UCAST_ADDR1);
+		_DST(SERVER1_GLOBAL_UCAST);
+	},
+	{
+		payload = data8;
+	}
+)
+
+//================================================================
+//  Echo Reply
+//  Echo Reply: NUT ----> SERVER1 
+FEM_icmp6_echo_reply(
+	echoreply_nut_addr2_to_server1,
+	_HETHER_nut_to_server1,
+	{
+		_SRC(NUT_GLOBAL_UCAST_ADDR2);
+		_DST(SERVER1_GLOBAL_UCAST);
+	},
+	{
+		payload = data8;
+	}
+)
+
+//================================================================
+//  Echo Reply
+//  Echo Reply: NUT (Link1) ----> SERVER1 
+FEM_icmp6_echo_reply(
+	echoreply_nut1_to_server1,
+	_HETHER_nut1_to_server1,
+	{
+		_SRC(NUTRELAY1_LINK1_GLOBAL_UCAST);
+		_DST(SERVER1_GLOBAL_UCAST);
+	},
+	{
+		payload = data8;
+	}
+)
+
+//================================================================
+//  Echo Reply
+//  Echo Reply: NUT (Link1) ----> SERVER2 
+FEM_icmp6_echo_reply(
+	echoreply_nut1_to_server2,
+	_HETHER_nut1_to_server2,
+	{
+		_SRC(NUTRELAY1_LINK1_GLOBAL_UCAST);
+		_DST(SERVER2_GLOBAL_UCAST);
+	},
+	{
+		payload = data8;
+	}
+)
+
+//================================================================
+//  Echo Reply
+//  Echo Reply: NUT 2 ----> SERVER1 
+FEM_icmp6_echo_reply(
+	echoreply_nut2_to_server1,
+	_HETHER_nut_to_server1,
+	{
+		_SRC(NUT_GLOBAL_UCAST2);
+		_DST(SERVER1_GLOBAL_UCAST);
+	},
+	{
+		payload = data8;
+	}
+)
+
+//================================================================
+//  Echo Reply
+//  Echo Reply: NUT 2 ----> SERVER2 
+FEM_icmp6_echo_reply(
+	echoreply_nut2_to_server2,
+	_HETHER_nut_to_server2,
+	{
+		_SRC(NUT_GLOBAL_UCAST2);
+		_DST(SERVER2_GLOBAL_UCAST);
+	},
+	{
+		payload = data8;
+	}
+)
+
+
+FEM_icmp6_na(
+	na_server1ga_to_nutga_byra,
+	_HETHER_server1_to_nut,
+	{
+		HopLimit = 255;
+		_SRC(SERVER1_GLOBAL_UCAST);
+		_DST(NUT_GLOBAL_UCAST_ADDR1);
+	},
+	{
+		RFlag         = 1;
+		SFlag         = 1;
+		OFlag         = 1;
+		TargetAddress = SERVER1_GLOBAL_UCAST;
+		option        = opt_tll_server1;
+	}
+)
+
+FEM_icmp6_na(
+	na_server1ga_to_nutga_addr2,
+	_HETHER_server1_to_nut,
+	{
+		HopLimit = 255;
+		_SRC(SERVER1_GLOBAL_UCAST);
+		_DST(NUT_GLOBAL_UCAST_ADDR2);
+	},
+	{
+		RFlag         = 1;
+		SFlag         = 1;
+		OFlag         = 1;
+		TargetAddress = SERVER1_GLOBAL_UCAST;
+		option        = opt_tll_server1;
+	}
+)
+
+FEM_icmp6_na(
+	na_server1ga_to_nut1ga,
+	_HETHER_server1_to_nut,
+	{
+		HopLimit = 255;
+		_SRC(SERVER1_GLOBAL_UCAST);
+		_DST(NUTRELAY1_LINK1_GLOBAL_UCAST);
+	},
+	{
+		RFlag         = 1;
+		SFlag         = 1;
+		OFlag         = 1;
+		TargetAddress = SERVER1_GLOBAL_UCAST;
+		option        = opt_tll_server1;
+	}
+)
+
+FEM_icmp6_na(
+	na_server2ga_to_nutga,
+	_HETHER_server2_to_nut,
+	{
+		HopLimit = 255;
+		_SRC(SERVER2_GLOBAL_UCAST);
+		_DST(NUT_GLOBAL_UCAST);
+	},
+	{
+		RFlag         = 1;
+		SFlag         = 1;
+		OFlag         = 1;
+		TargetAddress = SERVER2_GLOBAL_UCAST;
+		option        = opt_tll_server2;
+	}
+)
+
+FEM_icmp6_na(
+	na_server2ga_to_nut1ga,
+	_HETHER_server2_to_nut,
+	{
+		HopLimit = 255;
+		_SRC(SERVER2_GLOBAL_UCAST);
+		_DST(NUTRELAY1_LINK1_GLOBAL_UCAST);
+	},
+	{
+		RFlag         = 1;
+		SFlag         = 1;
+		OFlag         = 1;
+		TargetAddress = SERVER2_GLOBAL_UCAST;
+		option        = opt_tll_server2;
+	}
+)
+
+FEM_icmp6_na(
+	na_server1ga_to_nutga_server1lla,
+	_HETHER_server1_to_nut,
+	{
+		HopLimit = 255;
+		_SRC(SERVER1_GLOBAL_UCAST);
+		_DST(NUT_GLOBAL_UCAST);
+	},
+	{
+		RFlag         = 1;
+		SFlag         = 1;
+		OFlag         = 1;
+		TargetAddress = SERVER1_LLOCAL_UCAST;
+		option        = opt_tll_server1;
+	}
+)
+
+FEM_icmp6_na(
+	na_server1ga_to_nutga_byra_lla,
+	_HETHER_server1_to_nut,
+	{
+		HopLimit = 255;
+		_SRC(SERVER1_GLOBAL_UCAST);
+		_DST(NUT_GLOBAL_UCAST_ADDR1);
+	},
+	{
+		RFlag         = 1;
+		SFlag         = 1;
+		OFlag         = 1;
+		TargetAddress = SERVER1_LLOCAL_UCAST;
+		option        = opt_tll_server1;
+	}
+)
+
+FEM_icmp6_na(
+	na_server1ga_to_nutga_addr2_lla,
+	_HETHER_server1_to_nut,
+	{
+		HopLimit = 255;
+		_SRC(SERVER1_GLOBAL_UCAST);
+		_DST(NUT_GLOBAL_UCAST_ADDR2);
+	},
+	{
+		RFlag         = 1;
+		SFlag         = 1;
+		OFlag         = 1;
+		TargetAddress = SERVER1_LLOCAL_UCAST;
+		option        = opt_tll_server1;
+	}
+)
+
+FEM_icmp6_na(
+	na_server2ga_to_nut1ga_lla,
+	_HETHER_server2_to_nut1,
+	{
+		HopLimit = 255;
+		_SRC(SERVER2_GLOBAL_UCAST);
+		_DST(NUTRELAY1_LINK1_GLOBAL_UCAST);
+	},
+	{
+		RFlag         = 1;
+		SFlag         = 1;
+		OFlag         = 1;
+		TargetAddress = SERVER2_LLOCAL_UCAST;
+		option        = opt_tll_server2;
+	}
+)
+
+//================================================================
+// SQuery dns
+//
+//   NUT -----> DNS Name Server
+FEM_udp6_dns(
+        dns_squery,
+        _HETHER_nut_to_dns_server,
+        {
+                _SRC(NUT_GLOBAL_UCAST_ADDR1);
+                _DST(DNS_SVR1_GLOBAL_UCAST);
+        },
+        {
+                _SPORT(any);
+                _DPORT(53);
+        },
+        {
+                Identifier      = any;
+                QR              = 0;
+                Opcode          = 0;
+                RD              = any;
+                question        = Question;
+        }
+)
+
+//   NUT (address assigned by DHCP)  -----> DNS Name Server
+FEM_udp6_dns(
+        nut_dhcp_dns_squery,
+        _HETHER_nut_to_dns_server,
+        {
+		_SRC(NUT_GLOBAL_UCAST);
+                _DST(DNS_SVR1_GLOBAL_UCAST);
+        },
+        {
+                _SPORT(any);
+                _DPORT(53);
+        },
+        {
+                Identifier      = any;
+                QR              = 0;
+                Opcode          = 0;
+                RD              = any;
+                question        = Question;
+        }
+)
+
+FEM_udp6_dns(
+        nut_dhcp_dns_squery_1,
+        _HETHER_nut_to_dns_server,
+        {
+                _SRC(NUT_GLOBAL_UCAST);
+                _DST(DNS_SVR1_GLOBAL_UCAST);
+        },
+        {
+                _SPORT(any);
+                _DPORT(53);
+        },
+        {
+                Identifier      = any;
+                QR              = 0;
+                Opcode          = 0;
+                RD              = any;
+                question        = Question_2;
+        }
+)
+
+//   NUT (address assigned by DHCP)  -----> DNS Name Server
+FEM_udp6_dns(
+        nut_dhcp_dns_squery_2,
+        _HETHER_nut_to_dns_server,
+        {
+                _SRC(NUT_GLOBAL_UCAST);
+                _DST(DNS_SVR2_GLOBAL_UCAST);
+        },
+        {
+                _SPORT(any);
+                _DPORT(53);
+        },
+        {
+                Identifier      = any;
+                QR              = 0;
+                Opcode          = 0;
+                RD              = any;
+                question        = Question;
+        }
+)
+
+FEM_udp6_dns(
+        nut_dhcp_dns_squery_3,
+        _HETHER_nut_to_dns_server,
+        {
+                _SRC(NUT_GLOBAL_UCAST);
+                _DST(DNS_SVR2_GLOBAL_UCAST);
+        },
+        {
+                _SPORT(any);
+                _DPORT(53);
+        },
+        {
+                Identifier      = any;
+                QR              = 0;
+                Opcode          = 0;
+                RD              = any;
+                question        = Question_2;
+        }
+)
+
+DNS_Question Question {
+        entry   = question_entry;
+}
+DNS_QuestionEntry question_entry {
+        Name    = dnsname(DNS_NAME);
+        Type    = 28;
+}
+
+DNS_Question Question_2 {
+        entry   = question_entry_2;
+}
+DNS_QuestionEntry question_entry_2 {
+        Name    = dnsname(DNS_NAME2);
+        Type    = 28;
+}
+
+/*-----------------------------------------------------------------------------------*
+ *  DHCPv6 Relay
+ *-----------------------------------------------------------------------------------*/
+//================================================================
+//  DHCPv6 Relay Forward(Solicit)
+//  DHCPv6 Relay Forward(Solicit): CLIENT1---->Relay1 ----> NUT(Server)
+//  For send only
+FEM_dhcp6_relay_forward(
+	relayforward_solicit_client1_to_alldhcp,
+	_HETHER_relay1_0_to_alldhcp,
+	{
+		HopLimit=32;
+		_SRC(RELAY1_0_GLOBAL_UCAST);
+		_DST(v6(_ALLDHCPSERVERS_MCAST_ADDR));
+	},
+	{
+	//	_SPORT(any);
+		_DPORT(547);
+	},
+	{
+		LinkAddr	= RELAY1_1_GLOBAL_UCAST;
+		PeerAddr	= CLIENT3_LLOCAL_UCAST;
+		option		= opt_RelayMessage_solicit_client1_to_alldhcp;
+		//option		= opt_IID;
+	}
+)
+
+FEM_dhcp6_relay_forward(
+        relayforward_solicit_client1_to_alldhcp_interface_id,
+        _HETHER_relay1_0_to_alldhcp,
+        {
+                HopLimit=32;
+                _SRC(RELAY1_0_GLOBAL_UCAST);
+                _DST(v6(_ALLDHCPSERVERS_MCAST_ADDR));
+        },
+        {
+        //      _SPORT(any);
+                _DPORT(547);
+        },
+        {
+                LinkAddr        = RELAY1_1_GLOBAL_UCAST;
+                PeerAddr        = CLIENT3_LLOCAL_UCAST;
+                option          = opt_RelayMessage_solicit_client1_to_alldhcp;
+                option                = opt_IID;
+        }
+)
+
+// DHCPv6 Relay Forward(Solicit) Relay2 --> Relay1,
+// For send message!!!
+FEM_dhcp6_relay_forward(
+	relayforward_solicit_relay2_to_relay1,
+	_HETHER_relay2_1_to_relay1_1,
+	{
+		_SRC(RELAY2_1_LLOCAL_UCAST);
+		_DST(RELAY1_1_LLOCAL_UCAST);
+	},
+	{
+	//	_SPORT(any);
+		_DPORT(547);
+	},
+	{
+		LinkAddr	= RELAY2_2_GLOBAL_UCAST;
+		PeerAddr	= CLIENT1_LLOCAL_UCAST;
+		option	= opt_RelayMessage_solicit_client1_to_alldhcp;
+//		option	= opt_IID;
+	}
+)
+
+FEM_dhcp6_relay_forward(
+        relayforward_solicit_relay2_2_to_relay1_2,
+        _HETHER_relay2_3_to_relay1_1,
+        {
+                _SRC(RELAY2_3_LLOCAL_UCAST);
+                _DST(RELAY1_1_LLOCAL_UCAST);
+        },
+        {
+        //      _SPORT(any);
+                _DPORT(547);
+        },
+        {
+                LinkAddr        = RELAY2_2_GLOBAL_UCAST;
+                PeerAddr        = CLIENT1_LLOCAL_UCAST;
+                option  = opt_RelayMessage_solicit_client1_to_alldhcp;
+//              option  = opt_IID;
+        }
+)
+
+FEM_dhcp6_relay_forward(
+        relayforward_solicit_relay2_2_to_relay1_2_to_tn1,
+        _HETHER_relay2_3_to_relay1_1,
+        {
+                _SRC(RELAY2_3_LLOCAL_UCAST);
+                _DST(RELAY1_1_LLOCAL_UCAST);
+        },
+        {
+        //      _SPORT(any);
+                _DPORT(547);
+        },
+        {
+                LinkAddr        = RELAY2_2_GLOBAL_UCAST;
+                PeerAddr        = CLIENT4_LLOCAL_UCAST;
+                option  = opt_RelayMessage_solicit_client1_to_alldhcp;
+//              option  = opt_IID;
+        }
+)
+
+//  DHCPv6 Relay Forward(Request)
+//  DHCPv6 Relay Forward(Request): CLIENT1---->Relay1 ----> NUT(Server)
+//  For send only
+FEM_dhcp6_relay_forward(
+	relayforward_request_client1_to_alldhcp,
+	_HETHER_relay1_0_to_alldhcp,
+	{
+		HopLimit=32;
+		_SRC(RELAY1_0_GLOBAL_UCAST);
+		_DST(v6(_ALLDHCPSERVERS_MCAST_ADDR));
+	},
+	{
+	//	_SPORT(any);
+		_DPORT(547);
+	},
+	{
+		LinkAddr	= RELAY1_1_GLOBAL_UCAST;
+		PeerAddr	= CLIENT3_LLOCAL_UCAST;
+		option		= opt_RelayMessage_request_client1_to_alldhcp;
+		//option		= opt_IID;
+	}
+)
+
+FEM_dhcp6_relay_forward(
+       relayforward_request_client1_to_alldhcp_interface_id,
+      _HETHER_relay1_0_to_alldhcp,
+     {
+            HopLimit=32;
+           _SRC(RELAY1_0_GLOBAL_UCAST);
+                _DST(v6(_ALLDHCPSERVERS_MCAST_ADDR));
+        },
+        {
+        //      _SPORT(any);
+                _DPORT(547);
+        },
+        {
+                LinkAddr        = RELAY1_1_GLOBAL_UCAST;
+                PeerAddr        = CLIENT1_LLOCAL_UCAST;
+                option          = opt_RelayMessage_request_client1_to_alldhcp;
+                option                = opt_IID;
+        }
+)
+
+
+// DHCPv6 Relay Forward(information-request) Relay2 --> Relay1,
+// For send message!!!
+FEM_dhcp6_relay_forward(
+	relayforward_information_relay2_to_relay1,
+	_HETHER_relay2_1_to_relay1_1,
+	{
+		_SRC(RELAY2_1_LLOCAL_UCAST);
+		_DST(RELAY1_1_LLOCAL_UCAST);
+	},
+	{
+	//	_SPORT(any);
+		_DPORT(547);
+	},
+	{
+		LinkAddr	= RELAY2_2_GLOBAL_UCAST;
+		PeerAddr	= CLIENT1_LLOCAL_UCAST;
+		option	= opt_RelayMessage_information_client1_to_alldhcp;
+//		option	= opt_IID;
+	}
+)
+
+
+//=============================================================================
+//For check ONLY
+//For check relay-forward message 
+FEM_dhcp6_relay_forward(
+	relayforward_solicit_nut_to_server1,
+	_HETHER_nutrelayforward_to_alldhcp,
+	{
+		_SRC(NUTRELAY1_LINK0_GLOBAL_UCAST);
+		_DST(v6(_ALLDHCPSERVERS_MCAST_ADDR));
+	},
+	{
+		_SPORT(any);
+		_DPORT(547);
+	},
+	{
+		LinkAddr	= any;
+		PeerAddr	= CLIENT1_LLOCAL_UCAST;
+		option	= stop;
+	}
+)
+	
+FEM_dhcp6_relay_forward(
+	relayforward_request_nut_to_server1,
+	_HETHER_nutrelayforward_to_alldhcp,
+	{
+		_SRC(NUTRELAY1_LINK0_GLOBAL_UCAST);
+		_DST(v6(_ALLDHCPSERVERS_MCAST_ADDR));
+	},
+	{
+		_SPORT(any);
+		_DPORT(547);
+	},
+	{
+		LinkAddr	= any;
+		PeerAddr	= CLIENT1_LLOCAL_UCAST;
+		option	= stop;
+	}
+)	
+	
+FEM_dhcp6_relay_forward(
+	relayforward_confirm_nut_to_server1,
+	_HETHER_nutrelayforward_to_alldhcp,
+	{
+		_SRC(NUTRELAY1_LINK0_GLOBAL_UCAST);
+		_DST(v6(_ALLDHCPSERVERS_MCAST_ADDR));
+	},
+	{
+		_SPORT(any);
+		_DPORT(547);
+	},
+	{
+		LinkAddr	= any;
+		PeerAddr	= CLIENT1_LLOCAL_UCAST;
+		option	= stop;
+	}
+)	
+	
+FEM_dhcp6_relay_forward(
+	relayforward_renew_nut_to_server1,
+	_HETHER_nutrelayforward_to_alldhcp,
+	{
+		_SRC(NUTRELAY1_LINK0_GLOBAL_UCAST);
+		_DST(v6(_ALLDHCPSERVERS_MCAST_ADDR));
+	},
+	{
+		_SPORT(any);
+		_DPORT(547);
+	},
+	{
+		LinkAddr	= any;
+		PeerAddr	= CLIENT1_LLOCAL_UCAST;
+		option	= stop;
+	}
+)
+	
+FEM_dhcp6_relay_forward(
+	relayforward_rebind_nut_to_server1,
+	_HETHER_nutrelayforward_to_alldhcp,
+	{
+		_SRC(NUTRELAY1_LINK0_GLOBAL_UCAST);
+		_DST(v6(_ALLDHCPSERVERS_MCAST_ADDR));
+	},
+	{
+		_SPORT(any);
+		_DPORT(547);
+	},
+	{
+		LinkAddr	= any;
+		PeerAddr	= CLIENT1_LLOCAL_UCAST;
+		option	= stop;
+	}
+)
+	
+FEM_dhcp6_relay_forward(
+	relayforward_release_nut_to_server1,
+	_HETHER_nutrelayforward_to_alldhcp,
+	{
+		_SRC(NUTRELAY1_LINK0_GLOBAL_UCAST);
+		_DST(v6(_ALLDHCPSERVERS_MCAST_ADDR));
+	},
+	{
+		_SPORT(any);
+		_DPORT(547);
+	},
+	{
+		LinkAddr	= any;
+		PeerAddr	= CLIENT1_LLOCAL_UCAST;
+		option	= stop;
+	}
+)
+	
+FEM_dhcp6_relay_forward(
+	relayforward_decline_nut_to_server1,
+	_HETHER_nutrelayforward_to_alldhcp,
+	{
+		_SRC(NUTRELAY1_LINK0_GLOBAL_UCAST);
+		_DST(v6(_ALLDHCPSERVERS_MCAST_ADDR));
+	},
+	{
+		_SPORT(any);
+		_DPORT(547);
+	},
+	{
+		LinkAddr	= any;
+		PeerAddr	= CLIENT1_LLOCAL_UCAST;
+		option	= stop;
+	}
+)
+	
+FEM_dhcp6_relay_forward(
+	relayforward_infomationrequest_client1_to_alldhcp,
+	_HETHER_nutrelayforward_to_alldhcp,
+	{
+		_SRC(NUTRELAY1_LINK0_GLOBAL_UCAST);
+		_DST(v6(_ALLDHCPSERVERS_MCAST_ADDR));
+	},
+	{
+		_SPORT(any);
+		_DPORT(547);
+	},
+	{
+		LinkAddr		= NUTRELAY1_LINK1_GLOBAL_UCAST;
+		PeerAddr		= CLIENT1_LLOCAL_UCAST;
+		option              =  stop;
+		//option		= opt_RelayMessage_infomationrequest_client1_to_alldhcp;
+	}
+)
+
+FEM_dhcp6_relay_forward(
+        relayforward_infomationrequest_client1_to_alldhcp_with_optreqopt,
+        _HETHER_nutrelayforward_to_alldhcp,
+        {
+                _SRC(NUTRELAY1_LINK0_GLOBAL_UCAST);
+                _DST(v6(_ALLDHCPSERVERS_MCAST_ADDR));
+        },
+        {
+                _SPORT(any);
+                _DPORT(547);
+        },
+        {
+                LinkAddr                = NUTRELAY1_LINK1_GLOBAL_UCAST;
+                PeerAddr                = CLIENT1_LLOCAL_UCAST;
+                option              =  stop;
+                //option                = opt_RelayMessage_infomationrequest_client1_to_alldhcp;
+        }
+)
+
+
+// For check Relay-reply message
+//relay_reply_nut_relay
+FEM_dhcp6_relay_reply(
+	relay_reply_nut_relay,
+	_HETHER_any,
+	{
+		_SRC(any);
+		_DST(oneof(RELAY1_0_LLOCAL_UCAST,RELAY1_0_GLOBAL_UCAST));
+	},
+	{
+		_SPORT(any);
+		_DPORT(547);
+	},
+	{
+		HopCount	= any;
+		LinkAddr	= any; //RELAY1_1_LLOCAL_UCAST;
+		PeerAddr	= any; //CLIENT1_LLOCAL_UCAST;
+		option = stop;
+	}
+)
+	
+// For check Relay-reply message(only for 1 link 2 relays)
+//relay_reply_nut_relay2_0
+FEM_dhcp6_relay_reply(
+	relay_reply_nut_relay2_0,
+	_HETHER_any,
+	{
+		_SRC(any);//NUT_LLOCAL_UCAST);
+		_DST(oneof(RELAY2_0_LLOCAL_UCAST,RELAY2_0_GLOBAL_UCAST));
+	},
+	{
+		_SPORT(any);
+		_DPORT(547);
+	},
+	{
+		LinkAddr	= any; //RELAY1_1_LLOCAL_UCAST;
+		PeerAddr	= any; //CLIENT1_LLOCAL_UCAST;
+		option = stop;
+	}
+)
+	
+// For check Relay-forward message
+//relay_forward_nut_server
+FEM_dhcp6_relay_forward(
+	relay_forward_nut_server,
+	_HETHER_any,
+	{
+		_SRC(NUTRELAY1_LINK0_GLOBAL_UCAST);
+		_DST(v6(_ALLDHCPSERVERS_MCAST_ADDR));
+	},
+	{
+		_SPORT(any);
+		_DPORT(547);
+	},
+	{
+		HopCount = any;
+		LinkAddr	= stop;
+		PeerAddr	= any;
+		option = stop;
+	}
+)
+	
+//=====================================================================
+//  Relay agent used packets define
+//  For SEND
+FEM_dhcp6_relay_forward(
+	relayforward_infomationrequest_client1_to_alldhcp_send,
+//	_HETHER_nutrelayforward_to_alldhcp
+	_HETHER_relay1_0_to_alldhcp,
+	{
+		_SRC(RELAY1_0_GLOBAL_UCAST);
+		_DST(v6(_ALLDHCPSERVERS_MCAST_ADDR));
+	},
+	{
+		_DPORT(547);
+	},
+	{
+		LinkAddr		= NUTRELAY1_LINK1_GLOBAL_UCAST;
+		PeerAddr		= CLIENT1_LLOCAL_UCAST;
+//		option              =  opt_IID;
+		option		= opt_RelayMessage_infomationrequest_client1_to_alldhcp;
+	}
+)
+//=====================================================================
+//  Relay agent used packets define
+//  For SEND
+FEM_dhcp6_relay_forward(
+	relayforward_infomationrequest_client1_to_alldhcp_send_IID,
+//	_HETHER_nutrelayforward_to_alldhcp,
+	_HETHER_relay1_0_to_alldhcp,
+	{
+		_SRC(RELAY1_0_GLOBAL_UCAST);
+		_DST(v6(_ALLDHCPSERVERS_MCAST_ADDR));
+	},
+	{
+		_DPORT(547);
+	},
+	{
+		LinkAddr		= NUTRELAY1_LINK1_GLOBAL_UCAST;
+		PeerAddr		= CLIENT1_LLOCAL_UCAST;
+		option              =  opt_IID;
+		option		= opt_RelayMessage_infomationrequest_client1_to_alldhcp;
+	}
+)
+//=====================================================================
+//  Relay agent used packets define
+//  For SEND Relay2--> Relay1-->Server(NUT)
+FEM_dhcp6_relay_forward(
+	relayforward_infomationrequest_client1_to_relay2_to_relay1_alldhcp_send,
+//	_HETHER_nutrelayforward_to_alldhcp,
+	_HETHER_relay1_0_to_alldhcp,
+	{
+		_SRC(RELAY1_0_GLOBAL_UCAST);
+		_DST(v6(_ALLDHCPSERVERS_MCAST_ADDR));
+	},
+	{
+		_DPORT(547);
+	},
+	{
+		HopCount	= 1;
+		LinkAddr	= 0;
+		PeerAddr	= RELAY2_1_GLOBAL_UCAST;
+		option		= opt_RelayMessage_infomationrequest_client1_relay2_relay1_server1_to_alldhcp;
+	}
+)
+
+
+//  DHCPv6 Relay Forward(Solicit): CLIENT1 --->  Relay2(CLIENT1) ----> NUT (Relay1)
+FEM_dhcp6_relay_forward(
+	relayforward_solicit_relay2_to_nut,
+	_HETHER_relay2_1_to_nut,
+	{
+//		HopLimit = 32;
+		_SRC(RELAY2_1_GLOBAL_UCAST);
+		_DST(NUTRELAY1_LINK1_GLOBAL_UCAST);
+	},
+	{
+//		_SPORT(547);
+		_DPORT(547);
+	},
+	{
+		LinkAddr	= RELAY2_2_GLOBAL_UCAST;
+		PeerAddr	= CLIENT1_LLOCAL_UCAST;
+		//option	= opt_IID;
+		option	= opt_RelayMessage_solicit_client1_to_alldhcp;
+	}
+)
+
+FEM_dhcp6_relay_forward(
+	relayforward_solicit_relay2_to_nut_interface_id,
+	_HETHER_relay2_1_to_nut,
+	{
+//		HopLimit = 32;
+		_SRC(RELAY2_1_GLOBAL_UCAST);
+		_DST(NUTRELAY1_LINK1_GLOBAL_UCAST);
+	},
+	{
+//		_SPORT(547);
+		_DPORT(547);
+	},
+	{
+		LinkAddr        = RELAY2_2_GLOBAL_UCAST;
+		PeerAddr        = CLIENT1_LLOCAL_UCAST;
+		option        = opt_IID;
+		option  = opt_RelayMessage_solicit_client1_to_alldhcp;
+	}
+)
+
+//  DHCPv6 Relay Forward(Request): CLIENT1 --->  Relay2(CLIENT1) ----> NUT (Relay1)
+FEM_dhcp6_relay_forward(
+	relayforward_request_relay2_to_nut,
+	_HETHER_relay2_1_to_nut,
+	{
+//		HopLimit = 32;
+		_SRC(RELAY2_1_GLOBAL_UCAST);
+		_DST(NUTRELAY1_LINK1_GLOBAL_UCAST);
+	},
+	{
+//		_SPORT(547);
+		_DPORT(547);
+	},
+	{
+		LinkAddr	= RELAY2_2_GLOBAL_UCAST;
+		PeerAddr	= CLIENT1_LLOCAL_UCAST;
+		//option	= opt_IID;
+		option	= opt_RelayMessage_request_client1_to_alldhcp;
+	}
+)
+
+FEM_dhcp6_relay_forward(
+        relayforward_request_relay2_to_nut_interface_id,
+        _HETHER_relay2_1_to_nut,
+        {
+//              HopLimit = 32;
+                _SRC(RELAY2_1_GLOBAL_UCAST);
+                _DST(NUTRELAY1_LINK1_GLOBAL_UCAST);
+        },
+        {
+//              _SPORT(547);
+                _DPORT(547);
+        },
+        {
+                LinkAddr        = RELAY2_2_GLOBAL_UCAST;
+                PeerAddr        = CLIENT1_LLOCAL_UCAST;
+                option        = opt_IID;
+                option  = opt_RelayMessage_request_client1_to_alldhcp;
+        }
+)
+
+//  DHCPv6 Relay Forward(Confirm): CLIENT1 --->  Relay2(CLIENT1) ----> NUT (Relay1)
+FEM_dhcp6_relay_forward(
+	relayforward_confrim_relay2_to_nut,
+	_HETHER_relay2_1_to_nut,
+	{
+//		HopLimit = 32;
+		_SRC(RELAY2_1_GLOBAL_UCAST);
+		_DST(NUTRELAY1_LINK1_GLOBAL_UCAST);
+	},
+	{
+//		_SPORT(547);
+		_DPORT(547);
+	},
+	{
+		LinkAddr	= RELAY2_2_GLOBAL_UCAST;
+		PeerAddr	= CLIENT1_LLOCAL_UCAST;
+		//option	= opt_IID;
+		option	= opt_RelayMessage_confirm_client1_to_alldhcp;
+	}
+)
+
+FEM_dhcp6_relay_forward(
+        relayforward_confrim_relay2_to_nut_interface_id,
+        _HETHER_relay2_1_to_nut,
+        {
+//              HopLimit = 32;
+                _SRC(RELAY2_1_GLOBAL_UCAST);
+                _DST(NUTRELAY1_LINK1_GLOBAL_UCAST);
+        },
+        {
+//              _SPORT(547);
+                _DPORT(547);
+        },
+        {
+                LinkAddr        = RELAY2_2_GLOBAL_UCAST;
+                PeerAddr        = CLIENT1_LLOCAL_UCAST;
+                option        = opt_IID;
+                option  = opt_RelayMessage_confirm_client1_to_alldhcp;
+        }
+)
+
+
+//  DHCPv6 Relay Forward(Renew): CLIENT1 --->  Relay2(CLIENT1) ----> NUT (Relay1)
+FEM_dhcp6_relay_forward(
+	relayforward_renew_relay2_to_nut,
+	_HETHER_relay2_1_to_nut,
+	{
+//		HopLimit = 32;
+		_SRC(RELAY2_1_GLOBAL_UCAST);
+		_DST(NUTRELAY1_LINK1_GLOBAL_UCAST);
+	},
+	{
+//		_SPORT(547);
+		_DPORT(547);
+	},
+	{
+		LinkAddr	= RELAY2_2_GLOBAL_UCAST;
+		PeerAddr	= CLIENT1_LLOCAL_UCAST;
+		//option	= opt_IID;
+		option	= opt_RelayMessage_renew_client1_to_alldhcp;
+	}
+)
+
+FEM_dhcp6_relay_forward(
+        relayforward_renew_relay2_to_nut_interface_id,
+        _HETHER_relay2_1_to_nut,
+        {
+//              HopLimit = 32;
+                _SRC(RELAY2_1_GLOBAL_UCAST);
+                _DST(NUTRELAY1_LINK1_GLOBAL_UCAST);
+        },
+        {
+//              _SPORT(547);
+                _DPORT(547);
+        },
+        {
+                LinkAddr        = RELAY2_2_GLOBAL_UCAST;
+                PeerAddr        = CLIENT1_LLOCAL_UCAST;
+                option        = opt_IID;
+                option  = opt_RelayMessage_renew_client1_to_alldhcp;
+        }
+)
+
+
+//  DHCPv6 Relay Forward(Rebind): CLIENT1 --->  Relay2(CLIENT1) ----> NUT (Relay1)
+FEM_dhcp6_relay_forward(
+	relayforward_rebind_relay2_to_nut,
+	_HETHER_relay2_1_to_nut,
+	{
+//		HopLimit = 32;
+		_SRC(RELAY2_1_GLOBAL_UCAST);
+		_DST(NUTRELAY1_LINK1_GLOBAL_UCAST);
+	},
+	{
+//		_SPORT(547);
+		_DPORT(547);
+	},
+	{
+		LinkAddr	= RELAY2_2_GLOBAL_UCAST;
+		PeerAddr	= CLIENT1_LLOCAL_UCAST;
+		//option	= opt_IID;
+		option	= opt_RelayMessage_rebind_client1_to_alldhcp;
+	}
+)
+
+FEM_dhcp6_relay_forward(
+        relayforward_rebind_relay2_to_nut_interface_id,
+        _HETHER_relay2_1_to_nut,
+        {
+//              HopLimit = 32;
+                _SRC(RELAY2_1_GLOBAL_UCAST);
+                _DST(NUTRELAY1_LINK1_GLOBAL_UCAST);
+        },
+        {
+//              _SPORT(547);
+                _DPORT(547);
+        },
+        {
+                LinkAddr        = RELAY2_2_GLOBAL_UCAST;
+                PeerAddr        = CLIENT1_LLOCAL_UCAST;
+                option        = opt_IID;
+                option  = opt_RelayMessage_rebind_client1_to_alldhcp;
+        }
+)
+
+
+//  DHCPv6 Relay Forward(Release): CLIENT1 --->  Relay2(CLIENT1) ----> NUT (Relay1)
+FEM_dhcp6_relay_forward(
+	relayforward_release_relay2_to_nut,
+	_HETHER_relay2_1_to_nut,
+	{
+//		HopLimit = 32;
+		_SRC(RELAY2_1_GLOBAL_UCAST);
+		_DST(NUTRELAY1_LINK1_GLOBAL_UCAST);
+	},
+	{
+//		_SPORT(547);
+		_DPORT(547);
+	},
+	{
+		LinkAddr	= RELAY2_2_GLOBAL_UCAST;
+		PeerAddr	= CLIENT1_LLOCAL_UCAST;
+		//option	= opt_IID;
+		option	= opt_RelayMessage_release_client1_to_alldhcp;
+	}
+)
+
+FEM_dhcp6_relay_forward(
+        relayforward_release_relay2_to_nut_interface_id,
+        _HETHER_relay2_1_to_nut,
+        {
+//              HopLimit = 32;
+                _SRC(RELAY2_1_GLOBAL_UCAST);
+                _DST(NUTRELAY1_LINK1_GLOBAL_UCAST);
+        },
+        {
+//              _SPORT(547);
+                _DPORT(547);
+        },
+        {
+                LinkAddr        = RELAY2_2_GLOBAL_UCAST;
+                PeerAddr        = CLIENT1_LLOCAL_UCAST;
+                option        = opt_IID;
+                option  = opt_RelayMessage_release_client1_to_alldhcp;
+        }
+)
+
+
+//  DHCPv6 Relay Forward(Decline): CLIENT1 --->  Relay2(CLIENT1) ----> NUT (Relay1)
+FEM_dhcp6_relay_forward(
+	relayforward_decline_relay2_to_nut,
+	_HETHER_relay2_1_to_nut,
+	{
+//		HopLimit = 32;
+		_SRC(RELAY2_1_GLOBAL_UCAST);
+		_DST(NUTRELAY1_LINK1_GLOBAL_UCAST);
+	},
+	{
+//		_SPORT(547);
+		_DPORT(547);
+	},
+	{
+		LinkAddr	= RELAY2_2_GLOBAL_UCAST;
+		PeerAddr	= CLIENT1_LLOCAL_UCAST;
+		//option	= opt_IID;
+		option	= opt_RelayMessage_decline_client1_to_alldhcp;
+	}
+)
+
+FEM_dhcp6_relay_forward(
+        relayforward_decline_relay2_to_nut_interface_id,
+        _HETHER_relay2_1_to_nut,
+        {
+//              HopLimit = 32;
+                _SRC(RELAY2_1_GLOBAL_UCAST);
+                _DST(NUTRELAY1_LINK1_GLOBAL_UCAST);
+        },
+        {
+//              _SPORT(547);
+                _DPORT(547);
+        },
+        {
+                LinkAddr        = RELAY2_2_GLOBAL_UCAST;
+                PeerAddr        = CLIENT1_LLOCAL_UCAST;
+                option        = opt_IID;
+                option  = opt_RelayMessage_decline_client1_to_alldhcp;
+        }
+)
+
+//  DHCPv6 Relay Forward(information-request): CLIENT1 --->  Relay2(CLIENT1) ----> NUT (Relay1)
+FEM_dhcp6_relay_forward(
+	relayforward_information_relay2_to_nut,
+	_HETHER_relay2_1_to_nut,
+	{
+//		HopLimit = 32;
+		_SRC(RELAY2_1_GLOBAL_UCAST);
+		_DST(NUTRELAY1_LINK1_GLOBAL_UCAST);
+//		_DST(ALLDHCPAGENTS_MCAST_ADDR);
+
+	},
+	{
+//		_SPORT(547);
+		_DPORT(547);
+	},
+	{
+		LinkAddr	= RELAY2_2_GLOBAL_UCAST;
+		PeerAddr	= CLIENT1_LLOCAL_UCAST;
+		//option	= opt_IID;
+		option	= opt_RelayMessage_information_client1_to_alldhcp;
+	}
+)
+
+FEM_dhcp6_relay_forward(
+        relayforward_information_relay2_to_nut_interface_id,
+        _HETHER_relay2_1_to_nut,
+        {
+//              HopLimit = 32;
+                _SRC(RELAY2_1_GLOBAL_UCAST);
+                _DST(NUTRELAY1_LINK1_GLOBAL_UCAST);
+//              _DST(ALLDHCPAGENTS_MCAST_ADDR);
+
+        },
+        {
+//              _SPORT(547);
+                _DPORT(547);
+        },
+        {
+                LinkAddr        = RELAY2_2_GLOBAL_UCAST;
+                PeerAddr        = CLIENT1_LLOCAL_UCAST;
+                option        = opt_IID;
+                option  = opt_RelayMessage_information_client1_to_alldhcp;
+        }
+)
+
+
+//  DHCPv6 Relay Forward(Solicit):
+// For the test: Relay2--> Relay1-->Server(NUT)
+FEM_dhcp6_relay_forward(
+	relayforward_solicit_client1_to_relay2_to_relay1_alldhcp,
+	_HETHER_relay1_0_to_alldhcp,
+	{
+		_SRC(RELAY1_0_GLOBAL_UCAST);
+		_DST(v6(_ALLDHCPSERVERS_MCAST_ADDR));
+	},
+	{
+//		_SPORT(547);
+		_DPORT(547);
+	},
+	{
+		HopCount	= 1;
+		LinkAddr	= 0;
+		PeerAddr	= RELAY2_1_GLOBAL_UCAST;
+		option	= opt_RelayMessage_solicit_client1_relay2_relay1_server1_to_alldhcp;
+	}
+)
+
+FEM_dhcp6_relay_forward(
+        relayforward_solicit_client4_to_relay2_to_relay1_alldhcp,
+        _HETHER_relay1_0_to_alldhcp,
+        {
+                _SRC(RELAY1_0_GLOBAL_UCAST);
+                _DST(v6(_ALLDHCPSERVERS_MCAST_ADDR));
+        },
+        {
+//              _SPORT(547);
+                _DPORT(547);
+        },
+        {
+                HopCount        = 1;
+                LinkAddr        = 0;
+                PeerAddr        = RELAY2_2_GLOBAL_UCAST;
+                option  = opt_RelayMessage_solicit_client4_relay2_relay1_server1_to_alldhcp;
+        }
+)
+
+FEM_dhcp6_relay_forward(
+        relayforward_solicit_client4_to_relay2_to_relay1_alldhcp_2,
+        _HETHER_relay1_0_to_alldhcp,
+        {
+                _SRC(RELAY1_0_GLOBAL_UCAST);
+                _DST(v6(_ALLDHCPSERVERS_MCAST_ADDR));
+        },
+        {
+//              _SPORT(547);
+                _DPORT(547);
+        },
+        {
+                HopCount        = 1;
+                LinkAddr        = 0;
+                PeerAddr        = RELAY2_3_GLOBAL_UCAST;
+                option  = opt_RelayMessage_solicit_client4_relay2_relay1_server1_to_alldhcp_2;
+        }
+)
+
+//relay_advertise_server1_to_nut, 
+//only for sending message
+FEM_dhcp6_relay_reply(
+	relay_advertise_server1_to_client1_1relay,
+	_HETHER_server1_to_nut,
+	{
+		_SRC(SERVER1_LLOCAL_UCAST);
+		_DST(NUTRELAY1_LINK0_GLOBAL_UCAST);
+	},
+	{
+		_DPORT(547);
+	},
+	{
+		LinkAddr	= 0;
+		PeerAddr	= CLIENT1_LLOCAL_UCAST;
+		option = opt_IID;
+		option = opt_RelayMessage_advertise_server1_to_nut;
+	}
+)
+
+//relay_invalid_advertise_client1_to_alldhcp, 
+//only for sending message
+FEM_dhcp6_relay_reply(
+        relay_invalid_advertise_client1_to_alldhcp,
+        _HETHER_client1_to_alldhcp,
+        {
+                _SRC(CLIENT1_LLOCAL_UCAST);
+                _DST(v6(_ALLDHCPAGENTS_MCAST_ADDR));
+        },
+        {
+                _DPORT(547);
+        },
+        {
+                LinkAddr        = RELAY1_1_LLOCAL_UCAST;
+                PeerAddr        = CLIENT3_LLOCAL_UCAST;
+                //option = opt_IID;
+                option = opt_RelayMessage_advertise_server1_to_nut;
+        }
+)
+
+//relay_advertise_server1_to_nut(Relay1) ---> Relay2, 
+//only for send message
+FEM_dhcp6_relay_reply(
+	relay_advertise_server1_to_client1_2relay,
+	_HETHER_server1_to_nut,
+	{
+		_SRC(SERVER1_LLOCAL_UCAST);
+		_DST(NUTRELAY1_LINK0_GLOBAL_UCAST);
+	},
+	{
+		_DPORT(547);
+	},
+	{
+		HopCount = 1;
+		LinkAddr	= 0;
+		PeerAddr	= RELAY2_1_GLOBAL_UCAST;
+#ifdef INSERT_IID
+		option = opt_IID;
+#endif
+		option = opt_RelayMessage_advertise_server1_to_nut_2relay;
+	}
+)
+//relay_reply_server1_to_nut(Relay1) ---> Relay2, 
+//only for send message
+FEM_dhcp6_relay_reply(
+	relay_reply_server1_to_client1_2relay,
+	_HETHER_server1_to_nut,
+	{
+		_SRC(SERVER1_LLOCAL_UCAST);
+		_DST(NUTRELAY1_LINK0_GLOBAL_UCAST);
+	},
+	{
+		_DPORT(547);
+	},
+	{
+		HopCount = 1;
+		LinkAddr	= 0;
+		PeerAddr	= RELAY2_1_GLOBAL_UCAST;
+#ifdef INSERT_IID
+		option = opt_IID;
+#endif
+		option = opt_RelayMessage_reply_server1_to_nut_2relay;
+	}
+)
+	
+FEM_dhcp6_relay_reply(
+	relayreply_advertise_relay1_to_relay2,
+	_HETHER_nut_to_relay2,
+	{
+		_SRC(NUTRELAY1_LINK1_GLOBAL_UCAST);
+		_DST(RELAY2_1_GLOBAL_UCAST);
+	},
+	{
+		_DPORT(547);
+	},
+	{
+		LinkAddr	= RELAY2_2_GLOBAL_UCAST;
+		PeerAddr	= CLIENT1_LLOCAL_UCAST;
+//		option = opt_IID;
+		option = opt_RelayMessage_advertise_server1_to_nut;
+	}
+)
+	
+FEM_dhcp6_relay_reply(
+	relayreply_reply_relay1_to_relay2,
+	_HETHER_nut_to_relay2,
+	{
+		_SRC(NUTRELAY1_LINK1_GLOBAL_UCAST);
+		_DST(RELAY2_1_GLOBAL_UCAST);
+	},
+	{
+		_DPORT(547);
+	},
+	{
+		LinkAddr	= RELAY2_2_GLOBAL_UCAST;
+		PeerAddr	= CLIENT1_LLOCAL_UCAST;
+//		option = opt_IID;
+		option = opt_RelayMessage_reply_server1_to_nut;
+	}
+)
+
+//relay_reply_server1_to_nut
+FEM_dhcp6_relay_reply(
+	relay_reply_server1_to_client1_1relay,
+	_HETHER_server1_to_nut,
+	{
+		_SRC(SERVER1_LLOCAL_UCAST);
+		_DST(NUTRELAY1_LINK0_GLOBAL_UCAST);
+	},
+	{
+		_DPORT(547);
+	},
+	{
+		LinkAddr	= 0;
+		PeerAddr	= CLIENT1_LLOCAL_UCAST;
+		option = opt_IID;
+		option = opt_RelayMessage_reply_server1_to_nut;
+	}
+)	
+
+
+//Target Link-layer address
+Opt_ICMPv6_TLL opt_tll_nut {
+        LinkLayerAddress = NUT_DUID_MAC_ADDR;
+}
+Opt_ICMPv6_TLL opt_tll_client1 {
+	LinkLayerAddress = CLIENT1_MAC_ADDR;
+}
+Opt_ICMPv6_TLL opt_tll_client2 {
+	LinkLayerAddress = CLIENT2_MAC_ADDR;
+}
+Opt_ICMPv6_TLL opt_tll_server1 {
+	LinkLayerAddress = SERVER1_MAC_ADDR;
+}
+Opt_ICMPv6_TLL opt_tll_server2 {
+	LinkLayerAddress = SERVER2_MAC_ADDR;
+}
+Opt_ICMPv6_TLL opt_tll_dns {
+	LinkLayerAddress = DNS1_MAC_ADDR;
+}
+
+//Source Link-layer address
+Opt_ICMPv6_SLL opt_sll_nut {
+	LinkLayerAddress = NUT_MAC_ADDR;
+}
+Opt_ICMPv6_SLL opt_sll_server1{
+	LinkLayerAddress = SERVER1_MAC_ADDR;
+}
+Opt_ICMPv6_SLL opt_sll_server2{
+	LinkLayerAddress = SERVER2_MAC_ADDR;
+}
+
+
+Opt_ICMPv6_TLL opt_tll_relay1_0 {
+	LinkLayerAddress = RELAY1_0_MAC_ADDR;
+}
+Opt_ICMPv6_TLL opt_tll_relay2_0 {
+	LinkLayerAddress = RELAY2_0_MAC_ADDR;
+}
+Opt_ICMPv6_TLL opt_tll_relay1_1 {
+	LinkLayerAddress = RELAY1_1_MAC_ADDR;
+}
+Opt_ICMPv6_TLL opt_tll_relay2_1 {
+	LinkLayerAddress = RELAY2_1_MAC_ADDR;
+}
+
+Opt_ICMPv6_Prefix  opt_prefix_server1_to_nut {
+//	LFlag = 1;
+	ValidLifetime = 14400;
+	PreferredLifetime = 7200;
+	Prefix = SERVER1_ROUTER_PREFIX;
+}
+
+Opt_ICMPv6_Prefix  opt_prefix_server2_to_nut {
+	LFlag = 1;
+	ValidLifetime = 14400;
+	PreferredLifetime = 7200;
+	Prefix = SERVER1_ROUTER_PREFIX;
+}
+Opt_ICMPv6_Prefix  opt_prefix_server2_to_nut_addr2_assig {
+	LFlag = 1;
+	AFlag = 1;
+	ValidLifetime = 14400;
+	PreferredLifetime = 7200;
+	Prefix = SERVER1_ROUTER_PREFIX2;
+}
+
+Opt_ICMPv6_Prefix  opt_prefix_server2_to_nut_addr_assign {
+	LFlag = 1;
+	AFlag = 1;
+	ValidLifetime = 14400;
+	PreferredLifetime = 7200;
+	Prefix = SERVER1_ROUTER_PREFIX;
+}
+
+Opt_ICMPv6_Prefix  opt_prefix_server2_to_nut_addr_assign_vltime100 {
+        LFlag = 1;
+        AFlag = 1;
+        ValidLifetime = 100;
+        PreferredLifetime = 72;
+        Prefix = SERVER1_ROUTER_PREFIX;
+}
+
+//================================================================
+// Relay Message option 
+//
+//================================================================
+
+Opt_DHCPv6_RelayMessage opt_RelayMessage_solicit_client1_to_alldhcp {
+	relay	= _UDP_DHCPV6_NAME(solicit_client1_to_alldhcp);
+}
+
+Opt_DHCPv6_RelayMessage opt_RelayMessage_solicit_client4_to_alldhcp {
+        relay   = _UDP_DHCPV6_NAME(solicit_client1_to_alldhcp);
+}
+
+Opt_DHCPv6_RelayMessage opt_RelayMessage_advertise_server1_to_nut {
+	relay	= _UDP_DHCPV6_NAME(advertise_server1_to_client1);
+}
+
+Opt_DHCPv6_RelayMessage opt_RelayMessage_request_client1_to_alldhcp {
+	relay	= _UDP_DHCPV6_NAME(request_client1_to_alldhcp);
+}
+
+Opt_DHCPv6_RelayMessage opt_RelayMessage_confirm_client1_to_alldhcp {
+	relay	= _UDP_DHCPV6_NAME(confirm_client1_to_alldhcp);
+}
+
+Opt_DHCPv6_RelayMessage opt_RelayMessage_renew_client1_to_alldhcp {
+	relay	= _UDP_DHCPV6_NAME(renew_client1_to_alldhcp);
+}
+
+Opt_DHCPv6_RelayMessage opt_RelayMessage_rebind_client1_to_alldhcp {
+	relay	= _UDP_DHCPV6_NAME(rebind_client1_to_alldhcp);
+}
+
+Opt_DHCPv6_RelayMessage opt_RelayMessage_release_client1_to_alldhcp {
+	relay	= _UDP_DHCPV6_NAME(release_client1_to_alldhcp);
+}
+
+Opt_DHCPv6_RelayMessage opt_RelayMessage_decline_client1_to_alldhcp {
+	relay	= _UDP_DHCPV6_NAME(decline_client1_to_alldhcp);
+}
+
+Opt_DHCPv6_RelayMessage opt_RelayMessage_information_client1_to_alldhcp {
+	relay	= _UDP_DHCPV6_NAME(information_request_client1_to_alldhcp);
+}
+//================================================================
+// Relay Message option used for multirelayagent
+Opt_DHCPv6_RelayMessage opt_RelayMessage_advertise_server1_to_nut_2relay {
+	relay	= _UDP_DHCPV6_NAME(relayreply_advertise_relay1_to_relay2);
+}
+// Relay Message option used for multirelayagent
+Opt_DHCPv6_RelayMessage opt_RelayMessage_reply_server1_to_nut_2relay {
+	relay	= _UDP_DHCPV6_NAME(relayreply_reply_relay1_to_relay2);
+}
+
+Opt_DHCPv6_RelayMessage opt_RelayMessage_reply_server1_to_nut {
+	relay	= _UDP_DHCPV6_NAME(reply_server1_to_client1);
+}
+
+Opt_DHCPv6_RelayMessage opt_RelayMessage_infomationrequest_client1_to_alldhcp {
+	relay	= _UDP_DHCPV6_NAME(information_request_client1_to_alldhcp);
+}
+//multiple relay , client1 -> Relay2 -> Relay1
+Opt_DHCPv6_RelayMessage opt_RelayMessage_solicit_client1_relay2_relay1_to_alldhcp {
+	relay	= _UDP_DHCPV6_NAME(relayforward_solicit_client1_to_alldhcp);
+}
+//multiple relay , client1 -> Relay2 -> Relay1 -> Server1
+Opt_DHCPv6_RelayMessage opt_RelayMessage_solicit_client1_relay2_relay1_server1_to_alldhcp {
+	relay	= _UDP_DHCPV6_NAME(relayforward_solicit_relay2_to_relay1);
+}
+//multiple relay , client4 -> Relay2 -> Relay1 -> Server1
+Opt_DHCPv6_RelayMessage opt_RelayMessage_solicit_client4_relay2_relay1_server1_to_alldhcp {
+        relay   = _UDP_DHCPV6_NAME(relayforward_solicit_relay2_2_to_relay1_2);
+}
+Opt_DHCPv6_RelayMessage opt_RelayMessage_solicit_client4_relay2_relay1_server1_to_alldhcp_2 {
+        relay   = _UDP_DHCPV6_NAME(relayforward_solicit_relay2_2_to_relay1_2_to_tn1);
+}
+
+//multiple relay , client4 -> Relay2 -> Relay1 -> Server1
+Opt_DHCPv6_RelayMessage opt_RelayMessage_request_client4_relay2_relay1_server1_to_alldhcp {
+        relay   = _UDP_DHCPV6_NAME(relayforward_request_relay2_2_to_relay1_2);
+}
+Opt_DHCPv6_RelayMessage opt_RelayMessage_request_client4_relay2_relay1_server1_to_alldhcp_2 {
+        relay   = _UDP_DHCPV6_NAME(relayforward_request_relay2_2_to_relay1_2_to_tn1);
+}
+//multiple relay , client1 -> Relay2 -> Relay1 -> Server1 (information-request)
+Opt_DHCPv6_RelayMessage opt_RelayMessage_infomationrequest_client1_relay2_relay1_server1_to_alldhcp {
+	relay	= _UDP_DHCPV6_NAME(relayforward_information_relay2_to_relay1);
+}
+
+
+/*-----------------------------------------------------------------------------------*
+ *  DHCPv6 Delegating Router
+ *-----------------------------------------------------------------------------------*/
+//================================================================
+//  DHCPv6 Relay Forward(Solicit)
+//  DHCPv6 Relay Forward(Solicit): CLIENT1---->Relay1 ----> NUT(Delegating Router)
+//  For send only
+FEM_dhcp6_relay_forward(
+        relayforward_solicit_client2_to_alldhcp,
+        _HETHER_relay2_0_to_alldhcp,
+        {
+                HopLimit=32;
+                _SRC(RELAY2_0_GLOBAL_UCAST);
+                _DST(v6(_ALLDHCPSERVERS_MCAST_ADDR));
+        },
+        {
+        //      _SPORT(any);
+                _DPORT(547);
+        },
+        {
+                LinkAddr        = RELAY1_1_GLOBAL_UCAST;
+                PeerAddr        = CLIENT3_LLOCAL_UCAST;
+                option          = opt_RelayMessage_solicit_client1_to_alldhcp;
+                //option                = opt_IID;
+        }
+)
+
+//  DHCPv6 Relay Forward(Request)
+//  DHCPv6 Relay Forward(Request): CLIENT1---->Relay1 ----> NUT(Server)
+//  For send only
+FEM_dhcp6_relay_forward(
+        relayforward_request_client2_to_alldhcp,
+        //_HETHER_relay1_0_to_alldhcp,
+        _HETHER_relay2_0_to_alldhcp,
+        {
+                HopLimit=32;
+                //_SRC(RELAY1_0_GLOBAL_UCAST);
+                _SRC(RELAY2_0_GLOBAL_UCAST);
+                _DST(v6(_ALLDHCPSERVERS_MCAST_ADDR));
+        },
+        {
+        //      _SPORT(any);
+                _DPORT(547);
+        },
+        {
+                //LinkAddr        = RELAY3_0_GLOBAL_UCAST;
+                LinkAddr        = RELAY1_1_GLOBAL_UCAST;
+                //PeerAddr        = CLIENT1_LLOCAL_UCAST;
+                PeerAddr        = CLIENT3_LLOCAL_UCAST;
+                option          = opt_RelayMessage_request_client1_to_alldhcp;
+                //option                = opt_IID;
+        }
+)
+
+//  DHCPv6 Relay Forward(Request):
+// For the test: Relay2--> Relay1-->Server(NUT)
+// For send only
+FEM_dhcp6_relay_forward(
+        relayforward_request_client4_to_relay2_to_relay1_alldhcp,
+        _HETHER_relay1_0_to_alldhcp,
+        {
+                _SRC(RELAY1_0_GLOBAL_UCAST);
+                _DST(v6(_ALLDHCPSERVERS_MCAST_ADDR));
+        },
+        {
+//              _SPORT(547);
+                _DPORT(547);
+        },
+        {
+                HopCount        = 1;
+                LinkAddr        = 0;
+                PeerAddr        = RELAY2_2_GLOBAL_UCAST;
+                option  = opt_RelayMessage_request_client4_relay2_relay1_server1_to_alldhcp;
+        }
+)
+
+FEM_dhcp6_relay_forward(
+        relayforward_request_client4_to_relay2_to_relay1_alldhcp_2,
+        _HETHER_relay1_0_to_alldhcp,
+        {
+                _SRC(RELAY1_0_GLOBAL_UCAST);
+                _DST(v6(_ALLDHCPSERVERS_MCAST_ADDR));
+        },
+        {
+//              _SPORT(547);
+                _DPORT(547);
+        },
+        {
+                HopCount        = 1;
+                LinkAddr        = 0;
+                PeerAddr        = RELAY2_3_GLOBAL_UCAST;
+                option  = opt_RelayMessage_request_client4_relay2_relay1_server1_to_alldhcp_2;
+        }
+)
+
+FEM_dhcp6_relay_forward(
+        relayforward_request_relay2_2_to_relay1_2,
+        _HETHER_relay2_3_to_relay1_1,
+        {
+                _SRC(RELAY2_3_LLOCAL_UCAST);
+                _DST(RELAY1_1_LLOCAL_UCAST);
+        },
+        {
+        //      _SPORT(any);
+                _DPORT(547);
+        },
+        {
+                LinkAddr        = RELAY2_2_GLOBAL_UCAST;
+                PeerAddr        = CLIENT1_LLOCAL_UCAST;
+                option  = opt_RelayMessage_request_client1_to_alldhcp;
+//              option  = opt_IID;
+        }
+)
+
+FEM_dhcp6_relay_forward(
+        relayforward_request_relay2_2_to_relay1_2_to_tn1,
+        _HETHER_relay2_3_to_relay1_1,
+        {
+                _SRC(RELAY2_3_LLOCAL_UCAST);
+                _DST(RELAY1_1_LLOCAL_UCAST);
+        },
+        {
+        //      _SPORT(any);
+                _DPORT(547);
+        },
+        {
+                LinkAddr        = RELAY2_2_GLOBAL_UCAST;
+                PeerAddr        = CLIENT4_LLOCAL_UCAST;
+                option  = opt_RelayMessage_request_client1_to_alldhcp;
+//              option  = opt_IID;
+        }
+)
+
+FEM_icmp6_ns(
+        dummy,
+        _HETHER_tn2nutsolnode,
+        {
+                HopLimit        = 255;
+                _SRC(v6(_UNSPEC_ADDR));
+                _DST(
+                        _IPV6_SOLNODE_MCAST(
+                                v6merge(
+                                        _GLOBAL0_UCAST_PRFX,
+                                        _GLOBAL0_UCAST_PRFXLEN,
+                                        nutv6()
+                                )
+                        )
+                );
+        },
+        {
+                TargetAddress   = v6merge(
+                                                        _GLOBAL0_UCAST_PRFX,
+                                                        _GLOBAL0_UCAST_PRFXLEN,
+                                                        nutv6()
+                                                );
+        }
+)
+
+// NA; Global
+FEM_icmp6_na(
+        cleanup_na_g,
+        _HETHER_tn2allnodes,
+        {
+                _SRC(TN_GL0_ADDR);
+                _DST(v6(_ALLNODES_MCAST_ADDR));
+                HopLimit = 255;
+        },
+        {
+                RFlag = IS_ROUTER_LINK0;
+                SFlag = 0;
+                OFlag = 1;
+                TargetAddress = TN_GL0_ADDR;
+                option = DifferentLLA;
+        }
+)
+
+Opt_ICMPv6_TLL DifferentLLA {
+        LinkLayerAddress = ether(CLEANUP_ETHER_LINK0);
+}
+
+FEM_icmp6_echo_request(
+        cleanup_echo_request_g,
+        _HETHER_tn2nut,
+        {
+                _SRC(TN_GL0_ADDR);
+                _DST(NUT_GL0_ADDR);
+                HopLimit = 255;
+        },
+        {
+                payload = setup_echo_data8;
+        }
+)
+
+//======================================================================
+//
+// Payload Data
+//
+
+Payload setup_echo_data8 {
+        data = {1, 2, 3, 4, 5, 6, 7, 8};
+}
+
+//================ for Common Cleanup ================//
+
+//===== Router Advertisement
+
+FEM_icmp6_ra(
+        cleanup_ra,
+        _HETHER_tn2allnodes,
+        {
+                _SRC(tnv6());
+                _DST(v6(_ALLNODES_MCAST_ADDR));
+                HopLimit = 255;
+        },
+        {
+                CurHopLimit = 64;
+                LifeTime = 0;
+                ReachableTime = 0;
+                RetransTimer = 0;
+                option = _SLLOPT_src;
+                option = cleanup_prefixopt;
+        }
+)
+
+Opt_ICMPv6_Prefix cleanup_prefixopt {
+        PrefixLength = 64;
+        LFlag = 1;
+        AFlag = 1;
+        ValidLifetime = 0;
+        PreferredLifetime = 0;
+        Prefix = v6(_GLOBAL0_UCAST_PRFX);
+}
+
+//===== Neighbor Advertisement
+
+// NA; Link-Local
+FEM_icmp6_na(
+        cleanup_na,
+        _HETHER_tn2allnodes,
+        {
+                _SRC(tnv6());
+                _DST(v6(_ALLNODES_MCAST_ADDR));
+                HopLimit = 255;
+        },
+        {
+                RFlag = IS_ROUTER_LINK0;
+                SFlag = 0;
+                OFlag = 1;
+                TargetAddress = tnv6();
+                option = DifferentLLA;
+        }
+)
+
+//===== Echo Request
+
+FEM_icmp6_echo_request(
+        cleanup_echo_request,
+        _HETHER_tn2nut,
+        {
+                _SRC(tnv6());
+                _DST(nutv6());
+                HopLimit = 255;
+        },
+        {
+                payload = setup_echo_data8;
+        }
+)
+

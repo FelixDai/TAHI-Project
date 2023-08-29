@@ -1,0 +1,122 @@
+#
+# Copyright (C) 2013
+# Chunghwa Telecommunication Labratories (CHT-TL)
+# All rights reserved.
+# 
+# Redistribution and use of this software in source and binary
+# forms, with or without modification, are permitted provided that
+# the following conditions and disclaimer are agreed and accepted
+# by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in
+#    the documentation and/or other materials provided with
+#    the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project
+#    which is related to this software (hereinafter referred to as
+#    "project") nor the names of the contributors may be used to
+#    endorse or promote products derived from this software without
+#    specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written
+#    notification to the copyrighters.
+# 
+# 5. The copyrighters, the project and the contributors may prohibit
+#    the use of this software at any time.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+# STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+# IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+# $Name: CE-Router_Self_Test_1_0_5 $
+# $CHT-TL: INDEX_p2_cpe,v 1.0 2013/08/01  weifen Exp $
+
+# ###############################################################
+# <coverage Number><seq>:<def>:<opts>:<htmldoc>:<dscription>:<links>
+#
+./CERouter_Init.seq:/dev/null:::Initialization:
+
+#################################################################
+&print:<B>Group 3: RFC2460</B>
+#################################################################
+
+&print:<B>Test CERouter 2.3.1 : Version Field</B>
+./IP_Version.seq:./IP_Version.def:::Version Field:2
+
+&print:<B>Test CERouter 2.3.2 : Flow Label Non-Zero</B>
+./IP_FL_NonZeroEN.seq:./IP_FL_NonZeroEN.def:::Flow Label Non-Zero:2
+
+&print:<B>Test CERouter 2.3.3 : Payload Length</B>
+./IP_PL_Odd.seq:./IP_PL_Odd.def:::Part A&#58; Payload Length Odd:2
+./IP_PL_Even.seq:./IP_PL_Even.def:::Part B&#58; Payload Length Even:2
+
+&print:<B>Test CERouter 2.3.4 : No Next Header after IPv6 Header</B>
+./IP_NH_NoneEN.seq:./IP_NH_NoneEN.def:::No Next Header after IPv6 Header:2
+
+&print:<B>Test CERouter 2.3.5 : Hop Limit Zero - End Node</B>
+./IP_HL_ZeroEN.seq:./IP_HL_ZeroEN.def:::Hop Limit Zero - End Node:2
+
+&print:<B>Test CERouter 2.3.6 : No Next Header after Extension Header</B>
+./EX_NH_NoneEN.seq:./EX_NH_NoneEN.def:::No Next Header after Extension Header:2
+
+&print:<B>Test CERouter 2.3.7 : Extension Header Processing Order</B>
+./EX_HdrProcessingOrder_HDF_10M.seq:./EX_HdrProcessingOrder_HDF_10M.def:::Part A&#58; Destination Options Header precedes Fragment Header, Error from Destination Options Header:2
+./EX_HdrProcessingOrder_HDF_00M.seq:./EX_HdrProcessingOrder_HDF_00M.def:::Part B&#58; Destination Options Header precedes Fragment Header, Error from Fragment Header:2
+./EX_HdrProcessingOrder_HFD_M10.seq:./EX_HdrProcessingOrder_HFD_M10.def:::Part C&#58; Fragment Header precedes Destination Options Header, Error from Fragment Header:2
+./EX_HdrProcessingOrder_HFD_10.seq:./EX_HdrProcessingOrder_HFD_10.def:::Part D&#58; Fragment Header precedes Destination Options Header, Error from Destination Options Header:2
+
+&print:<B>Test CERouter 2.3.8 : Option Processing Order</B>
+./EX_OptProcessingOrder_01.seq:./EX_OptProcessingOrder_01.def:::Part A&#58; First Option has Most Significant Bits 00b, Next has Most Significant Bits 01b:2
+./EX_OptProcessingOrder_10.seq:./EX_OptProcessingOrder_10.def:::Part B&#58; First Option has Most Significant Bits 00b, Next has Most Significant Bits 10b:2
+./EX_OptProcessingOrder_11.seq:./EX_OptProcessingOrder_11.def:::Part C&#58; First Option has Most Significant Bits 00b, Next has Most Significant Bits 11b:2
+
+&print:<B>Test CERouter 2.3.9 : Options Processing, Hop-by-Hop Options Header - End Node</B>
+./HHO_Pad1_EN.seq:./HHO_Pad1_EN.def:::Part A&#58; Pad1 Option:2
+./HHO_PadN_EN.seq:./HHO_PadN_EN.def:::Part B&#58; PadN Option:2
+./HHO_MSB00_EN.seq:./HHO_MSB00_EN.def:::Part C&#58; Most Significant Bits 00b:2
+./HHO_MSB01_EN.seq:./HHO_MSB01_EN.def:::Part D&#58; Most Significant Bits 01b:2
+./HHO_MSB10_EN.seq:./HHO_MSB10_EN.def:::Part E&#58; Most Significant Bits 10b, unicast destination:2
+./HHO_MSB11_EN.seq:./HHO_MSB11_EN.def:::Part F&#58; Most Significant Bits 11b, unicast destination:2
+./HHO_MSB10mc_EN.seq:./HHO_MSB10mc_EN.def:::Part G&#58; Most Significant Bits 10b, multicast destination:2
+./HHO_MSB11mc_EN.seq:./HHO_MSB11mc_EN.def:::Part H&#58; Most Significant Bits 11b, multicast destination:2
+
+&print:<B>Test CERouter 2.3.10 : Option Processing, Destination Options Header</B>
+./DO_Pad1.seq:./DO_Pad1.def:::Part A&#58; Pad1 Option:2
+./DO_PadN.seq:./DO_PadN.def:::Part B&#58; PadN Option:2
+./DO_MSB00.seq:./DO_MSB00.def:::Part C&#58; Most Significant Bits 00b:2
+./DO_MSB01.seq:./DO_MSB01.def:::Part D&#58; Most Significant Bits 01b:2
+./DO_MSB10.seq:./DO_MSB10.def:::Part E&#58; Most Significant Bits 10b, unicast destination:2
+./DO_MSB11.seq:./DO_MSB11.def:::Part F&#58; Most Significant Bits 11b, unicast destination:2
+./DO_MSB10mc.seq:./DO_MSB10mc.def:::Part G&#58; Most Significant Bits 10b, multicast destination:2
+./DO_MSB11mc.seq:./DO_MSB11mc.def:::Part H&#58; Most Significant Bits 11b, multicast destination:2
+
+&print:<B>Test CERouter 2.3.11 : Fragment Reassembly</B>
+./F_Reassembly_Valid.seq:./F_Reassembly_Valid.def:::Part A&#58; All Fragments are Valid:2
+./F_Reassembly_reverse.seq:./F_Reassembly_reverse.def:::Part B&#58; All Fragments are Valid, reverse order:2
+./F_Reassembly_FID.seq:./F_Reassembly_FID.def:::Part C&#58; Fragment IDs Differ Between Fragments:2
+./F_Reassembly_src.seq:./F_Reassembly_src.def:::Part D&#58; Source Addresses Differ Between Fragments:2
+./F_Reassembly_dst.seq:./F_Reassembly_dst.def:::Part E&#58; Destination Address Differ Between Fragments:2
+./F_Reassembly_1500.seq:./F_Reassembly_1500.def:::Part F&#58; Reassemble to 1500:2
+
+&print:<B>Test CERouter 2.3.12 : Reassembly Time Exceeded</B>
+./F_TX_intime.seq:./F_TX_intime.def:::Part A&#58; Time Elapsed Between Fragments less than Sixty Seconds:2
+./F_TX_expire.seq:./F_TX_expire.def:::Part B&#58; Time Exceeded Before Last Fragments Arrive:2
+./F_TX_only1st.seq:./F_TX_only1st.def:::Part C&#58; Time Exceeded (Global), Only First Fragment Received:2
+./v6LC_1_3_2_D.seq:./v6LC_1_3_2_D.def:::Part D&#58; Time Exceeded (Link-local), Only First Fragment Received:2
+./F_TX_only2nd.seq:./F_TX_only2nd.def:::Part E&#58; Time Exceeded, Only Second Fragment Received:2
+
+&print:<B>Test CERouter 2.3.13 : Stub Fragment Header</B>
+./F_Stub.seq:./F_Stub.def:::Stub Fragment Header:2

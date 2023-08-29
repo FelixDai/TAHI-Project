@@ -1,0 +1,262 @@
+#!/usr/bin/perl
+#
+# Copyright (C) 2013
+# Chunghwa Telecommunication Labratories (CHT-TL)
+# All rights reserved.
+# 
+# Redistribution and use of this software in source and binary
+# forms, with or without modification, are permitted provided that
+# the following conditions and disclaimer are agreed and accepted
+# by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in
+#    the documentation and/or other materials provided with
+#    the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project
+#    which is related to this software (hereinafter referred to as
+#    "project") nor the names of the contributors may be used to
+#    endorse or promote products derived from this software without
+#    specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written
+#    notification to the copyrighters.
+# 
+# 5. The copyrighters, the project and the contributors may prohibit
+#    the use of this software at any time.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+# STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+# IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+# $CHT-TL: S_RFC3315_15_1_TransactionIDSync.seq,v 1.0 2013/08/19 weifen Exp $
+########################################################################
+BEGIN { $V6evalTool::TestVersion = '$Name: CE-Router_Self_Test_1_0_5 $';
+}
+
+use strict;
+use V6evalTool;
+
+use lib '../.';
+use DHCPv6_common;
+use CPE6_config;
+use Server_pktdesc;
+
+dhcpExitNS if(!($STATEFUL_SERVER));
+
+my $strIndexBase = "Frame_Ether.Packet_IPv6.Upp_UDP";
+
+#--------------------------------------------------------------#
+# Initialization
+#--------------------------------------------------------------#
+
+vLogHTML('<B>==== NUT Initialization ====</B><BR>');
+my $IF0 = "Link0";
+my $IF1 = "Link1";
+
+vCapture($IF0);
+vCapture($IF1);
+my $ra = $STATEFUL_CLIENT ? 'ra_MsetOset' : 'ra_MclearOset';
+my ($ret,$tn2_prefix) = cpe_initialization($ra,$IF0,$IF1,$STATEFUL_CLIENT,0);
+if ($ret != 0) {
+    vLogHTML('<FONT COLOR="#FF0000">CPE initialization fail!</FONT><BR>');
+    dhcpExitFail();
+}
+
+vClear($IF0);
+vClear($IF1);
+ResetDhcpOpt();
+# send DHCPv6 Solicit Message
+$CID_OPTION = "opt_CID_LLT_client1";
+$IA_NA_OPTION = "opt_IA_NA";
+$ElapsedTime_OPTION = "opt_ElapsedTime";
+my ($ret1, %sol1) = send_solicit($IF1, "solicit_client1_to_alldhcp", "");
+dhcpExitFail() if (0 != $ret1);
+
+# wait for DHCPv6 Advertise Message
+my ($ret2, %adv2) = wait_for_advertise($IF1, 5);
+dhcpExitFail() if (0 != $ret2);
+
+if ($sol1{"$strIndexBase.Udp_DHCPv6_Solicit.Identifier"} !=
+    $adv2{"$strIndexBase.Udp_DHCPv6_Advertise.Identifier"}){
+	dhcpExitError("The Transaction ID isn\'t same between Solicit Msg & Advertise Msg<BR>");
+}else{
+	my $msg = "<b><font color='blue'>Identifier matched.</font></b>:";
+	$msg .= $sol1{"$strIndexBase.Udp_DHCPv6_Solicit.Identifier"};
+	$msg .= " == ";
+	$msg .= $adv2{"$strIndexBase.Udp_DHCPv6_Advertise.Identifier"};
+	$msg .= "<br>";
+	vLogHTML($msg);
+}
+
+# send DHCPv6 Request Message
+$CID_OPTION = "opt_CID_LLT_client1";
+$SID_OPTION = "opt_SID_ANY";
+$IA_NA_OPTION = "opt_IA_NA";
+my ($ret3, %req3) = send_request($IF1, "request_client1_to_alldhcp", \%adv2, "");
+dhcpExitFail() if (0 != $ret3);
+
+# wait for DHCPv6 Reply Message
+my ($ret4, %rep4) = wait_for_reply($IF1, 5);
+dhcpExitFail() if (0 != $ret4);
+
+if ($req3{"$strIndexBase.Udp_DHCPv6_Request.Identifier"} !=
+    $rep4{"$strIndexBase.Udp_DHCPv6_Reply.Identifier"}){
+	dhcpExitError("The Transaction ID isn\'t same between Request Msg & Reply Msg<BR>");
+}else{
+	my $msg = "<b><font color='blue'>Identifier matched.</font></b>:";
+	$msg .= $req3{"$strIndexBase.Udp_DHCPv6_Request.Identifier"};
+	$msg .= " == ";
+	$msg .= $rep4{"$strIndexBase.Udp_DHCPv6_Reply.Identifier"};
+	$msg .= "<br>";
+	vLogHTML($msg);
+}
+
+#-------------------------------------------------------------------
+vLogHTML("<B><FONT COLOR=#006666>The Message exchange is correct</FONT></B><BR>");
+#-------------------------------------------------------------------
+
+vClear($IF0);
+vClear($IF1);
+vStop($IF0);
+vStop($IF1);
+dhcpExitPass();
+#NOTREACHED
+########################################################################
+__END__
+
+=head1 NAME
+
+  Transaction ID Consistency : Basic Exchange
+
+=head1 TARGET
+
+  CE-Router
+
+=head1 SYNOPSIS
+
+=begin html
+ <PRE>
+ <A HREF="./S_RFC3315_15_1_TransactionIDSync.seq">S_RFC3315_15_1_TransactionIDSync.seq </A>[-tooloption ...]
+ -pkt <A HREF="./S_RFC3315_15_1_TransactionIDSync.seq.def">S_RFC3315_15_1_TransactionIDSync.seq.def </A>
+ -tooloption: v6eval tool option
+See Also <A HREF="../DHCPv6.def"> DHCPv6.def </A>
+ </PRE>
+
+=head1 INITIALIZATION
+
+	Common Test Setup 1.1 is performed at the beginning of this test part.
+
+=begin html
+  <ul>
+  <li><STRONG>Network Topology</STRONG></li>
+  </ul>
+  <PRE>
+          TN(Server)  
+	     |
+Link0 -------+-----------+--------------- 3ffe:501:ffff:100::/64
+                         |
+                       NUT(Server1)
+                         |
+Link1 -------+-----------+--------------- 3ffe:501:ffff:111x::/64
+	     |
+          TN(Client1)
+  </PRE>
+  <ul>
+      <li><STRONG>Verification Points</STRONG><p></li>
+<PRE> 
+NUT(Server) must keep one same transaction ID in a same DHCP message exchangement.
+</PRE>
+  </ul>
+  <ul>
+      <li><STRONG>Configuration</STRONG></li>
+  </ul>
+	<BLOCKQUOTE>
+	<TABLE BORDER>
+	<TR>
+	<TD><TT>Device Name</TT></TD>
+	<TD><TT>Device Type</TT></TD>
+	<TD><TT>I/F</TT></TD>
+	<TD><TT>Assigned Prefix</TT></TD>
+	<TD><TT>Link Local Addr</TT></TD>
+	<TD><TT>MAC Addr</TT></TD>
+	</TR>
+	<TR>
+	<TD><TT>Server1</TT></TD>
+	<TD><TT>NUT</TT></TD>
+	<TD><TT>Link0</TT></TD>
+	<TD><TT>3ffe:501:ffff:111x::/64</TT></TD>
+	<TD><TT>NUT's Linklocal address</TT></TD>
+	<TD><TT>NUT's MAC address</TT></TD>
+	</TR>
+	<TR>
+	<TD><TT>Client1</TT></TD>
+	<TD><TT>TN</TT></TD>
+	<TD><TT>Link0</TT></TD>
+	<TD><TT>3ffe:501:ffff:111x::/64</TT></TD>
+	<TD><TT>fe80::200:ff:fe00:a2a2</TT></TD>
+	<TD><TT>00:00:00:00:a2:a2</TT></TD>
+	</TR>
+	</TABLE>
+	</BLOCKQUOTE>
+
+=end html
+
+=head1 TEST PROCEDURE
+
+=begin html
+<PRE>
+    TN(Link0)	NUT     TN(Link1)
+	|	|       | 
+	| <---> |       | CE initialization (provide RA and DHCP informaiton to NUT)
+	|	|       | 
+	|	| <---- | Solicit            transaction ID1
+	|	| ----> | Advertise   (*1)   transaction ID1
+	|	| <---- | Request            transaction ID2
+	|	| ----> | Reply       (*2)   transaction ID2
+	|	|       | 
+</PRE>
+
+=end html
+
+=head1 JUDGEMENT
+
+<PRE>
+(*1) The NUT respond to the Solicit message with same transaction
+     ID1 in the Advertise message from the TN.
+(*2) The NUT respond to the Request message with same transaction
+     ID2 in the Reply message from the TN.
+</PRE>
+
+=head1 TERMINATION
+
+  N/A
+
+=head1 REFERENCE
+
+=begin html
+<PRE>
+[RFC 7084],L-8
+[RFC 3315],Section 15.1
+</PRE>
+
+=end html
+
+=head1 SEE ALSO
+
+  perldoc V6evalTool
+
+=cut

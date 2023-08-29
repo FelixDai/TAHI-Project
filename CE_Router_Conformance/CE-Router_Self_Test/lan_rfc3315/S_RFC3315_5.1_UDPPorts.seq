@@ -1,0 +1,212 @@
+#!/usr/bin/perl
+#
+# Copyright (C) 2013, 2014, 2015
+# Chunghwa Telecommunication Labratories (CHT-TL)
+# All rights reserved.
+# 
+# Redistribution and use of this software in source and binary
+# forms, with or without modification, are permitted provided that
+# the following conditions and disclaimer are agreed and accepted
+# by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in
+#    the documentation and/or other materials provided with
+#    the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project
+#    which is related to this software (hereinafter referred to as
+#    "project") nor the names of the contributors may be used to
+#    endorse or promote products derived from this software without
+#    specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written
+#    notification to the copyrighters.
+# 
+# 5. The copyrighters, the project and the contributors may prohibit
+#    the use of this software at any time.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+# STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+# IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+# $CHT-TL: S_RFC3315_5.1_UDPPorts.seq,v 1.1 2015/06/24 weifen Exp $
+########################################################################
+BEGIN { $V6evalTool::TestVersion = '$Name: CE-Router_Self_Test_1_0_5 $';
+}
+
+use strict;
+use V6evalTool;
+
+use lib '../.';
+use DHCPv6_common;
+use CPE6_config;
+use Server_pktdesc;
+
+dhcpExitNS if(!($STATEFUL_SERVER));
+#--------------------------------------------------------------#
+# Initialization
+#--------------------------------------------------------------#
+
+vLogHTML('<B>==== NUT Initialization ====</B><BR>');
+my $IF0 = "Link0";
+my $IF1 = "Link1";
+
+vCapture($IF0);
+vCapture($IF1);
+my $ra = $STATEFUL_CLIENT ? 'ra_MsetOset' : 'ra_MclearOset';
+my ($ret,$tn2_prefix) = cpe_initialization($ra,$IF0,$IF1,$STATEFUL_CLIENT,0);
+if ($ret != 0) {
+    vLogHTML('<FONT COLOR="#FF0000">CPE initialization fail!</FONT><BR>');
+    dhcpExitFail();
+}
+
+vClear($IF0);
+vClear($IF1);
+ResetDhcpOpt();
+#--------------------------------------------------------------#
+# Main Procedure
+#--------------------------------------------------------------#
+vLogHTML('<B>==== Solicit/Reply Message Exchange  ====</B><BR>');
+# send DHCPv6 Solicit Message
+$CID_OPTION = "opt_CID_LLT_client1";
+$IA_NA_OPTION = "opt_IA_NA";
+$ElapsedTime_OPTION = "opt_ElapsedTime";
+my ($ret1, %sol1) = send_solicit($IF1, "solicit_client1_to_alldhcp", undef);
+dhcpExitFail() if (0 != $ret1);
+
+my $dstport = get_udp_destport(\%sol1);
+
+vLogHTML("<B>Solicit destination UDP port number is $dstport  </B><BR>");
+
+# wait for DHCPv6 Advertise Message
+my ($ret2, %adv2) = wait_for_advertise($IF1, 5);
+if (0 != $ret2) {
+	vLogHTML("NUT did not send Advertise Message.<BR>");
+	dhcpExitFail();
+}
+
+# Check the "UDP port" field in the Reply Message
+my $UdpPort = $adv2{"Frame_Ether.Packet_IPv6.Upp_UDP.Hdr_UDP.DestinationPort"};
+vLogHTML("The Destination Port is $UdpPort<BR>");
+
+vLogHTML("<B>Advertise destination UDP port number is $UdpPort  </B><BR>");
+
+if ($LISTEN_UDPPORT_CLT !=  $UdpPort){
+	dhcpExitError("The message sent by NUT has invalid destination.");
+}
+
+
+#-------------------------------------------------------------------
+vLogHTML("<B><FONT COLOR=#006666>The UDP port is valid</FONT></B><BR>");
+#-------------------------------------------------------------------
+
+vClear($IF0);
+vClear($IF1);
+vStop($IF0);
+vStop($IF1);
+dhcpExitPass();
+
+#NOTREACHED
+
+########################################################################
+__END__
+
+=head1 NAME
+
+  Implementation of DHCP constants
+  Part A: valid UDP Port
+
+=head1 TARGET
+
+  CE-Router
+
+=head1 SYNOPSIS
+
+=begin html
+ <PRE>
+ <A HREF="./S_RFC3315_5.1_UDPPorts.seq">S_RFC3315_5.1_UDPPorts.seq </A>[-tooloption ...]
+ -pkt <A HREF="./S_RFC3315_5.1_UDPPorts.def">S_RFC3315_5.1_UDPPorts.def </A> 
+ -tooloption: v6eval tool option
+See Also <A HREF="../DHCPv6.def"> DHCPv6.def </A>
+ </PRE>
+
+=head1 INITIALIZATION
+
+	Common Test Setup 1.1 is performed at the beginning of this test part.
+
+=begin html
+  <UL>
+  <LI><STRONG>Network Topology</STRONG></LI>
+  </UL>
+  <PRE>
+          TN(Server)  
+	     |
+Link0 -------+-----------+--------------- 3ffe:501:ffff:100::/64
+                         |
+                       NUT(Server1)
+                         |
+Link1 -------+-----------+--------------- 3ffe:501:ffff:111x::/64
+	     |
+          TN(Client1)
+  </PRE>
+  <UL>
+      <LI><STRONG>Verification Points</STRONG></LI><P>
+          <UL>
+          <PRE>The destination UDP port of packet sent by server is <B> 546.</B></PRE>
+          </UL>
+  </UL>
+
+=head1 TEST PROCEDURE
+
+=begin html
+<PRE>
+ TN(Link0)	NUT     TN2(Link1)
+  |          |       | 
+  | <------> |       | CE initialization (provide RA and DHCP informaiton to NUT)
+  |          |       | 
+  |          | <---- | Solicit (with UDP destination port 547)         
+  |          | ----> | Advertise   (*1)   
+  |          |       |
+
+</PRE>
+
+=head1 JUDGEMENT
+
+<PRE>
+(*1) PASS: TN receives Advertise Message with a correct destination UDP port (not checking the options in Reply Message)
+</PRE>
+
+=head1 TERMINATION
+
+  N/A
+
+=head1 REFERENCE
+
+=begin html
+<PRE>
+[RFC 7084],L-8
+[RFC 3315],Section 5.2
+[RFC 2463],Section 3.1
+</PRE>
+
+=end html
+
+=head1 SEE ALSO
+
+  perldoc V6evalTool
+
+=cut
+

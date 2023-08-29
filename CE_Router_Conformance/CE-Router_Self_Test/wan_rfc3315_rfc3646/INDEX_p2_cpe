@@ -1,0 +1,197 @@
+#
+# Copyright (C) 2013, 2014, 2015
+# Chunghwa Telecommunication Labratories (CHT-TL)
+# All rights reserved.
+# 
+# Redistribution and use of this software in source and binary
+# forms, with or without modification, are permitted provided that
+# the following conditions and disclaimer are agreed and accepted
+# by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in
+#    the documentation and/or other materials provided with
+#    the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project
+#    which is related to this software (hereinafter referred to as
+#    "project") nor the names of the contributors may be used to
+#    endorse or promote products derived from this software without
+#    specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written
+#    notification to the copyrighters.
+# 
+# 5. The copyrighters, the project and the contributors may prohibit
+#    the use of this software at any time.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+# STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+# IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+# $Name: CE-Router_Self_Test_1_0_5 $
+# $CHT-TL: INDEX_p2_cpe,v 1.2 2015/03/25 weifen Exp $
+
+# ###############################################################
+# <coverage Number><seq>:<def>:<opts>:<htmldoc>:<dscription>:<links>
+#
+./CERouter_Init.seq:/dev/null:::Initialization:
+
+#################################################################
+&print:<B>Group 1: RFC 3315 and 3646 - Client Specification</B>
+#################################################################
+
+&print:<B>Test CERouter 1.1.1 : Basic Message Exchange</B>
+./C_RFC3315_SolAdvReqReply.seq:./C_RFC3315_SolAdvReqReply.def::: Part A &#58; Valid Reply message in response to Request
+./C_RFC3315_CnfReply.seq:./C_RFC3315_CnfReply.def::: Part B &#58; Valid Reply message in response to Confirm message
+./C_RFC3315_RenReply.seq:./C_RFC3315_RenReply.def::: Part C &#58; Valid Reply message in response to Renew message
+./C_RFC3315_RebReply.seq:./C_RFC3315_RebReply.def::: Part D &#58; Valid Reply message in response to Rebind message
+./C_RFC3315_RelReply.seq:./C_RFC3315_RelReply.def::: Part E &#58; Valid Reply message in response to Release message
+./C_RFC3315_DecReply.seq:./C_RFC3315_DecReply.def::: Part F &#58; Valid Reply message in response to Decline message
+
+&print:<B>Test CERouter 1.1.2 : Implementation of DHCP Constants</B>
+./C_RFC3315_13_CltMsgMCastAddrFormat.seq:./C_RFC3315_13_CltMsgMCastAddrFormat.def::: Part A &#58; Multicast Address
+./C_RFC3315_5_2_UdpPort.seq:./C_RFC3315_5_2_UdpPort.def:::Part B &#58; Valid UDP port
+
+&print:<B>Test CERouter 1.1.3 : DHCPv6 Option Format</B>
+./C_RFC3315_22_2_CltIdOpt.seq:./C_RFC3315_22_2_CltIdOpt.def::: Part A &#58; Client Identifier Format
+./C_RFC3315_22_4_IANAOpt.seq:./C_RFC3315_22_4_IANAOpt.def::: Part B &58; IA_NA Option Format
+./C_RFC3315_22_3_SrvIdOpt.seq:./C_RFC3315_22_3_SrvIdOpt.def::: Part C &58; Server Identifier Option Format
+./C_RFC3315_22_6_IAAddrOpt.seq:./C_RFC3315_22_6_IAAddrOpt.def::: Part D &58; IA Address Option Format
+./C_RFC3646_3_DnsSvrOpt.seq:./C_RFC3646_3_DnsSvrOpt.def::: Part E &#58; Option request Option Format(DNS Recursive Name Server option)
+./C_RFC3646_4_DnsSchLstOpt.seq:./C_RFC3646_4_DnsSchLstOpt.def::: Part F &#58; Option request Option Format(Domain Search List option)
+
+&print:<B>Test CERouter 1.1.4 : Client DHCP Unique Identifier Contents</B>
+./C_RFC3646_DUID_Format.seq:./C_RFC3646_DUID_Format.def::: Part A &#58; DUID Format
+./C_RFC3646_DUID_Persit.seq:./C_RFC3646_DUID_Persit.def::: Part B &#58; DUID Consistency
+
+&print:<B>Test CERouter 1.1.5 : Elapsed Time Option Format</B>
+./C_RFC3315_22_9_ElapTimeOpt.seq:./C_RFC3315_22_9_ElapTimeOpt.def::: Part A &#58; Elapsed Time Option in Solicit message
+./C_RFC3315_22_9_ElapTimeOpt_ReqMsg.seq:./C_RFC3315_22_9_ElapTimeOpt_ReqMsg.def::: Part B &#58; Elapsed Time Option Format in Request message
+./C_RFC3315_22_9_ElapTimeOpt_CnfMsg.seq:./C_RFC3315_22_9_ElapTimeOpt_CnfMsg.def::: Part C &#58; Elapsed Time Option Format in Confirm message
+./C_RFC3315_22_9_ElapTimeOpt_RenMsg.seq:./C_RFC3315_22_9_ElapTimeOpt_RenMsg.def::: Part D &#58; Elapsed Time Option Format in Renew message
+./C_RFC3315_22_9_ElapTimeOpt_RebMsg.seq:./C_RFC3315_22_9_ElapTimeOpt_RebMsg.def::: Part E &#58; Elapsed Time Option Format in Rebind message
+./C_RFC3315_22_9_ElapTimeOpt_RelMsg.seq:./C_RFC3315_22_9_ElapTimeOpt_RelMsg.def::: Part F &#58; Elapsed Time Option Format in Release message
+./C_RFC3315_22_9_ElapTimeOpt_DecMsg.seq:./C_RFC3315_22_9_ElapTimeOpt_DecMsg.def::: Part G &#58; Elapsed Time Option Format in Decline message
+./C_RFC3315_22_9_ElapTimeOpt_maxtime.seq:./C_RFC3315_22_9_ElapTimeOpt_maxtime.def::: Part H &#58; Maximum Elapsed Time in elapsed-time field
+
+&print:<B>Test CERouter 1.1.6 : Identi Association Consistency</B>
+./C_RFC3315_10_CltIAIDFormat.seq:./C_RFC3315_10_CltIAIDFormat.def::: Identity Association Consistency
+
+&print:<B>Test CERouter 1.1.7 : Transmission of Solicit Messages</B>
+./C_RFC3315_17_1_1_Sol.seq:./C_RFC3315_17_1_1_Sol.def::: Part A &#58; Solicit message format
+./C_RFC3315_17_1_2_SolRetransMRT.seq:./C_RFC3315_17_1_2_SolRetransMRT.def::: Part B &#58; Retransmission Time of Solicit Message
+
+&print:<B>Test CERouter 1.1.8 : Message Exchange Termination for Solicit Messages</B>
+./C_RFC3315_17_1_2_SolWaitAdv.seq:./C_RFC3315_17_1_2_SolWaitAdv.def::: Part A &#58; Receives Advertise message without Preference Option before first RT elapse 
+./C_RFC3315_17_1_2_SolNoAdvRT.seq:./C_RFC3315_17_1_2_SolNoAdvRT.def ::: Part B &#58; Receives Advertise message without Preference Option after first RT elapse 
+
+&print:<B>Test CERouter 1.1.9 : Transmission of Request Messages</B>
+./C_RFC3315_18_1_1_TransReq.seq:./C_RFC3315_18_1_1_TransReq.def::: Part A &#58; Request message format
+./C_RFC3315_18_1_1_ReqRetransMRT.seq:./C_RFC3315_18_1_1_ReqRetransMRT.def::: Part B &#58; Maximum Retransmission Time of Request messages
+./C_RFC3315_18_1_1_RetransReq.seq:./C_RFC3315_18_1_1_RetransReq.def::: Part C &#58; Maximum Retransmission Count of Request messages
+
+&print:<B>Test CERouter 1.1.10 : Transmission of Confirm Messages</B>
+./C_RFC3315_18_1_2_TransCnf.seq:./C_RFC3315_18_1_2_TransCnf.def::: Part A &#58; Confirm message format 
+./C_RFC3315_18_1_2_CnfRetransMRT.seq:./C_RFC3315_18_1_2_CnfRetransMRT.def::: Part B &#58; Maximum Retransmission Time of Confirm message
+./C_RFC3315_18_1_2_RetransCnf.seq:./C_RFC3315_18_1_2_RetransCnf.def::: Part C &#58; Maximum Retransmission Duration of Confirm message 
+./C_RFC3315_18_1_2_ResvCnf.seq:./C_RFC3315_18_1_2_ResvCnf.def::: Part D  &#58; Reserved Address Information 
+./C_RFC3646_5_DnsSvrOpt_After_Confirm.seq:./C_RFC3646_5_DnsSvrOpt_After_Confirm.def::: Part E &#58; Option request Option (DNS Recursive Name Server option)
+./C_RFC3646_5_DnsSchLstOpt_After_Confirm.seq:./C_RFC3646_5_DnsSchLstOpt_After_Confirm.def::: Part F &#58;Option request Option (Domain Search List option)
+
+&print:<B>Test CERouter 1.1.11 : Transmission of Renew Messages</B>
+./C_RFC3315_18_1_3_TransRen.seq:./C_RFC3315_18_1_3_TransRen.def::: Part A &#58; Renew message format 
+./C_RFC3315_18_1_3_RenRetransMRT.seq:./C_RFC3315_18_1_3_RenRetransMRT.def::: Part B &#58; Maximum Retransmission Time of Renew message, T1 and T2 non-zero
+./C_RFC3315_18_1_3_RetransRen.seq:./C_RFC3315_18_1_3_RetransRen.def::: Part C &#58; Maximum Retransmission Duration of Renew message, T1 and T2 non-zero
+
+&print:<B>Test CERouter 1.1.12 : Transmission of Rebind Messages</B>
+./C_RFC3315_18_1_4_TransReb.seq:./C_RFC3315_18_1_4_TransReb.def:::  Part A &#58; Rebind message format 
+./C_RFC3315_18_1_4_RebRetransMRT.seq:./C_RFC3315_18_1_4_RebRetransMRT.def::: Part B &#58; Maximum Retransmission Time of Rebind messages, T1 and T2 (Valid lifetime=3000s)
+./C_RFC3315_18_1_4_RetransReb.seq:./C_RFC3315_18_1_4_RetransReb.def::: Part C &#58; Maximum Retransmission Count of Rebind messages, T1 and T2 (Valid Lifetime = 300s)
+
+&print:<B>Test CERouter 1.1.13 : Transmission of Release Messages</B>
+./C_RFC3315_18_1_6_TransRel.seq:./C_RFC3315_18_1_6_TransRel.def:::  Part A &#58; Release message format 
+./C_RFC3315_18_1_6_TransRelErrDetect.seq:./C_RFC3315_18_1_6_TransRelErrDetect.def::: Part B &#58; Release of received address
+./C_RFC3315_18_1_6_RelRetransRT.seq:./C_RFC3315_18_1_6_RelRetransRT.def::: Part C &#58; Retransmission of Release message
+./C_RFC3315_18_1_6_RetransRel.seq:./C_RFC3315_18_1_6_RetransRel.def::: Part D &#58; Maximum Retransmission Count of Release message, no reply message from Server
+./C_RFC3315_18_1_6_RelReplyFail.seq:./C_RFC3315_18_1_6_RelReplyFail.def:::  Part E &#58; Retransmission and message exchange termination, Server responds with Reply message
+./C_RFC3315_18_1_6_RetransRel_Eltime.seq:./C_RFC3315_18_1_6_RetransRel_Eltime.def:::  Part F &#58; Elapsed-time value of the retransmit Release message
+
+&print:<B>Test CERouter 1.1.14 : Transmission of Decline Messages</B>
+./C_RFC3315_18_1_7_TransDec.seq:./C_RFC3315_18_1_7_TransDec.def::: Part A &#58; Decline message format 
+./C_RFC3315_18_1_7_TransDecErrDetect.seq:./C_RFC3315_18_1_7_TransDecErrDetect.def::: Part B &#58; Decline of received address
+./C_RFC3315_18_1_7_DecRetransRT.seq:./C_RFC3315_18_1_7_DecRetransRT.def::: Part C &#58; Retransmission of Decline message
+./C_RFC3315_18_1_7_RetransDec.seq:./C_RFC3315_18_1_7_RetransDec.def::: Part D &#58; Maximum Retransmission Count of Decline message, no reply message from Server
+./C_RFC3315_18_1_7_DecReplyFail.seq:./C_RFC3315_18_1_7_DecReplyFail.def::: Part E &#58; Retransmission and message exchange termination, Server responds with Reply message
+
+&print:<B>Test CERouter 1.1.15 : Reception of Advertise Messages</B>
+./C_RFC3315_17_1_3_AdvWStatusCode.seq:./C_RFC3315_17_1_3_AdvWStatusCode.def::: Reception of Advertise messages
+
+&print:<B>Test CERouter 1.1.16 : Client Initiated Exchange - Reception of a Reply Message</B>
+./C_RFC3315_18_1_8_RecvReplyUseT1T2.seq:./C_RFC3315_18_1_8_RecvReplyUseT1T2.def::: Part A &#58; T1 and T2 Times Recorded
+./C_RFC3315_18_1_8_RecvReplyUseNewAddr.seq:./C_RFC3315_18_1_8_RecvReplyUseNewAddr.def::: Part B &#58; New Address in IA option
+./C_RFC3315_18_1_8_RecvReplyUpdatedAddr.seq:./C_RFC3315_18_1_8_RecvReplyUpdatedAddr.def::: Part C &#58; Update Lifetimes
+./C_RFC3315_18_1_8_RecvReplyUpdatedZero.seq:./C_RFC3315_18_1_8_RecvReplyUpdatedZero.def::: Part D &#58; IA Address option - Valid Lifetime set to zero
+./C_RFC3315_18_1_8_RecvReplyNewAddrZero.seq:./C_RFC3315_18_1_8_RecvReplyNewAddrZero.def::: Part E &#58; IA Address option not included in IA from Server
+./C_RFC3315_18_1_8_RecvReplyWStatusUnspecFail.seq:./C_RFC3315_18_1_8_RecvReplyWStatusUnspecFail.def::: Part F &#58; Reply message contain UnspecFail
+./C_RFC3315_18_1_8_RecvReplyWStatusUseMulticast.seq:./C_RFC3315_18_1_8_RecvReplyWStatusUseMulticast.def:::  Part G &#58; Reply message contain UseMulticast
+./C_RFC3315_18_1_8_ReqReplyWStatusNotOnLink.seq:./C_RFC3315_18_1_8_ReqReplyWStatusNotOnLink.def::: Part H &#58; Reply message contains NotOnLink in response to a Request message
+./C_RFC3315_18_1_8_CnfReplyWStatusNotOnLink.seq:./C_RFC3315_18_1_8_CnfReplyWStatusNotOnLink.def:::  Part I &#58; Reply message contains NotOnLink in response to a Confirm message 
+./C_RFC3315_18_1_8_CnfReplyWoStatusNotOnLink.seq:./C_RFC3315_18_1_8_CnfReplyWoStatusNotOnLink.def::: Part J &#58; Reply message in response to a Confirm message
+./C_RFC3315_18_1_8_RenReplyWIAStatusNoBinding.seq:./C_RFC3315_18_1_8_RenReplyWIAStatusNoBinding.def::: Part K &#58; Reply message contains NoBinding in response to a Renew message
+./C_RFC3315_18_1_8_RebReplyWIAStatusNoBinding.seq:./C_RFC3315_18_1_8_RebReplyWIAStatusNoBinding.def::: Part L &#58; Reply message contains NoBinding in response to a Rebind message
+./C_RFC3315_18_1_8_RenReplyNotWantedIA.seq:./C_RFC3315_18_1_8_RenReplyNotWantedIA.def::: Part M &#58; Reply message contains no IA_NA in response to a Renew message
+./C_RFC3315_18_1_8_RebReplyNotWantedIA.seq:./C_RFC3315_18_1_8_RebReplyNotWantedIA.def::: Part N &#58; Reply message contains no IA_NA in response to a Rebind message
+./C_RFC3315_18_1_8_RelReply.seq:./C_RFC3315_18_1_8_RelReply.def::: Part O &#58; Reply message contains NoBinding in response to a Release message
+./C_RFC3315_18_1_8_DecReply.seq:./C_RFC3315_18_1_8_DecReply.def::: Part P &#58; Reply message contains NoBinding in response to a Decline message
+
+&print:<B>Test CERouter 1.1.17 : Reception of Reply Messages for DNS Configuration Options</B>
+./C_RFC3646_3_DnsSvrOpt_rep.seq:./C_RFC3646_3_DnsSvrOpt_rep.def::: Part A &#58; Using DNS Recursive Name Server option
+./C_RFC3646_4_DnsSchLstOpt_rep.seq:./C_RFC3646_4_DnsSchLstOpt_rep.def::: Part B &#58; Using Domain Search List option
+./C_RFC3646_3_Update_DnsSvrOpt_rep.seq:./C_RFC3646_3_Update_DnsSvrOpt_rep.def::: Part C &#58; DNS Recursive Name Server option updated by renew message
+./C_RFC3646_4_Update_DnsSchLstOpt_rep.seq:./C_RFC3646_4_Update_DnsSchLstOpt_rep.def::: Part D &#58; Domain Search List option updated by renew message
+./CERouter_1_1_17_E.seq:./CERouter_1_1_17_E.def::: Part E &#58; DNS Recursive Name Server option updated by rebind message
+./CERouter_1_1_17_F.seq:./CERouter_1_1_17_F.def::: Part F &#58; Domain Search List option updated by rebind message
+
+&print:<B>Test CERouter 1.1.18 : Reception of Invalid Advertise Message</B>
+./C_RFC3315_15_3_DiscInvalidAdvWoSrvIdOpt.seq:./C_RFC3315_15_3_DiscInvalidAdvWoSrvIdOpt.def::: Part A &#58; No Server Identifier option
+./C_RFC3315_15_3_DiscInvalidAdvWoCltIdOpt.seq:./C_RFC3315_15_3_DiscInvalidAdvWoCltIdOpt.def::: Part B &#58; No Client Identifier option
+./C_RFC3315_15_3_DiscInvalidAdvWErrCltIdOpt.seq:./C_RFC3315_15_3_DiscInvalidAdvWErrCltIdOpt.def::: Part C &#58; Client Identifier that does not match the DUID of the client
+./C_RFC3315_15_3_DiscInvalidAdvWErrTransid.seq:./C_RFC3315_15_3_DiscInvalidAdvWErrTransid.def::: Part D &#58; Transaction ID Mismatch
+
+&print:<B>Test CERouter 1.1.19 : Reception of Invalid Reply Message</B>
+./C_RFC3315_15_10_DiscInvalidReplyWoSrvIdOpt.seq:./C_RFC3315_15_10_DiscInvalidReplyWoSrvIdOpt.def::: Part A &#58; No Server Identifier option
+./C_RFC3315_15_10_DiscInvalidReplyWErrTransid.seq:./C_RFC3315_15_10_DiscInvalidReplyWErrTransid.def::: Part B &#58; Transaction ID Mismatch
+./C_RFC3315_22_4_IANAOptInvalidTime.seq:./C_RFC3315_22_4_IANAOptInvalidTime.def::: Part C &#58; Contains invalid IA_NA option T1>T2
+./C_RFC3315_22_6_DiscInvalidIAAddr.seq:./C_RFC3315_22_6_DiscInvalidIAAddr.def::: Part D &#58; Contains invalid IA Address (preferred lifetime > valid lifetime)
+
+&print:<B>Test CERouter 1.1.20 : Client Message Validation</B>
+./C_RFC3315_15_2_DiscSol.seq:./C_RFC3315_15_2_DiscSol.def::: Part A &#58; Solicit message (type1)
+./C_RFC3315_15_4_DiscReq.seq:./C_RFC3315_15_4_DiscReq.def::: Part B &#58; Request message (type3)
+./C_RFC3315_15_5_DiscCnf.seq:./C_RFC3315_15_5_DiscCnf.def::: Part C &#58; Confirm message (type 4)
+./C_RFC3315_15_6_DiscRen.seq:./C_RFC3315_15_6_DiscRen.def::: Part D &#58; Renew message (type 5)
+./C_RFC3315_15_7_DiscReb.seq:./C_RFC3315_15_7_DiscReb.def::: Part E &#58; Rebind message (type 6)
+./C_RFC3315_15_8_DiscDec.seq:./C_RFC3315_15_8_DiscDec.def::: Part F &#58; Decline message (type 9)
+./C_RFC3315_15_9_DiscRel.seq:./C_RFC3315_15_9_DiscRel.def::: Part G &#58; Release message (type 8)
+./C_RFC3315_15_13_DiscRelayForw.seq:./C_RFC3315_15_13_DiscRelayForw.def::: Part H &#58; Relay-forward message (type 12)
+./C_RFC3315_15_14_DiscRelayRepl.seq:./C_RFC3315_15_14_DiscRelayRepl.def::: Part I &#58; Relay-reply message (type 13)
+./C_RFC3315_15_11_DiscInfoReq.seq:./C_RFC3315_15_11_DiscInfoReq.def::: Part J &#58; Information-request message (type 11)
+
+&print:<B>Test CERouter 1.1.21 : SOL_MAX_RT Option</B>
+./CERouter_1_1_21_A.seq:./CERouter_1_1_21_A.def::: Part A &#58; SOL_MAX_RT Option
+./CERouter_1_1_21_B.seq:./CERouter_1_1_21_B.def::: Part B &#58; Set Value (300 seconds)
+./CERouter_1_1_21_C.seq:./CERouter_1_1_21_C.def::: Part C &#58; Less then 60 seconds
+./CERouter_1_1_21_D.seq:./CERouter_1_1_21_D.def::: Part D &#58; Greater then 86400 seconds
+./CERouter_1_1_21_E.seq:./CERouter_1_1_21_E.def::: Part E &#58; No Addresses Available-Status Code

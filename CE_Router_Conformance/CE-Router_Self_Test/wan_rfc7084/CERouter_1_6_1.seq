@@ -1,0 +1,180 @@
+#!/usr/bin/perl
+#
+# Copyright (C) 2013
+# Chunghwa Telecommunication Labratories (CHT-TL)
+# All rights reserved.
+# 
+# Redistribution and use of this software in source and binary
+# forms, with or without modification, are permitted provided that
+# the following conditions and disclaimer are agreed and accepted
+# by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in
+#    the documentation and/or other materials provided with
+#    the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project
+#    which is related to this software (hereinafter referred to as
+#    "project") nor the names of the contributors may be used to
+#    endorse or promote products derived from this software without
+#    specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written
+#    notification to the copyrighters.
+# 
+# 5. The copyrighters, the project and the contributors may prohibit
+#    the use of this software at any time.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+# STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+# IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+# $CHT-TL: CERouter_1_6_1.seq, v 1.0 2013/08/30 weifen Exp $
+#
+################################################################
+
+BEGIN{
+	$V6evalTool::TestVersion = '$Name: CE-Router_Self_Test_1_0_5 $';
+}
+
+use strict;
+use V6evalTool;
+
+use lib '../.';
+use CPE6;
+
+#--------------------------------------------------------------#
+# Initialization variables
+#--------------------------------------------------------------#
+my $IF0_NUT = $V6evalTool::NutDef{"Link0_device"};
+my $IF0 = "Link0";
+
+vLog("*** Target initialization phase ***");
+my $rret=vRemote("reboot_async.rmt","","");
+vLog("reboot_async.rmt returned status $rret");
+
+vCapture($IF0);
+
+#--------------------------------------------------------------#
+# Testing Procedure
+#--------------------------------------------------------------#
+vLog("Wait for link-local address DAD packet");
+my %ret = vRecv($IF0, 300, 0, 0, 'dad_from_nut','rs');
+if ($ret{status} == 0) {
+  if($ret{'recvFrame'} eq 'dad_from_nut') {
+    vLog("Receive DAD packet, wait for rs");
+    my %ret1 = vRecv($IF0, 30, 0, 0,'rs');
+    if ($ret1{status} != 0) {
+      cpe6ExitError("<B><FONT COLOR=\"#FF0000\">Error! Does not receive RS.</FONT></B><BR>");
+    }
+  } else {
+    cpe6ExitError("<B><FONT COLOR=\"#FF0000\">Error! RS packet before DAD.</FONT></B><BR>");
+  }
+} else {
+  cpe6ExitError("<B><FONT COLOR=\"#FF0000\">Error! Does not receive DAD or RS in 100 seconds.</FONT></B><BR>");
+}
+#--------------------------------------------------------------#
+# End
+#--------------------------------------------------------------#
+vClear($IF0);
+vStop($IF0);
+
+#dhcpExitPass;
+cpe6ExitPass($IF0);
+
+###############################################################################
+__END__
+
+=head1 NAME 
+
+  Router Solicitation Transmission
+
+=head1 TARGET
+
+  CE-Router
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./CERouter_1_6_1.seq"> CERouter_1_6_1.seq</A> [-tooloption...] <BR>  -pkt  <A HREF="./CERouter_1_6_1.def"> CERouter_1_6_1.def</A> <BR>  -tooloption : v6eval tool option
+<BR>
+  See Also <A HREF="../CPE6_common.def"> CPE6_common.def </A> 
+</PRE>
+
+=end html
+
+=head1 INITIALIZATION
+
+=head1 TEST PROCEDURE
+
+=begin html
+<PRE>
+<BR>
+       TN2     NUT     TR1
+        |       |       |
+        |       |       |Initialize NUT(as a DHCPv6 requesting router)
+        |       |       |
+        |       | ----> |<B>NS (DAD packet)</B>
+        |       |       |
+        |       | ----> |<B>Solicit</B> (1*)
+        |       |       |
+
+<BR>
+</PRE>
+
+=end html
+
+=head1 JUDGEMENT
+
+=begin html
+<PRE>
+<BR>
+  (1*)PASS: CE-Router must complete Duplicate Address Detection on link-local addresses before
+  transmitting Router Solicitations. Router Solicitations must be transmitted with a link-local
+  source address and the all-routers multicast address (ff02::2).
+</PRE>
+
+=end html
+
+=head1 TERMINATION
+
+=begin html
+<PRE>
+  N/A
+</PRE>
+
+=end html
+
+=head1 REFERENCE
+
+=begin html
+<PRE>
+[RFC 7084],W-2
+</PRE>
+
+=end html
+
+=head1 SEE ALSO
+
+=begin html
+<PRE>
+<BR>
+  perldoc  V6evalTool
+<BR>
+</PRE>
+
+=end html

@@ -1,0 +1,285 @@
+
+
+
+                                CHANGELOG
+
+                                   for
+
+           IPv6 Ready Logo Phase-2 CE Router Conformance Test Package
+2018/12/06    Release 1.0.5
+		Official release
+	o Send DHCPv6 Reply message
+		wan_rfc3633
+			CERouter_1_2_7_B.seq
+	o Correct the checking for DHCPv6 Request message
+		wan_rfc3315_rfc3646
+			C_RFC3315_18_1_8_ReqReplyWStatusNotOnLink.seq
+	o Add allowed buffer time for compare the retransmitted dhcpv6 packet.
+		CPE6_config.pm
+		All retransmitted packets testing sequence in wan_rfc3315_rfc3646 and wan_rfc3633
+	o Add checking IA_PD option for DHCPv6 confirm and decline message
+		wan_rfc3315_rfc3646
+			C_RFC3315_CnfReply.seq
+			C_RFC3315_18_1_2_TransCnf.seq
+			C_RFC3315_DecReply.seq
+			C_RFC3315_18_1_7_TransDec.seq
+	o Contain IA_NA option in DHCPv6 Reply message
+		wan_rfc3633
+			C_RFC3633_RepMsgWithNoPrefixAvail_10_3_3_B.seq
+	o Correct the retransmit judgment
+		wan_rfc3315_rfc3646
+			C_RFC3315_18_1_2_CnfRetransMRT.seq
+	o Correct the target address of NS
+		forward_rfc7084
+			CERouter_3_2_2_B.seq
+			CERouter_3_2_2_B.def
+	o Correct the parameter of judgment
+		lan_rfc3315
+			S_RFC3315_18.2.3_ReplyLifetime0ReceiptRenewMsg.seq
+	o Add specified condition for eRouter
+		config.pl
+		CPE6_config.pm
+		lan_rfc7084
+			L_No_Prefix_Delegated_A.seq
+	o Correct the parameter of judgment
+		wan_rfc3315_rfc3646
+			C_RFC3315_18_1_3_RenRetransMRT.seq
+	o Correct the global SLAAC address definition
+		lan_rfc4862		
+			v6LC_3_2_1_A.def
+			v6LC_3_2_1_A.seq
+	o Correct the R-flag of CERouter's LAN side
+		lan_rfc4862
+			LLA_SAA.def
+			SAA.def
+	o Correct the layer 2 address
+		lan_rfc2460
+			DO_MSB10mc.def
+			DO_MSB11mc.def
+			HHO_MSB10mc_EN.def
+	o Correct the code to get the prefix length of PD
+		wan_rfc7084
+			CERouter_1_6_5_B.seq
+			W_DHCP6_Hint.seq
+o Correct the A flag and the DNS server address
+		wan_rfc2460_rfc4861_rfc4443
+			V6LC_2_2_13_B.def
+			V6LC_2_2_13_C.def
+			common.pm
+	o Correct the source address of NS packet
+		wan_rfc2460_rfc4861_rfc4443
+			V6LC_2_1_6_A.seq
+			V6LC_2_1_6_A.def
+			V6LC_2_1_6_B.seq
+			V6LC_2_1_6_B.def
+			ndisc.pm
+	o Send RA after receiving RS
+		wan_rfc3633
+			C_RFC3633_MaxRetransTimeSolMsg_10_2_1_D.seq
+		wan_rfc3315
+			1.1.7 part B
+	o Modify the process to check RA
+		wan_rfc3633
+			C_RFC3633_MaxRetransTimeReqMsg_10_2_3_C.seq
+	o Remove must sending icmpv6 destination unreachable in 3.2.3
+		forward_rfc7084
+			W_Prevent_Fwd_Loop.seq
+	o Init CPE WAN interface without waiting DAD time
+		DHCPv6_common.pm
+		lan_rfc4862
+			LLA_DADSuccess.seq
+			LLA_DAD_NAPostDAD_CODEnon0.seq
+			LLA_DAD_NAPostDAD_DiffTgt.seq
+			LLA_DAD_NAPostDAD_HL254.seq
+			LLA_DAD_NAPostDAD_invalidCHKSUM.seq
+			LLA_DAD_NAPostDAD_invalidLEN.seq
+			LLA_DAD_NAPostDAD_invalidOptLen.seq
+			LLA_DAD_NAPostDAD_Reserved.seq
+			LLA_DAD_NAPostDAD_SameTgt.seq
+			LLA_DAD_NAPostDAD_SF1.seq
+			LLA_DAD_NAPostDAD_tgtMCAST.seq
+			LLA_DAD_NAPostDAD_wSLL.seq
+			LLA_DAD_NSPostDAD_CODEnon0.seq
+			LLA_DAD_NSPostDAD_DstAll.seq
+			LLA_DAD_NSPostDAD_DstTent.seq
+			LLA_DAD_NSPostDAD_HL254.seq
+			LLA_DAD_NSPostDAD_invalidCHKSUM.seq
+			LLA_DAD_NSPostDAD_invalidLEN.seq
+			LLA_DAD_NSPostDAD_Reserved.seq
+			LLA_DAD_NSPostDAD_SameDstDiffTgt.seq
+			LLA_DAD_NSPostDAD_SameDstSameTgt.seq
+			LLA_DAD_NSPostDAD_SrcDstUni.seq
+			LLA_DAD_NSPostDAD_SrcUni.seq
+			LLA_DAD_NSPostDAD_tgtMCAST.seq
+			LLA_DAD_NSPostDAD_wSLL.seq
+			LLA_DAD_NSPostDAD_wTLL.seq
+	o Correct the packet definition in 2.4.7, 2.4.8,2.4.9 part B and part D
+		lan_rfc4861
+			ndisc.pm
+			ndisc_na.def
+			nd_ns.def
+			ndisc_echo.def
+			nd_na.def
+	o Add ping test for CERouter3.2.1 when doing common test setup
+		forwarding_rfc7084
+			CERouter_3_2_1_A.seq
+			CERouter_3_2_1_B.seq
+	o Modify the checking process for receving RA
+		lan_rfc7084
+			L_No_Prefix_Delegated_A.seq
+			L_No_Prefix_Delegated_B.seq
+			CERouter_2_7_3.seq
+	o Allow NUT uses global address to send ICMPv6 error message
+		lan_rfc2460
+			IP_Version.def
+			IP_Version.seq
+			IP_NH_NoneEN.def
+			IP_NH_NoneEN.seq
+			HHO_MSB01_EN.def
+			HHO_MSB01_EN.seq
+			EX_OptProcessingOrder_01.def
+			EX_OptProcessingOrder_01.seq
+			EX_OptProcessingOrder_10.def
+			EX_OptProcessingOrder_10.seq
+			EX_OptProcessingOrder_11.def
+			EX_OptProcessingOrder_11.seq
+			EX_NH_NoneEN.def
+			EX_NH_NoneEN.seq
+			EX_HdrProcessingOrder_HFD_M10.def
+			EX_HdrProcessingOrder_HFD_M10.seq
+			EX_HdrProcessingOrder_HDF_10M.def
+			EX_HdrProcessingOrder_HDF_10M.seq
+			EX_HdrProcessingOrder_HDF_00M.def
+			EX_HdrProcessingOrder_HDF_00M.seq
+			DO_MSB01.def
+			DO_MSB01.seq
+			DO_MSB10.def
+			DO_MSB10.seq
+			DO_MSB11.def
+			DO_MSB11.seq
+			HHO_MSB10_EN.def
+			HHO_MSB10_EN.seq
+			HHO_MSB11_EN.def
+			HHO_MSB11_EN.seq
+			DO_MSB10mc.def
+			DO_MSB10mc.seq
+			DO_MSB11mc.def
+			DO_MSB10mc.seq
+			HHO_MSB11mc_EN.def
+			HHO_MSB11mc_EN.seq
+			HHO_MSB10mc_EN.def
+			HHO_MSB10mc_EN.seq
+	o Fix the error of CERouter2.3.10 part G
+		lan_rfc2460
+			DO_MSB10mc.seq
+	o Add elapsed time option to DHCPv6 Message which was sent by client 
+		lan_rfc3315
+			S_RFC3315_22.13_StatusCodeOP.def
+			S_RFC3315_18.2.1_ReceiptRequestMsgWithStatusCodeOPNotOnLink.def
+			S_RFC3315_18.2.2_ReceiptConfirmMsgWithNotOnLink.def
+			S_RFC3315_18.2.3_ReplyLifetime0ReceiptRenewMsg.def
+			S_RFC3315_18.2.3_ReplyNoBindingStutusCodeReceiptRenewMsg.def
+	o Correct the NS definition of CERouter 1.3.18  
+		wan_rfc2460_rfc4861_rfc4443
+			v6LC_2_2_19.def
+2016/09/14    Release 1.0.4
+		Official release
+	o Remove IA_NA and IA_PD option in DHCPv6 Reply when testing UnspecFail and UseMulticast
+		wan_rfc3315_rfc3646
+			C_RFC3315_18_1_8_RecvReplyWStatusUnspecFail.seq
+			C_RFC3315_18_1_8_RecvReplyWStatusUseMulticast.seq
+	o Add IA_PD,DNS server address and domain name search list
+		wan_rfc3315_rfc3646
+			C_RFC3315_5_2_UdpPort.seq
+			C_RFC3315_5_2_UdpPort.def
+			C_RFC3315_22_3_SrvIdOpt.seq
+			C_RFC3315_22_3_SrvIdOpt.def
+			C_RFC3315_22_9_ElapTimeOpt_ReqMsg.seq
+	o Add TLL option in NA packet
+			DHCPv6.def
+	o Add reboot command for LAN RFC 4861 test case 101 to 106
+		lan_rfc4861
+			V6LC_2_2_4_A.seq
+			V6LC_2_2_4_B.seq
+			V6LC_2_2_4_C.seq
+			V6LC_2_2_4_D.seq
+			V6LC_2_2_4_E.seq
+			V6LC_2_2_4_F.seq
+	o Modify the checking process for receving RA
+		wan_rfc3633
+			C_RFC3633_MaxRetransCountReqMsg_10_2_3_D.seq
+			C_RFC3633_Update_Lifetimes_Zero_10_3_2_F.seq
+			CERouter_1_2_6_C.seq
+	o Modify the checking process
+		wan_rfc3633
+			C_RFC3633_RepMsgWithNoBinding_10_3_3_C.seq
+	o Add sending RA process to trigger DHCPv6 process
+		wan_rfc3633
+			C_RFC3633_RepMsgWithNoPrefixAvail_10_3_3_B.seq
+			C_RFC3633_RepMsgWithNoPrefixAvail_10_3_3_B.def
+			CERouter_1_2_9_C.seq
+			CERouter_1_2_9_C.def
+	o Add reboot for CERouter.1.3.8 part F
+		wan_rfc2460_rfc4861_rfc4443
+			V6LC_2_2_2_F.seq
+2016/08/05    Release 1.0.3
+    Official release, update test tool to match test specification 1.0.1
+	o Modify the checking rule for 1.2.9 part D
+		wan_rfc3633
+			C_RFC3633_Update_Lifetimes_Zero_10_3_2_F.seq
+	o Modify the checking rule for 2.7.5 part B
+		lan_rfc7084
+			CERouter_2_7_5_B.seq
+	o Correct the source address of TR1'NA
+		CPE6_common.def
+		
+2016/05/10    Release 1.0.2
+    Official release
+	o Provide IA_PD,RDNS and DNSSL option in CERouter1.1.20 part J
+		wan_rfc3315_rfc3646
+			C_RFC3315_15_11_DiscInfoReq.seq
+	o Modify CERouter2.7.4 to only check RDNS and DNSSL option in RA
+		lan_rfc7084
+			L_Adv_RDNSS.seq
+			CERouter_2_7_4_B.seq
+	o Modify CERouter3.2.4 to check if NUT ask NS/NA for forwarding request packet
+		lan_rfc7084
+			L_Adv_RDNSS.seq
+			CERouter_2_7_4_B.seq
+	o Modify CERouter1.5.8 and CERouter3.1.8 to be advanced function for MTU
+		wan_rfc1981
+			RAwithMTUreduce.seq
+		forward_rfc2460_rfc4861_rfc4443
+			Pkt_Too_Big.seq
+	o Change the Unknown prefix in CERouter2.7.6
+		lan_rfc7084
+			CERouter_2_7_6.def
+2016/02/22    Release 1.0.1
+    Official release
+	o Provide testing DHCPv6 stateful and stateless server at same time
+		config.pl
+		all seq files in lan_rfc3736
+	o Provide IA_NA option in CERouter1.1.17 part C to F
+		wan_rfc3315_rfc3646
+			CERouter_1_1_17_E.seq
+			CERouter_1_1_117_F.seq
+			C_RFC3646_3_Update_DnsSvrOpt_rep.seq
+			C_RFC3646_4_Update_DnsSchLstOpt_rep.seq
+	o Correct the title of CERouter1.6.3 part D
+		wan_rfc7084
+			INDEX_p2_ce
+	o Minimize the necessary capture files for wan testing
+		wan_rfc3736
+			INDEX_p2_ce
+	o Correct the RA reachable time for CERouter1.3.15 and add sleeping time in common test setup 1.2 
+	  to ignore WAN global address DAD
+		DHCPv6_common.pm
+		wan_rfc2460_rfc4861_rfc4443
+			rdisc.pm
+			All V6LC_2_2_15* files
+			All v6LC_2_2_16* files
+2015/11/13    Release 1.0.0
+    1st official release
+
+
+                                                      [end of CHANGELOG]

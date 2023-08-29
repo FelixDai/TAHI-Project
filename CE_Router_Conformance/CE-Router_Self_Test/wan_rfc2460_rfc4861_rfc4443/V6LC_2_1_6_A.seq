@@ -1,0 +1,317 @@
+#!/usr/bin/perl
+#
+# Copyright (C) 2013, 2014, 2015, 2016, 2017
+# Chunghwa Telecommunication Labratories (CHT-TL)
+# All rights reserved.
+# 
+# Redistribution and use of this software in source and binary
+# forms, with or without modification, are permitted provided that
+# the following conditions and disclaimer are agreed and accepted
+# by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in
+#    the documentation and/or other materials provided with
+#    the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project
+#    which is related to this software (hereinafter referred to as
+#    "project") nor the names of the contributors may be used to
+#    endorse or promote products derived from this software without
+#    specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written
+#    notification to the copyrighters.
+# 
+# 5. The copyrighters, the project and the contributors may prohibit
+#    the use of this software at any time.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+# STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+# IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+# $CHT-TL: V6LC_2_1_6_A.seq,v 1.2 2017/05/24  weifen Exp $
+#
+########################################################################
+BEGIN{
+	$V6evalTool::TestVersion = '$Name: CE-Router_Self_Test_1_0_5 $';
+}
+
+use nd;
+
+use lib '../';
+use CPE6_config;
+use DHCPv6_common;
+
+startNdiscWorld($Link0);
+
+
+
+#-- AdvRetransTimer: 5 ------------------------------------------------#
+vLogHTML('<FONT COLOR="#FF0000" SIZE="5"><U><B>Procedure</B></U></FONT><BR>');
+
+my $retransTimer = 5;
+if ($STATEFUL_CLIENT) {
+	my ($ret,$param) = cpe_initialization('mcast_ra_retranstiemer5_IANA',$Link0,"",$STATEFUL_CLIENT,0);
+	if ($ret==1) {
+		vLogHTML('<FONT COLOR="#FF0000"><B>Fail to initialize CPE!</B></FONT><BR>');
+		exitFail();
+	}
+	vSend($Link0, 'mcast_ra_retranstiemer5_IANA');
+} else {
+	vSend($Link0, 'mcast_ra_retranstiemer5');
+}
+
+vSleep(10);
+
+my $ereq = 'ndisc_ereq_LL_local';
+# send link-local Echo Request
+vClear($Link0);
+vSend($Link0, $ereq);
+
+my @frames  = (
+		'ndisc_mcast_ns_sll_GL_local',
+		'ndisc_mcast_ns_sll_LL_local'
+	);
+my $recvCount = 0;
+my $solicit = 0;
+
+$TimeOut = 5 + 1;
+my @recvTimes = ();
+
+for( ; ; ) {
+	my $recv_valid	= 0;
+	my %ret = vRecvWrapper($Link0, $TimeOut, 0, 0, @frames);
+
+	if($ret{'recvCount'}) {
+		$recvCount += $ret{'recvCount'};
+
+		foreach my $frame (@frames) {
+			if($ret{'recvFrame'} eq $frame) {
+				$solicit ++;
+				$recvCount --;
+				$recv_valid	++;
+				push(@recvTimes,
+					$ret{'recvTime'.$ret{'recvCount'}});
+				last;
+			}
+		}
+
+		if($solicit > $MAX_MULTICAST_SOLICIT) {
+			vLogHTML('<FONT COLOR="#FF0000"><B>'.
+				'Observed too many NSs</B></FONT><BR>');
+
+			exitFail();
+		}
+
+		if($recv_valid) {
+			next;
+		}
+	}
+
+	last;
+}
+
+unless($solicit) {
+	vLogHTML('<FONT COLOR="#FF0000"><B>'.
+		'Could\'t observe NS</B></FONT><BR>');
+
+	exitFail();
+}
+
+if($solicit < $MAX_MULTICAST_SOLICIT) {
+	vLogHTML('<FONT COLOR="#FF0000"><B>'.
+		'Observed too less NSs</B></FONT><BR>');
+
+	exitFail();
+}
+
+if(checkInterval($retransTimer, @recvTimes) < 0) {
+	exitFail();
+}
+
+exitPass();
+#NOTREACHED
+
+
+
+#------------------------------#
+# checkInterval                #
+#------------------------------#
+sub
+checkInterval($@)
+{
+	my ($retransTimer, @recvtimes) = @_;
+	my $returnvalue = 0;
+
+	vLogHTML('<TABLE>');
+
+	for(my $d = 0; $d <= $#recvtimes; $d ++) {
+		vLogHTML('<TR>');
+		vLogHTML("<TD ROWSPAN=\"2\">Recv[$d]</TD>");
+		vLogHTML('<TD ROWSPAN="2">:</TD>');
+		vLogHTML("<TD ROWSPAN=\"2\">$recvtimes[$d] sec.</TD>");
+
+		if($d == 0) {
+			vLogHTML('<TD COLSPAN="4">&nbsp;</TD>');
+		}
+
+		vLogHTML('</TR>');
+
+		vLogHTML('<TR>');
+
+		if($d == $#recvtimes) {
+			vLogHTML('<TD COLSPAN="4">&nbsp;</TD>');
+		} else {
+			my $delta = $recvtimes[$d + 1] - $recvtimes[$d];
+
+			vLogHTML("<TD ROWSPAN=\"2\">Interval[$d]</TD>");
+			vLogHTML('<TD ROWSPAN="2">:</TD>');
+			vLogHTML(sprintf("<TD ROWSPAN=\"2\">%.6f sec.</TD>",
+				$delta));
+
+			my $margin = 0.5;
+			if(($delta < $retransTimer - $margin) ||
+				($delta > $retransTimer + $margin)) {
+
+				vLogHTML('<TD ROWSPAN="2">');
+				vLogHTML('<FONT COLOR="#FF0000">*</FONT>');
+				vLogHTML('</TD>');
+				$returnvalue = -1;
+			} else {
+				vLogHTML('<TD ROWSPAN="2">&nbsp;</TD>');
+			}
+		}
+
+		vLogHTML('</TR>');
+	}
+
+	vLogHTML('</TABLE>');
+
+	if($returnvalue < 0) {
+		vLogHTML('<FONT COLOR="#FF0000">'.
+			'Retransmissions MUST be rate-limited to '.
+			'at most one solicitation per<BR>');
+		vLogHTML('<FONT COLOR="#FF0000">'.
+			'neighbor every RetransTimer milliseconds.<BR>');
+	}
+
+	return($returnvalue);
+}
+
+#
+# perldoc
+#
+########################################################################
+__END__
+
+=head1 NAME
+
+  Neighbor Solicitation Origination, Address Resolution
+  Part A: Neighbor Solicitation Origination, Target Address Being Link-local
+
+=head1 Purpose
+
+  Verify that a node properly originates Neighbor Solicitations when trying to resolve the
+  address of a neighbor.
+
+=head1 References
+
+[RFC 7084],W-3
+[RFC 4861],Section 6.2.1, 7.2.2
+
+=head1 Resource Requirements
+
+  * Packet generator
+  * Monitor to capture packets
+
+=head1 Test Setup
+
+  Common Test Setup 1.2 is performed at the beginning of this test part.
+  The Common Test Cleanup procedure is performed after each part.
+
+=begin html
+
+<BLOCKQUOTE>
+
+<TABLE>
+<TR>
+
+<TD>
+<TABLE BORDER>
+<Caption>Packet A</Caption>
+<TR>
+<TD>
+	IPv6 Header<br>
+	Next Header: 58<br>
+	Source Address: TN1's local Address<br>
+	Destination Address: CE-Router's Link-local Address
+</TD>
+</TR>
+<TR>
+<TD>ICMPv6 Echo Request</TD>
+</TR>
+</TABLE>
+</TD>
+
+<TD>
+<TABLE BORDER>
+<Caption>Packet B</Caption>
+<TR>
+<TD>
+        IPv6 Header<br>
+        Next Header: 58<br>
+        Source Address: TN1's Global Address<br>
+	Destination Address: CE-Router's Global Address
+</TD>
+</TR>
+<TR>
+<TD>ICMPv6 Echo Request</TD>
+</TR>
+</TABLE>
+</TD>
+
+</TR>
+</TABLE>
+
+</BLOCKQUOTE>
+
+=end html
+
+=head1 Procedure
+
+  Part A: Neighbor Solicitation Origination, Target Address Being Link-local
+   1. TR1 transmits a Router Advertisement with a Retransmit Interval value of 5 seconds.
+   2. TN1 transmits Packet A. The source address is TN1's link-local address and the destination
+      address is the CE-Router's link-local address.
+   3. Observe the packets transmitted by the CE-Router. TN1 doesn't send any Neighbor Advertisement.
+
+=head1 Observable Results
+
+  Part A
+
+    Step 3: 
+    The CE-Router should transmit the Neighbor Solicitations with a Target
+    Address equal to the TN1's Link-local Address at intervals of 5 seconds. The CE-Router MUST
+    transmit no more than 1 Neighbor Solicitation every 5 seconds. Each Neighbor Solicitation
+    MUST have a Source Link-Layer Address Option. The maximum number of Neighbor
+    Solicitations should be MAX_MULTICAST_SOLICIT, which should be 3.
+
+=head1 Possible Problems
+
+  * None. 
+
+=cut
+

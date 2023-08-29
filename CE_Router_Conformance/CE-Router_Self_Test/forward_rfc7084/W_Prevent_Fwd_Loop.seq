@@ -1,0 +1,274 @@
+#!/usr/bin/perl
+#
+# Copyright (C) 2013, 2014, 2015, 2016
+# Chunghwa Telecommunication Labratories (CHT-TL)
+# All rights reserved.
+# 
+# Redistribution and use of this software in source and binary
+# forms, with or without modification, are permitted provided that
+# the following conditions and disclaimer are agreed and accepted
+# by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in
+#    the documentation and/or other materials provided with
+#    the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project
+#    which is related to this software (hereinafter referred to as
+#    "project") nor the names of the contributors may be used to
+#    endorse or promote products derived from this software without
+#    specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written
+#    notification to the copyrighters.
+# 
+# 5. The copyrighters, the project and the contributors may prohibit
+#    the use of this software at any time.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+# STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+# IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+# $CHT-TL: W_Prevent_Fwd_Loop.seq, v 1.2 2016/10/18 weifen Exp $
+#
+################################################################
+
+BEGIN{
+	$V6evalTool::TestVersion = '$Name: CE-Router_Self_Test_1_0_5 $';
+}
+use strict;
+use V6evalTool;
+
+use lib '../';
+use DHCPv6_common;
+use CPE6_config;
+use CPE6;
+
+my $type=$V6evalTool::NutDef{Type};
+if($type ne 'router') {
+	vLogHTML('<FONT COLOR="#FF0000">This test does not support Host!</FONT>');
+	exit $V6evalTool::exitRouterOnly;
+}
+
+#--------------------------------------------------------------#
+# Initialization variables
+#--------------------------------------------------------------#
+my $IF0 = "Link0";
+my $IF1 = "Link1";
+
+vCapture($IF0);
+vCapture($IF1);
+
+my $ra = $STATEFUL_CLIENT ? 'ra_MsetOset' : 'ra_MclearOset';
+my ($ret,$tn2_prefix) = cpe_initialization($ra,$IF0,$IF1,$STATEFUL_CLIENT,0);
+if ($ret != 0) {
+    cpe6ExitError('<FONT COLOR="#FF0000">CPE initialization fail!<BR>')
+}
+if ($tn2_prefix =~ /3ffe:501:ffff/ ) {
+    vLogHTML("<B>RA includes the global prefix($tn2_prefix).</B></BR>");
+} else {
+	vLogHTML('<FONT COLOR="#FF0000">Did not get golbal prefix from RA!</FONT><BR>');
+  dhcpExitFail();
+}
+
+vCPP("-D\'PREFIX_FROM_PD=\"$tn2_prefix\"\' ");
+
+vClear($IF0);
+vClear($IF1);
+#--------------------------------------------------------------#
+# 1. ping test (tn2->unknown host global address)
+#--------------------------------------------------------------#
+vSend($IF1, 'ereq_tn2_to_unknownhost');
+my %ret = icmp_vRecv($IF1, 5, 0, 0, 'icmp6_dst_unreach');
+if ($ret{status} == 0) {
+  vLogHTML('TN2 received ICMPv6 Destination Unreachable message from CE-Router.<BR>');
+}
+
+my %ret = vRecv($IF0, 2 ,0 ,0, 'echo_request_from_link1');
+if ($ret{status} == 0) {
+  cpe6ExitError('Error! Received invalid forwarded echo request from CE-Router.<BR>');	
+}
+
+vClear($IF0);
+vClear($IF1);
+#--------------------------------------------------------------#
+# 2. ping test (tr1->unknown host global address)
+#--------------------------------------------------------------#
+vSend($IF0,'ereq_tr1_to_unknownhost');
+my %ret = vRecv($IF1, 2 ,0 ,0, 'echo_request_from_link0','ns_nut_to_unknown');
+if ($ret{'status'} == 0) {
+	cpe6ExitError("<B>CE-Router can not forward echo request or send NS for the packet with invalid destination address.</B><BR>")
+}
+
+my %ret = vRecv($IF0, 2 ,0 ,0, 'echo_request_from_link0','ns_nut_to_tr1','icmp6_dst_unreach_to_tr1');
+if ($ret{'status'} == 0) {
+    if ($ret{'recvFrame'} eq 'echo_request_from_link0') {
+      cpe6ExitError("<B>CE-Router can not send echo request with invalid destination address to WAN.</B><BR>")
+    } elsif ($ret{'recvFrame'} eq 'icmp6_dst_unreach_to_tr1') {
+      vLogHTML('TR1 received ICMPv6 Destination Unreachable message from CE-Router.<BR>');
+    } else {
+      vSend($IF0,'na_tr1_to_nut_local');
+      my %ret1 = vRecv($IF0, 2 ,0 ,0, 'echo_request_from_link0','icmp6_dst_unreach_to_tr1');
+      if ($ret1{'status'} == 0) {
+	if ($ret{'recvFrame'} eq 'echo_request_from_link0') {
+	  cpe6ExitError("<B>CE-Router can not send echo request with invalid destination address to WAN.</B><BR>")
+	} else {
+	  vLogHTML('TR1 received ICMPv6 Destination Unreachable message from CE-Router.<BR>');
+	}
+      } 
+    }
+}
+#--------------------------------------------------------------#
+# End
+#--------------------------------------------------------------#
+# send RA with routerlifetime = 0
+vSend($IF0, 'ra_RouterLifetimeZero');
+
+vClear($IF0);
+vStop($IF0);
+
+cpe6ExitPass($IF0);
+
+sub icmp_vRecv ($$$$@) {
+	my($interface, $timeout, $count, $seektime, @expect) = @_;
+	my($rcv_ns_local, $rcv_ns_global);
+
+	$rcv_ns_local = 0;
+	$rcv_ns_global = 0;
+
+	while (1) {
+		%ret = vRecv($interface, $timeout, $count, $seektime, @expect,
+			     'ns_local', 'ns_local_sll',
+			     'ns_global', 'ns_global_sll');
+
+		if ($ret{recvFrame} eq 'ns_local' ||
+		    $ret{recvFrame} eq 'ns_local_sll') {
+			if ($rcv_ns_local != 0) {
+				last;
+			};
+
+			vSend($interface, 'na_local');
+			$rcv_ns_local = 1;
+		}
+		elsif ($ret{recvFrame} eq 'ns_global' ||
+		       $ret{recvFrame} eq 'ns_global_sll') {
+			if ($rcv_ns_global != 0) {
+				last;
+			};
+
+			vSend($interface, 'na_global');
+			$rcv_ns_global = 1;
+		}
+		else {
+			last;
+		};
+	};
+
+	return(%ret);
+}
+###############################################################################
+__END__
+
+=head1 NAME 
+
+  Prevent Forwarding Loop
+
+=head1 TARGET
+
+  CE Router
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./W_Prevent_Fwd_Loop.seq"> W_Prevent_Fwd_Loop.seq</A> [-tooloption...] <BR>  -pkt  <A HREF="./W_Prevent_Fwd_Loop.def"> W_Prevent_Fwd_Loop.def</A> <BR>  -tooloption : v6eval tool option
+<BR>
+  See Also <A HREF="../CPE6_common.def"> CPE6_common.def </A> 
+</PRE>
+
+=end html
+
+=head1 INITIALIZATION
+
+	Common Test Setup 1.1 is performed at the beginning of this test part.
+
+=head1 TEST PROCEDURE
+
+=begin html
+<PRE>
+<BR>
+       TN2     CE-Router     TR1
+        |       |       |
+        |       |       |Initialize CE-Router(as a DHCPv6 requesting router)
+        |       |       |
+        |       | <---- |<B>RA</B>
+        |       |       |
+        |       | ----> |<B>Solicit</B>
+        |       | <---- |<B>Advertise</B>
+        |       | ----> |<B>Request</B>
+        |       | <---- |<B>Reply</B>
+        |       |       |
+        | ----> |       |<B>Echo Request</B>
+        |       | --X-->|<B>Echo Request</B> (1*)
+        |       |       |
+        |       | <---- |<B>Echo Request</B>
+        | <-X-- |       |<B>Echo Request</B> (2*)
+        |       |       |
+
+<BR>
+</PRE>
+
+=end html
+
+=head1 JUDGEMENT
+
+=begin html
+<PRE>
+<BR>
+  (1*)PASS: CE-Router can not forward the echo request to WAN
+  (2*)PASS: CE-Router can not forward the echo request to LAN
+</PRE>
+
+=end html
+
+=head1 TERMINATION
+
+=begin html
+<PRE>
+  N/A
+</PRE>
+
+=end html
+
+=head1 REFERENCE
+
+=begin html
+<PRE>
+[RFC 7084],WPD-5
+</PRE>
+
+=end html
+
+=head1 SEE ALSO
+
+=begin html
+<PRE>
+<BR>
+  perldoc  V6evalTool
+<BR>
+</PRE>
+
+=end html

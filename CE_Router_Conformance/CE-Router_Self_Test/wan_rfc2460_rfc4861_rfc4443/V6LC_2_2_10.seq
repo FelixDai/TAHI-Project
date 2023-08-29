@@ -1,0 +1,241 @@
+#!/usr/bin/perl
+#
+# Copyright (C) 2013, 2014, 2015
+# Chunghwa Telecommunication Labratories (CHT-TL)
+# All rights reserved.
+# 
+# Redistribution and use of this software in source and binary
+# forms, with or without modification, are permitted provided that
+# the following conditions and disclaimer are agreed and accepted
+# by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in
+#    the documentation and/or other materials provided with
+#    the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project
+#    which is related to this software (hereinafter referred to as
+#    "project") nor the names of the contributors may be used to
+#    endorse or promote products derived from this software without
+#    specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written
+#    notification to the copyrighters.
+# 
+# 5. The copyrighters, the project and the contributors may prohibit
+#    the use of this software at any time.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+# STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+# IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+# $CHT-TL: V6LC_2_2_10.seq,v 1.1 2015/04/28 weifen Exp $
+#
+########################################################################
+BEGIN{
+	$V6evalTool::TestVersion = '$Name: CE-Router_Self_Test_1_0_5 $';
+}
+
+use rdisc;
+
+use lib '../';
+use CPE6_config;
+use DHCPv6_common;
+
+my $Link0='Link0';
+
+vCapture($Link0);
+
+
+if ($STATEFUL_CLIENT) {
+  my ($ret,$param) = cpe_initialization_1_2('local_ra_tr1_m1',$Link0,"",$STATEFUL_CLIENT,0);
+  if ($ret==1) {
+    vLogHTML('<FONT COLOR="#FF0000"><B>Fail to initialize CPE!</B></FONT><BR>');
+    exitFail_local($Link0);
+  }
+  vSend($Link0, 'local_ra_tr1_m1');
+}
+
+$pktdesc{'local_ra_tr1'}
+	= '    Send RA (rltime=45, rtime=10000) w/o SLL: '.
+		'TR1 (link-local) -&gt; all-nodes multicast address';
+
+$pktdesc{'local_ra_tr1_m1'}
+	= '    Send RA (rltime=45, rtime=10000) w/o SLL: '.
+		'TR1 (link-local) -&gt; all-nodes multicast address';
+
+$pktdesc{'local_ra_tr2'}
+	= '    Send RA (rltime=45, rtime=10000) w/o SLL: '.
+		'TR2 (link-local) -&gt; all-nodes multicast address';
+
+$pktdesc{'local_ra_tr2_m1'}
+	= '    Send RA (rltime=45, rtime=10000) w/o SLL: '.
+		'TR2 (link-local) -&gt; all-nodes multicast address';
+
+unless(v6LC_2_2_10($Link0)) {
+        exitFail_local($Link0);
+        #NOTREACHED
+}
+
+exitPass_local($Link0);
+#NOTREACHED
+
+
+
+#
+# perldoc
+#
+########################################################################
+__END__
+
+=head1 NAME
+
+  Default Router Switch 
+
+=head1 Purpose
+
+  Verify that a host maintains at least two routers in its Default Router List and will switch
+  routers when the router in use fails.
+
+=head1 References
+
+[RFC 7084],W-3
+[RFC 4861],Section 5.2, 5.3
+
+=head1 Resource Requirements
+
+  * Packet generator
+  * Monitor to capture packets
+
+=head1 Test Setup
+
+  Common Test Setup 1.2 is performed at the beginning of this test part.
+  The Common Test Cleanup procedure is performed after each part.
+
+=begin html
+
+<BLOCKQUOTE>
+
+<TABLE>
+<TR>
+
+<TD>
+<TABLE BORDER>
+<Caption>Router Advertisement A</Caption>
+<TR>
+<TD>
+	IPv6 Header<br>
+	Next Header: 58<br>
+	Source Address: TR1's Link Local Address
+</TD>
+</TR>
+<TR>
+<TD>
+	Router Advertisement<br>
+	Router Lifetime: 45 seconds<br>
+	Reachable Time: 10 seconds<br>
+	Retransmit Interval: 1 second<br>
+	Prefix Length: 64<br>
+	L Bit: 1 (on-link)<br>
+	Prefix: TN1's Global Prefix
+</TD>
+</TR>
+</TABLE>
+</TD>
+
+<TD>
+<TABLE BORDER>
+<Caption>Router Advertisement B</Caption>
+<TR>
+<TD>
+        IPv6 Header<br>
+        Next Header: 58<br>
+	Source Address: TR2's Link Local Address
+</TD>
+</TR>
+<TR>
+<TD>
+	Router Advertisement<br>
+        Router Lifetime: 45 seconds<br>
+        Reachable Time: 10 seconds<br>
+        Retransmit Interval: 1 second<br>
+        Prefix Length: 64<br>
+        L Bit: 1 (on-link)<br>
+        Prefix: TN1's Global Prefix
+</TD>
+</TR>
+</TABLE>
+</TD>
+
+</TR>
+</TABLE>
+
+<TABLE BORDER>
+<Caption>Packet A</Caption>
+<TR>
+<TD>
+        IPv6 Header<br>
+        Next Header: 58<br>
+        Source Address: TN3's Global Address<br>
+	Destination Address: CE-Router's Global Address
+</TD>
+</TR>
+<TR>
+<TD>
+	ICMPv6 Echo Request
+</TD>
+</TR>
+</TABLE>
+
+</BLOCKQUOTE>
+
+=end html
+
+=head1 Procedure
+
+   1. TR1 transmits Router Advertisement A.
+   2. TN3 transmits Packet A, an Echo Request.
+   3. Observe the packets transmitted by the CE-Router. TR1 transmits a Neighbor Advertisement in
+      response to any Neighbor Solicitations from the CE-Router.
+   4. TR2 transmits Router Advertisement B.
+   5. TN3 transmits Packet A every 3 seconds for 30 seconds. Packet A is an ICMPv6 Echo Request
+      that has an off-link global source address.
+   6. Observe the packets transmitted by the CE-Router.
+   7. When Reachable Time expires, and the CE-Router solicits TR1, no Neighbor Advertisements are
+      transmitted by TR1.
+   8. Observe the packets transmitted by the CE-Router.
+
+=head1 Observable Results
+
+   Steps 3:
+   The CE-Router should transmit a Neighbor Solicitation with a Target Address equal to TR1's
+   link-local address. The CE-Router should send an Echo Reply to TN3 via TR1 in response to Packet A.
+
+   Step 6:
+   The CE-Router should send Echo Replies to TR1's link local address until Reachable Time
+   expires. When Reachable Time expires, the CE-Router should send 3 Neighbor Solicitations to TR1's link
+   local address.
+
+   Step 8:
+   The CE-Router selects TR2 from its Default Router list. The CE-Router sends Neighbor Solicitations to
+   TR2's link local address. After sending the packets to TR2, the CE-Router probes TR2 as a side effect.
+
+=head1 Possible Problems
+
+  * None. 
+
+=cut
+

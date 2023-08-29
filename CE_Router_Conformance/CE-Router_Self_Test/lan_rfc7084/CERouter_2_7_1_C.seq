@@ -1,0 +1,261 @@
+#!/usr/bin/perl
+#
+# Copyright (C) 2013
+# Chunghwa Telecommunication Labratories (CHT-TL)
+# All rights reserved.
+# 
+# Redistribution and use of this software in source and binary
+# forms, with or without modification, are permitted provided that
+# the following conditions and disclaimer are agreed and accepted
+# by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in
+#    the documentation and/or other materials provided with
+#    the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project
+#    which is related to this software (hereinafter referred to as
+#    "project") nor the names of the contributors may be used to
+#    endorse or promote products derived from this software without
+#    specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written
+#    notification to the copyrighters.
+# 
+# 5. The copyrighters, the project and the contributors may prohibit
+#    the use of this software at any time.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+# STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+# IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+# $CHT-TL: CERouter_2_7_1_C.seq, v 1.1 2014/07/17 weifen Exp $
+#
+################################################################
+
+BEGIN{
+	$V6evalTool::TestVersion = '$Name: CE-Router_Self_Test_1_0_5 $';
+}
+use strict;
+use V6evalTool;
+
+use lib '../';
+use DHCPv6_common;
+use CPE6_config;
+use CPE6;
+
+my $type=$V6evalTool::NutDef{Type};
+if($type ne 'router') {
+	vLogHTML('<FONT COLOR="#FF0000">This test does not support Host!</FONT>');
+	exit $V6evalTool::exitRouterOnly;
+}
+
+#--------------------------------------------------------------#
+# Initialization variables
+#--------------------------------------------------------------#
+my $IF0 = "Link0";
+my $IF1 = "Link1";
+
+vClear($IF0);
+vClear($IF1);
+
+vCapture($IF0);
+vCapture($IF1);
+
+#--------------------------------------------------------------#
+# 1. Send RA(tr1->nut)
+#--------------------------------------------------------------#
+my $ra = $STATEFUL_CLIENT ? 'ra_MsetOset' : 'ra_MclearOset';
+vSend($IF0, $ra);
+if (!$STATEFUL_CLIENT) {
+	ignoreDAD($IF0);
+}
+
+#--------------------------------------------------------------#
+# 2. Wait until DHCPv6 Solicit arrives (nut->tr1)
+#--------------------------------------------------------------#
+my ($retsol,%sol) = wait_for_solicit2($IF0, 30);
+cpe6ExitFail if($retsol != 0);
+
+
+my $cmp;
+if ($STATEFUL_CLIENT) {
+	$cmp = $CMP_IA_NA | $CMP_IA_PD;
+} else {
+	$cmp = $CMP_IA_PD;
+}
+
+cpe6ExitError("<B>Do not include necessary options.</B><BR>") if (0 != options_exist(\%sol, $cmp));
+vClear($IF0);
+
+#--------------------------------------------------------------#
+# 3. Send DHCPv6 Advertise message (tr1->nut)
+#--------------------------------------------------------------#
+$SID_OPTION = "opt_SID_LLT_server1";
+$IA_PD_OPTION = "opt_IA_PD_PF5_64";
+if ($STATEFUL_CLIENT) {
+	$IA_NA_OPTION = "opt_IA_NA_Addr_woStatus";
+}
+$DNS_SVR_OPTION = "opt_DNS_Name_Server1";
+$DNS_LST_OPTION = "opt_DNS_ServerSearchList";
+
+my ($retadv, %adv) = send_advertise($IF0, "advertise_server1_to_nut", \%sol, "");
+cpe6ExitFail if($retadv != 0);
+
+#--------------------------------------------------------------#
+# 4. Wait until DHCPv6 Request arrives (nut->tr1)
+#--------------------------------------------------------------#
+my ($retreq,%req) = wait_for_request2($IF0, 30);
+cpe6ExitFail if($retreq != 0);
+
+cpe6ExitError("<B>Do not include necessary options.</B><BR>") if (0 != options_exist(\%req, $cmp));
+vClear($IF0);
+
+#--------------------------------------------------------------#
+# 5. Send DHCPv6 Reply message (tr1->nut)
+#--------------------------------------------------------------#
+$IA_PD_OPTION = "opt_IA_PD_PF5_64";
+$StatusCode_OPTION = "opt_StatusCode";
+if ($STATEFUL_CLIENT) {
+	$IA_NA_OPTION = "opt_IA_NA_Addr_woStatus";
+}
+$DNS_SVR_OPTION = "opt_DNS_Name_Server1";
+$DNS_LST_OPTION = "opt_DNS_ServerSearchList";
+
+my ($retrep, %rep) = send_reply($IF0, "reply_server1_to_nut", \%req, "-DIA_PREFIX_PLTIME=90 -DIA_PREFIX_VLTIME=30");
+cpe6ExitFail if($retrep != 0);
+
+#--------------------------------------------------------------#
+# 6. Send RS message (tn2->nut)
+#    Wait until RA with delegated prefix arrives (nut->tn2)
+#--------------------------------------------------------------#
+vSleep($WAIT_LAN_RA);
+vClear($IF1); 
+
+vLogHTML('<B>==== TN2 <--> NUT: RS and RA Messages Exchange  ====</B><BR>');
+vSend($IF1, 'rs_tn2_to_nut');
+
+my ($retra, %ra) = wait_for_ra($IF1, 10, 0);
+cpe6ExitFail if ($retra != 0);
+
+#--------------------------------------------------------------#
+# End
+#--------------------------------------------------------------#
+# send RA with routerlifetime = 0
+vSend($IF0, 'ra_RouterLifetimeZero');
+
+vClear($IF0);
+vClear($IF1);
+
+vStop($IF0);
+vStop($IF1);
+
+cpe6ExitPass($IF0);
+
+###############################################################################
+__END__
+
+=head1 NAME 
+
+  Assign Prefixes to LAN Interface
+  Part C: Preferred lifetime greater then valid lifetime
+
+=head1 TARGET
+
+  CE-Router
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./CERouter_2_7_1_C.seq"> CERouter_2_7_1_C.seq</A> [-tooloption...] <BR>  -pkt  <A HREF="./CERouter_2_7_1_C.def"> CERouter_2_7_1_C.def</A> <BR>  -tooloption : v6eval tool option
+<BR>
+  See Also <A HREF="../CPE6_common.def"> CPE6_common.def </A> 
+</PRE>
+
+=end html
+
+=head1 INITIALIZATION
+
+	The Common Test Cleanup procedure is performed after each part.
+
+=head1 TEST PROCEDURE
+
+=begin html
+<PRE>
+<BR>
+       TN2     NUT     TR1
+        |       |       |
+        |       |       |Initialize NUT(as a DHCPv6 requesting router)
+        |       |       |
+        |       | <---- |<B>RA</B>
+        |       |       |
+        |       | ----> |<B>Solicit</B> (1*)
+        |       | <---- |<B>Advertise</B> (prefix with preferred lifetime greater then valid lifetime)
+        |       | ----> |<B>Request</B> (2*)
+        |       | <---- |<B>Reply</B> (prefix with preferred lifetime greater then valid lifetime)
+        |       |       |
+        | ----> |       |<B>RS</B>
+        | <---- |       |<B>RA</B> (3*)
+        |       |       |
+        |       |       |
+
+<BR>
+</PRE>
+
+=end html
+
+=head1 JUDGEMENT
+
+=begin html
+<PRE>
+<BR>
+  (1*)PASS: TR1 receives Solicit from NUT.
+  (2*)PASS: TR1 receives Request from NUT.
+  (3*)PASS: TN2 receives RA without global prefix.
+</PRE>
+
+=end html
+
+=head1 TERMINATION
+
+=begin html
+<PRE>
+  N/A
+</PRE>
+
+=end html
+
+=head1 REFERENCE
+
+=begin html
+<PRE>
+[RFC 7084],L-2
+[RFC 3633],Section 10
+</PRE>
+
+=end html
+
+=head1 SEE ALSO
+
+=begin html
+<PRE>
+<BR>
+  perldoc  V6evalTool
+<BR>
+</PRE>
+
+=end html

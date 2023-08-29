@@ -1,0 +1,267 @@
+#!/usr/bin/perl
+#
+# Copyright (C) 2013, 2014, 2015
+# Chunghwa Telecommunication Labratories (CHT-TL)
+# All rights reserved.
+# 
+# Redistribution and use of this software in source and binary
+# forms, with or without modification, are permitted provided that
+# the following conditions and disclaimer are agreed and accepted
+# by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in
+#    the documentation and/or other materials provided with
+#    the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project
+#    which is related to this software (hereinafter referred to as
+#    "project") nor the names of the contributors may be used to
+#    endorse or promote products derived from this software without
+#    specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written
+#    notification to the copyrighters.
+# 
+# 5. The copyrighters, the project and the contributors may prohibit
+#    the use of this software at any time.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+# STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+# IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+# $CHT-TL: C_RFC3633_ReqMsg_10_2_3_A.seq,v 1.1 2015/04/24 weifen Exp $
+#
+########################################################################
+
+BEGIN{
+	$V6evalTool::TestVersion = '$Name: CE-Router_Self_Test_1_0_5 $';
+}
+use strict;
+use V6evalTool;
+
+use lib '../.';
+use DHCPv6_common;
+use Client_pktdesc;
+
+my $type=$V6evalTool::NutDef{Type};
+if($type ne 'router') {
+	vLogHTML('<FONT COLOR="#FF0000">This test does not support Host!</FONT>');
+	exit $V6evalTool::exitRouterOnly;
+}
+
+#--------------------------------------------------------------#
+# Initialization variables
+#--------------------------------------------------------------#
+my $IF0 = "Link0";
+my $ret = 1;
+
+vClear($IF0);
+vCapture($IF0);
+#--------------------------------------------------------------#
+# Initialize DHCPv6 Client
+#--------------------------------------------------------------#
+vSend($IF0,'ra_MclearOset');
+#--------------------------------------------------------------#
+#1.  Wait until Solicit arrives 
+#--------------------------------------------------------------#
+my ($retsol,%sol) = wait_for_solicit($IF0,30) ;
+if($retsol != 0){
+	dhcpExitFail;
+}
+
+vClear($IF0);
+#--------------------------------------------------------------#
+# 2. send Advertise message 
+#--------------------------------------------------------------#
+$SID_OPTION = "opt_SID_LLT_server1";
+$IA_NA_OPTION = "opt_IA_NA_Addr_woStatus";
+$IA_PD_OPTION = "opt_IA_PD_Prefix2";
+my ($retadv, %adv) = send_advertise($IF0, "advertise_server1_to_nut", \%sol, "");
+if($retadv != 0){
+	dhcpExitFail;
+}
+#--------------------------------------------------------------#
+#3.  Wait until Request arrives 
+#--------------------------------------------------------------#
+my ($retreq,%req) = wait_for_request($IF0,30);
+if($retreq != 0){
+	dhcpExitFail;
+}
+
+#--------------------------------------------------------------#
+# Judge
+#--------------------------------------------------------------#
+
+my $base = "Frame_Ether.Packet_IPv6.Upp_UDP.Udp_DHCPv6_Request";
+# A "msg-type" field set to the value of REQUEST(3)
+my $msgtype = $req{"$base"."."."Type"};
+if(3 != $msgtype){
+          vLogHTML('<FONT COLOR="#FF0000">msg-type is mismatch.</FONT><BR>');
+         dhcpExitFail;
+}
+
+$ret = options_exist(\%req,($CMP_TRANS_ID|$CMP_SID|$CMP_CID|$CMP_ETIME));
+if($ret != 0){
+        dhcpExitFail;
+}
+
+vClear($IF0);
+vStop($IF0);
+dhcpExitPass;
+###############################################################################
+__END__
+
+=head1 NAME 
+
+  Transmission of Request Messages for Prefix Delegation
+  Part A: Request message format
+
+=head1 TARGET
+
+  CE-Router
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./C_RFC3633_ReqMsg_10_2_3_A.seq"> C_RFC3633_ReqMsg_10_2_3_A.seq</A> [-tooloption...] <BR>  -pkt  <A HREF="./C_RFC3633_ReqMsg_10_2_3_A.def"> C_RFC3633_ReqMsg_10_2_3_A.def</A> <BR>  -tooloption : v6eval tool option
+<BR>
+  See Also <A HREF="../DHCPv6.def"> DHCPv6.def </A> 
+</PRE>
+
+=end html
+
+=head1 INITIALIZATION
+
+=begin html
+  <ul>
+  <li><STRONG>Network Topology</STRONG></li> 
+   <PRE>
+          CE-Router(Client)
+          |           
+          |                        
+Link0   --+--------+------------------------ 3ffe:501:ffff:100::/64
+                   |
+                   |          
+                   TN(Server) 
+   </PRE>
+  </ul>
+  <ul> 
+  <li><STRONG>Verification Points</STRONG></li><br>
+   <PRE>
+   The client uses a Request message to populate IAs with addresses and
+   obtain other configuration information. <BR>
+   The client generates a transaction ID and inserts this value in the
+   "transaction-id" field.<BR>
+   The client places the identifier of the destination server in a
+   Server Identifier option.<BR>
+   The client MUST include a Client Identifier option to identify itself
+   to the server.
+   </PRE>
+  </ul>
+  <ul>
+  <li><STRONG>Configurations</STRONG></li><br>
+   <BR>
+    <TABLE BORDER="1">
+    <TR>
+    <TD><TT>Device Name</TT></TD>
+    <TD><TT>Device Type</TT></TD>
+    <TD><TT>Interface</TT></TD>
+    <TD><TT>Assigned Prefix</TT></TD>
+    <TD><TT>Link Local Addr</TT></TD>
+    <TD><TT>MAC Addr</TT></TD>
+    </TR>
+    <TR>
+    <TD><TT>Client</TT></TD>
+    <TD><TT>CE-Router</TT></TD>
+    <TD><TT>Link0</TT></TD>
+    <TD><TT>3ffe:501:ffff:100::/64</TT></TD>
+    <TD><TT>CE-Router's Linklocal address</TT></TD>
+    <TD><TT>CE-Router's MAC address</TT></TD>
+    </TR>
+    <TR>
+    <TD><TT>Server</TT></TD>
+    <TD><TT>TN</TT></TD>
+    <TD><TT>Link0</TT></TD>
+    <TD><TT>3ffe:501:ffff:100::/64</TT></TD>
+    <TD><TT>fe80::200:ff:fe00:a1a1</TT></TD>
+    <TD><TT>00:00:00:00:a1:a1</TT></TD>
+    </TR>
+    </TABLE>
+    </PRE>
+    </ul>
+
+=end html
+
+=head1 TEST PROCEDURE
+
+=begin html
+<PRE>
+<BR>
+       CE-Router      TN
+        |       |
+        |       |Initialize CE-Router(as a DHCPv6 client)
+        |       |
+        | ----> |<B>Solicit</B> 
+        | <---- |<B>Advertise</B> 
+        | ----> |<B>Request</B> (3*)
+        |       |
+<BR>
+</PRE>
+
+=end html
+
+=head1 JUDGEMENT
+
+=begin html
+<PRE>
+<BR>  
+  (3*)PASS: TN receives Request from CE-Router which meets Verification Points.
+</PRE>
+
+=end html
+
+=head1 TERMINATION
+
+=begin html
+<PRE>
+  N/A
+</PRE>
+
+=end html
+
+=head1 REFERENCE
+
+=begin html
+<PRE>
+[RFC 7084],W-1
+[RFC 3633],Section 7 and 12.1
+[RFC 3315],Section 5.5, 14, 18.1.1 and 22.9
+</PRE>
+
+=end html
+
+=head1 SEE ALSO
+
+=begin html
+<PRE>
+<BR>
+  perldoc  V6evalTool
+<BR>
+</PRE>
+
+=end html
+

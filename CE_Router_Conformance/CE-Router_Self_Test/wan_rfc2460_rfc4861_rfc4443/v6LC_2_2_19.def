@@ -1,0 +1,163 @@
+//
+// Copyright (C) 2013, 2014, 2015, 2016
+// Chunghwa Telecommunication Labratories (CHT-TL)
+// All rights reserved.
+// 
+// Redistribution and use of this software in source and binary
+// forms, with or without modification, are permitted provided that
+// the following conditions and disclaimer are agreed and accepted
+// by the user:
+// 
+// 1. Redistributions of source code must retain the above copyright
+//    notice, this list of conditions and the following disclaimer.
+// 
+// 2. Redistributions in binary form must reproduce the above copyright
+//    notice, this list of conditions and the following disclaimer in
+//    the documentation and/or other materials provided with
+//    the distribution.
+// 
+// 3. Neither the names of the copyrighters, the name of the project
+//    which is related to this software (hereinafter referred to as
+//    "project") nor the names of the contributors may be used to
+//    endorse or promote products derived from this software without
+//    specific prior written permission.
+// 
+// 4. No merchantable use may be permitted without prior written
+//    notification to the copyrighters.
+// 
+// 5. The copyrighters, the project and the contributors may prohibit
+//    the use of this software at any time.
+// 
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+// CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+// BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+// FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+// COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+// INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+// SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+// HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+// STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+// IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+// POSSIBILITY OF SUCH DAMAGE.
+//
+// $CHT-TL: v6LC_2_2_19.def,v 1.1 2016/09/30  weifen Exp $
+//
+////////////////////////////////////////////////////////////////
+
+#include "./common.def"
+#include "./rdisc.def"
+
+FEM_icmp6_ra(
+	local_ra,
+	_HETHER_tr1_to_allnodes,
+	{
+		HopLimit	= 255;
+		_SRC(v6(TR1_LINKLOCAL));
+		_DST(v6(_ALLNODES_MCAST_ADDR));
+	},
+	{
+		CurHopLimit	= 64;
+		MFlag		= _Default_AdvManagedFlag;
+		OFlag		= _Default_AdvOtherConfigFlag;
+		LifeTime	= 600;
+		ReachableTime	= 10000;
+		RetransTimer	= 1000;
+		option		= opt_prefix_link0_local;
+	}
+)
+
+Opt_ICMPv6_Prefix opt_prefix_link0_local {
+	PrefixLength		= 96;
+	LFlag			= _Default_AdvOnLinkFlag;
+	AFlag			= _Default_AdvAutonomousFlag;
+	ValidLifetime		= 20;
+	PreferredLifetime	= 20;
+	Prefix			= tn2v6(LINKX_PREFIX, LINKX_PREFIXLEN);
+}
+
+
+FEM_icmp6_ra(
+	local_ra_m1,
+	_HETHER_tr1_to_allnodes,
+	{
+		HopLimit	= 255;
+		_SRC(v6(TR1_LINKLOCAL));
+		_DST(v6(_ALLNODES_MCAST_ADDR));
+	},
+	{
+		CurHopLimit	= 64;
+		MFlag		= 1;
+		OFlag		= 1;
+		LifeTime	= 600;
+		ReachableTime	= 10000;
+		RetransTimer	= 1000;
+		option		= opt_prefix_link0_a0;
+	}
+)
+
+Opt_ICMPv6_Prefix opt_prefix_link0_a0 {
+	PrefixLength		= 96;
+	LFlag			= 1;
+	AFlag			= 0;
+	ValidLifetime		= 20;
+	PreferredLifetime	= 20;
+	Prefix			= tn2v6(LINKX_PREFIX, LINKX_PREFIXLEN);
+}
+
+FEM_icmp6_echo_request(
+	local_ereq,
+	_HETHER_tr1_to_nut,
+	{
+		_SRC(tn2v6(LINKX_PREFIX, LINKX_PREFIXLEN));
+		_DST(NUT_ADDR);
+	},
+	{
+		payload	= payload8;
+	}
+)
+
+
+FEM_icmp6_echo_reply(
+	local_erep,
+	_HETHER_nut2tn,
+	{
+		_SRC(NUT_ADDR);
+		_DST(tn2v6(LINKX_PREFIX, LINKX_PREFIXLEN));
+	},
+	{
+		payload	= payload8;
+	}
+)
+
+
+FEM_icmp6_ns(
+	local_mcast_ns_sll,
+	_HETHER_nut2tnsolnode,
+	{
+		HopLimit	= 255;
+		_SRC(oneof(nutv6("Link0"), NUT_ADDR));
+		_DST(_IPV6_SOLNODE_MCAST(tn2v6(LINKX_PREFIX, LINKX_PREFIXLEN)));
+	},
+	{
+		TargetAddress	= tn2v6(LINKX_PREFIX, LINKX_PREFIXLEN);
+		option		= opt_sll_nut_wan;
+	}
+)
+
+FEM_icmp6_na(
+	local_na,
+	_HETHER_tn2nut,
+	{
+		HopLimit	= 255;
+		_SRC(tn2v6(LINKX_PREFIX, LINKX_PREFIXLEN));
+		_DST(NUT_ADDR);
+	},
+	{
+		RFlag		= 0;
+		SFlag		= 1;
+		OFlag		= 1;
+		TargetAddress	= tn2v6(LINKX_PREFIX, LINKX_PREFIXLEN);
+		option		= _TLLOPT_tn;
+	}
+)

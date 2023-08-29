@@ -1,0 +1,369 @@
+#!/usr/bin/perl
+#
+# Copyright (C) 2013, 2014, 2015
+# Chunghwa Telecommunication Labratories (CHT-TL)
+# All rights reserved.
+# 
+# Redistribution and use of this software in source and binary
+# forms, with or without modification, are permitted provided that
+# the following conditions and disclaimer are agreed and accepted
+# by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in
+#    the documentation and/or other materials provided with
+#    the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project
+#    which is related to this software (hereinafter referred to as
+#    "project") nor the names of the contributors may be used to
+#    endorse or promote products derived from this software without
+#    specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written
+#    notification to the copyrighters.
+# 
+# 5. The copyrighters, the project and the contributors may prohibit
+#    the use of this software at any time.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+# STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+# IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+# $CHT-TL: DO_MSB00.seq,v 1.1 2015/04/28 weifen Exp $
+#
+######################################################################
+BEGIN {
+	$V6evalTool::TestVersion = '$Name: CE-Router_Self_Test_1_0_5 $';
+}
+
+use V6evalTool;
+use CommonSPEC;
+
+use lib '../';
+use CPE6_config;
+use DHCPv6_common;
+use CPE6;
+
+$pktdesc{'echo_request_ex'}	= 'Send Echo Request (Unrecognized Option:Type 00)';
+$pktdesc{'echo_reply'}		= 'Recv Echo Reply';
+
+$endStatus = $V6evalTool::exitPass;
+
+######################################################################
+$IF0 = 'Link0';
+$IF1 = 'Link1';
+
+vCapture($IF0);
+vCapture($IF1);
+
+#----- Initialization
+my $ra = $STATEFUL_CLIENT ? 'ra_MsetOset' : 'ra_MclearOset';
+my ($ret,$tn2_prefix) = cpe_initialization($ra,$IF0,$IF1,$STATEFUL_CLIENT,0);
+if ($ret != 0) {
+    cpe6ExitFail("<B>CPE initialization fail!</B><BR>");
+}
+
+#----- test
+vSend($IF1, 'echo_request_ex');
+%ret = nd_vRecv_EN($IF1, $CommonSPEC::wait_reply, 0, 0, 'echo_reply');
+
+if ($ret{'status'} == 0) {
+	vLogHTML('OK<BR>');
+} else {
+	vLogHTML('Cannot receive Echo Reply<BR>');
+	vLogHTML('<FONT COLOR="#FF0000">NG</FONT><BR>');
+	$endStatus = $V6evalTool::exitFail;
+}
+#----- end test
+vClear($IF1);
+vClear($IF0);
+vStop($IF0);
+vStop($IF1);
+if ($endStatus == $V6evalTool::exitFail) {
+	cpe6ExitFail();
+} else {
+	cpe6ExitPass($IF0);
+}
+
+######################################################################
+__END__
+
+=head1 NAME
+
+  Options Processing, Destination Options Header
+  Part C: Most Significant Bits 00
+
+=head1 TARGET
+
+  CE-Router
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./DO_MSB00.seq">DO_MSB00.seq</A> [-tooloption ...] -pkt <A HREF="./DO_MSB00.def">DO_MSB00.def</A>
+    -tooloption : v6eval tool option
+</PRE>
+
+=end html
+
+=head1 INITIALIZATION
+
+  Common Test Setup is performed at the beginning of this test part.
+
+=head1 TEST PROCEDURE
+
+Verify that a node properly processes bot known and unknown options, and acts in accordance with the highest order two bits of the option.
+
+   TN                          CE-Router
+    |                           |
+    |-------------------------->|
+    |   Echo Request            |
+    |                           |
+    |                           |
+    |<--------------------------|
+    |   Echo Reply              |
+    |                           |
+    |                           |
+    v                           v
+
+  1. TN transmits an Echo Request that has a Destination Options header with an unknown Option Type of 7.
+  2. Observe the packets transmitted by the CE-Router.
+
+  Echo Request Data is:
+
+        IPv6 Header
+            Version            = 6
+            Traffic Class      = 0
+            FlowLabel          = 0
+            PayloadLength      = 16
+            NextHeader         = 60 (Destination Options Header)
+            SourceAddress      = TN Link Local Address
+            DestinationAddress = CE-Router Link Local Address
+
+        Destination Options Header
+            NextHeader         = 58 (ICMPv6)
+            HeaderExtLength    = 0
+            OptionType         = 0x07 (unknown, msb: 00)
+            OptDataLength      = 4
+            data               = {0, 0, 0, 0}
+
+        ICMP Echo Request
+            Type           = 128 (Echo Request)
+            Code           = 0
+            Checksum       = (auto)
+            Identifier     = 0xffff
+            SequenceNumber = 1
+            PayloadData    = {1, 2, 3, 4, 5, 6, 7, 8}
+
+
+=head1 JUDGEMENT
+
+  PASS: he unknown option is skipped and the header is processed.
+        The CE-Router must send an Echo Reply to TN.
+
+        IPv6 Header
+            Version             = 6
+            Traffic Class       = 0
+            FlowLabel           = 0
+            PayloadLength       = 16
+            NextHeader          = 58 (ICMPv6)
+            SourceAddress       = TN Link Local Address
+            Destination Address = CE-Router Link Local Address
+
+        ICMP Echo Reply
+            Type           = 129 (Echo Reply)
+            Code           = 0
+            Checksum       = (auto)
+            Identifier     = 0xffff (same as Echo Request)
+            SequenceNumber = 1 (same as Echo Request)
+            PayloadData    = {1, 2, 3, 4, 5, 6, 7, 8} (same as Echo Request)
+
+=head1 CLEANUP
+
+Common Test Cleanup
+
+=cut
+
+# =head1 REFERENCE
+# 
+# RFC2460
+# 
+# 4.2  Options
+# 
+#    Two of the currently-defined extension headers -- the Hop-by-Hop
+#    Options header and the Destination Options header -- carry a variable
+#    number of type-length-value (TLV) encoded "options", of the following
+#    format:
+# 
+#       +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+- - - - - - - - -
+#       |  Option Type  |  Opt Data Len |  Option Data
+#       +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+- - - - - - - - -
+# 
+#       Option Type          8-bit identifier of the type of option.
+# 
+#       Opt Data Len         8-bit unsigned integer.  Length of the Option
+#                            Data field of this option, in octets.
+# 
+#       Option Data          Variable-length field.  Option-Type-specific
+#                            data.
+# 
+#    The sequence of options within a header must be processed strictly in
+#    the order they appear in the header; a receiver must not, for
+#    example, scan through the header looking for a particular kind of
+#    option and process that option prior to processing all preceding
+#    ones.
+# 
+#    The Option Type identifiers are internally encoded such that their
+#    highest-order two bits specify the action that must be taken if the
+#    processing IPv6 node does not recognize the Option Type:
+# 
+# =begin html
+# <PRE>
+#       <B>00 - skip over this option and continue processing the header.</B>
+# </PRE>
+# 
+# =end html
+# 
+#       01 - discard the packet.
+# 
+#       10 - discard the packet and, regardless of whether or not the
+#            packet's Destination Address was a multicast address, send an
+#            ICMP Parameter Problem, Code 2, message to the packet's
+#            Source Address, pointing to the unrecognized Option Type.
+# 
+#       11 - discard the packet and, only if the packet's Destination
+#            Address was not a multicast address, send an ICMP Parameter
+#            Problem, Code 2, message to the packet's Source Address,
+#            pointing to the unrecognized Option Type.
+# 
+#    The third-highest-order bit of the Option Type specifies whether or
+#    not the Option Data of that option can change en-route to the
+#    packet's final destination.  When an Authentication header is present
+#    in the packet, for any option whose data may change en-route, its
+#    entire Option Data field must be treated as zero-valued octets when
+#    computing or verifying the packet's authenticating value.
+# 
+#       0 - Option Data does not change en-route
+# 
+#       1 - Option Data may change en-route
+# 
+#    The three high-order bits described above are to be treated as part
+#    of the Option Type, not independent of the Option Type.  That is, a
+#    particular option is identified by a full 8-bit Option Type, not just
+#    the low-order 5 bits of an Option Type.
+# 
+#    The same Option Type numbering space is used for both the Hop-by-Hop
+#    Options header and the Destination Options header.  However, the
+#    specification of a particular option may restrict its use to only one
+#    of those two headers.
+# 
+#    Individual options may have specific alignment requirements, to
+#    ensure that multi-octet values within Option Data fields fall on
+#    natural boundaries.  The alignment requirement of an option is
+#    specified using the notation xn+y, meaning the Option Type must
+#    appear at an integer multiple of x octets from the start of the
+#    header, plus y octets.  For example:
+# 
+#       2n    means any 2-octet offset from the start of the header.
+#       8n+2  means any 8-octet offset from the start of the header,
+#             plus 2 octets.
+# 
+# 
+# 4.6  Destination Options Header
+# 
+#    The Destination Options header is used to carry optional information
+#    that need be examined only by a packet's destination node(s).  The
+#    Destination Options header is identified by a Next Header value of 60
+#    in the immediately preceding header, and has the following format:
+# 
+#     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#     |  Next Header  |  Hdr Ext Len  |                               |
+#     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+                               +
+#     |                                                               |
+#     .                                                               .
+#     .                            Options                            .
+#     .                                                               .
+#     |                                                               |
+#     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+# 
+#    Next Header          8-bit selector.  Identifies the type of header
+#                         immediately following the Destination Options
+#                         header.  Uses the same values as the IPv4
+#                         Protocol field [RFC-1700 et seq.].
+# 
+#    Hdr Ext Len          8-bit unsigned integer.  Length of the
+#                         Destination Options header in 8-octet units, not
+#                         including the first 8 octets.
+# 
+#    Options              Variable-length field, of length such that the
+#                         complete Destination Options header is an
+#                         integer multiple of 8 octets long.  Contains one
+#                         or  more TLV-encoded options, as described in
+#                         section 4.2.
+# 
+#    The only destination options defined in this document are the Pad1
+#    and PadN options specified in section 4.2.
+# 
+#    Note that there are two possible ways to encode optional destination
+#    information in an IPv6 packet: either as an option in the Destination
+#    Options header, or as a separate extension header.  The Fragment
+#    header and the Authentication header are examples of the latter
+#    approach.  Which approach can be used depends on what action is
+#    desired of a destination node that does not understand the optional
+#    information:
+# 
+#       o  If the desired action is for the destination node to discard
+#          the packet and, only if the packet's Destination Address is not
+#          a multicast address, send an ICMP Unrecognized Type message to
+#          the packet's Source Address, then the information may be
+#          encoded either as a separate header or as an option in the
+#          Destination Options header whose Option Type has the value 11
+#          in its highest-order two bits.  The choice may depend on such
+#          factors as which takes fewer octets, or which yields better
+#          alignment or more efficient parsing.
+# 
+# =begin html
+# <PRE>
+#       o  <B>If any other action is desired, the information must be encoded
+#          as an option in the Destination Options header whose Option
+#          Type has the value 00, 01, or 10 in its highest-order two bits,
+#          specifying the desired action (see section 4.2).</B>
+# </PRE>
+# 
+# =end html
+# 
+
+=pod
+
+=head1 REFERENCE
+
+=begin html
+<BLOCKQUOTE>
+<PRE>
+[RFC 7084],G-1
+[RFC 2460],Sections 4.2 and 4.6
+</PRE>
+</BLOCKQUOTE>
+
+=end html
+
+=head1 SEE ALSO
+
+  perldoc V6evalTool
+
+=cut
+

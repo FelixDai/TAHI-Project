@@ -1,0 +1,283 @@
+#!/usr/bin/perl
+#
+# Copyright (C) 2013, 2014, 2015, 2016
+# Chunghwa Telecommunication Labratories (CHT-TL)
+# All rights reserved.
+# 
+# Redistribution and use of this software in source and binary
+# forms, with or without modification, are permitted provided that
+# the following conditions and disclaimer are agreed and accepted
+# by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in
+#    the documentation and/or other materials provided with
+#    the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project
+#    which is related to this software (hereinafter referred to as
+#    "project") nor the names of the contributors may be used to
+#    endorse or promote products derived from this software without
+#    specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written
+#    notification to the copyrighters.
+# 
+# 5. The copyrighters, the project and the contributors may prohibit
+#    the use of this software at any time.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+# STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+# IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+# $CHT-TL: S_RFC3736_5.3_SLDHCPDSLOP.seq,v 1.1 2016/02/15 weifen Exp $
+########################################################################
+BEGIN { $V6evalTool::TestVersion = '$Name: CE-Router_Self_Test_1_0_5 $';
+}
+
+use strict;
+use V6evalTool;
+
+use lib '../.';
+use DHCPv6_common;
+use CPE6_config;
+use Server_pktdesc;
+
+dhcpExitNS if($STATEFUL_SERVER == 1);
+
+#--------------------------------------------------------------#
+# Initialization
+#--------------------------------------------------------------#
+
+vLogHTML('<B>==== NUT Initialization ====</B><BR>');
+my $IF0 = "Link0";
+my $IF1 = "Link1";
+
+vCapture($IF0);
+vCapture($IF1);
+
+my $ra = $STATEFUL_CLIENT ? 'ra_MsetOset' : 'ra_MclearOset';
+my ($ret,$tn2_prefix) = cpe_initialization($ra,$IF0,$IF1,$STATEFUL_CLIENT,3);
+if ($ret != 0) {
+    vLogHTML('<FONT COLOR="#FF0000">CPE initialization fail!</FONT><BR>');
+    dhcpExitFail();
+}
+
+vClear($IF0);
+vClear($IF1);
+
+ResetDhcpOpt();
+
+# 1 send DHCPv6 Information-request  Message
+$CID_OPTION = "opt_CID_LLT_client1";
+$OptionRequest_OPTION = "opt_ORO_dns_domainlists";
+$ElapsedTime_OPTION = "opt_ElapsedTime";
+my ($ret1, %ireq1) = send_information_request($IF1, "information_request_client1_to_alldhcp", undef, "");
+if (0 != $ret1){
+	dhcpExitFail();
+}
+
+# wait for DHCPv6 Reply Message
+my ($ret2, %rep2) = wait_for_reply($IF1, 5);
+if (0 != $ret2){
+	dhcpExitFail();
+}
+
+# 2 check Options
+if (0 != options_exist(\%rep2, ($CMP_DNS_LST))){
+	dhcpExitError("<B>The expected option is not exist</B><BR>");
+}
+
+# compare Options
+#if (0 != compare_options(\%ireq1, \%rep2, ($CMP_CID|$CMP_TRANS_ID))){
+#	dhcpExitError("<B>The value of option is different from expected value.</B><BR>");
+#}
+
+
+# check unicast address
+#if ( $rep2{"Frame_Ether.Packet_IPv6.Hdr_IPv6.DestinationAddress"} != $ireq1{"Frame_Ether.Packet_IPv6.Hdr_IPv6.SourceAddress"}) {
+#        dhcpExitError("DHCPv6 Server not send Reply message via unicast.");
+#}
+
+my $option_base = "Frame_Ether.Packet_IPv6.Upp_UDP.Udp_DHCPv6_Reply.Opt_DHCPv6_DNS_SearchList";
+my $option_code = $option_base."."."Code";
+my $option_len = $option_base."."."Length";
+my $option_list = $option_base."."."SearchString";
+
+
+if(defined $rep2{$option_base}){
+	vLogHTML("<B> Domain Search List option Code = $rep2{$option_code} <B><BR>");
+	vLogHTML("<B> Domain Search List option Length = $rep2{$option_len} <B><BR>");
+	vLogHTML("<B> Domain Search List option Address = $rep2{$option_list} <B><BR>");
+}
+else{
+	vLogHTML("<B> NO Domain Search List option <B><BR>");
+	dhcpExitFail;
+}
+#-------------------------------------------------------------------
+vLogHTML("<B><FONT COLOR=#006666>The DNS search list Option in Reply Message is correct</FONT></B><BR>");
+#-------------------------------------------------------------------
+
+vClear($IF0);
+vClear($IF1);
+vStop($IF0);
+vStop($IF1);
+dhcpExitPass();
+
+#NOTREACHED
+
+########################################################################
+__END__
+
+=head1 NAME
+
+  DHCP Options
+  Part C: Domain Search List Option
+
+=head1 TARGET
+
+  CE-Router
+
+=head1 SYNOPSIS
+
+=begin html
+ <PRE>
+ <A HREF="./S_RFC3736_5.3_SLDHCPDSLOP.seq">S_RFC3736_5.3_SLDHCPDSLOP.seq </A>[-tooloption ...]
+ -pkt <A HREF="./S_RFC3736_5.3_SLDHCPDSLOP.def">S_RFC3736_5.3_SLDHCPDSLOP.def </A>
+ -tooloption: v6eval tool option
+See Also <A HREF="./DHCPv6.def"> DHCPv6.def </A>
+ </PRE>
+
+=head1 INITIALIZATION
+
+	Common Test Setup is performed at the beginning of this test part.
+
+=begin html
+  <UL>
+  <LI><STRONG>Network Topology</STRONG></LI>
+  </UL>
+  <PRE>
+          TN(Server)  
+	     |
+Link0 -------+-----------+--------------- 3ffe:501:ffff:100::/64
+                         |
+                       NUT(Server1)
+                         |
+Link1 -------+-----------+--------------- 3ffe:501:ffff:111x::/64
+	     |
+          TN(Client1)
+  </PRE>
+  <UL>
+      <LI><STRONG>Verification Points</STRONG></LI>
+<PRE>
+        <li>Domain Search List option
+<ul>
+      <LI>option-code</LI>
+      <B>OPTION_DOMAIN_LIST (24)</B>
+      <LI>option-len</LI>
+      Length of the 'searchlist' field in octets 
+      <LI>searchlist</LI>
+      Any(The specification of the list of domain names in the Domain Search List)
+</UL>
+</PRE>
+  </UL>
+  <UL>
+      <LI><STRONG>Configuration</STRONG></LI>
+      <PRE>
+      The Reply message includes DNS Recursive Name Server option.
+      <UL>
+      Option Request option in the Information-request message
+      <LI>option-code</LI>
+      <B>OPTION_ORO(6)</B>
+      <LI>option-len</LI>
+      Any
+      <LI>requested-option-code-1</LI>
+      <B>OPTION_DOMAIN_LIST(24)</B>
+      </PRE>
+      </UL>
+	<BLOCKQUOTE>
+	<TABLE BORDER>
+	<TR>
+	<TD><TT>Device Name</TT></TD>
+	<TD><TT>Device Type</TT></TD>
+	<TD><TT>I/F</TT></TD>
+	<TD><TT>Assigned Prefix</TT></TD>
+	<TD><TT>Link Local Addr</TT></TD>
+	<TD><TT>MAC Addr</TT></TD>
+	</TR>
+	<TR>
+	<TD><TT>Server1</TT></TD>
+	<TD><TT>NUT</TT></TD>
+	<TD><TT>Link0</TT></TD>
+	<TD><TT>3ffe:501:ffff:111x::/64</TT></TD>
+	<TD><TT>NUT's Linklocal address</TT></TD>
+	<TD><TT>NUT's MAC address</TT></TD>
+	</TR>
+	<TR>
+	<TD><TT>Client1</TT></TD>
+	<TD><TT>TN</TT></TD>
+	<TD><TT>Link0</TT></TD>
+	<TD><TT>3ffe:501:ffff:111x::/64</TT></TD>
+	<TD><TT>fe80::200:ff:fe00:a2a2</TT></TD>
+	<TD><TT>00:00:00:00:a2:a2</TT></TD>
+	</TABLE>
+	</BLOCKQUOTE>
+	</UL>
+</UL>
+
+=end html
+
+=head1 TEST PROCEDURE
+
+=begin html
+<PRE>
+    TN(Link0)	NUT     TN(Link1)
+	|	|       | 
+	| <---> |       | CE initialization (provide RA and DHCP informaiton to NUT)
+	|	|       |
+        |	| <---- | Information-request(w/ Option Request option)
+        |	| ----> | Reply(w/ DNS search list option)
+        |       |	| 
+</PRE>
+
+=end html
+
+=head1 JUDGEMENT
+
+<PRE>
+(*1)PASS:  NUT returns Reply message with DNS Recursive Name Server option to the TN's Information-request message.
+</PRE>
+
+=head1 TERMINATION
+
+  N/A
+
+=head1 REFERENCE
+
+=begin html
+<PRE>
+[RFC 7084],L-8, L-10
+[RFC 3315],Section 6, 7, 7.1, 7.2
+[RFC 3646],Section 3
+[RFC 3736],Section 5.1, 5.2, and 5.3
+</PRE>
+
+=end html
+
+=head1 SEE ALSO
+
+  perldoc V6evalTool
+
+=cut

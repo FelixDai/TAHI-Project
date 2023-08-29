@@ -1,0 +1,90 @@
+#
+# Copyright (C) 2013, 2014
+# Chunghwa Telecommunication Labratories (CHT-TL)
+# All rights reserved.
+# 
+# Redistribution and use of this software in source and binary
+# forms, with or without modification, are permitted provided that
+# the following conditions and disclaimer are agreed and accepted
+# by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in
+#    the documentation and/or other materials provided with
+#    the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project
+#    which is related to this software (hereinafter referred to as
+#    "project") nor the names of the contributors may be used to
+#    endorse or promote products derived from this software without
+#    specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written
+#    notification to the copyrighters.
+# 
+# 5. The copyrighters, the project and the contributors may prohibit
+#    the use of this software at any time.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+# STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+# IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+# $Name: CE-Router_Self_Test_1_0_5 $
+# $CHT-TL: INDEX_p2_cpe,v 1.1 2014/04/17 weifen Exp $
+
+# ###############################################################
+# <coverage Number><seq>:<def>:<opts>:<htmldoc>:<dscription>:<links>
+#
+./CERouter_Init.seq:/dev/null:::Initialization:
+
+#################################################################
+&print:<B>Group 2: RFC3736</B>
+#################################################################
+
+&print:<B>Test CERouter 2.2.1 :  Basic Message Exchanges</B>
+./S_RFC3736_basic.seq:./S_RFC3736_basic.def::: Basic Message Exchange:2
+
+&print:<B>Test CERouter 2.2.2 : Transaction ID Consistency : Basic Exchange</B>
+./S_RFC3736_TransactionIDSync.seq:./S_RFC3736_TransactionIDSync.def::: Transaction ID Consistency:2
+
+&print:<B>Test CERouter 2.2.3 : Implementation of DHCP constants</B>
+./S_RFC3736_UDPPorts.seq:./S_RFC3736_UDPPorts.def::: Part A &#58; Valid UDP port:2
+./S_RFC3736_InvalidUDPPorts.seq:./S_RFC3736_InvalidUDPPorts.def::: Part B &#58; Invalid UDP port:2
+
+&print:<B>Test CERouter 2.2.4 : Server Messge Format</B>
+./S_RFC3736_5.1_SLDHCPReply.seq:./S_RFC3736_5.1_SLDHCPReply.def::: Client/Server Message Format:2
+
+&print:<B>Test CERouter 2.2.5 : DHCP Options</B>
+./S_RFC3736_5.2_SLDHCPSID.seq:./S_RFC3736_5.2_SLDHCPSID.def::: Part A &#58; Server Identifier Option:2
+./S_RFC3736_5.3_SLDHCPDNSOP.seq:./S_RFC3736_5.3_SLDHCPDNSOP.def::: Part B &#58; DNS Recursive Name Server Option:2
+./S_RFC3736_5.3_SLDHCPDSLOP.seq:./S_RFC3736_5.3_SLDHCPDSLOP.def::: Part C &#58; Domain Search List Option:2
+
+&print:<B>Test CERouter 2.2.6 : DHCP Unique Identifier (DUID) contents</B>
+./S_RFC3736_DUID-Format.seq:./S_RFC3736_DUID-Format.def::: Part A &#58; DUID Format:2
+./S_RFC3736_DUID-Persit.seq:./S_RFC3736_DUID-Persit.def::: Part B &#58; DUID Consistency:2
+
+&print:<B>Test CERouter 2.2.7 : Transmission of Reply Messages</B>
+./S_RFC3736_Creation-Transmission_Reply.seq:./S_RFC3736_Creation-Transmission_Reply.def::: Part A &#58; Reply message transmission:2
+./S_RFC3736_Creation-Transmission_Reply_DNS.seq:./S_RFC3736_Creation-Transmission_Reply_DNS.def::: Part B &#58; Reply message in response to Information-request message with ORO(DNS Recursive Name Server option) :2
+./S_RFC3736_Creation-Transmission_Reply_LST.seq:./S_RFC3736_Creation-Transmission_Reply_LST.def::: Part C &#58; Reply message in response to Information-request message with ORO(Domain Search List option):2 
+
+&print:<B>Test CERouter 2.2.8 : Reception of Invalid Information-request message</B>
+./S_RFC3736_DiscardUnicastInfReq.seq:./S_RFC3736_DiscardUnicastInfReq.def::: Part A &#58; Reception of Information-request message via unicast:2
+./S_RFC3736_InvalidInfReqWSvrID.seq:./S_RFC3736_InvalidInfReqWSvrID.def::: Part B &#58; Contains Server Identifier option:2
+./S_RFC3736_InvalidInfReqWIANA.seq:./S_RFC3736_InvalidInfReqWIANA.def::: Part C &#58; Contains IA_NA option:2
+
+&print:<B>Test CERouter 2.2.9 : Server Message Validation</B>
+./S_RFC3736_InvalidAdvertiseMsg.seq:./S_RFC3736_InvalidAdvertiseMsg.def::: Part A &#58; Advertise message (type 2):2
+./S_RFC3736_InvalidReplyMsg.seq:./S_RFC3736_InvalidReplyMsg.def::: Part B &#58; Reply message (type 7):2

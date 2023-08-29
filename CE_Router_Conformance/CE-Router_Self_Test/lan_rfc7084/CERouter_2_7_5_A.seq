@@ -1,0 +1,434 @@
+#!/usr/bin/perl
+#
+# Copyright (C) 2013, 2014, 2015
+# Chunghwa Telecommunication Labratories (CHT-TL)
+# All rights reserved.
+# 
+# Redistribution and use of this software in source and binary
+# forms, with or without modification, are permitted provided that
+# the following conditions and disclaimer are agreed and accepted
+# by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in
+#    the documentation and/or other materials provided with
+#    the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project
+#    which is related to this software (hereinafter referred to as
+#    "project") nor the names of the contributors may be used to
+#    endorse or promote products derived from this software without
+#    specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written
+#    notification to the copyrighters.
+# 
+# 5. The copyrighters, the project and the contributors may prohibit
+#    the use of this software at any time.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+# STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+# IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+# $CHT-TL: CERouter_2_7_5_A.seq, v 1.3 2015/03/25 weifen Exp $
+#
+################################################################
+
+BEGIN{
+	$V6evalTool::TestVersion = '$Name: CE-Router_Self_Test_1_0_5 $';
+}
+use strict;
+use V6evalTool;
+
+use lib '../';
+use DHCPv6_common;
+use CPE6_config;
+use CPE6;
+
+my $type=$V6evalTool::NutDef{Type};
+if($type ne 'router') {
+	vLogHTML('<FONT COLOR="#FF0000">This test does not support Host!</FONT>');
+	exit $V6evalTool::exitRouterOnly;
+}
+
+#--------------------------------------------------------------#
+# Initialization variables
+#--------------------------------------------------------------#
+my $IF0 = "Link0";
+my $IF1 = "Link1";
+
+my ($time1, $time2) = (50,80);
+
+vCapture($IF0);
+vCapture($IF1);
+
+#--------------------------------------------------------------#
+# 1. Send RA (tr1->nut)
+#--------------------------------------------------------------#
+my $ra = $STATEFUL_CLIENT ? 'ra_MsetOset' : 'ra_MclearOset';
+vSend($IF0, $ra);
+if (!$STATEFUL_CLIENT) {
+	ignoreDAD($IF0);
+}
+#--------------------------------------------------------------#
+# 2. Wait until DHCPv6 Solicit arrives (nut->tr1)
+#--------------------------------------------------------------#
+my ($retsol,%sol) = wait_for_solicit2($IF0, 30);
+cpe6ExitFail if($retsol != 0);
+
+my $cmp;
+if ($STATEFUL_CLIENT) {
+	$cmp = $CMP_IA_NA | $CMP_IA_PD;
+} else {
+	$cmp = $CMP_IA_PD;
+}
+
+cpe6ExitError("<B>Do not include necessary options.</B><BR>") if (0 != options_exist(\%sol, $cmp));
+vClear($IF0);
+
+#--------------------------------------------------------------#
+# 3. Send DHCPv6 Advertise message (tr1->nut)
+#--------------------------------------------------------------#
+$SID_OPTION = "opt_SID_LLT_server1";
+$IA_PD_OPTION = "opt_IA_PD_PF1";
+if ($STATEFUL_CLIENT) {
+	$IA_NA_OPTION = "opt_IA_NA_Addr_woStatus";
+}
+my ($retadv, %adv) = send_advertise($IF0, "advertise_server1_to_nut", \%sol, "");
+cpe6ExitFail if($retadv != 0);
+
+#--------------------------------------------------------------#
+# 4. Wait until DHCPv6 Request arrives (nut->tr1)
+#--------------------------------------------------------------#
+my ($retreq,%req) = wait_for_request2($IF0, 30);
+cpe6ExitFail if($retreq != 0);
+
+cpe6ExitError("<B>Do not include necessary options.</B><BR>") if (0 != options_exist(\%req, $cmp));
+vClear($IF0);
+
+#--------------------------------------------------------------#
+# 5. Send DHCPv6 Reply message (tr1->nut)
+#--------------------------------------------------------------#
+$IA_PD_OPTION = "opt_IA_PD_PF1";
+$StatusCode_OPTION = "opt_StatusCode";
+if ($STATEFUL_CLIENT) {
+	$IA_NA_OPTION = "opt_IA_NA_Addr_woStatus";
+}
+my ($retrep, %rep) = send_reply($IF0, "reply_server1_to_nut", \%req, "");
+cpe6ExitFail if($retrep != 0);
+my $rep_time = $rep{sentTime1};
+
+#--------------------------------------------------------------#
+# 6. Send RS message (tn2->nut)
+#    Wait until RA with delegated prefix arrives (nut->tn2)
+#--------------------------------------------------------------#
+vSleep($WAIT_LAN_RA);
+vClear($IF1); 
+
+vLogHTML('<B>==== TN2 <--> CE-Router: RS and RA Messages Exchange  ====</B><BR>');
+vSend($IF1, 'rs_tn2_to_nut');
+
+my ($retra, %ra) = wait_for_ra($IF1, 10,1);
+cpe6ExitFail if ($retra != 0);
+
+my $base = 'Frame_Ether.Packet_IPv6.ICMPv6_RA.Opt_ICMPv6_Prefix';
+my $prefix_opt = $base;
+my $prefix_opt_num = $ra{$base."#"};
+my $count = 1;
+my $get_prefix = 0;
+my $tn2_prefix1;
+while (($count <= $prefix_opt_num) && ($get_prefix == 0)){
+  $tn2_prefix1 = $ra{$prefix_opt."."."Prefix"};
+  if ($tn2_prefix1 =~ /3ffe:501:ffff:111/){
+      $get_prefix = 1;
+  }
+  $count++;
+  $prefix_opt = $base.$count;
+}
+if ($get_prefix == 0) {
+	cpe6ExitFail("<B>Did not get golbal prefix from RA!.</B><BR>");
+} 
+#--------------------------------------------------------------#
+# 7. ping test (tn2->nut global address)
+#--------------------------------------------------------------#
+vCPP("-D\'PREFIX_FROM_PD=\"$tn2_prefix1\"\'");
+vSleep(5);
+vClear($IF0);
+vClear($IF1);
+vSend($IF1, 'ereq_tn2_to_nut');
+my %ret = ping_nut($IF1, 5, 0, 0, 'erep_nut_to_tn2');
+cpe6ExitFail if ($ret{status} != 0);
+
+#--------------------------------------------------------------#
+# 8. Wait until Renew arrives 
+#--------------------------------------------------------------#
+print "Wait for DHCPv6 Renew message\n";
+my ($retren,%ren) = wait_for_renew($IF0, $time1 + 5, 2);
+cpe6ExitFail if($retren != 0);
+
+# check recvtime
+if (0 != check_RecvTime(\%rep, \%ren, $time1)){
+        cpe6ExitError("<B>The Received time error! </B><BR>");
+}
+
+vClear($IF1);
+#--------------------------------------------------------------#
+# 13. Send DHCPv6 Reply message (tr1->nut)
+#--------------------------------------------------------------#
+$IA_PD_OPTION = "opt_2IA_PD";
+$StatusCode_OPTION = "opt_StatusCode";
+
+
+($retrep, %rep) = send_reply($IF0, "reply_server1_to_nut", \%ren, "");
+cpe6ExitFail if($retrep != 0);
+
+#--------------------------------------------------------------#
+# 14. Check RA 
+#--------------------------------------------------------------# 
+vSleep($WAIT_LAN_RA);
+vClear($IF0);
+vClear($IF1);
+
+vLogHTML('<B>==== TN2 <--> CE-Router: RS and RA Messages Exchange  ====</B><BR>');
+vSend($IF1, 'rs_tn2_to_nut');
+
+($retra, %ra) = wait_for_ra($IF1, 10,1);
+cpe6ExitFail if ($retra != 0);
+
+# Get new prefix (prefix4)
+$prefix_opt = $base;
+$prefix_opt_num = $ra{$base."#"};
+$count = 1;
+$get_prefix = 0;
+my $tn2_prefix4;
+my $pTime;
+my $vTime;
+while (($count <= $prefix_opt_num) && ($get_prefix == 0)){
+  $tn2_prefix4 = $ra{$prefix_opt."."."Prefix"};
+  if ($tn2_prefix4 =~ /3ffe:501:ffff:555/){
+      $get_prefix = 1;
+      # Check the preferred lifetime and valid lifetime 
+      $vTime = $ra{$prefix_opt."."."ValidLifetime"};
+      if ($vTime > 200) {
+      	cpe6ExitError("<B><FONT COLOR=\"#FF0000\">RA has new prefix($tn2_prefix4) with Valid Lifetime($vTime) greater then the valid lifetime in the IA_PD.</FONT></B><BR>");
+      }
+  }
+  if ($tn2_prefix4 =~ /3ffe:501:ffff:111/){
+  	# Get old prefix, check the Preferred Lifetime of old prefix
+      $pTime = $ra{$prefix_opt."."."PreferredLifetime"};
+      if ($pTime != 0) {
+      	cpe6ExitError("<B><FONT COLOR=\"#FF0000\">RA has old prefix($tn2_prefix4) with invalid Preferred Lifetime($pTime).</FONT></B><BR>");
+      }
+  }
+  $count++;
+  $prefix_opt = $base.$count;
+}
+if ($get_prefix == 1) {
+    vLogHTML("<B>RA includes the correct prefix: $tn2_prefix4</B></BR>");
+} else {
+    cpe6ExitError("<B><FONT COLOR=\"#FF0000\">RA does not include the correct Prefix: $tn2_prefix4.</FONT></B><BR>");
+}
+
+#--------------------------------------------------------------#
+# End
+#--------------------------------------------------------------#
+vClear($IF0);
+vStop($IF0);
+
+vClear($IF1);
+vStop($IF1);
+
+#cpe6ExitPass;
+cpe6ExitPass($IF0);
+
+sub icmp_vRecv ($$$$@) {
+	my($interface, $timeout, $count, $seektime, @expect) = @_;
+	my($rcv_ns_local, $rcv_ns_global);
+
+	$rcv_ns_local = 0;
+	$rcv_ns_global = 0;
+
+	while (1) {
+		%ret = vRecv($interface, $timeout, $count, $seektime, @expect,
+			     'ns_local', 'ns_local_sll',
+			     'ns_global', 'ns_global_sll');
+
+		if ($ret{recvFrame} eq 'ns_local' ||
+		    $ret{recvFrame} eq 'ns_local_sll') {
+			if ($rcv_ns_local != 0) {
+				last;
+			};
+
+			vSend($interface, 'na_local');
+			$rcv_ns_local = 1;
+		}
+		elsif ($ret{recvFrame} eq 'ns_global' ||
+		       $ret{recvFrame} eq 'ns_global_sll') {
+			if ($rcv_ns_global != 0) {
+				last;
+			};
+
+			vSend($interface, 'na_global');
+			$rcv_ns_global = 1;
+		}
+		else {
+			last;
+		};
+	};
+
+	return(%ret);
+}
+
+sub ping_nut ($$$$@) {
+	my($interface, $timeout, $count, $seektime, @expect) = @_;
+	my($rcv_ns_local, $rcv_ns_global);
+
+	$rcv_ns_local = 0;
+	$rcv_ns_global = 0;
+
+	while (1) {
+		%ret = vRecv($interface, $timeout, $count, $seektime, @expect,
+			     'ns_local', 'ns_local_sll',
+			     'ns_global', 'ns_global_sll');
+
+		if ($ret{recvFrame} eq 'ns_local' ||
+		    $ret{recvFrame} eq 'ns_local_sll') {
+			if ($rcv_ns_local != 0) {
+				last;
+			};
+
+			vSend($interface, 'na_local');
+			$rcv_ns_local = 1;
+		}
+		elsif ($ret{recvFrame} eq 'ns_global' ||
+		       $ret{recvFrame} eq 'ns_global_sll') {
+			if ($rcv_ns_global != 0) {
+				last;
+			};
+
+			vSend($interface, 'na_global');
+			$rcv_ns_global = 1;
+		}
+		else {
+			last;
+		};
+	};
+
+	return(%ret);
+}
+###############################################################################
+__END__
+
+=head1 NAME 
+
+  Prefix Changed
+  Part A: Lifetimes set to zero
+
+=head1 TARGET
+
+  CE-Router
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./CERouter_2_7_5_A.seq"> CERouter_2_7_5_A.seq</A> [-tooloption...] <BR>  -pkt  <A HREF="./CERouter_2_7_5_A.def"> CERouter_2_7_5_A.def</A> <BR>  -tooloption : v6eval tool option
+<BR>
+  See Also <A HREF="../CPE6_common.def"> CPE6_common.def </A> 
+</PRE>
+
+=end html
+
+=head1 INITIALIZATION
+
+	Common Test Setup 1.1
+
+=head1 TEST PROCEDURE
+
+=begin html
+<PRE>
+<BR>
+       TN2  CE-Router  TR1
+        |       |       |
+        |       |       |Initialize CE-Router(as a DHCPv6 requesting router)
+        |       |       |
+        |       | <---- |<B>RA</B>
+        |       |       |
+        |       | ----> |<B>Solicit</B> (1*)
+        |       | <---- |<B>Advertise</B>
+        |       | ----> |<B>Request</B> (2*)
+        |       | <---- |<B>Reply</B>
+        |       |       |
+        | <---- |       |<B>Echo Request</B> (3*)
+        | ----> |       |<B>Echo Reply</B> (4*)
+        |       |       |
+        |       |       |
+        |       | ----> |<B>Renew</B>
+        |       | <---- |<B>Reply</B>
+        |       |       |
+        | ----> |       |<B>RS</B>
+        | <---- |       |<B>RA</B> (5*)
+        |       |       |
+
+
+<BR>
+</PRE>
+
+=end html
+
+=head1 JUDGEMENT
+
+=begin html
+<PRE>
+<BR>
+  (1*)PASS: TR1 receives Solicit from CE-Router.
+  (2*)PASS: TR1 receives Request from CE-Router.
+  (3*)PASS: CE-Router receives Echo Request from TN2.
+  (4*)PASS: CE-Router sends Echo Reply to TN2.
+  (5*)PASS: TN2 receives RA with New prefix from CE-Router. If the RA has old prefix,
+  	the Preferred lifetime must be zero
+</PRE>
+
+=end html
+
+=head1 TERMINATION
+
+=begin html
+<PRE>
+  N/A
+</PRE>
+
+=end html
+
+=head1 REFERENCE
+
+=begin html
+<PRE>
+[RFC 7084],L-13
+[RFC 7084],L-14
+</PRE>
+
+=end html
+
+=head1 SEE ALSO
+
+=begin html
+<PRE>
+<BR>
+  perldoc  V6evalTool
+<BR>
+</PRE>
+
+=end html

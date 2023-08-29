@@ -1,0 +1,151 @@
+#!/usr/bin/perl
+#
+# Copyright (C) 2013, 2014, 2015, 2016
+# Chunghwa Telecommunication Labratories (CHT-TL)
+# All rights reserved.
+# 
+# Redistribution and use of this software in source and binary
+# forms, with or without modification, are permitted provided that
+# the following conditions and disclaimer are agreed and accepted
+# by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in
+#    the documentation and/or other materials provided with
+#    the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project
+#    which is related to this software (hereinafter referred to as
+#    "project") nor the names of the contributors may be used to
+#    endorse or promote products derived from this software without
+#    specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written
+#    notification to the copyrighters.
+# 
+# 5. The copyrighters, the project and the contributors may prohibit
+#    the use of this software at any time.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+# STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+# IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+# $CHT-TL: V6LC_2_2_4_F.seq,v 1.2 2016/09/02 weifen Exp $
+#
+########################################################################
+BEGIN{
+	$V6evalTool::TestVersion = '$Name: CE-Router_Self_Test_1_0_5 $';
+}
+
+use V6evalTool;
+use rdisc;
+
+use lib '../';
+use CPE6_config;
+use DHCPv6_common;
+use Client_pktdesc;
+
+
+$IF0 = 'Link0';
+$IF1 = 'Link1';
+
+if($V6evalTool::NutDef{'Type'} ne 'router') {
+  exit($V6evalTool::exitRouterOnly);
+	#NOTREACHED
+}
+
+vCapture($IF0);
+vCapture($IF1);
+
+$pktdesc{'rs_local'} =
+	'    Send RS w/ SLL: '.
+	'unspecified address -&gt; all-routers multicast address';
+
+my $ra = $STATEFUL_CLIENT ? 'ra_MsetOset' : 'ra_MclearOset';
+my ($ret,$tn2_prefix) = cpe_initialization($ra,$IF0,"",$STATEFUL_CLIENT,0);
+if ($ret != 0) {
+    vLogHTML('<FONT COLOR="#FF0000">CPE initialization fail!</FONT><BR>');
+    dhcpExitFail();
+}
+
+vSleep($WAIT_LAN_RA);
+
+vClear($IF0);
+vClear($IF1);
+
+unless(v6LC_2_2_4($IF1)) {
+				vRemote('reboot.rmt','');
+        exit($V6evalTool::dhcpExitFail);
+        #NOTREACHED
+}
+
+vStop($IF0);
+vStop($IF1);
+
+vRemote('reboot.rmt','');
+
+exit($V6evalTool::dhcpExitPass);
+#NOTREACHED
+
+
+
+#
+# perldoc
+#
+########################################################################
+__END__
+
+=head1 NAME
+
+  Router Ignores Invalid Router Solicitations 
+  Part F: Unspecified IP source address and a source link-layer address option
+
+=head1 Purpose
+
+  Verify that a router ignores invalid Router Solicitations.
+
+=head1 References
+
+[RFC 7084],L-1
+[RFC 4861],Section 6.1.1, 6.2.6
+
+=head1 Resource Requirements
+
+  * Packet generator
+  * Monitor to capture packets
+
+=head1 Test Setup
+
+  Common Test Setup is performed at the beginning of this test part.
+
+=head1 Procedure
+
+  Part F: Unspecified IP source address and a source link-layer address option
+   11. TN2 transmits a Router Solicitation with an unspecified IP source address and a source link-layer
+       address option. The Router Solicitation is valid otherwise.
+   12. Observe the packet transmitted by the CE-Router.
+
+=head1 Observable Results
+
+  Parts A-F
+   In all Parts, the CE-Router must discard the Router Solicitation from TN2 and must not transmit a
+   corresponding Router Advertisement within MAX_RA_DELAY_TIME (0.5) seconds.
+
+=head1 Possible Problems
+
+  * None. 
+
+=cut
+

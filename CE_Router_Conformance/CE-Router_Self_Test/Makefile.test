@@ -1,0 +1,34 @@
+#
+# Makefile
+#
+# $CHT-TL: Makefile.test.TAKE,v 1.6 2010/01/22 12:36:52 akisada Exp $
+#
+
+SUBDIR=	wan_rfc3315_rfc3646	\
+	wan_rfc3633	\
+	wan_rfc2460_rfc4861_rfc4443	\
+	wan_rfc4862	\
+	wan_rfc1981	\
+	wan_rfc7084	\
+	lan_rfc3315	\
+	lan_rfc3736	\
+	lan_rfc2460	\
+	lan_rfc4861	\
+	lan_rfc4862	\
+	lan_rfc4443	\
+	lan_rfc7084	\
+	forward_rfc2460_rfc4861_rfc4443	\
+	forward_rfc7084
+
+
+
+ipv6ready_p2_ce	document_ipv6ready_p2_ce:
+	@for subdir in ${SUBDIR}; do \
+		echo "===> $$subdir"; \
+		(cd $$subdir; ${MAKE} $@); \
+	done
+
+clean:
+	rm -f config.def
+
+.include <bsd.subdir.mk>

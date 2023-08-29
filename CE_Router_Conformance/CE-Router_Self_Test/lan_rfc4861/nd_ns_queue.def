@@ -1,0 +1,182 @@
+FEM_icmp6_echo_request(
+	queue_ereq_00000_a,
+	_HETHER_tn2_to_nut,
+	{
+		_SRC(v6(TN2_LINKLOCAL));
+		_DST(nutv6("Link1"));
+	},
+	{
+		SequenceNumber	= 3;
+		payload		= payload8;
+	}
+)
+
+FEM_icmp6_echo_reply(
+	queue_erep_00000_a,
+	_HETHER_nut_to_tn2,
+	{
+		_SRC(nutv6("Link1"));
+		_DST(v6(TN2_LINKLOCAL));
+	},
+	{
+		SequenceNumber	= 3;
+		payload		= payload8;
+	}
+)
+
+FEM_icmp6_echo_request(
+	queue_ereq_00000_b,
+	_HETHER_h02nut,
+	{
+		_SRC(v6(H0_LINKLOCAL));
+		_DST(nutv6("Link1"));
+	},
+	{
+		SequenceNumber	= 4;
+		payload		= payload8;
+	}
+)
+
+FEM_icmp6_echo_reply(
+	queue_erep_00000_b,
+	_HETHER_nut2h0,
+	{
+		_SRC(nutv6("Link1"));
+		_DST(v6(H0_LINKLOCAL));
+	},
+	{
+		SequenceNumber	= 4;
+		payload		= payload8;
+	}
+)
+
+FEM_icmp6_echo_request(
+	queue_ereq_00001_a,
+	_HETHER_tn2_to_nut,
+	{
+		_SRC(v6(TN2_LINKLOCAL));
+		_DST(nutv6("Link1"));
+	},
+	{
+		SequenceNumber	= 4;
+		payload		= payload8;
+	}
+)
+
+FEM_icmp6_echo_reply(
+	queue_erep_00001_a,
+	_HETHER_nut_to_tn2,
+	{
+		_SRC(nutv6("Link1"));
+		_DST(v6(TN2_LINKLOCAL));
+	},
+	{
+		SequenceNumber	= 4;
+		payload		= payload8;
+	}
+)
+
+FEM_icmp6_echo_request(
+	queue_ereq_00001_b,
+	_HETHER_h02nut,
+	{
+		_SRC(v6(H0_LINKLOCAL));
+		_DST(nutv6("Link1"));
+	},
+	{
+		SequenceNumber	= 5;
+		payload		= payload8;
+	}
+)
+
+FEM_icmp6_echo_reply(
+	queue_erep_00001_b,
+	_HETHER_nut2h0,
+	{
+		_SRC(nutv6("Link1"));
+		_DST(v6(H0_LINKLOCAL));
+	},
+	{
+		SequenceNumber	= 5;
+		payload		= payload8;
+	}
+)
+
+FEM_icmp6_echo_request(
+	queue_ereq_00002_a,
+	_HETHER_tn2_to_nut,
+	{
+		_SRC(v6(TN2_LINKLOCAL));
+		_DST(nutv6("Link1"));
+	},
+	{
+		SequenceNumber	= 5;
+		payload		= payload8;
+	}
+)
+
+FEM_icmp6_echo_reply(
+	queue_erep_00002_a,
+	_HETHER_nut_to_tn2,
+	{
+		_SRC(nutv6("Link1"));
+		_DST(v6(TN2_LINKLOCAL));
+	},
+	{
+		SequenceNumber	= 5;
+		payload		= payload8;
+	}
+)
+
+FEM_icmp6_echo_request(
+	queue_ereq_00002_b,
+	_HETHER_h02nut,
+	{
+		_SRC(v6(H0_LINKLOCAL));
+		_DST(nutv6("Link1"));
+	},
+	{
+		SequenceNumber	= 6;
+		payload		= payload8;
+	}
+)
+
+FEM_icmp6_echo_reply(
+	queue_erep_00002_b,
+	_HETHER_nut2h0,
+	{
+		_SRC(nutv6("Link1"));
+		_DST(v6(H0_LINKLOCAL));
+	},
+	{
+		SequenceNumber	= 6;
+		payload		= payload8;
+	}
+)
+
+FEM_icmp6_echo_request(
+	queue_ereq_00003_b,
+	_HETHER_h02nut,
+	{
+		_SRC(v6(H0_LINKLOCAL));
+		_DST(nutv6("Link1"));
+	},
+	{
+		SequenceNumber	= 7;
+		payload		= payload8;
+	}
+)
+
+FEM_icmp6_echo_reply(
+	queue_erep_00003_b,
+	_HETHER_nut2h0,
+	{
+		_SRC(nutv6("Link1"));
+		_DST(v6(H0_LINKLOCAL));
+	},
+	{
+		SequenceNumber	= 7;
+		payload		= payload8;
+	}
+)
+

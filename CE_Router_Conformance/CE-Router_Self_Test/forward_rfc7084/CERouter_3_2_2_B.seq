@@ -1,0 +1,250 @@
+#!/usr/bin/perl
+#
+# Copyright (C) 2013, 2014, 2015, 2016, 2017
+# Chunghwa Telecommunication Labratories (CHT-TL)
+# All rights reserved.
+# 
+# Redistribution and use of this software in source and binary
+# forms, with or without modification, are permitted provided that
+# the following conditions and disclaimer are agreed and accepted
+# by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in
+#    the documentation and/or other materials provided with
+#    the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project
+#    which is related to this software (hereinafter referred to as
+#    "project") nor the names of the contributors may be used to
+#    endorse or promote products derived from this software without
+#    specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written
+#    notification to the copyrighters.
+# 
+# 5. The copyrighters, the project and the contributors may prohibit
+#    the use of this software at any time.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+# STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+# IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+# $CHT-TL: CERouter_3_2_2_B.seq, v 1.6 2017/05/24 weifen Exp $
+#
+################################################################
+
+BEGIN{
+	$V6evalTool::TestVersion = '$Name: CE-Router_Self_Test_1_0_5 $';
+}
+use strict;
+use V6evalTool;
+
+use lib '../';
+use DHCPv6_common;
+use CPE6_config;
+use CPE6;
+
+my $type=$V6evalTool::NutDef{Type};
+if($type ne 'router') {
+	vLogHTML('<FONT COLOR="#FF0000">This test does not support Host!</FONT>');
+	exit $V6evalTool::exitRouterOnly;
+}
+
+#--------------------------------------------------------------#
+# Initialization variables
+#--------------------------------------------------------------#
+my $IF0 = "Link0";
+my $IF1 = "Link1";
+
+vCapture($IF0);
+vCapture($IF1);
+
+my $ra = $STATEFUL_CLIENT ? 'ra_MsetOset' : 'ra_MclearOset';
+my ($ret,$tn2_prefix) = cpe_initialization($ra,$IF0,$IF1,$STATEFUL_CLIENT,0);
+if ($ret != 0) {
+    cpe6ExitError('<FONT COLOR="#FF0000">CPE initialization fail!<BR>')
+}
+if ($tn2_prefix =~ /3ffe:501:ffff/ ) {
+    vLogHTML("<B>RA includes the global prefix($tn2_prefix).</B></BR>");
+} else {
+	vLogHTML('<FONT COLOR="#FF0000">Did not get golbal prefix from RA!</FONT><BR>');
+  dhcpExitFail();
+}
+#--------------------------------------------------------------#
+# 7. ping test (tn2->tn3 global address)
+#--------------------------------------------------------------#
+vClear($IF0);
+vClear($IF1);
+
+vSend($IF1,'ereq_tn2_to_tn3');
+my %ret = vRecv($IF0, 5 ,0 ,0, 'ns_nut_to_tn3','ereq_nut_to_tn3');
+if ($ret{'status'} == 0) {
+  if ($ret{'recvFrame'} eq 'ns_nut_to_tn3') {
+      vLogHTML('Receive NS for TR1.Send NA.<BR>');
+      vSend($IF0,'na_tn3_to_nut');
+      my %ret1 = vRecv($IF0, 5 ,0 ,0, 'ereq_nut_to_tn3');
+      if ($ret1{'status'} != 0) {
+				cpe6ExitError("<B><FONT COLOR=\"#FF0000\">Error!</FONT>Did not receive forwarded Echo Request.</B><BR>");
+      } else {
+      	vLogHTML('Receive forwarded Echo request to TN3.<BR>');
+      }
+  }
+  
+} else {
+  cpe6ExitError("<B><FONT COLOR=\"#FF0000\">NG!</FONT>Did not receive NS or echo request from NUT.</B><BR>");
+}
+#--------------------------------------------------------------#
+# 8. Send RA with Router lifetime=0 (tr1->nut)
+#--------------------------------------------------------------#
+vClear($IF0);
+vClear($IF1);
+$ra = $STATEFUL_CLIENT ? 'ra_routerlifetimezero_MsetOset' : 'ra_routerlifetimezero_MclearOset';
+vSend($IF0, $ra);
+
+#--------------------------------------------------------------#
+# 9. Receice RA message (nut->tn2)
+#--------------------------------------------------------------#
+my ($retra, %ra) = wait_for_ra($IF1, 30,0);
+cpe6ExitFail if ($retra != 0);
+
+my $LifeTime = $ra{'Frame_Ether.Packet_IPv6.ICMPv6_RA.LifeTime'};
+if ($LifeTime == 0 ) {
+    vLogHTML("<B>RA includes the correct router lifetime: $LifeTime</B><BR>");
+} else {
+    cpe6ExitError("<B><FONT COLOR=\"#FF0000\">RA does not include the correct router lifetime: $LifeTime.</FONT></B><BR>");
+}
+
+#--------------------------------------------------------------#
+# 10. ping test (tn2->tn1 global address)
+#--------------------------------------------------------------#
+vSleep($WAIT_LAN_RA);
+vClear($IF0);
+vClear($IF1);
+
+vSend($IF1,'ereq_tn2_to_tn3');
+my %ret = vRecv($IF0, 5 ,0 ,0, 'ns_nut_to_tn3','ereq_nut_to_tn3');
+if ($ret{'status'} == 0) {
+  vStop($IF0);
+  vStop($IF1);
+  cpe6ExitError("<B><FONT COLOR=\"#FF0000\">NG!Cannot forwarded Echo Request without default router.</FONT></B><BR>");
+}else {
+  vStop($IF0);
+  vStop($IF1);
+  cpe6ExitPass($IF0);
+}
+
+###############################################################################
+__END__
+
+=head1 NAME 
+
+  No Default Route
+  Part B: Loses Default Route
+
+=head1 TARGET
+
+  CE Router
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./CERouter_3_2_2_B.seq"> CERouter_3_2_2_B.seq</A> [-tooloption...] <BR>  -pkt  <A HREF="./CERouter_3_2_2_B.def"> CERouter_3_2_2_B.def</A> <BR>  -tooloption : v6eval tool option
+<BR>
+  See Also <A HREF="../CPE6_common.def"> CPE6_common.def </A> 
+</PRE>
+
+=end html
+
+=head1 INITIALIZATION
+
+	Common Test Setup 1.1 is performed at the beginning of this test part.
+
+=head1 TEST PROCEDURE
+
+=begin html
+<PRE>
+<BR>
+       TN2  CE-Route   TR1
+        |       |       |
+        |       |       |Initialize CE-Router(as a DHCPv6 requesting router)
+        |       |       |
+        |       | <---- |<B>RA</B>
+        |       |       |
+        |       | ----> |<B>Solicit</B> 
+        |       | <---- |<B>Advertise</B>
+        |       | ----> |<B>Request</B> 
+        |       | <---- |<B>Reply</B>
+        |       |       |
+       	| ----> |       |<B>RS</B>
+        | <---- |       |<B>RA</B> (1*)
+        |       |       |
+        | ----- + ----> |<B>Echo Request</B> (2*)
+        |       |       |
+        |       | <---- |<B>RA with zero router lifetime</B>
+        |       |       |
+        | ----> |       |<B>RS</B>
+        | <---- |       |<B>RA</B> (4*)
+        |       |       |
+        | ------+-  X  >|<B>Echo Request</B> (5*)
+        |       |       |
+
+<BR>
+</PRE>
+
+=end html
+
+=head1 JUDGEMENT
+
+=begin html
+<PRE>
+<BR>
+  (1*)PASS: TN2 receives RA with router lifetime greater than zero from CE-Router.
+  (2*)PASS: CE-Router forward Echo Request from TN2 to TN3.
+  (3*)PASS: TN2 receives RA with router lifetime zero from CE-Router.
+  (4*)PASS: CE-Router can not forward Echo Request from TN2 to TN3.
+</PRE>
+
+=end html
+
+=head1 TERMINATION
+
+=begin html
+<PRE>
+  N/A
+</PRE>
+
+=end html
+
+=head1 REFERENCE
+
+=begin html
+<PRE>
+[RFC 7084],G-3
+</PRE>
+
+=end html
+
+=head1 SEE ALSO
+
+=begin html
+<PRE>
+<BR>
+  perldoc  V6evalTool
+<BR>
+</PRE>
+
+=end html

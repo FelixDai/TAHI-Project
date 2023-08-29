@@ -1,0 +1,241 @@
+#!/usr/bin/perl
+#
+# Copyright (C) 2013, 2014, 2015, 2016, 2017, 2018
+# Chunghwa Telecommunication Labratories (CHT-TL)
+# All rights reserved.
+# 
+# Redistribution and use of this software in source and binary
+# forms, with or without modification, are permitted provided that
+# the following conditions and disclaimer are agreed and accepted
+# by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in
+#    the documentation and/or other materials provided with
+#    the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project
+#    which is related to this software (hereinafter referred to as
+#    "project") nor the names of the contributors may be used to
+#    endorse or promote products derived from this software without
+#    specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written
+#    notification to the copyrighters.
+# 
+# 5. The copyrighters, the project and the contributors may prohibit
+#    the use of this software at any time.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+# STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+# IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+# $CHT-TL: C_RFC3633_ReceiptAdvMsg_10_3_1.seq,v 1.2 2018/03/07 weifen Exp $
+#
+########################################################################
+
+BEGIN{
+	$V6evalTool::TestVersion = '$Name: CE-Router_Self_Test_1_0_5 $';
+}
+use strict;
+use V6evalTool;
+
+use lib '../.';
+use DHCPv6_common;
+use Client_pktdesc;
+
+my $type=$V6evalTool::NutDef{Type};
+if($type ne 'router') {
+	vLogHTML('<FONT COLOR="#FF0000">This test does not support Host!</FONT>');
+	exit $V6evalTool::exitRouterOnly;
+}
+
+#--------------------------------------------------------------#
+# Initialization variables
+#--------------------------------------------------------------#
+my $IF0 = "Link0";
+vCapture($IF0);
+#--------------------------------------------------------------#
+# Initialize DHCPv6 Client
+#--------------------------------------------------------------#
+vSend($IF0,'ra_MsetOset');
+#--------------------------------------------------------------#
+#1.  Wait until Solicit arrives 
+#--------------------------------------------------------------#
+my ($retsol,%sol) = wait_for_solicit($IF0,30) ;
+if($retsol != 0){
+	dhcpExitFail;
+}
+vClear($IF0);
+#--------------------------------------------------------------#
+# 2. send Advertise message 
+#--------------------------------------------------------------#
+$SID_OPTION = "opt_SID_LLT_server1";
+$IA_PD_OPTION = "opt_IA_PD_StatusOnly";
+my $cppstr = "-DIA_PREFIX_STATUSCODE=6";
+my ($retadv, %adv) = send_advertise($IF0, "advertise_server1_to_nut", \%sol, "$cppstr");
+if($retadv != 0){
+	dhcpExitFail;
+}
+
+#--------------------------------------------------------------#
+#3.  Wait until Solicit arrives 
+#--------------------------------------------------------------#
+my ($retsol,%sol) = wait_for_solicit($IF0,30) ;
+if($retsol != 0){
+	dhcpExitFail;
+}
+
+
+vClear($IF0);
+vStop($IF0);
+dhcpExitPass;
+###############################################################################
+__END__
+
+=head1 NAME 
+
+  Reception of Advertise Messages
+
+=head1 TARGET
+
+  CE-Router
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./C_RFC3633_ReceiptAdvMsg_10_3_1.seq"> C_RFC3633_ReceiptAdvMsg_10_3_1.seq</A> [-tooloption...] <BR>  -pkt <A HREF="./C_RFC3633_ReceiptAdvMsg_10_3_1.def"> C_RFC3633_ReceiptAdvMsg_10_3_1.def</A> <BR>  -tooloption : v6eval tool option
+  See Also <A HREF="../DHCPv6.def"> DHCPv6.def </A> 
+</PRE>
+
+=end html
+
+=head1 INITIALIZATION
+
+=begin html
+  <ul>
+  <li><STRONG>Network Topology</STRONG></li> 
+    <PRE>
+          CE-Router(Client)
+          |           
+          |                        
+Link0   --+--------+------------------------ 3ffe:501:ffff:100::/64
+                   |
+                   |          
+                   TN(Server) 
+    </PRE>
+  </ul>
+  <ul>  
+  <li><STRONG>Verification Points</STRONG></li><br>
+    <PRE>
+   The client MUST ignore any Advertise message that includes a Status
+   Code option containing the value NoAddrsAvail. 
+    </PRE>
+  </ul>  
+  <ul>
+  <li><STRONG>Configurations</STRONG></li><br>
+  <BR>
+    <TABLE BORDER="1">
+    <TR>
+    <TD><TT>Device Name</TT></TD>
+    <TD><TT>Device Type</TT></TD>
+    <TD><TT>Interface</TT></TD>
+    <TD><TT>Assigned Prefix</TT></TD>
+    <TD><TT>Link Local Addr</TT></TD>
+    <TD><TT>MAC Addr</TT></TD>
+    </TR>
+    <TR>
+    <TD><TT>Client</TT></TD>
+    <TD><TT>CE-Router</TT></TD>
+    <TD><TT>Link0</TT></TD>
+    <TD><TT>3ffe:501:ffff:100::/64</TT></TD>
+    <TD><TT>CE-Router's Linklocal address</TT></TD>
+    <TD><TT>CE-Router's MAC address</TT></TD>
+    </TR>
+    <TR>
+    <TD><TT>Server</TT></TD>
+    <TD><TT>TN</TT></TD>
+    <TD><TT>Link0</TT></TD>
+    <TD><TT>3ffe:501:ffff:100::/64</TT></TD>
+    <TD><TT>fe80::200:ff:fe00:a1a1</TT></TD>
+    <TD><TT>00:00:00:00:a1:a1</TT></TD>
+    </TR>
+    </TABLE>
+  </ul>
+
+=end html
+
+=head1 TEST PROCEDURE
+
+=begin html
+<PRE>
+<BR>
+       CE-Router      TN
+        |       | 
+        |       |Initialize CE-Router (as a DHCPv6 Client)
+        |       |
+        | ----> |<B>Solicit</B> (1*)
+        |       |
+        | <---- |<B>Advertise</B> w/ Status Code option/NoPrefixAvail 
+        |       |
+        |       |waiting until DHCPv6 message arrives
+        |       |
+        | ----> |<B>Solicit</B> (3*)
+        |       |
+</PRE>
+
+=end html
+
+=head1 JUDGEMENT
+
+=begin html
+<PRE>
+  (3*)PASS: CE-Router transmits Solicit message.
+</PRE>
+
+=end html
+
+=head1 TERMINATION
+
+=begin html
+<PRE>
+  N/A
+</PRE>
+
+=end html
+
+=head1 REFERENCE
+
+=begin html
+<PRE>
+[RFC 7084],W-1
+[RFC 3315],Section 17.1.3
+[RFC 3633],Section 11.1
+</PRE>
+
+=end html
+
+=head1 SEE ALSO
+
+=begin html
+<PRE>
+<BR>
+  perldoc  V6evalTool
+<BR>
+</PRE>
+
+=end html
+

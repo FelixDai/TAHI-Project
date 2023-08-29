@@ -1,0 +1,216 @@
+#!/usr/bin/perl
+#
+# Copyright (C) 2013, 2014, 2015, 2016
+# Chunghwa Telecommunication Labratories (CHT-TL)
+# All rights reserved.
+# 
+# Redistribution and use of this software in source and binary
+# forms, with or without modification, are permitted provided that
+# the following conditions and disclaimer are agreed and accepted
+# by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in
+#    the documentation and/or other materials provided with
+#    the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project
+#    which is related to this software (hereinafter referred to as
+#    "project") nor the names of the contributors may be used to
+#    endorse or promote products derived from this software without
+#    specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written
+#    notification to the copyrighters.
+# 
+# 5. The copyrighters, the project and the contributors may prohibit
+#    the use of this software at any time.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+# STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+# IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+# $CHT-TL: V6LC_2_2_15_B.seq,v 1.2 2016/02/19 weifen Exp $
+#
+########################################################################
+BEGIN{
+	$V6evalTool::TestVersion = '$Name: CE-Router_Self_Test_1_0_5 $';
+}
+
+use rdisc;
+
+use lib '../';
+use CPE6_config;
+use DHCPv6_common;
+
+vCapture($Link0);
+
+$pktdesc{'local_ra'} =
+	'    Send RA w/ SLL: '.
+	'TR2 (link-local) -&gt; all-nodes multicast address';
+
+### Initialization
+if ($STATEFUL_CLIENT) {
+	my $ra = 'local_ra';
+	my ($ret,$tn2_prefix) = cpe_initialization_1_2($ra,$Link0,"",$STATEFUL_CLIENT,0);
+	if ($ret != 0) {
+	    vLogHTML('<FONT COLOR="#FF0000">CPE initialization fail!</FONT><BR>');
+	    dhcpExitFail();
+	}
+}
+### End of initialization
+
+unless(v6LC_2_2_15_B($Link0)) {
+	exitFail_local($Link0);
+	#NOTREACHED
+}
+
+exitPass_local($Link0);
+#NOTREACHED
+
+
+
+#
+# perldoc
+#
+########################################################################
+__END__
+
+=head1 NAME
+
+  Router Advertisement Processing, Neighbor Cache 
+  Part B: RA processing, NCE INCOMPLETE
+
+=head1 Purpose
+
+  Verify that a host properly updates its Neighbor Cache upon receipt of a Router
+  Advertisement.
+
+=head1 References
+
+[RFC 7084],W-3
+[RFC 4861],Section 6.3.4 and 7.3.3
+
+=head1 Resource Requirements
+
+  * Packet generator
+  * Monitor to capture packets
+
+=head1 Test Setup
+
+  Common Test Setup 1.2 is performed at the beginning of this test part.
+  The Common Test Cleanup procedure is performed after each part.
+
+=begin html
+
+<BLOCKQUOTE>
+
+<TABLE BORDER>
+<Caption>Router Solicitation A</Caption>
+<TR>
+<TD>
+	IPv6 Header<br>
+	Next Header: 58<br>
+	Source Address: TR1's Link-local Address<br>
+</TD>
+</TR>
+<TR>
+<TD>
+	Router Advertisement<br>
+	Router Lifetime: 0 seconds<br>
+	Reachable Time: 10 seconds<br>
+	Retransmit Interval: 1 second<br>
+	Source Link-layer Option
+
+</TD>
+</TR>
+</TABLE>
+
+<br>
+
+<TABLE BORDER>
+<Caption>Echo Request B</Caption>
+<TR>
+<TD>
+        IPv6 Header<br>
+        Next Header: 58<br>
+        Source Address: TR1's link-local Address<br>
+        Destination Address: CE-Router's link-local Address
+</TD>
+</TR>
+<TR>
+<TD>
+	ICMPv6 Echo Request
+</TD>
+</TR>
+</TABLE>
+
+<br>
+
+<TABLE BORDER>
+<Caption>Neighbor Advertisement C</Caption>
+<TR>
+<TD>
+        IPv6 Header<br>
+        Next Header: 58<br>
+        Source Address: TR1's Link-local Address<br>
+	Destination Address: CE-Router's Link-local Address
+</TD>
+</TR>
+<TR>
+<TD>
+        Neighbor Advertisement<br>
+	Router flag: 1<br>
+        Solicited flag: 1<br>
+        Override flag: 1<br>
+	Target Address: TR1's Link-local Address
+</TD>
+</TR>
+
+</TABLE>
+</BLOCKQUOTE>
+
+=end html
+
+
+=head1 Procedure
+
+  Part B: RA processing, NCE INCOMPLETE
+   4. TR1 transmits Echo Request B. TR1 does not respond to any Neighbor Solicitations from the
+      CE-Router.
+   5. Observe the packets transmitted by the CE-Router and check the NCE of TR1 on the CE-Router.
+   6. TR1 transmits Router Advertisement A.
+   7. Check the NCE of TR1 on the CE-Router and observe the packets transmitted by the CE-Router.
+
+=head1 Observable Results
+
+  Part B
+   Step 5:
+   The CE-Router should create a Neighbor Cache Entry for TR1 and set the state of the
+   Entry to INCOMPLETE. The CE-Router should send a multicast Neighbor Solicitation to TR1.
+
+   Step 7:
+   The CE-Router must update the state of TR1's NCE to STALE and update its Link-layer
+   Address. Because the CE-Router's NCE for TR1 is in state STALE, the CE-Router should send an Echo
+   Reply to TR1's earlier request using the received Link-Layer address and enter state
+   DELAY. After DELAY_FIRST_PROBE_TIME, the CE-Router should send a unicast Neighbor
+   Solicitation to TR1.
+
+=head1 Possible Problems
+
+  * None. 
+
+=cut
+

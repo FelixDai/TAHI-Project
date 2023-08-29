@@ -1,0 +1,350 @@
+
+
+                Installing IPv6 Conformance Test Package
+
+                              CHT-TL
+
+                      $Date: 2013/09/12 16:30:12 $
+
+
+Terminology
+===========
+
+    Tester Node (TN)
+        A tester node for the conformance tests.
+
+    Node Under Test (NUT)
+        A testee node for the conformance tests.
+
+    Network Under Test
+        The network where the conformance tests are executed.
+
+    Tester Interface
+        The network interface of TN
+        hooked up to the Network Under Test.
+
+    Interface Under Test
+        The network interface of NUT
+        hooked up to the Network Under Test.
+
+
+Prerequisites
+=============
+
+    Prerequisites for TN:
+
+        - The package supports
+           FreeBSD/i386 7.3-RELEASE or higher
+
+        - It is mandatory to install IPv6 Conformance Test Platform
+          "v6eval" that is also developped by TAHI project. For more 
+          information, please refer to 00README.v6eval (in v6eval package).
+
+
+Installing the package onto TN
+==============================
+
+    1. Before Starting
+
+        Make sure that you completed installing "v6eval" package.
+        Please refer to INSTALL.v6eval (in v6eval package) for more
+        information.
+
+    2. Extracting ct package
+
+        $ tar zxvf CE Router_Self_Test_1_0_4.tar.gz
+
+    3. Extracting v6eval_files.tar.gz. 
+    	Copy McDHCPv6.cc,McDHCPv6.h,McICMPv6.h,McICMPv6.cc and McInit.cc to 
+    	v6eval extracting directory, then recompile and reinstall v6eval
+
+				$ cd v6eval_files/
+        $ cp * $V6EVAL_SOMEWHERE/lib/Pz/.
+        $ cd $V6EVAL_SOMEWHERE
+        $ make
+        $ make install
+
+       Be sure the version of v6eval is 3.3.3.
+
+
+Configuration
+============
+
+    1. Physical Configurations
+
+    1.1. Network Under Test
+
+        Hook up the Tester Interface of TN to the Network Under Test.
+        Tester Interface of TN can be configured for IPv4 and for IPv6
+        as well.
+
+        Hook up the Interface Under Test of NUT to the Network Under
+        Test.
+
+        Make sure that any other nodes are not hooked up to the network
+        because their packets would disturb the conformance tests.
+
+            Example:
+
+                -+-----------------------+- Link1
+                 |                       |
+                 |                       |
+                 |the Tester I/F: em1    |the LAN I/F Under Test: fxp1
+                 TN                     NUT
+                 |the Tester I/F: em0    |the WAN I/F Under Test: fxp0
+                 |                       |
+                 |                       |
+                -+-----------------------+- Link0
+                 the Network Under Test
+
+
+    1.2. Physical wiring image
+
+            Example:
+
+                 TN (tester)                       NUT
+                +------------+ Ether cross cable  +------------+
+                |       [em1]+--------------------+[fxp1]      |
+                |            | Ether cross cable  |            |
+                |       [em0]+--------------------+[fxp0]      |
+                +------------+                    +------------+
+
+    
+    2. Configuration of NUT
+
+        - WAN and LAN network interfaces which are used in testing must be in 'up' status.
+
+        - turn on IPv6 supporting.
+
+
+    3. Configuration of TN
+
+        First, please read INSTALL.v6eval (in v6eval package).
+
+    3.1. /etc/resolv.conf
+
+        It is recommended to remove /etc/resolv.conf,
+        though it is not mandatory.
+
+    3.2. Default route
+
+        It is recommended to remove IPv4 default route,
+        though it is not mandatory.
+
+    3.3. Installing perl-related modules
+
+        The package requires the below-listed perl5 modules.
+
+            - Digest-HMAC
+
+        you can install them from the package's ports directory.
+
+            # (cd /usr/ports/security/p5-Digest-HMAC && make install)
+
+    3.4. /usr/local/v6eval/etc/tn.def
+
+        Copy sample tn.def to tn.def.
+        Then, adjust Link0 and Link1 entry in the file.
+
+            # cd /usr/local/v6eval/etc
+            # cp tn.def.sample tn.def
+            # vi tn.def
+
+                "Link0" entry MUST have:
+                    - the EXACT name of Tester Interface connect to NUT WAN Interface Under Test.
+                    - a BOGUS MAC address.
+                      It is important that the Tool can impersonate
+                      other nodes.
+
+                "Link1" entry MUST have:
+                    - the EXACT name of Tester Interface connect to NUT LAN Interface Under Test.
+                    - a BOGUS MAC address.
+                      It is important that the Tool can impersonate
+                      other nodes.
+
+            Example: /usr/local/v6eval/etc/tn.def
+            ==========================================================
+            RemoteDevice    cuad0
+            RemoteDebug     0
+            RemoteIntDebug  0
+            RemoteLog       1
+            RemoteSpeed     0
+            RemoteLogout    0
+            RemoteMethod    serial
+            Link0   em0     00:00:00:00:01:00
+            Link1   em1     00:00:00:00:01:01
+            ==========================================================
+
+
+    3.5. /usr/local/v6eval/etc/nut.def
+
+        Copy sample nut.def to nut.def.
+        Then, adjust Link0 and Link1 entry in the file.
+
+            # cd /usr/local/v6eval/etc
+            # cp nut.def.sample nut.def
+            # vi nut.def
+
+                "HostName" entry SHOULD be a host name of NUT.
+
+                "Type" entry MUST be "router"
+
+                "Link0" entry MUST have:
+                    - the EXACT name of the WAN Interface Under Test.
+                    - the EXACT MAC address of the WAN Interface Under Test.
+
+                "Link1" entry MUST have:
+                    - the EXACT name of the LAN Interface Under Test.
+                    - the EXACT MAC address of the LAN Interface Under Test.
+
+            Example:
+            ==========================================================
+            System          manual 
+            TargetName      FreeBSD/i386 6.1-RELEASE
+            HostName        target.tahi.org
+            Type            router
+            User            root
+            Password        v6eval
+            Link0   fxp0    00:90:27:14:ce:da
+            Link1   fxp1    00:90:27:14:ce:db
+            ==========================================================
+
+
+Run the Tests
+=============
+
+  $ cd $SOMEWHERE/CE-Router_Self_Test_1_0_5
+
+  $ vi config.pl
+  
+		"Init_RS_Num" parameter is : The number of RS transmitted when initializing
+		- zero: CE Router transmits only one RS when initializing
+		- non-zero - CE Router transmits multiple RSs when initializing
+
+		"RA_trigger_DHCPv6" parameter is : CE Router needs RA to trigger DHCPv6 Client
+		- zero: CE Router does not support
+		- non-zero - CE Router supports
+
+		"Stateful_Client" parameter is  : CE Router WAN address type
+				- zero: Test most cases with WAN address SLAAC 
+				- non-zero - Test most cases with WAN address DHCPv6 IA_NA
+
+		"Support_DUID_LLT", "Support_DUID_EN" and "Support_DUID_LL" parameters are:
+				- zero:     CE Router does not support that DUID type
+				- non-zero: CE Router supports
+
+			* Since these parameters are exclusive parameters,
+			You must choose one DUID corresponding to your actual
+			implementation before starting the test.
+
+		"Stateful_Server" parameter is : Support Stateful or Stateless DHCPv6 server on CE Router LAN side
+				- zero: CE Router supports DHCPv6 stateless server on LAN side
+				- non-zero - CE Router supports DHCPv6 stateful server on LAN side
+
+		Following parameters are implementation depend condition.
+		
+		"wait_lan_ra" parameter is : Time between finishing DHCPv6 process on CE Router WAN side and 
+																 CE Router can provide prefix generated from DHCPv6_PD in RA
+				- non-zero - CE Router can delegate prefix from DHCPv6-PD after non-zero seconds.
+				
+		"need_wan_up_first" parameter is : CE Router initialize LAN interface with concerning 
+																			 WAN interface status or not
+				- zero: CE Router initializes LAN interface whthout concerning WAN interface status.
+				- non-zero - CE Router initializes LAN interface after WAN gets global address.
+		
+		Following parameters are advanced functions.
+
+		"Support_Ping" parameter is : Support transmitting echo-request function
+				- zero: DHCPv6 Client sends Solicit packet automatically after initialization
+				- non-zero - CE Router needs RA to trigger DHCPv6 Client sending DHCPv6 Solicit packet
+
+		"Support_mtu" parameter is : Support mtu configuration
+				- zero: CE Router does not support
+				- non-zero - CE Router supports
+
+		"Support_global_addr_SLAAC" parameter is : CE Router WAN support global address generated from SLAAC
+		- zero: CE Router does not support
+		- non-zero - CE Router supports
+
+		"Support_Hint" parameter is : Support DHCPv6 prefix size from hint
+				- zero: CE Router does not support
+				- non-zero - CE Router supports
+
+		"Support_Confirm" parameter is : DHCPv6 client function support confirm message
+				- zero: CE Router does not support
+				- non-zero - CE Router supports
+
+		"Support_Release" parameter is : DHCPv6 client function support release message
+				- zero: CE Router does not support
+				- non-zero - CE Router supports
+
+		"Support_DNSSL" parameter is : DHCPv6 client function support DNS search list option
+				- zero: CE Router does not support
+				- non-zero - CE Router supports
+
+		"Support_ULA" parameter is : LAN interface supports ULA address
+				- zero: CE Router LAN does not support ULA address
+				- non-zero - CE Router LAN supports ULA address
+
+    You can also modify test specific parameter in
+        - wan_rfc2460_rfc4861_rfc443/config.pl
+        - wan_rfc1981/config.pl
+        - wan_rfc4862/config.pl
+        - lan_rfc2460/config.pl
+        - lan_rfc4861/config.pl
+        - lan_rfc4862/config.pl
+        - lan_rfc4443/config.pl
+
+To run the test
+
+  $ make clean
+
+	$ make ipv6ready_p2_ce
+
+    When TN need you to operate on NUT, TN will show you the message
+    which describes How to operate NUT.
+    Then you can operate NUT as descrbed by the message.
+    When all tests are completed,
+    you can see the test results at
+    ${SOMEWHERE}/CPE_Self_Test_1_0_1/index.html.
+
+    Note that running the tests clears the previous test results.
+    If you do not want to lose them,
+    you should make a new copy of Self_Test package in a different
+    directory.
+
+
+Q&A : Have a problem?
+=====================
+    Q: How am I supposed to do, when TN show me following Error message.
+
+        can't open bpf or socket
+
+    A: Please check your TN's bpf configuration.
+        ensure bpf devices to have read permission, and see
+        INSTALL.v6eval
+
+            Example:
+                $ ls -l /dev/bpf*
+
+        ensure network interfaces to have 'up' status,
+        and see INSTALL.v6eval and INSTALL.ct
+            Example: (If Link0 name is em0, and Link1 name is em1)
+
+                $ ifconfig em0 em1
+
+        unix domain socket may be remaind in /tmp
+
+            Example: (If Link0 name is em0, and Link1 name is em1)
+
+                $ cd /tmp
+                $ rm em0 em1
+
+    Q: How am I supposed to do, when TN show me following Error message.
+        connect: nosuch filet or directry
+
+    A: Please check your TN's tn.def configuration.
+        specified Link0 correctly?
+        and specified Link1 also correctly?
+
+                                                        [End of INSTALL.ct]

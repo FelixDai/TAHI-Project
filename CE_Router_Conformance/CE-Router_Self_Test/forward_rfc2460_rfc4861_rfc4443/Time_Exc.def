@@ -1,0 +1,171 @@
+//
+// Copyright (C) 2013
+// Chunghwa Telecommunication Labratories (CHT-TL)
+// All rights reserved.
+// 
+// Redistribution and use of this software in source and binary
+// forms, with or without modification, are permitted provided that
+// the following conditions and disclaimer are agreed and accepted
+// by the user:
+// 
+// 1. Redistributions of source code must retain the above copyright
+//    notice, this list of conditions and the following disclaimer.
+// 
+// 2. Redistributions in binary form must reproduce the above copyright
+//    notice, this list of conditions and the following disclaimer in
+//    the documentation and/or other materials provided with
+//    the distribution.
+// 
+// 3. Neither the names of the copyrighters, the name of the project
+//    which is related to this software (hereinafter referred to as
+//    "project") nor the names of the contributors may be used to
+//    endorse or promote products derived from this software without
+//    specific prior written permission.
+// 
+// 4. No merchantable use may be permitted without prior written
+//    notification to the copyrighters.
+// 
+// 5. The copyrighters, the project and the contributors may prohibit
+//    the use of this software at any time.
+// 
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+// CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+// BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+// FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+// COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+// INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+// SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+// HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+// STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+// IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+// POSSIBILITY OF SUCH DAMAGE.
+//
+// $CHT-TL: Time_Exc.def,v 1.0 2013/08/19 weifen Exp $
+//
+
+#include "icmp.def"
+
+
+//----------------------------------------------------------------------
+// Echo Requests
+//----------------------------------------------------------------------
+
+FEM_icmp6_echo_request (
+	echo_request_hop0,
+	_HETHER_tn2_to_nut,
+	{
+		HopLimit = 0;
+		_SRC(v6merge(PREFIX_FROM_PD,64,v6(TN2_LINKLOCAL)));
+		_DST(v6("2004::7777"));
+	},
+	{
+		payload = ping_data_56;
+	}
+)
+
+FEM_icmp6_echo_request (
+	echo_request_hop1,
+	_HETHER_tn2_to_nut,
+	{
+		HopLimit = 1;
+		_SRC(v6merge(PREFIX_FROM_PD,64,v6(TN2_LINKLOCAL)));
+		_DST(v6("2004::7777"));
+	},
+	{
+		payload = ping_data_56;
+	}
+)
+Payload ping_data_1452 {
+	data = repeat(0xff,1452);
+}
+Payload ping_data_56 {
+	data = repeat(0xff,56);
+}
+
+
+
+//----------------------------------------------------------------------
+// Time Exceeded and data
+//----------------------------------------------------------------------
+
+FEM_icmp6_time_exceeded(
+	time_exceeded0,
+	_HETHER_nut_to_tn2,
+	{
+		_SRC(v6merge(PREFIX_FROM_PD,64,nutv6("Link1")));
+		_DST(v6merge(PREFIX_FROM_PD,64,v6(TN2_LINKLOCAL)));
+	},
+	{
+		Code = 0;       
+		payload = err_hop0;
+	}
+)
+
+FEM_icmp6_time_exceeded(
+	time_exceeded1,
+	_HETHER_nut_to_tn2,
+	{
+		_SRC(v6merge(PREFIX_FROM_PD,64,nutv6("Link1")));
+		_DST(v6merge(PREFIX_FROM_PD,64,v6(TN2_LINKLOCAL)));
+	},
+	{
+		Code = 0;       
+//		payload = err_hop1;
+		payload = any;
+	}
+)
+
+FEM_icmp6_time_exceeded(
+	time_exceeded_any,
+	_HETHER_nut_to_tr1,
+	{
+		_SRC(oneof(nutv6("Link1"),NUT_GLOBAL_ADD,NUT_GLOBAL_ADDR_From_IANA));
+		_DST(TR1_GLOBAL_ADDR);
+	},
+	{
+		Code = 0;       
+		payload = any;
+	}
+)
+
+Payload err_hop0 {
+	data = right(_PACKET_IPV6_NAME(echo_request_hop0), 0);
+}
+
+Payload err_hop1 {
+	data = right(_PACKET_IPV6_NAME(echo_request_hop1), 0);
+}
+
+// NS  NUT -> TN2
+FEM_icmp6_ns (
+	ns_nut_lla_to_any_tn2_ga,
+	_HETHER_any,
+	{
+	    _SRC(any);
+	    _DST(any);
+	    HopLimit = 255;
+	},
+	{
+	    TargetAddress = v6merge(PREFIX_FROM_PD,64,v6(TN2_LINKLOCAL));
+	    option = any;
+	}
+)
+
+// NA  NUT <- TN2
+FEM_icmp6_na (
+	na_tn2_to_nut,
+	_HETHER_tn2_to_nut,
+	{
+	    _SRC(v6(TN2_LINKLOCAL));
+	    _DST(nutv6("Link1"));	    
+	    HopLimit = 255;
+	},
+	{
+	    RFlag = 0;
+	    SFlag = 1;
+	    OFlag = 1;
+	    TargetAddress = v6merge(PREFIX_FROM_PD,64,v6(TN2_LINKLOCAL));
+	    option = opt_tll_tn2;
+	}
+)

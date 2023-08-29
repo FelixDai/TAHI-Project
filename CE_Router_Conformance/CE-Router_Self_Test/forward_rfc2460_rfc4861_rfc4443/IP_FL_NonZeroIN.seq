@@ -1,0 +1,273 @@
+#!/usr/bin/perl
+#
+# Copyright (C) 2013
+# Chunghwa Telecommunication Labratories (CHT-TL)
+# All rights reserved.
+# 
+# Redistribution and use of this software in source and binary
+# forms, with or without modification, are permitted provided that
+# the following conditions and disclaimer are agreed and accepted
+# by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in
+#    the documentation and/or other materials provided with
+#    the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project
+#    which is related to this software (hereinafter referred to as
+#    "project") nor the names of the contributors may be used to
+#    endorse or promote products derived from this software without
+#    specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written
+#    notification to the copyrighters.
+# 
+# 5. The copyrighters, the project and the contributors may prohibit
+#    the use of this software at any time.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+# STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+# IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+# $CHT-TL: IP_FL_NonZeroIN.seq,v 1.1 2014/07/17 weifen Exp $
+#
+######################################################################
+BEGIN {
+	$V6evalTool::TestVersion = '$Name: CE-Router_Self_Test_1_0_5 $';
+}
+
+use V6evalTool;
+use CommonSPEC;
+
+use lib '../';
+use CPE6_config;
+use DHCPv6_common;
+
+if ($V6evalTool::NutDef{'Type'} ne 'router') {
+	vLogHTML("This test is for the router only<BR>");
+	exit($V6evalTool::exitRouterOnly);
+}
+
+$pktdesc{'echo_request_to_link0'}	= 'Send Echo Request to Link0 '.
+						'(Flow Label Non-Zero)';
+$pktdesc{'echo_request_from_link1'}	= 'Recv Echo Request from Link1';
+
+$endStatus = $V6evalTool::exitPass;
+
+$IF0 = 'Link0';
+$IF1 = 'Link1';
+
+#----- start capturing
+vCapture($IF0);
+
+vCapture($IF1);
+
+
+my $ra = $STATEFUL_CLIENT ? 'ra_MsetOset' : 'ra_MclearOset';
+my ($ret,$tn2_prefix) = cpe_initialization($ra,$IF0,$IF1,$STATEFUL_CLIENT,0);
+if ($ret != 0) {
+    vLogHTML('<FONT COLOR="#FF0000">CPE initialization fail!</FONT><BR>');
+    dhcpExitFail();
+}
+if ($tn2_prefix =~ /3ffe:501:ffff/ ) {
+    vLogHTML("<B>RA includes the global prefix($tn2_prefix).</B></BR>");
+} else {
+	vLogHTML('<FONT COLOR="#FF0000">Did not get golbal prefix from RA!</FONT><BR>');
+  dhcpExitFail();
+}
+
+vClear($IF0);
+vClear($IF1);
+
+#======================================================================
+# ping over router
+
+
+vCPP("-D\'PREFIX_FROM_PD=\"$tn2_prefix\"\' ");
+vSend($IF1, 'echo_request_to_link0');
+
+%ret = vRecv($IF0, 5 ,0 ,0, 'echo_request_from_link1','ns_nut_lla_to_any_tn1_ga');
+if ($ret{'status'} == 0) {
+  if ($ret{'recvFrame'} eq 'echo_request_from_link1') {
+    vLogHTML('OK<BR>');
+  } elsif ($ret{'recvFrame'} eq 'ns_nut_lla_to_any_tn1_ga'){
+    vLogHTML('Receive NS from CE-Router.Send NA.<BR>');
+    vSend($IF0, 'na_tn1_to_nut');
+    %ret1 = vRecv($IF0, 5 ,0 ,0, 'echo_request_from_link1');
+    if ($ret1{'status'} == 0) {
+      vLogHTML('OK<BR>');
+    } else {
+      vLogHTML('Cannot receive forwarded Echo Request<BR>');
+      vLogHTML('<FONT COLOR="#FF0000">NG</FONT><BR>');
+      $endStatus = $V6evalTool::exitFail;
+    }
+  }
+} else {
+  vLogHTML('Cannot receive forwarded Echo Request or NA.<BR>');
+  vLogHTML('<FONT COLOR="#FF0000">NG!</FONT><BR>');
+  $endStatus = $V6evalTool::exitFail;
+}
+
+vStop($IF0);
+vStop($IF1);
+
+vRemote('reboot.rmt','');
+exit($endStatus);
+
+######################################################################
+__END__
+
+=head1 NAME
+
+  Flow Label Non-Zero
+
+=head1 TARGET
+
+  CE-Router
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./IP_FL_NonZeroIN.seq">IP_FL_NonZeroIN.seq</A> [-tooloption ...] -pkt <A HREF="./IP_FL_NonZeroIN.def">IP_FL_NonZeroIN.def</A>
+    -tooloption : v6eval tool option
+</PRE>
+
+=end html
+
+=head1 INITIALIZATION
+
+  Common Test Setup is performed at the beginning of this test part.
+
+=head1 TEST PROCEDURE
+
+Verify that a node properly processes the Flow Label field of received packets and generates a valid value in transmitted packets.
+
+   TN2                      CE-Router                      TN1
+              (Link1)                     (Link0)
+    |                           |                           |
+    |-------------------------->|                           |
+    |   Echo Request            |                           |
+    |                           |                           |
+    |                           |                           |
+    |                           |-------------------------->|
+    |                           |   Echo Request            |
+    |                           |                           |
+    |                           |                           |
+    v                           v                           v
+
+  1. TN2 transmits an Echo Request with a Flow Label 0x34567 
+     to TN1's Global address with a first hop through the CE-Router
+  2. Observe the packets transmitted by the CE-Router on Link0.
+
+  Echo Request to Link0 Data is:
+
+        IPv6 Header
+            Version            = 6
+            Traffic Class      = 0
+            FlowLabel          = 0x34567 (20 bit)
+            PayloadLength      = 16
+            NextHeader         = 58 (ICMPv6)
+            SourceAddress      = TN2 Global Address (Link1)
+            DestinationAddress = TN1 Global Address (Link0)
+
+        ICMP Echo Request
+            Type           = 128 (Echo Request)
+            Code           = 0
+            Checksum       = (auto)
+            Identifier     = 0xffff
+            SequenceNumber = 1
+            PayloadData    = {1, 2, 3, 4, 5, 6, 7, 8}
+
+  Neighbor Solicitation packet's IP source Address selection may be:
+    - Link Local Address
+    - Global Address
+  This test IS NOT the Neighbor Discovery test, so admit both implementation.
+
+=head1 JUDGEMENT
+
+  PASS: The CE-Router must forward the Echo Request from TN2 to TN1.
+
+        IPv6 Header
+            Version             = 6
+            Traffic Class       = 0
+            FlowLabel           = any (20 bit) (Routers that do not support the Flow Label field: 0x34567)
+            PayloadLength       = 16
+            NextHeader          = 58 (ICMPv6)
+            SourceAddress      = TN2 Global Address (Link1)
+            DestinationAddress = TN1 Global Address (Link0)
+
+        ICMP Echo Request
+            Type           = 128 (Echo Request)
+            Code           = 0
+            Checksum       = (auto)
+            Identifier     = 0xffff (same as Echo Request)
+            SequenceNumber = 1 (same as Echo Request)
+            PayloadData    = {1, 2, 3, 4, 5, 6, 7, 8} (same as Echo Request)
+
+=head1 CLEANUP
+
+Common Test Cleanup
+
+=cut
+
+# =head1 REFERENCE
+# 
+# RFC2460
+# 
+# 3.  IPv6 Header Format
+# 
+#    Flow Label           20-bit flow label.  See section 6.
+# 
+# 6.  Flow Labels
+# 
+# =begin html
+# <PRE>
+#    The 20-bit Flow Label field in the IPv6 header may be used by a
+#    source to label sequences of packets for which it requests special
+#    handling by the IPv6 routers, such as non-default quality of service
+#    or "real-time" service.  This aspect of IPv6 is, at the time of
+#    writing, still experimental and subject to change as the requirements
+#    for flow support in the Internet become clearer.  <B>Hosts or routers
+#    that do not support the functions of the Flow Label field are
+#    required to set the field to zero when originating a packet, pass the
+#    field on unchanged when forwarding a packet, and ignore the field
+#    when receiving a packet.</B>
+# </PRE>
+# 
+# =end html
+# 
+
+=pod
+
+=head1 REFERENCE
+
+=begin html
+<BLOCKQUOTE>
+<PRE>
+[RFC 7084],G-1
+[RFC 2460],Section 6, Appendix A
+</PRE>
+</BLOCKQUOTE>
+
+=end html
+
+=head1 SEE ALSO
+
+  perldoc V6evalTool
+
+=cut
+

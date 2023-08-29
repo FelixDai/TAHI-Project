@@ -1,0 +1,469 @@
+#!/usr/bin/perl
+#
+# Copyright (C) 2013, 2014, 2015
+# Chunghwa Telecommunication Labratories (CHT-TL)
+# All rights reserved.
+# 
+# Redistribution and use of this software in source and binary
+# forms, with or without modification, are permitted provided that
+# the following conditions and disclaimer are agreed and accepted
+# by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in
+#    the documentation and/or other materials provided with
+#    the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project
+#    which is related to this software (hereinafter referred to as
+#    "project") nor the names of the contributors may be used to
+#    endorse or promote products derived from this software without
+#    specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written
+#    notification to the copyrighters.
+# 
+# 5. The copyrighters, the project and the contributors may prohibit
+#    the use of this software at any time.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+# STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+# IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+# $CHT-TL: CERouter_2_7_5_D.seq, v 1.4 2015/03/25 weifen Exp $
+#
+################################################################
+
+BEGIN{
+	$V6evalTool::TestVersion = '$Name: CE-Router_Self_Test_1_0_5 $';
+}
+use strict;
+use V6evalTool;
+
+use lib '../';
+use DHCPv6_common;
+use CPE6_config;
+use CPE6;
+use Digest::HMAC_MD5 qw(hmac_md5 hmac_md5_hex);
+
+my $type=$V6evalTool::NutDef{Type};
+if($type ne 'router') {
+	vLogHTML('<FONT COLOR="#FF0000">This test does not support Host!</FONT>');
+	exit $V6evalTool::exitRouterOnly;
+}
+
+#--------------------------------------------------------------#
+# Initialization variables
+#--------------------------------------------------------------#
+my $IF0 = "Link0";
+my $IF1 = "Link1";
+
+my ($plifetime, $vlifetime) = (100, 200);
+my ($time1, $time2) = (50,80);
+
+vCapture($IF0);
+vCapture($IF1);
+
+#--------------------------------------------------------------#
+# 1. Send RA (tr1->nut)
+#--------------------------------------------------------------#
+my $ra = $STATEFUL_CLIENT ? 'ra_MsetOset' : 'ra_MclearOset';
+vSend($IF0, $ra);
+if (!$STATEFUL_CLIENT) {
+	ignoreDAD($IF0);
+}
+#--------------------------------------------------------------#
+# 2. Wait until DHCPv6 Solicit arrives (nut->tr1)
+#--------------------------------------------------------------#
+my ($retsol,%sol) = wait_for_solicit2($IF0, 30);
+cpe6ExitFail if($retsol != 0);
+
+my $cmp;
+if ($STATEFUL_CLIENT) {
+	$cmp = $CMP_IA_NA | $CMP_IA_PD | $CMP_RECONF_ACCEPT;
+} else {
+	$cmp = $CMP_IA_PD | $CMP_RECONF_ACCEPT;
+}
+
+cpe6ExitError("<B>Do not include necessary options.</B><BR>") if (0 != options_exist(\%sol, $cmp));
+vClear($IF0);
+
+#--------------------------------------------------------------#
+# 3. Send DHCPv6 Advertise message (tr1->nut)
+#--------------------------------------------------------------#
+$SID_OPTION = "opt_SID_LLT_server1";
+$IA_PD_OPTION = "opt_IA_PD_PF1_local";
+if ($STATEFUL_CLIENT) {
+	$IA_NA_OPTION = "opt_IA_NA_Addr_woStatus";
+}
+$ReconfigureAccept_OPTION = "opt_accept_reconf";
+my ($retadv, %adv) = send_advertise($IF0, "advertise_server1_to_nut", \%sol, "");
+cpe6ExitFail if($retadv != 0);
+
+#--------------------------------------------------------------#
+# 4. Wait until DHCPv6 Request arrives (nut->tr1)
+#--------------------------------------------------------------#
+my ($retreq,%req) = wait_for_request2($IF0, 30);
+cpe6ExitFail if($retreq != 0);
+
+cpe6ExitError("<B>Do not include necessary options.</B><BR>") if (0 != options_exist(\%req, $cmp));
+vClear($IF0);
+
+#--------------------------------------------------------------#
+# 5. Send DHCPv6 Reply message (tr1->nut)
+#--------------------------------------------------------------#
+my $auth_proto=3;
+$IA_PD_OPTION = "opt_IA_PD_PF1_local";
+$StatusCode_OPTION = "opt_StatusCode";
+if ($STATEFUL_CLIENT) {
+	$IA_NA_OPTION = "opt_IA_NA_Addr_woStatus";
+}
+$ReconfigureAccept_OPTION = "opt_accept_reconf";
+$Authentication_OPTION = "opt_Auth";
+
+my ($retrep, %rep) = send_reply($IF0, "reply_server1_to_nut", \%req, "-D\'AUTH_PROTO=$auth_proto' -D\'AUTH_INFO=auth_type_key' ");
+cpe6ExitFail if($retrep != 0);
+
+#--------------------------------------------------------------#
+# 6. Send RS message (tn2->nut)
+#    Wait until RA with delegated prefix arrives (nut->tn2)
+#--------------------------------------------------------------#
+vSleep($WAIT_LAN_RA);
+vClear($IF1); 
+
+vLogHTML('<B>==== TN2 <--> CE-Router: RS and RA Messages Exchange  ====</B><BR>');
+vSend($IF1, 'rs_tn2_to_nut');
+
+my ($retra, %ra) = wait_for_ra($IF1, 10,1);
+cpe6ExitFail if ($retra != 0);
+
+my $base = 'Frame_Ether.Packet_IPv6.ICMPv6_RA.Opt_ICMPv6_Prefix';
+my $prefix_opt = $base;
+my $prefix_opt_num = $ra{$base."#"};
+my $count = 1;
+my $get_prefix = 0;
+my $tn2_prefix1;
+while (($count <= $prefix_opt_num) && ($get_prefix == 0)){
+  $tn2_prefix1 = $ra{$prefix_opt."."."Prefix"};
+  if ($tn2_prefix1 =~ /3ffe:501:ffff:111/){
+      $get_prefix = 1;
+  }
+  $count++;
+  $prefix_opt = $base.$count;
+}
+if ($get_prefix == 0) {
+	cpe6ExitFail("<B>Did not get golbal prefix from RA!.</B><BR>");
+} 
+#--------------------------------------------------------------#
+# 7. ping test (tn2->nut global address)
+#--------------------------------------------------------------#
+vCPP("-D\'PREFIX_FROM_PD=\"$tn2_prefix1\"\'");
+vSleep(5);
+vClear($IF0);
+vClear($IF1);
+
+vSend($IF1, 'ereq_tn2_to_nut');
+my %ret = ping_nut($IF1, 5, 0, 0, 'erep_nut_to_tn2');
+cpe6ExitFail if ($ret{status} != 0);
+
+#--------------------------------------------------------------#
+# 8. Send reconfigure message
+#--------------------------------------------------------------#
+vClear($IF0);
+
+my $base = "Frame_Ether.Packet_IPv6.Upp_UDP.Udp_DHCPv6_Solicit";
+my $client_duid = GetCidOption(\%sol,$base);
+my $auth_info = calculate_reconfig_auth_info($client_duid);
+my ($retrec, %rec) = send_reconfigure_message($IF0, \%sol,"dhcp6_reconfigure_server_to_nut", $auth_info);
+cpe6ExitFail if($retrec != 0);
+#--------------------------------------------------------------#
+# 9. Wait renew message
+#--------------------------------------------------------------#
+print "Wait for DHCPv6 PD Renew message\n";
+my ($retren,%ren) = wait_for_renew($IF0, 10,2);
+cpe6ExitFail if($retren != 0);
+vClear($IF0);
+#--------------------------------------------------------------#
+# 13. Send DHCPv6 Reply message (tr1->nut)
+#--------------------------------------------------------------#
+$IA_PD_OPTION = "opt_IA_PD_NEW_LEN";
+$SID_OPTION = "opt_SID_LLT_server1";
+$ReconfigureAccept_OPTION = "opt_accept_reconf";
+$Authentication_OPTION = "opt_Auth_local";
+my $auth_info;
+$cmp = $CMP_IA_NA;
+if (options_exist(\%ren, $cmp) == 0) {
+	$auth_info = calculate_reply_auth_info($client_duid,1);
+	$IA_NA_OPTION = "opt_IA_NA_Addr_woStatus";
+} else {
+	$auth_info = calculate_reply_auth_info($client_duid,0);
+}
+
+($retrep, %rep) = send_reply($IF0, "reply_server1_to_nut", \%ren, "-D\'AUTH_VALUE=hexstr(\"$auth_info\",16)\'");
+cpe6ExitFail if($retrep != 0);
+
+#--------------------------------------------------------------#
+# 14. Get RA with new prefix
+#--------------------------------------------------------------# 
+vSleep($WAIT_LAN_RA);
+vClear($IF0);
+vClear($IF1);
+
+vLogHTML('<B>==== TN2 <--> CE-Router: RS and RA Messages Exchange  ====</B><BR>');
+vSend($IF1, 'rs_tn2_to_nut');
+
+($retra, %ra) = wait_for_ra($IF1,10,1);
+cpe6ExitFail if ($retra != 0);
+
+# Check prefix 
+$base = 'Frame_Ether.Packet_IPv6.ICMPv6_RA.Opt_ICMPv6_Prefix';
+$prefix_opt = $base;
+$prefix_opt_num = $ra{$base."#"};
+$count = 1;
+$get_prefix = 0;
+my $tn2_prefix4;
+while (($count <= $prefix_opt_num) && ($get_prefix == 0)){
+  $tn2_prefix4 = $ra{$prefix_opt."."."Prefix"};
+  if ($tn2_prefix4 =~ /3ffe:501:ffff:11/){
+      $get_prefix = 1;
+  }
+  $count++;
+  $prefix_opt = $base.$count;
+}
+if ($get_prefix == 1) {
+    vLogHTML("<B>RA includes the correct prefix: $tn2_prefix4</B></BR>");
+} else {
+    cpe6ExitError("<B><FONT COLOR=\"#FF0000\">RA does not include the correct Prefix: $tn2_prefix4.</FONT></B><BR>");
+}
+
+# Check RIO
+$base = 'Frame_Ether.Packet_IPv6.ICMPv6_RA.Opt_ICMPv6_RouteInfo';
+my $rio_opt = $base;
+my $rio_opt_num = $ra{$base."#"};
+$count = 1;
+my $get_rio = 0;
+my $plen;
+while (($count <= $rio_opt_num) && ($get_rio == 0)){
+  $tn2_prefix4 = $ra{$rio_opt."."."Prefix"};
+  if ($tn2_prefix4 =~ /3ffe:501:ffff:11/){
+      $plen = $ra{$rio_opt."."."PrefixLength"};
+      if ($plen == 56) {
+      	$get_rio = 1;
+      }
+  }
+  $count++;
+  $rio_opt = $base.$count;
+}
+if ($get_rio == 1) {
+    vLogHTML("<B>RA includes the correct RIO prefixlengthprefix: $plen</B></BR>");
+} else {
+    cpe6ExitError("<B><FONT COLOR=\"#FF0000\">RIO in RA does not have correct prefix length.</FONT></B><BR>");
+}
+#--------------------------------------------------------------#
+# End
+#--------------------------------------------------------------#
+
+# send RA with routerlifetime = 0
+vSend($IF0, 'ra_RouterLifetimeZero');
+
+vClear($IF0);
+vStop($IF0);
+
+vClear($IF1);
+vStop($IF1);
+
+#cpe6ExitPass;
+cpe6ExitPass($IF0);
+
+
+sub ping_nut ($$$$@) {
+	my($interface, $timeout, $count, $seektime, @expect) = @_;
+	my($rcv_ns_local, $rcv_ns_global);
+
+	$rcv_ns_local = 0;
+	$rcv_ns_global = 0;
+
+	while (1) {
+		%ret = vRecv($interface, $timeout, $count, $seektime, @expect,
+			     'ns_local', 'ns_local_sll',
+			     'ns_global', 'ns_global_sll');
+
+		if ($ret{recvFrame} eq 'ns_local' ||
+		    $ret{recvFrame} eq 'ns_local_sll') {
+			if ($rcv_ns_local != 0) {
+				last;
+			};
+
+			vSend($interface, 'na_local');
+			$rcv_ns_local = 1;
+		}
+		elsif ($ret{recvFrame} eq 'ns_global' ||
+		       $ret{recvFrame} eq 'ns_global_sll') {
+			if ($rcv_ns_global != 0) {
+				last;
+			};
+
+			vSend($interface, 'na_global');
+			$rcv_ns_global = 1;
+		}
+		else {
+			last;
+		};
+	};
+
+	return(%ret);
+}
+
+sub calculate_reconfig_auth_info($) {
+  my ($cid) = @_;
+  my $auth_info;
+  my $str1 = "0a000000"; # message type=0a ; transaction id = 000000
+  my $str2 = "0002000e0001000100061a8000000000a1a1"; #SID
+  my $str3 = "0013000105";	# Reconfigure message
+  my $str4 = "000b001c03010011223344556677890200000000000000000000000000000000"; # Authentication
+  my $data_hex = $str1.$cid.$str2.$str3.$str4;
+  my $data = pack("H*",$data_hex);
+  my $key = "TAHITEST89ABCDEF"; # AUTH_KEY_VALUE;
+  my $auth_info_hex = hmac_md5_hex($data, $key);
+  return $auth_info_hex;
+}
+
+sub calculate_reply_auth_info($$) {
+  my ($cid,$ia) = @_;
+  my $auth_info;
+  my $str1 = "0a000000"; # message type=0a ; transaction id = 000000
+  my $str2 = "0002000e0001000100061a8000000000a1a1"; #SID
+	my $ia_str = "00030028096ddc12ffffffffffffffff000500183ffe0501ffff0100000000000000abcdffffffffffffffff";
+  my $str3 = "00190029026aeda90000003200000050001a001900000000000000003c3ffe0501ffff11100000000000000000"; # IA_PD
+  my $str4 = "0013000105";	# Reconfigure message
+  my $str5 = "000b001c030100112233445566778a0200000000000000000000000000000000"; # Authentication
+  my $data_hex;
+  if ($ia){
+  	$data_hex = $str1.$cid.$str2.$ia_str.$str3.$str4.$str5;
+  } else {
+  	$data_hex = $str1.$cid.$str2.$str3.$str4.$str5;
+  } 
+  my $data = pack("H*",$data_hex);
+  my $key = "TAHITEST89ABCDEF"; # AUTH_KEY_VALUE;
+  my $auth_info_hex = hmac_md5_hex($data, $key);
+  return $auth_info_hex;
+}
+
+###############################################################################
+__END__
+
+=head1 NAME 
+
+  Prefix Changed
+  Part D: Change Prefix Length
+
+=head1 TARGET
+
+  CE-Router
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./CERouter_2_7_5_D.seq"> CERouter_2_7_5_D.seq</A> [-tooloption...] <BR>  -pkt  <A HREF="./CERouter_2_7_5_D.def"> CERouter_2_7_5_D.def</A> <BR>  -tooloption : v6eval tool option
+<BR>
+  See Also <A HREF="../CPE6_common.def"> CPE6_common.def </A> 
+</PRE>
+
+=end html
+
+=head1 INITIALIZATION
+
+	Common Test Setup 1.1
+
+=head1 TEST PROCEDURE
+
+=begin html
+<PRE>
+<BR>
+       TN2  CE-Router  TR1
+        |       |       |
+        |       |       |Initialize CE-Router(as a DHCPv6 requesting router)
+        |       |       |
+        |       | <---- |<B>RA</B>
+        |       |       |
+        |       | ----> |<B>Solicit</B> (1*)
+        |       | <---- |<B>Advertise</B>
+        |       | ----> |<B>Request</B> (2*)
+        |       | <---- |<B>Reply</B>
+        |       |       |
+        | ----> |       |<B>Echo Request</B> (3*)
+        | <---- |       |<B>Echo Reply</B> (4*)
+        |       |       |
+        |       |       |
+        |       | <---- |<B>Reconfigure</B>
+        |       | ----> |<B>Renew</B> 
+        |       | <---- |<B>Reply</B>
+        |       |       |
+        | ----> |       |<B>RS</B>
+        | <---- |       |<B>RA</B> (5*)
+        |       |       |
+
+
+<BR>
+</PRE>
+
+=end html
+
+=head1 JUDGEMENT
+
+=begin html
+<PRE>
+<BR>
+  (1*)PASS: TR1 receives Solicit from CE-Router.
+  (2*)PASS: TR1 receives Request from CE-Router.
+  (3*)PASS: CE-Router receives Echo Request from TN2.
+  (4*)PASS: CE-Router sends Echo Reply to TN2.
+  (5*)PASS: TN2 receives RA with New prefix from CE-Router. 
+  	The prefix lengh in RIO is the same with the updated IA_PD.
+
+</PRE>
+
+=end html
+
+=head1 TERMINATION
+
+=begin html
+<PRE>
+  N/A
+</PRE>
+
+=end html
+
+=head1 REFERENCE
+
+=begin html
+<PRE>
+[RFC 7084],L-13
+[RFC 7084],L-14
+</PRE>
+
+=end html
+
+=head1 SEE ALSO
+
+=begin html
+<PRE>
+<BR>
+  perldoc  V6evalTool
+<BR>
+</PRE>
+
+=end html

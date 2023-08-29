@@ -1,0 +1,324 @@
+#!/usr/bin/perl
+#
+#Copyright (C) 2013, 2014, 2015
+#Chunghwa Telecommunication Labratories (CHT-TL)
+#All rights reserved.
+#
+#Redistribution and use of this software in source and binary
+#forms, with or without modification, are permitted provided that
+#the following conditions and disclaimer are agreed and accepted
+#by the user:
+#
+#1. Redistributions of source code must retain the above copyright
+#   notice, this list of conditions and the following disclaimer.
+#
+#2. Redistributions in binary form must reproduce the above copyright
+#   notice, this list of conditions and the following disclaimer in
+#   the documentation and/or other materials provided with
+#   the distribution.
+#
+#3. Neither the names of the copyrighters, the name of the project
+#   which is related to this software (hereinafter referred to as
+#   "project") nor the names of the contributors may be used to
+#   endorse or promote products derived from this software without
+#   specific prior written permission.
+#
+#4. No merchantable use may be permitted without prior written
+#   notification to the copyrighters.
+#
+#5. The copyrighters, the project and the contributors may prohibit
+#   the use of this software at any time.
+#
+#THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+#CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+#BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+#FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+#COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+#INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+#(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+#SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+#HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+#STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+#IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+#POSSIBILITY OF SUCH DAMAGE.
+#
+#$CHT-TL: C_RFC3315_18_1_6_RelRetransRT.seq,v 1.1 2015/04/24 weifen Exp $
+###############################################################################
+BEGIN{
+	$V6evalTool::TestVersion = '$Name: CE-Router_Self_Test_1_0_5 $';
+}
+use strict;
+use V6evalTool;
+
+use lib '../.';
+use DHCPv6_common;
+use CPE6_config;
+use Client_pktdesc;
+
+dhcpExitNS if(!($DHCP_RELEASE));
+#--------------------------------------------------------------#
+# Initialization variables
+#--------------------------------------------------------------#
+my $IF0_NUT = $V6evalTool::NutDef{"Link0_device"};
+my $IF0 = "Link0";
+my ($pretime,$nextime,$interval) = (0, 0, 0);
+my $timeout = 20*$REL_TIMEOUT;
+my $rc = 0;
+
+my $IRT = $REL_TIMEOUT;
+my $ret = 1;
+
+vCapture($IF0);
+#--------------------------------------------------------------#
+# Initialize DHCPv6 Client
+#--------------------------------------------------------------#
+vSend($IF0,'ra_server2_to_all_MO_1');
+#--------------------------------------------------------------#
+#1.  Wait until Solicit arrives 
+#--------------------------------------------------------------#
+my ($retsol,%sol) = wait_for_solicit($IF0,30);
+if($retsol != 0){
+	dhcpExitFail;
+}
+#vClear($IF0);
+#--------------------------------------------------------------#
+#2. Send Advertise to reply to Solicit
+#--------------------------------------------------------------#
+$SID_OPTION = "opt_SID_LLT_server1";
+$IA_NA_OPTION = "opt_IA_NA_Addr_woStatus";
+$IA_PD_OPTION = "opt_IA_PD_PF1";
+$DNS_SVR_OPTION = "opt_DNS_Name_Server1";
+$DNS_LST_OPTION = "opt_DNS_ServerSearchList";
+my ($retadv, %adv) = send_advertise($IF0, "advertise_server1_to_nut", \%sol, "");
+if($retadv != 0){
+	dhcpExitFail;
+}
+#--------------------------------------------------------------#
+#3.  Wait until Request arrives 
+#--------------------------------------------------------------#
+my ($retreq, %req) = wait_for_request($IF0,30);
+if($retreq != 0){
+	dhcpExitFail;
+}
+vClear($IF0);
+#--------------------------------------------------------------#
+#4. send Reply message
+#--------------------------------------------------------------#
+$StatusCode_OPTION = "opt_StatusCode";
+my ($retrep, %rep) = send_reply($IF0, "reply_server1_to_nut", \%req, "");
+if($retrep !=0){
+	dhcpExitFail;
+}
+# wait for DAD completion
+vRecv($IF0, 3, 0, 0, 'dadns_nutga');
+vSleep(3);
+
+$ret = undef;
+$ret = ping_test($IF0);
+if($ret != 0){
+	dhcpExitFail;
+}
+vClear($IF0);
+#--------------------------------------------------------------#
+# CE-Router Releases address
+#--------------------------------------------------------------#
+$ret = vRemote("dhcp6c.rmt", "release", "link0=$IF0_NUT");
+if($ret != 0) {
+    vLogHTML('<FONT COLOR="#FF0000">Release Address failed !</FONT><BR>');
+    dhcpExitFail;
+};
+#--------------------------------------------------------------#
+#5. Wait until Release arrives 
+#--------------------------------------------------------------#
+my ($retrel0, %rel0) = wait_for_release2($IF0, $timeout,1);
+if($retrel0 != 0){
+	dhcpExitFail;
+}
+$ret = options_exist(\%rel0,$CMP_ETIME);
+if($ret != 0){
+	dhcpExitFail;
+}
+$pretime = getReceivedtime(\%rel0);
+#--------------------------------------------------------------#
+#6. Wait until retransmitted message arrives 
+#--------------------------------------------------------------#
+my ($retrel1, %rel1) = wait_for_release2($IF0, $timeout,1);
+if($retrel1 != 0){
+	dhcpExitFail;
+}
+$nextime = getReceivedtime(\%rel1);
+
+$ret = compare_message(\%rel0,\%rel1);
+if($ret != 0){
+	vLogHTML('<FONT COLOR="#FF0000">Message has been changed!</FONT><BR>');
+	dhcpExitFail;
+};
+
+$interval = $nextime - $pretime;
+vLogHTML("<FONT COLOR=\"#FF0000\">Actual RT is $interval sec.</FONT><BR>");
+
+$ret = check_equal($interval,$REL_TIMEOUT,$RAND);
+if($ret != 0){
+	vLogHTML('<FONT COLOR="#FF0000">RT != IRT + RAND*IRT !</FONT><BR>');
+	dhcpExitFail;
+};
+
+vLogHTML("<FONT COLOR=\"#FF0000\">Actual RT satisfies RT = IRT+RAND*IRT</FONT><BR>");
+
+vClear($IF0);
+vStop($IF0);
+dhcpExitPass;
+###############################################################################
+__END__
+
+=head1 NAME 
+
+  Transmission of Release Messages
+  Part C: Retransmission of Release message
+
+=head1 TARGET
+
+  CE-Router
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./C_RFC3315_18_1_6_RelRetransRT.seq"> C_RFC3315_18_1_6_RelRetransRT.seq</A> [-tooloption...] <BR>  -pkt  <A HREF="./C_RFC3315_18_1_6_RelRetransRT.def"> C_RFC3315_18_1_6_RelRetransRT.def</A> <BR>  -tooloption : v6eval tool option
+<BR>
+  See Also <A HREF="../DHCPv6.def"> DHCPv6.def </A> 
+</PRE>
+
+=end html
+
+=head1 INITIALIZATION
+
+=begin html
+  <ul>
+  <li><STRONG>Network Topology</STRONG></li> 
+   <PRE>
+          CE-Router(Client)
+          |           
+          |                        
+Link0   --+--------+------------------------ 3ffe:501:ffff:100::/64
+                   |
+                   |          
+                   TN(Server) 
+   </PRE>
+  </ul>
+  <ul>  
+  <li><STRONG>Verification Points</STRONG></li><br>
+   <PRE>
+   The client transmits the message using the following parameters:<BR>
+      IRT   REL_TIMEOUT  <BR>
+      MRT   0            <BR>
+      MRC   REL_MAX_RC   <BR>
+      MRD   0            <BR>
+   RT for the first message transmission is base on the previous 
+   vlaue of RT: <BR>
+      <B>RT = IRT + RAND*IRT</B>
+   </PRE>
+  </ul>
+  <ul>  
+  <li><STRONG>Configurations</STRONG></li><br>
+  <BR>
+    <TABLE BORDER="1">
+    <TR>
+    <TD><TT>Device Name</TT></TD>
+    <TD><TT>Device Type</TT></TD>
+    <TD><TT>Interface</TT></TD>
+    <TD><TT>Assigned Prefix</TT></TD>
+    <TD><TT>Link Local Addr</TT></TD>
+    <TD><TT>MAC Addr</TT></TD>
+    </TR>
+    <TR>
+    <TD><TT>Client</TT></TD>
+    <TD><TT>CE-Router</TT></TD>
+    <TD><TT>Link0</TT></TD>
+    <TD><TT>3ffe:501:ffff:100::/64</TT></TD>
+    <TD><TT>CE-Router's Linklocal address</TT></TD>
+    <TD><TT>CE-Router's MAC address</TT></TD>
+    </TR>
+    <TR>
+    <TD><TT>Server</TT></TD>
+    <TD><TT>TN</TT></TD>
+    <TD><TT>Link0</TT></TD>
+    <TD><TT>3ffe:501:ffff:100::/64</TT></TD>
+    <TD><TT>fe80::200:ff:fe00:a1a1</TT></TD>
+    <TD><TT>00:00:00:00:a1:a1</TT></TD>
+    </TR>
+    </TABLE>
+    </PRE>
+  </ul>
+
+=end html
+
+=head1 TEST PROCEDURE
+
+=begin html
+<PRE>
+<BR>
+       CE-Router      TN
+        |       | 
+        |       |Initialize CE-Router(as a DHCPv6 client)
+        |       |
+        | ----> |<B>Solicit</B>
+        | <---- |<B>Advertise</B> 
+        | ----> |<B>Request</B> 
+        | <---- |<B>Reply</B> 
+        |       |
+        | <---- |<B>Echo Request</B>
+        | ----> |<B>Echo Reply</B>
+        |       |
+        |       |CE-Router initiates Release-Reply
+        |       |
+        | ----> |<B>Release</B> 
+        |       |
+        |       |Waiting for retransmitted Release
+        |       |
+        | ----> |<B>Release</B> (8*)
+        |       |
+</PRE>
+
+=end html
+
+=head1 JUDGEMENT
+
+=begin html
+<PRE>
+  (8*)PASS: CE-Router retransmits Release.
+            And RT conforms to Verification Points.
+</PRE>
+
+=end html
+
+=head1 TERMINATION
+
+=begin html
+<PRE>
+  N/A
+</PRE>
+
+=end html
+
+=head1 REFERENCE
+
+=begin html
+<PRE>
+[RFC 7084],W-1
+[RFC 3315],Section 5.5, 14 and 18.1.6
+[RFC 3646],Section 3, 4 and 5
+</PRE>
+
+=end html
+
+=head1 SEE ALSO
+
+=begin html
+<PRE>
+<BR>
+  perldoc  V6evalTool
+<BR>
+</PRE>
+
+=end html

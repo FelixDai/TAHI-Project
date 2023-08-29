@@ -1,0 +1,6 @@
+#define FRAG_ID     0x00000f26
+#define FRAG_ID_T   0xf0000f26
+#define REQ_ID     0x0f26
+#define REQ_ID_T   0xff26
+#define SEQ_NO     0x00
+#define SEQ_NO_T   0x0f

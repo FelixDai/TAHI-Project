@@ -1,0 +1,768 @@
+//
+// Copyright (C) 2013, 2014, 2015, 2016
+// Chunghwa Telecommunication Labratories (CHT-TL)
+// All rights reserved.
+// 
+// Redistribution and use of this software in source and binary
+// forms, with or without modification, are permitted provided that
+// the following conditions and disclaimer are agreed and accepted
+// by the user:
+// 
+// 1. Redistributions of source code must retain the above copyright
+//    notice, this list of conditions and the following disclaimer.
+// 
+// 2. Redistributions in binary form must reproduce the above copyright
+//    notice, this list of conditions and the following disclaimer in
+//    the documentation and/or other materials provided with
+//    the distribution.
+// 
+// 3. Neither the names of the copyrighters, the name of the project
+//    which is related to this software (hereinafter referred to as
+//    "project") nor the names of the contributors may be used to
+//    endorse or promote products derived from this software without
+//    specific prior written permission.
+// 
+// 4. No merchantable use may be permitted without prior written
+//    notification to the copyrighters.
+// 
+// 5. The copyrighters, the project and the contributors may prohibit
+//    the use of this software at any time.
+// 
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+// CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+// BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+// FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+// COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+// INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+// SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+// HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+// STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+// IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+// POSSIBILITY OF SUCH DAMAGE.
+//
+// $CHT-TL: CPE6_common.def, v 1.1 2016/08/03 weifen Exp Exp $
+//
+////////////////////////////////////////////////////////////////
+
+#include "DHCPv6.def" 
+#include "DHCPv6_test.def"
+
+
+// MAC Address Define
+#ifndef TR1_MAC_ADDR
+#define TR1_MAC_ADDR		ether(A0N_MAC_ADDR)
+#endif	// TR1_MAC_ADDR
+
+#ifndef TN1_MAC_ADDR
+#define TN1_MAC_ADDR		ether(A1N_MAC_ADDR)
+#endif  // TN1_MAC_ADDR
+
+#ifndef TN2_MAC_ADDR
+#define TN2_MAC_ADDR		ether(A2N_MAC_ADDR)
+#endif  // TN2_MAC_ADDR
+
+#ifndef TN3_MAC_ADDR
+#define TN3_MAC_ADDR		ether(A3N_MAC_ADDR)
+#endif  // TN3_MAC_ADDR
+
+#ifndef TN4_MAC_ADDR
+#define TN4_MAC_ADDR		ether(A4N_MAC_ADDR)
+#endif  // TN4_MAC_ADDR
+
+#ifndef TN5_MAC_ADDR
+#define TN5_MAC_ADDR		ether(A5N_MAC_ADDR)
+#endif  // TN5_MAC_ADDR
+
+#ifndef DHCPSRV_MAC_ADDR
+#define DHCPSRV_MAC_ADDR	ether(A1N_MAC_ADDR)
+#endif  // DHCP_SRV_MAC_ADDR
+
+#ifndef NUT_MAC_ADDR
+#define NUT_MAC_ADDR		nutether("Link0")
+#endif  // NUT_MAC_ADDR
+
+#ifndef NUT1_MAC_ADDR
+#define NUT1_MAC_ADDR		nutether("Link1")
+#endif  // NUT1_MAC_ADDR
+
+// Link Local Address Define
+#ifndef TR1_LINKLOCAL
+#define TR1_LINKLOCAL	_LLOCAL0A0N_UCAST_ADDR
+#endif // TR1_LINKLOCAL
+
+#ifndef TN1_LINKLOCAL
+#define TN1_LINKLOCAL   _LLOCAL0A1N_UCAST_ADDR
+#endif // TN1_LINKLOCAL
+
+#ifndef TN2_LINKLOCAL
+#define TN2_LINKLOCAL   _LLOCAL0A2N_UCAST_ADDR
+#endif // TN2_LINKLOCAL
+
+#ifndef TN3_LINKLOCAL  
+#define TN3_LINKLOCAL   _LLOCAL0A3N_UCAST_ADDR
+#endif // TN3_LINKLOCAL
+
+#ifndef TN4_LINKLOCAL  
+#define TN4_LINKLOCAL   "fe80::200:ff:fe00:a4a4"
+#endif // TN4_LINKLOCAL
+
+#ifndef TN5_LINKLOCAL  
+#define TN5_LINKLOCAL   "fe80::200:ff:fe00:a5a5"
+#endif // TN5_LINKLOCAL
+
+// Global Address Define
+#ifndef TR1_GLOBAL_ADDR  
+#define TR1_GLOBAL_ADDR   v6("3ffe:501:ffff:100::1")
+#endif // TR1_GLOBAL_ADDR
+
+#ifndef DHCPSRV_GLOBAL_ADDR  
+#define DHCPSRV_GLOBAL_ADDR   v6("3ffe:501:ffff:3::1")
+#endif // DHCPSRV_GLOBAL_ADDR
+
+#ifndef DNS_GLOBAL_ADDR  
+#define DNS_GLOBAL_ADDR   DNS_SVR1_GLOBAL_UCAST
+#endif // DNS_GLOBAL_ADDR
+
+#ifndef TN3_GLOBAL_ADDR  
+#define TN3_GLOBAL_ADDR   v6("3ffe:501:ffff:100::300")
+#endif // TN3_GLOBAL_ADDR
+
+#ifndef NUT_GLOBAL_ADDR
+#define NUT_GLOBAL_ADDR   nut2v6(_PF2_PREFIX, PF2_PREFIXLEN)
+#endif // NUT_GLOBAL_ADDR
+
+#ifndef NUT_GLOBAL_ADDR_From_IANA 
+#define NUT_GLOBAL_ADDR_From_IANA   IA_ADDR_ADDR
+#endif // NUT_GLOBAL_ADDR_From_IANA
+
+#ifndef UNSPEC_ADDR
+#define UNSPEC_ADDR  v6("::")
+#endif	// UNSPEC_ADDR
+
+// Prefix define
+#ifndef PF2_PREFIXLEN
+#define PF2_PREFIXLEN	64
+#endif	// PF2_PREFIXLEN
+
+#ifndef _PF2_PREFIX
+#define _PF2_PREFIX	"3ffe:501:ffff:100::"
+#endif	// _PF2_PREFIX
+
+#ifndef PF2_PREFIX
+#define PF2_PREFIX	v6(_PF2_PREFIX)
+#endif	// PF2_PREFIX
+
+#ifndef PF1_PREFIXLEN
+#define PF1_PREFIXLEN	60
+#endif  // PF1_PREFIXLEN
+
+#ifndef PREFIX_FROM_PD
+#define	PREFIX_FROM_PD	"::"
+#endif
+
+#ifndef AUTH_VALUE
+#define AUTH_VALUE hexstr("11111111111111111111111111111111",16)
+#endif
+
+// NUT client DUID type
+#ifndef CID
+#define CID opt_CID_EN_nut
+#endif
+
+#define _PF1_PREFIX	"3ffe:501:ffff:111"
+#define _PF1_PREFIX0	"3ffe:501:ffff:1110::"
+#define _PF1_PREFIX1	"3ffe:501:ffff:1111::"
+#define _PF1_PREFIX2	"3ffe:501:ffff:1112::"
+#define _PF1_PREFIX3	"3ffe:501:ffff:1113::"
+#define _PF1_PREFIX4	"3ffe:501:ffff:1114::"
+#define _PF1_PREFIX5	"3ffe:501:ffff:1115::"
+#define _PF1_PREFIX6	"3ffe:501:ffff:1116::"
+#define _PF1_PREFIX7	"3ffe:501:ffff:1117::"
+#define _PF1_PREFIX8	"3ffe:501:ffff:1118::"
+#define _PF1_PREFIX9	"3ffe:501:ffff:1119::"
+#define _PF1_PREFIXa	"3ffe:501:ffff:111a::"
+#define _PF1_PREFIXb	"3ffe:501:ffff:111b::"
+#define _PF1_PREFIXc	"3ffe:501:ffff:111c::"
+#define _PF1_PREFIXd	"3ffe:501:ffff:111d::"
+#define _PF1_PREFIXe	"3ffe:501:ffff:111e::"
+#define _PF1_PREFIXf	"3ffe:501:ffff:111f::"
+
+#define PF1_PREFIX0	v6("3ffe:501:ffff:1110::")
+#define PF1_PREFIX1	v6("3ffe:501:ffff:1111::")
+#define PF1_PREFIX2	v6("3ffe:501:ffff:1112::")
+#define PF1_PREFIX3	v6("3ffe:501:ffff:1113::")
+#define PF1_PREFIX4	v6("3ffe:501:ffff:1114::")
+#define PF1_PREFIX5	v6("3ffe:501:ffff:1115::")
+#define PF1_PREFIX6	v6("3ffe:501:ffff:1116::")
+#define PF1_PREFIX7	v6("3ffe:501:ffff:1117::")
+#define PF1_PREFIX8	v6("3ffe:501:ffff:1118::")
+#define PF1_PREFIX9	v6("3ffe:501:ffff:1119::")
+#define PF1_PREFIXa	v6("3ffe:501:ffff:111a::")
+#define PF1_PREFIXb	v6("3ffe:501:ffff:111b::")
+#define PF1_PREFIXc	v6("3ffe:501:ffff:111c::")
+#define PF1_PREFIXd	v6("3ffe:501:ffff:111d::")
+#define PF1_PREFIXe	v6("3ffe:501:ffff:111e::")
+#define PF1_PREFIXf	v6("3ffe:501:ffff:111f::")
+
+#ifndef NUT_ADDR
+#define NUT_ADDR NUT_GLOBAL_ADDR
+#endif //NUT_ADDR
+
+_HETHER_define(_HETHER_tr1_to_allnodes, 
+	       TR1_MAC_ADDR, v62ethermulti(v6(_ALLNODES_MCAST_ADDR)))
+
+_HETHER_define(_HETHER_nut_to_tentsolnode, 
+	      nutether(), _ETHER_SOLNODE_MCAST(nutv6()))
+
+_HETHER_define(_HETHER_nut_to_glotentsolnode, 
+	      nutether(), _ETHER_SOLNODE_MCAST(NUT_ADDR))
+
+_HETHER_define(_HETHER_tr1_to_nut, 
+	      TR1_MAC_ADDR, nutether("Link0"))
+
+_HETHER_define(_HETHER_nut_to_tr1, 
+	      nutether("Link0"), TR1_MAC_ADDR)
+
+_HETHER_define(_HETHER_tn1_to_nut, 
+	      TN1_MAC_ADDR, nutether())
+
+_HETHER_define(_HETHER_nut_to_tn1, 
+	      nutether(), TN1_MAC_ADDR)
+
+_HETHER_define(_HETHER_tn2_to_nut, 
+	      TN2_MAC_ADDR, nutether("Link1"))
+
+_HETHER_define(_HETHER_nut_to_tn2, 
+	      nutether("Link1"), TN2_MAC_ADDR)
+
+_HETHER_define(_HETHER_tn3_to_nut, 
+	      TN3_MAC_ADDR, nutether())
+
+_HETHER_define(_HETHER_nut_to_tn3, 
+	      nutether(), TN3_MAC_ADDR)
+
+_HETHER_define(_HETHER_tn4_to_nut, 
+	      TN4_MAC_ADDR, nutether())
+
+_HETHER_define(_HETHER_nut_to_tn4, 
+	      nutether(), TN4_MAC_ADDR)
+
+_HETHER_define(_HETHER_tn5_to_nut, 
+	      TN5_MAC_ADDR, nutether("Link1"))
+
+_HETHER_define(_HETHER_nut_to_tn5, 
+	      nutether("Link1"), TN5_MAC_ADDR)
+
+_HETHER_define(_HETHER_nut_wan_to_allnodes, 
+	      nutether("Link0"), v62ethermulti(v6(_ALLNODES_MCAST_ADDR)))
+
+_HETHER_define(_HETHER_nut_wan_to_any, 
+	      nutether("Link0"), any)
+
+_HETHER_define(_HETHER_nut_lan_to_allnodes, 
+	      nutether("Link1"), v62ethermulti(v6(_ALLNODES_MCAST_ADDR)))
+
+_HETHER_define(_HETHER_tn2_to_allrouters, 
+	      TN2_MAC_ADDR, v62ethermulti(v6(_ALLROUTERS_MCAST_ADDR)))
+
+_HETHER_define(_HETHER_tn5_to_allrouters, 
+	      TN5_MAC_ADDR, v62ethermulti(v6(_ALLROUTERS_MCAST_ADDR)))
+
+_HETHER_define(_HETHER_nut_to_tn2solnode, 
+	      nutether("Link1"), _ETHER_SOLNODE_MCAST(v6(TN2_LINKLOCAL)))
+
+_HETHER_define(_HETHER_tn2_to_allnodes, 
+	      TN2_MAC_ADDR, v62ethermulti(v6(_ALLNODES_MCAST_ADDR)))
+
+//================================================================
+//  Router Advertisement with prefix information option
+//                       which M flags is 0 and O flag is 1
+FEM_icmp6_ra(
+	ra_MclearOset,
+	_HETHER_tr1_to_allnodes,
+	{
+		_SRC(v6(TR1_LINKLOCAL));
+		_DST(v6(_ALLNODES_MCAST_ADDR));
+		HopLimit	= 255;
+	},
+	{
+		CurHopLimit	= 64;
+		MFlag		= 0;
+		OFlag		= 1;
+		LifeTime	= 600;
+		ReachableTime	= _Default_AdvReachableTime;
+		RetransTimer	= _Default_AdvRetransTimer;
+//		option		= opt_sll_tr1;
+		option		= opt_prefix_LsetAset;
+	}
+)
+
+
+//================================================================
+//  Router Advertisement with prefix information option
+//                       which M flags is 1 and O flag is 1
+FEM_icmp6_ra(
+	ra_MsetOset,
+	_HETHER_tr1_to_allnodes,
+	{
+		_SRC(v6(TR1_LINKLOCAL));
+		_DST(v6(_ALLNODES_MCAST_ADDR));
+		HopLimit	= 255;
+	},
+	{
+		CurHopLimit	= 64;
+		MFlag		= 1;
+		OFlag		= 1;
+		LifeTime	= 600;
+		ReachableTime	= _Default_AdvReachableTime;
+		RetransTimer	= _Default_AdvRetransTimer;
+//		option		= opt_sll_tr1;
+		option		= opt_prefix_LsetAclear;
+	}
+)
+
+
+//================================================================
+//  Router Advertisement: any ----> any
+FEM_icmp6_ra(
+	ra_any,
+	_HETHER_any,
+	{
+		HopLimit	= any;
+		_SRC(any);
+		_DST(any);
+	},
+	{
+		CurHopLimit	= any;
+		MFlag		= any;
+		OFlag		= any;
+//		LifeTime	= any;
+		LifeTime	> 0;
+		ReachableTime	= any;
+		RetransTimer	= any;
+		option		= stop;
+	}
+)
+
+//================================================================
+//  Router Advertisement: any ----> any
+FEM_icmp6_ra(
+	ra_rf_zero,
+	_HETHER_any,
+	{
+		HopLimit	= any;
+		_SRC(any);
+		_DST(any);
+	},
+	{
+		CurHopLimit	= any;
+		MFlag		= any;
+		OFlag		= any;
+		LifeTime	= 0;
+		ReachableTime	= any;
+		RetransTimer	= any;
+		option		= stop;
+	}
+)
+
+//================================================================
+//  Router Advertisement with prefix information option 
+//                       which is delegated from DHCPv6 server
+//  Router Advertisement: NUT ----> TN1
+FEM_icmp6_ra(
+	ra_with_delegated_prefix,
+	_HETHER_any,
+	{
+		HopLimit	= any;
+		_SRC(any);
+		_DST(any);
+	},
+	{
+		CurHopLimit	= any;
+		MFlag		= any;
+		OFlag		= any;
+		LifeTime	= any;
+		ReachableTime	= any;
+		RetransTimer	= any;
+		option		= comb(opt_sll_nut_lan, opt_prefix_pd, opt_mtu_ra_1500);
+		//option		= comb(opt_sll_nut_lan, opt_prefix_pd);
+	}
+)
+
+//================================================================
+//  Router Advertisement with Router Lifetime of 0
+//  Router Advertisement: TR1 ----> NUT
+FEM_icmp6_ra(
+	ra_RouterLifetimeZero,
+	_HETHER_tr1_to_nut,
+	{
+		HopLimit	= 255;
+		_SRC(v6(TR1_LINKLOCAL));
+		_DST(NUT_LLOCAL_UCAST);
+	},
+	{
+		CurHopLimit	= 64;
+		LifeTime	= 0;
+		ReachableTime	= 0;
+		RetransTimer	= 0;
+	}
+)
+
+//================================================================
+//  Router Advertisement without source link layer address
+//  Router Advertisement: TR1 ----> NUT
+FEM_icmp6_ra(
+	mcast_ra_commonsetup_m1,
+	_HETHER_tr1_to_allnodes,
+	{
+		HopLimit	= 255;
+		_SRC(v6(TR1_LINKLOCAL));
+		_DST(v6(_ALLNODES_MCAST_ADDR));
+	},
+	{
+		CurHopLimit	= 64;
+		MFlag	= 1;
+		OFlag	= 1;
+		LifeTime	= 1800;
+		ReachableTime	= 30000;
+		RetransTimer	= 1000;
+		option	= opt_prefix_LsetAclear;
+	}
+)
+
+
+Opt_ICMPv6_Prefix opt_prefix_LsetAset {
+	PrefixLength		= PF2_PREFIXLEN;
+	LFlag			= 1;
+	AFlag			= 1;
+	ValidLifetime		= 600;
+	PreferredLifetime	= 600;
+	Prefix			= PF2_PREFIX;
+}
+
+Opt_ICMPv6_Prefix opt_prefix_LsetAclear {
+	PrefixLength		= PF2_PREFIXLEN;
+	LFlag			= 1;
+	AFlag			= 0;
+	ValidLifetime		= 600;
+	PreferredLifetime	= 600;
+	Prefix			= PF2_PREFIX;
+}
+
+Opt_ICMPv6_Prefix opt_prefix_pd {
+	PrefixLength		= PF2_PREFIXLEN;
+	LFlag			= 1;
+	AFlag			= 1;
+	ValidLifetime		= any;
+	PreferredLifetime	= any;
+	Prefix			= oneof(PF1_PREFIX0,  PF1_PREFIX1, PF1_PREFIX2, 
+					PF1_PREFIX3, PF1_PREFIX4, PF1_PREFIX5, 
+					PF1_PREFIX6, PF1_PREFIX7, PF1_PREFIX8, 
+					PF1_PREFIX9, PF1_PREFIXa, PF1_PREFIXb, 
+					PF1_PREFIXc, PF1_PREFIXd, PF1_PREFIXe, 
+					PF1_PREFIXf);
+}
+
+Opt_ICMPv6_SLL opt_sll_tr1 {
+      LinkLayerAddress = TR1_MAC_ADDR;
+}
+
+Opt_ICMPv6_SLL opt_sll_tn1 {
+      LinkLayerAddress = TN1_MAC_ADDR;
+}
+
+Opt_ICMPv6_SLL opt_sll_tn2 {
+      LinkLayerAddress = TN2_MAC_ADDR;
+}
+
+Opt_ICMPv6_SLL opt_sll_tn3 {
+      LinkLayerAddress = TN3_MAC_ADDR;
+}
+
+Opt_ICMPv6_SLL opt_sll_tn4 {
+      LinkLayerAddress = TN4_MAC_ADDR;
+}
+
+Opt_ICMPv6_SLL opt_sll_tn5 {
+      LinkLayerAddress = TN5_MAC_ADDR;
+}
+
+Opt_ICMPv6_SLL opt_sll_nut_lan {
+     LinkLayerAddress = nutether("Link1");
+}
+
+Opt_ICMPv6_SLL opt_sll_nut_wan {
+     LinkLayerAddress = nutether("Link0");
+}
+
+Opt_ICMPv6_MTU opt_mtu_ra_1500 {
+	MTU = 1500;
+}
+
+// Target Link Local Address
+Opt_ICMPv6_TLL opt_tll_tr1 {
+	LinkLayerAddress = TR1_MAC_ADDR;
+}
+
+Opt_ICMPv6_TLL opt_tll_tn1 {
+	LinkLayerAddress = TN1_MAC_ADDR;
+}
+
+Opt_ICMPv6_TLL opt_tll_tn2 {
+	LinkLayerAddress = TN2_MAC_ADDR;
+}
+
+Opt_ICMPv6_TLL opt_tll_tn3 {
+	LinkLayerAddress = TN3_MAC_ADDR;
+}
+
+Opt_ICMPv6_TLL opt_tll_tn4 {
+	LinkLayerAddress = TN4_MAC_ADDR;
+}
+
+Opt_ICMPv6_TLL opt_tll_tn5 {
+	LinkLayerAddress = TN5_MAC_ADDR;
+}
+
+Opt_ICMPv6_TLL opt_tll_nut_lan {
+     LinkLayerAddress = nutether("Link1");
+}
+
+Opt_ICMPv6_TLL opt_tll_nut_wan {
+     LinkLayerAddress = nutether("Link0");
+}
+
+Opt_DHCPv6_SID opt_DHCPv6_SID_Relay {
+	duid = duid_relay;
+}
+
+DHCPv6_DUID_LLT_Ether duid_relay {
+	// LinkLayerAddress = DHCPSRV_MAC_ADDR;
+	LinkLayerAddress = TR1_MAC_ADDR;
+}
+
+Opt_DHCPv6_IA_PD opt_IA_PD_PF1 {
+        Time1		= IA_PD_TIME3;
+        Time2		= IA_PD_TIME4;
+        Identifier	= IA_PD_IDENTIFIER;
+        option		= opt_IA_Delegate_PF1;
+}
+
+Opt_DHCPv6_IA_Prefix opt_IA_Delegate_PF1 {
+        PreferredLifetime	= IA_PREFIX_PLTIME;
+        ValidLifetime		= IA_PREFIX_VLTIME;
+        PrefixLength		= PF1_PREFIXLEN;
+        Prefix			= PF1_PREFIX0;
+}
+
+Opt_DHCPv6_IA_NA opt_IA_NA_Addr_iana {
+	Identifier = IA_NA_IDENTIFIER;
+	Time1 = IA_NA_TIME1;
+	Time2 = IA_NA_TIME2;
+	option = opt_IA_Addr_iana;
+}
+
+Opt_DHCPv6_IA_Address opt_IA_Addr_iana {
+	Address = NUT_GLOBAL_ADDR_From_IANA;
+	PreferredLifetime = IA_ADDR_PLTIME;
+	ValidLifetime = IA_ADDR_VLTIME;
+}
+
+FEM_dhcp6_advertise(
+	advertise_tr1_to_nut,
+	_HETHER_tr1_to_nut,
+	{
+	_SRC(v6(TR1_LINKLOCAL));
+	_DST(NUT_LLOCAL_UCAST);
+	},
+	{
+		_SPORT(547);
+		_DPORT(546);
+	},
+	{
+		option = opt_CID_LLT_nut;
+		option = opt_DHCPv6_SID_Relay;
+		//option = opt_SID_LLT_server1;
+		option = opt_IA_PD_PF1;
+		//option = opt_StatusCode;
+		Identifier = ID_ADV;
+	}
+)
+
+FEM_dhcp6_reply(
+	reply_tr1_to_nut,
+	_HETHER_tr1_to_nut,
+	{
+	_SRC(v6(TR1_LINKLOCAL));
+	_DST(NUT_LLOCAL_UCAST);
+	},
+	{
+		_SPORT(547);
+		_DPORT(546);
+	},
+	{
+		option = opt_CID_LLT_nut;
+		option = opt_DHCPv6_SID_Relay;
+		option = opt_IA_PD_PF1;
+		option = opt_StatusCode;
+		Identifier = ID_REP;
+	}
+)
+
+//================================================================
+// RS: TN2 ----> NUT
+FEM_icmp6_rs(
+	rs_tn2_to_nut,
+	_HETHER_tn2_to_allrouters,
+	{
+		HopLimit	= 255;
+		_SRC(v6(TN2_LINKLOCAL));
+		_DST(v6(_ALLROUTERS_MCAST_ADDR));
+	},
+	{
+		option		= opt_sll_tn2;
+	}
+)
+
+//================================================================
+// RS: TN5 ----> NUT
+FEM_icmp6_rs(
+	rs_tn5_to_nut,
+	_HETHER_tn5_to_allrouters,
+	{
+		HopLimit	= 255;
+		_SRC(v6(TN5_LINKLOCAL));
+		_DST(v6(_ALLROUTERS_MCAST_ADDR));
+	},
+	{
+		option		= opt_sll_tn5;
+	}
+)
+
+//================================================================
+//  Echo Request
+//  Echo Request: TN3 ----> NUT
+FEM_icmp6_echo_request (
+	ereq_tn3_to_nut,
+	_HETHER_tn3_to_nut,
+	{
+		_SRC(TN3_GLOBAL_ADDR);
+		_DST(NUT_ADDR);
+	},
+	{
+		payload = data8;
+	}
+)
+
+//================================================================
+//  Echo Reply: NUT ----> TN3
+FEM_icmp6_echo_reply (
+	erep_nut_to_tn3,
+	_HETHER_nut_to_tn3,
+	{
+		_SRC(NUT_ADDR);
+		_DST(TN3_GLOBAL_ADDR);
+	},
+	{
+		payload = data8;
+	}
+)
+
+//================================================================
+//  DAD: NUT ----> ALL node
+FEM_icmp6_ns (
+	ns_nut_to_any,
+	_HETHER_any,
+	{
+		HopLimit = 255;
+		_SRC(any);
+		_DST(any);
+	},
+	{
+		TargetAddress = any;
+	}
+)
+
+//================================================================
+//  Echo Request
+//  Echo Request: TR1 ----> CE-Router
+FEM_icmp6_echo_request (
+	ereq_tr1_to_nut,
+	_HETHER_tr1_to_nut,
+	{
+		_SRC(v6(TR1_LINKLOCAL));
+		_DST(nutv6());
+	},
+	{
+		payload = data8;
+	}
+)
+
+//================================================================
+//  Echo Reply: CE-Router ----> TR1
+FEM_icmp6_echo_reply (
+	erep_nut_to_tr1,
+	_HETHER_nut_to_tr1,
+	{
+		_SRC(nutv6());
+		_DST(v6(TR1_LINKLOCAL));
+	},
+	{
+		payload = data8;
+	}
+)
+
+//===== Neighbor Solicitation CE-Router -> any
+FEM_icmp6_ns(
+	ns_any_to_tr1,
+	_HETHER_any,
+	{
+		_SRC(any);
+		_DST(any);
+		HopLimit = 255;
+	},
+	{
+		TargetAddress = v6(TR1_LINKLOCAL);
+		option = stop;
+	}
+)
+
+// NA TR1 -> CE-Router
+FEM_icmp6_na(
+	na_ll_tr1_to_nut,
+	_HETHER_tr1_to_nut,
+	{
+		_SRC(v6(TR1_LINKLOCAL));
+		_DST(nutv6());
+		HopLimit = 255;
+	},
+	{
+		RFlag = 1;
+		SFlag = 1;
+		OFlag = 1;
+		TargetAddress = v6(TR1_LINKLOCAL);
+		option = opt_tll_tr1;
+	}
+)
+
+
+//================================================================
+//  Neighbor Advertisement
+//  NA: SERVER1 ----> NUT (target = Global)
+FEM_icmp6_na(
+	na_server1ga_to_nutga,
+	_HETHER_server1_to_nut,
+	{
+		HopLimit = 255;
+		_SRC(v6(TN1_LINKLOCAL));
+		_DST(nutv6());
+	},
+	{
+		RFlag         = 1;
+		SFlag         = 1;
+		OFlag         = 1;
+		TargetAddress = v6merge(_PF2_PREFIX,64,v6(TN1_LINKLOCAL));
+		option        = opt_tll_tn1;
+	}
+)

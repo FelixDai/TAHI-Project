@@ -1,0 +1,307 @@
+#!/usr/bin/perl
+#
+#Copyright (C) 2013, 2014, 2015
+#Chunghwa Telecommunication Labratories (CHT-TL)
+#All rights reserved.
+#
+#Redistribution and use of this software in source and binary
+#forms, with or without modification, are permitted provided that
+#the following conditions and disclaimer are agreed and accepted
+#by the user:
+#
+#1. Redistributions of source code must retain the above copyright
+#   notice, this list of conditions and the following disclaimer.
+#
+#2. Redistributions in binary form must reproduce the above copyright
+#   notice, this list of conditions and the following disclaimer in
+#   the documentation and/or other materials provided with
+#   the distribution.
+#
+#3. Neither the names of the copyrighters, the name of the project
+#   which is related to this software (hereinafter referred to as
+#   "project") nor the names of the contributors may be used to
+#   endorse or promote products derived from this software without
+#   specific prior written permission.
+#
+#4. No merchantable use may be permitted without prior written
+#   notification to the copyrighters.
+#
+#5. The copyrighters, the project and the contributors may prohibit
+#   the use of this software at any time.
+#
+#THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+#CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+#BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+#FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+#COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+#INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+#(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+#SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+#HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+#STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+#IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+#POSSIBILITY OF SUCH DAMAGE.
+#
+#$CHT-TL: C_RFC3315_RenReply.seq,v 1.2 2015/04/24 weifen Exp $
+###############################################################################
+BEGIN{
+	$V6evalTool::TestVersion = '$Name: CE-Router_Self_Test_1_0_5 $';
+}
+use strict;
+use V6evalTool;
+
+use lib '../.';
+use DHCPv6_common;
+use Client_pktdesc;
+
+#--------------------------------------------------------------#
+# Initialization variables
+#--------------------------------------------------------------#
+my $IF0 = "Link0";
+my $plifetime = 100 ;
+my $vlifetime = 200 ;
+my $time1 = $plifetime * 0.5;
+my $time2 = $plifetime * 0.8;
+my $ret = 1;
+
+vCapture($IF0);
+#--------------------------------------------------------------#
+# Initialize DHCPv6 Client
+#--------------------------------------------------------------#
+vSend($IF0,'ra_server2_to_all_MO_1');
+#--------------------------------------------------------------#
+#1.  Wait until Solicit arrives 
+#--------------------------------------------------------------#
+my ($retsol,%sol) = wait_for_solicit($IF0,30) ;
+if($retsol != 0){
+	dhcpExitFail;
+}
+#vClear($IF0);
+#--------------------------------------------------------------#
+# 2. send Advertise message 
+#--------------------------------------------------------------#
+$SID_OPTION = "opt_SID_LLT_server1";
+$IA_NA_OPTION = "opt_IA_NA_Addr_woStatus";
+$IA_PD_OPTION = "opt_IA_PD_PF1";
+$DNS_SVR_OPTION = "opt_DNS_Name_Server1";
+$DNS_LST_OPTION = "opt_DNS_ServerSearchList";
+my ($retadv, %adv) = send_advertise($IF0, "advertise_server1_to_nut", \%sol, "");
+if($retadv != 0){
+	dhcpExitFail;
+}
+#--------------------------------------------------------------#
+#3.  Wait until Request arrives 
+#--------------------------------------------------------------#
+my ($retreq,%req) = wait_for_request($IF0,30);
+if($retreq != 0){
+	dhcpExitFail;
+}
+vClear($IF0);
+#--------------------------------------------------------------#
+#4. send Reply message
+#--------------------------------------------------------------#
+$IA_NA_OPTION = "opt_IA_NA_Addr";
+$StatusCode_OPTION = "opt_StatusCode";
+my $cppstr = "-DIA_NA_TIME1=$time1 -DIA_NA_TIME2=$time2 -DIA_ADDR_PLTIME=$plifetime -DIA_ADDR_VLTIME=$vlifetime ";
+my ($retrep, %rep) = send_reply($IF0, "reply_server1_to_nut", \%req,$cppstr);
+if($retrep != 0){
+	dhcpExitFail;
+}
+# wait for DAD completion
+vRecv($IF0, 3, 0, 0, 'dadns_nutga');
+vSleep(3);
+
+vClear($IF0);	
+#--------------------------------------------------------------#
+#5. wait for Renew message
+#--------------------------------------------------------------#
+my ($retren, %ren) = wait_for_renew($IF0, ($time1+5),1);
+if($retren != 0){
+	dhcpExitFail;
+}
+
+# check recvtime
+if (0 != check_RecvTime(\%rep, \%ren, $time1)){
+        dhcpExitError("<B>The Received time error! </B><BR>");
+}
+
+vClear($IF0);
+#--------------------------------------------------------------#
+#6.send Reply message
+#--------------------------------------------------------------#
+my $base1 = "Frame_Ether\.Packet_IPv6\.Upp_UDP\.Udp_DHCPv6_Renew\.Opt_DHCPv6_IA_PD";
+if (defined($ren{"$base1"})){
+  $IA_PD_OPTION = "opt_IA_PD_PF1";
+} else {
+  $IA_PD_OPTION = undef;
+}
+my ($retrenrep, %renrep) = send_reply($IF0, "reply_server1_to_nut", \%ren, "");
+if($retrenrep != 0){
+	dhcpExitFail;
+}
+
+# wait for DAD completion
+vRecv($IF0, 3, 0, 0, 'dadns_nutga');
+vSleep(3);
+#--------------------------------------------------------------#
+#7,8 check the reachability of CE-Router
+#--------------------------------------------------------------#
+if (ping_test($IF0) != 0){
+	dhcpExitFail;
+}
+vClear($IF0);
+vStop($IF0);
+dhcpExitPass;
+###############################################################################
+__END__
+
+=head1 NAME 
+
+  Basic Message Exchange
+  Part C: Valid Reply message in response to Renew message
+
+=head1 TARGET
+
+  CE-Router
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./C_RFC3315_RenReply.seq"> C_RFC3315_RenReply.seq</A> [-tooloption...] <BR>  -pkt  <A HREF="./C_RFC3315_RenReply.def"> C_RFC3315_RenReply.def</A> <BR>  -tooloption : v6eval tool option
+<BR>
+  See Also <A HREF="../DHCPv6.def"> DHCPv6.def </A> 
+</PRE>
+
+=end html
+
+=head1 INITIALIZATION
+
+=begin html
+  <ul>
+  <li><STRONG>Network Topology</STRONG></li> 
+  <PRE>
+          CE-Router(Client)
+          |           
+          |                        
+Link0   --+--------+------------------------ 3ffe:501:ffff:100::/64
+                   |
+                   |          
+                   TN(Server) 
+  </PRE>
+  </ul>
+  <ul>   
+  <li><STRONG>Verification Points</STRONG></li><br>
+  <PRE>
+   The address, which have been assigned to DHCPv6 client, must has
+   associated preferred and valid lifetimes specified by the server.
+   To request an extension of the lifetimes assigned to an address, 
+   the client sends a Renew message to the server to extend the 
+   lifetimes associated with its addresses, allowing the client to
+   continue to use those addresses without interruption.
+   <BR>
+   To test whether the client(CE-Router) has accepted the message from TN,
+   TN sends Echo Request to CE-Router, and CE-Router sends Echo Reply to TN. 
+  </PRE>
+  </ul>
+  <ul>  
+  <li><STRONG>Configurations</STRONG></li><br>
+  <BR>
+  <TABLE BORDER="1">
+    <TR>
+    <TD><TT>Device Name</TT></TD>
+    <TD><TT>Device Type</TT></TD>
+    <TD><TT>Interface</TT></TD>
+    <TD><TT>Assigned Prefix</TT></TD>
+    <TD><TT>Link Local Addr</TT></TD>
+    <TD><TT>MAC Addr</TT></TD>
+    </TR>
+    <TR>
+    <TD><TT>Client</TT></TD>
+    <TD><TT>CE-Router</TT></TD>
+    <TD><TT>Link0</TT></TD>
+    <TD><TT>3ffe:501:ffff:100::/64</TT></TD>
+    <TD><TT>CE-Router's Linklocal address</TT></TD>
+    <TD><TT>CE-Router's MAC address</TT></TD>
+    </TR>
+    <TR>
+    <TD><TT>Server</TT></TD>
+    <TD><TT>TN</TT></TD>
+    <TD><TT>Link0</TT></TD>
+    <TD><TT>3ffe:501:ffff:100::/64</TT></TD>
+    <TD><TT>fe80::200:ff:fe00:a1a1</TT></TD>
+    <TD><TT>00:00:00:00:a1:a1</TT></TD>
+    </TR>
+  </TABLE>
+  </ul>
+
+=end html
+
+=head1 TEST PROCEDURE
+
+=begin html
+<PRE>
+<BR>
+       CE-Router      TN
+        |       |
+        |       |Initialize CE-Router(as a DHCPv6 client)
+        |       |
+        | ----> |<B>Solicit</B> 
+        | <---- |<B>Advertise</B> 
+        | ----> |<B>Request</B> 
+        | <---- |<B>Reply</B> w/IA_NA option(T1=50, T2=80)
+        |       |
+        |       |	
+        |       |Before T1 time expires
+        |       |
+        | ----> |<B>Renew</B> (7*)
+        | <---- |<B>Reply</B> 
+        |       |
+        | <---- |<B>Echo Request</B> 
+        | ----> |<B>Echo Reply</B> (10*)
+        |       |
+<BR>
+</PRE>
+
+=end html
+
+=head1 JUDGEMENT
+
+=begin html
+<PRE>
+<BR>  
+  (7*)PASS: TN receives Renew from CE-Router.
+  (10*)PASS: CE-Router sends Echo Reply to TN.
+</PRE>
+
+=end html
+
+=head1 TERMINATION
+
+=begin html
+<PRE>
+  N/A
+</PRE>
+
+=end html
+
+=head1 REFERENCE
+
+=begin html
+<PRE>
+[RFC 7084] - WAA-4,
+[RFC 3315] - Sections 17.1.4,18.1.8 and 19.4.5
+</PRE>
+
+=end html
+
+=head1 SEE ALSO
+
+=begin html
+<PRE>
+<BR>
+  perldoc  V6evalTool
+<BR>
+</PRE>
+
+=end html

@@ -1,0 +1,363 @@
+#!/usr/bin/perl
+#
+# Copyright (C) 2013, 2014, 2015
+# Chunghwa Telecommunication Labratories (CHT-TL)
+# All rights reserved.
+# 
+# Redistribution and use of this software in source and binary
+# forms, with or without modification, are permitted provided that
+# the following conditions and disclaimer are agreed and accepted
+# by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in
+#    the documentation and/or other materials provided with
+#    the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project
+#    which is related to this software (hereinafter referred to as
+#    "project") nor the names of the contributors may be used to
+#    endorse or promote products derived from this software without
+#    specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written
+#    notification to the copyrighters.
+# 
+# 5. The copyrighters, the project and the contributors may prohibit
+#    the use of this software at any time.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+# STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+# IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+# $CHT-TL: C_RFC3633_Update_WithoutIAPrefixopt_10_3_2_G.seq,v 1.3 2015/04/24 weifen Exp $
+#
+########################################################################
+
+BEGIN{
+	$V6evalTool::TestVersion = '$Name: CE-Router_Self_Test_1_0_5 $';
+}
+use strict;
+use V6evalTool;
+
+use lib '../.';
+use DHCPv6_common;
+use CPE6_config;
+use Client_pktdesc;
+use CPE6;
+
+my $type=$V6evalTool::NutDef{Type};
+if($type ne 'router') {
+	vLogHTML('<FONT COLOR="#FF0000">This test does not support Host!</FONT>');
+	exit $V6evalTool::exitRouterOnly;
+}
+
+#--------------------------------------------------------------#
+# Initialization variables
+#--------------------------------------------------------------#
+my $IF0 = "Link0";
+my $IF1 = "Link1";
+my ($pretime, $nextime, $interval) = (0, 0, 0);
+my ($plifetime, $vlifetime) = (1000, 2000);
+#my ($time1, $time2) = (0.5*$plifetime, 0.8*$plifetime);
+my ($time1, $time2) = (50, 80);
+my ($ia_t1,$ia_t2,$ia_pltime,$ia_vltime) = (0xffffffff,0xffffffff,0xffffffff,0xffffffff);
+
+vCapture($IF0);
+vCapture($IF1);
+#--------------------------------------------------------------#
+# Initialize DHCPv6 Client
+#--------------------------------------------------------------#
+vSend($IF0,'ra_MsetOset');
+#--------------------------------------------------------------#
+#1.  Wait until Solicit arrives 
+#--------------------------------------------------------------#
+my ($retsol,%sol) = wait_for_solicit($IF0,30);
+if($retsol != 0){
+	dhcpExitFail;
+}
+vClear($IF0);
+#--------------------------------------------------------------#
+#2. Send Advertise to reply to Solicit
+#--------------------------------------------------------------#
+$SID_OPTION = "opt_SID_LLT_server1";
+$IA_PD_OPTION = "opt_IA_PD_Prefix2";
+$IA_NA_OPTION = "opt_IA_NA_Addr_woStatus";
+$DNS_SVR_OPTION = "opt_DNS_Name_Server1";
+$DNS_LST_OPTION = "opt_DNS_ServerSearchList";
+
+my ($retadv, %adv) = send_advertise($IF0, "advertise_server1_to_nut", \%sol, "");
+if($retadv != 0){
+	dhcpExitFail;
+}
+#--------------------------------------------------------------#
+#3.  Wait until Request arrives 
+#--------------------------------------------------------------#
+my ($retreq, %req) = wait_for_request($IF0,30);
+if($retreq != 0){
+	dhcpExitFail;
+}
+
+vClear($IF0);
+#--------------------------------------------------------------#
+#4. send Reply message
+#--------------------------------------------------------------#
+$IA_PD_OPTION = "opt_IA_PD_Prefix2";
+$StatusCode_OPTION = "opt_StatusCode";
+$IA_NA_OPTION = "opt_IA_NA_Addr_woStatus";
+
+my ($retrep1, %rep1) = send_reply($IF0, "reply_server1_to_nut", \%req, "-DIA_PD_TIME3=$time1 -DIA_PD_TIME4=$time2 -DIA_PREFIX_PLTIME=$plifetime -DIA_PREFIX_VLTIME=$vlifetime -DIA_NA_TIME1=$ia_t1 -DIA_NA_TIME2=$ia_t2 -DIA_ADDR_PLTIME=$ia_pltime -DIA_ADDR_VLTIME=$ia_vltime");
+#my ($retrep1, %rep1) = send_reply($IF0, "reply_server1_to_nut", \%req, "");
+if($retrep1 != 0){
+	dhcpExitFail;
+}
+
+#--------------------------------------------------------------#
+#5. Wait until renew message arrives 
+#--------------------------------------------------------------#
+my $timeout = $time1 + 5;
+my ($retren1,%ren1) = wait_for_renew($IF0, $timeout,2);
+if($retren1 != 0){
+	dhcpExitFail;
+	}
+
+# check recvtime
+if (0 != check_RecvTime(\%rep1, \%ren1, $time1)){
+        dhcpExitError("<B>The Received time error! </B><BR>");
+}
+
+$pretime = getReceivedtime(\%ren1);
+
+vClear($IF0);
+#--------------------------------------------------------------#
+#6. send Reply message
+#--------------------------------------------------------------#
+my $base1 = "Frame_Ether\.Packet_IPv6\.Upp_UDP\.Udp_DHCPv6_Renew\.Opt_DHCPv6_IA_NA";
+if (defined($ren1{"$base1"})){
+  $IA_NA_OPTION = "opt_IA_NA_Addr_woStatus";
+} else {
+  $IA_NA_OPTION = undef;
+}
+$IA_PD_OPTION = "opt_IA_PD_Prefix_noPrefix";
+$StatusCode_OPTION = "opt_StatusCode";
+
+#my ($retrep2, %rep2) = send_reply($IF0, "reply_server1_to_nut", \%ren1, "-DIA_PD_TIME3=$time1 -DIA_PD_TIME4=$time2 -DIA_PREFIX_PLTIME=$plifetime -DIA_PREFIX_VLTIME=$vlifetime");
+my ($retrep2, %rep2) = send_reply($IF0, "reply_server1_to_nut", \%ren1, "");
+if($retrep2 != 0){
+        dhcpExitFail;
+}
+
+#--------------------------------------------------------------#
+#7. Wait until transmitted Renew arrives
+#--------------------------------------------------------------#
+my $timeout2 = 11;
+my ($retren2,%ren2) = wait_for_renew($IF0, $timeout2,2);
+if($retren2 != 0){
+		dhcpExitError("<B>Did not receive the retransmit renew message! </B><BR>");
+}
+
+
+my $ret = compare_transactionID(\%ren1, \%ren2);
+if($ret != 0){
+	dhcpExitError("<B>The ID in retransmit renew message is changed.</B><BR>");
+}
+
+#--------------------------------------------------------------#
+# 8. Check RA sent from CE Router
+#--------------------------------------------------------------#
+vClear($IF1);
+vSend($IF1, 'rs_tn2_to_nut');
+my ($retra, %ra) = wait_for_ra($IF1, 10, 1);
+dhcpExitFail if ($retra != 0);
+
+my $base = 'Frame_Ether.Packet_IPv6.ICMPv6_RA.Opt_ICMPv6_Prefix';
+my $prefix_opt = $base;
+if (defined $ra{$base."#"}) {
+  my $prefix_opt_num = $ra{$base."#"};
+  my $count = 1;
+  my $tn2_prefix;
+  while ($count <= $prefix_opt_num){
+    $tn2_prefix = $ra{$prefix_opt."."."Prefix"};
+    if ($tn2_prefix =~ /2001:db8:ffff/){
+    	vLogHTML("<B>RA include prefix generated from PD.</B><BR>");
+    	vClear($IF0);
+			vClear($IF1);
+			vStop($IF0);
+			vStop($IF1);
+    	dhcpExitPass;
+    }
+    $count++;
+  }
+}
+vClear($IF0);
+vClear($IF1);
+vStop($IF0);
+vStop($IF1);
+dhcpExitError("<B>Error! RA does not includes prefix generated from PD!</B><BR>");
+###############################################################################
+__END__
+
+=head1 NAME 
+
+  Reception of A Reply Message for Prefix Delegation
+  Part F: IA Prefix option not included in IA PD from Server
+
+=head1 TARGET
+
+  CE-Router
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./C_RFC3633_Update_WithoutIAPrefixopt_10_3_2_G.seq"> C_RFC3633_Update_WithoutIAPrefixopt_10_3_2_G.seq</A> [-tooloption...] <BR>  -pkt  <A HREF="./C_RFC3633_Update_WithoutIAPrefixopt_10_3_2_G.def"> C_RFC3633_Update_WithoutIAPrefixopt_10_3_2_G.def</A> <BR>  -tooloption : v6eval tool option
+<BR>
+  See Also <A HREF="../DHCPv6.def"> DHCPv6.def </A> 
+</PRE>
+
+=end html
+
+=head1 INITIALIZATION
+
+=begin html
+  <ul>
+  <li><STRONG>Network Topology</STRONG></li> 
+   <PRE>
+          CE-Router(Client)
+          |           
+          |                        
+Link0   --+--------+------------------------ 3ffe:501:ffff:100::/64
+                   |
+                   |          
+                   TN(Server) 
+   </PRE>
+  </ul>
+  <ul>  
+  <li><STRONG>Verification Points</STRONG></li><br>
+   <PRE>
+   
+   If the Reply was received in response to a Solicit (with a Rapid
+   Commit option), Request, Renew or Rebind message, the client updates
+   lifetimes for any prefixes in the IA option that the client already 
+   has recorded in the IA.<BR>
+   Leave unchanged any information about prefixes the client has
+   recorded in the IA but that were not included in the IA from the
+   server.
+ </PRE>
+  </ul>
+  <ul> 
+  <li><STRONG>Configurations</STRONG></li><br>
+   <BR>
+    <TABLE BORDER="1">
+    <TR>
+    <TD><TT>Device Name</TT></TD>
+    <TD><TT>Device Type</TT></TD>
+    <TD><TT>Interface</TT></TD>
+    <TD><TT>Assigned Prefix</TT></TD>
+    <TD><TT>Link Local Addr</TT></TD>
+    <TD><TT>MAC Addr</TT></TD>
+    </TR>
+    <TR>
+    <TD><TT>Client</TT></TD>
+    <TD><TT>CE-Router</TT></TD>
+    <TD><TT>Link0</TT></TD>
+    <TD><TT>3ffe:501:ffff:100::/64</TT></TD>
+    <TD><TT>CE-Router's Linklocal address</TT></TD>
+    <TD><TT>CE-Router's MAC address</TT></TD>
+    </TR>
+    <TR>
+    <TD><TT>Server</TT></TD>
+    <TD><TT>TN</TT></TD>
+    <TD><TT>Link0</TT></TD>
+    <TD><TT>3ffe:501:ffff:100::/64</TT></TD>
+    <TD><TT>fe80::200:ff:fe00:a1a1</TT></TD>
+    <TD><TT>00:00:00:00:a1:a1</TT></TD>
+    </TR>
+    </TABLE>
+  </ul>
+
+=end html
+
+=head1 TEST PROCEDURE
+
+=begin html
+<PRE>
+<BR>
+    TN   CE-Router  TR
+     |       |       |
+     |       |       |Initialize CE-Router(as a DHCPv6 client)
+     |       |       |
+     |       | ----> |<B>Solicit</B> 
+     |       | <---- |<B>Advertise</B>
+     |       | ----> |<B>Request</B> 
+     |       | <---- |<B>Reply</B> w/IA_PD option (T1=50, T2=80)
+     |       |       |
+     |       |       |Before T1 time expires
+     |       |       |
+     |       | ----> |<B>Renew</B> 
+     |       | <---- |<B>Reply</B> w/IA_PD option w/new IA_PD Prefix option(w/o IA Prefix option)
+     |       |       |
+     |       | ----> |<B>Renew</B> (1*)
+     |       |       |
+     | ----> |       | RS
+     | <---- |       | RA (2*)
+     |       |       |
+     
+</PRE>
+
+=end html
+
+=head1 JUDGEMENT
+
+=begin html
+<PRE>
+<BR>  
+  (1*)PASS: CE-Router transmit Renew.
+  (2*)PASS: The CE-Router must transmit a Router Advertisement that contains a PIO with a prefix from the IA_PD on the LAN network.
+</PRE>
+
+=end html
+
+=head1 TERMINATION
+
+=begin html
+<PRE>
+  N/A
+</PRE>
+
+=end html
+
+=head1 REFERENCE
+
+=begin html
+<PRE>
+[RFC 7084],W-1
+[RFC 3315],Section 18.1.8
+[RFC 3633],Section 9,10 and 12.1
+</PRE>
+
+=end html
+
+=head1 SEE ALSO
+
+=begin html
+<PRE>
+<BR>
+  perldoc  V6evalTool
+<BR>
+</PRE>
+
+=end html
+

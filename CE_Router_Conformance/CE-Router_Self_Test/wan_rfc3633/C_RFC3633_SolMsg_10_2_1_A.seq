@@ -1,0 +1,297 @@
+#!/usr/bin/perl
+#
+# Copyright (C) 2013, 2014,2014
+# Chunghwa Telecommunication Labratories (CHT-TL)
+# All rights reserved.
+# 
+# Redistribution and use of this software in source and binary
+# forms, with or without modification, are permitted provided that
+# the following conditions and disclaimer are agreed and accepted
+# by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in
+#    the documentation and/or other materials provided with
+#    the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project
+#    which is related to this software (hereinafter referred to as
+#    "project") nor the names of the contributors may be used to
+#    endorse or promote products derived from this software without
+#    specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written
+#    notification to the copyrighters.
+# 
+# 5. The copyrighters, the project and the contributors may prohibit
+#    the use of this software at any time.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+# STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+# IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+# $CHT-TL: C_RFC3633_SolMsg_10_2_1_A.seq,v 1.1 2014/05/05 weifen Exp $
+#
+########################################################################
+
+BEGIN{
+	$V6evalTool::TestVersion = '$Name: CE-Router_Self_Test_1_0_5 $';
+}
+use strict;
+use V6evalTool;
+
+use lib '../.';
+use CPE6_config;
+use DHCPv6_common;
+use Client_pktdesc;
+sub ExitFail();
+
+my $type=$V6evalTool::NutDef{Type};
+if($type ne 'router') {
+	vLogHTML('<FONT COLOR="#FF0000">This test does not support Host!</FONT>');
+	exit $V6evalTool::exitRouterOnly;
+}
+
+#--------------------------------------------------------------#
+# Initialization variables
+#--------------------------------------------------------------#
+my $IF0 = "Link0";
+my $duidtype = get_DUID_type_conf();
+my $ret = 1;
+
+vClear($IF0);
+vCapture($IF0);
+#--------------------------------------------------------------#
+# Initialize DHCPv6 Client
+#--------------------------------------------------------------#
+vSend($IF0,'ra_MclearOset');
+#--------------------------------------------------------------#
+#1.  Wait until Solicit arrives 
+#--------------------------------------------------------------#
+# Judge CID, SID option 
+my ($retsol,%sol) = wait_for_solicit($IF0,30) ;
+if($retsol != 0){
+	ExitFail;
+}
+
+#--------------------------------------------------------------#
+# Judge
+#--------------------------------------------------------------#
+
+# 1.Src Address is a link-local for that interface
+if(0 != check_ipaddr_local(\%sol,"SourceAddress")){
+	ExitFail;
+}
+
+my $base = "Frame_Ether.Packet_IPv6.Upp_UDP.Udp_DHCPv6_Solicit";
+my $type = $sol{"$base"."."."Type"};
+my $identifier = $sol{"$base"."."."Identifier"};
+
+# 2.A msg-type field set to SOLICIT(1)
+vLogHTML("<B> Msg-type is $type </B><BR>");
+if ($type != 1){
+        vLogHTML('<FONT COLOR="#FF0000">Message Type is missing.</FONT><BR>');
+        ExitFail();
+}
+
+# 3.A header containing a Transaction ID
+vLogHTML("<B> Identifier is $identifier </B><BR>");
+if($identifier == 0){
+        vLogHTML('<FONT COLOR="#FF0000">Identifier is not non-zero value.</FONT><BR>');
+        ExitFail;
+}
+
+# 4.A Client Identifier Option(containing DUID) and An Elapsed Time Option
+$ret = options_exist(\%sol,($CMP_CID|$CMP_ETIME));
+if($ret != 0){
+	ExitFail;
+}
+
+$ret = check_DUID(\%sol,$CMP_CID,$duidtype);
+if($ret != 0){
+        ExitFail;
+}
+
+vClear($IF0);
+vStop($IF0);
+if ($RA_TRIGGER_DHCPv6) {
+	dhcpExitPass;
+} else {
+	exit $V6evalTool::exitPass;
+}
+
+sub ExitFail(){
+	vClear($IF0);
+	vStop($IF0);
+	if ($RA_TRIGGER_DHCPv6) {
+# Need RA to trigger DHCPv6 client,execute reboot.rmt in this test case
+		dhcpExitFail;
+	} else {
+# Does not use RA to trigger DHCPv6 client,next test case will call 
+# reboot_async.rmt at beginning to capture solicit packet
+		exit $V6evalTool::exitFail;
+	}
+	return 0;
+}
+###############################################################################
+__END__
+
+=head1 NAME 
+
+  Transmission of Solicit Messages for Prefix Delegation
+  Part A: Solicit message format
+
+=head1 TARGET
+
+  Requesting Router
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./C_RFC3633_SolMsg_10_2_1_A.seq"> C_RFC3633_SolMsg_10_2_1_A.seq</A> [-tooloption...] <BR>  -pkt  <A HREF="./C_RFC3633_SolMsg_10_2_1_A.def"> C_RFC3633_SolMsg_10_2_1_A.def</A> <BR>  -tooloption : v6eval tool option
+<BR>
+  See Also <A HREF="../DHCPv6.def"> DHCPv6.def </A> 
+</PRE>
+
+=end html
+
+=head1 INITIALIZATION
+
+=begin html
+  <ul>
+  <li><STRONG>Network Topology</STRONG></li> 
+   <PRE>
+          CE-Router(Requesting Router)
+          |           
+          |                        
+Link0   --+--------+------------------------ 3ffe:501:ffff:100::/64
+                   |
+                   |          
+                   TN(Delegating Router) 
+   </PRE>
+  </ul>
+  <ul> 
+  <li><STRONG>Verification Points</STRONG></li><br>
+   <PRE>
+   The client sets the "msg-type" field to SOLICIT. 
+   <BR>
+   The client generates a transaction ID and inserts this value in the
+   "transaction-id" field.
+   <BR>
+   The client MUST include a Client Identifier option to identify itself
+   to the server. 
+   <BR>
+   The client includes IA options for any IAs to which it wants the server
+   to assign addresses.  
+   <BR>
+   The client MUST NOT include any other options in the Solicit message,
+   except as specifically allowed in the definition of individual options.
+   <BR>
+   The client uses IA_PD options to request the assignment of prefix delegation.
+   </PRE>
+  </ul>
+  <ul>
+  <li><STRONG>Configurations</STRONG></li><br>
+   <BR>
+    <TABLE BORDER="1">
+    <TR>
+    <TD><TT>Device Name</TT></TD>
+    <TD><TT>Device Type</TT></TD>
+    <TD><TT>Interface</TT></TD>
+    <TD><TT>Assigned Prefix</TT></TD>
+    <TD><TT>Link Local Addr</TT></TD>
+    <TD><TT>MAC Addr</TT></TD>
+    </TR>
+    <TR>
+    <TD><TT>Requesting Router</TT></TD>
+    <TD><TT>CE-Router</TT></TD>
+    <TD><TT>Link0</TT></TD>
+    <TD><TT>3ffe:501:ffff:100::/64</TT></TD>
+    <TD><TT>CE-Router's Linklocal address</TT></TD>
+    <TD><TT>CE-Router's MAC address</TT></TD>
+    </TR>
+    <TR>
+    <TD><TT>Delegating Router</TT></TD>
+    <TD><TT>TN</TT></TD>
+    <TD><TT>Link0</TT></TD>
+    <TD><TT>3ffe:501:ffff:100::/64</TT></TD>
+    <TD><TT>fe80::200:ff:fe00:a1a1</TT></TD>
+    <TD><TT>00:00:00:00:a1:a1</TT></TD>
+    </TR>
+    </TABLE>
+    </PRE>
+    </ul>
+
+=end html
+
+=head1 TEST PROCEDURE
+
+=begin html
+<PRE>
+<BR>
+       CE-Router      TN
+        |       |
+        |       |Initialize CE-Router(as a DHCPv6 client)
+        |       |
+        | ----> |<B>Solicit</B>(1*)
+        |       |
+        |       |
+<BR>
+</PRE>
+
+=end html
+
+=head1 JUDGEMENT
+
+=begin html
+<PRE>
+<BR>  
+  (1*)PASS: Solicit should meets the verification points.
+</PRE>
+
+=end html
+
+=head1 TERMINATION
+
+=begin html
+<PRE>
+  N/A
+</PRE>
+
+=end html
+
+=head1 REFERENCE
+
+=begin html
+<PRE>
+[RFC 7084],WPD-1
+[RFC 3315],Sections 5.5, 14, 15.1, 16, 17.1, 17.1.1, 17.1.2, and 22.9
+[RFC 3646],Sections 3 and 4
+[RFC 3633],Section 6,7 and 11.1
+</PRE>
+
+=end html
+
+=head1 SEE ALSO
+
+=begin html
+<PRE>
+<BR>
+  perldoc  V6evalTool
+<BR>
+</PRE>
+
+=end html

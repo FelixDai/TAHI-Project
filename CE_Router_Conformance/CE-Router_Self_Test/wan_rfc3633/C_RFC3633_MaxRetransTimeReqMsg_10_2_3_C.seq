@@ -1,0 +1,426 @@
+#!/usr/bin/perl
+#
+# Copyright (C) 2013, 2014, 2015, 2016, 2017
+# Chunghwa Telecommunication Labratories (CHT-TL)
+# All rights reserved.
+# 
+# Redistribution and use of this software in source and binary
+# forms, with or without modification, are permitted provided that
+# the following conditions and disclaimer are agreed and accepted
+# by the user:
+# 
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in
+#    the documentation and/or other materials provided with
+#    the distribution.
+# 
+# 3. Neither the names of the copyrighters, the name of the project
+#    which is related to this software (hereinafter referred to as
+#    "project") nor the names of the contributors may be used to
+#    endorse or promote products derived from this software without
+#    specific prior written permission.
+# 
+# 4. No merchantable use may be permitted without prior written
+#    notification to the copyrighters.
+# 
+# 5. The copyrighters, the project and the contributors may prohibit
+#    the use of this software at any time.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHTERS, THE PROJECT AND
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING
+# BUT NOT LIMITED THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE
+# COPYRIGHTERS, THE PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+# STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+# IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+# $CHT-TL: C_RFC3633_MaxRetransTimeReqMsg_10_2_3_C.seq,v 1.3 2017/10/26 weifen Exp $
+#
+########################################################################
+
+BEGIN{
+	$V6evalTool::TestVersion = '$Name: CE-Router_Self_Test_1_0_5 $';
+}
+use strict;
+use V6evalTool;
+
+use lib '../.';
+use DHCPv6_common;
+use CPE6_config;
+use Client_pktdesc;
+use CPE6;
+
+my $type=$V6evalTool::NutDef{Type};
+if($type ne 'router') {
+	vLogHTML('<FONT COLOR="#FF0000">This test does not support Host!</FONT>');
+	exit $V6evalTool::exitRouterOnly;
+}
+
+#--------------------------------------------------------------#
+# Initialization variables
+#--------------------------------------------------------------#
+my $IF0 = "Link0";
+my $IF1 = "Link1";
+my ($pretime, $nextime, $interval) = (0, 0, 0);
+my $rc = 0;
+
+my $MRC = $REQ_MAX_RC;
+my $MRT = $REQ_MAX_RT;
+my $IRT = $REQ_TIMEOUT;
+my $acceptablerange = 0;
+my $timeout = 0;
+my $mrtflag = 0;
+my $MAXCOUNT = 1;
+my $ret = 1;
+
+vCapture($IF0);
+vCapture($IF1);
+#--------------------------------------------------------------#
+# Initialize DHCPv6 Client
+#--------------------------------------------------------------#
+vSend($IF0,'ra_MclearOset');
+#--------------------------------------------------------------#
+#1.  Wait until Solicit arrives 
+#--------------------------------------------------------------#
+my ($retsol,%sol) = wait_for_solicit($IF0,30) ;
+if($retsol != 0){
+	dhcpExitFail;
+}
+vClear($IF0);
+#--------------------------------------------------------------#
+# 2. send Advertise message 
+#--------------------------------------------------------------#
+$SID_OPTION = "opt_SID_LLT_server1";
+$IA_NA_OPTION = "opt_IA_NA_Addr_woStatus";
+$IA_PD_OPTION = "opt_IA_PD_Prefix2";
+$DNS_SVR_OPTION = "opt_DNS_Name_Server1";
+$DNS_LST_OPTION = "opt_DNS_ServerSearchList";
+
+my ($retadv, %adv) = send_advertise($IF0, "advertise_server1_to_nut", \%sol, "");
+if($retadv != 0){
+	dhcpExitFail;
+}
+#--------------------------------------------------------------#
+#3.  Wait until Request arrives 
+#--------------------------------------------------------------#
+my $retrans     = allocate_retransmission_instance($REQ_TIMEOUT, $REQ_MAX_RT, $REQ_MAX_RC, 0);
+
+my ($retreq1,%req1) = wait_for_request($IF0,30);
+if($retreq1 != 0){
+	dhcpExitFail;
+}
+
+$ret = options_exist(\%req1,($CMP_CID|$CMP_SID|$CMP_IA_PD|$CMP_ETIME));
+if($ret != 0){
+	dhcpExitFail;
+}
+my $base        = 'Frame_Ether.Packet_IPv6.Upp_UDP.Udp_DHCPv6_Request.Opt_DHCPv6_ElapsedTime.';
+
+unless(defined($req1{$base . 'Time'})) {
+        vLogHTML('<FONT COLOR="#FF0000">Elapsed Time option is missing</FONT><BR>');
+        dhcpExitFail;
+}
+
+my $time        = $req1{$base . 'Time'};
+vLogHTML("<B> Time of Elapsed Time Option is $time </B><BR>");
+
+if($time != 0){
+        vLogHTML('<FONT COLOR="#FF0000">Elapsed Time is not a proper time.</FONT><BR>');
+       dhcpExitFail;
+}
+
+
+$pretime = getReceivedtime(\%req1);
+
+register_retransmission($retrans, getReceivedtime(\%req1), $time);
+
+#--------------------------------------------------------------#
+#4.  Caputure messages until RTprev = MRT + RAND*MRT
+#--------------------------------------------------------------#
+my ($retreq2,%req2) = (1, ());
+my $initflag = 0;
+
+vLogHTML("The allowed buffer time for the retransmitted packet is $Buff_time.<BR>");
+vLogHTML('<PRE>');
+vLogHTML("<FONT COLOR=\"#FF0000\">IRT is $IRT sec, MRT is $MRT sec, MRC is $MRC</FONT><BR>");
+vLogHTML('<FONT COLOR="#FF0000">Retransmitted Maximum Request RT.</FONT><BR>');
+vLogHTML('<FONT COLOR="#FF0000">1st 2nd  3rd   4th     5th      6th</FONT><BR>');
+vLogHTML('<FONT COLOR="#FF0000">1.1 2.31 4.851 10.1871 21.39291 33</FONT><BR>');
+vLogHTML('</PRE>');
+
+while($mrtflag < $MAXCOUNT){
+	if($initflag != 0){
+		$timeout = (2 + $RAND) * $interval;
+	}else{
+		$timeout = (1 + $RAND) * $IRT;
+	}
+	$initflag=1;
+
+	# If $timeout is bigger than MRT, expected RT is MRT + RAND * MRT
+	if($timeout > $MRT){
+		$timeout = (1 + $RAND) * $MRT;
+	}
+
+# 
+#----------- Wait for next retransmission
+#
+	($retreq2,%req2) = wait_for_request($IF0, $timeout + 1);
+	if($retreq2 != 0){
+		dhcpExitFail;
+	}
+
+	$ret = compare_message(\%req1,\%req2);
+	if($ret != 0){
+		vLogHTML('<FONT COLOR="#FF0000">Message has been changed!</FONT><BR>');
+		dhcpExitFail;
+	}
+
+        unless(defined($req2{$base . 'Time'})) {
+                vLogHTML('<FONT COLOR="#FF0000">Elapsed Time option is missing</FONT><BR>');
+                dhcpExitFail;
+        }
+
+        register_retransmission($retrans,
+                getReceivedtime(\%req2), $req2{$base . 'Time'});
+
+
+# 
+#----------- Calcurate current RT
+#
+	$nextime = getReceivedtime(\%req2); 
+	$interval = $nextime - $pretime;	
+	$pretime = $nextime;
+
+	vLogHTML("<FONT COLOR=\"#FF0000\">Actual RT is $interval sec, RC is $rc</FONT><BR>");
+	if ($interval > ($timeout + $Buff_time)) {
+		vLogHTML("<FONT COLOR=\"#FF0000\">Actual RT is bigger than the expected maximum value<FONT><BR>");
+		dhcpExitFail;
+	}
+
+	$rc++;
+# 
+#----------- MRC Expiration, but it must not happen
+# 
+	if($rc > $MRC){
+		vLogHTML('<FONT COLOR="#FF0000">MRC expired! </FONT><BR>');
+		dhcpExitFail;
+	}
+# 
+#----------- Check if RT satisfies RT = MRT(1+RAND)
+#
+	if(!check_equal($interval,$MRT,$RAND) && ($rc == ($MRC-1))){
+		$mrtflag += 1;
+	}
+
+}
+
+vLogHTML('<FONT COLOR="#FF0000">RT = MRT(1+RAND) observed</FONT><BR>');
+vLogHTML("<FONT COLOR=\"#FF0000\">REQ_MAX_RT is $REQ_MAX_RT</FONT><BR>");
+
+if(evaluate_retransmission($retrans)) {
+        dhcpExitFail;
+}
+
+vSleep($WAIT_LAN_RA);
+#--------------------------------------------------------------#
+# Check RA sent from CE Router (if any)
+#--------------------------------------------------------------#
+vClear($IF1);
+vSend($IF1, 'rs_tn2_to_nut');
+my ($retra, %ra) = wait_for_ra($IF1, 10, 1);
+if ($retra == 0) {
+	my $base = "Frame_Ether.Packet_IPv6.ICMPv6_RA.Opt_ICMPv6_Prefix";
+	my $prefix_opt = $base;
+	my $lifetime = $ra{"Frame_Ether.Packet_IPv6.ICMPv6_RA.LifeTime"};
+	if ($lifetime > 0) {
+		dhcpExitError("<B>Error! The router lifetime($lifetime) larger than 0 !</B><BR>");
+	} else {
+		if (defined $ra{$base."#"}) {
+		  my $prefix_opt_num = $ra{$base."#"};
+		  my $count = 1;
+		  my $tn2_prefix;
+		  while ($count <= $prefix_opt_num){
+		    $tn2_prefix = $ra{$prefix_opt."."."Prefix"};
+		    if ($tn2_prefix =~ /2001:db8:ffff/){
+		      my $pl_time = $ra{$prefix_opt."."."PreferredLifetime"};
+		      my $vl_time = $ra{$prefix_opt."."."ValidLifetime"};
+		      if (($pl_time != 0) || ($vl_time != 0)) {
+							dhcpExitError("<B>RA includes invalid prefix:$tn2_prefix with lifetime larger than 0 !</B><BR>");
+		      }
+		    }
+		    $count++;
+		  }
+		}
+	}
+} else {
+	vLogHTML("<B>Did not receive any RA.</B></BR>");
+}
+
+vClear($IF0);
+vStop($IF0);
+vClear($IF1);
+vStop($IF1);
+dhcpExitPass;
+###############################################################################
+__END__
+
+=head1 NAME 
+
+  Transmission of Request Messages for Prefix Delegation
+  Part B: Maximum Retransmission Time of Request messages
+
+=head1 TARGET
+
+  CE-Router
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./C_RFC3633_MaxRetransTimeReqMsg_10_2_3_C.seq"> C_RFC3633_MaxRetransTimeReqMsg_10_2_3_C.seq</A> [-tooloption...] <BR>  -pkt  <A HREF="./C_RFC3633_MaxRetransTimeReqMsg_10_2_3_C.def"> C_RFC3633_MaxRetransTimeReqMsg_10_2_3_C.def</A> <BR>  -tooloption : v6eval tool option
+<BR>
+  See Also <A HREF="../DHCPv6.def"> DHCPv6.def </A> 
+</PRE>
+
+=end html
+
+=head1 INITIALIZATION
+
+=begin html
+  <ul>
+  <li><STRONG>Network Topology</STRONG></li> 
+   <PRE>
+          CE-Router(Client)
+          |           
+          |                        
+Link0   --+--------+------------------------ 3ffe:501:ffff:100::/64
+                   |
+                   |          
+                   TN(Server) 
+   </PRE>
+  </ul>
+  <ul> 
+  <li><STRONG>Verification Points</STRONG></li><br>
+   <PRE>
+   The client transmits the message according using the following
+   parameters:<BR>
+      IRT   REQ_TIMEOUT <BR>
+      MRT   REQ_MAX_RT  <BR>
+      MRC   REQ_MAX_RC  <BR>
+      MRD   0  <BR>
+   Each retransmission is based on the previous RT value <BR>
+      RT = 2*RTprev + RAND*RTprev <BR>
+   until RT > MRT. <BR>
+   After that, Each retransmission is based on MRT value <BR>
+      RT = MRT + RAND*MRT <BR>
+   </PRE>
+  </ul>
+  <ul>
+  <li><STRONG>Configurations</STRONG></li><br>
+   <BR>
+    <TABLE BORDER="1">
+    <TR>
+    <TD><TT>Device Name</TT></TD>
+    <TD><TT>Device Type</TT></TD>
+    <TD><TT>Interface</TT></TD>
+    <TD><TT>Assigned Prefix</TT></TD>
+    <TD><TT>Link Local Addr</TT></TD>
+    <TD><TT>MAC Addr</TT></TD>
+    </TR>
+    <TR>
+    <TD><TT>Client</TT></TD>
+    <TD><TT>CE-Router</TT></TD>
+    <TD><TT>Link0</TT></TD>
+    <TD><TT>3ffe:501:ffff:100::/64</TT></TD>
+    <TD><TT>CE-Router's Linklocal address</TT></TD>
+    <TD><TT>CE-Router's MAC address</TT></TD>
+    </TR>
+    <TR>
+    <TD><TT>Server</TT></TD>
+    <TD><TT>TN</TT></TD>
+    <TD><TT>Link0</TT></TD>
+    <TD><TT>3ffe:501:ffff:100::/64</TT></TD>
+    <TD><TT>fe80::200:ff:fe00:a1a1</TT></TD>
+    <TD><TT>00:00:00:00:a1:a1</TT></TD>
+    </TR>
+    </TABLE>
+  </ul>
+
+=end html
+
+=head1 TEST PROCEDURE
+
+=begin html
+<PRE>
+<BR>
+    TN   CE-Router  TR
+     |       |       |
+     |       |       |Initialize CE-Router(as a DHCPv6 client)
+     |       |       |
+     |       | ----> |<B>Solicit</B>
+     |       | <---- |<B>Advertise</B>
+     |       | ----> |<B>Request</B>
+     |       | <---- |<B>Reply</B>
+     |       |       |
+     .       .       .Waiting for retransmission until RT = MRT + RAND*MRT 
+     |       |       |
+     |       | ----> |<B>Request</B> (7*)
+     |       |       |
+     | ----> |       | RS
+     | <---- |       | RA (9*)
+     |       |       |
+<BR>
+</PRE>
+
+=end html
+
+=head1 JUDGEMENT
+
+=begin html
+<PRE>
+  (7*)PASS: TN receives retransmitted Request.
+            And RT conforms to Verification Points.
+  (9*)PASS: The CE-Router must transmit a Router Advertisement that does not contain a PIO with a prefix from the IA_PD on the LAN network.
+</PRE>
+
+=end html
+
+=head1 TERMINATION
+
+=begin html
+<PRE>
+  N/A
+</PRE>
+
+=end html
+
+=head1 REFERENCE
+
+=begin html
+<PRE>
+[RFC 7084],W-1
+[RFC 3633],Section 7 and 12.1
+[RFC 3315],Section 5.5, 14, 18.1.1 and 22.9
+</PRE>
+
+=end html
+
+=head1 SEE ALSO
+
+=begin html
+<PRE>
+<BR>
+  perldoc  V6evalTool
+<BR>
+</PRE>
+
+=end html
+
