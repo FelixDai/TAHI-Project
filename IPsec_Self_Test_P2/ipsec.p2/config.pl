@@ -89,6 +89,16 @@ $TUNNEL_MODE_WITH_SGW_SUPPORT	= "yes";
 
 
 #
+# TUNNEL_MODE_WITH_SGW_FRAGMENTATION_SUPPORT: Available for End-Node device
+#
+# if NUT supports, set "yes"
+#
+
+$TUNNEL_MODE_WITH_SGW_FRAGMENTATION_SUPPORT	= "yes";
+
+
+
+#
 # ICMP_TYPE_CODE_SELECTOR_SUPPORT: Support of ICMP message type/code
 #
 #     if NUT supports, set "yes"
@@ -163,9 +173,12 @@ $USE_PORT_UNREACHABLE	= "yes";
 #         if NUT supports, set "yes"
 #         if NUT does not support, comment out
 #
+#     Null Authentication test cases are removed.
+#     $TripleDES_CBC_NULL_SUPPORT should be commented out.
+#
 
 $TripleDES_CBC_AES_XCBC_SUPPORT	= "yes";
-$TripleDES_CBC_NULL_SUPPORT		= "yes";
+#$TripleDES_CBC_NULL_SUPPORT		= "yes";
 $TripleDES_CBC_HMAC_SHA2_256_SUPPORT	= "yes";
 
 
@@ -198,7 +211,7 @@ $CAMELLIA_CBC_HMAC_SHA1_SUPPORT	= "yes";
 #     if NUT requires to set address manualy, set "yes"
 #
 
-$MANUAL_ADDR_CONF	= "no";
+$MANUAL_ADDR_CONF	= "yes";
 
 
 

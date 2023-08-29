@@ -1,7 +1,7 @@
 #
-# $Name: V6PC_P2_IPsec_1_10_0 $
+# $Name: V6PC_P2_IPsec_1_11_1 $
 #
-# $TAHI: ct/ipsec.p2/INDEX_P2_HOST,v 1.38 2010/05/31 10:57:18 doo Exp $
+# $TAHI: ct/ipsec.p2/INDEX_P2_HOST,v 1.39 2013/04/16 09:46:10 doo Exp $
 #
 #<seq>:<def>:[<opt>]:[<log>]:<desc>
 #
@@ -117,3 +117,7 @@
 
 #### TFC Padding (Tunnel Mode), 3DES-CBC/HMAC-SHA1 #####
 ./p2_HTR_E_tunnelTFCPadding.seq:./p2_HTR_E_ICMP_common.def:test_type=ADVANCED support=TFC_PADDING_TUNNEL_SUPPORT emode=tunnel ealgo=3des-cbc eauth=hmac-sha1 einkey=E_3descbc_in_key ainkey=A_hmacsha1_in_key eoutkey=E_3descbc_out_key aoutkey=A_hmacsha1_out_key ealgo_from=ealgo_3descbc_hmacsha1_in ealgo_to=ealgo_3descbc_hmacsha1_out::5.3.5 TFC Padding (Tunnel Mode), ESP=3DES-CBC HMAC-SHA1
+
+#### Tunnel Mode with SGW Fragmentation ####
+./p2_HTR_E_tunnelwSGWFrag.seq:./p2_HTR_E_ICMP_common.def:test_type=ADVANCED support=TUNNEL_MODE_WITH_SGW_FRAGMENTATION_SUPPORT emode=tunnel ealgo=3des-cbc eauth=hmac-sha1 einkey=E_3descbc_in_key ainkey=A_hmacsha1_in_key eoutkey=E_3descbc_out_key aoutkey=A_hmacsha1_out_key ealgo_from=ealgo_3descbc_hmacsha1_in ealgo_to=ealgo_3descbc_hmacsha1_out::5.3.6 Tunnel Mode with SGW Fragmentation
+

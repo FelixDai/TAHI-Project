@@ -41,9 +41,9 @@
 // IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-// $Name: V6PC_P2_IPsec_1_10_0 $
+// $Name: V6PC_P2_IPsec_1_11_1 $
 //
-// $TAHI: ct/ipsec.p2/p2_HTR_E_ICMP_common.def,v 1.14 2007/03/14 01:39:52 akisada Exp $
+// $TAHI: ct/ipsec.p2/p2_HTR_E_ICMP_common.def,v 1.15 2013/04/16 09:46:10 doo Exp $
 //
 
 #ifndef IPSEC_ECHO_DATA
@@ -64,6 +64,10 @@ Payload echo_data {
 
 Payload echo_data_big {
 	data = repeat(0xff, 1416);
+}
+
+Payload echo_data_big_1352 {
+	data = repeat(0xff, 1352);
 }
 
 // echo request data "cracked "
@@ -398,6 +402,28 @@ Payload TooBigData {
 	data=left(PAYLOAD, 1232);
 }
 
+#ifndef PAYLOAD_TUNNEL
+#define PAYLOAD_TUNNEL _PACKET_IPV6_NAME(esptun_to_sg1_net1_echo_reply_from_host0_net0_to_host1_net2)
+#endif
+
+FEM_icmp6_packet_too_big (
+	pkt_too_big_from_router_tunnel,
+	hether_router2nut,
+	{
+		_SRC(v6(IPSEC_ROUTER_NET0_ADDR));
+		_DST(v6(IPSEC_NUT_NET0_ADDR));
+	},
+	{
+		MTU = MTU_SIZE;
+		payload = TooBigData_Tunnel;
+	}
+)
+
+Payload TooBigData_Tunnel {
+	data=left(PAYLOAD_TUNNEL, 1232);
+}
+
+
 //======================================================================
 //
 // Echo Reply to Host1 IPsec ESP (1st Fragment)
@@ -452,6 +478,66 @@ FEM_hdr_ipv6_exth(
 )
 
 Hdr_Fragment frag_to_host_2nd {
+	NextHeader = 50;        // ESP
+	FragmentOffset = 154;
+	MFlag = 0;
+	Identification = any;
+}
+
+//======================================================================
+//
+// Echo Reply to SGW1 IPsec ESP (1st Fragment)
+//
+
+#ifndef FRAG_TO_SGT1_1ST
+#define FRAG_TO_SGW1_1ST frag_to_sg_1st
+#endif
+
+FEM_hdr_ipv6_exth(
+ 	echo_reply_to_sg1_esp_1st,
+ 	hether_nut2router,
+ 	{
+ 		_SRC(v6(IPSEC_NUT_NET0_ADDR));
+ 		_DST(v6(IPSEC_SGW1_NET1_ADDR));
+ 	},
+ 	{
+ 		header = _HDR_IPV6_NAME(echo_reply_to_sg1_esp_1st);
+ 		exthdr = FRAG_TO_SGW1_1ST;
+ 		upper = any;
+ 	}
+)
+
+Hdr_Fragment frag_to_sg_1st {
+	NextHeader = 50;        // ESP
+	FragmentOffset = 0;
+	MFlag = 1;
+	Identification = any;
+}
+
+//======================================================================
+//
+// Echo Reply to SGW1 IPsec ESP (2nd Fragment)
+//
+
+#ifndef FRAG_TO_SGW1_2ND
+#define FRAG_TO_SGW1_2ND frag_to_sg_2nd
+#endif
+
+FEM_hdr_ipv6_exth(
+	echo_reply_to_sg1_esp_2nd,
+	hether_nut2router,
+	{
+		_SRC(v6(IPSEC_NUT_NET0_ADDR));
+		_DST(v6(IPSEC_SGW1_NET1_ADDR));
+	},
+	{
+		header = _HDR_IPV6_NAME(echo_reply_to_sg1_esp_2nd);
+		exthdr = FRAG_TO_SGW1_2ND;
+ 		upper = any;
+	}
+)
+
+Hdr_Fragment frag_to_sg_2nd {
 	NextHeader = 50;        // ESP
 	FragmentOffset = 154;
 	MFlag = 0;

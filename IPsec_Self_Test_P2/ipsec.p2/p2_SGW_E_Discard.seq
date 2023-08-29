@@ -46,7 +46,7 @@
 #
 ######################################################################
 BEGIN {
-	$V6evalTool::TestVersion = '$Name: V6PC_P2_IPsec_1_10_0 $ ';
+	$V6evalTool::TestVersion = '$Name: V6PC_P2_IPsec_1_11_1 $ ';
 }
 
 use V6evalTool;

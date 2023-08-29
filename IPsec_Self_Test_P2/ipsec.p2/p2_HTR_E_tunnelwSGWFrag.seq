@@ -42,7 +42,7 @@
 # IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
-# $TAHI: ct/ipsec.p2/p2_HTR_E_TCP_tunnelwSGW.seq,v 1.19 2005/04/20 04:56:23 ozoe Exp $
+# $TAHI: ct/ipsec.p2/p2_HTR_E_tunnelwSGWFrag.seq,v 1.1 2013/08/05 09:32:12 doo Exp $
 #
 ######################################################################
 BEGIN {
@@ -57,26 +57,26 @@ require './keys.pl';
 ######################################################################
 #----- get sequence arguments
 foreach (@ARGV) {
-	/^app_type=(\S+)/ && do {$IPSEC::APP_TYPE=$1; # APPLICATION TYPE
+	/^app_type=(\S+)/ && do {$IPSEC::APP_TYPE=$1;	# APPLICATION TYPE
 					next; };
-	/^emode=(\S+)/ && do {$EMODE=$1;              # ENCAPSULATION MODE
+	/^emode=(\S+)/ && do {$EMODE=$1;		# ENCAPSULATION MODE 
 					next; };
-	/^ealgo_from=(\S+)/ && do {$EALGO_FROM=$1;    # ENCRYPTION ALGORITHM FOR INBOUND PACKET
+	/^ealgo_from=(\S+)/ && do {$EALGO_FROM=$1;	# ESP ENCRYPTION ALGORITHM FOR INBOUND PACKET
 					next; };
-	/^ealgo_to=(\S+)/   && do {$EALGO_TO=$1;      # ENCRYPTION ALGORITHM FOR OUTBOUND PACKET
+	/^ealgo_to=(\S+)/   && do {$EALGO_TO=$1;	# ESP ENCRYPTION ALGORITHM FOR OUTBOUND PACKET
 					next; };
-	/^ealgo=(\S+)/      && do {$EALGO=$1;         # ESP ENCRYPTION ALGORITHM PACKET
+	/^ealgo=(\S+)/      && do {$EALGO=$1;		# ESP ENCRYPTION ALGORITHM PACKET
 					next; };
-	/^eauth=(\S+)/      && do {$EAUTH=$1;         # ESP with AUTHENTICATION ALGORITHM FOR INBOUND PACKET
+	/^eauth=(\S+)/      && do {$EAUTH=$1;		# ESP with AUTHENTICATION ALGORITHM FOR INBOUND PACKET
 					next; };
-	/^einkey=(\S+)/     && do {$E_IN_KEY=$$1;     # ESP ENCRYPTION KEY FOR INBOUND PACKET
+	/^einkey=(\S+)/     && do {$E_IN_KEY=$$1;	# ESP ENCRYPTION KEY FOR INBOUND PACKET
 					next; };
-	/^eoutkey=(\S+)/    && do {$E_OUT_KEY=$$1;    # ESP ENCRYPTION KEY FOR OUTBOUND PACKET
+	/^eoutkey=(\S+)/    && do {$E_OUT_KEY=$$1;	# ESP ENCRYPTION KEY FOR OUTBOUND PACKET
 					next; };
-	/^ainkey=(\S+)/     && do {$A_IN_KEY=$$1;     # AH KEY FOR INBOUND PACKET
+	/^ainkey=(\S+)/     && do {$A_IN_KEY=$$1;	# AH KEY FOR INBOUND PACKET
 					next; };
-	/^aoutkey=(\S+)/    && do {$A_OUT_KEY=$$1;    # AH KEY FOR OUTBOUND PACKET
-					next; };
+	/^aoutkey=(\S+)/    && do {$A_OUT_KEY=$$1;	# AH KEY FOR OUTBOUND PACKET
+					next; };                
 	/^test_type=(\S+)/  && do {$TEST_TYPE=$1;     # TEST TYPE
 					next; };
 	/^support=(\S+)/    && do {$SUPPORT=$1;       # SUPPORT FUNCTION CHECK
@@ -84,43 +84,30 @@ foreach (@ARGV) {
 	seqERROR("Unknown sequence option '$_'");
 }
 ######################################################################
-$IPSEC::pktdesc{'esptun_from_sg1_net1_syn_request_from_host1_net2_to_host0_net0'}
-			= 'Send Syn Request from HOST-1(TN) via SGW(TN) w/ Encapsulated';
-$IPSEC::pktdesc{'esptun_to_sg1_net1_synack_reply_from_host0_net0_to_host1_net2'}
-			= 'Receive Syn, Ack Reply from End-Node(NUT) w/ Encapsulated';
-$IPSEC::pktdesc{'esptun_from_sg1_net1_reset_request_from_host1_net2_to_host0_net0'}
-			= 'Send Reset Request from HOST-1(TN) via SGW(TN) w/ Encapsulated';
+$IPSEC::pktdesc{'esptun_from_sg1_net1_echo_request_from_host1_net2_to_host0_net0'}
+			= 'Send Echo Request from HOST-1(TN) via SGW(TN) w/ Encapsulated';
+$IPSEC::pktdesc{'esptun_to_sg1_net1_echo_reply_from_host0_net0_to_host1_net2'}
+			= 'Receive Echo Reply from End-Node(NUT) w/ Encapsulated';
 
 $IF = Link0;
 
 #----- check NUT type
 ipsecCheckNUT(host, $TEST_TYPE, $SUPPORT);
 
-#----- Initilize target SA, SPD
-vLogHTML("<FONT SIZE=3>*** Target initialization phase ***</FONT><BR>");
+#----- Initialize target SAD,SPD 
+vLogHTML("<FONT SIZE=3>*** Target initialization phase ***</FONT><BR>"); 
 ipsecClearAll();
 
-#----- Start capturing
+#----- start capturing
 vCapture($IF);
 
 #----- Set Algorithms
-my $seq = 0;
-my $ack = 0;
-my $port = undef;
 my $cpp = "-DEALGO_FROM_SGW1_NET1=$EALGO_FROM -DEALGO_TO_SGW1_NET1=$EALGO_TO";
-$cpp .= " -DSEQ=$seq -DACK=$ack";
-vLog("$EALGO_FROM - $EALGO_TO") if $IPSEC::test_debug;
-if ($IPSEC::NUT_RECV_PORT ne undef){
-        $port = $IPSEC::NUT_RECV_PORT;
-	$cpp .= " -DDESTINATION_PORT=$port";
-}
-else{
-        $port = $IPSEC::DEF_PORT;
-}
+vCPP($cpp);
 
 #----- Set SAD,SPD
-vLogHTML("Inbound KEY is $E_IN_KEY, Outbound KEY is $E_OUT_KEY<BR>") if $IPSEC::test_debug;
-vLogHTML("Inbound Auth KEY is $A_IN_KEY, Outbound Auth KEY is $A_OUT_KEY<BR>") if $IPSEC::test_debug;
+vLog("Inbound KEY is $E_IN_KEY, Outbound KEY is $E_OUT_KEY");
+vLog("Inbound Auth KEY is $A_IN_KEY, Outbound Auth KEY is $A_OUT_KEY");
 ## SGW1 vs NUT, Inbound
 ipsecSetSAD(
 	"src=$IPSEC::IPsecAddr{IPSEC_SGW1_NET1_ADDR}" ,
@@ -177,49 +164,89 @@ ipsecSetSPD(
 ipsecEnable();
 
 #======================================================================
-vLogHTML("<FONT SIZE=3>*** Target testing phase ***</FONT><BR>");
+vLogHTML("<FONT SIZE=3>*** Target testing phase ***<FONT><BR>");
 
-vLogHTML("Host-1 send Syn SequenceNumber=$seq, AcknowledgmentNumber=$ack to End-Node(NUT).<BR>");
+#-- 1st Echo Request
+# ping TN(Host-1) <-> NUT(End-Node)
 
-($stat, %ret) = ipsecTcp2NUT($IF, $cpp, 
-	'esptun_from_sg1_net1_syn_request_from_host1_net2_to_host0_net0', 
-	'esptun_to_sg1_net1_synack_reply_from_host0_net0_to_host1_net2');
+($stat, %ret) = ipsecPing2NUT($IF,
+	'esptun_from_sg1_net1_echo_request_from_host1_net2_to_host0_net0',
+	'esptun_to_sg1_net1_echo_reply_from_host0_net0_to_host1_net2');
 
 if ($stat ne 'GOT_REPLY') {
-	vLogHTML('Cannot receive TCP Syn, Ack Reply from End-Node(NUT) to HOST-1(TN).<BR>');
+	vLogHTML("TN received no echo reply from End-Node(NUT) to HOST-1(TN).<BR>");
+	vClear($IF);
 	ipsecExitFail();
 }
 
-$port=$ret{"Frame_Ether.Packet_IPv6.Hdr_ESP.Decrypted.ESPPayload.Packet_IPv6.Upp_TCP.Hdr_TCP.SourcePort"};
-$seq=$ret{"Frame_Ether.Packet_IPv6.Hdr_ESP.Decrypted.ESPPayload.Packet_IPv6.Upp_TCP.Hdr_TCP.SequenceNumber"};
-$ack=$ret{"Frame_Ether.Packet_IPv6.Hdr_ESP.Decrypted.ESPPayload.Packet_IPv6.Upp_TCP.Hdr_TCP.AcknowledgmentNumber"};
+vLogHTML("TN received echo reply from End-Node(NUT) to Host-1.<BR>");
+vLogHTML("<FONT COLOR=\"#006600\">Judgement #1: Tunnel Mode with SGW is OK</FONT><BR>");
 
-vLogHTML("Host-1 received Syn, Ack SequenceNumber=$seq, AcknowledgmentNumber=$ack from End-Node(NUT).<BR>");
+#-- 2nd Echo Request
+# ping TN(Host-1) <-> NUT
+$cpp  = "-DEALGO_FROM_SGW1_NET1=$EALGO_FROM -DEALGO_TO_SGW1_NET1=$EALGO_TO";
+$cpp .= " -DESP_FROM_SGW1_NET1=esp_from_sg_seq";
+$cpp .= " -DFROM_SEQUENCENUMBER=2";
+$cpp .= " -DIPSEC_ECHO_DATA=echo_data_big_1352";
+vCPP($cpp);
 
-vLogHTML("<FONT COLOR=\"#006600\">Judgement #1: OK</FONT><BR>");
+my ($stat, %ret) = ipsecPing2NUT($IF,
+	'esptun_from_sg1_net1_echo_request_from_host1_net2_to_host0_net0',
+	'esptun_to_sg1_net1_echo_reply_from_host0_net0_to_host1_net2');
 
-#======================================================================
-vLogHTML("<FONT SIZE=3>*** Target reset phase ***</FONT><BR>");
-
-$seq = $ret{"Frame_Ether.Packet_IPv6.Hdr_ESP.Decrypted.ESPPayload.Packet_IPv6.Upp_TCP.Hdr_TCP.AcknowledgmentNumber"};
-$ack = 0;
-
-$cpp = "-DEALGO_FROM_SGW1_NET1=$EALGO_FROM -DEALGO_TO_SGW1_NET1=$EALGO_TO";
-$cpp .= " -DESP_FROM_SGW1_NET1=esp_from_sg_host1_seq2";
-$cpp .= " -DSEQ=$seq -DACK=$ack";
-if ($IPSEC::NUT_RECV_PORT ne undef){
-	$port = $IPSEC::NUT_RECV_PORT;
-	$cpp .= " -DDESTINATION_PORT=$port";
-}
-else{
-	$port = $IPSEC::DEF_PORT;
+if ($stat ne 'GOT_REPLY') {
+        vLogHTML("TN received no echo reply from End-Node(NUT) to HOST-1.<BR>");
+        vClear($IF);
+        ipsecExitFail();
 }
 
-vLogHTML("Host-1 send Rst SequenceNumber=$seq, AcknowledgmentNumber=$ack to End-Node(NUT).<BR>");
+vLogHTML("TN received echo reply from End-Node(NUT) to HOST-1(TN).<BR>");
+vLogHTML("<FONT COLOR=\"#006600\">Judgement #2: ICMP Echo Reply with ESP: OK</FONT><BR>");
 
-($stat, %ret) = ipsecResetTcp2NUT($IF, $cpp, 'esptun_from_sg1_net1_reset_request_from_host1_net2_to_host0_net0');
+#-- ICMP Packet Too Big Error message from Router1(TN) to NUT
+$IPSEC::pktdesc{'pkt_too_big_from_router_tunnel'}
+        = 'Send ICMP Packet Too Big Error message from Router1(TN) to NUT';
 
-#----- end capturing
+my $sequencenumber = $ret{'Frame_Ether.Packet_IPv6.Hdr_ESP.SequenceNumber'};
+        vLogHTML("show seqnum=$sequencenumber.<BR>");
+
+$cpp  = "-DEALGO_TO_HOST1=$EALGO_TO";
+$cpp .= " -DESP_TO_SGW1_NET1=esp_to_sg_seq";
+$cpp .= " -DTO_SEQUENCENUMBER=$sequencenumber";
+$cpp .= " -DIPSEC_ECHO_DATA=echo_data_big";
+vCPP($cpp);
+
+%ret = vSend($IF, pkt_too_big_from_router_tunnel);
+
+#-- 3rd Echo Request
+# ping TN(SGW-1) -> NUT
+#                <-- 1st Fragment
+#                <-- 2nd Fragment
+$IPSEC::pktdesc{'echo_reply_to_sg1_esp_1st'}
+        = 'Receive 1st Fragment Packet with ESP with Sequence Number 2 from End-Node(NUT) to SGW1';
+$IPSEC::pktdesc{'echo_reply_to_sg1_esp_2nd'}
+        = 'Receive 2nd Fragment Packet from End-Node(NUT) to SGW1';
+
+$cpp  = "-DEALGO_FROM_SGW1_NET1=$EALGO_FROM -DEALGO_TO_SGW1_NET1=$EALGO_TO";
+$cpp .= " -DESP_FROM_SGW1_NET1=esp_from_sg_seq";
+$cpp .= " -DFROM_SEQUENCENUMBER=3";
+$cpp .= " -DIPSEC_ECHO_DATA=echo_data_big_1352";
+vCPP($cpp);
+
+my ($stat, %ret) = ipsecPingFrag2NUT($IF,
+	'esptun_from_sg1_net1_echo_request_from_host1_net2_to_host0_net0', 'null',
+	'echo_reply_to_sg1_esp_1st', 'echo_reply_to_sg1_esp_2nd');
+
+if ($stat ne 'GOT_REPLY') {
+        vLogHTML("TN received no echo reply from End-Node(NUT) to HOST-1.<BR>");
+        vClear($IF);
+        ipsecExitFail();
+}
+
+vLogHTML("TN received echo reply from End-Node(NUT) to HOST-1(TN).<BR>");
+vLogHTML("<FONT COLOR=\"#006600\">Judgement #3: ICMP Echo Reply with ESP: OK</FONT><BR>");
+
+#----- End capturing
 vStop($IF);
 ipsecExitPass();
 
@@ -240,9 +267,16 @@ __END__
 
 =begin html
 <PRE>
-  <A HREF="./p2_HTR_E_TCP_tunnelwSGW.seq">p2_HTR_E_TCP_tunnelwSGW.seq</A> [-tooloption ...] -pkt <A HREF="./p2_HTR_E_TCP_common.def">p2_HTR_E_TCP_common.def</A>
+ICMP Case:
+  <A HREF="./p2_HTR_E_tunnelwSGW.seq">p2_HTR_E_tunnelwSGW.seq</A> [-tooloption ...] -pkt <A HREF="./p2_HTR_E_ICMP_common.def">p2_HTR_E_ICMP_common.def</A>
     -tooloption : v6eval tool option
-  See also <A HREF="./p2_HTR_TCP_common.def">p2_HTR_TCP_common.def</A>
+  See also <A HREF="./p2_HTR_ICMP_common.def">p2_HTR_ICMP_common.def</A>
+  See also <A HREF="./p2_ALGO_common.def">p2_ALGO_common.def</A>
+<BR>
+UDP Case:
+  <A HREF="./p2_HTR_E_tunnelwSGW.seq">p2_HTR_E_tunnelwSGW.seq</A> [-tooloption ...] -pkt <A HREF="./p2_HTR_E_UDP_common.def">p2_HTR_E_UDP_common.def</A>
+    -tooloption : v6eval tool option
+  See also <A HREF="./p2_HTR_UDP_common.def">p2_HTR_UDP_common.def</A>
   See also <A HREF="./p2_ALGO_common.def">p2_ALGO_common.def</A>
 <BR>
 Parameters:
@@ -433,30 +467,25 @@ Security Policy Database (SPD)
  Tester                      Target
    |                           |
    |-------------------------->| From HOST1_NET2 via SGW1
-   |        TCP syn            |    (tunnel)
+   |      ICMP Echo Request    |    (tunnel)
    |        (within ESP)       |
    |                           |
    |<--------------------------| To HOST1_NET2
-   |        TCP ack, syn       |    (tunnel)
-   |        (within ESP)       |
-   |                           |
-   |-------------------------->| From HOST1_NET2 via SGW1
-   |        TCP reset          |    (tunnel)
+   |      ICMP Echo Reply      |    (tunnel)
    |        (within ESP)       |
    |                           |
    v                           v
 </PRE>
 <OL>
-  <LI>Send &quot;TCP Syn within ESP from HOST1_NET2&quot;
-  <LI>Receive &quot;TCP Syn/Ack within ESP to HOST1_NET2&quot;
-  <LI>Send &quot;TCP Rst within ESP from HOST1_NET2&quot;
+  <LI>Send &quot;ICMP Echo Request within ESP from HOST1_NET2 via SGW1&quot;
+  <LI>Receive &quot;ICMP Echo Reply within ESP to HOST1_NET2&quot;
 </OL>
 <P>
 Packet Description
 </P>
 <TABLE border="1">
   <TR bgcolor="#ffffbb">
-    <TD colspan="3"><center>TCP Syn within ESP from HOST1_NET2</center></TD></TR>
+    <TD colspan="3"><center>ICMP Echo Request within ESP from HOST1_NET2</center></TD></TR>
   <TR bgcolor="#ddffdd">
     <TD rowspan="2">IP Header</TD>
     <TD>Source Address</TD>
@@ -492,35 +521,14 @@ Packet Description
     <TD>Destination Address</TD>
     <TD>NUT_NET0</TD></TR>
   <TR bgcolor="#ddddff">
-    <TD rowspan="8">TCP</TD>
-    <TD>Source Port</TD>
-    <TD>10000</TD></TR>
-  <TR bgcolor="#ddddff">
-    <TD>Destination Port</TD>
-    <TD>80</TD></TR>
-  <TR bgcolor="#ddddff">
-    <TD>SequenceNumber</TD>
-    <TD>0</TD></TR>
-  <TR bgcolor="#ddddff">
-    <TD>AcknowledgmentNumber</TD>
-    <TD>0</TD></TR>
-  <TR bgcolor="#ddddff">
-    <TD>SYNFlag</TD>
-    <TD>1</TD></TR>
-  <TR bgcolor="#ddddff">
-    <TD>ACKFlag</TD>
-    <TD>0</TD></TR>
-  <TR bgcolor="#ddddff">
-    <TD>RSTFlag</TD>
-    <TD>0</TD></TR>
-  <TR bgcolor="#ddddff">
-    <TD>Data Length</TD>
-    <TD>0</TD></TR>
+    <TD>ICMP</TD>
+    <TD>Type</TD>
+    <TD>128 (Echo Request)</TD></TR>
 </TABLE>
 <BR>
 <TABLE border="1">
   <TR bgcolor="#ffffbb">
-    <TD colspan="3"><center>TCP Syn/Ack within ESP to HOST1_NET2</center></TD></TR>
+    <TD colspan="3"><center>ICMP Echo Reply within ESP to HOST1_NET2</center></TD></TR>
   <TR bgcolor="#ddffdd">
     <TD rowspan="2">IP Header</TD>
     <TD>Source Address</TD>
@@ -556,94 +564,9 @@ Packet Description
     <TD>Destination Address</TD>
     <TD>HOST1_NET2</TD></TR>
   <TR bgcolor="#ddddff">
-    <TD rowspan="8">TCP</TD>
-    <TD>Source Port</TD>
-    <TD>80</TD></TR>
-  <TR bgcolor="#ddddff">
-    <TD>Destination Port</TD>
-    <TD>10000</TD></TR>
-  <TR bgcolor="#ddddff">
-    <TD>SequenceNumber</TD>
-    <TD>any</TD></TR>
-  <TR bgcolor="#ddddff">
-    <TD>AcknowledgmentNumber</TD>
-    <TD>1</TD></TR>
-  <TR bgcolor="#ddddff">
-    <TD>SYNFlag</TD>
-    <TD>1</TD></TR>
-  <TR bgcolor="#ddddff">
-    <TD>ACKFlag</TD>
-    <TD>1</TD></TR>
-  <TR bgcolor="#ddddff">
-    <TD>RSTFlag</TD>
-    <TD>0</TD></TR>
-  <TR bgcolor="#ddddff">
-    <TD>Data Length</TD>
-    <TD>0</TD></TR>
-</TABLE>
-<BR>
-<TABLE border="1">
-  <TR bgcolor="#ffffbb">
-    <TD colspan="3"><center>TCP Rst within ESP from HOST1_NET2</center></TD></TR>
-  <TR bgcolor="#ddffdd">
-    <TD rowspan="2">IP Header</TD>
-    <TD>Source Address</TD>
-    <TD>SGW1_NET1</TD></TR>
-  <TR bgcolor="#ddffdd">
-    <TD>Destination Address</TD>
-    <TD>NUT_NET0</TD></TR>
-  <TR bgcolor="#ffdddd">
-    <TD rowspan="5">ESP</TD>
-    <TD>SPI</TD>
-    <TD>0x1000</TD></TR>
-  <TR bgcolor="#ffdddd">
-    <TD>Algorithm</TD>
-    <TD>3DES-CBC
-    </TD></TR>
-  <TR bgcolor="#ffdddd">
-    <TD>Key</TD>
-    <TD>ipv6readylogo3descbcin01
-    </TD></TR>
-  <TR bgcolor="#ffdddd">
-    <TD>Authentication Algorithm</TD>
-    <TD>HMAC-SHA1
-    </TD></TR>
-  <TR bgcolor="#ffdddd">
-    <TD>Authentication Key</TD>
-    <TD>ipv6readylogsha1in01
-    </TD></TR>
-  <TR bgcolor="#ddffdd">
-    <TD rowspan="2">IP Header</TD>
-    <TD>Source Address</TD>
-    <TD>HOST1_NET2</TD></TR>
-  <TR bgcolor="#ddffdd">
-    <TD>Destination Address</TD>
-    <TD>NUT_NET0</TD></TR>
-  <TR bgcolor="#ddddff">
-    <TD rowspan="8">TCP</TD>
-    <TD>Source Port</TD>
-    <TD>10000</TD></TR>
-  <TR bgcolor="#ddddff">
-    <TD>Destination Port</TD>
-    <TD>80</TD></TR>
-  <TR bgcolor="#ddddff">
-    <TD>SequenceNumber</TD>
-    <TD>1</TD></TR>
-  <TR bgcolor="#ddddff">
-    <TD>AcknowledgmentNumber</TD>
-    <TD>0</TD></TR>
-  <TR bgcolor="#ddddff">
-    <TD>SYNFlag</TD>
-    <TD>0</TD></TR>
-  <TR bgcolor="#ddddff">
-    <TD>ACKFlag</TD>
-    <TD>0</TD></TR>
-  <TR bgcolor="#ddddff">
-    <TD>RSTFlag</TD>
-    <TD>1</TD></TR>
-  <TR bgcolor="#ddddff">
-    <TD>Data Length</TD>
-    <TD>0</TD></TR>
+    <TD>ICMP</TD>
+    <TD>Type</TD>
+    <TD>129 (Echo Reply)</TD></TR>
 </TABLE>
 
 =end html
@@ -654,7 +577,7 @@ Packet Description
 <UL>
 PASS:
     <UL>
-        Step-2:&quot;TCP Syn/Ack within ESP to HOST1_NET2&quot; Recieved<BR>
+        Step-2:&quot;ICMP Echo Reply within ESP to HOST1_NET2&quot; Recieved<BR>
     </UL>
 </UL>
 

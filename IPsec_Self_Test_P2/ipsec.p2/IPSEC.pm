@@ -43,9 +43,9 @@
 #
 # Perl Module for IPv6 Specification Conformance Test
 #
-# $Name: V6PC_P2_IPsec_1_10_0 $
+# $Name: V6PC_P2_IPsec_1_11_1 $
 #
-# $TAHI: ct/ipsec.p2/IPSEC.pm,v 1.69 2010/05/31 10:55:35 doo Exp $
+# $TAHI: ct/ipsec.p2/IPSEC.pm,v 1.70 2013/04/16 09:46:10 doo Exp $
 #
 
 ########################################################################
@@ -2188,6 +2188,11 @@ ipsecOverWriteConfig()
 			$TUNNEL_MODE_WITH_SGW_SUPPORT = $FromConfig{'TUNNEL_MODE_WITH_SGW_SUPPORT'};
 		}
 
+		if (defined($TUNNEL_MODE_WITH_SGW_FRAGMENTATION_SUPPORT)) {
+			$FromConfig{'TUNNEL_MODE_WITH_SGW_FRAGMENTATION_SUPPORT'} = ($TUNNEL_MODE_WITH_SGW_FRAGMENTATION_SUPPORT eq 'yes') ? 'yes' : undef;
+			$TUNNEL_MODE_WITH_SGW_FRAGMENTATION_SUPPORT = $FromConfig{'TUNNEL_MODE_WITH_SGW_FRAGMENTATION_SUPPORT'};
+		}
+
 		if (defined($ICMP_TYPE_CODE_SELECTOR_SUPPORT)) {
 			$FromConfig{'ICMP_TYPE_CODE_SELECTOR_SUPPORT'} = ($ICMP_TYPE_CODE_SELECTOR_SUPPORT eq 'yes') ? 'yes' : undef;
 			$ICMP_TYPE_CODE_SELECTOR_SUPPORT = $FromConfig{'ICMP_TYPE_CODE_SELECTOR_SUPPORT'};
@@ -2315,6 +2320,8 @@ ipsecOverWriteConfig()
 			=> $FromConfig{'DISCARD_POLICY_SUPPORT'},
 		'TUNNEL_MODE_WITH_SGW_SUPPORT'
 			=> $FromConfig{'TUNNEL_MODE_WITH_SGW_SUPPORT'},
+		'TUNNEL_MODE_WITH_SGW_FRAGMENTATION_SUPPORT'
+			=> $FromConfig{'TUNNEL_MODE_WITH_SGW_FRAGMENTATION_SUPPORT'},
 		'3DES_CBC_AES_XCBC_SUPPORT'
 			=> $FromConfig{'3DES_CBC_AES_XCBC_SUPPORT'},
 		'3DES_CBC_NULL_SUPPORT'

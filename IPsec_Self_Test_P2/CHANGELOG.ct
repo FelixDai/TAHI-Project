@@ -6,6 +6,26 @@
 
          IPv6 Ready Logo Phase-2 IPsec Conformance Test Package
 
+2013/08/05	Release 1.11.1
+	Official release
+
+
+2013/08/05      Hiroki Endo
+        M p2_HTR_E_tunnelwSGWFrag.seq
+                - Add Tunnel mode with Security Gateway Fragmentation test case
+
+2013/04/16	Release 1.11.0
+	Official release
+
+
+2013/04/16      Hiroki Endo
+        M INDEX_P2_HOST
+        M IPSEC.pm
+        M config.pl
+        M p2_ALGO_common.def
+        M p2_HTR_E_ICMP_common.def
+                - Add Tunnel mode with Security Gateway Fragmentation test case
+
 
 2010/07/23	Release 1.10.0
 	Official release

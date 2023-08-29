@@ -41,9 +41,9 @@
 // IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-// $Name: V6PC_P2_IPsec_1_10_0 $
+// $Name: V6PC_P2_IPsec_1_11_1 $
 //
-// $TAHI: ct/ipsec.p2/p2_ALGO_common.def,v 1.27 2010/05/31 10:56:37 doo Exp $
+// $TAHI: ct/ipsec.p2/p2_ALGO_common.def,v 1.28 2013/04/16 09:46:10 doo Exp $
 //
 
 #include "./keys.def"
@@ -584,6 +584,12 @@ Hdr_ESP esp_from_sg {
 Hdr_ESP esp_to_sg {
         SPI = SPI_TO_SGW1;
         SequenceNumber = any;   // 1;
+        algorithm = EALGO_TO_SGW1_NET1;
+}
+
+Hdr_ESP esp_to_sg_seq {
+        SPI = SPI_TO_SGW1;
+        SequenceNumber = TO_SEQUENCENUMBER;
         algorithm = EALGO_TO_SGW1_NET1;
 }
 
