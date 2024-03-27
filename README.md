@@ -3,12 +3,12 @@ TAHI
 
 IPv6 Conformance and Interoperability Testing Program
 
-As TAHI Project will conclude at Dec 31, 2012. I just add a repo to save it incase we cannot download the test suit forever.
+As TAHI Project was concluded at Dec 31, 2012. I just add a repo to save it incase we cannot download the test suit forever.
 
 ANNOUNCEMENT
 ======
 
-TAHI Project Will Conclude at December 31, 2012.
+TAHI Project Was Concluded at December 31, 2012.
 
 Today, we have a number of highly interoperable IPv6 ready devices. We can see the list on IPv6 Ready Logo Web site.
 
